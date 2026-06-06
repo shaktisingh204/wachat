@@ -2,7 +2,43 @@
 
 import * as React from 'react';
 import { z } from 'zod';
-import { Button, Card, CardBody, Alert, AlertDescription, AlertTitle, Skeleton, Badge, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Skeleton,
+  Badge,
+  Input,
+  Field,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  EmptyState,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Target,
   Plus,
@@ -16,7 +52,6 @@ import {
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { listCustomConversions, listPixels } from '@/app/actions/ad-manager.actions';
 import { createCustomConversion, deleteCustomConversion } from '@/app/actions/ad-manager-features.actions';
 
@@ -78,7 +113,7 @@ export default function CustomConversionsPage() {
       // Reset selection when data is refreshed
       setSelectedIds(new Set());
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to fetch conversions', variant: 'destructive' });
+      toast.error({ title: 'Error', description: 'Failed to fetch conversions' });
     } finally {
       setLoading(false);
     }
@@ -109,7 +144,7 @@ export default function CustomConversionsPage() {
     }
     setErrors({});
     setSubmitting(true);
-    
+
     try {
       const fd = new FormData();
       fd.set('adAccountId', activeAccount.account_id);
@@ -121,15 +156,15 @@ export default function CustomConversionsPage() {
 
       const res = await createCustomConversion(null, fd);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast.error({ title: 'Error', description: res.error });
       } else {
-        toast({ title: 'Created', description: res.message || 'Custom conversion created.' });
+        toast.success({ title: 'Created', description: res.message || 'Custom conversion created.' });
         setDialogOpen(false);
         resetForm();
         fetchData();
       }
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to create conversion', variant: 'destructive' });
+      toast.error({ title: 'Error', description: 'Failed to create conversion' });
     } finally {
       setSubmitting(false);
     }
@@ -139,7 +174,7 @@ export default function CustomConversionsPage() {
     try {
       const res = await deleteCustomConversion(id);
       if (res.success) {
-        toast({ title: 'Deleted', description: 'Custom conversion deleted.' });
+        toast.success({ title: 'Deleted', description: 'Custom conversion deleted.' });
         setConversions(prev => prev.filter(c => c.id !== id));
         setSelectedIds(prev => {
           const next = new Set(prev);
@@ -147,10 +182,10 @@ export default function CustomConversionsPage() {
           return next;
         });
       } else {
-        toast({ title: 'Error', description: res.error || 'Failed to delete.', variant: 'destructive' });
+        toast.error({ title: 'Error', description: res.error || 'Failed to delete.' });
       }
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to delete conversion', variant: 'destructive' });
+      toast.error({ title: 'Error', description: 'Failed to delete conversion' });
     }
     setDeleteId(null);
   };
@@ -168,10 +203,10 @@ export default function CustomConversionsPage() {
     }
 
     if (successCount > 0) {
-      toast({ title: 'Deleted', description: `Successfully deleted ${successCount} conversions.` });
+      toast.success({ title: 'Deleted', description: `Successfully deleted ${successCount} conversions.` });
       fetchData();
     } else {
-      toast({ title: 'Error', description: 'Failed to delete selected conversions.', variant: 'destructive' });
+      toast.error({ title: 'Error', description: 'Failed to delete selected conversions.' });
     }
   };
 
@@ -184,7 +219,7 @@ export default function CustomConversionsPage() {
       c.last_fired_time || '',
       c.default_conversion_value || ''
     ]);
-    
+
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -198,13 +233,13 @@ export default function CustomConversionsPage() {
 
   const handleAIGenerate = () => {
     if (!aiPrompt) {
-      toast({ title: 'Validation', description: 'Please enter a prompt.', variant: 'destructive' });
+      toast.error({ title: 'Validation', description: 'Please enter a prompt.' });
       return;
     }
-    
+
     // Simple mock logic for AI Generation
     const promptLower = aiPrompt.toLowerCase();
-    
+
     let generatedName = 'AI Generated Conversion';
     let generatedEvent = 'PURCHASE';
     let generatedRule = '/thank-you';
@@ -224,12 +259,12 @@ export default function CustomConversionsPage() {
     setName(generatedName);
     setEventName(generatedEvent);
     setUrlRule(generatedRule);
-    
+
     if (pixels.length > 0) {
       setPixelId(pixels[0].id);
     }
-    
-    toast({ title: 'Generated', description: 'AI successfully drafted a custom conversion.' });
+
+    toast.success({ title: 'Generated', description: 'AI successfully drafted a custom conversion.' });
     setAiDialogOpen(false);
     setAiPrompt('');
     setDialogOpen(true);
@@ -250,7 +285,7 @@ export default function CustomConversionsPage() {
     setSelectedIds(next);
   };
 
-  const filteredConversions = conversions.filter(c => 
+  const filteredConversions = conversions.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (c.custom_event_type || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -266,8 +301,7 @@ export default function CustomConversionsPage() {
           title="Custom conversions"
           description="Define URL-based or rule-based conversion events without code changes."
         />
-        <Alert>
-          <CircleAlert className="h-4 w-4" />
+        <Alert tone="warning" icon={CircleAlert}>
           <AlertTitle>No ad account selected</AlertTitle>
           <AlertDescription>Pick an ad account to view custom conversions.</AlertDescription>
         </Alert>
@@ -283,31 +317,40 @@ export default function CustomConversionsPage() {
         description="Define URL-based or rule-based conversion events without code changes."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => setAiDialogOpen(true)} className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
-              <Sparkles className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
+            <IconButton
+              variant="outline"
+              icon={Sparkles}
+              label="AI conversion assistant"
+              onClick={() => setAiDialogOpen(true)}
+            />
+            <IconButton
+              variant="outline"
+              icon={RefreshCw}
+              label="Refresh conversions"
+              onClick={fetchData}
+              disabled={loading}
+              className={loading ? 'animate-spin' : undefined}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">Actions</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportCSV}>
-                  <Download className="mr-2 h-4 w-4" /> Export CSV
+                <DropdownMenuItem iconLeft={Download} onClick={handleExportCSV}>
+                  Export CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={handleBulkDelete} 
+                <DropdownMenuItem
+                  variant="danger"
+                  iconLeft={Trash2}
+                  onClick={handleBulkDelete}
                   disabled={selectedIds.size === 0}
-                  className="text-[var(--st-text)]"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete Selected ({selectedIds.size})
+                  Delete Selected ({selectedIds.size})
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" /> New conversion
+            <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+              New conversion
             </Button>
           </div>
         }
@@ -315,36 +358,56 @@ export default function CustomConversionsPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-          <Target className="h-4 w-4" />
+          <Target className="h-4 w-4" aria-hidden="true" />
           <span>Conversions for {activeAccount.name || activeAccount.account_id}</span>
         </div>
-        
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            type="search" 
-            placeholder="Search conversions..." 
-            className="pl-8" 
+
+        <div className="w-full sm:w-72">
+          <Input
+            type="search"
+            placeholder="Search conversions..."
+            aria-label="Search conversions"
+            iconLeft={Search}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <Card>
-        <CardBody className="p-0">
+      <Card padding="none">
+        <CardBody>
           {loading ? (
             <div className="p-4 space-y-2">
-              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} height={40} />)}
+            </div>
+          ) : filteredConversions.length === 0 ? (
+            <div className="p-8">
+              <EmptyState
+                icon={Target}
+                title={conversions.length === 0 ? 'No custom conversions yet' : 'No matching conversions found'}
+                description={
+                  conversions.length === 0
+                    ? 'Create a URL-based or rule-based conversion to start tracking events.'
+                    : 'Try a different search term to find what you are looking for.'
+                }
+                action={
+                  conversions.length === 0 ? (
+                    <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+                      New conversion
+                    </Button>
+                  ) : undefined
+                }
+              />
             </div>
           ) : (
             <Table>
               <THead>
                 <Tr>
-                  <Th className="w-12">
-                    <Checkbox 
-                      checked={isIndeterminate ? "indeterminate" : allSelected}
-                      onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                  <Th width={48}>
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={isIndeterminate}
+                      onChange={(e) => toggleSelectAll(e.target.checked)}
                       aria-label="Select all"
                     />
                   </Th>
@@ -352,56 +415,47 @@ export default function CustomConversionsPage() {
                   <Th>Event type</Th>
                   <Th>Last fired</Th>
                   <Th>Default value</Th>
-                  <Th className="w-16" />
+                  <Th width={64} />
                 </Tr>
               </THead>
               <TBody>
-                {filteredConversions.length === 0 ? (
-                  <Tr>
-                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
-                      {conversions.length === 0 ? 'No custom conversions yet.' : 'No matching conversions found.'}
+                {filteredConversions.map((c) => (
+                  <Tr key={c.id} selected={selectedIds.has(c.id)}>
+                    <Td>
+                      <Checkbox
+                        checked={selectedIds.has(c.id)}
+                        onChange={(e) => toggleSelectOne(c.id, e.target.checked)}
+                        aria-label={`Select ${c.name}`}
+                      />
+                    </Td>
+                    <Td className="font-medium">
+                      {c.name}
+                      {c.description && (
+                        <div className="text-xs text-[var(--st-text-secondary)]">{c.description}</div>
+                      )}
+                    </Td>
+                    <Td>
+                      <Badge variant="outline">{c.custom_event_type || 'OTHER'}</Badge>
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
+                      {mounted && c.last_fired_time
+                        ? new Date(c.last_fired_time).toLocaleString()
+                        : '-'}
+                    </Td>
+                    <Td className="tabular-nums">
+                      {c.default_conversion_value || '-'}
+                    </Td>
+                    <Td>
+                      <IconButton
+                        variant="ghost"
+                        size="sm"
+                        icon={Trash2}
+                        label={`Delete ${c.name}`}
+                        onClick={() => setDeleteId(c.id)}
+                      />
                     </Td>
                   </Tr>
-                ) : (
-                  filteredConversions.map((c) => (
-                    <Tr key={c.id}>
-                      <Td>
-                        <Checkbox 
-                          checked={selectedIds.has(c.id)}
-                          onCheckedChange={(checked) => toggleSelectOne(c.id, !!checked)}
-                          aria-label={`Select ${c.name}`}
-                        />
-                      </Td>
-                      <Td className="font-medium">
-                        {c.name}
-                        {c.description && (
-                          <div className="text-xs text-[var(--st-text-secondary)]">{c.description}</div>
-                        )}
-                      </Td>
-                      <Td>
-                        <Badge variant="outline">{c.custom_event_type || 'OTHER'}</Badge>
-                      </Td>
-                      <Td className="text-xs text-[var(--st-text-secondary)]">
-                        {mounted && c.last_fired_time
-                          ? new Date(c.last_fired_time).toLocaleString()
-                          : '—'}
-                      </Td>
-                      <Td className="tabular-nums">
-                        {c.default_conversion_value || '—'}
-                      </Td>
-                      <Td>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)]"
-                          onClick={() => setDeleteId(c.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </Td>
-                    </Tr>
-                  ))
-                )}
+                ))}
               </TBody>
             </Table>
           )}
@@ -416,19 +470,16 @@ export default function CustomConversionsPage() {
             <DialogDescription>Create a URL-based or rule-based conversion event.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Name *</Label>
-              <Input 
-                placeholder="e.g. Thank-you page purchase" 
-                value={name} 
-                onChange={e => { setName(e.target.value); if (errors.name) setErrors({...errors, name: ''}); }} 
+            <Field label="Name" required error={errors.name}>
+              <Input
+                placeholder="e.g. Thank-you page purchase"
+                value={name}
+                onChange={e => { setName(e.target.value); if (errors.name) setErrors({ ...errors, name: '' }); }}
               />
-              {errors.name && <p className="text-xs text-[var(--st-text)]">{errors.name}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label>Pixel *</Label>
-              <Select value={pixelId} onValueChange={(val) => { setPixelId(val); if (errors.pixelId) setErrors({...errors, pixelId: ''}); }}>
-                <SelectTrigger>
+            </Field>
+            <Field label="Pixel" required error={errors.pixelId}>
+              <Select value={pixelId} onValueChange={(val) => { setPixelId(val); if (errors.pixelId) setErrors({ ...errors, pixelId: '' }); }}>
+                <SelectTrigger aria-label="Pixel">
                   <SelectValue placeholder="Select a pixel" />
                 </SelectTrigger>
                 <SelectContent>
@@ -437,43 +488,37 @@ export default function CustomConversionsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              {errors.pixelId && <p className="text-xs text-[var(--st-text)]">{errors.pixelId}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label>Event type *</Label>
-              <Select value={eventName} onValueChange={(val) => { setEventName(val); if (errors.eventName) setErrors({...errors, eventName: ''}); }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+            </Field>
+            <Field label="Event type" required error={errors.eventName}>
+              <Select value={eventName} onValueChange={(val) => { setEventName(val); if (errors.eventName) setErrors({ ...errors, eventName: '' }); }}>
+                <SelectTrigger aria-label="Event type"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {EVENT_TYPES.map(e => (
                     <SelectItem key={e} value={e}>{e.replace(/_/g, ' ')}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.eventName && <p className="text-xs text-[var(--st-text)]">{errors.eventName}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label>URL rule (contains) *</Label>
-              <Input 
-                placeholder="e.g. /thank-you" 
-                value={urlRule} 
-                onChange={e => { setUrlRule(e.target.value); if (errors.urlRule) setErrors({...errors, urlRule: ''}); }} 
+            </Field>
+            <Field label="URL rule (contains)" required error={errors.urlRule}>
+              <Input
+                placeholder="e.g. /thank-you"
+                value={urlRule}
+                onChange={e => { setUrlRule(e.target.value); if (errors.urlRule) setErrors({ ...errors, urlRule: '' }); }}
               />
-              {errors.urlRule && <p className="text-xs text-[var(--st-text)]">{errors.urlRule}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label>Default conversion value</Label>
-              <Input 
-                type="number" 
-                placeholder="0" 
-                value={defaultValue} 
-                onChange={e => setDefaultValue(e.target.value)} 
+            </Field>
+            <Field label="Default conversion value">
+              <Input
+                type="number"
+                placeholder="0"
+                value={defaultValue}
+                onChange={e => setDefaultValue(e.target.value)}
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting}>
-              {submitting ? 'Creating…' : 'Create'}
+            <Button variant="primary" onClick={handleCreate} loading={submitting}>
+              {submitting ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -484,25 +529,24 @@ export default function CustomConversionsPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
+              <Sparkles className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
               AI Conversion Assistant
             </DialogTitle>
             <DialogDescription>Describe what you want to track, and AI will configure the conversion rule.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>What would you like to track?</Label>
-              <Input 
-                placeholder="e.g. I want to track users who hit the summer sale confirmation page" 
-                value={aiPrompt} 
+          <div className="py-2">
+            <Field label="What would you like to track?">
+              <Input
+                placeholder="e.g. I want to track users who hit the summer sale confirmation page"
+                value={aiPrompt}
                 onChange={e => setAiPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAIGenerate(); }}
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAiDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white" onClick={handleAIGenerate}>
+            <Button variant="primary" iconLeft={Sparkles} onClick={handleAIGenerate}>
               Generate Rules
             </Button>
           </DialogFooter>
@@ -518,7 +562,7 @@ export default function CustomConversionsPage() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
+            <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,17 +1,34 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
-  BarChart3,
-  TrendingUp,
-  DollarSign,
-  Eye,
-  MousePointerClick,
-  Users,
-  Download,
-  RefreshCcw,
-  Search,
-  ArrowUpDown,
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    Field,
+    Input,
+    SegmentedControl,
+    Skeleton,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    BarChart3,
+    TrendingUp,
+    DollarSign,
+    Eye,
+    MousePointerClick,
+    Users,
+    Download,
+    RefreshCcw,
+    Search,
+    Inbox,
 } from 'lucide-react';
 
 import * as React from 'react';
@@ -53,6 +70,7 @@ type DateRangeValues = z.infer<typeof dateRangeSchema>;
 export default function InsightsPage() {
     const { activeAccount } = useAdManager();
     const { preset, date } = useAdManagerShell();
+    const { toast } = useToast();
     const [loading, setLoading] = React.useState(true);
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -80,7 +98,7 @@ export default function InsightsPage() {
             level: 'account' as const,
             date_preset: (!customSince && preset && preset !== 'custom') ? preset : 'last_7d',
             time_range:
-                customSince && customUntil 
+                customSince && customUntil
                     ? { since: customSince, until: customUntil }
                     : (preset === 'custom' && date?.from && date.to)
                         ? { since: date.from.toISOString().split('T')[0], until: date.to.toISOString().split('T')[0] }
@@ -105,10 +123,11 @@ export default function InsightsPage() {
             setRefreshing(false);
         }).catch(err => {
             console.error(err);
+            toast.error('Could not load insights. Please try again.');
             setLoading(false);
             setRefreshing(false);
         });
-    }, [activeAccount, preset, date]);
+    }, [activeAccount, preset, date, toast]);
 
     React.useEffect(() => {
         setLoading(true);
@@ -140,7 +159,10 @@ export default function InsightsPage() {
 
     const exportInsightsCsv = () => {
         const allRows = [...byDay, ...byPlacement, ...byDevice, ...byAgeGender, ...byCountry];
-        if (allRows.length === 0) return;
+        if (allRows.length === 0) {
+            toast.info('There is no data to export yet.');
+            return;
+        }
         const headers = Object.keys(allRows[0]);
         const csv = [
             headers.join(','),
@@ -153,6 +175,7 @@ export default function InsightsPage() {
         a.download = `insights-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
+        toast.success('Insights exported to CSV.');
     };
 
     return (
@@ -163,81 +186,74 @@ export default function InsightsPage() {
                 description="Deep dive into your account performance with breakdown-level insights."
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => fetchInsights()} disabled={loading || refreshing}>
-                            <RefreshCcw className={cn("h-4 w-4 mr-1", refreshing && "animate-spin")} /> Refresh
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            iconLeft={RefreshCcw}
+                            onClick={() => fetchInsights()}
+                            disabled={loading || refreshing}
+                            className={cn(refreshing && '[&_svg]:animate-spin')}
+                        >
+                            Refresh
                         </Button>
-                        <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
-                            <Download className="h-4 w-4 mr-1" /> Export All
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            iconLeft={Download}
+                            onClick={exportInsightsCsv}
+                            disabled={loading}
+                        >
+                            Export all
                         </Button>
                     </div>
                 }
             />
 
-            {/* Custom date range inputs with Zod schema */}
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-3">
-                <div className="space-y-1">
-                    <Label className="text-xs">Since</Label>
-                    <Input
-                        type="date"
-                        {...form.register('since')}
-                        className={cn("h-8 w-40 text-xs", form.formState.errors.since && "border-destructive")}
-                    />
-                    {form.formState.errors.since && (
-                        <p className="text-[10px] text-[var(--st-text)]">{form.formState.errors.since.message}</p>
-                    )}
-                </div>
-                <div className="space-y-1">
-                    <Label className="text-xs">Until</Label>
-                    <Input
-                        type="date"
-                        {...form.register('until')}
-                        className={cn("h-8 w-40 text-xs", form.formState.errors.until && "border-destructive")}
-                    />
-                    {form.formState.errors.until && (
-                        <p className="text-[10px] text-[var(--st-text)]">{form.formState.errors.until.message}</p>
-                    )}
-                </div>
-                <div className="pt-5">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        type="submit"
-                        disabled={loading || refreshing}
-                    >
-                        Apply
-                    </Button>
-                </div>
+            {/* Custom date range with Zod-validated Fields */}
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-wrap items-end gap-3">
+                <Field
+                    label="Since"
+                    error={form.formState.errors.since?.message}
+                    className="w-44"
+                >
+                    <Input type="date" inputSize="sm" {...form.register('since')} />
+                </Field>
+                <Field
+                    label="Until"
+                    error={form.formState.errors.until?.message}
+                    className="w-44"
+                >
+                    <Input type="date" inputSize="sm" {...form.register('until')} />
+                </Field>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    type="submit"
+                    disabled={loading || refreshing}
+                >
+                    Apply
+                </Button>
             </form>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {loading
-                    ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24" />)
+                    ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} height={96} radius={12} />)
                     : kpis.map((k) => (
-                          <Card key={k.label}>
-                              <CardBody className="p-4">
-                                  <k.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                  <div className="mt-2 text-xs text-[var(--st-text-secondary)]">{k.label}</div>
-                                  <div className="text-2xl font-bold tabular-nums">{k.value}</div>
-                              </CardBody>
-                          </Card>
+                          <StatCard
+                              key={k.label}
+                              icon={k.icon}
+                              label={k.label}
+                              value={<span className="tabular-nums">{k.value}</span>}
+                          />
                       ))}
             </div>
 
-            {/* Segmented buttons replace Tabs */}
-            <div className="flex flex-wrap gap-1 rounded-lg border bg-[var(--st-bg-muted)]/40 p-1 w-fit">
-                {TABS.map((t) => (
-                    <Button
-                        key={t.value}
-                        type="button"
-                        size="sm"
-                        variant={activeTab === t.value ? 'default' : 'ghost'}
-                        className={cn('h-8', activeTab === t.value ? '' : 'text-[var(--st-text-secondary)]')}
-                        onClick={() => setActiveTab(t.value)}
-                    >
-                        {t.label}
-                    </Button>
-                ))}
-            </div>
+            <SegmentedControl
+                aria-label="Breakdown dimension"
+                items={TABS.map((t) => ({ value: t.value, label: t.label }))}
+                value={activeTab}
+                onChange={(v) => setActiveTab(v)}
+            />
 
             {activeTab === 'time' && (
                 <BreakdownTable rows={byDay} dimension="date_start" columns={['date_start', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
@@ -267,13 +283,14 @@ function BreakdownTable({
     dimension: string;
     columns: string[];
 }) {
+    const { toast } = useToast();
     const [searchTerm, setSearchTerm] = React.useState('');
     const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
     const filteredRows = React.useMemo(() => {
         if (!searchTerm) return rows;
         const lower = searchTerm.toLowerCase();
-        return rows.filter(r => 
+        return rows.filter(r =>
             columns.some(c => String(r[c] ?? '').toLowerCase().includes(lower))
         );
     }, [rows, searchTerm, columns]);
@@ -284,10 +301,10 @@ function BreakdownTable({
             sortable.sort((a, b) => {
                 const aVal = a[sortConfig.key];
                 const bVal = b[sortConfig.key];
-                
-                // Handle numeric sorting if strings are numbers or formatted values
-                const aNum = Number(String(aVal).replace(/[^0-9.-]+/g,""));
-                const bNum = Number(String(bVal).replace(/[^0-9.-]+/g,""));
+
+                // Numeric sorting when strings parse as numbers or formatted values.
+                const aNum = Number(String(aVal).replace(/[^0-9.-]+/g, ''));
+                const bNum = Number(String(bVal).replace(/[^0-9.-]+/g, ''));
 
                 if (!isNaN(aNum) && !isNaN(bNum)) {
                     if (aNum < bNum) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -311,7 +328,10 @@ function BreakdownTable({
     };
 
     const exportTableCsv = () => {
-        if (sortedRows.length === 0) return;
+        if (sortedRows.length === 0) {
+            toast.info('There is no data to export yet.');
+            return;
+        }
         const headers = columns;
         const csv = [
             headers.join(','),
@@ -324,23 +344,31 @@ function BreakdownTable({
         a.download = `${dimension}-breakdown.csv`;
         a.click();
         URL.revokeObjectURL(url);
+        toast.success('Table exported to CSV.');
     };
 
     return (
-        <Card className="mt-3">
-            <div className="p-3 border-b flex items-center justify-between gap-4">
-                <div className="relative w-64 max-w-sm">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
+        <Card padding="none" className="mt-3">
+            <div className="p-3 border-b border-[var(--st-border)] flex items-center justify-between gap-4">
+                <div className="w-64 max-w-sm">
                     <Input
                         type="search"
+                        inputSize="sm"
+                        iconLeft={Search}
                         placeholder="Search breakdown..."
-                        className="pl-8 h-9"
+                        aria-label="Search breakdown rows"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <Button variant="outline" size="sm" onClick={exportTableCsv} disabled={sortedRows.length === 0}>
-                    <Download className="h-4 w-4 mr-1" /> Export Table
+                <Button
+                    variant="outline"
+                    size="sm"
+                    iconLeft={Download}
+                    onClick={exportTableCsv}
+                    disabled={sortedRows.length === 0}
+                >
+                    Export table
                 </Button>
             </div>
             <CardBody className="p-0">
@@ -348,15 +376,14 @@ function BreakdownTable({
                     <THead>
                         <Tr>
                             {columns.map((c) => (
-                                <Th key={c} className="capitalize">
-                                    <button 
-                                        type="button"
-                                        onClick={() => handleSort(c)}
-                                        className="flex items-center gap-1 hover:text-[var(--st-text)] font-medium"
-                                    >
-                                        {c.replace(/_/g, ' ')}
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </button>
+                                <Th
+                                    key={c}
+                                    sortable
+                                    sortDirection={sortConfig?.key === c ? sortConfig.direction : null}
+                                    onSort={() => handleSort(c)}
+                                    className="capitalize"
+                                >
+                                    {c.replace(/_/g, ' ')}
                                 </Th>
                             ))}
                         </Tr>
@@ -364,8 +391,13 @@ function BreakdownTable({
                     <TBody>
                         {sortedRows.length === 0 ? (
                             <Tr>
-                                <Td colSpan={columns.length} className="h-24 text-center text-[var(--st-text-secondary)]">
-                                    No data for this breakdown.
+                                <Td colSpan={columns.length}>
+                                    <EmptyState
+                                        icon={Inbox}
+                                        size="sm"
+                                        title="No data for this breakdown"
+                                        description="Try a different date range or breakdown dimension."
+                                    />
                                 </Td>
                             </Tr>
                         ) : (
@@ -373,7 +405,7 @@ function BreakdownTable({
                                 <Tr key={i}>
                                     {columns.map((c) => {
                                         const v = r[c];
-                                        let display: string = v != null ? String(v) : '—';
+                                        let display: string = v != null ? String(v) : '-';
                                         if (c === 'spend' || c === 'cpc' || c === 'cpm') display = formatMoney(v);
                                         else if (c === 'ctr') display = formatPercent(v);
                                         else if (['impressions', 'reach', 'clicks'].includes(c)) display = formatNumber(v);

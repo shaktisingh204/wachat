@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { AmErrorAlert } from '../_components/am-page-shell';
-import { Button } from '@/components/sabcrm/20ui';
+import { RotateCw } from 'lucide-react';
+import { Alert, Button } from '@/components/sabcrm/20ui';
 
 export default function EventsManagerError({
   error,
@@ -17,9 +17,11 @@ export default function EventsManagerError({
 
   return (
     <div className="flex flex-col gap-4 p-6">
-      <AmErrorAlert message={error.message || 'An unexpected error occurred in Events Manager.'} />
+      <Alert tone="danger" title="Something went wrong">
+        {error.message || 'An unexpected error occurred in Events Manager.'}
+      </Alert>
       <div>
-        <Button onClick={() => reset()} variant="outline">
+        <Button variant="outline" iconLeft={RotateCw} onClick={() => reset()}>
           Try again
         </Button>
       </div>

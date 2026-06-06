@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { RefreshCw } from 'lucide-react';
+
 import { AmErrorAlert } from '../_components/am-page-shell';
 import { Button } from '@/components/sabcrm/20ui';
 
@@ -19,7 +21,7 @@ export default function InsightsError({
     <div className="flex flex-col gap-4 p-6">
       <AmErrorAlert message={error.message || 'An unexpected error occurred in Insights.'} />
       <div>
-        <Button onClick={() => reset()} variant="outline">
+        <Button onClick={() => reset()} variant="outline" iconLeft={RefreshCw}>
           Try again
         </Button>
       </div>

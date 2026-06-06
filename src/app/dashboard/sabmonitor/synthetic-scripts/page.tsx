@@ -1,7 +1,23 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Camera, FileCode2, Plus } from 'lucide-react';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    PageActions,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
 
 import { listSabmonitorSyntheticScripts } from '@/app/actions/sabmonitor.actions';
 
@@ -9,34 +25,76 @@ export const dynamic = 'force-dynamic';
 
 export default async function SyntheticScriptsPage(): Promise<React.JSX.Element> {
     const res = await listSabmonitorSyntheticScripts();
+
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">Synthetic browser scripts</h2>
-                <Button asChild>
-                    <Link href="/dashboard/sabmonitor/synthetic-scripts/new">New script</Link>
-                </Button>
-            </div>
-            <Card className="zoruui">
+        <div className="ui20 flex flex-col gap-4">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Synthetic browser scripts</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    {/* 20ui link-as-button: a navigable <a> styled with the
+                        u-btn classes, the documented pattern for a Link that
+                        looks like a primary Button. */}
+                    <Link className="u-btn u-btn--primary u-btn--md" href="/dashboard/sabmonitor/synthetic-scripts/new">
+                        <Plus size={14} aria-hidden="true" />
+                        <span className="u-btn__label">New script</span>
+                    </Link>
+                </PageActions>
+            </PageHeader>
+
+            <Card padding="none">
                 <CardBody className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No scripts yet.</p>
+                        <EmptyState
+                            icon={FileCode2}
+                            title="No scripts yet"
+                            description="Create a synthetic browser script to monitor critical user flows."
+                            action={
+                                <Link
+                                    className="u-btn u-btn--primary u-btn--sm"
+                                    href="/dashboard/sabmonitor/synthetic-scripts/new"
+                                >
+                                    <Plus size={13} aria-hidden="true" />
+                                    <span className="u-btn__label">New script</span>
+                                </Link>
+                            }
+                        />
                     ) : (
-                        <ul className="divide-y divide-[var(--st-border)]">
-                            {res.items.map((s) => (
-                                <li key={s._id} className="flex items-center justify-between p-3">
-                                    <Link
-                                        className="text-sm font-medium text-[var(--st-text)] hover:underline"
-                                        href={`/dashboard/sabmonitor/synthetic-scripts/${s._id}`}
-                                    >
-                                        {s.name}
-                                    </Link>
-                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
-                                        {s.screenshotOnFailure ? 'screenshots on failure' : '—'}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                        <Table density="compact" hover>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th align="right">On failure</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {res.items.map((s) => (
+                                    <Tr key={s._id}>
+                                        <Td>
+                                            <Link
+                                                className="font-medium text-[var(--st-text)] hover:underline"
+                                                href={`/dashboard/sabmonitor/synthetic-scripts/${s._id}`}
+                                            >
+                                                {s.name}
+                                            </Link>
+                                        </Td>
+                                        <Td align="right">
+                                            {s.screenshotOnFailure ? (
+                                                <Badge tone="info" kind="soft">
+                                                    <Camera size={11} aria-hidden="true" />
+                                                    Screenshots on failure
+                                                </Badge>
+                                            ) : (
+                                                <Badge tone="neutral" kind="soft">
+                                                    None
+                                                </Badge>
+                                            )}
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </TBody>
+                        </Table>
                     )}
                 </CardBody>
             </Card>

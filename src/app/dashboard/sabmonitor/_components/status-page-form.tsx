@@ -4,7 +4,19 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, Input, Label, Textarea, Switch } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Field,
+    Input,
+    Textarea,
+    Switch,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     createSabmonitorStatusPage,
@@ -21,6 +33,7 @@ export function StatusPageForm({
     initial?: SabmonitorStatusPageDoc;
 }): React.JSX.Element {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [slug, setSlug] = React.useState(initial?.slug ?? '');
     const [title, setTitle] = React.useState(initial?.title ?? '');
@@ -46,79 +59,71 @@ export function StatusPageForm({
             try {
                 if (initial?._id) {
                     await updateSabmonitorStatusPage(initial._id, input);
-                    router.push('/dashboard/sabmonitor/status-pages');
                 } else {
                     await createSabmonitorStatusPage(input);
-                    router.push('/dashboard/sabmonitor/status-pages');
                 }
+                router.push('/dashboard/sabmonitor/status-pages');
             } catch (err) {
-                window.alert((err as Error).message);
+                toast.error((err as Error).message);
             }
         });
     };
 
     return (
-        <Card className="zoruui">
-            <CardBody className="p-4">
+        <Card>
+            <CardHeader>
+                <CardTitle>{initial ? 'Edit status page' : 'New status page'}</CardTitle>
+                <CardDescription>
+                    Configure the public status page slug, title, and the checks it surfaces.
+                </CardDescription>
+            </CardHeader>
+            <CardBody>
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                     <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="slug">Slug</Label>
+                        <Field label="Slug" required>
                             <Input
-                                id="slug"
                                 value={slug}
                                 onChange={(e) => setSlug(e.target.value)}
                                 required
                                 placeholder="acme"
                             />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="title">Title</Label>
+                        </Field>
+                        <Field label="Title" required>
                             <Input
-                                id="title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 required
                             />
-                        </div>
+                        </Field>
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="checkIds">Check IDs (comma-separated)</Label>
+                    <Field label="Check IDs" help="Comma-separated list of check IDs to display.">
                         <Input
-                            id="checkIds"
                             value={checkIds}
                             onChange={(e) => setCheckIds(e.target.value)}
                         />
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Switch
-                            id="showUptime"
-                            checked={showUptime}
-                            onCheckedChange={setShowUptime}
-                        />
-                        <Label htmlFor="showUptime">Show historical uptime</Label>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="customHeader">Custom header (Markdown)</Label>
+                    </Field>
+                    <Switch
+                        checked={showUptime}
+                        onCheckedChange={setShowUptime}
+                        label="Show historical uptime"
+                    />
+                    <Field label="Custom header" help="Rendered as Markdown above the checks.">
                         <Textarea
-                            id="customHeader"
                             rows={3}
                             value={customHeader}
                             onChange={(e) => setCustomHeader(e.target.value)}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="customCss">Custom CSS</Label>
+                    </Field>
+                    <Field label="Custom CSS">
                         <Textarea
-                            id="customCss"
                             rows={4}
                             value={customCss}
                             onChange={(e) => setCustomCss(e.target.value)}
                         />
-                    </div>
+                    </Field>
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : initial ? 'Save page' : 'Create page'}
+                        <Button type="submit" variant="primary" loading={pending}>
+                            {initial ? 'Save page' : 'Create page'}
                         </Button>
                     </div>
                 </form>

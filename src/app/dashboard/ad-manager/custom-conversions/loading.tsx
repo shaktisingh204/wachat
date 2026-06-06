@@ -11,16 +11,16 @@ export default function CustomConversionsLoading() {
       <AmHeader
         title="Custom conversions"
         description="Define URL-based or rule-based conversion events without code changes."
-        actions={<Skeleton className="h-10 w-40" />}
+        actions={<Skeleton height={40} width={160} />}
       />
 
       <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-        <Skeleton className="h-4 w-4" />
-        <Skeleton className="h-4 w-48" />
+        <Skeleton height={16} width={16} />
+        <Skeleton height={16} width={192} />
       </div>
 
-      <Card>
-        <CardBody className="p-0">
+      <Card padding="none">
+        <CardBody>
           <Table>
             <THead>
               <Tr>
@@ -28,17 +28,19 @@ export default function CustomConversionsLoading() {
                 <Th>Event type</Th>
                 <Th>Last fired</Th>
                 <Th>Default value</Th>
-                <Th className="w-16" />
+                <Th width={64} align="right">
+                  <span className="sr-only">Row actions</span>
+                </Th>
               </Tr>
             </THead>
             <TBody>
               {Array.from({ length: 5 }).map((_, i) => (
                 <Tr key={i}>
-                  <Td><Skeleton className="h-5 w-32" /></Td>
-                  <Td><Skeleton className="h-5 w-24" /></Td>
-                  <Td><Skeleton className="h-5 w-24" /></Td>
-                  <Td><Skeleton className="h-5 w-16" /></Td>
-                  <Td><Skeleton className="h-8 w-8 rounded-full" /></Td>
+                  <Td><Skeleton height={20} width={128} /></Td>
+                  <Td><Skeleton height={20} width={96} /></Td>
+                  <Td><Skeleton height={20} width={96} /></Td>
+                  <Td><Skeleton height={20} width={64} /></Td>
+                  <Td align="right"><Skeleton circle width={32} /></Td>
                 </Tr>
               ))}
             </TBody>

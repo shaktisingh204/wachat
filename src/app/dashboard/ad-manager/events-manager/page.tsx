@@ -1,23 +1,51 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Skeleton, Badge, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Alert,
+  Skeleton,
+  Badge,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Field,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   ChartBar,
-  CircleAlert,
   RefreshCw,
   Send,
   Radio,
-  Activity
+  Activity,
 } from 'lucide-react';
 
 import * as React from 'react';
 
 import {
-    AmBreadcrumb,
-    AmHeader,
+  AmBreadcrumb,
+  AmHeader,
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { listPixels } from '@/app/actions/ad-manager.actions';
 import { getPixelEventStats, sendTestConversionEvent } from '@/app/actions/ad-manager-features.actions';
 
@@ -27,7 +55,7 @@ export default function EventsManagerPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
     const [mounted, setMounted] = React.useState(false);
-    
+
     const [pixels, setPixels] = React.useState<any[]>([]);
     const [selectedPixel, setSelectedPixel] = React.useState<string | null>(null);
     const [eventStats, setEventStats] = React.useState<any[]>([]);
@@ -56,14 +84,14 @@ export default function EventsManagerPage() {
             }
         } catch (error) {
             console.error(error);
-            toast({ title: 'Error', description: 'Failed to load pixels.', variant: 'destructive' });
+            toast.error('Failed to load pixels.');
         } finally {
             setLoading(false);
         }
     }, [activeAccount, selectedPixel, toast]);
 
-    React.useEffect(() => { 
-        if (mounted) fetchPixels(); 
+    React.useEffect(() => {
+        if (mounted) fetchPixels();
     }, [mounted, fetchPixels]);
 
     const fetchStats = React.useCallback(async () => {
@@ -74,14 +102,14 @@ export default function EventsManagerPage() {
             setEventStats(res.stats || []);
         } catch (error) {
             console.error(error);
-            toast({ title: 'Error', description: 'Failed to load event stats.', variant: 'destructive' });
+            toast.error('Failed to load event stats.');
         } finally {
             setStatsLoading(false);
         }
     }, [selectedPixel, toast]);
 
-    React.useEffect(() => { 
-        if (mounted) fetchStats(); 
+    React.useEffect(() => {
+        if (mounted) fetchStats();
     }, [mounted, fetchStats]);
 
     const handleSendTest = async () => {
@@ -90,15 +118,15 @@ export default function EventsManagerPage() {
         try {
             const res = await sendTestConversionEvent(selectedPixel, testEvent);
             if (res.error) {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error(res.error);
             } else {
-                toast({ title: 'Sent', description: res.message || 'Test event sent successfully.' });
+                toast.success(res.message || 'Test event sent successfully.');
                 setTestDialogOpen(false);
                 fetchStats();
             }
         } catch (error) {
             console.error(error);
-            toast({ title: 'Error', description: 'Failed to send test event.', variant: 'destructive' });
+            toast.error('Failed to send test event.');
         } finally {
             setSending(false);
         }
@@ -109,10 +137,10 @@ export default function EventsManagerPage() {
             <div className="space-y-6">
                 <AmBreadcrumb page="Events manager" />
                 <div className="space-y-2">
-                    <Skeleton className="h-8 w-1/4" />
-                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton height={32} width="25%" />
+                    <Skeleton height={16} width="33%" />
                 </div>
-                <Skeleton className="h-[200px] w-full" />
+                <Skeleton height={200} width="100%" />
             </div>
         );
     }
@@ -121,10 +149,8 @@ export default function EventsManagerPage() {
         return (
             <div>
                 <AmBreadcrumb page="Events manager" />
-                <Alert className="mt-6">
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view pixel events.</AlertDescription>
+                <Alert tone="warning" title="No ad account selected" className="mt-6">
+                    Pick an ad account to view pixel events.
                 </Alert>
             </div>
         );
@@ -138,15 +164,21 @@ export default function EventsManagerPage() {
                 description="Monitor pixel events, conversion API traffic and offline events."
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => { fetchPixels(); fetchStats(); }} disabled={loading || statsLoading}>
-                            <RefreshCw className={`h-4 w-4 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
-                        </Button>
+                        <IconButton
+                            label="Refresh events"
+                            icon={RefreshCw}
+                            variant="outline"
+                            onClick={() => { fetchPixels(); fetchStats(); }}
+                            disabled={loading || statsLoading}
+                            className={(loading || statsLoading) ? '[&_svg]:animate-spin' : undefined}
+                        />
                         <Button
-                            className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
+                            variant="primary"
+                            iconLeft={Send}
                             onClick={() => setTestDialogOpen(true)}
                             disabled={!selectedPixel || loading}
                         >
-                            <Send className="h-4 w-4 mr-2" /> Send Test Event
+                            Send test event
                         </Button>
                     </div>
                 }
@@ -155,16 +187,16 @@ export default function EventsManagerPage() {
             {/* Pixel selector */}
             {loading ? (
                 <div className="flex gap-2">
-                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-32" />)}
+                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} height={40} width={128} />)}
                 </div>
             ) : pixels.length === 0 ? (
-                <Card className="border-dashed">
-                    <CardBody className="py-16 text-center">
-                        <Activity className="h-12 w-12 mx-auto text-[var(--st-text-secondary)] mb-4" />
-                        <p className="font-semibold text-lg">No pixels found</p>
-                        <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-md mx-auto">
-                            Create a pixel in your Meta Business Settings first. Pixels are used to track user actions on your website.
-                        </p>
+                <Card>
+                    <CardBody>
+                        <EmptyState
+                            icon={Activity}
+                            title="No pixels found"
+                            description="Create a pixel in your Meta Business Settings first. Pixels are used to track user actions on your website."
+                        />
                     </CardBody>
                 </Card>
             ) : (
@@ -173,24 +205,23 @@ export default function EventsManagerPage() {
                         {pixels.map(p => (
                             <Button
                                 key={p.id}
-                                variant={selectedPixel === p.id ? 'default' : 'outline'}
+                                variant={selectedPixel === p.id ? 'primary' : 'outline'}
                                 size="sm"
+                                iconLeft={Radio}
                                 onClick={() => setSelectedPixel(p.id)}
-                                className={selectedPixel === p.id ? 'bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white' : ''}
                             >
-                                <Radio className="h-4 w-4 mr-2" />
                                 {p.name}
                             </Button>
                         ))}
                     </div>
 
                     {/* Event stats table */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-base flex items-center">
+                    <Card padding="none">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
                                 Event activity
                                 {selectedPixel && (
-                                    <Badge variant="secondary" className="ml-2 font-normal text-xs">
+                                    <Badge tone="neutral" kind="soft">
                                         Pixel ID: {selectedPixel}
                                     </Badge>
                                 )}
@@ -199,14 +230,14 @@ export default function EventsManagerPage() {
                         <CardBody className="p-0">
                             {statsLoading ? (
                                 <div className="p-4 space-y-4">
-                                    {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+                                    {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} height={40} width="100%" />)}
                                 </div>
                             ) : eventStats.length === 0 ? (
-                                <div className="py-16 text-center text-[var(--st-text-secondary)]">
-                                    <ChartBar className="h-10 w-10 mx-auto text-[var(--st-text-secondary)]/50 mb-3" />
-                                    <p className="font-medium text-base">No events recorded yet</p>
-                                    <p className="text-sm mt-1 max-w-sm mx-auto">Use the "Send Test Event" button above to fire a test conversion event to Meta and verify your connection.</p>
-                                </div>
+                                <EmptyState
+                                    icon={ChartBar}
+                                    title="No events recorded yet"
+                                    description='Use the "Send test event" button above to fire a test conversion event to Meta and verify your connection.'
+                                />
                             ) : (
                                 <Table>
                                     <THead>
@@ -220,7 +251,7 @@ export default function EventsManagerPage() {
                                         {eventStats.map((s, i) => (
                                             <Tr key={i}>
                                                 <Td>
-                                                    <Badge variant="outline" className="font-mono bg-[var(--st-bg-secondary)]">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
+                                                    <Badge tone="neutral" kind="outline" className="font-mono">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
                                                 </Td>
                                                 <Td className="tabular-nums font-medium">
                                                     {s.count ?? s.value ?? 0}
@@ -231,7 +262,7 @@ export default function EventsManagerPage() {
                                                             dateStyle: 'medium',
                                                             timeStyle: 'short'
                                                           })
-                                                        : '—'}
+                                                        : '-'}
                                                 </Td>
                                             </Tr>
                                         ))}
@@ -249,30 +280,25 @@ export default function EventsManagerPage() {
                     <DialogHeader>
                         <DialogTitle>Send test event</DialogTitle>
                         <DialogDescription>
-                            Simulate a conversion event being sent to pixel <span className="font-mono bg-[var(--st-bg-muted)] px-1 rounded text-xs">{selectedPixel}</span>.
+                            Simulate a conversion event being sent to pixel <span className="font-mono text-xs px-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">{selectedPixel}</span>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="test-event">Event name</Label>
+                    <div className="py-2">
+                        <Field label="Event name">
                             <Select value={testEvent} onValueChange={setTestEvent}>
-                                <SelectTrigger id="test-event">
+                                <SelectTrigger aria-label="Event name">
                                     <SelectValue placeholder="Select event" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {TEST_EVENTS.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setTestDialogOpen(false)} disabled={sending}>Cancel</Button>
-                        <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white min-w-[100px]" onClick={handleSendTest} disabled={sending}>
-                            {sending ? (
-                                <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
-                            ) : (
-                                'Send Event'
-                            )}
+                        <Button variant="secondary" onClick={() => setTestDialogOpen(false)} disabled={sending}>Cancel</Button>
+                        <Button variant="primary" onClick={handleSendTest} loading={sending} className="min-w-[100px]">
+                            {sending ? 'Sending...' : 'Send event'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

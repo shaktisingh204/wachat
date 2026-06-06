@@ -2,6 +2,7 @@ import * as React from 'react';
 import { notFound } from 'next/navigation';
 
 import { getSabmonitorApiTransaction } from '@/app/actions/sabmonitor.actions';
+import { PageHeader, PageHeaderHeading, PageEyebrow, PageTitle } from '@/components/sabcrm/20ui';
 import { ApiTransactionEditClient } from './edit-client';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,12 @@ export default async function EditApiTxnPage({ params }: PageProps): Promise<Rea
     if (!txn) notFound();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-[var(--st-text)]">{txn.name}</h2>
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>API transaction</PageEyebrow>
+                    <PageTitle>{txn.name}</PageTitle>
+                </PageHeaderHeading>
+            </PageHeader>
             <ApiTransactionEditClient id={txnId} initialName={txn.name} initialSteps={txn.stepsJson} />
         </div>
     );

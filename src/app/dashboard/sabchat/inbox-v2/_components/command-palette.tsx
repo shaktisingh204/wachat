@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui';
+import {
+    CommandDialog,
+    CommandInput,
+    CommandList,
+    CommandEmpty,
+    CommandGroup,
+    CommandItem,
+    CommandShortcut,
+} from "@/components/sabcrm/20ui";
 import { SabChatConversation } from "@/lib/rust-client/sabchat";
 
 interface CommandPaletteProps {
@@ -27,7 +35,7 @@ export function CommandPalette({
         const down = (e: KeyboardEvent) => {
             if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
-                setOpen((open) => !open);
+                setOpen((prev) => !prev);
             }
             if (e.key === "e" && (e.metaKey || e.ctrlKey) && selectedId) {
                 e.preventDefault();
@@ -39,7 +47,11 @@ export function CommandPalette({
     }, [selectedId, onAssign]);
 
     return (
-        <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandDialog
+            open={open}
+            onOpenChange={setOpen}
+            label="Inbox command palette"
+        >
             <CommandInput placeholder="Type a command or search..." />
             <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
@@ -50,8 +62,8 @@ export function CommandPalette({
                             setOpen(false);
                         }}
                     >
-                        Auto-assign Current Conversation
-                        <CommandShortcut>⌘E</CommandShortcut>
+                        Auto-assign current conversation
+                        <CommandShortcut>Ctrl E</CommandShortcut>
                     </CommandItem>
                     <CommandItem
                         onSelect={() => {
@@ -59,7 +71,7 @@ export function CommandPalette({
                             setOpen(false);
                         }}
                     >
-                        Resolve Current Conversation
+                        Resolve current conversation
                     </CommandItem>
                     <CommandItem
                         onSelect={() => {
@@ -67,7 +79,7 @@ export function CommandPalette({
                             setOpen(false);
                         }}
                     >
-                        Snooze Current Conversation
+                        Snooze current conversation
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Conversations">
@@ -79,7 +91,8 @@ export function CommandPalette({
                                 setOpen(false);
                             }}
                         >
-                            {c.lastMessagePreview || `Conversation ${c._id.slice(-6)}`}
+                            {c.lastMessagePreview ||
+                                `Conversation ${c._id.slice(-6)}`}
                         </CommandItem>
                     ))}
                 </CommandGroup>

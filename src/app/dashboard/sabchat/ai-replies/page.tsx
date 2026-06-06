@@ -1,30 +1,59 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Input, Badge, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState } from "react";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  Input,
+  Textarea,
+  Switch,
+  Slider,
+  Badge,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import { useEffect, useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { Bot,
+import {
+  Bot,
   LoaderCircle,
   Save,
   Wand2,
-  Settings2,
   Globe,
-  MessageSquare,
-  ShieldAlert,
   Send,
-  User,
   Sparkles,
-  Plus
+  Plus,
 } from "lucide-react";
 
 import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
 import { useProject } from "@/context/project-context";
 
 /**
- * /dashboard/sabchat/ai-replies — AI assistant configuration.
+ * /dashboard/sabchat/ai-replies - AI assistant configuration.
  */
 
 const initialState: { message: string | null; error?: string } = {
@@ -35,12 +64,12 @@ const initialState: { message: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
-      ) : (
-        <Save className="mr-2 h-4 w-4" />
-      )}
+    <Button
+      type="submit"
+      variant="primary"
+      disabled={pending}
+      iconLeft={pending ? LoaderCircle : Save}
+    >
       Save AI Configuration
     </Button>
   );
@@ -52,44 +81,42 @@ export default function SabChatAiRepliesPage() {
   // @ts-expect-error - sabchat settings action signature
   const [state, formAction] = useActionState(saveSabChatSettings, initialState);
   const { toast } = useToast();
-  
+
   // Local state for interactive elements
   const [persona, setPersona] = useState(settings.aiPersona || "professional");
+  const [aiEnabled, setAiEnabled] = useState<boolean>(Boolean(settings.aiEnabled));
   const [testMessage, setTestMessage] = useState("");
   const [testHistory, setTestHistory] = useState([
-    { sender: 'bot', text: "Hello! I am your AI assistant. How can I help you today?" }
+    { sender: "bot", text: "Hello! I am your AI assistant. How can I help you today?" },
   ]);
   const [isSimulating, setIsSimulating] = useState(false);
-  const [confidence, setConfidence] = useState([80]);
+  const [confidence, setConfidence] = useState(80);
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: "Saved", description: state.message });
+      toast.success({ title: "Saved", description: state.message });
       reloadProject();
     }
     if (state.error) {
-      toast({
-        title: "Error",
-        description: state.error,
-        variant: "destructive",
-      });
+      toast.error({ title: "Error", description: state.error });
     }
   }, [state, toast, reloadProject]);
 
   const handleTestChat = (e: React.FormEvent) => {
     e.preventDefault();
     if (!testMessage.trim()) return;
-    
-    setTestHistory(prev => [...prev, { sender: 'user', text: testMessage }]);
+
+    setTestHistory((prev) => [...prev, { sender: "user", text: testMessage }]);
     setTestMessage("");
     setIsSimulating(true);
-    
+
     setTimeout(() => {
       let reply = "I understand. I am an AI assistant.";
-      if (persona === 'friendly') reply = "Gotcha! I'd love to help you with that! ✨";
-      if (persona === 'humorous') reply = "Well that's a pickle! Let me see what my circuits can do for you. 🤖";
-      
-      setTestHistory(prev => [...prev, { sender: 'bot', text: reply }]);
+      if (persona === "friendly") reply = "Gotcha! I'd love to help you with that!";
+      if (persona === "humorous")
+        reply = "Well that's a pickle. Let me see what my circuits can do for you.";
+
+      setTestHistory((prev) => [...prev, { sender: "bot", text: reply }]);
       setIsSimulating(false);
     }, 1000);
   };
@@ -103,9 +130,7 @@ export default function SabChatAiRepliesPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/sabchat/inbox">
-              SabChat
-            </BreadcrumbLink>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">SabChat</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -118,18 +143,23 @@ export default function SabChatAiRepliesPage() {
         <PageHeading>
           <div className="flex items-center gap-3">
             <PageTitle>AI Assistant Engine</PageTitle>
-            <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
+            <Badge tone="accent" kind="soft" dot>
               <Sparkles className="h-3 w-3 mr-1" /> Premium
             </Badge>
           </div>
           <PageDescription>
-            Configure your intelligent chatbot to resolve queries automatically before they reach human agents.
+            Configure your intelligent chatbot to resolve queries automatically before
+            they reach human agents.
           </PageDescription>
         </PageHeading>
       </PageHeader>
 
       <form action={formAction}>
         <input type="hidden" name="_form" value="ai-replies" />
+        {/* The AI toggle is a 20ui Switch (a button, not a native checkbox), so
+            mirror its state into a hidden input the action can read; omitted when
+            off so `formData.get('aiEnabled') === 'on'` evaluates false. */}
+        {aiEnabled ? <input type="hidden" name="aiEnabled" value="on" /> : null}
         {/* Pass-through existing settings unrelated to this form. */}
         <input
           type="hidden"
@@ -151,27 +181,26 @@ export default function SabChatAiRepliesPage() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Left Column: Config */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Core Settings */}
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
                     <Bot className="h-5 w-5" />
                   </span>
                   <div>
                     <CardTitle>Core Engine Status</CardTitle>
-                    <CardDescription>Enable or disable the AI deflection system globally.</CardDescription>
+                    <CardDescription>
+                      Enable or disable the AI deflection system globally.
+                    </CardDescription>
                   </div>
                   <div className="ml-auto">
                     <Switch
-                      id="aiEnabled"
-                      name="aiEnabled"
-                      defaultChecked={settings.aiEnabled}
-                      className="data-[state=checked]:bg-[var(--st-text)]"
+                      checked={aiEnabled}
+                      onCheckedChange={setAiEnabled}
+                      aria-label="Enable AI deflection engine"
                     />
                   </div>
                 </div>
@@ -179,47 +208,61 @@ export default function SabChatAiRepliesPage() {
             </Card>
 
             <Tabs defaultValue="context" className="w-full">
-              <TabsList className="w-full justify-start border-b rounded-none px-4 h-12 bg-transparent">
-                <TabsTrigger value="context" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Knowledge Context</TabsTrigger>
-                <TabsTrigger value="persona" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Persona & Tone</TabsTrigger>
-                <TabsTrigger value="behavior" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing Behavior</TabsTrigger>
+              <TabsList>
+                <TabsTrigger value="context">Knowledge Context</TabsTrigger>
+                <TabsTrigger value="persona">Persona & Tone</TabsTrigger>
+                <TabsTrigger value="behavior">Routing Behavior</TabsTrigger>
               </TabsList>
-              
-              <Card className="border-t-0 rounded-tl-none">
-                
+
+              <Card>
                 {/* Knowledge Context Tab */}
                 <TabsContent value="context" className="p-6 m-0 outline-none space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="aiContext">Business Base Context</Label>
+                  <Field
+                    label="Business Base Context"
+                    help="This is the foundational prompt injected into every AI conversation."
+                  >
                     <Textarea
-                      id="aiContext"
                       name="aiContext"
                       defaultValue={settings.aiContext || ""}
                       className="min-h-[160px] font-mono text-sm leading-relaxed"
                       placeholder="We are Acme Corp. We sell widgets. Our refund policy is 30 days..."
                     />
-                    <p className="text-xs text-[var(--st-text-secondary)]">
-                      This is the foundational prompt injected into every AI conversation.
-                    </p>
-                  </div>
+                  </Field>
 
-                  <div className="space-y-3">
-                    <Label>Website Crawler Setup</Label>
+                  <Field
+                    label="Website Crawler Setup"
+                    help="Automatically update the AI's knowledge by crawling your documentation site daily."
+                  >
                     <div className="flex items-center gap-2">
-                      <Input placeholder="https://example.com/docs" />
-                      <Button type="button" variant="outline"><Globe className="h-4 w-4 mr-2" /> Crawl & Sync</Button>
+                      <Input placeholder="https://example.com/docs" className="flex-1" />
+                      <Button type="button" variant="outline" iconLeft={Globe}>
+                        Crawl & Sync
+                      </Button>
                     </div>
-                    <p className="text-xs text-[var(--st-text-secondary)]">Automatically update the AI's knowledge by crawling your documentation site daily.</p>
-                  </div>
+                  </Field>
                 </TabsContent>
 
                 {/* Persona Tab */}
                 <TabsContent value="persona" className="p-6 m-0 outline-none space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label>Brand Tone & Persona</Label>
+                    <Field
+                      label="Brand Tone & Persona"
+                      help={
+                        <>
+                          Preview:{" "}
+                          <span className="italic">
+                            {persona === "professional" &&
+                              "Hello, how may I assist you today?"}
+                            {persona === "friendly" &&
+                              "Hi there! I'd love to help you out with that!"}
+                            {persona === "humorous" &&
+                              "Greetings, human! What kind of trouble are we getting into?"}
+                          </span>
+                        </>
+                      }
+                    >
                       <Select value={persona} onValueChange={setPersona}>
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Brand tone and persona">
                           <SelectValue placeholder="Select persona" />
                         </SelectTrigger>
                         <SelectContent>
@@ -228,19 +271,11 @@ export default function SabChatAiRepliesPage() {
                           <SelectItem value="humorous">Humorous & Witty</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-[var(--st-text-secondary)] mt-2 block">
-                        Preview: <span className="italic">
-                          {persona === 'professional' && "Hello, how may I assist you today?"}
-                          {persona === 'friendly' && "Hi there! I'd love to help you out with that!"}
-                          {persona === 'humorous' && "Greetings, human! What kind of trouble are we getting into?"}
-                        </span>
-                      </p>
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label>Response Verbosity</Label>
+                    <Field label="Response Verbosity">
                       <Select defaultValue={settings.aiResponseLength || "medium"}>
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Response verbosity">
                           <SelectValue placeholder="Select length" />
                         </SelectTrigger>
                         <SelectContent>
@@ -249,60 +284,72 @@ export default function SabChatAiRepliesPage() {
                           <SelectItem value="detailed">Detailed & Explanatory</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </Field>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label>Supported Languages</Label>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">English (Primary)</Badge>
-                      <Badge variant="outline">Spanish</Badge>
-                      <Badge variant="outline">French</Badge>
-                      <Badge variant="outline">German</Badge>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2"><Plus className="h-3 w-3 mr-1" /> Add Language</Button>
+                  <Field label="Supported Languages">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge tone="accent" kind="soft">
+                        English (Primary)
+                      </Badge>
+                      <Badge tone="neutral" kind="outline">
+                        Spanish
+                      </Badge>
+                      <Badge tone="neutral" kind="outline">
+                        French
+                      </Badge>
+                      <Badge tone="neutral" kind="outline">
+                        German
+                      </Badge>
+                      <Button type="button" variant="ghost" size="sm" iconLeft={Plus}>
+                        Add Language
+                      </Button>
                     </div>
-                  </div>
+                  </Field>
                 </TabsContent>
 
                 {/* Routing Behavior Tab */}
                 <TabsContent value="behavior" className="p-6 m-0 outline-none space-y-8">
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <Label>Confidence Threshold: {confidence}%</Label>
-                    </div>
-                    <Slider 
-                      defaultValue={confidence} 
-                      max={100} 
-                      step={5} 
-                      onValueChange={setConfidence}
+                  <Field
+                    label={`Confidence Threshold: ${confidence}%`}
+                    help={`If the AI is less than ${confidence}% confident in its answer, it will trigger the fallback rule.`}
+                  >
+                    <Slider
+                      value={confidence}
+                      max={100}
+                      step={5}
+                      onValueChange={(v) => setConfidence(Array.isArray(v) ? v[0] : v)}
+                      ariaLabel="Confidence threshold"
                       className="py-4"
                     />
-                    <p className="text-xs text-[var(--st-text-secondary)]">
-                      If the AI is less than {confidence}% confident in its answer, it will trigger the fallback rule.
-                    </p>
-                  </div>
+                  </Field>
 
-                  <div className="space-y-4">
-                    <Label>Fallback Rule (Human Handoff)</Label>
+                  <Field label="Fallback Rule (Human Handoff)">
                     <Select defaultValue={settings.aiFallbackAction || "handoff_to_human"}>
-                      <SelectTrigger>
+                      <SelectTrigger aria-label="Fallback rule">
                         <SelectValue placeholder="Select fallback rule" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="handoff_to_human">Route to Human Agent instantly</SelectItem>
-                        <SelectItem value="escalate">Create high-priority support ticket</SelectItem>
-                        <SelectItem value="continue">Force AI to try answering anyway</SelectItem>
+                        <SelectItem value="handoff_to_human">
+                          Route to Human Agent instantly
+                        </SelectItem>
+                        <SelectItem value="escalate">
+                          Create high-priority support ticket
+                        </SelectItem>
+                        <SelectItem value="continue">
+                          Force AI to try answering anyway
+                        </SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
+                  </Field>
 
-                  <div className="space-y-2">
-                    <Label>Handoff Message</Label>
+                  <Field
+                    label="Handoff Message"
+                    help="Displayed to the visitor when routing to a human."
+                  >
                     <Input defaultValue="I'm transferring you to a human agent who can better assist you with this request. Please hold on." />
-                    <p className="text-xs text-[var(--st-text-secondary)]">Displayed to the visitor when routing to a human.</p>
-                  </div>
+                  </Field>
                 </TabsContent>
-
               </Card>
             </Tabs>
 
@@ -314,59 +361,67 @@ export default function SabChatAiRepliesPage() {
           {/* Right Column: AI Sandbox */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <Card className="h-[600px] flex flex-col border-[var(--st-border)] dark:border-[var(--st-border)]/50 shadow-md">
-                <CardHeader className="border-b border-[var(--st-border)] py-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20">
+              <Card padding="none" className="h-[600px] flex flex-col">
+                <CardHeader className="border-b border-[var(--st-border)] py-4 bg-[var(--st-bg-secondary)]">
                   <div className="flex items-center gap-2">
                     <Wand2 className="h-4 w-4 text-[var(--st-text)]" />
-                    <CardTitle className="text-base text-[var(--st-text)] dark:text-white">AI Sandbox</CardTitle>
+                    <CardTitle className="text-base">AI Sandbox</CardTitle>
                   </div>
                   <CardDescription className="text-xs">
                     Test your current configuration in real-time.
                   </CardDescription>
                 </CardHeader>
-                
-                <CardBody className="flex-1 p-0 flex flex-col bg-[var(--st-bg-muted)]/30">
+
+                <CardBody className="flex-1 p-0 flex flex-col bg-[var(--st-bg-secondary)]">
                   <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                     {testHistory.map((msg, idx) => (
-                      <div key={idx} className={`flex ${msg.sender === 'bot' ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[85%] rounded-lg p-3 text-sm shadow-sm ${
-                          msg.sender === 'bot' 
-                            ? 'bg-white dark:bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]' 
-                            : 'bg-[var(--st-text)] text-white'
-                        }`}>
+                      <div
+                        key={idx}
+                        className={`flex ${msg.sender === "bot" ? "justify-start" : "justify-end"}`}
+                      >
+                        <div
+                          className={`max-w-[85%] rounded-[var(--st-radius)] p-3 text-sm shadow-[var(--st-shadow-sm)] ${
+                            msg.sender === "bot"
+                              ? "bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]"
+                              : "bg-[var(--st-text)] text-[var(--st-bg)]"
+                          }`}
+                        >
                           {msg.text}
                         </div>
                       </div>
                     ))}
                     {isSimulating && (
                       <div className="flex justify-start">
-                        <div className="bg-white dark:bg-[var(--st-bg)] border border-[var(--st-border)] rounded-lg p-3 text-sm shadow-sm flex items-center gap-1">
-                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        <div className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-3 text-sm shadow-[var(--st-shadow-sm)] flex items-center gap-1">
+                          <span className="h-2 w-2 bg-[var(--st-text-secondary)] rounded-full animate-bounce [animation-delay:0ms]" />
+                          <span className="h-2 w-2 bg-[var(--st-text-secondary)] rounded-full animate-bounce [animation-delay:150ms]" />
+                          <span className="h-2 w-2 bg-[var(--st-text-secondary)] rounded-full animate-bounce [animation-delay:300ms]" />
                         </div>
                       </div>
                     )}
                   </div>
-                  
-                  <div className="p-3 bg-white dark:bg-[var(--st-bg)] border-t border-[var(--st-border)]">
+
+                  <div className="p-3 bg-[var(--st-bg)] border-t border-[var(--st-border)]">
                     <form onSubmit={handleTestChat} className="flex items-center gap-2">
-                      <Input 
+                      <Input
                         value={testMessage}
                         onChange={(e) => setTestMessage(e.target.value)}
-                        placeholder="Message AI..." 
-                        className="flex-1 bg-[var(--st-bg-muted)] border-0"
+                        placeholder="Message AI..."
+                        aria-label="Test message"
+                        className="flex-1"
                       />
-                      <Button type="submit" size="icon-sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white rounded-full h-8 w-8">
-                        <Send className="h-3 w-3" />
-                      </Button>
+                      <IconButton
+                        type="submit"
+                        variant="primary"
+                        label="Send test message"
+                        icon={Send}
+                      />
                     </form>
                   </div>
                 </CardBody>
               </Card>
             </div>
           </div>
-
         </div>
       </form>
     </div>

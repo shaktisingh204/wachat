@@ -5,13 +5,27 @@ import { useRouter } from 'next/navigation';
 
 import { JsonEditorForm } from '../../_components/json-editor-form';
 
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
+
 import { createSabmonitorApiTransaction } from '@/app/actions/sabmonitor.actions';
 
 export default function NewApiTransactionPage(): React.JSX.Element {
     const router = useRouter();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-[var(--st-text)]">New API transaction</h2>
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>New API transaction</PageTitle>
+                    <PageDescription>
+                        Define a name and the ordered JSON steps for this synthetic API check.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
             <JsonEditorForm
                 submitLabel="Create transaction"
                 onSubmit={async ({ name, stepsJson }) => {

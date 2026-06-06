@@ -4,7 +4,16 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, Input, Label, Switch, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    Switch,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 /**
  * Tiny reusable "name + JSON-stepsJson + optional switch" form, shared
@@ -30,11 +39,13 @@ export function JsonEditorForm({
     submitLabel: string;
 }): React.JSX.Element {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [name, setName] = React.useState(initialName ?? '');
     const [stepsRaw, setStepsRaw] = React.useState(
         JSON.stringify(initialSteps ?? [], null, 2),
     );
+    const [stepsError, setStepsError] = React.useState<string | null>(null);
     const [screenshotOnFailure, setScreenshotOnFailure] = React.useState(
         initialScreenshotOnFailure ?? false,
     );
@@ -44,8 +55,11 @@ export function JsonEditorForm({
         let parsed: unknown;
         try {
             parsed = stepsRaw.trim() ? JSON.parse(stepsRaw) : [];
+            setStepsError(null);
         } catch (err) {
-            window.alert(`Steps JSON invalid: ${(err as Error).message}`);
+            const message = `Steps JSON invalid: ${(err as Error).message}`;
+            setStepsError(message);
+            toast.error(message);
             return;
         }
         startTransition(async () => {
@@ -57,46 +71,45 @@ export function JsonEditorForm({
                 });
                 router.refresh();
             } catch (err) {
-                window.alert((err as Error).message);
+                toast.error((err as Error).message);
             }
         });
     };
 
     return (
-        <Card className="zoruui">
-            <CardBody className="p-4">
+        <Card>
+            <CardBody>
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="name">Name</Label>
+                    <Field label="Name" required>
                         <Input
-                            id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
                         />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="steps">Steps (JSON array)</Label>
+                    </Field>
+                    <Field
+                        label="Steps (JSON array)"
+                        error={stepsError ?? undefined}
+                    >
                         <Textarea
-                            id="steps"
                             rows={12}
                             value={stepsRaw}
-                            onChange={(e) => setStepsRaw(e.target.value)}
+                            onChange={(e) => {
+                                setStepsRaw(e.target.value);
+                                if (stepsError) setStepsError(null);
+                            }}
                         />
-                    </div>
+                    </Field>
                     {showScreenshotSwitch && (
-                        <div className="flex items-center gap-3">
-                            <Switch
-                                id="screenshot"
-                                checked={screenshotOnFailure}
-                                onCheckedChange={setScreenshotOnFailure}
-                            />
-                            <Label htmlFor="screenshot">Capture screenshot on failure</Label>
-                        </div>
+                        <Switch
+                            checked={screenshotOnFailure}
+                            onCheckedChange={setScreenshotOnFailure}
+                            label="Capture screenshot on failure"
+                        />
                     )}
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : submitLabel}
+                        <Button type="submit" variant="primary" loading={pending}>
+                            {submitLabel}
                         </Button>
                     </div>
                 </form>

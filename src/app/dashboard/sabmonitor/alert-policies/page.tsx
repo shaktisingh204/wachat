@@ -1,7 +1,17 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { BellRing } from 'lucide-react';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    PageActions,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+} from '@/components/sabcrm/20ui';
 
 import { listSabmonitorAlertPolicies } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';
@@ -12,16 +22,29 @@ export default async function AlertPoliciesPage(): Promise<React.JSX.Element> {
     const res = await listSabmonitorAlertPolicies();
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">Alert policies</h2>
-                <Button asChild>
-                    <Link href="/dashboard/sabmonitor/alert-policies/new">New policy</Link>
-                </Button>
-            </div>
-            <Card className="zoruui">
+            <PageHeader compact>
+                <PageHeaderHeading>
+                    <PageTitle>Alert policies</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href="/dashboard/sabmonitor/alert-policies/new">
+                        <Button variant="primary">New policy</Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No alert policies yet.</p>
+                        <EmptyState
+                            icon={BellRing}
+                            title="No alert policies yet"
+                            description="Create your first policy to route check failures to your channels."
+                            action={
+                                <Link href="/dashboard/sabmonitor/alert-policies/new">
+                                    <Button variant="primary">New policy</Button>
+                                </Link>
+                            }
+                        />
                     ) : (
                         <ul className="divide-y divide-[var(--st-border)]">
                             {res.items.map((p) => (
@@ -37,7 +60,7 @@ export default async function AlertPoliciesPage(): Promise<React.JSX.Element> {
                                             {p.name}
                                         </Link>
                                         <span className="text-[12px] text-[var(--st-text-secondary)]">
-                                            {(p.channels ?? []).length} channels ·{' '}
+                                            {(p.channels ?? []).length} channels,{' '}
                                             {(p.checkIds ?? []).length} checks
                                         </span>
                                     </div>

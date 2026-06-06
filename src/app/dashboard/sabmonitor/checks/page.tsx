@@ -1,7 +1,22 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Plus, ListChecks } from 'lucide-react';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import { listSabmonitorChecks, listSabmonitorCheckRuns } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';
 
@@ -10,8 +25,8 @@ export const dynamic = 'force-dynamic';
 export default async function SabmonitorChecksPage(): Promise<React.JSX.Element> {
     const res = await listSabmonitorChecks({ status: 'all', limit: 50 });
 
-    // Cheap uptime estimate — for each check, sample last 200 runs and
-    // count up. Real impl will pre-aggregate.
+    // Cheap uptime estimate. For each check, sample last 200 runs and count up.
+    // Real impl will pre-aggregate.
     const uptimeByCheck: Record<string, number> = {};
     await Promise.all(
         res.items.map(async (c) => {
@@ -31,55 +46,78 @@ export default async function SabmonitorChecksPage(): Promise<React.JSX.Element>
     );
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">Checks</h2>
-                <Button asChild>
-                    <Link href="/dashboard/sabmonitor/checks/new">New check</Link>
-                </Button>
-            </div>
-            <Card className="zoruui">
+        <div className="ui20 flex flex-col gap-4">
+            <PageHeader compact>
+                <PageHeaderHeading>
+                    <PageTitle>Checks</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    {/* 20ui Button has no `asChild`, so a navigational link is
+                        styled directly with the button classes (primary / md). */}
+                    <Link
+                        href="/dashboard/sabmonitor/checks/new"
+                        className="u-btn u-btn--primary u-btn--md"
+                    >
+                        <Plus size={14} aria-hidden="true" />
+                        <span className="u-btn__label">New check</span>
+                    </Link>
+                </PageActions>
+            </PageHeader>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No checks yet.</p>
+                        <EmptyState
+                            icon={ListChecks}
+                            title="No checks yet"
+                            description="Create your first monitor to start tracking uptime."
+                            action={
+                                <Link
+                                    href="/dashboard/sabmonitor/checks/new"
+                                    className="u-btn u-btn--primary u-btn--md"
+                                >
+                                    <Plus size={14} aria-hidden="true" />
+                                    <span className="u-btn__label">New check</span>
+                                </Link>
+                            }
+                        />
                     ) : (
-                        <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                <tr className="border-b border-[var(--st-border)]">
-                                    <th className="p-3 text-left font-medium">Name</th>
-                                    <th className="p-3 text-left font-medium">Kind</th>
-                                    <th className="p-3 text-left font-medium">Target</th>
-                                    <th className="p-3 text-left font-medium">Last status</th>
-                                    <th className="p-3 text-left font-medium">Uptime</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Kind</Th>
+                                    <Th>Target</Th>
+                                    <Th>Last status</Th>
+                                    <Th>Uptime</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {res.items.map((c) => (
-                                    <tr key={c._id} className="border-b border-[var(--st-border)]">
-                                        <td className="p-3">
+                                    <Tr key={c._id}>
+                                        <Td>
                                             <Link
                                                 className="font-medium text-[var(--st-text)] hover:underline"
                                                 href={`/dashboard/sabmonitor/checks/${c._id}`}
                                             >
                                                 {c.name}
                                             </Link>
-                                        </td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">{c.kind}</td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">
-                                            {c.url ?? c.host ?? '—'}
-                                        </td>
-                                        <td className="p-3">
+                                        </Td>
+                                        <Td className="text-[var(--st-text-secondary)]">{c.kind}</Td>
+                                        <Td className="text-[var(--st-text-secondary)]">
+                                            {c.url ?? c.host ?? '-'}
+                                        </Td>
+                                        <Td>
                                             <StatusBadge status={c.lastStatus ?? 'unknown'} />
-                                        </td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text-secondary)]">
                                             {c._id && uptimeByCheck[c._id] !== undefined
                                                 ? `${uptimeByCheck[c._id].toFixed(2)}%`
-                                                : '—'}
-                                        </td>
-                                    </tr>
+                                                : '-'}
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     )}
                 </CardBody>
             </Card>

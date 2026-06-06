@@ -34,7 +34,7 @@ export function SabmonitorNav(): React.JSX.Element {
     return (
         <nav
             aria-label="SabMonitor sections"
-            className="zoruui flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
+            className="flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
         >
             {ITEMS.map(({ href, label, icon: Icon, exact }) => {
                 const active = exact ? pathname === href : pathname?.startsWith(href);
@@ -50,7 +50,7 @@ export function SabmonitorNav(): React.JSX.Element {
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-4 w-4" aria-hidden="true" />
                         {label}
                     </Link>
                 );

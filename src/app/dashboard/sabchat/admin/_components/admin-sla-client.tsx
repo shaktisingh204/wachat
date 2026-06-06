@@ -1,10 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Clock, Plus, Trash2 } from 'lucide-react';
+import {
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { createAdminSla, deleteAdminSla } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminSlaClient({ initialData }: { initialData: any[] }) {
+    const { toast } = useToast();
     const [name, setName] = useState('');
     const [firstResponseMinutes, setFirstResponseMinutes] = useState('15');
     const [resolutionMinutes, setResolutionMinutes] = useState('60');
@@ -22,6 +39,9 @@ export function AdminSlaClient({ initialData }: { initialData: any[] }) {
             setName('');
             setFirstResponseMinutes('15');
             setResolutionMinutes('60');
+            toast.success('SLA policy created');
+        } catch {
+            toast.error('Could not create the SLA policy');
         } finally {
             setIsSubmitting(false);
         }
@@ -29,57 +49,94 @@ export function AdminSlaClient({ initialData }: { initialData: any[] }) {
 
     async function handleDelete(id: string) {
         if (!confirm('Are you sure?')) return;
-        await deleteAdminSla(id);
+        try {
+            await deleteAdminSla(id);
+            toast.success('SLA policy deleted');
+        } catch {
+            toast.error('Could not delete the SLA policy');
+        }
     }
 
     return (
         <div className="flex flex-col gap-6">
-            <form onSubmit={handleCreate} className="flex gap-4 items-end bg-[var(--st-bg-muted)]/50 p-4 rounded-lg border">
-                <div className="flex-1">
-                    <label className="text-sm font-medium mb-1 block">Policy Name</label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. VIP Customers" />
-                </div>
-                <div className="flex-1">
-                    <label className="text-sm font-medium mb-1 block">First Response (mins)</label>
-                    <Input type="number" value={firstResponseMinutes} onChange={(e) => setFirstResponseMinutes(e.target.value)} required />
-                </div>
-                <div className="flex-1">
-                    <label className="text-sm font-medium mb-1 block">Resolution (mins)</label>
-                    <Input type="number" value={resolutionMinutes} onChange={(e) => setResolutionMinutes(e.target.value)} required />
-                </div>
-                <Button type="submit" disabled={isSubmitting}>Create SLA</Button>
-            </form>
+            <Card variant="outlined">
+                <CardBody>
+                    <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-4">
+                        <Field label="Policy Name" required className="min-w-48 flex-1">
+                            <Input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                                placeholder="e.g. VIP Customers"
+                            />
+                        </Field>
+                        <Field label="First Response (mins)" required className="min-w-40 flex-1">
+                            <Input
+                                type="number"
+                                value={firstResponseMinutes}
+                                onChange={(e) => setFirstResponseMinutes(e.target.value)}
+                                required
+                            />
+                        </Field>
+                        <Field label="Resolution (mins)" required className="min-w-40 flex-1">
+                            <Input
+                                type="number"
+                                value={resolutionMinutes}
+                                onChange={(e) => setResolutionMinutes(e.target.value)}
+                                required
+                            />
+                        </Field>
+                        <Button type="submit" variant="primary" iconLeft={Plus} loading={isSubmitting}>
+                            Create SLA
+                        </Button>
+                    </form>
+                </CardBody>
+            </Card>
 
-            <div className="rounded-md border">
+            <Card variant="outlined" padding="none">
                 <Table>
                     <THead>
                         <Tr>
                             <Th>ID</Th>
                             <Th>Name</Th>
-                            <Th>First Response (mins)</Th>
-                            <Th>Resolution (mins)</Th>
-                            <Th className="text-right">Actions</Th>
+                            <Th align="right">First Response (mins)</Th>
+                            <Th align="right">Resolution (mins)</Th>
+                            <Th align="right">Actions</Th>
                         </Tr>
                     </THead>
                     <TBody>
                         {initialData.length === 0 ? (
-                            <Tr><Td colSpan={5} className="text-center">No SLA policies found.</Td></Tr>
+                            <Tr>
+                                <Td colSpan={5}>
+                                    <EmptyState
+                                        icon={Clock}
+                                        title="No SLA policies found"
+                                        description="Create your first SLA policy using the form above."
+                                    />
+                                </Td>
+                            </Tr>
                         ) : (
                             initialData.map((item) => (
                                 <Tr key={item._id}>
                                     <Td className="font-mono text-xs">{item._id}</Td>
                                     <Td>{item.name}</Td>
-                                    <Td>{item.firstResponseMinutes}</Td>
-                                    <Td>{item.resolutionMinutes}</Td>
-                                    <Td className="text-right">
-                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>Delete</Button>
+                                    <Td align="right">{item.firstResponseMinutes}</Td>
+                                    <Td align="right">{item.resolutionMinutes}</Td>
+                                    <Td align="right">
+                                        <IconButton
+                                            label="Delete SLA policy"
+                                            icon={Trash2}
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleDelete(item._id)}
+                                        />
                                     </Td>
                                 </Tr>
                             ))
                         )}
                     </TBody>
                 </Table>
-            </div>
+            </Card>
         </div>
     );
 }

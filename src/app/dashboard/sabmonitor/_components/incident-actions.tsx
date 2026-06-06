@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui';
+import { Badge, Button } from '@/components/sabcrm/20ui';
 
 import {
     acknowledgeSabmonitorIncident,
@@ -16,7 +16,11 @@ export function IncidentActions({ incident }: { incident: SabmonitorIncidentDoc 
     const [pending, startTransition] = useTransition();
     const router = useRouter();
     if (incident.status === 'resolved') {
-        return <span className="text-[12px] text-[var(--st-text-secondary)]">closed</span>;
+        return (
+            <Badge tone="success" kind="soft">
+                Closed
+            </Badge>
+        );
     }
     return (
         <div className="flex items-center justify-end gap-2">
@@ -30,12 +34,13 @@ export function IncidentActions({ incident }: { incident: SabmonitorIncidentDoc 
                             router.refresh();
                         })
                     }
-                    disabled={pending}
+                    loading={pending}
                 >
                     Ack
                 </Button>
             )}
             <Button
+                variant="primary"
                 onClick={() =>
                     startTransition(async () => {
                         if (!incident._id) return;
@@ -43,7 +48,7 @@ export function IncidentActions({ incident }: { incident: SabmonitorIncidentDoc 
                         router.refresh();
                     })
                 }
-                disabled={pending}
+                loading={pending}
             >
                 Resolve
             </Button>

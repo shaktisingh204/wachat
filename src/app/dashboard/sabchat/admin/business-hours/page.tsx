@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 import { listAdminBusinessHours } from '@/app/actions/sabchat-admin.actions';
 import { AdminBusinessHoursClient } from '../_components/admin-business-hours-client';
 
@@ -9,13 +9,18 @@ export default async function AdminBusinessHoursPage() {
     const items = resp.items ?? [];
 
     return (
-        <Card className="flex-1 flex flex-col min-h-0 border-0 rounded-none shadow-none">
-            <CardHeader>
-                <CardTitle>Business Hours</CardTitle>
-            </CardHeader>
-            <CardBody className="flex-1 overflow-y-auto">
+        <div className="ui20 flex-1 flex flex-col min-h-0 gap-6 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Business Hours</PageTitle>
+                    <PageDescription>
+                        Define working schedules so routing, SLAs, and away messages follow your team's hours.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+            <div className="flex-1 min-h-0 overflow-y-auto">
                 <AdminBusinessHoursClient initialData={items} />
-            </CardBody>
-        </Card>
+            </div>
+        </div>
     );
 }

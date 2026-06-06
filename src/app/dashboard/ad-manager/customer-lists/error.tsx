@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui';
-import { AlertCircle, RotateCcw } from 'lucide-react';
+import { Alert, Button } from '@/components/sabcrm/20ui';
+import { RotateCcw } from 'lucide-react';
 import * as React from 'react';
 
 export default function CustomerListsError({
@@ -18,16 +18,12 @@ export default function CustomerListsError({
 
   return (
     <div className="p-6">
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Something went wrong!</AlertTitle>
-        <AlertDescription>
-          {error.message || 'An unexpected error occurred in the customer lists module.'}
-        </AlertDescription>
+      <Alert tone="danger" title="Something went wrong">
+        {error.message || 'An unexpected error occurred in the customer lists module.'}
       </Alert>
       <div className="mt-4">
-        <Button onClick={() => reset()} variant="outline">
-          <RotateCcw className="h-4 w-4 mr-2" /> Try again
+        <Button variant="outline" iconLeft={RotateCcw} onClick={() => reset()}>
+          Try again
         </Button>
       </div>
     </div>

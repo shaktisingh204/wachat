@@ -1,8 +1,15 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ListChecks } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 
 import { getSabmonitorCheck } from '@/app/actions/sabmonitor.actions';
 import { CheckForm } from '../../_components/check-form';
@@ -21,23 +28,27 @@ export default async function SabmonitorCheckDetailPage({
     const check = await getSabmonitorCheck(checkId);
     if (!check) notFound();
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-1">
-                    <h2 className="text-sm font-semibold text-[var(--st-text)]">{check.name}</h2>
-                    <span className="text-[12px] text-[var(--st-text-secondary)]">
-                        {check.kind} · {check.url ?? check.host ?? '—'}
-                    </span>
-                </div>
-                <div className="flex items-center gap-2">
+        <div className="ui20 flex flex-col gap-4">
+            <PageHeader compact>
+                <PageHeaderHeading>
+                    <PageTitle>{check.name}</PageTitle>
+                    <PageDescription>
+                        {check.kind} · {check.url ?? check.host ?? '-'}
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
                     <RunNowButton checkId={checkId} />
-                    <Button variant="outline" asChild>
-                        <Link href={`/dashboard/sabmonitor/checks/${checkId}/runs`}>
-                            View runs
-                        </Link>
-                    </Button>
-                </div>
-            </div>
+                    {/* 20ui Button has no `asChild`, so a navigational link is
+                        styled directly with the button classes (outline / md). */}
+                    <Link
+                        href={`/dashboard/sabmonitor/checks/${checkId}/runs`}
+                        className="u-btn u-btn--outline u-btn--md"
+                    >
+                        <ListChecks size={14} aria-hidden="true" />
+                        <span className="u-btn__label">View runs</span>
+                    </Link>
+                </PageActions>
+            </PageHeader>
             <CheckForm initial={check} />
         </div>
     );

@@ -79,7 +79,6 @@ import {
 } from 'lucide-react';
 
 import * as React from 'react';
-import Link from 'next/link';
 
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 

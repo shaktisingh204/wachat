@@ -1,7 +1,27 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Activity } from 'lucide-react';
 
-import { Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Checkbox,
+    EmptyState,
+    Field,
+    Input,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 
 import { listSabmonitorTraces } from '@/app/actions/sabmonitor.actions';
 
@@ -21,85 +41,95 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
     });
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">APM traces</h2>
-                <form className="flex items-center gap-2 text-[12px]">
-                    <label className="flex items-center gap-1 text-[var(--st-text-secondary)]">
-                        <input
-                            type="checkbox"
+            <PageHeader compact>
+                <PageHeaderHeading>
+                    <PageTitle>APM traces</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    <form className="flex flex-wrap items-end gap-3">
+                        <Checkbox
                             name="erroredOnly"
                             value="true"
                             defaultChecked={sp.erroredOnly === 'true'}
+                            label="Errored only"
                         />
-                        Errored only
-                    </label>
-                    <input
-                        name="slowMs"
-                        type="number"
-                        defaultValue={sp.slowMs}
-                        placeholder="slow ms"
-                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
-                    />
-                    <input
-                        name="service"
-                        defaultValue={sp.service}
-                        placeholder="service"
-                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
-                    />
-                    <button
-                        type="submit"
-                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
-                    >
-                        Filter
-                    </button>
-                </form>
-            </div>
-            <Card className="zoruui">
+                        <Field label="Slow ms">
+                            <Input
+                                name="slowMs"
+                                type="number"
+                                inputSize="sm"
+                                defaultValue={sp.slowMs}
+                                placeholder="slow ms"
+                            />
+                        </Field>
+                        <Field label="Service">
+                            <Input
+                                name="service"
+                                inputSize="sm"
+                                defaultValue={sp.service}
+                                placeholder="service"
+                            />
+                        </Field>
+                        <Button type="submit" variant="secondary">
+                            Filter
+                        </Button>
+                    </form>
+                </PageActions>
+            </PageHeader>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No traces yet.</p>
+                        <EmptyState
+                            icon={Activity}
+                            title="No traces yet"
+                            description="Traces will appear here once your services start reporting spans."
+                        />
                     ) : (
-                        <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                <tr className="border-b border-[var(--st-border)]">
-                                    <th className="p-3 text-left font-medium">Started</th>
-                                    <th className="p-3 text-left font-medium">Trace</th>
-                                    <th className="p-3 text-left font-medium">Service</th>
-                                    <th className="p-3 text-left font-medium">Operation</th>
-                                    <th className="p-3 text-right font-medium">Duration</th>
-                                    <th className="p-3 text-right font-medium">Spans</th>
-                                    <th className="p-3 text-right font-medium">Errored</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table density="compact">
+                            <THead>
+                                <Tr>
+                                    <Th>Started</Th>
+                                    <Th>Trace</Th>
+                                    <Th>Service</Th>
+                                    <Th>Operation</Th>
+                                    <Th align="right">Duration</Th>
+                                    <Th align="right">Spans</Th>
+                                    <Th align="right">Errored</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {res.items.map((t) => (
-                                    <tr key={t.traceId} className="border-b border-[var(--st-border)]">
-                                        <td className="p-3 text-[var(--st-text-secondary)]">
-                                            {t.startedAt ? new Date(t.startedAt).toLocaleString() : '—'}
-                                        </td>
-                                        <td className="p-3">
+                                    <Tr key={t.traceId}>
+                                        <Td className="text-[var(--st-text-secondary)]">
+                                            {t.startedAt ? new Date(t.startedAt).toLocaleString() : '-'}
+                                        </Td>
+                                        <Td>
                                             <Link
                                                 className="font-mono text-[12px] text-[var(--st-accent)] hover:underline"
                                                 href={`/dashboard/sabmonitor/apm/traces/${t.traceId}`}
                                             >
-                                                {t.traceId.slice(0, 16)}…
+                                                {t.traceId.slice(0, 16)}...
                                             </Link>
-                                        </td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">{t.rootService ?? '—'}</td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">{t.rootOperation ?? '—'}</td>
-                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">{t.durationMs}ms</td>
-                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">{t.spanCount}</td>
-                                        <td className="p-3 text-right">
+                                        </Td>
+                                        <Td className="text-[var(--st-text-secondary)]">{t.rootService ?? '-'}</Td>
+                                        <Td className="text-[var(--st-text-secondary)]">{t.rootOperation ?? '-'}</Td>
+                                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                                            {t.durationMs}ms
+                                        </Td>
+                                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                                            {t.spanCount}
+                                        </Td>
+                                        <Td align="right">
                                             {t.errored ? (
-                                                <span className="text-[var(--st-text)]">error</span>
+                                                <Badge tone="danger">error</Badge>
                                             ) : (
-                                                <span className="text-[var(--st-text)]">ok</span>
+                                                <Badge tone="success">ok</Badge>
                                             )}
-                                        </td>
-                                    </tr>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     )}
                 </CardBody>
             </Card>

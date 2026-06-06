@@ -1,7 +1,22 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Plus, Activity } from 'lucide-react';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    EmptyState,
+    PageActions,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
 
 import { listSabmonitorApiTransactions } from '@/app/actions/sabmonitor.actions';
 
@@ -9,34 +24,70 @@ export const dynamic = 'force-dynamic';
 
 export default async function ApiTransactionsPage(): Promise<React.JSX.Element> {
     const res = await listSabmonitorApiTransactions();
+    const hasItems = res.items.length > 0;
+
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">API transactions</h2>
-                <Button asChild>
-                    <Link href="/dashboard/sabmonitor/api-transactions/new">New transaction</Link>
-                </Button>
-            </div>
-            <Card className="zoruui">
+        <div className="ui20 flex flex-col gap-4">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>API transactions</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link
+                        className="u-btn u-btn--primary u-btn--md"
+                        href="/dashboard/sabmonitor/api-transactions/new"
+                    >
+                        <Plus size={14} aria-hidden="true" />
+                        <span className="u-btn__label">New transaction</span>
+                    </Link>
+                </PageActions>
+            </PageHeader>
+
+            <Card padding="none">
                 <CardBody className="p-0">
-                    {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No transactions yet.</p>
+                    {hasItems ? (
+                        <Table hover>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th align="right">Steps</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {res.items.map((t) => (
+                                    <Tr key={t._id}>
+                                        <Td>
+                                            <Link
+                                                className="font-medium text-[var(--st-text)] hover:underline"
+                                                href={`/dashboard/sabmonitor/api-transactions/${t._id}`}
+                                            >
+                                                {t.name}
+                                            </Link>
+                                        </Td>
+                                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                                            {Array.isArray(t.stepsJson)
+                                                ? `${(t.stepsJson as unknown[]).length} steps`
+                                                : '-'}
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </TBody>
+                        </Table>
                     ) : (
-                        <ul className="divide-y divide-[var(--st-border)]">
-                            {res.items.map((t) => (
-                                <li key={t._id} className="flex items-center justify-between p-3">
-                                    <Link
-                                        className="text-sm font-medium text-[var(--st-text)] hover:underline"
-                                        href={`/dashboard/sabmonitor/api-transactions/${t._id}`}
-                                    >
-                                        {t.name}
-                                    </Link>
-                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
-                                        {Array.isArray(t.stepsJson) ? `${(t.stepsJson as unknown[]).length} steps` : '—'}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                        <EmptyState
+                            icon={Activity}
+                            title="No transactions yet"
+                            description="API transactions you create will show up here."
+                            action={
+                                <Link
+                                    className="u-btn u-btn--primary u-btn--md"
+                                    href="/dashboard/sabmonitor/api-transactions/new"
+                                >
+                                    <Plus size={14} aria-hidden="true" />
+                                    <span className="u-btn__label">New transaction</span>
+                                </Link>
+                            }
+                        />
                     )}
                 </CardBody>
             </Card>

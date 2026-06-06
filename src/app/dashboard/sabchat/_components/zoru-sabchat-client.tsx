@@ -759,7 +759,7 @@ export function ZoruSabChatClient() {
       className="flex h-[calc(100vh-210px)] min-h-[600px] w-full flex-col overflow-hidden shadow-[var(--st-shadow)] border-[var(--st-border)]"
     >
       <div className="flex flex-1 overflow-hidden">
-        {/* Pane 1 — conversations list */}
+        {/* Pane 1: conversations list */}
         <div
           className={cn(
             "w-full shrink-0 flex-col border-r border-[var(--st-border)] md:w-[320px] bg-[var(--st-bg-secondary)]",
@@ -774,7 +774,7 @@ export function ZoruSabChatClient() {
           />
         </div>
 
-        {/* Pane 2 — message thread */}
+        {/* Pane 2: message thread */}
         <div
           className={cn(
             "relative w-full flex-1 flex-col",

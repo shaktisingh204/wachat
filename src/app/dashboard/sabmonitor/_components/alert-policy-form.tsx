@@ -4,7 +4,15 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     createSabmonitorAlertPolicy,
@@ -22,6 +30,7 @@ export function AlertPolicyForm({
     initial?: SabmonitorAlertPolicyDoc;
 }): React.JSX.Element {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [name, setName] = React.useState(initial?.name ?? '');
     const [tagSelector, setTagSelector] = React.useState(initial?.tagSelector ?? '');
@@ -42,7 +51,7 @@ export function AlertPolicyForm({
         try {
             parsedChannels = channels.trim() ? JSON.parse(channels) : [];
         } catch (err) {
-            window.alert(`Channels JSON invalid: ${(err as Error).message}`);
+            toast.error(`Channels JSON invalid: ${(err as Error).message}`);
             return;
         }
         const input: SabmonitorAlertPolicyCreateInput = {
@@ -68,80 +77,68 @@ export function AlertPolicyForm({
                     router.push('/dashboard/sabmonitor/alert-policies');
                 }
             } catch (err) {
-                window.alert((err as Error).message);
+                toast.error((err as Error).message);
             }
         });
     };
 
     return (
-        <Card className="zoruui">
-            <CardBody className="p-4">
+        <Card>
+            <CardBody>
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="name">Name</Label>
+                    <Field label="Name" required>
                         <Input
-                            id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
                         />
-                    </div>
+                    </Field>
                     <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="checkIds">Check IDs (comma-separated)</Label>
+                        <Field label="Check IDs (comma-separated)">
                             <Input
-                                id="checkIds"
                                 value={checkIds}
                                 onChange={(e) => setCheckIds(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="tagSelector">Or tag selector</Label>
+                        </Field>
+                        <Field label="Or tag selector">
                             <Input
-                                id="tagSelector"
                                 value={tagSelector}
                                 onChange={(e) => setTagSelector(e.target.value)}
                                 placeholder="prod, public-api"
                             />
-                        </div>
+                        </Field>
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="downCount">Consecutive down runs</Label>
+                        <Field label="Consecutive down runs">
                             <Input
-                                id="downCount"
                                 type="number"
                                 value={downCount}
                                 onChange={(e) =>
                                     setDownCount(e.target.value === '' ? '' : Number(e.target.value))
                                 }
                             />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="slowMs">Slow threshold (ms)</Label>
+                        </Field>
+                        <Field label="Slow threshold (ms)">
                             <Input
-                                id="slowMs"
                                 type="number"
                                 value={slowMs}
                                 onChange={(e) =>
                                     setSlowMs(e.target.value === '' ? '' : Number(e.target.value))
                                 }
                             />
-                        </div>
+                        </Field>
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="channels">Channels (JSON)</Label>
+                    <Field label="Channels (JSON)">
                         <Textarea
-                            id="channels"
                             value={channels}
                             onChange={(e) => setChannels(e.target.value)}
                             rows={6}
                             placeholder='[{"kind":"email","config":{"to":"oncall@acme.com"}}]'
                         />
-                    </div>
+                    </Field>
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : initial ? 'Save policy' : 'Create policy'}
+                        <Button type="submit" variant="primary" loading={pending}>
+                            {pending ? 'Saving...' : initial ? 'Save policy' : 'Create policy'}
                         </Button>
                     </div>
                 </form>

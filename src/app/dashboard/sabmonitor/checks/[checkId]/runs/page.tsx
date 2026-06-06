@@ -1,7 +1,21 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Activity } from 'lucide-react';
 
-import { Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 
 import { listSabmonitorCheckRuns } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../../../_components/status-badge';
@@ -21,17 +35,19 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
     const ascending = [...runs.items].reverse();
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">Recent runs</h2>
+        <div className="ui20 flex flex-col gap-4">
+            <PageHeader bordered={false} compact>
+                <PageHeaderHeading>
+                    <PageTitle>Recent runs</PageTitle>
+                </PageHeaderHeading>
                 <Link
                     className="text-[12px] text-[var(--st-accent)] hover:underline"
                     href={`/dashboard/sabmonitor/checks/${checkId}`}
                 >
                     Back to check
                 </Link>
-            </div>
-            <Card className="zoruui">
+            </PageHeader>
+            <Card padding="none">
                 <CardBody className="p-4">
                     <ResponseTimeChart
                         points={ascending.map((r) => ({
@@ -42,44 +58,47 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
                     />
                 </CardBody>
             </Card>
-            <Card className="zoruui">
+            <Card padding="none">
                 <CardBody className="p-0">
                     {runs.items.length === 0 ? (
-                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">
-                            No runs yet — click <span className="font-medium">Run now</span> to
-                            collect a first sample.
-                        </p>
+                        <EmptyState
+                            icon={Activity}
+                            title="No runs yet"
+                            description="Click Run now to collect a first sample."
+                        />
                     ) : (
-                        <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                <tr className="border-b border-[var(--st-border)]">
-                                    <th className="p-3 text-left font-medium">Time</th>
-                                    <th className="p-3 text-left font-medium">Region</th>
-                                    <th className="p-3 text-left font-medium">Status</th>
-                                    <th className="p-3 text-right font-medium">Response (ms)</th>
-                                    <th className="p-3 text-right font-medium">HTTP</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th>Time</Th>
+                                    <Th>Region</Th>
+                                    <Th>Status</Th>
+                                    <Th align="right">Response (ms)</Th>
+                                    <Th align="right">HTTP</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {runs.items.map((r) => (
-                                    <tr key={r._id} className="border-b border-[var(--st-border)]">
-                                        <td className="p-3 text-[var(--st-text-secondary)]">
+                                    <Tr key={r._id}>
+                                        <Td className="text-[var(--st-text-secondary)]">
                                             {new Date(r.ts).toLocaleString()}
-                                        </td>
-                                        <td className="p-3 text-[var(--st-text-secondary)]">{r.probeRegion}</td>
-                                        <td className="p-3">
+                                        </Td>
+                                        <Td className="text-[var(--st-text-secondary)]">
+                                            {r.probeRegion}
+                                        </Td>
+                                        <Td>
                                             <StatusBadge status={r.status} />
-                                        </td>
-                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td align="right" className="text-[var(--st-text-secondary)]">
                                             {r.responseMs}
-                                        </td>
-                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">
-                                            {r.httpStatusCode ?? '—'}
-                                        </td>
-                                    </tr>
+                                        </Td>
+                                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                                            {r.httpStatusCode ?? '-'}
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     )}
                 </CardBody>
             </Card>

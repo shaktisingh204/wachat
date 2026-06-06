@@ -12,18 +12,18 @@ export default function SabchatAdminLayout({ children }: { children: React.React
     ];
 
     return (
-        <div className="zoruui flex h-[calc(100vh-4rem)] p-4 gap-4">
-            <Card className="w-64 h-full shrink-0 flex flex-col">
+        <div className="flex h-[calc(100vh-4rem)] gap-4 p-4">
+            <Card className="flex h-full w-64 shrink-0 flex-col">
                 <CardHeader>
                     <CardTitle>SabChat Admin</CardTitle>
                 </CardHeader>
                 <CardBody className="flex-1 overflow-y-auto p-2">
-                    <nav className="flex flex-col gap-2">
+                    <nav aria-label="SabChat admin sections" className="flex flex-col gap-1">
                         {navItems.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="px-4 py-2 rounded-md hover:bg-[var(--st-bg-muted)] text-sm font-medium transition-colors"
+                                className="rounded-[var(--st-radius)] px-4 py-2 text-sm font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-hover)]"
                             >
                                 {item.label}
                             </Link>
@@ -31,7 +31,7 @@ export default function SabchatAdminLayout({ children }: { children: React.React
                     </nav>
                 </CardBody>
             </Card>
-            <main className="flex-1 overflow-hidden flex flex-col">
+            <main className="flex flex-1 flex-col overflow-hidden">
                 {children}
             </main>
         </div>

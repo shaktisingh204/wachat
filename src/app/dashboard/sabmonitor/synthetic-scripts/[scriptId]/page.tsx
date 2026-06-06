@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+} from '@/components/sabcrm/20ui';
+
 import { getSabmonitorSyntheticScript } from '@/app/actions/sabmonitor.actions';
 import { SyntheticScriptEditClient } from './edit-client';
 
@@ -18,7 +24,11 @@ export default async function EditSyntheticScriptPage({
     if (!script) notFound();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-[var(--st-text)]">{script.name}</h2>
+            <PageHeader compact bordered={false} className="p-0">
+                <PageHeaderHeading>
+                    <PageTitle>{script.name}</PageTitle>
+                </PageHeaderHeading>
+            </PageHeader>
             <SyntheticScriptEditClient
                 id={scriptId}
                 initialName={script.name}

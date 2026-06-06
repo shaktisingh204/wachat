@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 import { listAdminSla } from '@/app/actions/sabchat-admin.actions';
 import { AdminSlaClient } from '../_components/admin-sla-client';
 
@@ -9,13 +9,18 @@ export default async function AdminSlaPage() {
     const items = resp.items ?? [];
 
     return (
-        <Card className="flex-1 flex flex-col min-h-0 border-0 rounded-none shadow-none">
-            <CardHeader>
-                <CardTitle>Service Level Agreements (SLA)</CardTitle>
-            </CardHeader>
-            <CardBody className="flex-1 overflow-y-auto">
+        <div className="ui20 flex-1 flex flex-col min-h-0 gap-6 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Service Level Agreements</PageTitle>
+                    <PageDescription>
+                        Set first-response and resolution targets so conversations are answered and closed on time.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+            <div className="flex-1 min-h-0 overflow-y-auto">
                 <AdminSlaClient initialData={items} />
-            </CardBody>
-        </Card>
+            </div>
+        </div>
     );
 }

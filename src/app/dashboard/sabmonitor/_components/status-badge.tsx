@@ -1,35 +1,54 @@
+'use client';
+
 import * as React from 'react';
 
-import { cn } from '@/components/sabcrm/20ui';
+import { Badge, cn, type BadgeTone } from '@/components/sabcrm/20ui';
+
+export type MonitorStatus =
+    | 'up'
+    | 'down'
+    | 'warning'
+    | 'unknown'
+    | 'ongoing'
+    | 'resolved'
+    | 'active'
+    | 'paused'
+    | 'live';
 
 /**
- * Compact colored pill for a check / run / incident status. Uses the
- * existing ZoruUI palette tokens — no bespoke colors.
+ * Compact colored pill for a check / run / incident status. Built on the 20ui
+ * Badge so tone, dot, and motion all come from the design system. Color is
+ * paired with a leading dot and an aria-label so status meaning never relies on
+ * color alone.
  */
+const STATUS_TONE: Record<MonitorStatus, BadgeTone> = {
+    up: 'success',
+    resolved: 'success',
+    active: 'success',
+    live: 'success',
+    warning: 'warning',
+    down: 'danger',
+    ongoing: 'danger',
+    paused: 'neutral',
+    unknown: 'neutral',
+};
+
 export function StatusBadge({
     status,
     className,
 }: {
-    status: 'up' | 'down' | 'warning' | 'unknown' | 'ongoing' | 'resolved' | 'active' | 'paused' | 'live';
+    status: MonitorStatus;
     className?: string;
 }): React.JSX.Element {
-    const tone =
-        status === 'up' || status === 'resolved' || status === 'active' || status === 'live'
-            ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
-            : status === 'warning'
-              ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
-              : status === 'down' || status === 'ongoing'
-                ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
-                : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border-[var(--st-border)]';
     return (
-        <span
-            className={cn(
-                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide',
-                tone,
-                className,
-            )}
+        <Badge
+            tone={STATUS_TONE[status]}
+            kind="soft"
+            dot
+            aria-label={`Status: ${status}`}
+            className={cn('uppercase tracking-wide', className)}
         >
             {status}
-        </span>
+        </Badge>
     );
 }

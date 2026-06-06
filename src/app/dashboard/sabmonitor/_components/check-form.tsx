@@ -4,7 +4,20 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
-import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    Textarea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     createSabmonitorCheck,
@@ -33,6 +46,7 @@ export function CheckForm({
     initial?: SabmonitorCheckDoc;
 }): React.JSX.Element {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [name, setName] = React.useState(initial?.name ?? '');
     const [kind, setKind] = React.useState<SabmonitorCheckKind>(initial?.kind ?? 'http');
@@ -83,7 +97,7 @@ export function CheckForm({
                     router.push(`/dashboard/sabmonitor/checks/${res.id}`);
                 }
             } catch (err) {
-                window.alert((err as Error).message);
+                toast.error((err as Error).message);
             }
         });
     };
@@ -92,103 +106,88 @@ export function CheckForm({
     const showHostPort = kind === 'tcp' || kind === 'ping' || kind === 'dns';
 
     return (
-        <Card className="zoruui">
-            <CardBody className="p-4">
+        <Card>
+            <CardBody>
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                     <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="name">Name</Label>
+                        <Field label="Name" required>
                             <Input
-                                id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                required
                             />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="kind">Kind</Label>
-                            <select
-                                id="kind"
+                        </Field>
+                        <Field label="Kind" id="kind">
+                            <Select
                                 value={kind}
-                                onChange={(e) =>
-                                    setKind(e.target.value as SabmonitorCheckKind)
-                                }
-                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]"
+                                onValueChange={(v) => setKind(v as SabmonitorCheckKind)}
                             >
-                                {KIND_OPTIONS.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                                <SelectTrigger id="kind" aria-label="Kind">
+                                    <SelectValue placeholder="Select a kind" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {KIND_OPTIONS.map((o) => (
+                                        <SelectItem key={o.value} value={o.value}>
+                                            {o.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Field>
                     </div>
 
                     {showUrl && (
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="url">URL</Label>
+                        <Field label="URL">
                             <Input
-                                id="url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 placeholder="https://example.com/health"
                             />
-                        </div>
+                        </Field>
                     )}
 
                     {showHostPort && (
                         <div className="grid gap-3 md:grid-cols-2">
-                            <div className="flex flex-col gap-1">
-                                <Label htmlFor="host">Host</Label>
+                            <Field label="Host">
                                 <Input
-                                    id="host"
                                     value={host}
                                     onChange={(e) => setHost(e.target.value)}
                                 />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <Label htmlFor="port">Port</Label>
+                            </Field>
+                            <Field label="Port">
                                 <Input
-                                    id="port"
                                     type="number"
                                     value={port}
                                     onChange={(e) =>
                                         setPort(e.target.value === '' ? '' : Number(e.target.value))
                                     }
                                 />
-                            </div>
+                            </Field>
                         </div>
                     )}
 
                     <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="intervalSecs">Interval (seconds)</Label>
+                        <Field label="Interval (seconds)">
                             <Input
-                                id="intervalSecs"
                                 type="number"
                                 value={intervalSecs}
                                 onChange={(e) => setIntervalSecs(Number(e.target.value))}
                                 min={30}
                             />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label htmlFor="regions">Regions (comma-separated)</Label>
+                        </Field>
+                        <Field label="Regions (comma-separated)">
                             <Input
-                                id="regions"
                                 value={regions}
                                 onChange={(e) => setRegions(e.target.value)}
                                 placeholder="us-east, eu-west"
                             />
-                        </div>
+                        </Field>
                     </div>
 
                     {kind === 'http' && (
                         <>
                             <div className="grid gap-3 md:grid-cols-2">
-                                <div className="flex flex-col gap-1">
-                                    <Label htmlFor="expectedStatus">Expected status</Label>
+                                <Field label="Expected status">
                                     <Input
-                                        id="expectedStatus"
                                         type="number"
                                         value={expectedStatus}
                                         onChange={(e) =>
@@ -198,42 +197,34 @@ export function CheckForm({
                                         }
                                         placeholder="200"
                                     />
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <Label htmlFor="expectedBodyContains">Expected body contains</Label>
+                                </Field>
+                                <Field label="Expected body contains">
                                     <Input
-                                        id="expectedBodyContains"
                                         value={expectedBodyContains}
                                         onChange={(e) => setExpectedBodyContains(e.target.value)}
                                     />
-                                </div>
+                                </Field>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <Label htmlFor="headersJson">Headers (JSON)</Label>
+                            <Field label="Headers (JSON)">
                                 <Textarea
-                                    id="headersJson"
                                     value={headersJson}
                                     onChange={(e) => setHeadersJson(e.target.value)}
                                     rows={3}
                                 />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <Label htmlFor="bodyJson">Body (JSON)</Label>
+                            </Field>
+                            <Field label="Body (JSON)">
                                 <Textarea
-                                    id="bodyJson"
                                     value={bodyJson}
                                     onChange={(e) => setBodyJson(e.target.value)}
                                     rows={3}
                                 />
-                            </div>
+                            </Field>
                         </>
                     )}
 
                     {kind === 'ssl' && (
-                        <div className="flex flex-col gap-1 md:max-w-xs">
-                            <Label htmlFor="sslExpiryWarnDays">SSL expiry warn (days)</Label>
+                        <Field label="SSL expiry warn (days)" className="md:max-w-xs">
                             <Input
-                                id="sslExpiryWarnDays"
                                 type="number"
                                 value={sslExpiryWarnDays}
                                 onChange={(e) =>
@@ -243,12 +234,12 @@ export function CheckForm({
                                 }
                                 placeholder="14"
                             />
-                        </div>
+                        </Field>
                     )}
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : initial ? 'Save check' : 'Create check'}
+                        <Button type="submit" variant="primary" loading={pending} disabled={pending}>
+                            {pending ? 'Saving' : initial ? 'Save check' : 'Create check'}
                         </Button>
                     </div>
                 </form>

@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 import { listAdminInboxes } from '@/app/actions/sabchat-admin.actions';
 import { AdminInboxesClient } from '../_components/admin-inboxes-client';
 
@@ -9,13 +9,16 @@ export default async function AdminInboxesPage() {
     const inboxes = inboxesResp.items ?? [];
 
     return (
-        <Card className="flex-1 flex flex-col min-h-0 border-0 rounded-none shadow-none">
-            <CardHeader>
-                <CardTitle>Inboxes</CardTitle>
-            </CardHeader>
-            <CardBody className="flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col min-h-0">
+            <PageHeader className="px-4">
+                <PageHeaderHeading>
+                    <PageTitle>Inboxes</PageTitle>
+                    <PageDescription>Manage every shared inbox across your workspace.</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+            <div className="flex-1 overflow-y-auto p-4">
                 <AdminInboxesClient initialData={inboxes} />
-            </CardBody>
-        </Card>
+            </div>
+        </div>
     );
 }

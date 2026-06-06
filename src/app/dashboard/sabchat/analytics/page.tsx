@@ -1,10 +1,48 @@
 "use client";
 
-import { cn, CHART_PALETTE, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, CardBody, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Button, Table, TBody, Td, Th, THead, Tr, Avatar, AvatarFallback, PageActions, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Badge } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState,
-  useTransition } from "react";
+  CHART_PALETTE,
+  type ChartConfig,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageActions,
+  Skeleton,
+  StatCard,
+  Button,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Avatar,
+  AvatarFallback,
+  Progress,
+  Badge,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/sabcrm/20ui";
+import { useEffect, useState, useTransition } from "react";
 import {
   CheckCircle,
   Clock,
@@ -18,13 +56,13 @@ import {
   Smartphone,
   Monitor,
   Timer,
-  ZapOff
-  } from "lucide-react";
+  ZapOff,
+} from "lucide-react";
 
 import { getSabChatAnalytics } from "@/app/actions/sabchat.actions";
 
 /**
- * /dashboard/sabchat/analytics — Comprehensive KPIs and 10+ visual charts.
+ * /dashboard/sabchat/analytics. Comprehensive KPIs and 10+ visual charts.
  */
 
 interface AnalyticsData {
@@ -41,27 +79,22 @@ function AnalyticsSkeleton() {
     <div className="flex w-full flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 w-full" />
+          <Skeleton key={i} height={112} className="w-full" />
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <Skeleton className="h-80 w-full lg:col-span-2" />
-        <Skeleton className="h-80 w-full" />
+        <Skeleton height={320} className="w-full lg:col-span-2" />
+        <Skeleton height={320} className="w-full" />
       </div>
     </div>
   );
 }
 
-// Mocks for new advanced features
+// Mocks for the advanced features below.
 const MOCK_CSAT_DATA = [
   { name: "Positive", value: 75, fill: "var(--st-status-ok)" },
   { name: "Neutral", value: 15, fill: "var(--st-warn)" },
   { name: "Negative", value: 10, fill: "var(--st-danger)" },
-];
-
-const MOCK_DEVICE_DATA = [
-  { name: "Desktop", value: 65, fill: CHART_PALETTE[0] },
-  { name: "Mobile", value: 35, fill: CHART_PALETTE[1] },
 ];
 
 const MOCK_TAGS_DATA = [
@@ -69,6 +102,11 @@ const MOCK_TAGS_DATA = [
   { name: "Sales", value: 30, fill: CHART_PALETTE[2] },
   { name: "Billing", value: 15, fill: CHART_PALETTE[3] },
   { name: "Bug", value: 10, fill: CHART_PALETTE[4] },
+];
+
+const MOCK_DEVICE_DATA = [
+  { name: "Desktop", value: 65, icon: Monitor, tone: "accent" as const },
+  { name: "Mobile", value: 35, icon: Smartphone, tone: "success" as const },
 ];
 
 const MOCK_AGENTS = [
@@ -84,6 +122,28 @@ const MOCK_HOURS_HEATMAP = Array.from({ length: 7 }).map((_, d) => ({
   h15: Math.floor(Math.random() * 40) + 10,
   h18: Math.floor(Math.random() * 10),
 }));
+
+// Chart configs drive tooltip labels + per-series colours (20ui tokens).
+const VOLUME_CONFIG: ChartConfig = {
+  count: { label: "Total Chats", color: CHART_PALETTE[0] },
+};
+const CSAT_CONFIG: ChartConfig = {
+  Positive: { label: "Positive", color: "var(--st-status-ok)" },
+  Neutral: { label: "Neutral", color: "var(--st-warn)" },
+  Negative: { label: "Negative", color: "var(--st-danger)" },
+};
+const TAGS_CONFIG: ChartConfig = {
+  Support: { label: "Support", color: CHART_PALETTE[0] },
+  Sales: { label: "Sales", color: CHART_PALETTE[2] },
+  Billing: { label: "Billing", color: CHART_PALETTE[3] },
+  Bug: { label: "Bug", color: CHART_PALETTE[4] },
+};
+const HOURS_CONFIG: ChartConfig = {
+  h12: { label: "Noon chats", color: CHART_PALETTE[1] },
+  h15: { label: "Afternoon chats", color: CHART_PALETTE[0] },
+};
+
+const DATE_RANGES = ["Today", "Yesterday", "Last 7 Days", "Last 30 Days"];
 
 export default function SabChatAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -106,9 +166,7 @@ export default function SabChatAnalyticsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/sabchat/inbox">
-              SabChat
-            </BreadcrumbLink>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">SabChat</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -127,22 +185,21 @@ export default function SabChatAnalyticsPage() {
         <PageActions className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Calendar className="mr-2 h-4 w-4" />
+              <Button variant="outline" iconLeft={Calendar}>
                 {dateRange}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setDateRange("Today")}>Today</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateRange("Yesterday")}>Yesterday</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateRange("Last 7 Days")}>Last 7 Days</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateRange("Last 30 Days")}>Last 30 Days</DropdownMenuItem>
+              {DATE_RANGES.map((range) => (
+                <DropdownMenuItem key={range} onSelect={() => setDateRange(range)}>
+                  {range}
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem>Custom Range...</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button>
-            <Download className="mr-2 h-4 w-4" />
+          <Button variant="primary" iconLeft={Download}>
             Export CSV
           </Button>
         </PageActions>
@@ -157,48 +214,48 @@ export default function SabChatAnalyticsPage() {
             <StatCard
               label="Total Conversations"
               value={data.totalChats.toLocaleString()}
-              icon={<MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 12, isPositive: true }}
+              icon={MessageSquare}
+              delta={{ value: "+12%", tone: "up" }}
             />
             <StatCard
               label="First Response Time"
               value={`${data.avgResponseTime}s`}
-              icon={<Clock className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 5, isPositive: true }}
+              icon={Clock}
+              delta={{ value: "+5%", tone: "up" }}
             />
             <StatCard
               label="Resolution Time"
-              value="4m 20s" // mock new feature
-              icon={<Timer className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 2, isPositive: false }}
+              value="4m 20s"
+              icon={Timer}
+              delta={{ value: "-2%", tone: "down" }}
             />
             <StatCard
               label="Customer Satisfaction"
               value={`${data.satisfaction}%`}
-              icon={<Smile className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 1.5, isPositive: true }}
+              icon={Smile}
+              delta={{ value: "+1.5%", tone: "up" }}
             />
             <StatCard
               label="Open Chats"
               value={data.openChats.toLocaleString()}
-              icon={<Inbox className="h-4 w-4 text-[var(--st-text-secondary)]" />}
+              icon={Inbox}
             />
             <StatCard
               label="Closed Chats"
               value={data.closedChats.toLocaleString()}
-              icon={<CheckCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />}
+              icon={CheckCircle}
             />
             <StatCard
               label="Abandoned Chats"
-              value="14" // mock new feature
-              icon={<ZapOff className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 8, isPositive: false }}
+              value="14"
+              icon={ZapOff}
+              delta={{ value: "-8%", tone: "down" }}
             />
             <StatCard
               label="AI Resolution Rate"
-              value="34%" // mock new feature
-              icon={<Monitor className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-              trend={{ value: 14, isPositive: true }}
+              value="34%"
+              icon={Monitor}
+              delta={{ value: "+14%", tone: "up" }}
             />
           </div>
 
@@ -207,16 +264,18 @@ export default function SabChatAnalyticsPage() {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Chat Volume vs Resolution</CardTitle>
-                <PageDescription>Daily total incoming conversations and resolved chats.</PageDescription>
+                <CardDescription>
+                  Daily total incoming conversations and resolved chats.
+                </CardDescription>
               </CardHeader>
               <CardBody>
-                <ChartContainer height={300}>
+                <ChartContainer config={VOLUME_CONFIG} className="h-[300px] w-full">
                   <Recharts.AreaChart data={data.dailyChatVolume}>
                     <Recharts.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
                     <Recharts.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--st-text-secondary)" />
                     <Recharts.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="var(--st-text-secondary)" />
-                    <Recharts.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
-                    <Recharts.Area type="monotone" dataKey="count" name="Total Chats" stroke={CHART_PALETTE[0]} fill={CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
+                    <ChartTooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltipContent />} />
+                    <Recharts.Area type="monotone" dataKey="count" name="count" stroke={CHART_PALETTE[0]} fill={CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
                   </Recharts.AreaChart>
                 </ChartContainer>
               </CardBody>
@@ -226,20 +285,32 @@ export default function SabChatAnalyticsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>CSAT Breakdown</CardTitle>
-                <PageDescription>Customer feedback ratings distribution.</PageDescription>
+                <CardDescription>Customer feedback ratings distribution.</CardDescription>
               </CardHeader>
               <CardBody className="flex flex-col items-center justify-center">
-                <ChartContainer height={220}>
+                <ChartContainer config={CSAT_CONFIG} className="h-[220px] w-full">
                   <Recharts.PieChart>
-                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                     <Recharts.Pie data={MOCK_CSAT_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                      {MOCK_CSAT_DATA.map((entry) => (
+                        <Recharts.Cell key={entry.name} fill={entry.fill} />
+                      ))}
                     </Recharts.Pie>
                   </Recharts.PieChart>
                 </ChartContainer>
-                <div className="flex gap-4 mt-4 w-full justify-center">
-                  <div className="flex items-center gap-1.5"><Smile className="h-4 w-4 text-[var(--st-status-ok)]" /><span className="text-sm font-medium">75%</span></div>
-                  <div className="flex items-center gap-1.5"><Meh className="h-4 w-4 text-[var(--st-warn)]" /><span className="text-sm font-medium">15%</span></div>
-                  <div className="flex items-center gap-1.5"><Frown className="h-4 w-4 text-[var(--st-danger)]" /><span className="text-sm font-medium">10%</span></div>
+                <div className="mt-4 flex w-full justify-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <Smile className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
+                    <span className="text-sm font-medium">75%</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Meh className="h-4 w-4 text-[var(--st-warn)]" aria-hidden="true" />
+                    <span className="text-sm font-medium">15%</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Frown className="h-4 w-4 text-[var(--st-danger)]" aria-hidden="true" />
+                    <span className="text-sm font-medium">10%</span>
+                  </div>
                 </div>
               </CardBody>
             </Card>
@@ -252,10 +323,14 @@ export default function SabChatAnalyticsPage() {
                 <CardTitle>Top Tags</CardTitle>
               </CardHeader>
               <CardBody>
-                <ChartContainer height={220}>
+                <ChartContainer config={TAGS_CONFIG} className="h-[220px] w-full">
                   <Recharts.PieChart>
-                    <Recharts.Tooltip content={<ChartTooltip />} />
-                    <Recharts.Pie data={MOCK_TAGS_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <Recharts.Pie data={MOCK_TAGS_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                      {MOCK_TAGS_DATA.map((entry) => (
+                        <Recharts.Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Recharts.Pie>
                   </Recharts.PieChart>
                 </ChartContainer>
               </CardBody>
@@ -266,42 +341,39 @@ export default function SabChatAnalyticsPage() {
               <CardHeader>
                 <CardTitle>Device Breakdown</CardTitle>
               </CardHeader>
-              <CardBody className="flex flex-col justify-center h-[260px]">
+              <CardBody className="flex h-[260px] flex-col justify-center">
                 <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2 font-medium">
-                      <span className="flex items-center gap-2"><Monitor className="h-4 w-4 text-[var(--st-text-secondary)]" /> Desktop</span>
-                      <span>65%</span>
-                    </div>
-                    <div className="h-3 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--st-text)]" style={{ width: '65%' }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2 font-medium">
-                      <span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-[var(--st-text-secondary)]" /> Mobile</span>
-                      <span>35%</span>
-                    </div>
-                    <div className="h-3 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--st-text-secondary)]" style={{ width: '35%' }}></div>
-                    </div>
-                  </div>
+                  {MOCK_DEVICE_DATA.map((device) => {
+                    const DeviceIcon = device.icon;
+                    return (
+                      <div key={device.name}>
+                        <div className="mb-2 flex justify-between text-sm font-medium">
+                          <span className="flex items-center gap-2">
+                            <DeviceIcon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                            {device.name}
+                          </span>
+                          <span>{device.value}%</span>
+                        </div>
+                        <Progress value={device.value} tone={device.tone} label={`${device.name} share`} />
+                      </div>
+                    );
+                  })}
                 </div>
               </CardBody>
             </Card>
 
-            {/* Heatmap Mock */}
+            {/* Busiest Hours */}
             <Card>
               <CardHeader>
                 <CardTitle>Busiest Hours</CardTitle>
               </CardHeader>
               <CardBody>
-                <ChartContainer height={220}>
+                <ChartContainer config={HOURS_CONFIG} className="h-[220px] w-full">
                   <Recharts.BarChart data={MOCK_HOURS_HEATMAP}>
                     <Recharts.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="var(--st-text-secondary)" />
-                    <Recharts.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
-                    <Recharts.Bar dataKey="h12" name="Noon chats" fill={CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
-                    <Recharts.Bar dataKey="h15" name="Afternoon chats" fill={CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
+                    <ChartTooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltipContent />} />
+                    <Recharts.Bar dataKey="h12" name="h12" fill={CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
+                    <Recharts.Bar dataKey="h15" name="h15" fill={CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
                   </Recharts.BarChart>
                 </ChartContainer>
               </CardBody>
@@ -309,25 +381,25 @@ export default function SabChatAnalyticsPage() {
           </div>
 
           {/* Agent Leaderboard */}
-          <Card className="overflow-hidden p-0">
-            <div className="p-5 border-b border-[var(--st-border)] flex items-center justify-between">
-              <div>
-                <CardTitle>Agent Performance Leaderboard</CardTitle>
-                <PageDescription className="mt-1">Resolution metrics broken down by individual agent.</PageDescription>
-              </div>
-            </div>
+          <Card padding="none" className="overflow-hidden">
+            <CardHeader>
+              <CardTitle>Agent Performance Leaderboard</CardTitle>
+              <CardDescription>
+                Resolution metrics broken down by individual agent.
+              </CardDescription>
+            </CardHeader>
             <Table>
-              <THead className="bg-[var(--st-bg-muted)]/30">
+              <THead>
                 <Tr>
                   <Th>Agent</Th>
-                  <Th className="text-right">Chats Resolved</Th>
-                  <Th className="text-right">Avg Response Time</Th>
-                  <Th className="text-right">CSAT</Th>
+                  <Th align="right">Chats Resolved</Th>
+                  <Th align="right">Avg Response Time</Th>
+                  <Th align="right">CSAT</Th>
                 </Tr>
               </THead>
               <TBody>
-                {MOCK_AGENTS.map((agent, i) => (
-                  <Tr key={i}>
+                {MOCK_AGENTS.map((agent) => (
+                  <Tr key={agent.email}>
                     <Td>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
@@ -339,14 +411,10 @@ export default function SabChatAnalyticsPage() {
                         </div>
                       </div>
                     </Td>
-                    <Td className="text-right font-medium">{agent.chats}</Td>
-                    <Td className="text-right text-[var(--st-text-secondary)]">{agent.time}</Td>
-                    <Td className="text-right">
-                      <Badge variant="outline" className={cn(
-                        agent.csat > 90 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]"
-                      )}>
-                        {agent.csat}%
-                      </Badge>
+                    <Td align="right" className="font-medium">{agent.chats}</Td>
+                    <Td align="right" className="text-[var(--st-text-secondary)]">{agent.time}</Td>
+                    <Td align="right">
+                      <Badge tone={agent.csat >= 90 ? "success" : "warning"}>{agent.csat}%</Badge>
                     </Td>
                   </Tr>
                 ))}

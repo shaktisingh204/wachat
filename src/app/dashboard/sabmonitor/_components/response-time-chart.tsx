@@ -1,11 +1,14 @@
 'use client';
 
 import * as React from 'react';
+import { Activity } from 'lucide-react';
+
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 /**
  * Minimal inline SVG response-time chart. Deliberately framework-free so
  * we don't introduce a new chart dependency for what is essentially a
- * 200-pixel sparkline.
+ * 200-pixel sparkline. Colours source from 20ui status tokens.
  */
 export function ResponseTimeChart({
     points,
@@ -14,7 +17,12 @@ export function ResponseTimeChart({
 }): React.JSX.Element {
     if (points.length === 0) {
         return (
-            <p className="text-sm text-[var(--st-text-secondary)]">No data points to chart yet.</p>
+            <EmptyState
+                size="sm"
+                icon={Activity}
+                title="No data points yet"
+                description="Response time samples will plot here once monitoring runs."
+            />
         );
     }
     const w = 800;
@@ -35,7 +43,7 @@ export function ResponseTimeChart({
     return (
         <svg
             viewBox={`0 0 ${w} ${h}`}
-            className="h-40 w-full"
+            className="h-40 w-full text-[var(--st-text-secondary)]"
             role="img"
             aria-label="Response time chart"
         >
@@ -44,12 +52,13 @@ export function ResponseTimeChart({
             {points.map((p, i) => {
                 const cx = padding + i * stepX;
                 const cy = toY(p.ms);
+                // Status drives the dot colour at runtime; source from 20ui tokens.
                 const fill =
                     p.status === 'up'
-                        ? 'rgb(16,185,129)'
+                        ? 'var(--st-status-ok)'
                         : p.status === 'warning'
-                          ? 'rgb(217,119,6)'
-                          : 'rgb(225,29,72)';
+                          ? 'var(--st-warn)'
+                          : 'var(--st-danger)';
                 return <circle key={i} cx={cx} cy={cy} r={2.5} fill={fill} />;
             })}
         </svg>
