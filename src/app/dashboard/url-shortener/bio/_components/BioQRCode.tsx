@@ -1,3 +1,5 @@
+'use client';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 import QRCode from 'react-qr-code';
 import { BioLink } from '../types';
@@ -22,7 +24,9 @@ export function BioQRCode({ link, onClose }: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="bg-white p-4 rounded-xl mt-4">
+        {/* True white surface + black modules are required for reliable QR
+            scanning, independent of the active theme. Intentional non-token color. */}
+        <div className="mt-4 rounded-[var(--st-radius)] bg-white p-4">
           <QRCode
             value={url}
             size={200}
@@ -31,8 +35,8 @@ export function BioQRCode({ link, onClose }: Props) {
             level="Q"
           />
         </div>
-        
-        <p className="mt-4 text-xs text-[var(--st-text)] break-all w-full text-center px-4">
+
+        <p className="mt-4 w-full break-all px-4 text-center text-xs text-[var(--st-text-secondary)]">
           {url}
         </p>
       </DialogContent>

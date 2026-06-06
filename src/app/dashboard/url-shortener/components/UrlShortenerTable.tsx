@@ -1,6 +1,37 @@
+'use client';
+
 import { useTransition } from 'react';
-import Link from 'next/link';
-import { Card, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
+import {
+  Card,
+  Button,
+  IconButton,
+  Badge,
+  Checkbox,
+  EmptyState,
+  Skeleton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Trash2,
   Check,
@@ -12,11 +43,25 @@ import {
   LoaderCircle,
   ChevronLeft,
   ChevronRight,
+  Link2,
 } from 'lucide-react';
 import { deleteManyShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
 import type { WithId, ShortUrl } from '@/lib/definitions';
 
 const PAGE_SIZES = [10, 25, 50, 100];
+
+type LinkStatus = 'active' | 'expired' | 'expiring-soon';
+
+const STATUS_TONE: Record<LinkStatus, 'success' | 'warning' | 'danger'> = {
+  active: 'success',
+  'expiring-soon': 'warning',
+  expired: 'danger',
+};
+
+function statusLabel(status: LinkStatus): string {
+  if (status === 'expiring-soon') return 'Expiring soon';
+  return status[0].toUpperCase() + status.slice(1);
+}
 
 function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => void }) {
   const { toast } = useToast();
@@ -27,13 +72,13 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
       try {
         const result = await deleteShortUrl(urlId);
         if (result.success) {
-          toast({ title: 'Success', description: 'URL deleted.' });
+          toast({ title: 'Success', description: 'URL deleted.', tone: 'success' });
           onDeleted();
         } else {
-          toast({ title: 'Error', description: result.error || 'Failed to delete URL.', variant: 'destructive' });
+          toast({ title: 'Error', description: result.error || 'Failed to delete URL.', tone: 'danger' });
         }
-      } catch (err) {
-        toast({ title: 'Error', description: 'Network error occurred.', variant: 'destructive' });
+      } catch {
+        toast({ title: 'Error', description: 'Network error occurred.', tone: 'danger' });
       }
     });
   };
@@ -41,13 +86,7 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button
-          type="button"
-          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-          aria-label="Delete"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+        <IconButton label="Delete" icon={Trash2} size="sm" variant="danger" />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -59,7 +98,7 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-            {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
+            {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -107,7 +146,7 @@ export function UrlShortenerTable({
   pageCount: number;
   currentPage: number;
   getShortUrl: (url: WithId<ShortUrl>) => string;
-  getStatus: (url: WithId<ShortUrl>) => 'active' | 'expired' | 'expiring-soon';
+  getStatus: (url: WithId<ShortUrl>) => LinkStatus;
   copiedId: string | null;
   handleCopy: (id: string, value: string) => void;
   setSelectedUrlForQr: (val: string) => void;
@@ -115,6 +154,7 @@ export function UrlShortenerTable({
   fetchUrls: () => void;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isBulkDeleting, startBulkDelete] = useTransition();
 
   const handleBulkDelete = () => {
@@ -124,40 +164,37 @@ export function UrlShortenerTable({
       try {
         const result = await deleteManyShortUrls(ids);
         if (result.success) {
-          toast({ title: 'Deleted', description: `${result.deleted ?? ids.length} links removed.` });
+          toast({ title: 'Deleted', description: `${result.deleted ?? ids.length} links removed.`, tone: 'success' });
           fetchUrls();
         } else {
-          toast({ title: 'Error', description: result.error || 'Failed to delete URLs.', variant: 'destructive' });
+          toast({ title: 'Error', description: result.error || 'Failed to delete URLs.', tone: 'danger' });
         }
-      } catch (err) {
-        toast({ title: 'Error', description: 'Network error occurred.', variant: 'destructive' });
+      } catch {
+        toast({ title: 'Error', description: 'Network error occurred.', tone: 'danger' });
       }
     });
   };
 
   return (
-    <Card className="p-0">
+    <Card padding="none">
       {selectedIds.size > 0 ? (
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-2.5 text-[12.5px]">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-5 py-2.5 text-[12.5px]">
           <span className="text-[var(--st-text)]">
             <strong>{selectedIds.size}</strong> selected
           </span>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedIds(new Set())}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
               Clear
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="sm" disabled={isBulkDeleting}>
-                  {isBulkDeleting ? (
-                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-3.5 w-3.5" />
-                  )}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  iconLeft={Trash2}
+                  loading={isBulkDeleting}
+                  disabled={isBulkDeleting}
+                >
                   Delete selected
                 </Button>
               </AlertDialogTrigger>
@@ -181,33 +218,31 @@ export function UrlShortenerTable({
       ) : null}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--st-border)] text-left text-[12px] text-[var(--st-text-secondary)]">
-              <th className="w-10 px-5 py-3">
-                <input
-                  type="checkbox"
+        <Table>
+          <THead>
+            <Tr>
+              <Th width={40} align="center">
+                <Checkbox
                   checked={allPageSelected}
                   onChange={toggleSelectPage}
                   aria-label="Select all on page"
-                  className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                 />
-              </th>
-              <th className="px-2 py-3">Short URL</th>
-              <th className="px-5 py-3">Destination</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3">Health</th>
-              <th className="px-5 py-3">Clicks</th>
-              <th className="px-5 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+              </Th>
+              <Th>Short URL</Th>
+              <Th>Destination</Th>
+              <Th>Status</Th>
+              <Th>Health</Th>
+              <Th>Clicks</Th>
+              <Th align="right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {isLoading ? (
-              <tr>
-                <td colSpan={7} className="px-5 py-4">
+              <Tr>
+                <Td colSpan={7}>
                   <Skeleton className="h-10 w-full" />
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             ) : pageSlice.length > 0 ? (
               pageSlice.map((url) => {
                 const id = url._id.toString();
@@ -215,143 +250,108 @@ export function UrlShortenerTable({
                 const status = getStatus(url);
                 const selected = selectedIds.has(id);
                 return (
-                  <tr
-                    key={id}
-                    className={cn(
-                      'border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]',
-                      selected && 'bg-[var(--st-bg-muted)]',
-                    )}
-                  >
-                    <td className="w-10 px-5 py-3">
-                      <input
-                        type="checkbox"
+                  <Tr key={id} selected={selected}>
+                    <Td align="center">
+                      <Checkbox
                         checked={selected}
                         onChange={() => toggleSelect(id)}
                         aria-label="Select link"
-                        className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                       />
-                    </td>
-                    <td className="px-2 py-3 font-mono">
-                      <a
-                        href={shortUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[var(--st-text)] hover:underline flex items-center gap-1"
-                      >
-                        {shortUrl.replace(/^https?:\/\//, '')}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleCopy(id, shortUrl);
-                          }}
-                          className="ml-1 rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                          aria-label="Copy link"
+                    </Td>
+                    <Td className="font-mono">
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={shortUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[var(--st-text)] hover:underline"
                         >
-                          {copiedId === id ? (
-                            <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </button>
-                      </a>
-                    </td>
-                    <td className="px-5 py-3 text-[var(--st-text-secondary)] truncate max-w-[240px]">
-                      {url.originalUrl}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px]',
-                          status === 'active' &&
-                            'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
-                          status === 'expiring-soon' &&
-                            'border-[var(--st-warn)]/40 bg-[var(--st-warn)]/10 text-[var(--st-warn)]',
-                          status === 'expired' &&
-                            'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            'inline-block h-1.5 w-1.5 rounded-full',
-                            status === 'active' && 'bg-[var(--st-status-ok)]',
-                            status === 'expiring-soon' && 'bg-[var(--st-warn)]',
-                            status === 'expired' && 'bg-[var(--st-danger)]',
-                          )}
+                          {shortUrl.replace(/^https?:\/\//, '')}
+                        </a>
+                        <IconButton
+                          label="Copy link"
+                          icon={copiedId === id ? Check : Copy}
+                          size="sm"
+                          onClick={() => handleCopy(id, shortUrl)}
+                          className={copiedId === id ? 'text-[var(--st-status-ok)]' : undefined}
                         />
-                        {status === 'expiring-soon'
-                          ? 'Expiring soon'
-                          : status[0].toUpperCase() + status.slice(1)}
-                      </span>
+                      </div>
+                    </Td>
+                    <Td truncate className="max-w-[240px] text-[var(--st-text-secondary)]">
+                      {url.originalUrl}
+                    </Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[status]} dot>
+                        {statusLabel(status)}
+                      </Badge>
                       {url.expiresAt ? (
                         <div className="mt-0.5 text-[10.5px] text-[var(--st-text-secondary)]">
                           {new Date(url.expiresAt).toLocaleDateString()}
                         </div>
                       ) : null}
-                    </td>
-                    <td className="px-5 py-3">
+                    </Td>
+                    <Td>
                       {url.healthStatus ? (
-                        <span
-                          className={cn(
-                            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px]',
-                            url.healthStatus === 'ok' &&
-                              'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
-                            url.healthStatus === 'dead' &&
-                              'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
-                            url.healthStatus === 'unknown' &&
-                              'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
-                          )}
+                        <Badge
+                          tone={
+                            url.healthStatus === 'ok'
+                              ? 'success'
+                              : url.healthStatus === 'dead'
+                                ? 'danger'
+                                : 'neutral'
+                          }
                         >
-                          <Activity className="h-2.5 w-2.5" />
+                          <Activity className="h-2.5 w-2.5" aria-hidden="true" />
                           {url.healthStatus === 'ok' ? 'Up' : url.healthStatus === 'dead' ? 'Down' : 'Unknown'}
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-[11px] text-[var(--st-text-secondary)]/50">—</span>
+                        <span className="text-[11px] text-[var(--st-text-tertiary)]">-</span>
                       )}
-                    </td>
-                    <td className="px-5 py-3 text-[var(--st-text)]">{url.clickCount || 0}</td>
-                    <td className="px-5 py-3 text-right">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">{url.clickCount || 0}</Td>
+                    <Td align="right">
                       <div className="inline-flex items-center gap-1">
-                        <Link
-                          href={`/dashboard/url-shortener/${id}`}
-                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                          aria-label="Analytics"
-                        >
-                          <BarChart className="h-3.5 w-3.5" />
-                        </Link>
-                        <button
-                          type="button"
+                        <IconButton
+                          label="Analytics"
+                          icon={BarChart}
+                          size="sm"
+                          onClick={() => router.push(`/dashboard/url-shortener/${id}`)}
+                        />
+                        <IconButton
+                          label="QR Code"
+                          icon={QrCode}
+                          size="sm"
                           onClick={() => setSelectedUrlForQr(shortUrl)}
-                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                          aria-label="QR Code"
-                        >
-                          <QrCode className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
+                        />
+                        <IconButton
+                          label="Notes and comments"
+                          icon={MessageSquare}
+                          size="sm"
                           onClick={() => setNotesPanel({ id })}
-                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                          aria-label="Notes & Comments"
-                        >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                        </button>
+                        />
                         <DeleteButton urlId={id} onDeleted={fetchUrls} />
                       </div>
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 );
               })
             ) : (
-              <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-[var(--st-text-secondary)]">
-                  {urls.length === 0
-                    ? 'No links created yet.'
-                    : 'No links match your filters.'}
-                </td>
-              </tr>
+              <Tr>
+                <Td colSpan={7}>
+                  <EmptyState
+                    icon={Link2}
+                    title={urls.length === 0 ? 'No links created yet' : 'No links match your filters'}
+                    description={
+                      urls.length === 0
+                        ? 'Short links you create will appear here.'
+                        : 'Try adjusting your search or filters to see more results.'
+                    }
+                  />
+                </Td>
+              </Tr>
             )}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </div>
 
       {/* Pagination */}
@@ -359,45 +359,42 @@ export function UrlShortenerTable({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
           <div className="flex items-center gap-2">
             <span>Rows per page</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="h-7 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12px] text-[var(--st-text)]"
-            >
-              {PAGE_SIZES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+            <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+              <SelectTrigger aria-label="Rows per page" className="h-7 w-[72px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZES.map((s) => (
+                  <SelectItem key={s} value={String(s)}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
             <span>
-              {(currentPage - 1) * pageSize + 1}–
+              {(currentPage - 1) * pageSize + 1}-
               {Math.min(currentPage * pageSize, filteredUrls.length)} of {filteredUrls.length}
             </span>
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+              <IconButton
+                label="Previous page"
+                icon={ChevronLeft}
+                size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+              />
               <span className="min-w-[48px] text-center">
                 {currentPage} / {pageCount}
               </span>
-              <button
-                type="button"
+              <IconButton
+                label="Next page"
+                icon={ChevronRight}
+                size="sm"
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                 disabled={currentPage >= pageCount}
-                className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              />
             </div>
           </div>
         </div>

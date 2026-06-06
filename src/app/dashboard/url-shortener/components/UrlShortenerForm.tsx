@@ -2,24 +2,49 @@
 
 import { useRef, useEffect, useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Button, useToast, Popover, PopoverTrigger, PopoverContent, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, cn } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Tag as TagChip,
+  Button,
+  IconButton,
+  DatePicker,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  useToast,
+  cn,
+} from '@/components/sabcrm/20ui';
 import NextLink from 'next/link';
-import { DatePicker } from '@/components/sabcrm/20ui';
 import { BulkImportDialog } from '@/components/zoruui-domain/bulk-url-import-dialog';
-import { TagPicker, type TagPickerTag } from '@/components/zoruui-domain/tag-picker';
-import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';
+import { Link as LinkIcon, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import type { Tag } from '@/lib/definitions';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="sm" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-      ) : (
-        <LinkIcon className="h-3.5 w-3.5" />
-      )}
+    <Button type="submit" variant="primary" size="sm" iconLeft={LinkIcon} loading={pending}>
       Shorten URL
     </Button>
   );
@@ -44,23 +69,27 @@ function TagsSelector({
     onSelectionChange(next);
   };
 
+  const summary =
+    selectedTags.length > 0
+      ? selectedTags
+          .map((id) => userTags.find((t) => t._id === id)?.name)
+          .filter(Boolean)
+          .join(', ')
+      : placeholder || 'Select tags...';
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]"
+          variant="outline"
+          block
+          iconRight={ChevronsUpDown}
+          aria-expanded={open}
+          className="justify-between font-normal"
         >
-          <span className="truncate">
-            {selectedTags.length > 0
-              ? selectedTags
-                  .map((id) => userTags.find((t) => t._id === id)?.name)
-                  .filter(Boolean)
-                  .join(', ')
-              : placeholder || 'Select tags...'}
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
-        </button>
+          <span className="truncate">{summary}</span>
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
@@ -73,7 +102,7 @@ function TagsSelector({
                   href="/dashboard/url-shortener/settings"
                   className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-text)] hover:underline"
                 >
-                  <Settings className="h-3 w-3" /> Create & manage tags
+                  <Settings className="h-3 w-3" aria-hidden="true" /> Create and manage tags
                 </NextLink>
               </div>
             </CommandEmpty>
@@ -81,17 +110,17 @@ function TagsSelector({
               {userTags.map((tag) => (
                 <CommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
                   <Check
+                    aria-hidden="true"
                     className={cn('mr-2 h-4 w-4', selectedTags.includes(tag._id) ? 'opacity-100' : 'opacity-0')}
                   />
-                  <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
-                  <span>{tag.name}</span>
+                  <TagChip color={tag.color}>{tag.name}</TagChip>
                 </CommandItem>
               ))}
               <NextLink
                 href="/dashboard/url-shortener/settings"
                 className="flex items-center gap-2 border-t border-[var(--st-border)] px-2 py-2 text-[12px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
               >
-                <Settings className="h-3.5 w-3.5" /> Manage tags
+                <Settings className="h-3.5 w-3.5" aria-hidden="true" /> Manage tags
               </NextLink>
             </CommandGroup>
           </CommandList>
@@ -127,7 +156,7 @@ export function UrlShortenerForm({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Success', description: state.message });
+      toast.success({ title: 'Success', description: state.message });
       formRef.current?.reset();
       setCreateTagIds([]);
       setExpiresAt(undefined);
@@ -137,57 +166,56 @@ export function UrlShortenerForm({
       onSuccess();
     }
     if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast.error({ title: 'Error', description: state.error });
     }
   }, [state, toast, onSuccess]);
 
+  const weightTotal = splitTargets.reduce((s, t) => s + (t.weight || 0), 0);
+
   return (
-    <Card className="p-0">
+    <Card padding="none">
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="tagIds" value={createTagIds.join(',')} />
         <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
         <input type="hidden" name="domainId" value={createDomainId} />
-        <div className="border-b border-[var(--st-border)] px-5 py-4">
-          <h2 className="text-[15px] text-[var(--st-text)]">Create a new short link</h2>
-        </div>
-        <div className="space-y-4 p-5">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="originalUrl" className="text-[12.5px] text-[var(--st-text-secondary)]">
-                Destination URL
-              </Label>
+
+        <CardHeader>
+          <CardTitle>Create a new short link</CardTitle>
+        </CardHeader>
+
+        <CardBody className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Destination URL" id="originalUrl" required>
               <Input
-                id="originalUrl"
                 name="originalUrl"
                 type="url"
                 placeholder="https://example.com/very-long-url-to-shorten"
                 required
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="alias" className="text-[12.5px] text-[var(--st-text-secondary)]">
-                Custom Alias (Optional)
-              </Label>
-              <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
-            </div>
+            </Field>
+            <Field label="Custom alias (optional)" id="alias">
+              <Input name="alias" placeholder="e.g. summer-sale" />
+            </Field>
           </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Tags (Optional)</Label>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Field label="Tags (optional)">
               <TagsSelector
                 userTags={userTags}
                 selectedTags={createTagIds}
                 onSelectionChange={setCreateTagIds}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Expiration Date (Optional)</Label>
-              <DatePicker date={expiresAt} setDate={setExpiresAt} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Custom Domain (Optional)</Label>
+            </Field>
+            <Field label="Expiration date (optional)">
+              <DatePicker
+                value={expiresAt}
+                onChange={setExpiresAt}
+                placeholder="No expiry"
+                aria-label="Expiration date"
+              />
+            </Field>
+            <Field label="Custom domain (optional)">
               <Select value={createDomainId} onValueChange={setCreateDomainId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Custom domain">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,179 +226,167 @@ export function UrlShortenerForm({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
-        </div>
 
-        {/* Advanced Options */}
-        <details className="group px-5 pb-1">
-          <summary className="cursor-pointer list-none flex items-center gap-1.5 text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] py-1 select-none w-fit">
-            <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
-            Advanced Options
-          </summary>
-          <div className="mt-3 space-y-4 pb-2">
+          {/* Advanced Options */}
+          <Collapsible>
+            <CollapsibleTrigger className="text-[12.5px]">Advanced options</CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="space-y-4 pt-3">
+                {/* A. Click Limit */}
+                <Field label="Click limit (optional)" id="clickLimit" help="Deactivates the link after this many clicks.">
+                  <Input
+                    id="clickLimit"
+                    type="number"
+                    name="clickLimit"
+                    min={1}
+                    placeholder="e.g. 500"
+                  />
+                </Field>
 
-            {/* A. Click Limit */}
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
-                Click Limit <span className="text-[var(--st-text-secondary)]/60">(optional)</span>
-              </Label>
-              <Input
-                type="number"
-                name="clickLimit"
-                min={1}
-                placeholder="e.g. 500 — deactivates after N clicks"
-                className="text-[13px]"
-              />
-            </div>
+                {/* B. Password Protection */}
+                <Field
+                  label="Password protection"
+                  id="passwordHash"
+                  help="Visitors must enter this password before being redirected."
+                >
+                  <Input
+                    id="passwordHash"
+                    type="password"
+                    name="passwordHash"
+                    placeholder="Leave blank for no password"
+                    autoComplete="new-password"
+                  />
+                </Field>
 
-            {/* B. Password Protection */}
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Password Protection</Label>
-              <Input
-                type="password"
-                name="passwordHash"
-                placeholder="Leave blank for no password"
-                autoComplete="new-password"
-                className="text-[13px]"
-              />
-              <p className="text-[11px] text-[var(--st-text-secondary)]/60">Visitors must enter this password before being redirected.</p>
-            </div>
+                {/* C. UTM Parameters */}
+                <Collapsible>
+                  <CollapsibleTrigger className="text-[12.5px]">UTM parameters</CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      {[
+                        { name: 'utmSource', label: 'Source', placeholder: 'google' },
+                        { name: 'utmMedium', label: 'Medium', placeholder: 'cpc' },
+                        { name: 'utmCampaign', label: 'Campaign', placeholder: 'spring_sale' },
+                        { name: 'utmTerm', label: 'Term', placeholder: 'running+shoes' },
+                        { name: 'utmContent', label: 'Content', placeholder: 'logolink' },
+                      ].map((f) => (
+                        <Field key={f.name} label={f.label} id={f.name}>
+                          <Input name={f.name} placeholder={f.placeholder} inputSize="sm" />
+                        </Field>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
-            {/* C. UTM Parameters */}
-            <details className="group/utm">
-              <summary className="cursor-pointer text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] list-none flex items-center gap-1.5 select-none">
-                <ChevronRight className="h-3 w-3 transition-transform group-open/utm:rotate-90" />
-                UTM Parameters
-              </summary>
-              <div className="mt-2 grid grid-cols-2 gap-2 pl-4">
-                {[
-                  { name: 'utmSource', label: 'Source', placeholder: 'google' },
-                  { name: 'utmMedium', label: 'Medium', placeholder: 'cpc' },
-                  { name: 'utmCampaign', label: 'Campaign', placeholder: 'spring_sale' },
-                  { name: 'utmTerm', label: 'Term', placeholder: 'running+shoes' },
-                  { name: 'utmContent', label: 'Content', placeholder: 'logolink' },
-                ].map((f) => (
-                  <div key={f.name} className="space-y-1">
-                    <Label className="text-[11.5px] text-[var(--st-text-secondary)]">{f.label}</Label>
-                    <Input name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
-                  </div>
-                ))}
-              </div>
-            </details>
+                {/* D. Retargeting Pixels */}
+                <Collapsible>
+                  <CollapsibleTrigger className="text-[12.5px]">Retargeting pixels</CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="space-y-2 pt-2">
+                      {[
+                        { name: 'pixelFacebook', label: 'Meta Pixel ID', placeholder: '1234567890123' },
+                        { name: 'pixelGoogle', label: 'Google Tag ID', placeholder: 'G-XXXXXXXXXX' },
+                        { name: 'pixelTiktok', label: 'TikTok Pixel ID', placeholder: 'CXXXXXXXXXXXXXXX' },
+                      ].map((f) => (
+                        <Field key={f.name} label={f.label} id={f.name}>
+                          <Input name={f.name} placeholder={f.placeholder} inputSize="sm" />
+                        </Field>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
-            {/* D. Retargeting Pixels */}
-            <details className="group/pixels">
-              <summary className="cursor-pointer text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] list-none flex items-center gap-1.5 select-none">
-                <ChevronRight className="h-3 w-3 transition-transform group-open/pixels:rotate-90" />
-                Retargeting Pixels
-              </summary>
-              <div className="mt-2 space-y-2 pl-4">
-                {[
-                  { name: 'pixelFacebook', label: 'Meta Pixel ID', placeholder: '1234567890123' },
-                  { name: 'pixelGoogle', label: 'Google Tag ID', placeholder: 'G-XXXXXXXXXX' },
-                  { name: 'pixelTiktok', label: 'TikTok Pixel ID', placeholder: 'CXXXXXXXXXXXXXXX' },
-                ].map((f) => (
-                  <div key={f.name} className="space-y-1">
-                    <Label className="text-[11.5px] text-[var(--st-text-secondary)]">{f.label}</Label>
-                    <Input name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
-                  </div>
-                ))}
-              </div>
-            </details>
-
-            {/* E. A/B Split Targets */}
-            <div className="space-y-3">
-              <input
-                type="hidden"
-                name="splitTargets"
-                value={splitEnabled ? JSON.stringify(splitTargets) : ''}
-              />
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="splitEnabled"
-                  checked={splitEnabled}
-                  onCheckedChange={setSplitEnabled}
-                />
-                <Label htmlFor="splitEnabled" className="text-[12.5px] text-[var(--st-text-secondary)] cursor-pointer">
-                  Enable A/B Split Testing
-                </Label>
-              </div>
-              {splitEnabled ? (
-                <div className="space-y-2 pl-1">
-                  {splitTargets.map((target, i) => {
-                    const totalWeight = splitTargets.reduce((s, t) => s + (t.weight || 0), 0);
-                    return (
-                      <div key={i} className="flex items-center gap-2">
-                        <Input
-                          value={target.url}
-                          onChange={(e) => {
-                            const next = [...splitTargets];
-                            next[i] = { ...next[i], url: e.target.value };
-                            setSplitTargets(next);
-                          }}
-                          placeholder={`Variant ${i + 1} URL`}
-                          className="text-[12px] flex-1"
-                        />
-                        <Input
-                          type="number"
-                          min={1}
-                          max={100}
-                          value={target.weight}
-                          onChange={(e) => {
-                            const next = [...splitTargets];
-                            next[i] = { ...next[i], weight: Number(e.target.value) };
-                            setSplitTargets(next);
-                          }}
-                          className="text-[12px] w-20"
-                        />
-                        <span className="text-[11px] text-[var(--st-text-secondary)]">%</span>
-                        {splitTargets.length > 2 ? (
-                          <button
-                            type="button"
-                            onClick={() => setSplitTargets(splitTargets.filter((_, idx) => idx !== i))}
-                            className="rounded p-1 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
-                            aria-label="Remove variant"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        ) : (
-                          <span className="w-[26px]" />
-                        )}
+                {/* E. A/B Split Targets */}
+                <div className="space-y-3">
+                  <input
+                    type="hidden"
+                    name="splitTargets"
+                    value={splitEnabled ? JSON.stringify(splitTargets) : ''}
+                  />
+                  <Switch
+                    id="splitEnabled"
+                    checked={splitEnabled}
+                    onCheckedChange={setSplitEnabled}
+                    label="Enable A/B split testing"
+                  />
+                  {splitEnabled ? (
+                    <div className="space-y-2 pl-1">
+                      {splitTargets.map((target, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Input
+                            value={target.url}
+                            onChange={(e) => {
+                              const next = [...splitTargets];
+                              next[i] = { ...next[i], url: e.target.value };
+                              setSplitTargets(next);
+                            }}
+                            placeholder={`Variant ${i + 1} URL`}
+                            inputSize="sm"
+                            aria-label={`Variant ${i + 1} URL`}
+                            className="flex-1"
+                          />
+                          <Input
+                            type="number"
+                            min={1}
+                            max={100}
+                            value={target.weight}
+                            onChange={(e) => {
+                              const next = [...splitTargets];
+                              next[i] = { ...next[i], weight: Number(e.target.value) };
+                              setSplitTargets(next);
+                            }}
+                            inputSize="sm"
+                            aria-label={`Variant ${i + 1} weight (percent)`}
+                            suffix="%"
+                            className="w-24"
+                          />
+                          {splitTargets.length > 2 ? (
+                            <IconButton
+                              label="Remove variant"
+                              icon={X}
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSplitTargets(splitTargets.filter((_, idx) => idx !== i))}
+                            />
+                          ) : (
+                            <span className="w-[26px]" />
+                          )}
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between pt-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Plus}
+                          onClick={() => setSplitTargets([...splitTargets, { url: '', weight: 0 }])}
+                        >
+                          Add variant
+                        </Button>
+                        <span
+                          className={cn(
+                            'text-[11.5px]',
+                            weightTotal === 100 ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-danger)]',
+                          )}
+                        >
+                          Weight total: {weightTotal}%
+                          {weightTotal !== 100 ? ' (must equal 100)' : ''}
+                        </span>
                       </div>
-                    );
-                  })}
-                  <div className="flex items-center justify-between pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setSplitTargets([...splitTargets, { url: '', weight: 0 }])}
-                      className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      Add variant
-                    </button>
-                    <span
-                      className={cn(
-                        'text-[11.5px]',
-                        splitTargets.reduce((s, t) => s + (t.weight || 0), 0) === 100
-                          ? 'text-[var(--st-status-ok)]'
-                          : 'text-[var(--st-danger)]',
-                      )}
-                    >
-                      Weight total: {splitTargets.reduce((s, t) => s + (t.weight || 0), 0)}%
-                      {splitTargets.reduce((s, t) => s + (t.weight || 0), 0) !== 100 ? ' (must equal 100)' : ''}
-                    </span>
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
-          </div>
-        </details>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </CardBody>
 
-        <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 rounded-b-[var(--st-radius-lg)]">
+        <CardFooter className="flex items-center justify-between">
           <SubmitButton />
           <BulkImportDialog onImportComplete={onSuccess} />
-        </div>
+        </CardFooter>
       </form>
     </Card>
   );

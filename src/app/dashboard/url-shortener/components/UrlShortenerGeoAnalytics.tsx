@@ -1,6 +1,21 @@
-import { Card } from '@/components/sabcrm/20ui';
-import type { WithId, ShortUrl } from '@/lib/definitions';
+'use client';
+
 import { useMemo } from 'react';
+
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import type { WithId, ShortUrl } from '@/lib/definitions';
 
 export function UrlShortenerGeoAnalytics({ urls }: { urls: WithId<ShortUrl>[] }) {
   const topCountries = useMemo(() => {
@@ -23,18 +38,30 @@ export function UrlShortenerGeoAnalytics({ urls }: { urls: WithId<ShortUrl>[] })
   if (topCountries.length === 0) return null;
 
   return (
-    <Card className="p-4">
-      <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] mb-2">
-        Geographic Analytics (Top Countries)
-      </div>
-      <div className="space-y-2">
-        {topCountries.map(([country, count]) => (
-          <div key={country} className="flex items-center justify-between text-sm">
-            <span className="text-[var(--st-text)]">{country}</span>
-            <span className="font-mono text-[var(--st-text-secondary)]">{count.toLocaleString()} clicks</span>
-          </div>
-        ))}
-      </div>
+    <Card padding="none">
+      <CardHeader>
+        <CardTitle>Geographic analytics (top countries)</CardTitle>
+      </CardHeader>
+      <CardBody>
+        <Table density="compact" hover>
+          <THead>
+            <Tr>
+              <Th>Country</Th>
+              <Th align="right">Clicks</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            {topCountries.map(([country, count]) => (
+              <Tr key={country}>
+                <Td>{country}</Td>
+                <Td align="right">
+                  <Badge tone="accent">{count.toLocaleString()}</Badge>
+                </Td>
+              </Tr>
+            ))}
+          </TBody>
+        </Table>
+      </CardBody>
     </Card>
   );
 }

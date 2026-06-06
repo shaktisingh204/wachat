@@ -1,7 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, PageDescription, PageHeader, PageHeading, PageTitle, useToast, Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  EmptyState,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { FileWarning } from 'lucide-react';
 import { BioState } from './types';
 import { fetchBioData, saveBioData } from './api';
 import { BioProfileForm } from './_components/BioProfileForm';
@@ -16,15 +26,15 @@ export default function BioBuilderPage() {
 
   useEffect(() => {
     let mounted = true;
-    
+
     async function load() {
       setLoading(true);
       const res = await fetchBioData();
-      
+
       if (!mounted) return;
 
       if (res.error) {
-        toast({ title: 'Error Loading', description: res.error.message, variant: 'destructive' });
+        toast({ title: 'Error loading', description: res.error.message, tone: 'danger' });
       } else {
         setState(res.data);
       }
@@ -33,12 +43,14 @@ export default function BioBuilderPage() {
 
     load();
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [toast]);
 
   const update = (patch: Partial<BioState>) => {
     if (!state) return;
-    setState((s) => s ? { ...s, ...patch } : s);
+    setState((s) => (s ? { ...s, ...patch } : s));
   };
 
   const handleSave = async () => {
@@ -48,9 +60,9 @@ export default function BioBuilderPage() {
     setSaving(false);
 
     if (res.error) {
-      toast({ title: 'Error Saving', description: res.error.message, variant: 'destructive' });
+      toast({ title: 'Error saving', description: res.error.message, tone: 'danger' });
     } else {
-      toast({ title: 'Saved successfully', description: 'Your bio page has been saved.' });
+      toast({ title: 'Saved successfully', description: 'Your bio page has been saved.', tone: 'success' });
       setState(res.data);
     }
   };
@@ -66,34 +78,38 @@ export default function BioBuilderPage() {
         </PageHeading>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {loading ? (
           <div className="space-y-5">
-            <Skeleton className="h-64 w-full rounded-xl" />
-            <Skeleton className="h-80 w-full rounded-xl" />
+            <Skeleton className="h-64 w-full rounded-[var(--st-radius-lg)]" />
+            <Skeleton className="h-80 w-full rounded-[var(--st-radius-lg)]" />
           </div>
         ) : !state ? (
-          <div className="py-10 text-center text-[var(--st-text)]">
-            Failed to load bio data.
-          </div>
+          <EmptyState
+            icon={FileWarning}
+            tone="danger"
+            title="Failed to load bio data"
+            description="We could not load your bio page. Please refresh and try again."
+            action={
+              <Button variant="secondary" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            }
+          />
         ) : (
           <div className="space-y-5">
             <BioProfileForm state={state} update={update} />
             <BioLinksForm state={state} update={update} />
-            
-            <Button 
-              onClick={handleSave} 
-              className="w-full"
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
+
+            <Button variant="primary" block onClick={handleSave} loading={saving}>
+              Save Changes
             </Button>
           </div>
         )}
 
         <div className="flex justify-center lg:justify-start">
           {loading ? (
-            <Skeleton className="w-[375px] h-[640px] rounded-[2.5rem]" />
+            <Skeleton className="h-[640px] w-[375px] rounded-[2.5rem]" />
           ) : state ? (
             <BioPreview state={state} />
           ) : null}

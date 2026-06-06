@@ -8,15 +8,15 @@ export default function Loading() {
         <Skeleton className="h-4 w-[350px]" />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full" radius="var(--st-radius-lg)" />
+        <Skeleton className="h-32 w-full" radius="var(--st-radius-lg)" />
+        <Skeleton className="h-32 w-full" radius="var(--st-radius-lg)" />
+        <Skeleton className="h-32 w-full" radius="var(--st-radius-lg)" />
       </div>
       <div className="space-y-4 mt-8">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" radius="var(--st-radius)" />
+        <Skeleton className="h-12 w-full" radius="var(--st-radius)" />
+        <Skeleton className="h-12 w-full" radius="var(--st-radius)" />
       </div>
     </div>
   );

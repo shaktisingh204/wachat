@@ -1,6 +1,23 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -51,14 +68,14 @@ function ShortenerPageSkeleton() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-[90px] rounded-xl" />
+          <Skeleton key={i} className="h-[90px] rounded-[var(--st-radius)]" />
         ))}
       </div>
-      <Skeleton className="h-[120px] rounded-xl" />
-      <Skeleton className="h-[300px] rounded-xl" />
+      <Skeleton className="h-[120px] rounded-[var(--st-radius)]" />
+      <Skeleton className="h-[300px] rounded-[var(--st-radius)]" />
       <div className="flex gap-4">
-        <Skeleton className="h-[400px] w-64 rounded-xl hidden lg:block" />
-        <Skeleton className="h-[400px] flex-1 rounded-xl" />
+        <Skeleton className="h-[400px] w-64 rounded-[var(--st-radius)] hidden lg:block" />
+        <Skeleton className="h-[400px] flex-1 rounded-[var(--st-radius)]" />
       </div>
     </div>
   );
@@ -121,7 +138,7 @@ export default function UrlShortenerPage() {
         setCollections(cols);
         setSelectedIds(new Set());
       } catch (err) {
-        toast({ title: 'Error', description: 'Failed to fetch links.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'Failed to fetch links.', tone: 'danger' });
       }
     });
   }, [toast]);
@@ -269,10 +286,12 @@ export default function UrlShortenerPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <Card className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
-          <h3 className="text-sm text-[var(--st-text)] mb-1">Not logged in</h3>
-          <p className="text-xs text-[var(--st-text-secondary)]">Please log in to use the URL Shortener.</p>
+        <Card>
+          <EmptyState
+            icon={AlertCircle}
+            title="Not logged in"
+            description="Please log in to use the URL Shortener."
+          />
         </Card>
       </div>
     );
@@ -302,50 +321,47 @@ export default function UrlShortenerPage() {
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <PageHeader>
-            <PageHeading>
-              <PageTitle>
-                <span className="inline-flex items-center gap-3">
-                  <LinkIcon className="h-7 w-7" />
-                  URL Shortener
-                </span>
-              </PageTitle>
-              <PageDescription>
-                Create short, trackable links for your campaigns.
-              </PageDescription>
-            </PageHeading>
-          </PageHeader>
-          <div className="flex flex-wrap items-center gap-2">
+        <PageHeader>
+          <PageHeading>
+            <PageTitle>
+              <span className="inline-flex items-center gap-3">
+                <LinkIcon className="h-7 w-7" aria-hidden="true" />
+                URL Shortener
+              </span>
+            </PageTitle>
+            <PageDescription>
+              Create short, trackable links for your campaigns.
+            </PageDescription>
+          </PageHeading>
+          <PageActions>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Download}
               onClick={handleExport}
               disabled={filteredUrls.length === 0}
             >
-              <Download className="h-3.5 w-3.5" />
               Export CSV
             </Button>
             <Link href="/dashboard/url-shortener/settings">
-              <Button variant="outline" size="sm">
-                <SettingsIcon className="h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" iconLeft={SettingsIcon}>
                 Settings
               </Button>
             </Link>
-          </div>
-        </div>
+          </PageActions>
+        </PageHeader>
 
         {/* ── Stats cards ── */}
         <UrlShortenerStats urls={urls} getStatus={getStatus} />
-        
+
         {/* ── Geo Analytics ── */}
         <UrlShortenerGeoAnalytics urls={urls} />
 
         {/* ── Create form ── */}
-        <UrlShortenerForm 
-          userTags={user?.tags || []} 
-          domainOptions={domainOptions} 
-          onSuccess={fetchUrls} 
+        <UrlShortenerForm
+          userTags={user?.tags || []}
+          domainOptions={domainOptions}
+          onSuccess={fetchUrls}
         />
 
         {/* ── Links table with sidebar filters ── */}

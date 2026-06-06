@@ -1,4 +1,14 @@
-import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+'use client';
+
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Card,
+  Field,
+  Input,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { BioState } from '../types';
 
@@ -12,35 +22,30 @@ export function BioProfileForm({ state, update }: Props) {
     update({ avatarUrl: pick.url });
   };
 
-  return (
-    <Card className="p-5 space-y-4">
-      <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Page URL</Label>
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] text-[var(--st-text-secondary)] whitespace-nowrap">/bio/</span>
-          <Input
-            placeholder="your-name"
-            value={state.slug}
-            onChange={(e) =>
-              update({ slug: e.target.value.replace(/[^a-z0-9-_]/gi, '').toLowerCase() })
-            }
-          />
-        </div>
-      </div>
+  const initials = ((state.title.trim() || state.slug.trim()).charAt(0) || 'B').toUpperCase();
 
-      <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Title</Label>
+  return (
+    <Card padding="lg" className="space-y-4">
+      <Field label="Page URL">
+        <Input
+          prefix="/bio/"
+          placeholder="your-name"
+          value={state.slug}
+          onChange={(e) =>
+            update({ slug: e.target.value.replace(/[^a-z0-9-_]/gi, '').toLowerCase() })
+          }
+        />
+      </Field>
+
+      <Field label="Title">
         <Input
           placeholder="Your name or brand"
           value={state.title}
           onChange={(e) => update({ title: e.target.value })}
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
-          Bio <span className="text-[var(--st-text-secondary)]/60">({state.bio.length}/160)</span>
-        </Label>
+      <Field label="Bio" help={`${state.bio.length}/160 characters`}>
         <Textarea
           placeholder="A short description about you..."
           value={state.bio}
@@ -48,25 +53,19 @@ export function BioProfileForm({ state, update }: Props) {
           rows={3}
           onChange={(e) => update({ bio: e.target.value })}
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Avatar</Label>
+      <Field label="Avatar">
         <div className="flex items-center gap-3">
-          {state.avatarUrl ? (
-            <img
-              src={state.avatarUrl}
-              alt="Avatar"
-              className="h-10 w-10 rounded-full object-cover border border-[var(--st-border)]"
-            />
-          ) : (
-            <div className="h-10 w-10 rounded-full bg-[var(--st-text)] border border-[var(--st-border)]" />
-          )}
+          <Avatar className="h-10 w-10">
+            {state.avatarUrl ? <AvatarImage src={state.avatarUrl} alt="Avatar preview" /> : null}
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
           <SabFilePickerButton onPick={handleAvatarPick} variant="outline">
             Choose Avatar
           </SabFilePickerButton>
         </div>
-      </div>
+      </Field>
     </Card>
   );
 }

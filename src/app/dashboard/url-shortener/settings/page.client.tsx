@@ -1,6 +1,18 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Separator,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Globe } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
@@ -9,7 +21,7 @@ import type { WithId, CustomDomain, User, Tag } from '@/lib/definitions';
 import { DomainStepper } from './_components/domain-stepper';
 import { DomainList } from './_components/domain-list';
 import { DeveloperOptions } from './_components/developer-options';
-import { TagsSettingsTab } from '@/components/zoruui-domain/tags-settings-tab';
+import { TagsSettingsTab } from './_components/tags-settings-tab';
 
 type SessionUser = Omit<User, 'password'> & { _id: string; tags?: Tag[] };
 
@@ -45,18 +57,22 @@ export default function UrlShortenerSettingsPage() {
 
   return (
     <div className="flex flex-col gap-8 max-w-5xl">
-      <div>
-        <h1 className="text-3xl text-[var(--st-text)]">URL Shortener Settings</h1>
-        <p className="text-[var(--st-text-secondary)]">Configure custom domains, tags, and developer settings for your short links.</p>
-      </div>
+      <PageHeader bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle>URL Shortener Settings</PageTitle>
+          <PageDescription>
+            Configure custom domains, tags, and developer settings for your short links.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" /> Custom Domains
+            <Globe className="h-5 w-5" aria-hidden="true" /> Custom Domains
           </CardTitle>
           <CardDescription>
-            Use your own domain for branded short links (e.g., links.mybrand.com). You must own the domain and be able to configure its DNS records.
+            Use your own domain for branded short links (e.g. links.mybrand.com). You must own the domain and be able to configure its DNS records.
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-6">

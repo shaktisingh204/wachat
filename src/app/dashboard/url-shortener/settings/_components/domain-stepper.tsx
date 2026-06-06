@@ -1,13 +1,30 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  EmptyState,
+  Card,
+  CardBody,
+  Badge,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   LoaderCircle,
   CheckCircle,
   Copy,
-  AlertTriangle,
   Globe,
   ArrowRight,
   ArrowLeft,
@@ -16,7 +33,6 @@ import {
 import { addCustomDomain, verifyCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { cn } from '@/components/sabcrm/20ui';
 
 export type StepperState =
   | { step: 'idle' }
@@ -53,7 +69,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
                   !done && !active && 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border border-[var(--st-border)]',
                 )}
               >
-                {done ? <Check className="h-4 w-4" /> : s.n}
+                {done ? <Check className="h-4 w-4" aria-hidden="true" /> : s.n}
               </div>
               <span
                 className={cn(
@@ -84,15 +100,18 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
 function ContinueButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="gap-2">
-      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+    <Button
+      type="submit"
+      variant="primary"
+      loading={pending}
+      iconRight={pending ? undefined : ArrowRight}
+    >
       Continue
-      {!pending && <ArrowRight className="h-4 w-4" />}
     </Button>
   );
 }
 
-function DnsRecordCard({
+function DnsRecordRow({
   type,
   host,
   value,
@@ -104,36 +123,29 @@ function DnsRecordCard({
   onCopy: (v: string) => void;
 }) {
   return (
-    <div className="border border-[var(--st-border)] rounded-lg overflow-hidden bg-[var(--st-bg-muted)]">
-      <div className="grid grid-cols-[80px,1fr,80px,1fr,auto] divide-x divide-[var(--st-border)]">
-        <div className="px-3 py-2 bg-[var(--st-bg)]">
-          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Type</p>
-          <p className="text-sm font-mono text-[var(--st-text)]">{type}</p>
-        </div>
-        <div className="px-3 py-2 bg-[var(--st-bg)]">
-          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Host</p>
-          <p className="text-sm font-mono text-[var(--st-text)]">{host}</p>
-        </div>
-        <div className="px-3 py-2 col-span-2 bg-[var(--st-bg)]">
-          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Value</p>
-          <p className="text-sm font-mono text-[var(--st-text)] break-all">{value}</p>
-        </div>
-        <div className="px-3 py-2 flex items-center justify-center bg-[var(--st-bg)]">
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            onClick={() => onCopy(value)}
-            className="h-7 w-7"
-          >
-            <Copy className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
-      <div className="px-3 py-1.5 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-        <span className="text-xs text-[var(--st-text-secondary)]">TTL: Auto</span>
-      </div>
-    </div>
+    <Tr>
+      <Td>
+        <Badge tone="neutral" kind="outline" className="font-mono">{type}</Badge>
+      </Td>
+      <Td>
+        <span className="text-sm font-mono text-[var(--st-text)] break-all">{host}</span>
+      </Td>
+      <Td>
+        <span className="text-sm font-mono text-[var(--st-text)] break-all">{value}</span>
+      </Td>
+      <Td align="center">
+        <span className="text-xs text-[var(--st-text-secondary)]">Auto</span>
+      </Td>
+      <Td align="center">
+        <IconButton
+          label={`Copy ${type} record value`}
+          icon={Copy}
+          variant="ghost"
+          size="sm"
+          onClick={() => onCopy(value)}
+        />
+      </Td>
+    </Tr>
   );
 }
 
@@ -158,13 +170,12 @@ export function DomainStepper({
   useEffect(() => {
     if (addState.success) {
       onDomainAdded().then(() => {
-        // We need to wait for onDomainAdded to fetch new domains and we can pick up the new domain ID from the parent?
-        // Actually, it's easier to find the newly added domain by comparing to stepper.hostname.
-        // Wait, the parent component fetches domains. To avoid race condition, we can just let `useEffect` observing domains do it.
+        // Wait for onDomainAdded to fetch new domains; the effect observing
+        // `domains` picks up the newly added domain by matching the hostname.
       });
     }
     if (addState.error) {
-      toast({ title: 'Error', description: addState.error, variant: 'destructive' });
+      toast({ title: 'Error', description: addState.error, tone: 'danger' });
     }
   }, [addState, toast, onDomainAdded]);
 
@@ -209,236 +220,247 @@ export function DomainStepper({
 
   if (stepper.step === 'idle') {
     return (
-      <div className="border-2 border-dashed border-[var(--st-border)] rounded-xl p-8 flex flex-col items-center gap-3 text-center bg-[var(--st-bg-muted)]/40">
-        <div className="w-12 h-12 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center border border-[var(--st-border)]">
-          <Globe className="h-6 w-6 text-[var(--st-text-secondary)]" />
-        </div>
-        <div>
-          <p className="text-base font-medium text-[var(--st-text)]">Connect a custom domain</p>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">Use your own domain for branded short links</p>
-        </div>
-        <Button
-          type="button"
-          onClick={() => setStepper({ step: 1, hostname: '' })}
-          className="mt-1 gap-2"
-        >
-          Add Domain <ArrowRight className="h-4 w-4" />
-        </Button>
-      </div>
+      <Card variant="outlined" padding="lg" className="border-dashed">
+        <EmptyState
+          icon={Globe}
+          title="Connect a custom domain"
+          description="Use your own domain for branded short links."
+          action={
+            <Button
+              type="button"
+              variant="primary"
+              iconRight={ArrowRight}
+              onClick={() => setStepper({ step: 1, hostname: '' })}
+            >
+              Add Domain
+            </Button>
+          }
+        />
+      </Card>
     );
   }
 
   return (
-    <div className="border border-[var(--st-border)] rounded-xl p-6 bg-[var(--st-bg-muted)]/30">
-      <StepIndicator current={stepper.step} />
+    <Card variant="outlined" padding="lg">
+      <CardBody>
+        <StepIndicator current={stepper.step} />
 
-      {stepper.step === 1 && (
-        <form
-          ref={step1FormRef}
-          action={(formData) => {
-            const hn = formData.get('hostname') as string;
-            setStepper({ step: 1, hostname: hn });
-            addAction(formData);
-          }}
-          className="space-y-5"
-        >
-          <div>
-            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Enter your domain</h3>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              Use a subdomain like links.yourbrand.com (recommended) or an apex domain.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hostname-stepper">Domain</Label>
-            <Input
-              id="hostname-stepper"
-              name="hostname"
-              placeholder="links.yourbrand.com"
-              defaultValue={stepper.hostname}
-              required
-              className="max-w-md"
-              autoFocus
-            />
+        {stepper.step === 1 && (
+          <form
+            ref={step1FormRef}
+            action={(formData) => {
+              const hn = formData.get('hostname') as string;
+              setStepper({ step: 1, hostname: hn });
+              addAction(formData);
+            }}
+            className="space-y-5"
+          >
+            <div>
+              <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Enter your domain</h3>
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                Use a subdomain like links.yourbrand.com (recommended) or an apex domain.
+              </p>
+            </div>
+            <Field label="Domain" className="max-w-md">
+              <Input
+                id="hostname-stepper"
+                name="hostname"
+                placeholder="links.yourbrand.com"
+                defaultValue={stepper.hostname}
+                required
+                autoFocus
+              />
+            </Field>
             <div className="space-y-1 pt-1">
               <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-bg-muted)]" />
-                Subdomain (CNAME): links.yourbrand.com — easier to set up
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-bg-muted)]" aria-hidden="true" />
+                Subdomain (CNAME): links.yourbrand.com is easier to set up.
               </p>
               <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-text-secondary)]/40" />
-                Apex domain (A record): yourbrand.com — requires root DNS access
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-text-secondary)]/40" aria-hidden="true" />
+                Apex domain (A record): yourbrand.com requires root DNS access.
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-3 pt-1">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={resetStepper}
-              className="gap-1.5"
-            >
-              Cancel
-            </Button>
-            <ContinueButton />
-          </div>
-        </form>
-      )}
+            <div className="flex items-center gap-3 pt-1">
+              <Button type="button" variant="ghost" onClick={resetStepper}>
+                Cancel
+              </Button>
+              <ContinueButton />
+            </div>
+          </form>
+        )}
 
-      {stepper.step === 2 && (
-        <div className="space-y-5">
-          <div>
-            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Configure DNS</h3>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              Add the following records to your DNS provider (Cloudflare, Namecheap, GoDaddy, etc.).
-            </p>
-          </div>
+        {stepper.step === 2 && (
+          <div className="space-y-5">
+            <div>
+              <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Configure DNS</h3>
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                Add the following records to your DNS provider (Cloudflare, Namecheap, GoDaddy, etc.).
+              </p>
+            </div>
 
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-              Record 1 — Domain Ownership Verification
-            </p>
-            <DnsRecordCard
-              type="TXT"
-              host={getSubdomainPart(stepper.hostname) ? `_sabnode.${getSubdomainPart(stepper.hostname)}` : '@'}
-              value={stepper.verificationCode}
-              onCopy={copy}
-            />
-          </div>
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
+                Record 1, Domain Ownership Verification
+              </p>
+              <Table density="compact" hover={false}>
+                <THead>
+                  <Tr>
+                    <Th>Type</Th>
+                    <Th>Host</Th>
+                    <Th>Value</Th>
+                    <Th align="center">TTL</Th>
+                    <Th align="center" width={56}>Copy</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  <DnsRecordRow
+                    type="TXT"
+                    host={getSubdomainPart(stepper.hostname) ? `_sabnode.${getSubdomainPart(stepper.hostname)}` : '@'}
+                    value={stepper.verificationCode}
+                    onCopy={copy}
+                  />
+                </TBody>
+              </Table>
+            </div>
 
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-              Record 2 — Routing
-            </p>
-            {getSubdomainPart(stepper.hostname) ? (
-              <DnsRecordCard
-                type="CNAME"
-                host={getSubdomainPart(stepper.hostname)!}
-                value="cname.sabnode.app"
-                onCopy={copy}
-              />
-            ) : (
-              <DnsRecordCard
-                type="A"
-                host="@"
-                value="76.76.21.21"
-                onCopy={copy}
-              />
-            )}
-          </div>
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
+                Record 2, Routing
+              </p>
+              <Table density="compact" hover={false}>
+                <THead>
+                  <Tr>
+                    <Th>Type</Th>
+                    <Th>Host</Th>
+                    <Th>Value</Th>
+                    <Th align="center">TTL</Th>
+                    <Th align="center" width={56}>Copy</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {getSubdomainPart(stepper.hostname) ? (
+                    <DnsRecordRow
+                      type="CNAME"
+                      host={getSubdomainPart(stepper.hostname)!}
+                      value="cname.sabnode.app"
+                      onCopy={copy}
+                    />
+                  ) : (
+                    <DnsRecordRow
+                      type="A"
+                      host="@"
+                      value="76.76.21.21"
+                      onCopy={copy}
+                    />
+                  )}
+                </TBody>
+              </Table>
+            </div>
 
-          <Alert className="border-[var(--st-border)]/30 bg-[var(--st-text)]/10">
-            <AlertTriangle className="h-4 w-4 text-[var(--st-text-secondary)]" />
-            <AlertTitle className="text-[var(--st-text-secondary)]">DNS Propagation</AlertTitle>
-            <AlertDescription className="text-[var(--st-text-secondary)]/80">
-              DNS changes typically propagate within 5–30 minutes. You can verify once the records are live.
-            </AlertDescription>
-          </Alert>
+            <Alert tone="info" title="DNS Propagation">
+              DNS changes typically propagate within 5 to 30 minutes. You can verify once the records are live.
+            </Alert>
 
-          <div className="flex items-center gap-3 pt-1">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setStepper({ step: 1, hostname: stepper.hostname })}
-              className="gap-1.5"
-            >
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Button>
-            <Button
-              type="button"
-              onClick={() =>
-                setStepper({
-                  step: 3,
-                  domainId: stepper.domainId,
-                  hostname: stepper.hostname,
-                  verificationCode: stepper.verificationCode,
-                })
-              }
-              className="gap-2"
-            >
-              I've added the records <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {stepper.step === 3 && (
-        <div className="space-y-5">
-          <div>
-            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Verify ownership</h3>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              Click verify to confirm your DNS records are live.
-            </p>
-          </div>
-
-          {stepper.verifySuccess ? (
-            <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <div className="w-14 h-14 rounded-full bg-[var(--st-status-ok)]/20 flex items-center justify-center border border-[var(--st-status-ok)]/40">
-                <CheckCircle className="h-7 w-7 text-[var(--st-status-ok)]" />
-              </div>
-              <div>
-                <p className="text-base font-semibold text-[var(--st-status-ok)]">Domain verified!</p>
-                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-                  {stepper.hostname} is now active and ready for short links.
-                </p>
-              </div>
-              <Button type="button" onClick={resetStepper} className="mt-1">
-                Done
+            <div className="flex items-center gap-3 pt-1">
+              <Button
+                type="button"
+                variant="ghost"
+                iconLeft={ArrowLeft}
+                onClick={() => setStepper({ step: 1, hostname: stepper.hostname })}
+              >
+                Back
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                iconRight={ArrowRight}
+                onClick={() =>
+                  setStepper({
+                    step: 3,
+                    domainId: stepper.domainId,
+                    hostname: stepper.hostname,
+                    verificationCode: stepper.verificationCode,
+                  })
+                }
+              >
+                I have added the records
               </Button>
             </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-sm text-[var(--st-text)]">
-                  <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                  {stepper.hostname}
+          </div>
+        )}
+
+        {stepper.step === 3 && (
+          <div className="space-y-5">
+            <div>
+              <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Verify ownership</h3>
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                Click verify to confirm your DNS records are live.
+              </p>
+            </div>
+
+            {stepper.verifySuccess ? (
+              <EmptyState
+                icon={CheckCircle}
+                tone="success"
+                title="Domain verified"
+                description={`${stepper.hostname} is now active and ready for short links.`}
+                action={
+                  <Button type="button" variant="primary" onClick={resetStepper}>
+                    Done
+                  </Button>
+                }
+              />
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Badge tone="neutral" kind="outline" dot>
+                    <Globe className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
+                    {stepper.hostname}
+                  </Badge>
+                  {isVerifying && (
+                    <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                      <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> Checking DNS records...
+                    </span>
+                  )}
                 </div>
-                {isVerifying && (
-                  <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
-                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> Checking DNS records...
-                  </span>
-                )}
-              </div>
 
-              {stepper.verifyError && (
-                <Alert className="border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10">
-                  <AlertTriangle className="h-4 w-4 text-[var(--st-danger)]" />
-                  <AlertTitle className="text-[var(--st-danger)]">Verification failed</AlertTitle>
-                  <AlertDescription className="text-[var(--st-danger)]/80">
+                {stepper.verifyError && (
+                  <Alert tone="danger" title="Verification failed">
                     DNS records may not have propagated yet. Wait a few minutes and try again.
-                  </AlertDescription>
-                </Alert>
-              )}
+                  </Alert>
+                )}
 
-              <div className="flex items-center gap-3 pt-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() =>
-                    setStepper({
-                      step: 2,
-                      domainId: stepper.domainId,
-                      hostname: stepper.hostname,
-                      verificationCode: stepper.verificationCode,
-                    })
-                  }
-                  className="gap-1.5"
-                >
-                  <ArrowLeft className="h-4 w-4" /> Back to DNS Instructions
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleVerify}
-                  disabled={isVerifying}
-                  className="gap-2"
-                >
-                  {isVerifying && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                  Verify Domain
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    iconLeft={ArrowLeft}
+                    onClick={() =>
+                      setStepper({
+                        step: 2,
+                        domainId: stepper.domainId,
+                        hostname: stepper.hostname,
+                        verificationCode: stepper.verificationCode,
+                      })
+                    }
+                  >
+                    Back to DNS Instructions
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    loading={isVerifying}
+                    onClick={handleVerify}
+                  >
+                    Verify Domain
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 }

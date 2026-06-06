@@ -1,8 +1,27 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label, useToast, Skeleton, DialogDescription } from '@/components/sabcrm/20ui';
-import { MoreVertical, BarChart, Settings, QrCode as QrCodeIcon, Download, Trash, Plus } from 'lucide-react';
+import {
+    Button,
+    IconButton,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Field,
+    Input,
+    Skeleton,
+    Badge,
+    EmptyState,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { MoreVertical, BarChart, Settings, QrCode as QrCodeIcon, Download, Trash, Plus, Globe } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { updateShortUrl, getShortUrlAnalyticsGeo } from '@/app/actions/url-shortener.actions';
 import type { ShortUrl } from '@/lib/definitions';
@@ -32,8 +51,8 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             try {
                 const data = await getShortUrlAnalyticsGeo(url._id.toString());
                 setGeoData(data);
-            } catch (e: any) {
-                toast({ title: 'Error', description: 'Failed to fetch geo analytics', variant: 'destructive' });
+            } catch {
+                toast({ title: 'Error', description: 'Failed to fetch geo analytics', tone: 'danger' });
                 setGeoData([]);
             }
         });
@@ -44,14 +63,14 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             try {
                 const res = await updateShortUrl(url._id.toString(), { splitTargets });
                 if (res.success) {
-                    toast({ title: 'Success', description: 'A/B test settings updated.' });
+                    toast({ title: 'Success', description: 'A/B test settings updated.', tone: 'success' });
                     setIsAbOpen(false);
                     onUpdate();
                 } else {
-                    toast({ title: 'Error', description: res.error || 'Failed to update', variant: 'destructive' });
+                    toast({ title: 'Error', description: res.error || 'Failed to update', tone: 'danger' });
                 }
-            } catch (e: any) {
-                toast({ title: 'Error', description: 'API Error: Failed to save A/B test', variant: 'destructive' });
+            } catch {
+                toast({ title: 'Error', description: 'API Error: Failed to save A/B test', tone: 'danger' });
             }
         });
     };
@@ -74,19 +93,23 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
-                        <MoreVertical className="h-4 w-4" />
-                    </Button>
+                    <IconButton
+                        label="Link actions"
+                        icon={MoreVertical}
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => e.stopPropagation()}
+                    />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenuItem onClick={handleOpenGeo}>
-                        <BarChart className="mr-2 h-4 w-4" /> Geo Analytics
+                    <DropdownMenuItem iconLeft={BarChart} onClick={handleOpenGeo}>
+                        Geo Analytics
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setIsAbOpen(true)}>
-                        <Settings className="mr-2 h-4 w-4" /> A/B Testing
+                    <DropdownMenuItem iconLeft={Settings} onClick={() => setIsAbOpen(true)}>
+                        A/B Testing
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setIsQrOpen(true)}>
-                        <QrCodeIcon className="mr-2 h-4 w-4" /> Generate QR
+                    <DropdownMenuItem iconLeft={QrCodeIcon} onClick={() => setIsQrOpen(true)}>
+                        Generate QR
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -103,18 +126,27 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                     <div className="py-4">
                         {isPending && !geoData ? (
                             <div className="space-y-2">
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
+                                <Skeleton height={40} />
+                                <Skeleton height={40} />
+                                <Skeleton height={40} />
                             </div>
                         ) : geoData?.length === 0 ? (
-                            <p className="text-sm text-[var(--st-text-secondary)] text-center py-4">No geographic data available yet.</p>
+                            <EmptyState
+                                icon={Globe}
+                                title="No geographic data yet"
+                                description="Clicks by country will appear here once this link starts getting traffic."
+                            />
                         ) : (
                             <div className="space-y-3 max-h-[300px] overflow-y-auto">
                                 {geoData?.map((item) => (
-                                    <div key={item.country} className="flex justify-between items-center p-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)]/50">
-                                        <span className="text-sm font-medium">{item.country || 'Unknown'}</span>
-                                        <span className="text-sm text-[var(--st-text-secondary)]">{item.count} clicks</span>
+                                    <div
+                                        key={item.country}
+                                        className="flex justify-between items-center p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+                                    >
+                                        <span className="text-sm font-medium text-[var(--st-text)]">
+                                            {item.country || 'Unknown'}
+                                        </span>
+                                        <Badge tone="info">{item.count} clicks</Badge>
                                     </div>
                                 ))}
                             </div>
@@ -135,38 +167,41 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                     <div className="space-y-4 py-4">
                         {splitTargets.map((target, index) => (
                             <div key={index} className="flex gap-2 items-end">
-                                <div className="flex-1 space-y-1">
-                                    <Label className="text-xs text-[var(--st-text-secondary)]">URL</Label>
-                                    <Input 
-                                        value={target.url} 
-                                        onChange={(e) => handleUpdateTarget(index, 'url', e.target.value)} 
+                                <Field label="URL" className="flex-1">
+                                    <Input
+                                        value={target.url}
+                                        onChange={(e) => handleUpdateTarget(index, 'url', e.target.value)}
                                         placeholder="https://example.com"
                                     />
-                                </div>
-                                <div className="w-20 space-y-1">
-                                    <Label className="text-xs text-[var(--st-text-secondary)]">Weight (%)</Label>
-                                    <Input 
+                                </Field>
+                                <Field label="Weight (%)" className="w-24">
+                                    <Input
                                         type="number"
                                         min={1}
-                                        value={target.weight} 
-                                        onChange={(e) => handleUpdateTarget(index, 'weight', parseInt(e.target.value) || 0)} 
+                                        value={target.weight}
+                                        onChange={(e) => handleUpdateTarget(index, 'weight', parseInt(e.target.value) || 0)}
                                     />
-                                </div>
-                                <Button variant="ghost" size="icon" className="mb-[2px] text-[var(--st-text-secondary)] hover:text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]" onClick={() => handleRemoveTarget(index)}>
-                                    <Trash className="h-4 w-4" />
-                                </Button>
+                                </Field>
+                                <IconButton
+                                    label="Remove target"
+                                    icon={Trash}
+                                    variant="ghost"
+                                    onClick={() => handleRemoveTarget(index)}
+                                />
                             </div>
                         ))}
-                        <Button variant="outline" size="sm" className="w-full mt-2" onClick={handleAddTarget}>
-                            <Plus className="mr-2 h-4 w-4" /> Add Target
+                        <Button variant="outline" size="sm" block iconLeft={Plus} onClick={handleAddTarget}>
+                            Add Target
                         </Button>
-                        <div className="flex justify-end gap-2 mt-6">
-                            <Button variant="ghost" onClick={() => setIsAbOpen(false)}>Cancel</Button>
-                            <Button disabled={isPending} onClick={handleSaveAbTest}>
-                                {isPending ? 'Saving...' : 'Save A/B Test'}
-                            </Button>
-                        </div>
                     </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsAbOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" loading={isPending} onClick={handleSaveAbTest}>
+                            {isPending ? 'Saving...' : 'Save A/B Test'}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
@@ -177,17 +212,22 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                         <DialogTitle>QR Code for /{url.shortCode}</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col items-center justify-center py-6 space-y-6">
-                        <div className="bg-white p-4 rounded-xl shadow-sm">
-                            <QRCode 
-                                value={`https://${url.domainId || 'sabnode.com'}/${url.shortCode}`} 
+                        <div className="bg-white p-4 rounded-[var(--st-radius)] shadow-[var(--st-shadow)]">
+                            <QRCode
+                                value={`https://${url.domainId || 'sabnode.com'}/${url.shortCode}`}
                                 size={200}
                                 level="H"
                             />
                         </div>
-                        <Button className="w-full" variant="secondary" onClick={() => {
-                            toast({ title: 'Info', description: 'Right-click the QR code to save image.' });
-                        }}>
-                            <Download className="mr-2 h-4 w-4" /> Download Instructions
+                        <Button
+                            block
+                            variant="secondary"
+                            iconLeft={Download}
+                            onClick={() => {
+                                toast({ title: 'Info', description: 'Right-click the QR code to save image.', tone: 'info' });
+                            }}
+                        >
+                            Download Instructions
                         </Button>
                     </div>
                 </DialogContent>

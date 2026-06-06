@@ -1,4 +1,24 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
+'use client';
+
+import { Globe2, MousePointerClick } from 'lucide-react';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  StatCard,
+  EmptyState,
+  Badge,
+  Progress,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 import { BioLink } from '../types';
 
 type Props = {
@@ -17,37 +37,70 @@ export function BioAnalytics({ link, onClose }: Props) {
     <Dialog open={!!link} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Analytics for "{link.label || 'Untitled'}"</DialogTitle>
+          <DialogTitle>Analytics for &quot;{link.label || 'Untitled'}&quot;</DialogTitle>
           <DialogDescription>
             Detailed geographic breakdown of clicks for this link.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="flex justify-between items-center bg-[var(--st-text)] p-4 rounded-lg">
-            <span className="text-[var(--st-text-secondary)] text-sm">Total Clicks</span>
-            <span className="text-xl font-semibold text-white">{totalClicks}</span>
-          </div>
+        <div className="space-y-5 py-4">
+          <StatCard
+            label="Total clicks"
+            value={totalClicks.toLocaleString()}
+            icon={MousePointerClick}
+          />
 
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-[var(--st-text-secondary)]">Top Countries</h4>
+            <h4 className="text-sm font-medium text-[var(--st-text-secondary)]">Top countries</h4>
             {entries.length === 0 ? (
-              <p className="text-xs text-[var(--st-text)]">No geo data available yet.</p>
+              <EmptyState
+                icon={Globe2}
+                title="No geographic data yet"
+                description="Country level click data appears here once this link starts receiving visits."
+                size="sm"
+              />
             ) : (
-              <div className="space-y-2">
-                {entries.map(([countryCode, clicks]) => {
-                  const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : '0';
-                  return (
-                    <div key={countryCode} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 text-center text-xs font-mono bg-[var(--st-text)] text-[var(--st-text-secondary)] rounded px-1 py-0.5">{countryCode}</span>
-                        <span className="text-[var(--st-text-secondary)]">{clicks} clicks</span>
-                      </div>
-                      <span className="text-[var(--st-text)] text-xs">{percentage}%</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <Table density="compact" hover>
+                <THead>
+                  <Tr>
+                    <Th>Country</Th>
+                    <Th>Share</Th>
+                    <Th align="right">Clicks</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {entries.map(([countryCode, clicks]) => {
+                    const percentage = totalClicks > 0 ? (clicks / totalClicks) * 100 : 0;
+                    return (
+                      <Tr key={countryCode}>
+                        <Td>
+                          <Badge tone="neutral" kind="outline">
+                            {countryCode}
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <div className="flex items-center gap-2">
+                            <Progress
+                              value={percentage}
+                              size="sm"
+                              aria-label={`${percentage.toFixed(1)} percent of clicks from ${countryCode}`}
+                              className="min-w-24 flex-1"
+                            />
+                            <span className="w-12 shrink-0 text-right text-xs tabular-nums text-[var(--st-text-secondary)]">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        </Td>
+                        <Td align="right">
+                          <span className="text-sm tabular-nums text-[var(--st-text)]">
+                            {clicks.toLocaleString()}
+                          </span>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </TBody>
+              </Table>
             )}
           </div>
         </div>

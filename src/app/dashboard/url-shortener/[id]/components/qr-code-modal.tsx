@@ -2,12 +2,20 @@
 
 import { useState } from 'react';
 import QRCode from 'react-qr-code';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { QrCode as QrCodeIcon, Download, Copy } from 'lucide-react';
-import { toast } from 'sonner';
 
 export function QrCodeModal({ url }: { url: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
 
   const downloadQrCode = () => {
     const svg = document.getElementById('qr-code-svg');
@@ -40,41 +48,36 @@ export function QrCodeModal({ url }: { url: string }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 text-[13px]">
-          <QrCodeIcon className="h-4 w-4" />
-          QR Code
-        </Button>
-      </DialogTrigger>
+      <Button variant="outline" size="sm" iconLeft={QrCodeIcon} onClick={() => setIsOpen(true)}>
+        QR Code
+      </Button>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>QR Code for Short URL</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center justify-center p-6 gap-6 bg-[var(--st-hover)] rounded-xl mt-4">
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="mt-4 flex flex-col items-center justify-center gap-6 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-6">
+          <div className="rounded-[var(--st-radius)] bg-white p-4 shadow-[var(--st-shadow-sm)]">
             <QRCode
               id="qr-code-svg"
               value={url}
               size={200}
               level="H"
-              style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-              viewBox={`0 0 256 256`}
+              className="h-auto w-full max-w-full"
+              viewBox="0 0 256 256"
             />
           </div>
-          <p className="text-center text-[13px] text-[var(--st-text-secondary)] break-all max-w-full px-4">
+          <p className="max-w-full break-all px-4 text-center text-[13px] text-[var(--st-text-secondary)]">
             {url}
           </p>
         </div>
-        <div className="flex justify-end gap-3 mt-6">
-          <Button variant="outline" onClick={copyToClipboard} className="gap-2">
-            <Copy className="h-4 w-4" />
+        <DialogFooter>
+          <Button variant="outline" iconLeft={Copy} onClick={copyToClipboard}>
             Copy Link
           </Button>
-          <Button onClick={downloadQrCode} className="gap-2">
-            <Download className="h-4 w-4" />
+          <Button variant="primary" iconLeft={Download} onClick={downloadQrCode}>
             Download PNG
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

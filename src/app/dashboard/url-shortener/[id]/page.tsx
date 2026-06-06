@@ -1,4 +1,14 @@
-import { Button, Card, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  EmptyState,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/sabcrm/20ui';
 import {
   getShortUrlById,
   getShortUrlAnalyticsTimeline,
@@ -78,7 +88,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
     AnalyticsReferrersResponse,
     CustomDomainResponse
   ];
-  
+
   try {
     apiResults = await Promise.all([
       getShortUrlById(id),
@@ -92,16 +102,20 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
     console.error('Failed to fetch short url analytics:', error);
     return (
       <div className="flex min-h-full flex-col gap-6">
-        <Card className="p-10 text-center">
-          <AlertTriangle className="mx-auto h-10 w-10 text-[var(--st-danger)] mb-4" />
-          <h3 className="text-sm text-[var(--st-text)] mb-1">Failed to load data</h3>
-          <p className="text-xs text-[var(--st-text-secondary)] mb-4">An error occurred while fetching the short URL data. Please try again later.</p>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/url-shortener">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to All Links
-            </Link>
-          </Button>
+        <Card padding="lg">
+          <EmptyState
+            tone="danger"
+            icon={AlertTriangle}
+            title="Failed to load data"
+            description="An error occurred while fetching the short URL data. Please try again later."
+            action={
+              <Link href="/dashboard/url-shortener">
+                <Button variant="outline" size="sm" iconLeft={ArrowLeft}>
+                  Back to All Links
+                </Button>
+              </Link>
+            }
+          />
         </Card>
       </div>
     );
@@ -112,16 +126,19 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
   if (!shortUrl) {
     return (
       <div className="flex min-h-full flex-col gap-6">
-        <Card className="p-10 text-center">
-          <LinkIcon className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
-          <h3 className="text-sm text-[var(--st-text)] mb-1">Link not found</h3>
-          <p className="text-xs text-[var(--st-text-secondary)] mb-4">This short link does not exist or you do not have access to it.</p>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/url-shortener">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to All Links
-            </Link>
-          </Button>
+        <Card padding="lg">
+          <EmptyState
+            icon={LinkIcon}
+            title="Link not found"
+            description="This short link does not exist or you do not have access to it."
+            action={
+              <Link href="/dashboard/url-shortener">
+                <Button variant="outline" size="sm" iconLeft={ArrowLeft}>
+                  Back to All Links
+                </Button>
+              </Link>
+            }
+          />
         </Card>
       </div>
     );
@@ -168,7 +185,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
         topCountry={topCountry}
       />
 
-      {/* Tabbed Content — client shell handles tab switching */}
+      {/* Tabbed Content. client shell handles tab switching */}
       <AnalyticsTabsShell
         overviewSlot={<ClickTimelineChart data={timeline} />}
         audienceSlot={
