@@ -1,10 +1,28 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Textarea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import { createStorefront } from '@/app/actions/sabshop.actions';
 
@@ -25,21 +43,27 @@ export default function NewStorefrontPage(): React.JSX.Element {
         const res = await createStorefront(form);
         setBusy(false);
         if (!res.ok) {
-            toast({ title: 'Could not create storefront', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Could not create storefront', description: res.error });
             return;
         }
-        toast({ title: 'Storefront created' });
+        toast.success('Storefront created');
         router.push(`/dashboard/sabshop/${res.id}`);
     }
 
     return (
-        <div className="zoruui flex flex-col gap-4 p-6">
-            <header>
-                <h1 className="text-2xl font-semibold text-[var(--st-text)]">New storefront</h1>
-                <p className="text-sm text-[var(--st-text-secondary)]">
-                    Create a tenant-scoped public store reachable at <code>/store/&lt;slug&gt;</code>.
-                </p>
-            </header>
+        <div className="flex flex-col gap-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>New storefront</PageTitle>
+                    <PageDescription>
+                        Create a tenant-scoped public store reachable at{' '}
+                        <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1 py-0.5 text-[var(--st-text)]">
+                            /store/&lt;slug&gt;
+                        </code>
+                        .
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <form onSubmit={onSubmit}>
                 <Card className="max-w-xl">
@@ -47,41 +71,40 @@ export default function NewStorefrontPage(): React.JSX.Element {
                         <CardTitle>Basics</CardTitle>
                     </CardHeader>
                     <CardBody className="flex flex-col gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="displayName">Display name</Label>
+                        <Field label="Display name" required>
                             <Input
-                                id="displayName"
                                 required
                                 value={form.displayName}
                                 onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="slug">Slug</Label>
+                        </Field>
+
+                        <Field
+                            label="Slug"
+                            required
+                            help={`Public URL: /store/${form.slug || 'your-slug'}`}
+                        >
                             <Input
-                                id="slug"
                                 required
                                 placeholder="my-shop"
                                 value={form.slug}
                                 onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                             />
-                            <p className="text-xs text-[var(--st-text-secondary)]">Public URL: /store/{form.slug || 'your-slug'}</p>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
+                        </Field>
+
+                        <Field label="Description">
                             <Textarea
-                                id="description"
                                 value={form.description}
                                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Currency</Label>
+                        </Field>
+
+                        <Field label="Currency">
                             <Select
                                 value={form.currency}
                                 onValueChange={(v) => setForm((f) => ({ ...f, currency: v }))}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Currency">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -91,13 +114,18 @@ export default function NewStorefrontPage(): React.JSX.Element {
                                     <SelectItem value="GBP">GBP (£)</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
+
                         <div className="flex justify-end gap-2 pt-2">
-                            <Button type="button" variant="ghost" asChild>
-                                <Link href="/dashboard/sabshop">Cancel</Link>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => router.push('/dashboard/sabshop')}
+                            >
+                                Cancel
                             </Button>
-                            <Button type="submit" disabled={busy}>
-                                {busy ? 'Creating…' : 'Create storefront'}
+                            <Button type="submit" variant="primary" loading={busy}>
+                                {busy ? 'Creating' : 'Create storefront'}
                             </Button>
                         </div>
                     </CardBody>

@@ -1,8 +1,22 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { Plus, Store, ArrowUpRight } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui';
-import { Plus, Store } from 'lucide-react';
+import {
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Badge,
+    Alert,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
 
 import { listStorefronts } from '@/app/actions/sabshop.actions';
 
@@ -16,10 +30,10 @@ interface StorefrontRow {
     status?: 'draft' | 'live' | 'paused';
 }
 
-function statusVariant(s?: string): 'success' | 'warning' | 'ghost' {
+function statusTone(s?: string): BadgeTone {
     if (s === 'live') return 'success';
     if (s === 'paused') return 'warning';
-    return 'ghost';
+    return 'neutral';
 }
 
 export default async function SabShopPage(): Promise<React.JSX.Element> {
@@ -27,40 +41,43 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
     const items: StorefrontRow[] = res.ok ? (res.items as StorefrontRow[]) : [];
 
     return (
-        <div className="zoruui flex flex-col gap-6 p-6">
-            <header className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">SabShop</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
+        <div className="ui20 flex flex-col gap-6 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>SabShop</PageTitle>
+                    <PageDescription>
                         Run multiple online stores from a single workspace.
-                    </p>
-                </div>
-                <Button asChild>
-                    <Link href="/dashboard/sabshop/new">
-                        <Plus className="h-4 w-4" /> New storefront
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href="/dashboard/sabshop/new" className="u-btn u-btn--primary u-btn--md">
+                        <Plus size={14} aria-hidden="true" />
+                        <span className="u-btn__label">New storefront</span>
                     </Link>
-                </Button>
-            </header>
+                </PageActions>
+            </PageHeader>
 
             {!res.ok ? (
-                <Card>
-                    <CardBody className="p-6 text-sm text-[var(--st-text)]">
-                        {res.error}
-                    </CardBody>
-                </Card>
+                <Alert tone="danger" title="Could not load storefronts">
+                    {res.error}
+                </Alert>
             ) : items.length === 0 ? (
                 <Card>
-                    <CardBody className="flex flex-col items-center gap-3 p-12 text-center">
-                        <Store className="h-10 w-10 text-[var(--st-text-secondary)]" />
-                        <h2 className="text-lg font-medium text-[var(--st-text)]">No storefronts yet</h2>
-                        <p className="text-sm text-[var(--st-text-secondary)]">
-                            Spin up a tenant-scoped public store at <code>/store/&lt;slug&gt;</code>.
-                        </p>
-                        <Button asChild>
-                            <Link href="/dashboard/sabshop/new">
-                                <Plus className="h-4 w-4" /> Create first storefront
-                            </Link>
-                        </Button>
+                    <CardBody>
+                        <EmptyState
+                            icon={Store}
+                            title="No storefronts yet"
+                            description="Spin up a tenant-scoped public store at /store/<slug>."
+                            action={
+                                <Link
+                                    href="/dashboard/sabshop/new"
+                                    className="u-btn u-btn--primary u-btn--md"
+                                >
+                                    <Plus size={14} aria-hidden="true" />
+                                    <span className="u-btn__label">Create first storefront</span>
+                                </Link>
+                            }
+                        />
                     </CardBody>
                 </Card>
             ) : (
@@ -70,7 +87,7 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
                             <CardHeader>
                                 <div className="flex items-center justify-between gap-2">
                                     <CardTitle className="text-base">{sf.displayName}</CardTitle>
-                                    <Badge variant={statusVariant(sf.status)}>{sf.status ?? 'draft'}</Badge>
+                                    <Badge tone={statusTone(sf.status)}>{sf.status ?? 'draft'}</Badge>
                                 </div>
                             </CardHeader>
                             <CardBody className="flex flex-col gap-3 text-sm">
@@ -79,18 +96,33 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
                                     <span>{sf.currency ?? 'INR'}</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Button size="sm" variant="outline" asChild>
-                                        <Link href={`/dashboard/sabshop/${sf._id}`}>Settings</Link>
-                                    </Button>
-                                    <Button size="sm" variant="outline" asChild>
-                                        <Link href={`/dashboard/sabshop/${sf._id}/products`}>Products</Link>
-                                    </Button>
-                                    <Button size="sm" variant="outline" asChild>
-                                        <Link href={`/dashboard/sabshop/${sf._id}/orders`}>Orders</Link>
-                                    </Button>
-                                    <Button size="sm" variant="ghost" asChild>
-                                        <Link href={`/store/${sf.slug}`} target="_blank">View store →</Link>
-                                    </Button>
+                                    <Link
+                                        href={`/dashboard/sabshop/${sf._id}`}
+                                        className="u-btn u-btn--outline u-btn--sm"
+                                    >
+                                        <span className="u-btn__label">Settings</span>
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/sabshop/${sf._id}/products`}
+                                        className="u-btn u-btn--outline u-btn--sm"
+                                    >
+                                        <span className="u-btn__label">Products</span>
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/sabshop/${sf._id}/orders`}
+                                        className="u-btn u-btn--outline u-btn--sm"
+                                    >
+                                        <span className="u-btn__label">Orders</span>
+                                    </Link>
+                                    <Link
+                                        href={`/store/${sf.slug}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="u-btn u-btn--ghost u-btn--sm"
+                                    >
+                                        <span className="u-btn__label">View store</span>
+                                        <ArrowUpRight size={13} aria-hidden="true" />
+                                    </Link>
                                 </div>
                             </CardBody>
                         </Card>

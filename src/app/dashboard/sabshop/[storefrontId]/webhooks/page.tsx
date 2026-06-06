@@ -1,13 +1,31 @@
 "use client";
 
 import React from "react";
-import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { StatCard } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Switch } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  StatCard,
+  Badge,
+  Switch,
+  Card,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from "@/components/sabcrm/20ui";
 import {
   Plus,
   Webhook,
@@ -17,11 +35,10 @@ import {
   PenTool,
   Trash2,
   TerminalSquare,
-  Link,
+  Link as LinkIcon,
   ShieldCheck,
-  Zap
+  Zap,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 
 const mockWebhooks = [
   {
@@ -72,12 +89,10 @@ export default function WebhooksPage() {
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline">
-            <TerminalSquare className="mr-2 h-4 w-4" />
+          <Button variant="outline" iconLeft={TerminalSquare}>
             View Documentation
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="primary" iconLeft={Plus}>
             Add Endpoint
           </Button>
         </PageActions>
@@ -87,24 +102,20 @@ export default function WebhooksPage() {
         <StatCard
           label="Active Endpoints"
           value="3"
-          icon={<Webhook className="text-[var(--st-text-secondary)]" />}
-          delta={1}
-          period="added this month"
+          icon={Webhook}
+          delta={{ value: "+1 added this month", tone: "up" }}
         />
         <StatCard
           label="Events Processed (24h)"
           value="1,248"
-          icon={<Activity className="text-[var(--st-status-ok)]" />}
-          delta={12.5}
-          period="vs previous day"
+          icon={Activity}
+          delta={{ value: "+12.5% vs previous day", tone: "up" }}
         />
         <StatCard
           label="Delivery Failures (24h)"
           value="12"
-          icon={<AlertTriangle className="text-amber-500" />}
-          delta={2}
-          period="vs previous day"
-          invertDelta
+          icon={AlertTriangle}
+          delta={{ value: "+2 vs previous day", tone: "down" }}
         />
       </div>
 
@@ -116,16 +127,16 @@ export default function WebhooksPage() {
           </div>
         </div>
 
-        <Card className="border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm overflow-hidden">
-          <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
+        <Card padding="none" className="overflow-hidden">
+          <div className="overflow-x-auto">
             <Table>
               <THead>
-                <Tr className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
-                  <Th className="w-[300px]">Endpoint</Th>
+                <Tr>
+                  <Th width={300}>Endpoint</Th>
                   <Th>Topics</Th>
                   <Th>Status</Th>
                   <Th className="hidden lg:table-cell">Secret</Th>
-                  <Th className="text-right">Actions</Th>
+                  <Th align="right">Actions</Th>
                 </Tr>
               </THead>
               <TBody>
@@ -134,8 +145,11 @@ export default function WebhooksPage() {
                     <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
-                          <Link className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
-                          <span className="font-medium text-sm text-[var(--st-text)] truncate max-w-[200px] sm:max-w-[300px]" title={webhook.url}>
+                          <LinkIcon className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" aria-hidden="true" />
+                          <span
+                            className="font-medium text-sm text-[var(--st-text)] truncate max-w-[200px] sm:max-w-[300px]"
+                            title={webhook.url}
+                          >
                             {webhook.url}
                           </span>
                         </div>
@@ -143,7 +157,7 @@ export default function WebhooksPage() {
                           <span>Last delivery: {webhook.lastDelivery}</span>
                           {webhook.failures > 0 && (
                             <span className="text-[var(--st-danger)] flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
+                              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
                               {webhook.failures} failures
                             </span>
                           )}
@@ -152,15 +166,13 @@ export default function WebhooksPage() {
                     </Td>
                     <Td>
                       <div className="flex flex-wrap gap-1.5 max-w-[250px]">
-                        {webhook.topics.map((topic, i) => (
-                          i < 2 ? (
-                            <Badge key={topic} variant="outline" className="text-[10px] py-0 font-mono bg-[var(--st-bg-muted)]/50">
-                              {topic}
-                            </Badge>
-                          ) : null
+                        {webhook.topics.slice(0, 2).map((topic) => (
+                          <Badge key={topic} tone="neutral" kind="outline" className="font-mono text-[10px]">
+                            {topic}
+                          </Badge>
                         ))}
                         {webhook.topics.length > 2 && (
-                          <Badge variant="ghost" className="text-[10px] py-0">
+                          <Badge tone="neutral" kind="soft" className="text-[10px]">
                             +{webhook.topics.length - 2} more
                           </Badge>
                         )}
@@ -168,40 +180,44 @@ export default function WebhooksPage() {
                     </Td>
                     <Td>
                       <div className="flex items-center gap-3">
-                        <Switch checked={webhook.status === 'active'} />
-                        {webhook.status === 'active' ? (
-                          <Badge variant="success" className="text-[10px] uppercase tracking-wider py-0 rounded-full h-5 px-2">Active</Badge>
+                        <Switch
+                          checked={webhook.status === "active"}
+                          aria-label={`Toggle ${webhook.url}`}
+                        />
+                        {webhook.status === "active" ? (
+                          <Badge tone="success" kind="soft" className="text-[10px] uppercase tracking-wider">
+                            Active
+                          </Badge>
                         ) : (
-                          <Badge variant="danger" className="text-[10px] uppercase tracking-wider py-0 rounded-full h-5 px-2">Failing</Badge>
+                          <Badge tone="danger" kind="soft" className="text-[10px] uppercase tracking-wider">
+                            Failing
+                          </Badge>
                         )}
                       </div>
                     </Td>
                     <Td className="hidden lg:table-cell">
-                      <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] px-2 py-1 rounded w-fit">
-                        <ShieldCheck className="h-3.5 w-3.5" />
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] px-2 py-1 rounded-[var(--st-radius)] w-fit">
+                        <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                         {webhook.secretPrefix}
                       </div>
                     </Td>
-                    <Td className="text-right">
+                    <Td align="right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
+                          <IconButton
+                            label="Endpoint actions"
+                            icon={MoreVertical}
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <PenTool className="mr-2 h-4 w-4" /> Edit Endpoint
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Zap className="mr-2 h-4 w-4" /> Send Test Event
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <TerminalSquare className="mr-2 h-4 w-4" /> View Delivery Logs
-                          </DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={PenTool}>Edit Endpoint</DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={Zap}>Send Test Event</DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={TerminalSquare}>View Delivery Logs</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-[var(--st-danger)] focus:text-[var(--st-danger)]">
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <DropdownMenuItem variant="danger" iconLeft={Trash2}>
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -220,45 +236,49 @@ export default function WebhooksPage() {
             <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Recent Deliveries</h2>
             <p className="text-sm text-[var(--st-text-secondary)]">View recent webhook attempts across all endpoints.</p>
           </div>
-          <Button variant="outline" size="sm">View All Logs</Button>
+          <Button variant="outline" size="sm">
+            View All Logs
+          </Button>
         </div>
 
-        <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
-          <Table>
-            <THead>
-              <Tr className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
-                <Th>Topic</Th>
-                <Th>Status</Th>
-                <Th className="hidden md:table-cell">Time</Th>
-                <Th className="text-right">Action</Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {mockLogs.map((log) => (
-                <Tr key={log.id}>
-                  <Td className="font-mono text-xs text-[var(--st-text)]">
-                    {log.topic}
-                  </Td>
-                  <Td>
-                    {log.status === 200 ? (
-                      <Badge variant="success" className="font-mono text-[10px] py-0">{log.status} OK</Badge>
-                    ) : (
-                      <Badge variant="danger" className="font-mono text-[10px] py-0">{log.status} ERR</Badge>
-                    )}
-                  </Td>
-                  <Td className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">
-                    {log.time}
-                  </Td>
-                  <Td className="text-right">
-                    <Button variant="ghost" size="sm" className="h-7 text-xs">
-                      View Payload
-                    </Button>
-                  </Td>
+        <Card padding="none" className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Topic</Th>
+                  <Th>Status</Th>
+                  <Th className="hidden md:table-cell">Time</Th>
+                  <Th align="right">Action</Th>
                 </Tr>
-              ))}
-            </TBody>
-          </Table>
-        </div>
+              </THead>
+              <TBody>
+                {mockLogs.map((log) => (
+                  <Tr key={log.id}>
+                    <Td className="font-mono text-xs text-[var(--st-text)]">{log.topic}</Td>
+                    <Td>
+                      {log.status === 200 ? (
+                        <Badge tone="success" kind="soft" className="font-mono text-[10px]">
+                          {log.status} OK
+                        </Badge>
+                      ) : (
+                        <Badge tone="danger" kind="soft" className="font-mono text-[10px]">
+                          {log.status} ERR
+                        </Badge>
+                      )}
+                    </Td>
+                    <Td className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">{log.time}</Td>
+                    <Td align="right">
+                      <Button variant="ghost" size="sm">
+                        View Payload
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </div>
+        </Card>
       </div>
     </div>
   );

@@ -28,7 +28,10 @@ const items = [
 export function SabworkerlyNav() {
     const pathname = usePathname() ?? '';
     return (
-        <nav className="zoruui flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3">
+        <nav
+            aria-label="SabWorkerly sections"
+            className="ui20 flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3"
+        >
             {items.map((it) => {
                 const active = it.exact
                     ? pathname === it.href
@@ -38,14 +41,15 @@ export function SabworkerlyNav() {
                     <Link
                         key={it.href}
                         href={it.href}
+                        aria-current={active ? 'page' : undefined}
                         className={cn(
-                            'flex items-center gap-2 rounded-t-md border-b-2 px-3 py-2 text-sm transition-colors',
+                            'flex items-center gap-2 rounded-t-[var(--st-radius)] border-b-2 px-3 py-2 text-sm transition-colors',
                             active
                                 ? 'border-[color:var(--st-accent)] text-[color:var(--st-text)]'
                                 : 'border-transparent text-[color:var(--st-text-secondary)] hover:text-[color:var(--st-text)]',
                         )}
                     >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-4 w-4" aria-hidden="true" />
                         {it.label}
                     </Link>
                 );

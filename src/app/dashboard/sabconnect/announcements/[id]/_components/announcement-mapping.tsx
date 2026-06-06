@@ -1,19 +1,18 @@
-import { Badge } from '@/components/sabcrm/20ui';
+import { Badge, StatCard, type BadgeVariant } from '@/components/sabcrm/20ui';
 import { Pin } from 'lucide-react';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import type { CrmAnnouncementStatus } from '@/lib/rust-client/crm-announcements';
 
-const STATUS_TONE: Record<CrmAnnouncementStatus, StatusTone> = {
-    draft: 'neutral',
-    scheduled: 'amber',
-    published: 'green',
-    archived: 'neutral',
+const STATUS_VARIANT: Record<CrmAnnouncementStatus, BadgeVariant> = {
+    draft: 'secondary',
+    scheduled: 'warning',
+    published: 'success',
+    archived: 'secondary',
 };
 
 export function fmtDate(v: string | null | undefined): string {
-    if (!v) return '—';
+    if (!v) return '-';
     const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return '-';
     return d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 }
 
@@ -36,12 +35,14 @@ export function AnnouncementBadges({
     publishAt,
     expiresAt,
 }: AnnouncementBadgesProps) {
-    const tone = STATUS_TONE[status as CrmAnnouncementStatus] ?? 'neutral';
+    const variant = STATUS_VARIANT[status as CrmAnnouncementStatus] ?? 'secondary';
 
     return (
         <div className="mb-3 flex flex-wrap items-center gap-2">
-            <StatusPill label={status} tone={tone} />
-            <Badge variant="ghost" className="capitalize">
+            <Badge variant={variant} className="capitalize">
+                {status}
+            </Badge>
+            <Badge variant="outline" className="capitalize">
                 Audience: {audience ?? 'all'}
             </Badge>
             {category ? (
@@ -50,13 +51,13 @@ export function AnnouncementBadges({
                 </Badge>
             ) : null}
             {priority ? (
-                <Badge variant="ghost" className="capitalize">
+                <Badge variant="outline" className="capitalize">
                     Priority: {String(priority)}
                 </Badge>
             ) : null}
             {pinned ? (
-                <Badge variant="warning">
-                    <Pin className="h-3 w-3" /> Pinned
+                <Badge variant="warning" className="inline-flex items-center gap-1">
+                    <Pin className="h-3 w-3" aria-hidden="true" /> Pinned
                 </Badge>
             ) : null}
             <Badge variant="secondary">Publish: {fmtDate(publishAt)}</Badge>
@@ -88,13 +89,10 @@ export function AnnouncementStats({
     ];
 
     return (
-        <dl className="grid gap-2 text-[12.5px]">
+        <div className="grid gap-2 sm:grid-cols-2">
             {stats.map(({ label, value }) => (
-                <div key={label} className="flex justify-between">
-                    <dt className="text-[var(--st-text-secondary)]">{label}</dt>
-                    <dd className="text-[var(--st-text)]">{value}</dd>
-                </div>
+                <StatCard key={label} label={label} value={value} />
             ))}
-        </dl>
+        </div>
     );
 }

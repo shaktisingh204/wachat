@@ -3,11 +3,21 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Button,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { addSabworkerlyClient } from '@/app/actions/sabworkerly.actions';
 
 export function ClientForm() {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
 
@@ -31,10 +41,12 @@ export function ClientForm() {
                 billingAddressJson: address ? { freeform: address } : undefined,
             });
             if (res.success) {
+                toast.success('Client created');
                 router.push(`/dashboard/sabworkerly/clients/${res.id}`);
                 router.refresh();
             } else {
                 setError(res.error);
+                toast.error(res.error);
             }
         });
     };
@@ -43,59 +55,50 @@ export function ClientForm() {
         <Card>
             <CardBody className="p-6">
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
-                    {error && (
-                        <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-3 text-sm text-[var(--st-text-secondary)]">
+                    {error ? (
+                        <Alert tone="danger" title="Could not create client" onClose={() => setError(null)}>
                             {error}
-                        </div>
-                    )}
+                        </Alert>
+                    ) : null}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="name">Business name</Label>
-                            <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="terms">Payment terms (days)</Label>
+                        <Field label="Business name" required>
+                            <Input value={name} onChange={(e) => setName(e.target.value)} />
+                        </Field>
+                        <Field label="Payment terms (days)">
                             <Input
-                                id="terms"
                                 type="number"
                                 min="0"
                                 value={terms}
                                 onChange={(e) => setTerms(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="contactName">Primary contact</Label>
-                            <Input id="contactName" value={contactName} onChange={(e) => setContactName(e.target.value)} />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="contactEmail">Contact email</Label>
+                        </Field>
+                        <Field label="Primary contact">
+                            <Input value={contactName} onChange={(e) => setContactName(e.target.value)} />
+                        </Field>
+                        <Field label="Contact email">
                             <Input
-                                id="contactEmail"
                                 type="email"
                                 value={contactEmail}
                                 onChange={(e) => setContactEmail(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="contactPhone">Contact phone</Label>
-                            <Input id="contactPhone" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
-                        </div>
+                        </Field>
+                        <Field label="Contact phone">
+                            <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+                        </Field>
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="address">Billing address</Label>
+                    <Field label="Billing address">
                         <Textarea
-                            id="address"
                             rows={3}
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                         />
-                    </div>
+                    </Field>
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="ghost" onClick={() => router.back()} disabled={pending}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : 'Create client'}
+                        <Button type="submit" variant="primary" loading={pending}>
+                            Create client
                         </Button>
                     </div>
                 </form>
