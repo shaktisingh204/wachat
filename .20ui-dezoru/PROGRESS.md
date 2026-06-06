@@ -54,9 +54,35 @@ Every file imports CLEAN names from `@/components/sabcrm/20ui`. No legacy, no zo
 - [ ] WAVE 3: when 298 -> 0, delete compat.ts + zoru/ folder + fold zoru-legacy.css into 20ui (rename). Final tsc.
 
 ## Current metrics (update each wave)
-- checker missing-export: 0   | compat importers: 298 | clean-barrel importers: ~3923
-- tsc baseline total errors ~113151 (pre-existing: clay/e2e/mongo/missing-rust-clients — NOT mine, NOT a gate)
+- checker missing-export: 0 (APP BUILDS) | compat importers: **128** (was 4221) | clean-barrel: ~3995
+- Pass A2 + Pass B2 done: CardContent->CardBody, zoruToast/zoruSonnerToast->toast(+toast.loading),
+  Badge/Button/Alert accept legacy `variant` props (map to tones) -> ~480 prop regressions fixed.
+- tsc baseline ~113151; rose to 114062 after /zoru->20ui swap (legacy->20ui prop diffs, NON-build-breaking),
+  then component-variant backcompat fixes pull it back down (tsc4 measuring).
 - branch: dezoru-20ui-migration (checkpoint commits). main untouched.
+
+## REMAINING TAIL — the 128 compat files (Wave 2/3, render-sensitive — do with visual checks)
+Each needs a clean 20ui home before compat + /zoru can be deleted. Recommended SAFE approach:
+RELOCATE the impl out of zoru/ into 20ui proper (or sabfiles) with a clean name, KEEP its CSS
+(rename zoru-legacy.css -> a 20ui css), update barrel + compat alias, then rename consumers. Moving
+the exact impl preserves behavior (no blind rewrite). Clusters by #files:
+- ZoruRadioGroupItem (50)  -> 20ui radio item (check choice.tsx Radio API; add RadioGroupItem). RENDER-RISK: radio selection.
+- ZoruChart (40) + ZORU_CHART_PALETTE (41) -> add clean `Chart` (recharts namespace) + `CHART_PALETTE` to 20ui chart. LOW render risk (data/colors).
+- file-manager: ZoruFileUploadCard(13)/ZoruFilesPage(11)/ZoruFileEntity/ZoruFileInput/ZoruFileCardCollections -> @/components/sabfiles (policy). Relocate.
+- ZoruProvider(10), ZoruToaster(9) -> 20ui provider/Toaster (provider-free diff for Toaster).
+- ZoruAccordion03*(10) -> 20ui Accordion (verify API) or relocate as Accordion variant.
+- ZoruStatisticsCard1(8) -> 20ui StatCard (verify) or relocate.
+- shell: ZoruAppSidebar(8)/ZoruHomeShell/ZoruHeader/ZoruShell/ZORU_APPS/applyTheme/useHtmlDark/AppThemeToggle -> 20ui shell. HARD.
+- SHOWCASE /app/zoruui/* (~8 files) collision-skipped (import both ZoruCalendar & Calendar etc.).
+  These demo the OLD zoru components -> simplest: DELETE or rewrite the showcase. Low stakes.
+- 1 real-app collision: src/app/sabwa/inbox/_components/left-pane.tsx (ZoruEmptyState <-> EmptyState) -> dedup by hand.
+
+## Wave 3 final deletion gate (when 128 -> 0)
+- delete src/components/sabcrm/20ui/compat.ts (+ its Zoru* aliases)
+- delete src/components/sabcrm/20ui/zoru/ folder
+- rename/fold src/components/sabcrm/20ui/zoru-legacy.css into 20ui (drop "zoru" from name); it still styles
+  relocated legacy components, so KEEP the rules, just rename the file + its 18 layout import sites.
+- final: node check-imports.js == 0 AND a render smoke test of a few migrated routes.
 
 ## Codemods (reusable)
 - .20ui-dezoru/codemod-passA.js <dir>  — Zoru*->clean for compat imports (collision-guarded)
