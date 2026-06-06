@@ -156,7 +156,7 @@ export function ZoruSabChatWidgetGenerator({
         />
         <ZoruCardHeader>
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <Code className="h-4 w-4" />
             </span>
             <div>
@@ -174,7 +174,7 @@ export function ZoruSabChatWidgetGenerator({
               <button
                 type="button"
                 onClick={() => setActiveTab('design')}
-                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'design' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
+                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'design' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
               >
                 <Palette className="h-4 w-4 shrink-0" />
                 Design
@@ -182,7 +182,7 @@ export function ZoruSabChatWidgetGenerator({
               <button
                 type="button"
                 onClick={() => setActiveTab('pre-chat')}
-                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'pre-chat' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
+                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'pre-chat' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
               >
                 <FileText className="h-4 w-4 shrink-0" />
                 Pre-chat form
@@ -190,7 +190,7 @@ export function ZoruSabChatWidgetGenerator({
               <button
                 type="button"
                 onClick={() => setActiveTab('advanced')}
-                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'advanced' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
+                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'advanced' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
               >
                 <Settings2 className="h-4 w-4 shrink-0" />
                 Advanced
@@ -202,7 +202,7 @@ export function ZoruSabChatWidgetGenerator({
               
               {activeTab === 'design' && (
                 <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
-                  <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                  <div className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                     <Switch
                       id="widget-enabled"
                       checked={settings.enabled}
@@ -334,7 +334,7 @@ export function ZoruSabChatWidgetGenerator({
 
               {activeTab === 'pre-chat' && (
                 <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
-                  <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                  <div className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                     <Switch
                       id="prechat-enabled"
                       checked={settings.preChatFormEnabled}
@@ -353,7 +353,7 @@ export function ZoruSabChatWidgetGenerator({
                   </div>
 
                   {settings.preChatFormEnabled && (
-                    <div className="space-y-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="space-y-4 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-2">
                         <Label htmlFor="prechat-message">Pre-chat Message</Label>
                         <Textarea
@@ -377,7 +377,7 @@ export function ZoruSabChatWidgetGenerator({
               {activeTab === 'advanced' && (
                 <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
                         <Label htmlFor="adv-csat">Customer Satisfaction (CSAT)</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Send a survey after conversation resolves.</p>
@@ -389,7 +389,7 @@ export function ZoruSabChatWidgetGenerator({
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
                         <Label htmlFor="adv-attachments">File Attachments</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Allow visitors to send files.</p>
@@ -401,7 +401,7 @@ export function ZoruSabChatWidgetGenerator({
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
                         <Label htmlFor="adv-emoji">Emoji Picker</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Show emoji picker in widget input.</p>
@@ -413,7 +413,7 @@ export function ZoruSabChatWidgetGenerator({
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
                         <Label htmlFor="adv-consent">Require Consent</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Show a consent disclaimer.</p>
@@ -425,7 +425,7 @@ export function ZoruSabChatWidgetGenerator({
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
+                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
                         <Label htmlFor="adv-hours">Hide outside business hours</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Widget will be invisible when offline.</p>
@@ -444,7 +444,7 @@ export function ZoruSabChatWidgetGenerator({
             {/* Preview + code */}
             <div className="w-full lg:w-[350px] shrink-0 space-y-4">
               <Label>Live preview</Label>
-              <div className="relative flex h-[500px] w-full items-end justify-end overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]">
+              <div className="relative flex h-[500px] w-full items-end justify-end overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]">
                 <div className={`static w-full h-full flex flex-col ${settings.widgetPosition === 'left' ? 'items-start' : 'items-end'} justify-end`}>
                   
                   {showWidget && (
@@ -531,7 +531,7 @@ export function ZoruSabChatWidgetGenerator({
                 <div className="flex items-start gap-2">
                   <pre
                     id="widget-embed"
-                    className="flex-1 overflow-x-auto rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-mono text-[10px] text-[var(--st-text)]"
+                    className="flex-1 overflow-x-auto rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-mono text-[10px] text-[var(--st-text)]"
                   >
                     {embedCode}
                   </pre>

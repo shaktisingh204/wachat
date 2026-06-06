@@ -333,7 +333,7 @@ export default function CrmWebhooksListPage() {
               label="Total"
               value={kpis.total.toLocaleString()}
               icon={<Webhook className="h-4 w-4" />}
-              className={statusFilter === 'all' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'all' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]' : undefined}
             />
           </button>
           <button
@@ -345,7 +345,7 @@ export default function CrmWebhooksListPage() {
               label="Active"
               value={kpis.active.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
-              className={statusFilter === 'active' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'active' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]' : undefined}
             />
           </button>
           <button
@@ -357,7 +357,7 @@ export default function CrmWebhooksListPage() {
               label="Paused"
               value={kpis.paused.toLocaleString()}
               icon={<PauseCircle className="h-4 w-4" />}
-              className={statusFilter === 'paused' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'paused' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]' : undefined}
             />
           </button>
           <StatCard

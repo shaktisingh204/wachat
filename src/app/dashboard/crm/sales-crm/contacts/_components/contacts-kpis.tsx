@@ -64,7 +64,7 @@ export function ContactsKpiStrip({
             className={[
                 'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
                 active
-                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                     : '',
             ].join(' ')}
         >

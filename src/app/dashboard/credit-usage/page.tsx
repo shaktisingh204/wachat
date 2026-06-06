@@ -143,7 +143,7 @@ export default function CreditUsagePage() {
               const Icon = s.icon;
               return (
                 <Card key={s.label} className="flex items-center gap-4 p-5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                     <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                   </span>
                   <div>

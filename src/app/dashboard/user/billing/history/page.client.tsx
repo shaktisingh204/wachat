@@ -112,7 +112,7 @@ export default function BillingHistoryPage() {
             {isInitialLoad ? (
                 <TransactionSkeleton />
             ) : (
-                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                     <ZoruCardHeader className="pb-4">
                         <ZoruCardTitle className="text-[var(--st-text)] mb-4">Your Transactions</ZoruCardTitle>
                         <TransactionFilters 

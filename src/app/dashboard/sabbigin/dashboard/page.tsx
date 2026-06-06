@@ -78,7 +78,7 @@ function Tile({
         <Card className="p-5">
             <div className="flex items-start justify-between gap-3">
                 <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">{label}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </span>
             </div>

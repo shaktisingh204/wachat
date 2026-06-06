@@ -16,7 +16,7 @@ export default function ConversionsError({
     }, [error]);
 
     return (
-        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] border-dashed bg-[var(--st-hover)] p-6 text-center">
+        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] border-dashed bg-[var(--st-hover)] p-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30">
                 <AlertCircle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
             </div>

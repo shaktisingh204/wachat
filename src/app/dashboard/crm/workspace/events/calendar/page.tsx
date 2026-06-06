@@ -302,16 +302,16 @@ export default function EventsCalendarPage(): React.JSX.Element {
           placeholder: 'Search events…',
         }}
         viewSwitcher={
-          <div className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
+          <div className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
             {(['month', 'week', 'day'] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setView(v)}
                 className={
-                  'rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
+                  'rounded-[calc(var(--st-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
                   (view === v
-                    ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                    ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
                     : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]')
                 }
               >

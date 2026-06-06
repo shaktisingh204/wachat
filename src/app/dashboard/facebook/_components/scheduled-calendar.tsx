@@ -81,7 +81,7 @@ export function ScheduledCalendar({ posts, projectId, onActionComplete }: Schedu
   );
 
   return (
-    <div className="h-[600px] w-full bg-[var(--st-bg)] rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] overflow-hidden p-4">
+    <div className="h-[600px] w-full bg-[var(--st-bg)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] overflow-hidden p-4">
       <DnDCalendar
         localizer={localizer}
         events={events}

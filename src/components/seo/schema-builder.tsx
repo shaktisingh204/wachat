@@ -174,7 +174,7 @@ export default function SchemaBuilder() {
                         <ZoruCardContent>
                             <div className="space-y-3">
                                 {templates.map(template => (
-                                    <div key={template.id} className="flex items-center justify-between p-3 border rounded-[var(--zoru-radius)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                    <div key={template.id} className="flex items-center justify-between p-3 border rounded-[var(--st-radius)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                                         <div>
                                             <p className="font-medium text-sm text-[var(--st-text)]">{template.name}</p>
                                             <p className="text-xs text-[var(--st-text-secondary)]">{template.type}</p>
@@ -202,7 +202,7 @@ export default function SchemaBuilder() {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="relative">
-                        <pre className="bg-[var(--st-text)] text-white p-4 rounded-[var(--zoru-radius-lg)] overflow-auto text-xs min-h-[300px]">
+                        <pre className="bg-[var(--st-text)] text-white p-4 rounded-[var(--st-radius-lg)] overflow-auto text-xs min-h-[300px]">
                             {jsonLd}
                         </pre>
                         <Button

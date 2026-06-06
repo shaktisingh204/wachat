@@ -282,13 +282,13 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
                 {/* Preview */}
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
                         <div className="text-[var(--st-text-secondary)]">Preview gross</div>
                         <div className="font-mono text-[15px] text-[var(--st-text)]">
                             {fmtINR(previewGross)}
                         </div>
                     </div>
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
                         <div className="text-[var(--st-text-secondary)]">Preview net</div>
                         <div className="font-mono text-[15px] text-[var(--st-text)]">
                             {fmtINR(previewNet)}

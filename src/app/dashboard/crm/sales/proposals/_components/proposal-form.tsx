@@ -290,7 +290,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         {sections.map((s, idx) => (
                             <div
                                 key={idx}
-                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                             >
                                 <div className="mb-2 flex items-center gap-2">
                                     <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -343,7 +343,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         </SabFilePickerButton>
                     </div>
                     {attachments.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No attachments yet. Use &ldquo;Add from SabFiles&rdquo;.
                         </div>
                     ) : (
@@ -351,7 +351,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                             {attachments.map((a, idx) => (
                                 <li
                                     key={`${a.url}-${idx}`}
-                                    className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
+                                    className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                 >
                                     <Paperclip className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     <a

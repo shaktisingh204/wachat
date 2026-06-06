@@ -142,7 +142,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
               programs.slice(0, 5).map((p) => (
                 <div
                   key={p._id}
-                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
+                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
                 >
                   <p className="text-[13px] font-medium text-[var(--st-text)]">{p.name}</p>
                   {p.description ? (

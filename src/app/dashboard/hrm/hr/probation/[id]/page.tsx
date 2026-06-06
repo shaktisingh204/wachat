@@ -147,11 +147,11 @@ export default async function ProbationDetailPage({
                     Evaluation criteria
                 </div>
                 {criteria.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No criteria recorded.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
@@ -182,11 +182,11 @@ export default async function ProbationDetailPage({
             <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">Notes</div>
                 {probation.notes ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
+                    <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {probation.notes}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No notes recorded.
                     </div>
                 )}

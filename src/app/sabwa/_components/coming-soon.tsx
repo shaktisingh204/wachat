@@ -60,7 +60,7 @@ export function ComingSoon({
       <header className="flex items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Icon className="h-6 w-6" />
         </div>

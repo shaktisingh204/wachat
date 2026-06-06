@@ -188,7 +188,7 @@ export function ThreadView({
               messages…
             </div>
           ) : messages.length === 0 ? (
-            <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center text-sm text-[var(--st-text-secondary)]">
               No messages in this thread yet.
             </div>
           ) : (
@@ -223,7 +223,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
       </Avatar>
       <div
         className={cn(
-          'max-w-[75%] rounded-[var(--zoru-radius-lg)] border px-3 py-2 shadow-sm',
+          'max-w-[75%] rounded-[var(--st-radius-lg)] border px-3 py-2 shadow-sm',
           outbound
             ? 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
             : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]',
@@ -273,7 +273,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  'inline-flex max-w-[14rem] items-center gap-2 truncate rounded-[var(--zoru-radius-sm)] border px-2 py-1.5 text-xs transition-colors',
+                  'inline-flex max-w-[14rem] items-center gap-2 truncate rounded-[var(--st-radius-sm)] border px-2 py-1.5 text-xs transition-colors',
                   outbound
                     ? 'border-[var(--st-text-inverted)]/30 bg-[var(--st-text-inverted)]/10 text-[var(--st-text-inverted)] hover:bg-[var(--st-text-inverted)]/20'
                     : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',

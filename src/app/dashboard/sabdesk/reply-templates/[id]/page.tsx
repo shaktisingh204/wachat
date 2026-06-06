@@ -114,11 +114,11 @@ export default async function ReplyTemplateDetailPage({
           Template body
         </div>
         {template.body ? (
-          <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[13px] text-[var(--st-text)]">
+          <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[13px] text-[var(--st-text)]">
             {template.body}
           </pre>
         ) : (
-          <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+          <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
             This template has no body yet.
           </div>
         )}

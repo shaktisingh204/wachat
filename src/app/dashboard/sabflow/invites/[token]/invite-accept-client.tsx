@@ -88,11 +88,11 @@ export function InviteAcceptClient({
   return (
     <Card>
       <ZoruCardContent className="flex flex-col items-center gap-5 p-8 text-center">
-        <Avatar className="h-16 w-16 rounded-[var(--zoru-radius-lg)]">
+        <Avatar className="h-16 w-16 rounded-[var(--st-radius-lg)]">
           {workspaceIconUrl ? (
             <ZoruAvatarImage src={workspaceIconUrl} alt={workspaceName} />
           ) : null}
-          <ZoruAvatarFallback className="rounded-[var(--zoru-radius-lg)]">
+          <ZoruAvatarFallback className="rounded-[var(--st-radius-lg)]">
             <Building2 className="h-7 w-7" aria-hidden="true" />
           </ZoruAvatarFallback>
         </Avatar>

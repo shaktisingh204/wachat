@@ -81,7 +81,7 @@ export function CrmFormDrawer({
                   onClick={() => setActiveSectionId(sec.id)}
                   className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-md text-[12.5px] transition-all ${
                     isActive
-                      ? 'bg-[var(--st-text)] text-white font-medium shadow-[var(--zoru-shadow-sm)]'
+                      ? 'bg-[var(--st-text)] text-white font-medium shadow-[var(--st-shadow-sm)]'
                       : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/70 hover:text-[var(--st-text)]'
                   }`}
                 >

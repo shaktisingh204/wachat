@@ -163,13 +163,13 @@ export default function SiteExplorerPage() {
                     </Button>
                 </div>
                 {error && (
-                    <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--zoru-radius)]">
+                    <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--st-radius)]">
                         <AlertCircle className="h-5 w-5" />
                         <p>{error}</p>
                     </div>
                 )}
 
-                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
                     Enter a domain above to start analyzing.
                 </div>
             </div>
@@ -211,7 +211,7 @@ export default function SiteExplorerPage() {
                 </Button>
             </div>
             {error && (
-                <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--zoru-radius)]">
+                <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--st-radius)]">
                     <AlertCircle className="h-5 w-5" />
                     <p>{error}</p>
                 </div>
@@ -306,7 +306,7 @@ export default function SiteExplorerPage() {
                     </Button>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div ref={parentRef} className="h-[400px] overflow-auto border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-transparent">
+                    <div ref={parentRef} className="h-[400px] overflow-auto border border-[var(--st-border)] rounded-[var(--st-radius)] bg-transparent">
                         <div className="w-full text-sm">
                             <div className="flex border-b border-[var(--st-border)] sticky top-0 bg-[var(--zoru-background)] z-10 font-medium">
                                 <div className="p-3 w-1/2 text-left text-[var(--st-text)]">Domain / URL</div>

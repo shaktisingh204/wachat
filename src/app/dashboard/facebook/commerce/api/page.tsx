@@ -247,7 +247,7 @@ export default function CommerceApiPage() {
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+          <div className="flex items-center justify-between rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
             <div>
               <p className="text-sm font-medium text-[var(--st-text)]">
                 Auto-sync catalog
@@ -310,7 +310,7 @@ export default function CommerceApiPage() {
               <Card key={area.title} className="flex h-full flex-col">
                 <ZoruCardHeader>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                       <Icon className="h-4 w-4" />
                     </div>
                     <ZoruCardTitle className="text-base">

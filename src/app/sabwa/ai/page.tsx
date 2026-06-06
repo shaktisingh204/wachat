@@ -512,7 +512,7 @@ export default function SabWaAIPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Sparkles className="h-5 w-5" />
         </div>
@@ -629,7 +629,7 @@ export default function SabWaAIPage() {
             <div
               role="tablist"
               aria-label="AI tool"
-              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+              className="inline-flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
             >
               {TOOL_TABS.map((tab) => {
                 const isActive = activeTool === tab.key;
@@ -642,7 +642,7 @@ export default function SabWaAIPage() {
                     variant={isActive ? "default" : "ghost"}
                     size="sm"
                     className={cn(
-                      "flex-1 gap-1.5 rounded-[calc(var(--zoru-radius)-2px)]",
+                      "flex-1 gap-1.5 rounded-[calc(var(--st-radius)-2px)]",
                     )}
                     onClick={() => setActiveTool(tab.key)}
                   >
@@ -961,7 +961,7 @@ export default function SabWaAIPage() {
                   {whitelist.map((w) => (
                     <li
                       key={w.jid}
-                      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1"
+                      className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1"
                     >
                       <span className="truncate text-[11.5px] text-[var(--st-text)]">
                         {w.label ?? w.jid}
@@ -986,7 +986,7 @@ export default function SabWaAIPage() {
               <Label className="text-[11.5px] font-medium">
                 Audit log
               </Label>
-              <ScrollArea className="h-[160px] rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+              <ScrollArea className="h-[160px] rounded-[var(--st-radius)] border border-[var(--st-border)]">
                 {auditLog.length === 0 ? (
                   <p className="p-3 text-[11.5px] text-[var(--st-text-secondary)]">
                     No Auto-pilot actions yet.
@@ -1023,7 +1023,7 @@ export default function SabWaAIPage() {
 function Phase2Banner({ topic }: { topic: string }) {
   return (
     <div
-      className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[11.5px] text-[var(--st-text-secondary)]"
+      className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[11.5px] text-[var(--st-text-secondary)]"
       role="status"
     >
       <CircleSlash className="h-3.5 w-3.5 shrink-0" />

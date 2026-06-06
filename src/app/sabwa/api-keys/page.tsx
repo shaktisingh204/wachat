@@ -190,7 +190,7 @@ export default function ApiKeysPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <KeyRound className="h-5 w-5" />
           </div>
           <div>
@@ -473,7 +473,7 @@ function CreateApiKeyDialogContent({
               <Label
                 key={s.value}
                 htmlFor={`scope-${s.value}`}
-                className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
+                className="flex cursor-pointer items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Checkbox
                   id={`scope-${s.value}`}
@@ -535,7 +535,7 @@ function KeyRevealCard({
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
+        <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
           {apiKey}
         </code>
         <Button

@@ -329,7 +329,7 @@ export default function LiveStudioPage() {
                     </Label>
                     <label
                       htmlFor="videoFile"
-                      className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] focus-within:border-[var(--st-text)]"
+                      className="flex flex-col items-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] focus-within:border-[var(--st-text)]"
                     >
                       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <Upload className="h-5 w-5" />
@@ -584,7 +584,7 @@ function ActiveStreamsPanel({
             {live.map((stream) => (
               <li
                 key={stream._id.toString()}
-                className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-[var(--st-text)]">

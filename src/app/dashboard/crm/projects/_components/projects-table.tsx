@@ -172,7 +172,7 @@ export function ProjectsTable({
         <div
           role="region"
           aria-label="Bulk actions"
-          className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+          className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
         >
           <span className="text-sm text-[var(--st-text)]">
             {selected.size} project{selected.size === 1 ? '' : 's'} selected

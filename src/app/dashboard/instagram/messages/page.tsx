@@ -300,7 +300,7 @@ export default function InstagramMessagesPage(): React.JSX.Element {
                       <span>·</span>
                       <span>{safeRelative(m.created_time)}</span>
                     </div>
-                    <div className="mt-1 max-w-prose rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm text-[var(--st-text)]">
+                    <div className="mt-1 max-w-prose rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm text-[var(--st-text)]">
                       {m.message || <span className="italic text-[var(--st-text-secondary)]">(no text)</span>}
                     </div>
                   </li>

@@ -54,7 +54,7 @@ function SectionCard({
   return (
     <Card className="p-0 overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] [&_svg]:size-4 text-[var(--st-text-secondary)]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] [&_svg]:size-4 text-[var(--st-text-secondary)]">
           <Icon />
         </span>
         <div>

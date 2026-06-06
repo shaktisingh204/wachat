@@ -135,7 +135,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
           {menuItems.map((item, index) => (
             <div
               key={index}
-              className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4"
+              className="relative space-y-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4"
             >
               <Button
                 variant="ghost"

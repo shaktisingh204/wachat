@@ -650,7 +650,7 @@ export function ReportBuilder({
             <textarea
               id="rb-filters"
               className={cn(
-                'flex min-h-[80px] w-full resize-y rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-xs',
+                'flex min-h-[80px] w-full resize-y rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-xs',
                 'text-[var(--st-text)] placeholder:text-[var(--st-text-tertiary)]',
                 'focus:outline-none focus:ring-2 focus:ring-[var(--st-accent)] focus:ring-offset-1',
               )}
@@ -776,7 +776,7 @@ function ChartTypeButton({ type, active, onClick }: ChartTypeButtonProps): React
       aria-label={CHART_TYPE_LABELS[type]}
       onClick={onClick}
       className={cn(
-        'flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] border px-3 py-1.5 text-xs font-medium transition-colors',
+        'flex items-center gap-1.5 rounded-[var(--st-radius-sm)] border px-3 py-1.5 text-xs font-medium transition-colors',
         active
           ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
           : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)] hover:text-[var(--st-text)]',
@@ -1054,7 +1054,7 @@ function MetadataStrip({ series }: MetadataStripProps): React.ReactElement {
   }, [series.computedAt]);
 
   return (
-    <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5 text-xs text-[var(--st-text-secondary)]">
+    <div className="flex items-center justify-between rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5 text-xs text-[var(--st-text-secondary)]">
       <span>
         <span className="font-medium text-[var(--st-text)]">
           {series.recordCount.toLocaleString()}

@@ -18,7 +18,7 @@ export default function Loading() {
 
       {/* Content Skeleton */}
       <div className="flex-1 overflow-auto p-6 w-full">
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm">
           <div className="flex flex-col gap-6">
             {/* Form Fields */}
             {Array.from({ length: 6 }).map((_, i) => (

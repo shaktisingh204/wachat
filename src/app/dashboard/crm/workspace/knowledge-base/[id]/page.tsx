@@ -96,7 +96,7 @@ function SectionNav() {
     return (
         <nav
             aria-label="Article sections"
-            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
+            className="flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
         >
             {items.map((item, i) => (
                 <a
@@ -104,8 +104,8 @@ function SectionNav() {
                     href={`#section-${item.id}`}
                     className={
                         i === 0
-                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
-                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
+                            ? 'rounded-[calc(var(--st-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
+                            : 'rounded-[calc(var(--st-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                     }
                 >
                     {item.label}

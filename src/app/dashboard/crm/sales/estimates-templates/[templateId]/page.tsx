@@ -122,11 +122,11 @@ export default async function EstimateTemplateDetailPage({
                     Template body
                 </div>
                 {tpl.templateBody ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
+                    <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {String(tpl.templateBody)}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No template body. Add markdown when editing.
                     </div>
                 )}
@@ -138,11 +138,11 @@ export default async function EstimateTemplateDetailPage({
                     Default line items
                 </div>
                 {items.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No default line items configured.
                     </div>
                 ) : (
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
                             <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
@@ -217,7 +217,7 @@ export default async function EstimateTemplateDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Default terms
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
+                    <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {String(tpl.defaultTerms)}
                     </pre>
                 </Card>

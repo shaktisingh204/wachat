@@ -329,7 +329,7 @@ export function PlanEditor({ planId }: { planId: string }) {
 
             {/* We use a key on the segmented tab strip / form content so that changing the cloned plan re-mounts the uncontrolled inputs */}
             <div key={plan ? plan.name + cloneSourceId : 'blank'} className="space-y-5">
-                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
+                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                     {(
                         [
                             { key: 'overview', icon: CreditCard, label: 'Overview' },
@@ -345,7 +345,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                             type="button"
                             onClick={() => setActiveTab(key)}
                             className={cn(
-                                'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                                'flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 activeTab === key
                                     ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
                                     : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

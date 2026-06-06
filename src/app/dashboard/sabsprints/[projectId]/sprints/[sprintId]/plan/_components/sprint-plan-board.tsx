@@ -149,7 +149,7 @@ function Pane({
           {stories.map((s) => (
             <li
               key={s._id}
-              className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+              className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
             >
               <span className="flex-1 truncate text-sm text-[var(--st-text)]">
                 {s.title}

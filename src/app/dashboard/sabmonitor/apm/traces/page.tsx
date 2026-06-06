@@ -38,17 +38,17 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                         type="number"
                         defaultValue={sp.slowMs}
                         placeholder="slow ms"
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     />
                     <input
                         name="service"
                         defaultValue={sp.service}
                         placeholder="service"
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     />
                     <button
                         type="submit"
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     >
                         Filter
                     </button>

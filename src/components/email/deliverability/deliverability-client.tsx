@@ -172,13 +172,13 @@ export function DeliverabilityClient() {
             ) : placement ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Inbox</p>
                     <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {Math.round((placement.inboxRate ?? 0) * 100)}%
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Spam</p>
                     <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {Math.round((placement.spamRate ?? 0) * 100)}%

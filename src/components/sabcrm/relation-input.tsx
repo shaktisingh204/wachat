@@ -401,7 +401,7 @@ export function RelationInput({
         aria-label={id ? undefined : field.label}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          'flex min-h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border bg-[var(--st-bg)] px-3 py-1.5 text-left text-sm transition-colors',
+          'flex min-h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border bg-[var(--st-bg)] px-3 py-1.5 text-left text-sm transition-colors',
           'focus-within:ring-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30',
           invalidRing,
           disabled && 'cursor-not-allowed opacity-60',
@@ -418,7 +418,7 @@ export function RelationInput({
       </button>
 
       {open && !disabled && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
           <div className="border-b border-[var(--st-border)] p-1.5">
             <Input
               id={searchId}

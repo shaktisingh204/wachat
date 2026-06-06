@@ -9,9 +9,9 @@ export default function ActivityLoading() {
             status={{ label: 'Loading', tone: 'neutral' }}
         >
             <div className="space-y-6">
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-lg)]" />
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-lg)]" />
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
             </div>
         </EntityDetailShell>
     );

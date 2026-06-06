@@ -183,7 +183,7 @@ export default function SabWaLabelsPage() {
         <div className="flex items-start gap-3">
           <div
             aria-hidden
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
           >
             <TagIcon className="h-6 w-6" />
           </div>
@@ -290,7 +290,7 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
       <ZoruCardContent className="flex items-start gap-3 p-4">
         <span
           aria-hidden
-          className="mt-0.5 h-8 w-8 shrink-0 rounded-[var(--zoru-radius)] border border-[var(--st-border)]"
+          className="mt-0.5 h-8 w-8 shrink-0 rounded-[var(--st-radius)] border border-[var(--st-border)]"
           style={{ backgroundColor: label.color }}
         />
         <div className="min-w-0 flex-1">
@@ -483,7 +483,7 @@ function LabelGridSkeleton() {
         <li key={i}>
           <Card>
             <ZoruCardContent className="flex items-start gap-3 p-4">
-              <Skeleton className="h-8 w-8 rounded-[var(--zoru-radius)]" />
+              <Skeleton className="h-8 w-8 rounded-[var(--st-radius)]" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-3 w-2/3" />
                 <Skeleton className="h-3 w-1/3" />

@@ -38,7 +38,7 @@ export function CrmModuleOverview({
           <Link key={href} href={href} className="group">
             <Card className="flex h-full flex-col p-6 transition-colors hover:border-[var(--st-text-secondary)]">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                   <Icon className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0 flex-1">

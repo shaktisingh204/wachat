@@ -225,7 +225,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
               Automatically send a follow-up message to users who leave items
               in their cart.
             </p>
-            <div className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4">
+            <div className="space-y-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4">
               <div className="flex items-center justify-between">
                 <Label
                   htmlFor="abandonedCart.enabled"

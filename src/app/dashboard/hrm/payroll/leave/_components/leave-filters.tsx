@@ -86,7 +86,7 @@ export function LeaveFiltersRow({
   leaveTypes,
 }: LeaveFiltersRowProps): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+    <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Select
           value={preset}

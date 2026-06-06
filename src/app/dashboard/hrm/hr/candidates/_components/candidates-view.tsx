@@ -309,13 +309,13 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
         value={minScore}
         onChange={(e) => setMinScore(e.target.value)}
         placeholder="Min score"
-        className="h-8 w-[120px] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
+        className="h-8 w-[120px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
       />
       <input
         type="date"
         value={appliedFrom}
         onChange={(e) => setAppliedFrom(e.target.value)}
-        className="h-8 w-[148px] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
+        className="h-8 w-[148px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
       />
     </>
   );

@@ -417,7 +417,7 @@ function DetailBody({
     return (
         <div className="flex flex-col gap-4">
             <Card className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                     {set.thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -603,7 +603,7 @@ function StickerRowEditor({
     }, [sticker.fileId, sticker.emoji, sticker.keywords, sticker.maskPosition]);
 
     return (
-        <li className="grid gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+        <li className="grid gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
             <TelegramProjectGate />
             <div className="flex items-center gap-3">
                 <span className="rounded-md bg-[var(--st-bg-secondary)] px-2 py-0.5 font-mono text-[11px] text-[var(--st-text-secondary)]">
@@ -687,7 +687,7 @@ function StickerRowEditor({
                 </div>
             </div>
             {stickerType === 'mask' && (
-                <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-5">
+                <div className="grid gap-2 rounded-[var(--st-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-5">
                     <div className="flex flex-col gap-1">
                         <Label className="text-[11px]">Anchor</Label>
                         <Select value={maskPoint} onValueChange={(v) => setMaskPoint(v)}>

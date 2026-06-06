@@ -50,7 +50,7 @@ export default function TicketEmailPage() {
             ].map((p) => (
               <div
                 key={p.title}
-                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4"
               >
                 <p.icon className="h-5 w-5 text-[var(--st-text)]" />
                 <p className="mt-2 text-sm font-medium">{p.title}</p>
@@ -77,7 +77,7 @@ export default function TicketEmailPage() {
                 placeholder="support@acme.com"
               />
             </div>
-            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+            <label className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
               <Switch
                 checked={draft.autoCreateTicket}
                 onCheckedChange={(v) => setDraft({ autoCreateTicket: v })}

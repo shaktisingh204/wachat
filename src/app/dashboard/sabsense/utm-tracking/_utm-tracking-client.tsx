@@ -229,7 +229,7 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
           No records found.
         </div>
       ) : (
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>

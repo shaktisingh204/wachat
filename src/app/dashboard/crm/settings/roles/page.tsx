@@ -319,7 +319,7 @@ export default function RolesPage() {
                                 icon={<Shield className="h-4 w-4" />}
                                 className={
                                     filter === 'all'
-                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                                         : undefined
                                 }
                             />
@@ -335,7 +335,7 @@ export default function RolesPage() {
                                 icon={<UserCheck className="h-4 w-4" />}
                                 className={
                                     filter === 'system'
-                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                                         : undefined
                                 }
                             />
@@ -354,7 +354,7 @@ export default function RolesPage() {
                                 icon={<UserCog className="h-4 w-4" />}
                                 className={
                                     filter === 'custom'
-                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                                         : undefined
                                 }
                             />

@@ -117,7 +117,7 @@ export default async function AutomationDetailPage({
                     </div>
                 </div>
                 {actionNodes.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No action nodes configured.
                     </div>
                 ) : (
@@ -131,7 +131,7 @@ export default async function AutomationDetailPage({
                             return (
                                 <li
                                     key={n.id}
-                                    className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
+                                    className="flex flex-col gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
                                 >
                                     <span className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                                         #{i + 1}
@@ -156,7 +156,7 @@ export default async function AutomationDetailPage({
                     <div className="text-[12px] text-[var(--st-text-secondary)]">Last 10 runs</div>
                 </div>
                 {runs.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No executions recorded yet.
                     </div>
                 ) : (

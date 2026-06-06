@@ -345,7 +345,7 @@ export function BookingListClient({
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3"
+              className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3"
             >
               <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
                 {value.toLocaleString()}
@@ -392,7 +392,7 @@ export function BookingListClient({
             <X className="h-3.5 w-3.5" /> Clear
           </Button>
         ) : null}
-        <div className="ml-auto inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5">
+        <div className="ml-auto inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5">
           <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}
@@ -414,7 +414,7 @@ export function BookingListClient({
 
       {/* Bulk bar */}
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--st-shadow-sm)]">
           <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
             <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
             {selected.size} selected

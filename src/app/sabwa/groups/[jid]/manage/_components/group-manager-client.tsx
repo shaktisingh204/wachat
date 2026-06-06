@@ -718,7 +718,7 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
             maxLength={500}
           />
         </div>
-        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <div>
             <div className="text-sm font-medium text-[var(--st-text)]">Disappearing messages</div>
             <div className="text-xs text-[var(--st-text-secondary)]">
@@ -793,7 +793,7 @@ function PermissionsTab({
         <ZoruCardDescription>Control who can send messages and edit info.</ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-3">
-        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <div className="min-w-0">
             <div className="text-sm font-medium text-[var(--st-text)]">Who can send messages</div>
             <div className="text-xs text-[var(--st-text-secondary)]">
@@ -808,7 +808,7 @@ function PermissionsTab({
             }
           />
         </div>
-        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <div className="min-w-0">
             <div className="text-sm font-medium text-[var(--st-text)]">Who can edit group info</div>
             <div className="text-xs text-[var(--st-text-secondary)]">
@@ -919,7 +919,7 @@ function InviteLinkTab({
       <ZoruCardContent className="space-y-3">
         <div className="flex flex-col items-start gap-3 md:flex-row md:items-center">
           <div className="flex flex-1 items-center gap-2">
-            <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[var(--st-text)]">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[var(--st-text)]">
               <Link2 className="h-4 w-4" />
             </div>
             <Input value={url ?? 'No invite link yet'} readOnly className="font-mono text-xs" />
@@ -934,7 +934,7 @@ function InviteLinkTab({
               alt="Group invite QR code"
               width={120}
               height={120}
-              className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]"
+              className="rounded-[var(--st-radius)] border border-[var(--st-border)]"
             />
           ) : null}
         </div>
@@ -1292,7 +1292,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
           <div
             role="tablist"
             aria-label="Group manager sections"
-            className="flex w-full flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
+            className="flex w-full flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
           >
             {sections.map(({ key, label, Icon }) => {
               const active = section === key;

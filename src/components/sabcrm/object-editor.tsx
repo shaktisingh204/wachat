@@ -547,7 +547,7 @@ function FieldEditorDialog({
 
           {/* RELATION config */}
           {needsRelation && (
-            <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+            <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
               <p className="text-xs font-medium">Relation settings</p>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="fe-rtarget">Target object</Label>
@@ -881,7 +881,7 @@ function FieldListRow({
       onDragEnter={onDragEnter}
       onDragEnd={onDragEnd}
       className={cn(
-        'group flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 transition-opacity',
+        'group flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 transition-opacity',
         dragging && 'opacity-40',
         !readonly && 'cursor-grab active:cursor-grabbing',
         readonly && 'bg-[var(--st-bg-secondary)]/50',
@@ -1495,9 +1495,9 @@ export function ObjectEditor({
 
         {isStandard ? (
           /* Standard objects: read-only identity display */
-          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-4">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                 <IconFor name={object?.icon} className="h-5 w-5 text-[var(--st-text)]" />
               </span>
               <div>

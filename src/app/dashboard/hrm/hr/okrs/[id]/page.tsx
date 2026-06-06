@@ -175,7 +175,7 @@ export default async function OkrDetailPage({
                     Key results ({krs.length})
                 </div>
                 {krs.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No key results yet.
                     </div>
                 ) : (
@@ -192,7 +192,7 @@ export default async function OkrDetailPage({
                             return (
                                 <div
                                     key={kr.id}
-                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                         <div className="font-medium text-[var(--st-text)]">{kr.title}</div>

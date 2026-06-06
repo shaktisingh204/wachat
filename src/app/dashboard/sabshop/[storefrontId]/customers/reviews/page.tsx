@@ -256,7 +256,7 @@ export default function ReviewsModerationPage() {
                         <img 
                           src={review.product.image} 
                           alt={review.product.name} 
-                          className="w-8 h-8 rounded-[var(--zoru-radius-sm)] object-cover border border-[var(--st-border)]"
+                          className="w-8 h-8 rounded-[var(--st-radius-sm)] object-cover border border-[var(--st-border)]"
                         />
                         <span className="text-xs font-medium text-[var(--st-text-secondary)] truncate w-48">
                           {review.product.name}

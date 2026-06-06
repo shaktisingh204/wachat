@@ -341,7 +341,7 @@ export default function SabChatFaqPage() {
           </div>
           
           {selectedBulk.length > 0 && (
-            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]">
+            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]">
               <span className="text-xs font-medium">{selectedBulk.length} selected</span>
               <Button variant="outline" size="sm" className="h-7 text-xs text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                 <Trash2 className="h-3 w-3 mr-1.5" /> Delete

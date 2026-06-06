@@ -326,7 +326,7 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BookUser className="h-5 w-5" />
           </div>
           <div>
@@ -393,7 +393,7 @@ export default function Page() {
             </Select>
           </div>
           {selected.size > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-sm">
               <span className="text-[var(--st-text-secondary)]">
                 {selected.size} selected
               </span>
@@ -451,7 +451,7 @@ export default function Page() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <ZoruTableRow key={`contacts-skeleton-${i}`}>
                     <ZoruTableCell colSpan={6} className="py-2">
-                      <Skeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                      <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
@@ -787,7 +787,7 @@ function ContactDrawer({
         <div
           role="group"
           aria-label="Contact section"
-          className="flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+          className="flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
         >
           {DRAWER_SECTIONS.map((s) => (
             <Button
@@ -795,7 +795,7 @@ function ContactDrawer({
               type="button"
               variant={section === s.value ? 'default' : 'ghost'}
               size="sm"
-              className="flex-1 rounded-[calc(var(--zoru-radius)-2px)]"
+              className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
               onClick={() => setSection(s.value)}
             >
               {s.label}
@@ -899,7 +899,7 @@ function ContactDrawer({
               {(contact.lastMessages ?? []).slice(0, 5).map((m) => (
                 <li
                   key={m.id}
-                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                 >
                   <div className="flex justify-between gap-2 text-[11px] text-[var(--st-text-secondary)]">
                     <span>{m.fromMe ? 'You' : contact.name ?? 'Contact'}</span>
@@ -923,7 +923,7 @@ function ContactDrawer({
               {(contact.mutualGroups ?? []).map((g) => (
                 <li
                   key={g.jid}
-                  className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5"
                 >
                   <span className="truncate text-[var(--st-text)]">{g.subject}</span>
                   <Badge variant="outline" className="text-[10px]">
@@ -946,7 +946,7 @@ function ContactDrawer({
               {(contact.scheduledForContact ?? []).map((s) => (
                 <li
                   key={s.id}
-                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                 >
                   <div className="flex justify-between text-[11px] text-[var(--st-text-secondary)]">
                     <span>Scheduled</span>

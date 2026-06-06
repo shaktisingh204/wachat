@@ -379,7 +379,7 @@ export default function Page() {
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
                     <ZoruPageHeading>
                         <span
-                            className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)]"
+                            className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)]"
                             style={{ backgroundColor: ACCENT_SOFT, color: ACCENT }}
                         >
                             <BarChart3 className="h-4.5 w-4.5" aria-hidden />
@@ -422,7 +422,7 @@ export default function Page() {
                 </div>
                 <div className="flex flex-col gap-1">
                     <label className="text-xs text-[var(--st-text-secondary)]">Granularity</label>
-                    <div className="inline-flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5">
+                    <div className="inline-flex rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5">
                         {GRANULARITIES.map((g) => (
                             <button
                                 key={g.key}
@@ -431,8 +431,8 @@ export default function Page() {
                                 aria-pressed={granularity === g.key}
                                 className={
                                     granularity === g.key
-                                        ? 'rounded-[calc(var(--zoru-radius-sm)-2px)] bg-[var(--st-bg-muted)] px-3 py-1 text-xs text-[var(--st-text)]'
-                                        : 'rounded-[calc(var(--zoru-radius-sm)-2px)] px-3 py-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
+                                        ? 'rounded-[calc(var(--st-radius-sm)-2px)] bg-[var(--st-bg-muted)] px-3 py-1 text-xs text-[var(--st-text)]'
+                                        : 'rounded-[calc(var(--st-radius-sm)-2px)] px-3 py-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                 }
                             >
                                 {g.label}
@@ -492,7 +492,7 @@ export default function Page() {
                                 <Card key={k.label} className="flex items-start gap-3 p-4">
                                     <span
                                         aria-hidden
-                                        className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)]"
+                                        className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)]"
                                         style={{ backgroundColor: ACCENT_SOFT, color: ACCENT }}
                                     >
                                         <Icon className="h-4 w-4" />
@@ -522,7 +522,7 @@ export default function Page() {
                     </div>
 
                     {/* View switcher (segmented buttons — no tab UI per zoruui directive) */}
-                    <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                         {VIEW_OPTIONS.map((v) => {
                             const Icon = v.icon;
                             const active = v.key === view;
@@ -534,8 +534,8 @@ export default function Page() {
                                     aria-pressed={active}
                                     className={
                                         active
-                                            ? 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs text-[var(--st-text)]'
-                                            : 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
+                                            ? 'inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs text-[var(--st-text)]'
+                                            : 'inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                     }
                                 >
                                     <Icon className="h-3.5 w-3.5" />

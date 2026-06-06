@@ -68,7 +68,7 @@ export default async function AnalyticsWorkspacePage() {
               href={`/dashboard/analytics-workspace/workbooks/${wb._id}`}
               className="block"
             >
-              <Card className="h-full transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
+              <Card className="h-full transition-shadow hover:shadow-[var(--st-shadow-sm)]">
                 <CardHeader>
                   <CardTitle>{wb.name}</CardTitle>
                   <CardDescription>

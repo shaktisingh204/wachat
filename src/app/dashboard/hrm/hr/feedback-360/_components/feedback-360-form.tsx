@@ -292,7 +292,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         </Button>
                     </div>
                     {reviewers.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No reviewers yet. Click &ldquo;Add reviewer&rdquo; to start.
                         </div>
                     ) : (
@@ -300,7 +300,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                             {reviewers.map((r, idx) => (
                                 <div
                                     key={idx}
-                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="mb-2 flex flex-wrap items-end gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -427,7 +427,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 </div>
 
                 {/* Live aggregate preview */}
-                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                     <div className="mb-2 flex items-center justify-between">
                         <div className="text-[13px] font-medium text-[var(--st-text)]">
                             Aggregated scores (preview)
@@ -443,7 +443,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         {SCORE_CATEGORIES.map((cat) => (
                             <div
                                 key={cat.key}
-                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-center"
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-center"
                             >
                                 <div className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     {cat.label}

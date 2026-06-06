@@ -445,7 +445,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           return (
             <div
               key={phase.id}
-              className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+              className="flex w-72 shrink-0 flex-col rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, phase.id)}
             >
@@ -499,7 +499,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
         <button
           type="button"
           onClick={handleAddPhase}
-          className="flex h-fit w-64 shrink-0 items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 px-4 py-6 text-sm text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
+          className="flex h-fit w-64 shrink-0 items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 px-4 py-6 text-sm text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Phase

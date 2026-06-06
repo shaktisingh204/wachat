@@ -132,7 +132,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             {Icon ? (
-              <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <Icon className="h-5 w-5" />
               </span>
             ) : null}
@@ -292,7 +292,7 @@ export function IntegrationActivityFeed({
           </div>
         </div>
         {events.length === 0 ? (
-          <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
+          <div className="rounded-[var(--st-radius-sm)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
             {emptyMessage}
           </div>
         ) : (
@@ -301,7 +301,7 @@ export function IntegrationActivityFeed({
               {events.map((e) => (
                 <li
                   key={e._id}
-                  className="flex items-start gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                  className="flex items-start gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
                 >
                   <div className="mt-2">{statusDot(e.status)}</div>
                   <div className="min-w-0 flex-1">

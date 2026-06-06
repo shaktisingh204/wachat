@@ -277,7 +277,7 @@ export function Composer({
       data-chat-jid={chatJid}
     >
       {replyTo ? (
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border-l-2 border-[var(--st-text)] bg-[var(--st-bg-secondary)]/60 px-2 py-1.5">
+        <div className="flex items-start gap-2 rounded-[var(--st-radius)] border-l-2 border-[var(--st-text)] bg-[var(--st-bg-secondary)]/60 px-2 py-1.5">
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-medium text-[var(--st-text)]">
               Replying to {replyTo.authorName ?? "message"}

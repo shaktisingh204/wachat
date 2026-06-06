@@ -196,7 +196,7 @@ export default function OneOnOnesPage() {
       onAfterChange={refresh}
       emptyText="No 1:1s yet"
       viewSwitcher={
-        <div className="inline-flex overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+        <div className="inline-flex overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}

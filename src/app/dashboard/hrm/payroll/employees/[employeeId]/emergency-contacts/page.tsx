@@ -228,7 +228,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                     </div>
                 ) : rows.length === 0 ? (
                     <Card className="flex flex-col items-start gap-3 p-8">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                             <PhoneCall
                                 className="h-5 w-5 text-[var(--st-text-secondary)]"
                                 strokeWidth={1.75}

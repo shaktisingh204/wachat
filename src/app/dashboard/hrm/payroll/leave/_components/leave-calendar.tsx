@@ -157,7 +157,7 @@ export function LeaveCalendarView({
             return (
               <div
                 key={`empty-${idx}`}
-                className="min-h-[90px] rounded-[var(--zoru-radius)] border border-transparent"
+                className="min-h-[90px] rounded-[var(--st-radius)] border border-transparent"
               />
             );
           }
@@ -167,7 +167,7 @@ export function LeaveCalendarView({
             <div
               key={cell.iso!}
               className={
-                'min-h-[90px] rounded-[var(--zoru-radius)] border bg-[var(--st-bg)] p-1.5 ' +
+                'min-h-[90px] rounded-[var(--st-radius)] border bg-[var(--st-bg)] p-1.5 ' +
                 (isToday
                   ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)]'
                   : 'border-[var(--st-border)]')

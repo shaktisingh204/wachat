@@ -353,7 +353,7 @@ export function HrListShell<T>({
 
           {children ?? (
             <Card className="p-0">
-              <div className="overflow-x-auto rounded-[var(--zoru-radius)]">
+              <div className="overflow-x-auto rounded-[var(--st-radius)]">
                 <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow>

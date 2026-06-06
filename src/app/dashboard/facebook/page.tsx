@@ -152,10 +152,10 @@ function StatTile({
   trend?: { value: number; label: string };
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 flex flex-col justify-between">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 flex flex-col justify-between">
       <div>
         <div className="flex items-start justify-between">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             {icon}
           </span>
           {trend ? (
@@ -242,7 +242,7 @@ function PostItemCard({ post }: { post: FacebookPost }) {
             alt="Post image"
             width={400}
             height={225}
-            className="h-auto w-full rounded-[var(--zoru-radius-sm)] object-cover"
+            className="h-auto w-full rounded-[var(--st-radius-sm)] object-cover"
             data-ai-hint="social media post"
           />
         </div>
@@ -828,7 +828,7 @@ function FacebookOverviewContent() {
                   href={link.href}
                   className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-secondary)]"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] [&_svg]:size-3.5">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] [&_svg]:size-3.5">
                     <link.icon />
                   </span>
                   <span className="flex-1">{link.title}</span>

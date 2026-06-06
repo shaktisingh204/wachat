@@ -344,7 +344,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                         </SabFilePickerButton>
                     </div>
                     {attachments.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No attachments. Use &ldquo;Add attachment&rdquo; to pick files
                             from SabFiles.
                         </div>
@@ -353,7 +353,7 @@ export function ContractForm({ initialData }: ContractFormProps) {
                             {attachments.map((e) => (
                                 <li
                                     key={e.url}
-                                    className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
+                                    className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                 >
                                     <a
                                         href={e.url}

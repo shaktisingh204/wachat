@@ -107,7 +107,7 @@ function RandomizerPostCard({
     <Card className="overflow-hidden">
       <ZoruCardContent className="flex gap-4 p-4">
         {post.imageUrl && (
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
             <Image
               src={post.imageUrl}
               alt="Pool post image"
@@ -340,7 +340,7 @@ export default function PostRandomizerPage() {
                   </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                  <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                     <div className="flex flex-col">
                       <Label
                         htmlFor="enabled-switch"
@@ -504,7 +504,7 @@ export default function PostRandomizerPage() {
                     ) : (
                       <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1">
                         {settings.history.map((h, i) => (
-                          <div key={i} className="flex gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                          <div key={i} className="flex gap-4 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                             {h.imageUrl && (
                               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
                                 <Image

@@ -96,13 +96,13 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
+          <div className="flex rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
             <button
               type="button"
               onClick={() => setMode('tasks')}
-              className={`rounded-[var(--zoru-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
+              className={`rounded-[var(--st-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
                 mode === 'tasks'
-                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
                   : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
               }`}
             >
@@ -111,9 +111,9 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
             <button
               type="button"
               onClick={() => setMode('hours')}
-              className={`rounded-[var(--zoru-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
+              className={`rounded-[var(--st-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
                 mode === 'hours'
-                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
                   : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
               }`}
             >

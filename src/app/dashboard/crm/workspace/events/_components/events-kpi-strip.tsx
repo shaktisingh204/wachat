@@ -46,7 +46,7 @@ export function EventsKpiStrip({ counts, active, onPick }: EventsKpiStripProps):
                         onClick={handleClick}
                         disabled={!handleClick}
                         className={[
-                            'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]',
+                            'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] rounded-[var(--st-radius-lg)]',
                             isActive ? 'ring-1 ring-[var(--st-text)]' : '',
                             handleClick ? '' : 'opacity-90 cursor-default',
                         ].join(' ')}

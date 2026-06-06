@@ -314,7 +314,7 @@ export function PseoClient({ projectId }: { projectId: string }) {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed w-full h-full p-12 text-center transition-colors ${isDragging ? 'border-primary bg-[var(--st-text)]/10' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
+                                className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--st-radius)] border-2 border-dashed w-full h-full p-12 text-center transition-colors ${isDragging ? 'border-primary bg-[var(--st-text)]/10' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
                             >
                                 <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`} />
                                 <h3 className="font-semibold mb-1">Click or drag CSV here</h3>

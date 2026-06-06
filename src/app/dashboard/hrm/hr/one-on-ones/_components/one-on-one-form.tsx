@@ -380,7 +380,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         </Button>
                     </div>
                     {agenda.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No agenda topics yet.
                         </div>
                     ) : (
@@ -388,7 +388,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             {agenda.map((ag) => (
                                 <div
                                     key={ag.id}
-                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -477,7 +477,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         </Button>
                     </div>
                     {actionItems.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No action items yet.
                         </div>
                     ) : (
@@ -485,7 +485,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             {actionItems.map((ai) => (
                                 <div
                                     key={ai.id}
-                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">

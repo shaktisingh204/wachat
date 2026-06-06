@@ -150,7 +150,7 @@ export default async function FormDetailPage({
                     </div>
                 </div>
                 {fields.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No fields defined.
                     </div>
                 ) : (
@@ -158,7 +158,7 @@ export default async function FormDetailPage({
                         {fields.map((f, i) => (
                             <li
                                 key={`${f.name}-${i}`}
-                                className="grid grid-cols-1 gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto]"
+                                className="grid grid-cols-1 gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto]"
                             >
                                 <span className="font-mono text-[11px] text-[var(--st-text-secondary)] self-center">
                                     #{i + 1}
@@ -195,19 +195,19 @@ export default async function FormDetailPage({
                         <div className="text-[13px] text-[var(--st-text-secondary)]">Estimated conversions and drop-offs</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                             <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Views</div>
                             <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{mockViews}</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                             <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Conversion Rate</div>
                             <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{conversionRate}%</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                             <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Submissions</div>
                             <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{submissions}</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                             <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Drop-offs</div>
                             <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{dropOffs}</div>
                         </div>

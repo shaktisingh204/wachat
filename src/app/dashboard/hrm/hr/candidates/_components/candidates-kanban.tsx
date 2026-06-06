@@ -66,7 +66,7 @@ export function CandidatesKanban({
               </ZoruCardHeader>
               <ZoruCardContent className="space-y-2">
                 {items.length === 0 ? (
-                  <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
+                  <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                     No candidates
                   </p>
                 ) : (
@@ -74,7 +74,7 @@ export function CandidatesKanban({
                     <Link
                       key={c._id}
                       href={`/dashboard/hrm/hr/candidates/${c._id}`}
-                      className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
+                      className="block rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <span className="truncate text-[13px] font-medium text-[var(--st-text)]">

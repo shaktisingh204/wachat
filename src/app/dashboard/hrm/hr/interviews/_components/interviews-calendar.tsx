@@ -55,7 +55,7 @@ export function InterviewsCalendar({
       </ZoruCardHeader>
       <ZoruCardContent>
         {sortedKeys.length === 0 ? (
-          <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
+          <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
             No interviews scheduled.
           </p>
         ) : (
@@ -70,7 +70,7 @@ export function InterviewsCalendar({
                     <Link
                       key={i._id}
                       href={`/dashboard/hrm/hr/interviews/${i._id}`}
-                      className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
+                      className="block rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[12px] font-medium text-[var(--st-text)]">

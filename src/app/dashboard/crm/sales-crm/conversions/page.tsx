@@ -176,7 +176,7 @@ export default async function ConversionsFunnelPage() {
                         <Link
                             key={stage.key}
                             href={stage.href}
-                            className="group rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]"
+                            className="group rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]"
                         >
                             <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                 <Icon className="h-4 w-4" strokeWidth={1.75} />
@@ -211,7 +211,7 @@ export default async function ConversionsFunnelPage() {
                     </div>
                 </div>
                 <ul className="space-y-3">
-                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                         <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                             <Badge variant="ghost">Leads</Badge>
                             <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
@@ -227,7 +227,7 @@ export default async function ConversionsFunnelPage() {
                             />
                         </div>
                     </li>
-                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                         <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                             <Badge variant="ghost">Deals</Badge>
                             <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />

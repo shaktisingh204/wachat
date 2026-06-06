@@ -383,7 +383,7 @@ export function ActivityComposer({
   return (
     <div
       className={cn(
-        "rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-[var(--zoru-shadow-sm)]",
+        "rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-[var(--st-shadow-sm)]",
         className,
       )}
     >
@@ -422,7 +422,7 @@ export function ActivityComposer({
           {mentionOpen && mentionResults.length > 0 ? (
             <div
               role="listbox"
-              className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--zoru-shadow-lg)]"
+              className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--st-shadow-lg)]"
             >
               {mentionResults.map((m) => (
                 <button
@@ -431,7 +431,7 @@ export function ActivityComposer({
                   role="option"
                   aria-selected={false}
                   onClick={() => addMention(m)}
-                  className="flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                  className="flex w-full items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] font-medium text-[var(--st-text)]">
                     {initials(m.name)}
@@ -487,7 +487,7 @@ export function ActivityComposer({
               {attachments.map((a) => (
                 <li
                   key={a.fileId}
-                  className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-sm"
+                  className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-sm"
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Paperclip className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />

@@ -83,7 +83,7 @@ export function ChatListRow({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-[var(--zoru-radius)] px-3 py-2 text-left transition-colors",
+        "group flex w-full items-center gap-3 rounded-[var(--st-radius)] px-3 py-2 text-left transition-colors",
         "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
         selected && "bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         className,

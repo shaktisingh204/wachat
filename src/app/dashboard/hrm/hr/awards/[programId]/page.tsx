@@ -241,11 +241,11 @@ export default async function AwardProgramDetailPage({
                     <span className="text-[12px] text-[var(--st-text-secondary)]">{nominations} total</span>
                 </div>
                 {nominationsList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No nominations yet.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
@@ -285,11 +285,11 @@ export default async function AwardProgramDetailPage({
                     <span className="text-[12px] text-[var(--st-text-secondary)]">{winners} total</span>
                 </div>
                 {winnersList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No winners declared yet.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>

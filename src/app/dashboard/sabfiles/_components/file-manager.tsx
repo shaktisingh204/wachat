@@ -84,7 +84,7 @@ function UploadDock({
     const inFlight = tasks.filter((t) => t.status === 'uploading' || t.status === 'queued').length;
     return (
         <div className="fixed bottom-24 right-6 z-40 w-[360px] max-w-[calc(100vw-3rem)]">
-            <Card className="border-[var(--st-text)]/20 shadow-[var(--zoru-shadow-lg)]">
+            <Card className="border-[var(--st-text)]/20 shadow-[var(--st-shadow-lg)]">
                 <ZoruCardContent className="p-3">
                     <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-medium text-[var(--st-text)]">
@@ -419,7 +419,7 @@ export function FileManager({
             </Dialog>
 
             {isDragging && (
-                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-text)]/40 bg-[var(--st-bg)]/80 backdrop-blur">
+                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-text)]/40 bg-[var(--st-bg)]/80 backdrop-blur">
                     <div className="flex flex-col items-center gap-2 text-[var(--st-text)]">
                         <Upload className="h-8 w-8" />
                         <span className="text-base font-medium">Drop to upload</span>

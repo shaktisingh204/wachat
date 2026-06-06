@@ -140,7 +140,7 @@ export default function LoyaltyProgramPage() {
               <div>
                 <h4 className="font-medium text-sm text-[var(--st-text)] mb-3">Bonus Earning Rules</h4>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-pink-500/10 rounded-md">
                         <Gift className="w-4 h-4 text-pink-500" />
@@ -156,7 +156,7 @@ export default function LoyaltyProgramPage() {
                       <Switch defaultChecked />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-500/10 rounded-md">
                         <Star className="w-4 h-4 text-blue-500" />
@@ -176,7 +176,7 @@ export default function LoyaltyProgramPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-between rounded-b-[var(--zoru-radius-lg)]">
+          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-between rounded-b-[var(--st-radius-lg)]">
              <span className="text-xs text-[var(--st-text-secondary)]">Last modified: 2 days ago</span>
              <Button variant="outline" size="sm">Manage Rules</Button>
           </CardFooter>
@@ -197,7 +197,7 @@ export default function LoyaltyProgramPage() {
           <CardContent className="pt-6 flex-1">
             <div className={`space-y-4 ${!vipEnabled ? "opacity-50 pointer-events-none" : ""}`}>
               {mockTiers.map((tier) => (
-                <div key={tier.id} className={`p-4 rounded-[var(--zoru-radius-lg)] border ${tier.borderColor} bg-[var(--st-bg)] transition-shadow hover:shadow-[var(--zoru-shadow-md)] relative overflow-hidden group`}>
+                <div key={tier.id} className={`p-4 rounded-[var(--st-radius-lg)] border ${tier.borderColor} bg-[var(--st-bg)] transition-shadow hover:shadow-[var(--st-shadow-md)] relative overflow-hidden group`}>
                   <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full ${tier.bgColor} -z-0 opacity-50 group-hover:opacity-100 transition-opacity`} />
                   
                   <div className="relative z-10 flex flex-col sm:flex-row gap-4 sm:items-start justify-between">
@@ -233,7 +233,7 @@ export default function LoyaltyProgramPage() {
               ))}
             </div>
           </CardContent>
-          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-center rounded-b-[var(--zoru-radius-lg)]">
+          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-center rounded-b-[var(--st-radius-lg)]">
             <Button variant="ghost" className="w-full text-indigo-500 hover:text-indigo-600">
               + Add New VIP Tier
             </Button>

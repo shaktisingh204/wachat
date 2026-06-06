@@ -197,7 +197,7 @@ export default async function AnnouncementDetailPage({
                     </span>
                 </div>
                 {audienceIds.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         {announcement.audience === 'all'
                             ? 'Published to all employees.'
                             : 'No explicit target list — resolved by audience.'}
@@ -248,16 +248,16 @@ export default async function AnnouncementDetailPage({
                     </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2 text-[12.5px] text-[var(--st-text)]">
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
                         <Eye className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         {viewCount} view{viewCount === 1 ? '' : 's'}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
                         <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         {ackCount} acknowledgement
                         {ackCount === 1 ? '' : 's'}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
                         <MessageSquare className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         Comments{' '}
                         {announcement.allowComments ? 'enabled' : 'disabled'}

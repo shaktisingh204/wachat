@@ -147,7 +147,7 @@ function PageSkeleton() {
 function StepperHeader({ current }: { current: StepKey }) {
   const currentIdx = STEPS.findIndex((s) => s.key === current);
   return (
-    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
+    <ol className="flex flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
       {STEPS.map((step, idx) => {
         const isDone = idx < currentIdx;
         const isCurrent = idx === currentIdx;
@@ -155,7 +155,7 @@ function StepperHeader({ current }: { current: StepKey }) {
           <React.Fragment key={step.key}>
             <li
               className={cn(
-                'flex flex-1 items-start gap-3 rounded-[var(--zoru-radius)] px-3 py-2',
+                'flex flex-1 items-start gap-3 rounded-[var(--st-radius)] px-3 py-2',
                 isCurrent && 'bg-[var(--st-bg-secondary)]',
               )}
             >
@@ -527,7 +527,7 @@ export default function FacebookBroadcastsPage() {
 
                   {stateForm.step === 'review' ? (
                     <div className="flex flex-col gap-4">
-                      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                         <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                           Preview
                         </p>

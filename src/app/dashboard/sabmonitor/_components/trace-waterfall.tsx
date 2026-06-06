@@ -32,9 +32,9 @@ export function TraceWaterfall({
                         <div className="w-44 truncate text-[12px] text-[var(--st-text-secondary)]" title={`${s.service}.${s.operation}`}>
                             {s.service}.{s.operation}
                         </div>
-                        <div className="relative h-5 flex-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                        <div className="relative h-5 flex-1 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                             <div
-                                className={`absolute top-0 h-full rounded-[var(--zoru-radius)] ${s.errored ? 'bg-[var(--st-text)]/70' : 'bg-[var(--st-accent)]/70'}`}
+                                className={`absolute top-0 h-full rounded-[var(--st-radius)] ${s.errored ? 'bg-[var(--st-text)]/70' : 'bg-[var(--st-accent)]/70'}`}
                                 style={{ left: `${pctStart}%`, width: `${pctWidth}%` }}
                                 title={`${s.durationMs}ms`}
                             />

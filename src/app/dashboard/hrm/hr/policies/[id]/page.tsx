@@ -175,11 +175,11 @@ export default async function PolicyDetailPage({
                     Content
                 </div>
                 {policy.content ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
+                    <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {policy.content}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No inline content for this policy.
                     </div>
                 )}

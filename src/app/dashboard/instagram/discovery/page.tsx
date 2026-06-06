@@ -265,7 +265,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
                     href={m.permalink ?? '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+                    className="block overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
                   >
                     <div className="aspect-square w-full">
                       {src ? (

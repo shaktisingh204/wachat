@@ -16,7 +16,7 @@ export default function SeoProjectError({
   }, [error]);
 
   return (
-    <div className="flex h-[400px] flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-8 text-center">
+    <div className="flex h-[400px] flex-col items-center justify-center gap-4 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-8 text-center">
       <div className="rounded-full bg-[var(--st-danger)]/10 p-3">
         <AlertCircle className="h-8 w-8 text-[var(--st-danger)]" />
       </div>

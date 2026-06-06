@@ -23,7 +23,7 @@ export default function Page() {
             <a
               key={m.name}
               href={'/api/docs/modules/' + m.name}
-              className="block p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--zoru-shadow-md)]"
+              className="block p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-md)]"
             >
               <div className="text-[14px] font-medium capitalize text-[var(--st-text)]">{m.name}</div>
               <div className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">{m.count.toLocaleString()} endpoint{m.count === 1 ? '' : 's'}</div>

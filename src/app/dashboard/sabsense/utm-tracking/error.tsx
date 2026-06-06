@@ -16,7 +16,7 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-8 text-center dark:bg-[var(--st-text)]/10">
+    <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-8 text-center dark:bg-[var(--st-text)]/10">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20">
         <AlertCircle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
       </div>

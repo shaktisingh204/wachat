@@ -131,7 +131,7 @@ function FlowStepper({
   steps: { label: string }[];
 }) {
   return (
-    <ol className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-5">
+    <ol className="grid grid-cols-1 gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-5">
       {steps.map((step, idx) => {
         const isDone = idx < activeStepIndex;
         const isActive = idx === activeStepIndex;
@@ -139,7 +139,7 @@ function FlowStepper({
           <li
             key={step.label}
             className={cn(
-              'flex items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-[12.5px]',
+              'flex items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-[12.5px]',
               isActive
                 ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
                 : isDone
@@ -320,7 +320,7 @@ export function ConnectClient() {
       {/* Hero */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <QrCode className="h-5 w-5" />
           </div>
           <div className="min-w-0">
@@ -342,7 +342,7 @@ export function ConnectClient() {
         </div>
 
         {activeProject && (
-          <div className="flex max-w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12.5px]">
+          <div className="flex max-w-full items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12.5px]">
             <Briefcase className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
             <span className="shrink-0 text-[var(--st-text-secondary)]">Project:</span>
             <span className="min-w-0 truncate text-[var(--st-text)]">
@@ -423,13 +423,13 @@ export function ConnectClient() {
               <div
                 role="group"
                 aria-label="Pairing method"
-                className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+                className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
               >
                 <Button
                   type="button"
                   variant={mode === 'qr' ? 'default' : 'ghost'}
                   size="sm"
-                  className="rounded-[calc(var(--zoru-radius)-2px)]"
+                  className="rounded-[calc(var(--st-radius)-2px)]"
                   onClick={() => setMode('qr')}
                 >
                   <QrCode />
@@ -439,7 +439,7 @@ export function ConnectClient() {
                   type="button"
                   variant={mode === 'code' ? 'default' : 'ghost'}
                   size="sm"
-                  className="rounded-[calc(var(--zoru-radius)-2px)]"
+                  className="rounded-[calc(var(--st-radius)-2px)]"
                   onClick={() => setMode('code')}
                 >
                   <Smartphone />

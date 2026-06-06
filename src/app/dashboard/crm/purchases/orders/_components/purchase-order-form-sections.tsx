@@ -328,7 +328,7 @@ export function NotesSection({
               {attachment ? 'Replace file' : 'Attach file'}
             </SabFilePickerButton>
             {attachment ? (
-              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
+              <div className="flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                 <span className="max-w-[180px] truncate">{attachment.name}</span>
                 <button
                   type="button"

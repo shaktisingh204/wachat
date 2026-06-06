@@ -120,7 +120,7 @@ function KpiCard({ label, value, active, onClick }: KpiCardProps) {
       type="button"
       onClick={onClick}
       className={[
-        'flex flex-col items-start rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-colors',
+        'flex flex-col items-start rounded-[var(--st-radius)] border px-4 py-3 text-left transition-colors',
         active
           ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10'
           : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-hover)]',

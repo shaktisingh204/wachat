@@ -153,7 +153,7 @@ function CharacterCounterContent() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center text-sm border border-[var(--st-border)]">
+        <div className="mb-4 p-3 rounded-[var(--st-radius-lg)] bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center text-sm border border-[var(--st-border)]">
           <AlertCircle className="w-4 h-4 mr-2 shrink-0" />
           <span>{error}</span>
         </div>

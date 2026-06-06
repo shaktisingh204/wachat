@@ -105,7 +105,7 @@ export default function CustomerSegmentsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-500/10 rounded-[var(--zoru-radius)]">
+              <div className="p-3 bg-indigo-500/10 rounded-[var(--st-radius)]">
                 <Users className="w-5 h-5 text-indigo-500" />
               </div>
               <div>
@@ -119,7 +119,7 @@ export default function CustomerSegmentsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-500/10 rounded-[var(--zoru-radius)]">
+              <div className="p-3 bg-emerald-500/10 rounded-[var(--st-radius)]">
                 <Activity className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
@@ -133,7 +133,7 @@ export default function CustomerSegmentsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/10 rounded-[var(--zoru-radius)]">
+              <div className="p-3 bg-blue-500/10 rounded-[var(--st-radius)]">
                 <Settings className="w-5 h-5 text-blue-500" />
               </div>
               <div>

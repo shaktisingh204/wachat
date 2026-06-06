@@ -58,7 +58,7 @@ async function ClientKnowledgeBasePageContent({
                     <Link
                         href="/portal/client/knowledge-base"
                         className={cn(
-                            'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                            'rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                             !sp.category
                                 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
@@ -71,7 +71,7 @@ async function ClientKnowledgeBasePageContent({
                             key={c}
                             href={`/portal/client/knowledge-base?category=${encodeURIComponent(c)}${sp.q ? `&q=${encodeURIComponent(sp.q)}` : ''}`}
                             className={cn(
-                                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                                'rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 sp.category === c
                                     ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                     : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

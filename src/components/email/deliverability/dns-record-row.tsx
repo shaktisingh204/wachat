@@ -51,7 +51,7 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
   }, [value]);
 
   return (
-    <div className="flex flex-col gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 sm:flex-row sm:items-center">
       <div className="flex min-w-[88px] items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
           {label ?? record?.type ?? '—'}

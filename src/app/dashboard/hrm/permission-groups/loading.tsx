@@ -14,12 +14,12 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full rounded-[var(--zoru-radius)]" />
+          <Skeleton key={i} className="h-24 w-full rounded-[var(--st-radius)]" />
         ))}
       </div>
       <Skeleton className="h-9 w-64 rounded-md" />
       <Card className="p-0">
-        <Skeleton className="h-[400px] w-full rounded-[var(--zoru-radius)]" />
+        <Skeleton className="h-[400px] w-full rounded-[var(--st-radius)]" />
       </Card>
     </div>
   );

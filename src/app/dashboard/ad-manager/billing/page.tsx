@@ -180,7 +180,7 @@ export default function BillingPage() {
                     title="Billing"
                     description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
                 />
-                <ZoruCard className="border border-[var(--st-border)]/20 bg-[var(--st-text)]/5 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)]/20 bg-[var(--st-text)]/5 shadow-[var(--st-shadow-sm)]">
                     <ZoruCardHeader className="pb-3 text-center flex flex-col items-center">
                         <div className="h-12 w-12 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 flex items-center justify-center mb-3">
                             <Lock className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
@@ -256,7 +256,7 @@ export default function BillingPage() {
                     Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-28" />)
                 ) : (
                     <>
-                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Amount spent
@@ -268,7 +268,7 @@ export default function BillingPage() {
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Balance
@@ -280,7 +280,7 @@ export default function BillingPage() {
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Spending limit
@@ -294,7 +294,7 @@ export default function BillingPage() {
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="md:col-span-3 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="md:col-span-3 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">Spending limit progress</ZoruCardTitle>
                             </ZoruCardHeader>
@@ -317,7 +317,7 @@ export default function BillingPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                     <ZoruCardHeader>
                         <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
                             <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Account details
@@ -339,7 +339,7 @@ export default function BillingPage() {
                     </ZoruCardContent>
                 </ZoruCard>
 
-                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                     <ZoruCardHeader>
                         <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
                             <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" /> Payment Methods
@@ -373,7 +373,7 @@ export default function BillingPage() {
                 </ZoruCard>
             </div>
 
-            <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
+            <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
                 <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
                     <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
                         <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Invoice History

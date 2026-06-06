@@ -222,7 +222,7 @@ function ShortcutGroup({
       <h3 className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
         {heading}
       </h3>
-      <ul className="flex flex-col divide-y divide-[var(--st-border)] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+      <ul className="flex flex-col divide-y divide-[var(--st-border)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         {rows.map((row) => (
           <li
             key={row.chord}

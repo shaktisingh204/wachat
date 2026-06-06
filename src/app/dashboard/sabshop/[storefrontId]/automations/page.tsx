@@ -241,7 +241,7 @@ export default function AutomationsPage() {
 
         <TabsContent value="history" className="mt-0">
           <Card className="px-1 border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm">
-            <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+            <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">

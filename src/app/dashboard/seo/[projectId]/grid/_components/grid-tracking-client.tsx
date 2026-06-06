@@ -28,7 +28,7 @@ const Marker = ({ rank, lat, lng }: { rank: number; lat: number; lng: number }) 
 
     return (
         <div
-            className={`absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full border-2 border-[var(--st-bg)] text-white flex items-center justify-center text-sm shadow-[var(--zoru-shadow-sm)] transition-all hover:scale-110 ${color}`}
+            className={`absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full border-2 border-[var(--st-bg)] text-white flex items-center justify-center text-sm shadow-[var(--st-shadow-sm)] transition-all hover:scale-110 ${color}`}
             title={`Rank: ${rank || '>20'}`}
         >
             {rank || '-'}
@@ -39,14 +39,14 @@ const Marker = ({ rank, lat, lng }: { rank: number; lat: number; lng: number }) 
 function GridMap({ points, center, loading, onMapClick }: { points: any[], center: { lat: number, lng: number }, loading: boolean, onMapClick?: (e: { lat: number, lng: number }) => void }) {
     if (loading) {
         return (
-            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 text-[var(--st-text-secondary)]">
+            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 text-[var(--st-text-secondary)]">
                 Scanning grid area...
             </div>
         );
     }
 
     return (
-        <div className="relative h-[500px] w-full overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+        <div className="relative h-[500px] w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             <GoogleMapReact
                 bootstrapURLKeys={{ key: '' }}
                 defaultCenter={center}
@@ -68,7 +68,7 @@ function GridMap({ points, center, loading, onMapClick }: { points: any[], cente
                 ))}
             </GoogleMapReact>
             
-            <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded bg-[var(--st-bg)] p-3 text-xs shadow-[var(--zoru-shadow-sm)]">
+            <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded bg-[var(--st-bg)] p-3 text-xs shadow-[var(--st-shadow-sm)]">
                 <div className="mb-1 font-semibold text-[var(--st-text)]">Rank Legend</div>
                 <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-[var(--st-status-ok)]"></div> 1-3 (Dominating)

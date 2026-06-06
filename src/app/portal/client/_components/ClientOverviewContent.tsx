@@ -228,7 +228,7 @@ export function ClientOverviewContent({
                                 </p>
                                 <div className="space-y-2">
                                     {widgets.map(w => (
-                                        <div key={w.id} className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--zoru-radius-sm)]">
+                                        <div key={w.id} className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--st-radius-sm)]">
                                             <span className="font-medium capitalize">{w.id === 'kpis' ? 'Quick Stats' : w.id === 'activity' ? 'Recent Activity' : 'Quick Links'}</span>
                                             <Button
                                                 variant="ghost"
@@ -376,7 +376,7 @@ function QuickLinksWidget() {
                             <Link
                                 key={q.label}
                                 href={q.href}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-4 text-sm font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-text)]/30"
+                                className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] p-4 text-sm font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-text)]/30"
                             >
                                 <Icon className="h-5 w-5 text-[var(--st-text)]" />
                                 <span>{q.label}</span>

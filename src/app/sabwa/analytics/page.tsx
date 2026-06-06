@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BarChart3 className="h-5 w-5" />
           </div>
           <div>
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
           <div
             role="group"
             aria-label="Date range"
-            className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+            className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             {RANGE_OPTIONS.map((opt) => (
               <Button
@@ -195,7 +195,7 @@ export default function AnalyticsPage() {
                 size="sm"
                 variant={range === opt.value ? 'default' : 'ghost'}
                 onClick={() => setRange(opt.value)}
-                className="rounded-[calc(var(--zoru-radius)-2px)]"
+                className="rounded-[calc(var(--st-radius)-2px)]"
               >
                 {opt.label}
               </Button>

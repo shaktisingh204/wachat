@@ -9,10 +9,10 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 w-full rounded-[var(--zoru-radius)]" />
+          <Skeleton key={i} className="h-64 w-full rounded-[var(--st-radius)]" />
         ))}
       </div>
-      <Skeleton className="h-[400px] w-full rounded-[var(--zoru-radius)]" />
+      <Skeleton className="h-[400px] w-full rounded-[var(--st-radius)]" />
     </div>
   );
 }

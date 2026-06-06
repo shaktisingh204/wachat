@@ -207,7 +207,7 @@ export function AssignmentControl({
         disabled={disabled || isSaving}
         onClick={() => setOpen(true)}
         className={cn(
-          'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-left transition-colors',
+          'flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-left transition-colors',
           'hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]',
           'disabled:cursor-not-allowed disabled:opacity-60',
         )}

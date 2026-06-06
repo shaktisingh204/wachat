@@ -208,7 +208,7 @@ function QuickReplyFormDialog({
               </div>
               
               {/* Dynamic Variables Toolbar */}
-              <div className="flex flex-wrap gap-2 p-2 bg-[var(--st-bg-muted)] rounded-t-[var(--zoru-radius-sm)] border border-b-0 border-[var(--st-border)]">
+              <div className="flex flex-wrap gap-2 p-2 bg-[var(--st-bg-muted)] rounded-t-[var(--st-radius-sm)] border border-b-0 border-[var(--st-border)]">
                 <span className="text-xs text-[var(--st-text-secondary)] flex items-center mr-2"><Code className="h-3 w-3 mr-1" /> Insert Variable:</span>
                 <Badge variant="outline" className="cursor-pointer hover:bg-[var(--st-bg-secondary)] text-[10px]" onClick={() => insertVariable('visitor.name')}>visitor.name</Badge>
                 <Badge variant="outline" className="cursor-pointer hover:bg-[var(--st-bg-secondary)] text-[10px]" onClick={() => insertVariable('agent.name')}>agent.name</Badge>
@@ -386,7 +386,7 @@ export default function SabChatQuickRepliesPage() {
           </div>
           
           {selectedBulk.length > 0 && (
-            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]">
+            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]">
               <span className="text-xs font-medium">{selectedBulk.length} selected</span>
               <Button variant="outline" size="sm" className="h-7 text-xs text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                 <Trash2 className="h-3 w-3 mr-1.5" /> Delete

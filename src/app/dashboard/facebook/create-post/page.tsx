@@ -347,7 +347,7 @@ export default function CreateFacebookPostPage() {
                   <div className="flex flex-col gap-3">
                     <div className="grid grid-cols-2 gap-2">
                       {mediaUrls.map((media, i) => (
-                        <div key={i} className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square">
+                        <div key={i} className="relative overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square">
                           <Image src={media.url} fill alt="Carousel image" className="object-cover" unoptimized />
                           <Button
                             type="button"
@@ -366,7 +366,7 @@ export default function CreateFacebookPostPage() {
                     </div>
                   </div>
                 ) : mediaPreview ? (
-                  <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <div className="relative overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {postType === "image" ? (
                       <Image
                         src={mediaPreview}
@@ -395,7 +395,7 @@ export default function CreateFacebookPostPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center">
+                  <div className="flex flex-col items-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center">
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                       <Upload className="h-5 w-5" />
                     </span>
@@ -441,7 +441,7 @@ export default function CreateFacebookPostPage() {
                 <ZoruCardTitle>Schedule</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                   <div className="flex flex-col">
                     <Label
                       htmlFor="isScheduledSwitch"
@@ -490,7 +490,7 @@ export default function CreateFacebookPostPage() {
             </Card>
 
             {/* Actions */}
-            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
               <p className="text-[12px] text-[var(--st-text-secondary)]">
                 {isPostDisabled
                   ? "Add a message or attach media to enable publishing."
@@ -559,13 +559,13 @@ export default function CreateFacebookPostPage() {
                 {postType === "carousel" && mediaUrls.length > 0 ? (
                   <div className="flex gap-2 overflow-x-auto snap-x pb-2">
                     {mediaUrls.map((media, i) => (
-                      <div key={i} className="flex-none w-[80%] snap-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square relative">
+                      <div key={i} className="flex-none w-[80%] snap-center overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square relative">
                         <Image src={media.url} fill alt="Carousel preview" className="object-cover" unoptimized />
                       </div>
                     ))}
                   </div>
                 ) : mediaPreview && (
-                  <div className="overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <div className="overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {postType === "image" ? (
                       <Image
                         src={mediaPreview}

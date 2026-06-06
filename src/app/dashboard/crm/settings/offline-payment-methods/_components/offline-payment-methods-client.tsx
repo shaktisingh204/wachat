@@ -131,7 +131,7 @@ function EditDialog({
                 name="description"
                 rows={3}
                 defaultValue={initial?.description ?? ''}
-                className="flex min-h-[60px] w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]"
+                className="flex min-h-[60px] w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]"
               />
             </div>
           </div>
@@ -352,7 +352,7 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
           )}
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+            <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">

@@ -332,7 +332,7 @@ export default function CampaignsPage() {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-text)]/10 text-[var(--st-text)] ring-1 ring-[var(--st-text)]/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-text)]/10 text-[var(--st-text)] ring-1 ring-[var(--st-text)]/20">
                   <Mail className="h-5 w-5" />
                 </div>
                 <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">Campaigns</h1>
@@ -355,7 +355,7 @@ export default function CampaignsPage() {
 
           {/* Quick Stats Banner */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Campaigns</p>
@@ -366,7 +366,7 @@ export default function CampaignsPage() {
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Active Sending</p>
@@ -377,7 +377,7 @@ export default function CampaignsPage() {
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Sent (30d)</p>
@@ -388,7 +388,7 @@ export default function CampaignsPage() {
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Delivery</p>
@@ -408,7 +408,7 @@ export default function CampaignsPage() {
         <div className="flex flex-col space-y-4">
           
           {/* Advanced Filters Toolbar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-[var(--st-bg)] rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] shadow-[var(--zoru-shadow-md)]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-[var(--st-bg)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] shadow-[var(--st-shadow-md)]">
             <div className="flex flex-1 items-center gap-3 w-full">
               <div className="relative max-w-sm w-full">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
@@ -452,7 +452,7 @@ export default function CampaignsPage() {
           </div>
 
           {/* Table Container */}
-          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow-lg)] overflow-hidden">
+          <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)] overflow-hidden">
             <Table className="border-0 shadow-none">
               <ZoruTableHeader className="bg-[var(--st-bg-secondary)]/60 border-b border-[var(--st-border)]">
                 {table.getHeaderGroups().map((headerGroup) => (

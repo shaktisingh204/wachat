@@ -233,7 +233,7 @@ function NavBody({ pathname, collapsed = false, onNavigate }: NavBodyProps) {
                       aria-current={active ? "page" : undefined}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "group flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm font-medium outline-none transition-colors",
+                        "group flex items-center gap-3 rounded-[var(--st-radius)] px-2 py-1.5 text-sm font-medium outline-none transition-colors",
                         "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]",
                         "focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2",
                         active &&
@@ -268,7 +268,7 @@ function RailBrand({ collapsed }: { collapsed: boolean }) {
         collapsed && "justify-center px-0",
       )}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-text)]/10 text-[var(--st-text)]">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-text)]/10 text-[var(--st-text)]">
         <MessageCircle className="h-4 w-4" />
       </div>
       {!collapsed && (

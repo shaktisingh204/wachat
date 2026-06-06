@@ -452,7 +452,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                 ) : null}
 
                 {/* Pattern repeater */}
-                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                     <div className="mb-3 flex items-center justify-between">
                         <div>
                             <div className="text-[14px] font-medium text-[var(--st-text)]">

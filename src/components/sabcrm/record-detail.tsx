@@ -539,7 +539,7 @@ export function RecordDetail({
                                 inlineError ? fieldErrorId : undefined
                               }
                               className={cn(
-                                'min-w-0 flex-1 rounded-[var(--zoru-radius)] px-2 py-1 text-left transition-colors',
+                                'min-w-0 flex-1 rounded-[var(--st-radius)] px-2 py-1 text-left transition-colors',
                                 editable
                                   ? 'cursor-text hover:bg-[var(--st-bg-secondary)]'
                                   : 'cursor-default',

@@ -8,7 +8,7 @@ import { SnippetDemo } from "./components/SnippetDemo";
 
 function Header() {
   return (
-    <header className="overflow-hidden rounded-[var(--zoru-radius-xl)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 shadow-[var(--zoru-shadow-lg)]">
+    <header className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 shadow-[var(--st-shadow-lg)]">
       <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/70 px-5 py-3 sm:px-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--st-text-secondary)]">
@@ -35,7 +35,7 @@ function Header() {
             calmer gallery with sharper hierarchy and more breathing room.
           </p>
         </div>
-        <div className="grid grid-cols-3 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <div className="grid grid-cols-3 overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           {[
             ["60+", "Primitives"],
             ["6", "Steps shown"],
@@ -56,9 +56,9 @@ function Header() {
 
 function SwatchCard({ label, varName }: { label: string; varName: string }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-[var(--st-shadow-sm)]">
       <div
-        className="h-16 w-full rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]"
+        className="h-16 w-full rounded-[var(--st-radius-sm)] border border-[var(--st-border)]"
         style={{ backgroundColor: `hsl(var(${varName}))` }}
       />
       <div className="mt-3 flex items-center justify-between">

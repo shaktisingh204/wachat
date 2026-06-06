@@ -141,7 +141,7 @@ function QuickActionCard({ href, title, description, icon: Icon }: QuickActionCa
     return (
         <Link
             href={href}
-            className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition-colors hover:border-[var(--st-text)]/30"
+            className="block rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition-colors hover:border-[var(--st-text)]/30"
         >
             <div className="flex items-start gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">

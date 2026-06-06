@@ -272,12 +272,12 @@ export default function LayoutElementsPage() {
                 <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+                <ScrollArea className="h-60 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                   <ul className="space-y-2 text-sm text-[var(--st-text)]">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <li
                         key={i}
-                        className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                        className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
                       >
                         Row {i + 1}
                       </li>
@@ -318,12 +318,12 @@ export default function LayoutElementsPage() {
                 <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+                <ScrollArea className="h-60 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                   <ul className="space-y-2 text-sm text-[var(--st-text)]">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <li
                         key={i}
-                        className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                        className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
                       >
                         Row {i + 1}
                       </li>
@@ -364,7 +364,7 @@ export default function LayoutElementsPage() {
           subtitle="Sidebar + header + dock — no vertical app rail (apps live in the dock now), no multi-tab strip. Step 8 wires the admin instance, step 9 the dashboard."
         >
 <SnippetDemo code={`
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+          <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <div className="flex h-[420px] w-full bg-[var(--st-bg)]">
               <ZoruAppSidebar
                 heading="Dashboard"
@@ -436,7 +436,7 @@ export default function LayoutElementsPage() {
           </div>
         `}>
 
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+          <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <div className="flex h-[420px] w-full bg-[var(--st-bg)]">
               <ZoruAppSidebar
                 heading="Dashboard"

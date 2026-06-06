@@ -276,7 +276,7 @@ export default function SabWaChatsPage() {
       <header className="flex items-start gap-3 border-b border-[var(--st-border)] px-4 py-4 md:px-6">
         <div
           aria-hidden
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <MessageSquare className="h-5 w-5" />
         </div>
@@ -339,7 +339,7 @@ export default function SabWaChatsPage() {
           <div
             role="group"
             aria-label="Filter chats"
-            className="grid w-full grid-cols-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+            className="grid w-full grid-cols-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             {(["all", "unread", "read"] as const).map((value) => (
               <Button
@@ -347,7 +347,7 @@ export default function SabWaChatsPage() {
                 type="button"
                 variant={filter === value ? "default" : "ghost"}
                 size="sm"
-                className="rounded-[calc(var(--zoru-radius)-2px)] capitalize"
+                className="rounded-[calc(var(--st-radius)-2px)] capitalize"
                 onClick={() => setFilter(value)}
               >
                 {value}
@@ -518,7 +518,7 @@ function Toolbar({
       <div
         role="group"
         aria-label="Filter chats"
-        className="hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 lg:inline-flex"
+        className="hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 lg:inline-flex"
       >
         {(["all", "unread", "read"] as const).map((value) => (
           <Button
@@ -526,7 +526,7 @@ function Toolbar({
             type="button"
             variant={filter === value ? "default" : "ghost"}
             size="sm"
-            className="rounded-[calc(var(--zoru-radius)-2px)] capitalize"
+            className="rounded-[calc(var(--st-radius)-2px)] capitalize"
             onClick={() => setFilter(value)}
           >
             {value}
@@ -636,7 +636,7 @@ function BulkFooter({
               <li key={d.label}>
                 <button
                   type="button"
-                  className="w-full rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                  className="w-full rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   onClick={() =>
                     onMute(d.seconds === null ? 100 * 365 * 24 * 3600 : d.seconds)
                   }
@@ -672,7 +672,7 @@ function BulkFooter({
                 <li key={l.id}>
                   <button
                     type="button"
-                    className="flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                    className="flex w-full items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                     onClick={() => onAddLabel(l.id)}
                   >
                     <span
@@ -698,7 +698,7 @@ function ListSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <li
           key={i}
-          className="flex items-center gap-3 rounded-[var(--zoru-radius)] px-3 py-2"
+          className="flex items-center gap-3 rounded-[var(--st-radius)] px-3 py-2"
         >
           <Skeleton className="h-10 w-10 rounded-full" />
           <div className="flex-1 space-y-2">

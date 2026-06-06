@@ -71,7 +71,7 @@ function TagsSelector({
       <ZoruPopoverTrigger asChild>
         <button
           type="button"
-          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]"
+          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]"
         >
           <span className="truncate">
             {selectedTags.length > 0
@@ -389,7 +389,7 @@ export function UrlShortenerForm({
           </div>
         </details>
 
-        <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 rounded-b-[var(--zoru-radius-lg)]">
+        <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 rounded-b-[var(--st-radius-lg)]">
           <SubmitButton />
           <BulkImportDialog onImportComplete={onSuccess} />
         </div>

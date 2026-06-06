@@ -711,7 +711,7 @@ function DiffView({
       {entries.map(([field, { before, after }]) => (
         <div
           key={field}
-          className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
+          className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
         >
           <div className="mb-2 text-[12px] font-medium text-[var(--st-text)]">{field}</div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2">

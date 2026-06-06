@@ -466,7 +466,7 @@ export function PosSessionsListClient({
 
             {/* Bulk action bar */}
             {selected.size > 0 ? (
-                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--st-shadow-sm)]">
                     <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                         <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                         {selected.size} selected

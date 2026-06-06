@@ -220,7 +220,7 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         {criteria.map((c, idx) => (
                             <div
                                 key={idx}
-                                className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[1.4fr_1fr_1fr_0.8fr_auto]"
+                                className="grid grid-cols-1 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[1.4fr_1fr_1fr_0.8fr_auto]"
                             >
                                 <Input
                                     placeholder="Criterion name"

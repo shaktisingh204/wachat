@@ -31,7 +31,7 @@ export default async function SabmonitorIncidentsPage({
                         id="status"
                         name="status"
                         defaultValue={status}
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
                     >
                         <option value="all">All</option>
                         <option value="ongoing">Ongoing</option>
@@ -39,7 +39,7 @@ export default async function SabmonitorIncidentsPage({
                     </select>
                     <button
                         type="submit"
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
                     >
                         Apply
                     </button>

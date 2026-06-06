@@ -137,7 +137,7 @@ export default function WebhooksPage() {
         </div>
 
         <Card className="border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm overflow-hidden">
-          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
+          <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
@@ -243,7 +243,7 @@ export default function WebhooksPage() {
           <Button variant="outline" size="sm">View All Logs</Button>
         </div>
 
-        <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
+        <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">

@@ -28,7 +28,7 @@ export function TransactionTable({ transactions, isLoading }: TransactionTablePr
   }
 
   return (
-    <div className="border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)]/50 overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+    <div className="border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)]/50 overflow-hidden shadow-[var(--st-shadow-sm)]">
       <ZoruTable>
         <ZoruTableHeader>
           <ZoruTableRow>

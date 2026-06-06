@@ -121,7 +121,7 @@ export function ProfileForm({
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 shadow-[var(--zoru-shadow-sm)] border border-[var(--st-border)]">
+                <Avatar className="h-16 w-16 shadow-[var(--st-shadow-sm)] border border-[var(--st-border)]">
                     <AvatarImage src={avatarUrl} alt={name} />
                     <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                 </Avatar>

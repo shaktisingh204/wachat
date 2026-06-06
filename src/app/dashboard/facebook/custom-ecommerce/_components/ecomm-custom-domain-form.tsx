@@ -209,7 +209,7 @@ export function EcommCustomDomainForm() {
             domains.map((domain) => (
               <div
                 key={domain._id.toString()}
-                className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4"
+                className="space-y-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export function EcommCustomDomainForm() {
                   />
                 </div>
                 {domain.verified ? (
-                  <div className="space-y-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
+                  <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
                     <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-xs">
                       <span className="text-[var(--st-text-secondary)]">Type:</span>
                       <span>CNAME</span>
@@ -253,7 +253,7 @@ export function EcommCustomDomainForm() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3 rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-3 text-sm">
+                  <div className="space-y-3 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3 text-sm">
                     <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-xs">
                       <span className="text-[var(--st-text-secondary)]">Type:</span>
                       <span>TXT</span>

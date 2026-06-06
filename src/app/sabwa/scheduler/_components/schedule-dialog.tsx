@@ -610,7 +610,7 @@ export function ScheduleDialog({
             <div
               role="group"
               aria-label="Recipient type"
-              className="grid w-full grid-cols-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
+              className="grid w-full grid-cols-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
             >
               {TARGET_KINDS.map(({ value, label, Icon }) => (
                 <Button
@@ -629,10 +629,10 @@ export function ScheduleDialog({
             </div>
 
             {/* Searchable picker — live chats list */}
-            <div className="mt-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+            <div className="mt-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)]">
               <ZoruCommand
                 shouldFilter={false}
-                className="rounded-[var(--zoru-radius-sm)]"
+                className="rounded-[var(--st-radius-sm)]"
               >
                 <ZoruCommandInput
                   placeholder={
@@ -936,7 +936,7 @@ export function ScheduleDialog({
                   key={opt}
                   htmlFor={`rec-${opt}`}
                   className={cn(
-                    "flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs capitalize text-[var(--st-text)]",
+                    "flex cursor-pointer items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs capitalize text-[var(--st-text)]",
                     recurrence === opt &&
                       "border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]",
                   )}
@@ -1011,7 +1011,7 @@ export function ScheduleDialog({
 
           {/* ─── Errors ─────────────────────────────────────────────── */}
           {errors.length > 0 && (
-            <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5">
+            <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5">
               <ul className="space-y-0.5 text-xs text-[var(--st-text-secondary)]">
                 {errors.map((e) => (
                   <li key={e}>• {e}</li>

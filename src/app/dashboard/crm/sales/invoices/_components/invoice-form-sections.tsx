@@ -324,7 +324,7 @@ export function BankSection({
               {qrImageFileId ? 'Replace image' : 'Pick QR image'}
             </SabFilePickerButton>
             {qrImageFileId ? (
-              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
+              <div className="flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                 <span className="max-w-[200px] truncate font-mono">{qrImageFileId}</span>
                 <button
                   type="button"

@@ -196,7 +196,7 @@ export default function SabChatAiRepliesPage() {
             <Card>
               <ZoruCardHeader>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
                     <Bot className="h-5 w-5" />
                   </span>
                   <div>

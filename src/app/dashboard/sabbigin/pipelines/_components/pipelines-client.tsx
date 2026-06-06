@@ -204,7 +204,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
         >
           <div className="space-y-4">
             {/* Table summary */}
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+            <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>

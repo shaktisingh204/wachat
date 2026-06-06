@@ -221,9 +221,9 @@ function AccountRow({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-start gap-x-4 gap-y-2 rounded-[var(--zoru-radius-lg)] border p-4 transition',
+        'flex flex-wrap items-start gap-x-4 gap-y-2 rounded-[var(--st-radius-lg)] border p-4 transition',
         isActive
-          ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] shadow-[var(--zoru-shadow-sm)]'
+          ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] shadow-[var(--st-shadow-sm)]'
           : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border-strong)]',
       )}
     >
@@ -449,7 +449,7 @@ export function OverviewAccountsClient() {
 
       {/* Active-account ready banner — confirms the rest of SabWa works */}
       {current && current.status === 'connected' && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
           <div className="min-w-0 flex-1">
             <p className="text-[13px] text-[var(--st-text)]">
@@ -559,7 +559,7 @@ export function OverviewAccountsClient() {
             <Link href="/sabwa/connect" className="mt-1">
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] p-4 text-[13px] text-[var(--st-text-secondary)] transition hover:border-[var(--st-text)] hover:text-[var(--st-text)]"
+                className="flex w-full items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] p-4 text-[13px] text-[var(--st-text-secondary)] transition hover:border-[var(--st-text)] hover:text-[var(--st-text)]"
               >
                 <Plus className="h-4 w-4" />
                 Connect another WhatsApp account
@@ -571,7 +571,7 @@ export function OverviewAccountsClient() {
 
       {/* Hint when accounts exist but none active */}
       {sessions.length > 0 && !current && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
           <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
           <p className="text-[13px] text-[var(--st-text-secondary)]">
             Pick an account above to activate it. Other SabWa features

@@ -123,7 +123,7 @@ export default async function PipelineDetailPage({
                     </div>
                 </div>
                 {stages.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No stages defined.
                     </div>
                 ) : (
@@ -131,7 +131,7 @@ export default async function PipelineDetailPage({
                         {stages.map((s, i) => (
                             <li
                                 key={s._id || s.id || i}
-                                className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
+                                className="flex flex-col gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
                             >
                                 <div className="flex items-center gap-2">
                                     {s.color ? (

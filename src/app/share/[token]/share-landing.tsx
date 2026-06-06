@@ -61,7 +61,7 @@ function officePreviewUrl(url: string): string {
 
 function ShareStat({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             <dt className="text-xs text-[var(--st-text-secondary)]">{label}</dt>
             <dd className="mt-1 min-w-0 break-words text-sm font-medium text-[var(--st-text)]">{value}</dd>
         </div>
@@ -198,10 +198,10 @@ export function ShareLanding({
                 </header>
 
                 <section className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-                    <section className="min-w-0 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                    <section className="min-w-0 overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
                             <div className="flex min-w-0 items-center gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                                     {previewIcon(view.mime, 'h-5 w-5')}
                                 </div>
                                 <div className="min-w-0">
@@ -235,18 +235,18 @@ export function ShareLanding({
                                 <img
                                     src={previewUrl}
                                     alt={view.name}
-                                    className="max-h-[72vh] w-full rounded-[var(--zoru-radius)] object-contain"
+                                    className="max-h-[72vh] w-full rounded-[var(--st-radius)] object-contain"
                                 />
                             ) : previewKind === 'video' && previewUrl ? (
                                 <video
                                     src={previewUrl}
-                                    className="max-h-[72vh] w-full rounded-[var(--zoru-radius)] bg-black"
+                                    className="max-h-[72vh] w-full rounded-[var(--st-radius)] bg-black"
                                     controls
                                     preload="metadata"
                                 />
                             ) : previewKind === 'audio' && previewUrl ? (
                                 <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5 p-8">
-                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                                         {previewIcon(view.mime)}
                                     </div>
                                     <audio src={previewUrl} className="w-full" controls preload="metadata" />
@@ -255,17 +255,17 @@ export function ShareLanding({
                                 <iframe
                                     src={previewUrl}
                                     title={view.name}
-                                    className="h-[72vh] w-full rounded-[var(--zoru-radius)] border-0 bg-white"
+                                    className="h-[72vh] w-full rounded-[var(--st-radius)] border-0 bg-white"
                                 />
                             ) : previewKind === 'office' && previewUrl ? (
                                 <iframe
                                     src={officePreviewUrl(previewUrl)}
                                     title={view.name}
-                                    className="h-[72vh] w-full rounded-[var(--zoru-radius)] border-0 bg-white"
+                                    className="h-[72vh] w-full rounded-[var(--st-radius)] border-0 bg-white"
                                 />
                             ) : (
                                 <div className="mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
-                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                                         {previewIcon(view.mime)}
                                     </div>
                                     <div>
@@ -365,7 +365,7 @@ export function ShareLanding({
 
                         <div
                             className={cn(
-                                'rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4',
+                                'rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4',
                                 'text-sm leading-6 text-[var(--st-text-secondary)]',
                             )}
                         >

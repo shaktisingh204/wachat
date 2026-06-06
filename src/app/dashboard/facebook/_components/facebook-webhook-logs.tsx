@@ -370,7 +370,7 @@ export function FacebookWebhookLogs({
         </Alert>
       ) : (
         <>
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+          <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -491,7 +491,7 @@ export function FacebookWebhookLogs({
                 <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : selectedLogPayload ? (
-              <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-4 font-mono text-[11.5px] text-[var(--st-text)]">
+              <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-4 font-mono text-[11.5px] text-[var(--st-text)]">
                 {JSON.stringify(selectedLogPayload, null, 2)}
               </pre>
             ) : (

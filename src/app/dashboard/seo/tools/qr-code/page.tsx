@@ -107,7 +107,7 @@ export default function QrCodePage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6 p-6 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-xl shadow-[var(--zoru-shadow-sm)] self-center w-full max-w-sm">
+            <div className="flex flex-col items-center gap-6 p-6 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-xl shadow-[var(--st-shadow-sm)] self-center w-full max-w-sm">
               <div 
                 ref={wrapRef} 
                 className="relative flex items-center justify-center rounded-md" 

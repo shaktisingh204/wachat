@@ -313,7 +313,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                     {badgeUrl ? (
-                        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-2">
+                        <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={badgeUrl}
@@ -334,7 +334,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                             </Button>
                         </div>
                     ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
                             <Award className="h-5 w-5" />
                         </div>
                     )}

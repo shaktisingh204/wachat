@@ -247,7 +247,7 @@ export function RailLink({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-transparent px-2 py-1.5 text-[var(--st-text)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
+      className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-transparent px-2 py-1.5 text-[var(--st-text)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
     >
       <span className="flex min-w-0 flex-col">
         <span className="truncate">{label}</span>

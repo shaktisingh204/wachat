@@ -200,7 +200,7 @@ function QuotedPreview({
       ? resolveJid(quoted.fromJid)
       : formatJid(quoted.fromJid);
   return (
-    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5">
+    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--st-radius)] border-l-2 border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5">
       {showAvatar ? (
         <div
           aria-hidden
@@ -265,7 +265,7 @@ function MediaContent({ message }: { message: SabwaMessage }) {
       <Card className="flex w-72 max-w-full items-center gap-3 p-2">
         <div
           aria-hidden
-          className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+          className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
         >
           <FileIcon className="h-5 w-5" />
         </div>
@@ -281,7 +281,7 @@ function MediaContent({ message }: { message: SabwaMessage }) {
           download
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius)] hover:bg-[var(--st-bg-secondary)]"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)]"
           aria-label="Download"
         >
           <Download className="h-4 w-4" />
@@ -376,7 +376,7 @@ export function MessageBubble({
             onPointerLeave={cancelPress}
             onPointerCancel={cancelPress}
             className={cn(
-              "relative max-w-[min(80%,32rem)] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm",
+              "relative max-w-[min(80%,32rem)] rounded-[var(--st-radius)] px-3 py-2 text-sm shadow-sm",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]",
               fromMe
                 ? "bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30"

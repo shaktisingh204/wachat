@@ -192,7 +192,7 @@ export default function PlanEditorPage() {
                     </div>
                     <div>
                         <Label className="text-base">Per-Message Costs</Label>
-                        <div className="mt-2 grid gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3 md:grid-cols-3">
+                        <div className="mt-2 grid gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="cost_marketing" className="text-sm">
                                     Marketing
@@ -348,7 +348,7 @@ export default function PlanEditorPage() {
                             {planFeatureMap.map((feature) => (
                                 <div
                                     key={feature.id}
-                                    className="flex items-center space-x-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3 hover:bg-[var(--st-bg-muted)]"
+                                    className="flex items-center space-x-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 hover:bg-[var(--st-bg-muted)]"
                                 >
                                     <Checkbox
                                         id={feature.id}

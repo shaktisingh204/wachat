@@ -57,7 +57,7 @@ export default function AdwordsWrapperPage() {
     <ToolShell title="AdWords Keyword Wrapper" description="Wrap a list of keywords with Google Ads match type syntax.">
       <div className="space-y-1">
         <Label>Match type</Label>
-        <select className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] text-sm" value={mt} onChange={(e) => setMt(e.target.value as MatchType)}>
+        <select className="border border-[var(--st-border)] rounded-[var(--st-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] text-sm" value={mt} onChange={(e) => setMt(e.target.value as MatchType)}>
           <option value="broad">Broad</option>
           <option value="phrase">"Phrase"</option>
           <option value="exact">[Exact]</option>

@@ -486,7 +486,7 @@ const MultiSelectInput = React.memo(function MultiSelectInput({
       aria-labelledby={`${groupId}-label`}
       aria-describedby={errorId}
       className={cn(
-        'flex flex-wrap gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2',
+        'flex flex-wrap gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2',
         invalid && 'border-[var(--st-danger)]',
         disabled && 'opacity-60',
         className,

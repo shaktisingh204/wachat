@@ -196,7 +196,7 @@ export default function NotificationPreferencesPage() {
                 const Icon = def.icon;
                 return (
                   <div key={def.id} className="flex items-center gap-4 px-5 py-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                       <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                     </span>
                     <div className="min-w-0 flex-1">

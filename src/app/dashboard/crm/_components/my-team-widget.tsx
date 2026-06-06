@@ -75,7 +75,7 @@ export async function MyTeamWidget() {
             return (
               <li
                 key={r._id}
-                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
+                className="flex items-center gap-3 rounded-[var(--st-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
               >
                 <Avatar className="h-8 w-8">
                   <ZoruAvatarFallback>

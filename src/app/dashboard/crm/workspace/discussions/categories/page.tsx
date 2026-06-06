@@ -470,7 +470,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
             </Link>
           </div>
 
-          <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+          <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[720px] text-[13px]">
               <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <tr>

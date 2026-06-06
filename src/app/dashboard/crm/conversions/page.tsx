@@ -61,7 +61,7 @@ function ConversionRow({ edge }: { edge: CrmConversionEdge }) {
     return (
         <Link
             href={edge.createHref}
-            className="group flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] sm:flex-row sm:items-center"
+            className="group flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] sm:flex-row sm:items-center"
         >
             <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -103,7 +103,7 @@ function ConversionSection({
     return (
         <Card variant="default" className="p-0">
             <div className="flex items-start gap-3 border-b border-[var(--st-border)] px-5 py-4">
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                     <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0">

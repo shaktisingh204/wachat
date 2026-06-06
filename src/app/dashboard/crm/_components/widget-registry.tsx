@@ -96,7 +96,7 @@ function ItemList({ items }: { items: DashboardWidgetItem[] }) {
       {items.map((it) => (
         <li
           key={it._id}
-          className="flex items-start justify-between gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
+          className="flex items-start justify-between gap-3 rounded-[var(--st-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
         >
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] text-[var(--st-text)]">{it.title}</p>

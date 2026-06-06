@@ -43,7 +43,7 @@ export default function SabSmsAdminPayrollPage() {
             title="Payroll Administration"
             subtitle="Manage payroll runs across the system."
         >
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+            <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                 <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>

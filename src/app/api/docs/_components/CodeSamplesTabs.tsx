@@ -41,7 +41,7 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
   };
 
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
       <div className="flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="flex overflow-x-auto" role="tablist">
           {samples.map((s, i) => (

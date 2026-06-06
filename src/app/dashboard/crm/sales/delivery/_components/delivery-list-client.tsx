@@ -404,7 +404,7 @@ export function DeliveryListClient({
         const options: DcStatus[] = ['Draft', 'In Transit', 'Delivered', 'Returned'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
+            className="h-8 w-28 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'Draft'}
             onChange={(e) => onChange(e.target.value as DcStatus)}
           >

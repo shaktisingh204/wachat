@@ -227,7 +227,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
         empty={empty}
         loading={false}
       >
-        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>

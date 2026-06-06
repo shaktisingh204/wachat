@@ -185,12 +185,12 @@ export function Crm360Timeline({
             <div key={item.id} className="relative group">
               
               {/* Timeline Connector Icon */}
-              <span className="absolute -left-[35px] top-1.5 flex h-6.5 w-6.5 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-[var(--zoru-shadow-sm)]">
+              <span className="absolute -left-[35px] top-1.5 flex h-6.5 w-6.5 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-[var(--st-shadow-sm)]">
                 {iconMap[item.type]}
               </span>
 
               {/* Card Container */}
-              <Card className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:shadow-[var(--zoru-shadow-sm)] transition-shadow">
+              <Card className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:shadow-[var(--st-shadow-sm)] transition-shadow">
                 
                 {/* Meta details */}
                 <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-2 mb-2.5">

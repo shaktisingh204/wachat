@@ -172,7 +172,7 @@ export default function CatalogDetailPage() {
         id: "image",
         header: () => <span className="sr-only">Image</span>,
         cell: ({ row }) => (
-          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             {row.original.image_url ? (
               <Image
                 src={row.original.image_url}

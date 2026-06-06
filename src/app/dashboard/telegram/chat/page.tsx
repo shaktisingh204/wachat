@@ -190,7 +190,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+        <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
             <ChatSidebar
                 bots={bots}
                 selectedBotId={selectedBotId}
@@ -885,7 +885,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                         ))}
                     </div>
                 ) : historyError ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
                         {historyError}
                     </div>
                 ) : messages.length === 0 ? (
@@ -1081,7 +1081,7 @@ function MessageBubble({
             )}
             <div
                 className={cn(
-                    'relative max-w-[70%] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm',
+                    'relative max-w-[70%] rounded-[var(--st-radius)] px-3 py-2 text-sm shadow-sm',
                     outbound
                         ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
                         : 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
@@ -1091,7 +1091,7 @@ function MessageBubble({
                 {repliedTo && (
                     <div
                         className={cn(
-                            'mb-1 rounded-[var(--zoru-radius-sm)] border-l-2 px-2 py-1 text-xs',
+                            'mb-1 rounded-[var(--st-radius-sm)] border-l-2 px-2 py-1 text-xs',
                             outbound
                                 ? 'border-[var(--st-text-inverted)]/50 bg-white/10'
                                 : 'border-[var(--st-text)]/50 bg-[var(--st-bg-muted)]',
@@ -1135,7 +1135,7 @@ function MessageBubble({
                 {!msg.isDeleted && (
                     <div
                         className={cn(
-                            'absolute -top-3 hidden gap-0.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5 shadow-md group-hover:flex',
+                            'absolute -top-3 hidden gap-0.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5 shadow-md group-hover:flex',
                             outbound ? 'right-2' : 'left-2',
                         )}
                     >
@@ -1175,7 +1175,7 @@ function BubbleAction({
             onClick={onClick}
             aria-label={label}
             title={label}
-            className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
+            className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
         >
             <Icon className="h-3.5 w-3.5" />
         </button>
@@ -1190,7 +1190,7 @@ function MediaPreview({ msg, outbound }: { msg: MessageRow; outbound: boolean })
             <img
                 src={url}
                 alt="attachment"
-                className="mb-1 max-h-72 w-full rounded-[var(--zoru-radius-sm)] object-cover"
+                className="mb-1 max-h-72 w-full rounded-[var(--st-radius-sm)] object-cover"
                 loading="lazy"
             />
         );
@@ -1200,7 +1200,7 @@ function MediaPreview({ msg, outbound }: { msg: MessageRow; outbound: boolean })
             <video
                 src={url}
                 controls
-                className="mb-1 max-h-72 w-full rounded-[var(--zoru-radius-sm)]"
+                className="mb-1 max-h-72 w-full rounded-[var(--st-radius-sm)]"
             />
         );
     }
@@ -1210,7 +1210,7 @@ function MediaPreview({ msg, outbound }: { msg: MessageRow; outbound: boolean })
     return (
         <div
             className={cn(
-                'mb-1 flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border px-2 py-1.5 text-xs',
+                'mb-1 flex items-center gap-2 rounded-[var(--st-radius-sm)] border px-2 py-1.5 text-xs',
                 outbound
                     ? 'border-[var(--st-text-inverted)]/30'
                     : 'border-[var(--st-border)]',
@@ -1265,7 +1265,7 @@ function Composer({
     return (
         <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 pb-3 pt-2">
             {replyTo && (
-                <div className="mb-2 flex items-start justify-between gap-2 rounded-[var(--zoru-radius-sm)] border-l-4 border-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-1.5 text-xs">
+                <div className="mb-2 flex items-start justify-between gap-2 rounded-[var(--st-radius-sm)] border-l-4 border-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-1.5 text-xs">
                     <div className="min-w-0">
                         <div className="font-medium text-[var(--st-text)]">
                             Replying to {replyTo.fromName || (replyTo.direction === 'outbound' ? 'you' : 'them')}
@@ -1278,7 +1278,7 @@ function Composer({
                         type="button"
                         onClick={onClearReply}
                         aria-label="Cancel reply"
-                        className="shrink-0 rounded-[var(--zoru-radius-sm)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
+                        className="shrink-0 rounded-[var(--st-radius-sm)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>
@@ -1332,7 +1332,7 @@ function Composer({
                     onKeyDown={onKeyDown}
                     placeholder="Type a message…"
                     rows={1}
-                    className="flex-1 resize-none rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30"
+                    className="flex-1 resize-none rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30"
                 />
                 <Button
                     type="button"

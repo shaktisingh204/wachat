@@ -80,7 +80,7 @@ function formatTimestamp(iso?: string): string {
 function SectionHeader({ title, description, icon }: { title: string; description: string; icon?: React.ReactNode }) {
     return (
         <div className="flex items-center gap-3">
-            {icon && <div className="p-2 bg-[var(--st-bg-muted)] rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)]">{icon}</div>}
+            {icon && <div className="p-2 bg-[var(--st-bg-muted)] rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)]">{icon}</div>}
             <div>
                 <h3 className="text-[15px] font-medium text-[var(--st-text)]">{title}</h3>
                 <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">{description}</p>
@@ -287,7 +287,7 @@ export default function SabchatSettingsPage() {
                             </Button>
                         </div>
                         <div className="mt-5 space-y-4">
-                            <div className="flex gap-3 items-end bg-[var(--st-bg-muted)] p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                            <div className="flex gap-3 items-end bg-[var(--st-bg-muted)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                                 <div className="grid gap-1.5 flex-1">
                                     <Label>If URL contains</Label>
                                     <Input defaultValue="/pricing" />
@@ -318,7 +318,7 @@ export default function SabchatSettingsPage() {
                             </Button>
                         </div>
                         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                            <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+                            <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--st-radius)]">
                                 <div>
                                     <Label>First Response SLA</Label>
                                     <p className="text-xs text-[var(--st-text-secondary)]">Warn agents if no reply in...</p>
@@ -334,7 +334,7 @@ export default function SabchatSettingsPage() {
                                     </ZoruSelectContent>
                                 </Select>
                             </div>
-                            <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+                            <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--st-radius)]">
                                 <div>
                                     <Label>Resolution SLA</Label>
                                     <p className="text-xs text-[var(--st-text-secondary)]">Warn if chat open for...</p>
@@ -383,7 +383,7 @@ export default function SabchatSettingsPage() {
                                 <Save /> {savingSection === 'retention' ? 'Saving…' : 'Save'}
                             </Button>
                         </div>
-                        <div className="mt-5 flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                        <div className="mt-5 flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                             <div>
                                 <Label className="text-[13px]">Delete transcripts older than</Label>
                                 <p className="text-xs text-[var(--st-text-secondary)] mt-1">This action is irreversible.</p>
@@ -451,7 +451,7 @@ function ChannelsSection({
                     <p className="text-[11px] text-[var(--st-text-secondary)]">Used when a channel does not specify a sender.</p>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                         <div>
                             <Label htmlFor="channels-autoTranslate" className="text-[13px]">Auto-translate</Label>
                             <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">Translate inbound messages into your workspace language.</p>
@@ -509,7 +509,7 @@ function WorkingHoursSection({
             </div>
             
             {/* Advanced map mock UI */}
-            <div className="mt-6 p-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/10 border border-[var(--st-border)] dark:border-[var(--st-border)]/50 rounded-[var(--zoru-radius)] flex items-center gap-3">
+            <div className="mt-6 p-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/10 border border-[var(--st-border)] dark:border-[var(--st-border)]/50 rounded-[var(--st-radius)] flex items-center gap-3">
                 <MapPin className="h-8 w-8 text-[var(--st-text)] opacity-50" />
                 <div>
                     <h4 className="text-sm font-medium text-[var(--st-text)] dark:text-white">Global Timezone Map Active</h4>
@@ -521,7 +521,7 @@ function WorkingHoursSection({
                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">Working days</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
                     {DAYS.map((day) => (
-                        <label key={day} className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] text-[var(--st-text)] cursor-pointer hover:bg-[var(--st-bg-muted)] transition-colors">
+                        <label key={day} className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] text-[var(--st-text)] cursor-pointer hover:bg-[var(--st-bg-muted)] transition-colors">
                             <Checkbox checked={value.days.includes(day)} onCheckedChange={() => toggleDay(day)} />
                             {day}
                         </label>
@@ -551,7 +551,7 @@ function AutoresponderSection({
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
             </div>
-            <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 mb-4">
+            <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 mb-4">
                 <div>
                     <Label htmlFor="ar-enabled" className="text-[13px]">Enable autoresponder</Label>
                     <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">Send the message below when an agent is unavailable.</p>
@@ -595,7 +595,7 @@ function RoutingSection({
                     <Input id="rt-assignee" placeholder="unassigned" value={value.defaultAssignee} onChange={(e) => onChange({ ...value, defaultAssignee: e.target.value })} />
                     <p className="text-[11px] text-[var(--st-text-secondary)]">Use &quot;unassigned&quot; to keep new conversations in queue.</p>
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <div>
                         <Label htmlFor="rt-roundRobin" className="text-[13px]">Round-robin</Label>
                         <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">Distribute incoming chats equally.</p>
@@ -665,14 +665,14 @@ function NotificationsSection({
                 </Button>
             </div>
             <div className="mt-5 grid gap-3">
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <div>
                         <Label className="text-[13px]">Desktop Push Notifications</Label>
                         <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">Receive native OS notifications for new messages.</p>
                     </div>
                     <Button variant="outline" size="sm">Enable Push</Button>
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <div>
                         <Label className="text-[13px]">Widget Sound Alerts</Label>
                         <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">Play a sound &quot;ding&quot; when a new message arrives.</p>

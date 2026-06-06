@@ -203,7 +203,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
                 className="flex cursor-pointer flex-col p-0"
                 onClick={() => openReel(r)}
               >
-                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-t-[var(--zoru-radius-lg)] bg-[var(--st-bg-muted)]">
+                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-t-[var(--st-radius-lg)] bg-[var(--st-bg-muted)]">
                   {src ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={src} alt={r.caption ?? ''} className="h-full w-full object-cover" />
@@ -246,7 +246,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
 
           {activeReel ? (
             <div className="flex flex-col gap-4">
-              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                 {activeReel.thumbnail_url || activeReel.media_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -294,7 +294,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
                     {INSIGHT_LABELS.map((m) => (
                       <div
                         key={m.key}
-                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                       >
                         <p className="text-[11px] text-[var(--st-text-secondary)]">{m.label}</p>
                         <p className="mt-0.5 text-sm text-[var(--st-text)]">

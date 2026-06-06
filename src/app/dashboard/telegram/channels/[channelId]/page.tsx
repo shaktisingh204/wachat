@@ -155,7 +155,7 @@ function SegButton({
             type="button"
             onClick={onClick}
             className={cn(
-                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors',
+                'rounded-[var(--st-radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors',
                 active
                     ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
                     : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
@@ -659,7 +659,7 @@ export default function ChannelDetailPage() {
             ) : null}
 
             {/* Segmented tab buttons */}
-            <div className="inline-flex w-fit gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
+            <div className="inline-flex w-fit gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                 <SegButton active={tab === 'posts'} onClick={() => onTabChange('posts')}>
                     Posts
                 </SegButton>
@@ -829,7 +829,7 @@ export default function ChannelDetailPage() {
                         ).map(([key, label]) => (
                             <label
                                 key={key}
-                                className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-2"
+                                className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] p-2"
                             >
                                 <Checkbox
                                     checked={promoteState[key]}
@@ -1319,7 +1319,7 @@ function ComposerDialog({
                     </div>
 
                     {/* Inline keyboard builder */}
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2">
                         <div className="mb-1.5 flex items-center justify-between">
                             <Label className="text-xs text-[var(--st-text-secondary)]">
                                 Inline buttons
@@ -1418,7 +1418,7 @@ function ComposerDialog({
                             onChange={(e) =>
                                 onChange({ ...state, scheduleAt: e.target.value })
                             }
-                            className="block w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm"
+                            className="block w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm"
                         />
                         <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Leave empty to send now. Scheduled posts are queued for a

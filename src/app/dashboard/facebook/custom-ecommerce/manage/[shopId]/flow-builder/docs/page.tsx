@@ -304,7 +304,7 @@ export default function FlowBuilderDocsPage() {
                 </ul>
               </div>
               {doc.notes ? (
-                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
                   <p>
                     <strong>Note:</strong> {doc.notes}
                   </p>

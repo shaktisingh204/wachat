@@ -340,10 +340,10 @@ export default function FacebookRoadmapPage() {
           return (
             <div
               key={status}
-              className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
+              className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
                   <Icon />
                 </span>
                 <Badge variant={STATUS_BADGE[status]}>
@@ -398,7 +398,7 @@ export default function FacebookRoadmapPage() {
                   Array.from({ length: 3 }).map((_, i) => (
                     <Card key={i} className="flex flex-col gap-3 p-5">
                       <div className="flex items-start justify-between gap-2">
-                        <Skeleton className="h-9 w-9 rounded-[var(--zoru-radius-sm)]" />
+                        <Skeleton className="h-9 w-9 rounded-[var(--st-radius-sm)]" />
                         <Skeleton className="h-5 w-16 rounded-full" />
                       </div>
                       <div className="flex flex-col gap-1">
@@ -419,7 +419,7 @@ export default function FacebookRoadmapPage() {
                       >
                         <div className="flex flex-col gap-3">
                           <div className="flex items-start justify-between gap-2">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
                               <ItemIcon />
                             </span>
                             <Badge variant={STATUS_BADGE[item.status]}>

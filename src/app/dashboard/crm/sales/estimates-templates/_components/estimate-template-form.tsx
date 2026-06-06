@@ -268,7 +268,7 @@ export function EstimateTemplateForm({
                             Add line item
                         </Button>
                     </div>
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
                             <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>

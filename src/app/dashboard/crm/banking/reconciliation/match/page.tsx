@@ -347,7 +347,7 @@ export default function BankReconciliationMatchPage() {
                 </div>
 
                 {csvColumns.length > 0 && (
-                    <div className="mt-6 border border-[var(--st-border)] p-5 rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)]">
+                    <div className="mt-6 border border-[var(--st-border)] p-5 rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)]">
                         <h4 className="mb-4 text-sm font-semibold text-[var(--st-text)]">Map CSV Columns</h4>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
@@ -497,7 +497,7 @@ const TransactionTable = ({
 }) => (
     <Card>
         <h3 className="mb-4 text-[15px] font-semibold text-[var(--st-text)]">{title}</h3>
-        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
             <Table>
                 <TableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10">
                     <TableRow className="border-[var(--st-border)] hover:bg-transparent">

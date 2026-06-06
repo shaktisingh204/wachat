@@ -982,7 +982,7 @@ export function LeadListClient({
 
       {/* Sticky Mass Operations Bar */}
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--st-shadow-sm)]">
           <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
             <Badge variant="info">{selected.size} selected</Badge>
             <button

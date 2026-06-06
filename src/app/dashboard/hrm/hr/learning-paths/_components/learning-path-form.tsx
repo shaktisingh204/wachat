@@ -293,7 +293,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
 
                     {/* Chips list */}
                     {selectedTrainings.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No trainings selected yet.
                         </div>
                     ) : (

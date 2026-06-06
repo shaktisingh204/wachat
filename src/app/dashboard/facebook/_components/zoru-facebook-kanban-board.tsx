@@ -116,7 +116,7 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
   }
 
   return (
-    <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+    <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <Input
         autoFocus
         placeholder="Enter list title..."
@@ -191,7 +191,7 @@ function ZoruFacebookKanbanCard({
                   <button
                     type="button"
                     aria-label="Card actions"
-                    className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none"
+                    className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none"
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </button>

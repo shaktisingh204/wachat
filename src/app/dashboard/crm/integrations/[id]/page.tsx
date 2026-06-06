@@ -173,7 +173,7 @@ export default async function IntegrationDetailPage({
               No non-secret configuration set.
             </p>
           ) : (
-            <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
+            <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
               {JSON.stringify(integration.config, null, 2)}
             </pre>
           )}

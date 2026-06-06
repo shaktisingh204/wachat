@@ -31,7 +31,7 @@ function StepList({ steps }: { steps: Step[] }) {
       {steps.map((s, i) => (
         <li
           key={i}
-          className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+          className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
         >
           <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] font-medium text-[var(--st-text)]">
             {i + 1}

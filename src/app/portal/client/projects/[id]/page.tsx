@@ -117,7 +117,7 @@ async function ClientProjectDetailPageContent({
             </Card>
 
             {/* Button-group tabs (NOT ZoruTabs) */}
-            <div className="flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
+            <div className="flex flex-wrap gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                 {TABS.map((t) => {
                     const active = t.key === tab;
                     return (
@@ -125,7 +125,7 @@ async function ClientProjectDetailPageContent({
                             key={t.key}
                             href={`/portal/client/projects/${project._id}?tab=${t.key}`}
                             className={cn(
-                                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                                'rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 active
                                     ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                     : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

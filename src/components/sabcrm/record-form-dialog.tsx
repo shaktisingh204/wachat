@@ -310,7 +310,7 @@ export function RecordFormDialog({
                 aria-live="assertive"
                 aria-atomic="true"
                 className={cn(
-                  'flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-danger)]/40',
+                  'flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-danger)]/40',
                   'bg-[var(--st-danger)]/5 p-3 text-sm text-[var(--st-danger)]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-danger)]/40',
                 )}

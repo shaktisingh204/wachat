@@ -209,7 +209,7 @@ function BalanceCell({
     return (
         <div
             className={[
-                'rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4',
+                'rounded-[var(--st-radius)] border border-[var(--st-border)] p-4',
                 accent ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-bg-secondary)]',
             ].join(' ')}
         >

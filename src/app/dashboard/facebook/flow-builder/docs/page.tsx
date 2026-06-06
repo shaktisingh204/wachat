@@ -234,7 +234,7 @@ export default function FlowBuilderDocsPage() {
       {/* Variables intro */}
       <Card className="mt-6 p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             <BookOpen />
           </span>
           <div className="min-w-0">
@@ -298,7 +298,7 @@ export default function FlowBuilderDocsPage() {
             <ZoruAccordionItem value={`item-${index}`} key={doc.title}>
               <ZoruAccordionTrigger className="text-[14px]">
                 <span className="flex items-center gap-2">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                     {index + 1}
                   </span>
                   {doc.title}
@@ -342,7 +342,7 @@ export default function FlowBuilderDocsPage() {
                   </div>
 
                   {doc.notes && (
-                    <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5 text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5 text-[12.5px] text-[var(--st-text-secondary)]">
                       <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)]" />
                       <span>
                         <span className="text-[var(--st-text)]">Note:</span> {doc.notes}

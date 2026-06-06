@@ -354,7 +354,7 @@ function Step1Basics({
                 {fullPackName && (
                     <div
                         className={cn(
-                            'rounded-[var(--zoru-radius)] border px-3 py-2 text-[12px]',
+                            'rounded-[var(--st-radius)] border px-3 py-2 text-[12px]',
                             validName
                                 ? 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
                                 : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]',
@@ -444,10 +444,10 @@ function Step2Stickers({
                 {stickers.map((s, idx) => (
                     <li
                         key={`${s.sabFileId}-${idx}`}
-                        className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                        className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)]">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)]">
                                 {s.sabFileMime?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -524,7 +524,7 @@ function MaskFields({
     onChange: (patch: Partial<DraftSticker>) => void;
 }) {
     return (
-        <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-4">
+        <div className="grid gap-2 rounded-[var(--st-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-4">
             <div className="flex flex-col gap-1">
                 <Label className="text-[11px]">Anchor</Label>
                 <Select value={point} onValueChange={(v) => onChange({ maskPoint: v })}>
@@ -611,7 +611,7 @@ function Step3Review({
                 {stickers.map((s, i) => (
                     <div
                         key={i}
-                        className="flex aspect-square items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]"
+                        className="flex aspect-square items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]"
                     >
                         {s.sabFileMime?.startsWith('image/') ? (
                             // eslint-disable-next-line @next/next/no-img-element

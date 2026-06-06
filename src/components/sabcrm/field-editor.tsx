@@ -188,7 +188,7 @@ function OptionListEditor({
             aria-label={`Remove option ${idx + 1}`}
             disabled={disabled}
             onClick={() => removeOption(idx)}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] disabled:pointer-events-none disabled:opacity-40"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] disabled:pointer-events-none disabled:opacity-40"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -648,7 +648,7 @@ export function FieldEditorDialog({
                 {isEditing ? (
                   <div
                     id="fe-key"
-                    className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 font-mono text-sm text-[var(--st-text-secondary)]"
+                    className="flex h-9 w-full items-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 font-mono text-sm text-[var(--st-text-secondary)]"
                     aria-readonly="true"
                   >
                     {field!.key}
@@ -689,7 +689,7 @@ export function FieldEditorDialog({
               {isEditing ? (
                 <div
                   id="fe-type"
-                  className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-sm text-[var(--st-text-secondary)]"
+                  className="flex h-9 w-full items-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-sm text-[var(--st-text-secondary)]"
                   aria-readonly="true"
                 >
                   {FIELD_TYPES.find((t) => t.value === field!.type)?.label ??

@@ -252,7 +252,7 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
             <div>
               <Label>Channel</Label>
-              <select name="reminderChannel_0" defaultValue={initial?.reminders?.[0]?.channel || ''} className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)]">
+              <select name="reminderChannel_0" defaultValue={initial?.reminders?.[0]?.channel || ''} className="flex h-9 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)]">
                 <option value="">None</option>
                 <option value="email">Email</option>
                 <option value="sms">SMS</option>

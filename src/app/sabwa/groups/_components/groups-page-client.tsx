@@ -225,7 +225,7 @@ function NewGroupDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="new-group-participants">Participants</Label>
-            <ZoruCommand className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+            <ZoruCommand className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <ZoruCommandInput
                 placeholder="Type a phone number (E.164) and press Enter"
                 value={phoneInput}
@@ -341,7 +341,7 @@ const GroupCard = React.memo(function GroupCard({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
       >
-        <Card className="cursor-pointer transition hover:shadow-[var(--zoru-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]">
+        <Card className="cursor-pointer transition hover:shadow-[var(--st-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]">
           <ZoruCardContent className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-12 w-12 shrink-0">
@@ -675,7 +675,7 @@ export function GroupsPageClient() {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
+          <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
             <Users className="h-6 w-6" />
           </div>
           <div>

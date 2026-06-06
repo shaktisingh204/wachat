@@ -241,7 +241,7 @@ export default function ProjectsPage() {
         onClick={onClick}
         className={[
           'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
-          active ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : '',
+          active ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]' : '',
         ].join(' ')}
       >
         <StatCard label={label} value={value} icon={icon} />

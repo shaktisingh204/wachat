@@ -73,7 +73,7 @@ async function ClientTicketDetailPageContent({
                             <div
                                 key={r._id}
                                 className={cn(
-                                    'rounded-[var(--zoru-radius-sm)] border p-3',
+                                    'rounded-[var(--st-radius-sm)] border p-3',
                                     r.isStaff
                                         ? 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]'
                                         : 'border-[var(--st-text)]/20 bg-[var(--st-bg-muted)]',

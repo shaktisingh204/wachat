@@ -50,7 +50,7 @@ export function LeaveTable({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
         {filtersActive
           ? 'No leave requests match the current filters.'
           : 'No leave requests yet — submit one with "Apply leave" above.'}
@@ -59,7 +59,7 @@ export function LeaveTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">

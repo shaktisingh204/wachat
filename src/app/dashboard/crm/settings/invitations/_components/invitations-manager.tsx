@@ -270,7 +270,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Total"
             value={kpis.total.toLocaleString()}
             icon={<Users className="h-4 w-4" />}
-            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('pending')}>
@@ -278,7 +278,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Pending"
             value={kpis.pending.toLocaleString()}
             icon={<Clock className="h-4 w-4" />}
-            className={cn(statusFilter === 'pending' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'pending' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('accepted')}>
@@ -286,7 +286,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Accepted"
             value={kpis.accepted.toLocaleString()}
             icon={<CheckCircle2 className="h-4 w-4" />}
-            className={cn(statusFilter === 'accepted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'accepted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
         <StatCard

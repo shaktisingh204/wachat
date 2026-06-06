@@ -267,9 +267,9 @@ const ConversationListPane = React.memo(function ConversationListPane({
                 type="button"
                 onClick={() => onSelect(convo)}
                 className={cn(
-                  "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--zoru-radius)] p-3 text-left transition-colors",
+                  "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors",
                   selected
-                    ? "bg-[var(--st-bg-muted)] shadow-[var(--zoru-shadow-sm)]"
+                    ? "bg-[var(--st-bg-muted)] shadow-[var(--st-shadow-sm)]"
                     : "hover:bg-[var(--st-bg-secondary)]",
                 )}
               >
@@ -436,7 +436,7 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
       )}
       <div
         className={cn(
-          "flex max-w-[70%] flex-col rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-[var(--zoru-shadow-sm)]",
+          "flex max-w-[70%] flex-col rounded-[var(--st-radius)] px-3 py-2 text-sm shadow-[var(--st-shadow-sm)]",
           isOutgoing
             ? "rounded-br-none bg-[var(--st-text)] text-[var(--st-text-inverted)]"
             : "rounded-bl-none bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
@@ -617,7 +617,7 @@ function ContactInfoPanelBody({
         )}
       </div>
 
-      <div className="space-y-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-sm">
+      <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-[var(--st-text-secondary)]">Last activity</span>
           <span className="text-[var(--st-text)]">
@@ -882,7 +882,7 @@ export function ZoruFacebookChatClient() {
       </Sheet>
 
       {/* Three-pane shell */}
-      <div className="flex h-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+      <div className="flex h-full overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
         {/* List */}
         <div
           className={cn(

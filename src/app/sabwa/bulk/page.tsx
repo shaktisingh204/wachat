@@ -264,7 +264,7 @@ interface StepperProps {
 function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
   return (
     <ol
-      className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-4"
+      className="grid grid-cols-1 gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-4"
       aria-label="Wizard steps"
     >
       {STEPS.map((label, idx) => {
@@ -278,7 +278,7 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
               onClick={() => isReachable && onJump(idx)}
               disabled={!isReachable}
               className={cn(
-                'flex flex-1 items-center gap-2 rounded-[var(--zoru-radius)] px-3 py-2 text-left text-[12.5px] transition',
+                'flex flex-1 items-center gap-2 rounded-[var(--st-radius)] px-3 py-2 text-left text-[12.5px] transition',
                 isActive && 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                 !isActive && isComplete && 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
                 !isActive && !isComplete && 'text-[var(--st-text-secondary)]',
@@ -369,7 +369,7 @@ function Step1Audience({
         <div
           role="group"
           aria-label="Audience source"
-          className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+          className="inline-flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
         >
           {AUDIENCE_OPTIONS.map((opt) => (
             <Button
@@ -377,7 +377,7 @@ function Step1Audience({
               type="button"
               variant={state.source === opt.value ? 'default' : 'ghost'}
               size="sm"
-              className="rounded-[calc(var(--zoru-radius)-2px)]"
+              className="rounded-[calc(var(--st-radius)-2px)]"
               onClick={() => onChange({ ...state, source: opt.value })}
             >
               {opt.label}
@@ -506,7 +506,7 @@ function Step1Audience({
                   </div>
                 </div>
 
-                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
                   <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
                     Preview — first 5 rows
                   </div>
@@ -729,7 +729,7 @@ function Step2Compose({
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
             <Label className="text-xs">Live preview</Label>
-            <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
+            <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
               {preview || (
                 <span className="text-[var(--st-text-secondary)]">
                   Preview shows here as you type.
@@ -750,7 +750,7 @@ function Step2Compose({
                 {state.media ? 'Replace' : 'Attach media'}
               </SabFilePickerButton>
               {state.media && (
-                <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
+                <div className="flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                   <span className="max-w-[160px] truncate">
                     {state.media.name}
                   </span>
@@ -813,7 +813,7 @@ function Step2Compose({
                 placeholder="Variant B body…"
               />
               {previewVariant && (
-                <div className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
+                <div className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
                   {previewVariant}
                 </div>
               )}
@@ -877,19 +877,19 @@ function Step3Review({
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             <p className="text-xs text-[var(--st-text-secondary)]">Recipients</p>
             <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
               {recipientCount.toLocaleString()}
             </p>
           </div>
-          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             <p className="text-xs text-[var(--st-text-secondary)]">Estimated duration</p>
             <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
               {fmtDuration(estimatedSec)}
             </p>
           </div>
-          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             <p className="text-xs text-[var(--st-text-secondary)]">Ban-risk score</p>
             <p
               className={cn(
@@ -1024,7 +1024,7 @@ function Step3Review({
           </div>
         </div>
 
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+        <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <Checkbox
             id="first-contact"
             checked={settings.firstContactOnly}
@@ -1043,7 +1043,7 @@ function Step3Review({
           </div>
         </div>
 
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 p-3">
+        <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 p-3">
           <Checkbox
             id="accept-tos"
             checked={settings.acceptedToS}
@@ -1199,7 +1199,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
           {(['pending', 'sent', 'failed', 'cancelled'] as const).map((k) => (
             <div
               key={k}
-              className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2 text-xs"
+              className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-xs"
             >
               <p className="text-[var(--st-text-secondary)] capitalize">{k}</p>
               <p className="text-base font-semibold tabular-nums text-[var(--st-text)]">
@@ -1230,7 +1230,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
               </ZoruSelectContent>
             </Select>
           </div>
-          <div className="max-h-64 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+          <div className="max-h-64 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -1645,7 +1645,7 @@ export default function BulkSenderPage() {
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <Send className="h-5 w-5" />
             </div>
             <div>

@@ -154,19 +154,19 @@ export function ReportsClient() {
               </ZoruCardHeader>
               <ZoruCardContent>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Revenue</p>
                     <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {formatRevenue(revenue.totals.revenue, revenue.totals.currency)}
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Conversions</p>
                     <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {revenue.totals.conversions.toLocaleString()}
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Sent</p>
                     <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {revenue.totals.sent.toLocaleString()}

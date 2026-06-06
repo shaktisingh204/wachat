@@ -108,7 +108,7 @@ export default async function StoreOverviewPage() {
                     return (
                         <Card key={link.href} className="p-5">
                             <div className="flex items-start gap-3">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                                     <Icon
                                         className="h-4.5 w-4.5 text-[var(--st-text)]"
                                         strokeWidth={1.75}

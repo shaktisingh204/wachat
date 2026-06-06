@@ -398,7 +398,7 @@ function DetailField({ label, children }: { label: string; children: React.React
 
 function Stat({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 px-4 py-3 flex items-start justify-between shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 px-4 py-3 flex items-start justify-between shadow-[var(--st-shadow-sm)]">
       <div className="space-y-1">
         <dt className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">{label}</dt>
         <dd className="font-mono font-bold text-[15px] tabular-nums text-[var(--st-text)]">{value}</dd>

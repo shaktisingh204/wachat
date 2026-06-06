@@ -270,7 +270,7 @@ const TransactionTable = ({
   isBankStatement?: boolean;
   onFxAdjust?: (id: string, amount: number, originalCurrency: string) => void;
 }) => (
-  <Card className="border border-[var(--st-border)] overflow-hidden p-0 shadow-[var(--zoru-shadow-sm)]">
+  <Card className="border border-[var(--st-border)] overflow-hidden p-0 shadow-[var(--st-shadow-sm)]">
     <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
       <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-[var(--st-text)]">{title}</h3>
       <Badge variant="secondary">
@@ -777,7 +777,7 @@ export function ReconciliationListClient({
       <RecordsTable records={records} onExport={handleExportRecords} />
 
       {/* Interactive matcher */}
-      <Card className="border border-[var(--st-border)] p-6 bg-[var(--st-bg)] shadow-[var(--zoru-shadow-sm)]">
+      <Card className="border border-[var(--st-border)] p-6 bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)]">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-[var(--st-border)] pb-3">
           <div>
             <h2 className="text-[15px] font-bold text-[var(--st-text)] flex items-center gap-2">
@@ -792,7 +792,7 @@ export function ReconciliationListClient({
               size="sm"
               onClick={handleAIAutoMatch}
               disabled={!reconciliationData || isLoading}
-              className="border-[var(--st-border)]/30 text-[var(--st-status-ok)] bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 hover:border-[var(--st-border)]/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
+              className="border-[var(--st-border)]/30 text-[var(--st-status-ok)] bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 hover:border-[var(--st-border)]/50 flex items-center gap-1.5 shadow-[var(--st-shadow-sm)]"
             >
               <Sparkles className="h-3.5 w-3.5" />
               AI Auto-Matcher

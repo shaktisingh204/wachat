@@ -155,11 +155,11 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
             <Card className="p-6">
                 <div className="mb-4 text-[15px] font-medium text-[var(--st-text)]">Successors / candidates</div>
                 {successors.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No successors listed.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>

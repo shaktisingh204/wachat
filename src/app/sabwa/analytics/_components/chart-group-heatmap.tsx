@@ -80,7 +80,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
                   key={hour}
                   title={`${day} ${hour}:00 — ${value} msgs`}
                   className={cn(
-                    'h-5 rounded-[var(--zoru-radius-sm)] transition-colors',
+                    'h-5 rounded-[var(--st-radius-sm)] transition-colors',
                   )}
                   style={intensityStyle(value, max)}
                 />
@@ -94,7 +94,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
         {legendStops.map((stop) => (
           <span
             key={stop}
-            className="h-3 w-3 rounded-[var(--zoru-radius-sm)]"
+            className="h-3 w-3 rounded-[var(--st-radius-sm)]"
             style={{ backgroundColor: `hsla(var(--zoru-ink) / ${stop})` }}
           />
         ))}

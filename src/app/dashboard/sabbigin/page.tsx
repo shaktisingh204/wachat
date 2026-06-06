@@ -193,7 +193,7 @@ function KpiTile({
                     <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         {label}
                     </p>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </span>
                 </div>

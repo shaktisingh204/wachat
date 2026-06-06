@@ -225,7 +225,7 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
                             </p>
                             {Icon ? (
                                 <span
-                                    className={`flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] ${reportKpiToneClass[tone]}`}
+                                    className={`flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] ${reportKpiToneClass[tone]}`}
                                 >
                                     <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 </span>

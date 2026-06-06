@@ -9,9 +9,9 @@ export default function RoadmapLoading() {
         <Skeleton className="ml-auto h-8 w-20" />
       </div>
       <div className="flex flex-1 gap-4 p-6 overflow-hidden">
-        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--zoru-radius-lg)]" />
-        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--zoru-radius-lg)]" />
-        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--zoru-radius-lg)]" />
+        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--st-radius-lg)]" />
+        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--st-radius-lg)]" />
+        <Skeleton className="h-full w-72 shrink-0 rounded-[var(--st-radius-lg)]" />
       </div>
     </div>
   );

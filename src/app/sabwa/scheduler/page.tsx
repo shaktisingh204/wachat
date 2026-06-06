@@ -316,7 +316,7 @@ export default function SchedulerCalendarPage() {
         {/* ─── Toolbar ─────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <CalendarClock className="h-5 w-5" />
             </div>
             <div>
@@ -334,7 +334,7 @@ export default function SchedulerCalendarPage() {
             <div
               role="group"
               aria-label="Calendar view"
-              className="inline-flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
+              className="inline-flex rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
             >
               {(["month", "week", "day"] as const).map((m) => (
                 <Button
@@ -401,7 +401,7 @@ export default function SchedulerCalendarPage() {
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton
                 key={`scheduler-skeleton-${i}`}
-                className="h-[64px] rounded-[var(--zoru-radius-lg)]"
+                className="h-[64px] rounded-[var(--st-radius-lg)]"
               />
             ))}
           </div>
@@ -508,7 +508,7 @@ function MonthGrid({
   }, [gridStart]);
 
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
       <div className="grid grid-cols-7 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {DAY_LABELS.map((d) => (
           <div key={d} className="px-2 py-1.5">
@@ -618,7 +618,7 @@ function WeekGrid({
 }: WeekGridProps) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
       <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         <div />
         {days.map((d) => (
@@ -707,7 +707,7 @@ function DayGrid({
   onSlotClick,
 }: DayGridProps) {
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
       <div className="max-h-[calc(100vh-260px)] overflow-y-auto">
         <div className="grid grid-cols-[80px_1fr]">
           {HOURS.map((h) => {
@@ -783,7 +783,7 @@ function EventChip({
         }
       }}
       className={cn(
-        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-1 text-[11px] leading-tight text-[var(--st-text)] active:cursor-grabbing hover:bg-[var(--st-bg-muted)] transition-colors flex flex-col",
+        "cursor-grab rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-1 text-[11px] leading-tight text-[var(--st-text)] active:cursor-grabbing hover:bg-[var(--st-bg-muted)] transition-colors flex flex-col",
         expanded && "py-1.5",
       )}
       title={`${time}${tzStr} — ${event.body} (${meta.label})`}

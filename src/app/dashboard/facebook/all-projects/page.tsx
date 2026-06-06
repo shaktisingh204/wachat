@@ -183,7 +183,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
                 setActive();
                 router.push(link.href);
               }}
-              className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-[11px] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)]"
+              className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-[11px] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)]"
             >
               {link.label}
             </button>
@@ -229,7 +229,7 @@ function ConnectEmptyState({
   return (
     <Card className="px-6 py-12 md:px-12">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+        <div className="flex h-16 w-16 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           <FacebookGlyph className="h-8 w-8" />
         </div>
 
@@ -270,9 +270,9 @@ function ConnectEmptyState({
             {FEATURES.map((f) => (
               <div
                 key={f.label}
-                className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left"
+                className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
                   <f.icon />
                 </span>
                 <p className="text-[12.5px] text-[var(--st-text)]">{f.label}</p>
@@ -368,14 +368,14 @@ export default function AllFacebookPagesPage() {
       {/* ── stats row ── */}
       {projects.length > 0 ? (
         <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[12px] text-[var(--st-text)]">
+          <span className="inline-flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[12px] text-[var(--st-text)]">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]" />
             {projects.length} page{projects.length !== 1 ? "s" : ""} connected
           </span>
           {FEATURES.slice(0, 3).map((f) => (
             <span
               key={f.label}
-              className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[11.5px] text-[var(--st-text-secondary)]"
+              className="inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[11.5px] text-[var(--st-text-secondary)]"
             >
               <f.icon className="h-3 w-3" /> {f.label}
             </span>
@@ -407,10 +407,10 @@ export default function AllFacebookPagesPage() {
               <Link
                 href="/api/auth/meta-suite/login"
                 className={cn(
-                  "group flex flex-col items-center justify-center gap-3 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]",
+                  "group flex flex-col items-center justify-center gap-3 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]",
                 )}
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                   <FacebookGlyph className="h-5 w-5" />
                 </span>
                 <div>
@@ -434,9 +434,9 @@ export default function AllFacebookPagesPage() {
               {FEATURES.map((f) => (
                 <div
                   key={f.label}
-                  className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                  className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
                     <f.icon />
                   </span>
                   <p className="text-[12px] text-[var(--st-text)]">{f.label}</p>

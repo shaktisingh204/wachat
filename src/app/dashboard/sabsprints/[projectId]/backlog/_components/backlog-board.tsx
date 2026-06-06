@@ -208,7 +208,7 @@ export function BacklogBoard({
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={() => handleDrop(overallIdx)}
                       aria-grabbed={isDragging}
-                      className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 hover:border-[var(--st-border-strong)] cursor-grab"
+                      className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 hover:border-[var(--st-border-strong)] cursor-grab"
                     >
                       <span
                         aria-hidden

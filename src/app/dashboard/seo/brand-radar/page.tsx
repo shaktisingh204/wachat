@@ -188,7 +188,7 @@ export default function BrandRadarPage() {
             )}
 
             {mentions.length === 0 && !isLoading && (
-                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
                     Enter a brand name to start scanning.
                 </div>
             )}

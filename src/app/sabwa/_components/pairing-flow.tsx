@@ -117,7 +117,7 @@ export function PairingFlow({
         <div className="flex flex-col items-center gap-3">
           <div
             aria-label="WhatsApp pairing QR code"
-            className="relative max-w-full rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
+            className="relative max-w-full rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-white p-4 shadow-[var(--st-shadow-sm)]"
             style={{ width: 296, height: 296, maxWidth: '100%' }}
           >
             {qr ? (
@@ -134,7 +134,7 @@ export function PairingFlow({
             )}
             <div
               aria-hidden
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-1 shadow-[var(--zoru-shadow-sm)]"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-1 shadow-[var(--st-shadow-sm)]"
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                 <Smartphone className="h-3.5 w-3.5" />
@@ -159,7 +159,7 @@ export function PairingFlow({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-6 py-5 text-center">
+          <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-6 py-5 text-center">
             <p className="text-[10.5px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
               Your pairing code
             </p>

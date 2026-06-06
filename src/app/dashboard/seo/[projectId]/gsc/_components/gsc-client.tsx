@@ -115,7 +115,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
 
     if (!integration) {
         return (
-            <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-12">
+            <div className="flex flex-col items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-12">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--st-text-secondary)]/10">
                     <LineChart className="h-8 w-8 text-[var(--st-text-secondary)]" />
                 </div>
@@ -242,7 +242,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                                 <YAxis yAxisId="right" orientation="right" stroke="#16a34a" fontSize={12} tickLine={false} axisLine={false} dx={10} />
                                 <Tooltip 
                                     labelFormatter={(label) => fmtDate(label)}
-                                    contentStyle={{ borderRadius: 'var(--zoru-radius)', border: '1px solid var(--zoru-line)', backgroundColor: 'var(--zoru-surface)' }}
+                                    contentStyle={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--zoru-line)', backgroundColor: 'var(--zoru-surface)' }}
                                 />
                                 <Bar yAxisId="left" dataKey="clicks" fill="#2563eb" name="Clicks" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                 <Bar

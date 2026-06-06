@@ -269,7 +269,7 @@ export default function FacebookPostsPage() {
           const type = detectType(post);
           return (
             <div className="flex min-w-0 items-center gap-3">
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
                 {post.full_picture ? (
                   <Image
                     src={post.full_picture}

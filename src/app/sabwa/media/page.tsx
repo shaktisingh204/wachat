@@ -314,7 +314,7 @@ export default function SabWaMediaPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
+          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <TabIcon className="h-6 w-6" />
         </div>
@@ -427,7 +427,7 @@ export default function SabWaMediaPage() {
       <div
         role="group"
         aria-label="Media type"
-        className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+        className="inline-flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
       >
         {(Object.keys(MEDIA_TYPE_MAP) as MediaTab[]).map((t) => {
           const Icon = tabIcon(t);
@@ -438,7 +438,7 @@ export default function SabWaMediaPage() {
               type="button"
               variant={active ? "default" : "ghost"}
               size="sm"
-              className="gap-1.5 rounded-[calc(var(--zoru-radius)-2px)]"
+              className="gap-1.5 rounded-[calc(var(--st-radius)-2px)]"
               aria-pressed={active}
               onClick={() => setTab(t)}
             >
@@ -451,7 +451,7 @@ export default function SabWaMediaPage() {
 
       {/* Bulk action bar */}
       {bulkMode && selected.size > 0 && (
-        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 px-3 py-2 shadow-[var(--zoru-shadow-sm)] backdrop-blur">
+        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 px-3 py-2 shadow-[var(--st-shadow-sm)] backdrop-blur">
           <Badge variant="ghost">{selected.size} selected</Badge>
           <Button
             type="button"
@@ -490,7 +490,7 @@ export default function SabWaMediaPage() {
           >
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="mb-3 break-inside-avoid">
-                <Skeleton className="h-40 w-full rounded-[var(--zoru-radius)]" />
+                <Skeleton className="h-40 w-full rounded-[var(--st-radius)]" />
               </div>
             ))}
           </div>
@@ -540,7 +540,7 @@ export default function SabWaMediaPage() {
                     else setLightboxIndex(index);
                   }}
                   className={cn(
-                    "mb-3 block w-full break-inside-avoid overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] text-left transition hover:shadow-[var(--zoru-shadow-md)]",
+                    "mb-3 block w-full break-inside-avoid overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] text-left transition hover:shadow-[var(--st-shadow-md)]",
                   )}
                   aria-label={`Open ${fileNameFromMessage(it.message)}`}
                 >
@@ -613,7 +613,7 @@ export default function SabWaMediaPage() {
 
           {lightboxItem && (
             <div className="space-y-3">
-              <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+              <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                 {(lightboxItem.message.type === "image" ||
                   lightboxItem.message.type === "sticker") &&
                 lightboxItem.message.mediaUrl ? (

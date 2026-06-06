@@ -183,7 +183,7 @@ export default function NewCouponPage() {
               id="validFrom"
               name="validFrom"
               type="date"
-              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-full max-w-xs rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -194,7 +194,7 @@ export default function NewCouponPage() {
               id="validTo"
               name="validTo"
               type="date"
-              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-full max-w-xs rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 

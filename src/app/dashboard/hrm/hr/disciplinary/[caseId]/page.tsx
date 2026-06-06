@@ -265,7 +265,7 @@ export default async function DisciplinaryCaseDetailPage({
                     </span>
                 </div>
                 {hearingsList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No hearings scheduled.
                     </div>
                 ) : (
@@ -273,7 +273,7 @@ export default async function DisciplinaryCaseDetailPage({
                         {hearingsList.map((h, i) => (
                             <li
                                 key={i}
-                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                             >
                                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                                     <div className="text-[13px] font-medium text-[var(--st-text)]">
@@ -314,7 +314,7 @@ export default async function DisciplinaryCaseDetailPage({
                     </span>
                 </div>
                 {evidenceList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No evidence attached.
                     </div>
                 ) : (
@@ -332,7 +332,7 @@ export default async function DisciplinaryCaseDetailPage({
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1 text-[12px] text-[var(--st-text)] hover:underline"
+                                    className="inline-flex items-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1 text-[12px] text-[var(--st-text)] hover:underline"
                                 >
                                     {label}
                                 </a>

@@ -298,7 +298,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-center text-[12px] text-[var(--st-text-secondary)]">
+        <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-center text-[12px] text-[var(--st-text-secondary)]">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -306,7 +306,7 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;

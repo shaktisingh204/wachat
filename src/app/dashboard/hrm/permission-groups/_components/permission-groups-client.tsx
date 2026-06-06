@@ -432,7 +432,7 @@ export default function PermissionGroupsClient({
       <Card className="p-0">
         <div 
           ref={parentRef}
-          className="overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] max-h-[600px]"
+          className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] max-h-[600px]"
         >
           <Table className="relative">
             <ZoruTableHeader>

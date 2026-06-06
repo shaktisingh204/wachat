@@ -22,7 +22,7 @@ export function LeaveViewSwitcher({
   onChange,
 }: LeaveViewSwitcherProps): React.JSX.Element {
   return (
-    <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
+    <div className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
       <Button
         type="button"
         size="sm"

@@ -449,7 +449,7 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <MessageSquareDashed className="h-5 w-5" />
           </div>
           <div>
@@ -643,7 +643,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2">
+          <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2">
             <Switch
               checked={isNewContact}
               onCheckedChange={setIsNewContact}
@@ -685,7 +685,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
         </Button>
 
         {results && (
-          <div className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+          <div className="space-y-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             {results.matches.length === 0 ? (
               <p className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                 <MailWarning className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -708,7 +708,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
                   {results.firstMatch?.actions.map((a, idx) => (
                     <li
                       key={idx}
-                      className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-[var(--st-text)]"
+                      className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-[var(--st-text)]"
                     >
                       {summariseActions([a])}
                     </li>
@@ -855,7 +855,7 @@ function RuleEditorDialog({
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {/* Triggers column */}
-            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
+            <section className="space-y-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Triggers (AND)
@@ -883,7 +883,7 @@ function RuleEditorDialog({
             </section>
 
             {/* Actions column */}
-            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
+            <section className="space-y-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Actions
@@ -942,7 +942,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
     trigger.kind === 'regex' ||
     trigger.kind === 'contact_label';
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
+    <div className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
       <div className="flex items-center gap-2">
         <Select
           value={trigger.kind}
@@ -1024,7 +1024,7 @@ interface ActionEditorProps {
 
 function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
+    <div className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
       <div className="flex items-center gap-2">
         <Select
           value={action.kind}

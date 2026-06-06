@@ -314,7 +314,7 @@ function UploadStep({ onParsed }: UploadStepProps): React.ReactElement {
     <div className="flex flex-col items-center gap-6 py-4">
       <div
         className={cn(
-          'flex w-full flex-col items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-8 text-center',
+          'flex w-full flex-col items-center gap-4 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-8 text-center',
         )}
       >
         <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)]">

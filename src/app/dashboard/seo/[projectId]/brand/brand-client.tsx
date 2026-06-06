@@ -107,7 +107,7 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
           ) : (
             <div className="space-y-4">
               {mentions?.map((m: { id: string; title: string; source: string; unlinked: boolean; date: string; sentiment: string; url?: string; }) => (
-                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4 gap-4">
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h4 className="text-[var(--st-text)] font-medium">{m.title}</h4>

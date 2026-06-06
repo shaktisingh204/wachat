@@ -526,7 +526,7 @@ export function ViewTaggedMediaDialog({
                   href={item.permalink || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]"
+                  className="group relative block aspect-square overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)]"
                 >
                   <Image
                     src={
@@ -548,7 +548,7 @@ export function ViewTaggedMediaDialog({
               ))}
             </div>
           ) : (
-            <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] py-16 text-center text-[var(--st-text-secondary)]">
+            <div className="rounded-[var(--st-radius-sm)] border border-dashed border-[var(--st-border)] py-16 text-center text-[var(--st-text-secondary)]">
               <ImageIcon className="mx-auto h-10 w-10" />
               <h3 className="mt-3 text-sm font-medium text-[var(--st-text)]">
                 No tagged media yet

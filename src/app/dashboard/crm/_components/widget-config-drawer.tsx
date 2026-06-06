@@ -135,7 +135,7 @@ export function WidgetConfigDrawer({
                   onDragOver={handleDragOver}
                   onDrop={() => handleDrop(w.widgetKey)}
                   className={cn(
-                    'flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3',
+                    'flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3',
                     !w.enabled && 'opacity-60',
                   )}
                 >

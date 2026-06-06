@@ -162,11 +162,11 @@ function ProjectRow({
       type="button"
       onClick={() => onOpen(project.id)}
       className={cn(
-        'group flex w-full items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition',
-        'hover:border-[var(--st-border-strong)] hover:shadow-[var(--zoru-shadow-sm)]',
+        'group flex w-full items-center gap-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition',
+        'hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-sm)]',
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
         <MessageSquare className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">

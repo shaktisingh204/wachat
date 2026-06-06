@@ -158,7 +158,7 @@ export function ProfileStep({
                         <ZoruSelectContent
                             position="popper"
                             sideOffset={6}
-                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--zoru-shadow-lg)]"
+                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]"
                         >
                             {ROLES.map((r) => (
                                 <ZoruSelectItem key={r} value={r}>
@@ -182,7 +182,7 @@ export function ProfileStep({
                         <ZoruSelectContent
                             position="popper"
                             sideOffset={6}
-                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--zoru-shadow-lg)]"
+                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]"
                         >
                             {COUNTRIES.map((c) => (
                                 <ZoruSelectItem key={c} value={c}>

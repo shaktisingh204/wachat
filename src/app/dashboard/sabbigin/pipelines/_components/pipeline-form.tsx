@@ -258,7 +258,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         </Button>
                     </div>
                     {stages.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             At least one stage is required.
                         </div>
                     ) : (
@@ -266,7 +266,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                             {stages.map((s, idx) => (
                                 <div
                                     key={s._id || s.id || `new-${idx}`}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_120px_120px_2fr_auto]"
+                                    className="grid grid-cols-1 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_120px_120px_2fr_auto]"
                                 >
                                     <div className="flex flex-col items-center justify-center gap-1 self-center">
                                         <button

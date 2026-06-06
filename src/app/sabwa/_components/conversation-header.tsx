@@ -110,7 +110,7 @@ export function ConversationHeader({
         onClick={onTogglePanel}
         role="button"
         aria-label={panelOpen ? 'Close contact panel' : 'Open contact panel'}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-[var(--st-bg-muted)]"
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--st-radius)] px-1 py-1 text-left hover:bg-[var(--st-bg-muted)]"
       >
         <Avatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (

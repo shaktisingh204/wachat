@@ -549,7 +549,7 @@ export function RecordTable({
 
       {/* Table */}
       <div
-        className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]"
+        className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]"
         role="region"
         aria-label={`${object.labelPlural} table`}
         aria-busy={loading}

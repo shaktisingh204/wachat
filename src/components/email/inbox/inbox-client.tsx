@@ -327,7 +327,7 @@ export function EmailInboxClient() {
   return (
     <ZoruResizablePanelGroup
       direction="horizontal"
-      className="h-full min-h-[640px] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]"
+      className="h-full min-h-[640px] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]"
     >
       <ZoruResizablePanel defaultSize={18} minSize={14} maxSize={28}>
         <FilterRail

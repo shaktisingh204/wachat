@@ -132,7 +132,7 @@ export function EntityListShell({
                 <div
                     role="region"
                     aria-label="Bulk actions"
-                    className="sticky top-0 z-10 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]"
+                    className="sticky top-0 z-10 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--st-shadow-sm)]"
                 >
                     {bulkBar}
                 </div>

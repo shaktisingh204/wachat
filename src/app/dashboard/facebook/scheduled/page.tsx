@@ -234,7 +234,7 @@ export default function ScheduledPostsPage() {
           const post = row.original;
           return (
             <div className="flex min-w-0 items-center gap-3">
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
                 {post.full_picture ? (
                   <Image
                     src={post.full_picture}
@@ -342,7 +342,7 @@ export default function ScheduledPostsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
+          <div className="flex items-center gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
             <Button
               variant={view === "table" ? "secondary" : "ghost"}
               size="icon-sm"

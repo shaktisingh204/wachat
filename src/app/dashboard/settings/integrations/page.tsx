@@ -170,7 +170,7 @@ export default function IntegrationsPage() {
           return (
             <Card key={i.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                   <Icon className="h-5 w-5" />
                 </div>
                 {i.connected ? (

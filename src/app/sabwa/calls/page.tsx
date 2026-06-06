@@ -241,7 +241,7 @@ export default function SabWaCallsPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
+          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <Phone className="h-6 w-6" />
         </div>

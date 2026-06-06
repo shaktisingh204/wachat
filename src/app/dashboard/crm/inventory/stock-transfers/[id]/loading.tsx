@@ -12,12 +12,12 @@ export default function Loading() {
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-6">
-                    <Skeleton className="h-64 w-full rounded-[var(--zoru-radius)]" />
-                    <Skeleton className="h-96 w-full rounded-[var(--zoru-radius)]" />
+                    <Skeleton className="h-64 w-full rounded-[var(--st-radius)]" />
+                    <Skeleton className="h-96 w-full rounded-[var(--st-radius)]" />
                 </div>
                 <div className="space-y-6">
-                    <Skeleton className="h-48 w-full rounded-[var(--zoru-radius)]" />
-                    <Skeleton className="h-48 w-full rounded-[var(--zoru-radius)]" />
+                    <Skeleton className="h-48 w-full rounded-[var(--st-radius)]" />
+                    <Skeleton className="h-48 w-full rounded-[var(--st-radius)]" />
                 </div>
             </div>
         </div>

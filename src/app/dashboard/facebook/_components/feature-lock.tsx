@@ -36,7 +36,7 @@ export function FeatureLockOverlay({
 }) {
   if (isAllowed) return null;
   return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg)]/80 p-6 text-center backdrop-blur-sm">
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[var(--st-radius-lg)] bg-[var(--st-bg)]/80 p-6 text-center backdrop-blur-sm">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
         <Lock className="h-5 w-5" />
       </span>

@@ -313,7 +313,7 @@ export default function SabWaStatusPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
+          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <CircleDot className="h-6 w-6" />
         </div>
@@ -344,13 +344,13 @@ export default function SabWaStatusPage() {
             <div
               role="group"
               aria-label="Composer mode"
-              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+              className="inline-flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
             >
               <Button
                 type="button"
                 variant={composerMode === "text" ? "default" : "ghost"}
                 size="sm"
-                className="flex-1 rounded-[calc(var(--zoru-radius)-2px)]"
+                className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
                 aria-pressed={composerMode === "text"}
                 onClick={() => setComposerMode("text")}
               >
@@ -360,7 +360,7 @@ export default function SabWaStatusPage() {
                 type="button"
                 variant={composerMode === "media" ? "default" : "ghost"}
                 size="sm"
-                className="flex-1 rounded-[calc(var(--zoru-radius)-2px)]"
+                className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
                 aria-pressed={composerMode === "media"}
                 onClick={() => setComposerMode("media")}
               >
@@ -371,7 +371,7 @@ export default function SabWaStatusPage() {
             {composerMode === "text" ? (
               <div className="space-y-3 pt-4">
                 <div
-                  className="flex min-h-[160px] items-center justify-center rounded-[var(--zoru-radius)] p-6 text-center text-lg font-medium text-[var(--st-text-inverted)]"
+                  className="flex min-h-[160px] items-center justify-center rounded-[var(--st-radius)] p-6 text-center text-lg font-medium text-[var(--st-text-inverted)]"
                   style={{ backgroundColor: composerBg }}
                 >
                   {composerText || "Type your status..."}
@@ -409,7 +409,7 @@ export default function SabWaStatusPage() {
               <div className="space-y-3 pt-4">
                 {composerMedia ? (
                   <div className="space-y-2">
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={composerMedia.url}
@@ -485,13 +485,13 @@ export default function SabWaStatusPage() {
       <div
         role="group"
         aria-label="Status view"
-        className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+        className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
       >
         <Button
           type="button"
           variant={view === "my" ? "default" : "ghost"}
           size="sm"
-          className="rounded-[calc(var(--zoru-radius)-2px)]"
+          className="rounded-[calc(var(--st-radius)-2px)]"
           aria-pressed={view === "my"}
           onClick={() => setView("my")}
         >
@@ -501,7 +501,7 @@ export default function SabWaStatusPage() {
           type="button"
           variant={view === "friends" ? "default" : "ghost"}
           size="sm"
-          className="rounded-[calc(var(--zoru-radius)-2px)]"
+          className="rounded-[calc(var(--st-radius)-2px)]"
           aria-pressed={view === "friends"}
           onClick={() => setView("friends")}
         >
@@ -535,13 +535,13 @@ export default function SabWaStatusPage() {
                     <ZoruCardContent className="space-y-3 p-3">
                       {s.kind === "text" ? (
                         <div
-                          className="flex min-h-[120px] items-center justify-center rounded-[var(--zoru-radius)] p-4 text-center text-base font-medium text-[var(--st-text-inverted)]"
+                          className="flex min-h-[120px] items-center justify-center rounded-[var(--st-radius)] p-4 text-center text-base font-medium text-[var(--st-text-inverted)]"
                           style={{ backgroundColor: s.bgColour }}
                         >
                           {s.body}
                         </div>
                       ) : s.mediaUrl ? (
-                        <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                        <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={s.mediaUrl}
@@ -607,7 +607,7 @@ export default function SabWaStatusPage() {
                     onClick={() => setViewerIndex(i)}
                     className="w-full text-left"
                   >
-                    <Card className="transition hover:shadow-[var(--zoru-shadow-md)]">
+                    <Card className="transition hover:shadow-[var(--st-shadow-md)]">
                       <ZoruCardContent className="space-y-2 p-3">
                         <div className="flex items-center gap-3">
                           <div
@@ -696,7 +696,7 @@ export default function SabWaStatusPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="relative">
-            <div className="flex min-h-[280px] items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-6 text-center text-[13px] text-[var(--st-text)]">
+            <div className="flex min-h-[280px] items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-6 text-center text-[13px] text-[var(--st-text)]">
               {viewerEntry?.preview ?? "No preview available."}
             </div>
             <div className="absolute inset-y-0 left-0 flex items-center">

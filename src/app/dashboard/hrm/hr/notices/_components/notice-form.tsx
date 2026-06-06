@@ -418,7 +418,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                 </p>
 
                 {attachments.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No attachments yet.
                     </div>
                 ) : (
@@ -426,7 +426,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                         {attachments.map((a) => (
                             <li
                                 key={a.key}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                                className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
                                 {a.mime?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element

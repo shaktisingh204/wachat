@@ -283,7 +283,7 @@ export default function SystemLogsPage() {
           )}
         </div>
 
-        <Card className="p-0 border-[var(--st-border)] overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+        <Card className="p-0 border-[var(--st-border)] overflow-hidden shadow-[var(--st-shadow-sm)]">
           <DataTable
             className="p-5"
             columns={columns}

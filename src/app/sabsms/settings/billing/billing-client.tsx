@@ -526,7 +526,7 @@ function BillingSettingsPageContent() {
                   <ZoruCardDescription>Automatically purchase credits when running low</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                  <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] p-4 shadow-[var(--zoru-shadow-sm)]">
+                  <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] p-4 shadow-[var(--st-shadow-sm)]">
                     <div>
                       <h4 className="font-medium text-[var(--st-text)]">Enable Auto Top-Up</h4>
                       <p className="text-sm text-[var(--st-text-secondary)]">Prevent message failures due to empty balance</p>

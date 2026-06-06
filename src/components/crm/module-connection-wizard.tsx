@@ -238,7 +238,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
               initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
             >
               <Icon className="h-6 w-6 text-[var(--st-text)]" />
             </motion.div>

@@ -191,7 +191,7 @@ export default async function NoticeDetailPage({
                     </span>
                 </div>
                 {recipients.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         {notice.issuedTo === 'all'
                             ? 'Notice is published to all employees.'
                             : 'No explicit recipient list — resolved by audience.'}
@@ -235,7 +235,7 @@ export default async function NoticeDetailPage({
                         </div>
                     </div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+                <div className="mt-4 flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
                     <CheckCircle2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     <span className="text-[var(--st-text-secondary)]">
                         Acknowledgements:
@@ -259,7 +259,7 @@ export default async function NoticeDetailPage({
                     </span>
                 </div>
                 {attachments.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No attachments.
                     </div>
                 ) : (
@@ -267,7 +267,7 @@ export default async function NoticeDetailPage({
                         {attachments.map((url, i) => (
                             <li
                                 key={`${url}-${i}`}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                                className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
                                 <Paperclip className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                                 <a

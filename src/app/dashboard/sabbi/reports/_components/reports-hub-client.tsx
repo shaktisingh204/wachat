@@ -244,7 +244,7 @@ export function ReportsHubClient({
                     return (
                         <Card key={cat.id} className="p-4">
                             <div className="flex items-start justify-between gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 </div>
                                 <span className="text-[11px] text-[var(--st-text-tertiary)]">
@@ -320,7 +320,7 @@ export function ReportsHubClient({
                                                     <Link
                                                         key={href}
                                                         href={href}
-                                                        className="relative group flex h-full flex-col rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-sm transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
+                                                        className="relative group flex h-full flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-sm transition-shadow hover:shadow-[var(--st-shadow-md)]"
                                                     >
                                                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button 
@@ -333,7 +333,7 @@ export function ReportsHubClient({
                                                             </button>
                                                         </div>
                                                         <div className="flex items-start gap-3">
-                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
+                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
                                                                 <ItemIcon
                                                                     className="h-[18px] w-[18px] text-[var(--st-text)]"
                                                                     strokeWidth={1.75}

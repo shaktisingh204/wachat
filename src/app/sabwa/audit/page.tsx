@@ -180,7 +180,7 @@ export default function AuditPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <ScrollText className="h-5 w-5" />
           </div>
           <div>
@@ -410,7 +410,7 @@ export default function AuditPage() {
                               colSpan={6}
                               className="bg-[var(--st-bg-secondary)]"
                             >
-                              <pre className="overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-[11px] leading-relaxed text-[var(--st-text)]">
+                              <pre className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-[11px] leading-relaxed text-[var(--st-text)]">
                                 {JSON.stringify(row, null, 2)}
                               </pre>
                             </ZoruTableCell>

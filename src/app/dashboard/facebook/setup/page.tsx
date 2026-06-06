@@ -120,7 +120,7 @@ function StepperHeader({
   const currentIdx = STEPS.findIndex((s) => s.key === current);
 
   return (
-    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
+    <ol className="flex flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
       {STEPS.map((step, idx) => {
         const isDone = idx < currentIdx;
         const isCurrent = idx === currentIdx;
@@ -128,7 +128,7 @@ function StepperHeader({
           <React.Fragment key={step.key}>
             <li
               className={cn(
-                "flex flex-1 items-start gap-3 rounded-[var(--zoru-radius)] px-3 py-2",
+                "flex flex-1 items-start gap-3 rounded-[var(--st-radius)] px-3 py-2",
                 isCurrent && "bg-[var(--st-bg-secondary)]",
               )}
             >
@@ -253,7 +253,7 @@ function ConnectStep({
         ].map((p) => (
           <div
             key={p.title}
-            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
+            className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
           >
             <p className="text-[12px] text-[var(--st-text)]">{p.title}</p>
             <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)] leading-snug">
@@ -303,7 +303,7 @@ function PickPageStep({
               type="button"
               onClick={() => onSelect(p._id.toString())}
               className={cn(
-                "flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border p-4 text-left transition-colors focus-visible:outline-none",
+                "flex items-start gap-3 rounded-[var(--st-radius-lg)] border p-4 text-left transition-colors focus-visible:outline-none",
                 active
                   ? "border-[var(--st-text)] bg-[var(--st-bg-secondary)]"
                   : "border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-secondary)]",
@@ -360,9 +360,9 @@ function PickPageStep({
           <Link
             href="/api/auth/meta-suite/login"
             onClick={onConnectAnother}
-            className="flex flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]"
+            className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <FacebookGlyph className="h-5 w-5" />
             </span>
             <p className="text-[12.5px] text-[var(--st-text)]">Connect another page</p>
@@ -449,8 +449,8 @@ function AssetRow({
   actionLabel: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+    <div className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">

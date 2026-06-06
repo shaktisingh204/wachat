@@ -47,7 +47,7 @@ export function FeatureTable<T>({
 }: FeatureTableProps<T>) {
   if (isLoading && data.length === 0) {
     return (
-      <div className="flex flex-col gap-2 p-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+      <div className="flex flex-col gap-2 p-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-10 w-full" />
         ))}
@@ -57,7 +57,7 @@ export function FeatureTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <EmptyState
           icon={emptyIcon}
           title={emptyTitle}
@@ -70,7 +70,7 @@ export function FeatureTable<T>({
   }
 
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden flex flex-col">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden flex flex-col">
       {onExportCsv && (
         <div className="flex items-center justify-end border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-2">
           <Button variant="ghost" size="sm" onClick={onExportCsv} className="h-8 text-xs">

@@ -65,7 +65,7 @@ export function ClientPortalSidebar() {
                                 <Link
                                     href={it.href}
                                     className={cn(
-                                        'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors',
+                                        'flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors',
                                         active
                                             ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                             : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

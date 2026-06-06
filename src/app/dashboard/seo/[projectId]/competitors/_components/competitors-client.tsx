@@ -68,7 +68,7 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
             </div>
 
             {competitorSummaries.length === 0 ? (
-                <div className="text-center py-12 border border-[var(--st-border)] border-dashed rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                <div className="text-center py-12 border border-[var(--st-border)] border-dashed rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                     <p className="text-[var(--st-text-secondary)] text-sm">No competitors or keywords found. Add competitors and keywords in Project Settings.</p>
                 </div>
             ) : (

@@ -21,7 +21,7 @@ export function OnboardingBanner({
   const totalSteps = ONBOARDING_STEPS.length;
 
   return (
-    <div className="mt-6 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-5">
+    <div className="mt-6 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
@@ -50,7 +50,7 @@ export function OnboardingBanner({
             <div
               key={step.key}
               className={cn(
-                "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-[13px]",
+                "flex items-center gap-2 rounded-[var(--st-radius)] border px-3 py-2 text-[13px]",
                 isDone && "border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
                 isCurrent && "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]",
                 !isDone && !isCurrent && "border-[var(--st-border)] text-[var(--st-text-secondary)]"

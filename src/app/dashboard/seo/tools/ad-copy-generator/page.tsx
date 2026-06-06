@@ -125,7 +125,7 @@ export default function AdCopyGeneratorPage() {
         <div className="space-y-1"><Label>Target audience</Label><Input value={audience} onChange={(e) => setAudience(e.target.value)} /></div>
         <div className="space-y-1"><Label>Target keyword</Label><Input value={keyword} onChange={(e) => setKeyword(e.target.value)} /></div>
         <div className="space-y-1"><Label>Tone</Label>
-          <select className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
+          <select className="border border-[var(--st-border)] rounded-[var(--st-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
             <option value="friendly">Friendly</option>
             <option value="urgent">Urgent</option>
             <option value="formal">Formal</option>

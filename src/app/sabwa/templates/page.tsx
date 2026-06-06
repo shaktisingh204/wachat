@@ -272,7 +272,7 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BookCopy className="h-5 w-5" />
           </div>
           <div>
@@ -311,7 +311,7 @@ export default function Page() {
                     type="button"
                     onClick={() => setActiveFolder(f.id)}
                     className={cn(
-                      'flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
+                      'flex w-full items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
                       activeFolder === f.id &&
                         'bg-[var(--st-bg-secondary)] font-medium',
                     )}
@@ -348,7 +348,7 @@ export default function Page() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton
                   key={`templates-skeleton-${i}`}
-                  className="h-[180px] rounded-[var(--zoru-radius-lg)]"
+                  className="h-[180px] rounded-[var(--st-radius-lg)]"
                 />
               ))}
             </div>

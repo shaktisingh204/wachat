@@ -16,7 +16,7 @@ export default function StockTransfersError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center border rounded-[var(--zoru-radius)] border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+    <div className="flex flex-col items-center justify-center p-12 text-center border rounded-[var(--st-radius)] border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       <AlertCircle className="mb-4 h-10 w-10 text-[var(--st-danger)]" />
       <h2 className="mb-2 text-lg font-semibold text-[var(--st-text)]">Failed to load stock transfers</h2>
       <p className="mb-4 text-sm text-[var(--st-text-secondary)]">

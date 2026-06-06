@@ -107,7 +107,7 @@ export default async function WelcomeKitDetailPage({
                     Items ({items.length})
                 </div>
                 {items.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No items have been added to this kit.
                     </div>
                 ) : (
@@ -115,7 +115,7 @@ export default async function WelcomeKitDetailPage({
                         {items.map((it, idx) => (
                             <li
                                 key={idx}
-                                className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                                className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
                                 <div className="min-w-0 flex-1">
                                     <div className="truncate text-[13px] text-[var(--st-text)]">

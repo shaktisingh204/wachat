@@ -23,7 +23,7 @@ function StatCard({ title, value, icon: Icon, desc }: { title: string, value: st
     return (
         <Card className="p-4">
             <div className="flex items-start justify-between">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Icon className="h-4 w-4" />
                 </span>
             </div>
@@ -111,7 +111,7 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
                     No keywords added yet. Add some to start tracking rankings.
                 </div>
             ) : (
-                <div className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] overflow-hidden">
+                <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">
                     <Table>
                         <TableHeader className="bg-[var(--st-bg-muted)]">
                             <TableRow>
@@ -192,7 +192,7 @@ function CompetitorsTab({ project }: { project: any }) {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
                 {project.competitors?.map((comp: string) => (
-                    <div key={comp} className="flex flex-col p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                    <div key={comp} className="flex flex-col p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                         <div className="flex justify-between items-center pb-3 border-b border-[var(--st-border)] border-dashed">
                             <span className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
                                 <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -204,7 +204,7 @@ function CompetitorsTab({ project }: { project: any }) {
                     </div>
                 ))}
                 {(!project.competitors || project.competitors.length === 0) && (
-                    <div className="col-span-full py-8 text-center border border-[var(--st-border)] border-dashed rounded-[var(--zoru-radius)]">
+                    <div className="col-span-full py-8 text-center border border-[var(--st-border)] border-dashed rounded-[var(--st-radius)]">
                         <p className="text-[var(--st-text-secondary)] text-[13px]">No competitors added.</p>
                         <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">Go to Settings to add competitors.</p>
                     </div>

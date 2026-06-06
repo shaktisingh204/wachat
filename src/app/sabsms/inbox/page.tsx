@@ -41,7 +41,7 @@ export default async function SabsmsInboxPage({
   if (!workspaceId) {
     return (
       <div className="flex h-[calc(100vh-100px)] items-center justify-center">
-        <Card className="max-w-md w-full p-8 shadow-[var(--zoru-shadow-lg)] border-[var(--st-border)]">
+        <Card className="max-w-md w-full p-8 shadow-[var(--st-shadow-lg)] border-[var(--st-border)]">
           <ZoruCardTitle className="text-center text-3xl font-bold tracking-tight">Inbox</ZoruCardTitle>
           <ZoruCardDescription className="text-center mt-2 text-lg">
             Sign in to view your SabSMS conversations.

@@ -118,7 +118,7 @@ export default async function PayslipDetailPage({
 
                 {/* Earnings + Deductions */}
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                         <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Earnings
                         </div>
@@ -150,7 +150,7 @@ export default async function PayslipDetailPage({
                         </dl>
                     </div>
 
-                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                         <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Deductions
                         </div>
@@ -189,7 +189,7 @@ export default async function PayslipDetailPage({
                     </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                <div className="mt-6 flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
                     <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Net pay
                     </div>

@@ -118,7 +118,7 @@ export default async function EmailTemplateDetailPage({
                 <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Body (HTML source)
                 </div>
-                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
+                <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
                     {template.body}
                 </pre>
             </Card>
@@ -129,7 +129,7 @@ export default async function EmailTemplateDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Plain-text fallback
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[12.5px] text-[var(--st-text)]">
+                    <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[12.5px] text-[var(--st-text)]">
                         {template.textBody}
                     </pre>
                 </Card>

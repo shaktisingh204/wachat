@@ -47,7 +47,7 @@ export function BulkUploadAction() {
                         Upload a CSV file containing bulk salary structures. Ensure headers match exactly: basic, hra, da, pfEmployer, pfEmployee, esi, professionalTax.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <FileText className="w-8 h-8 mb-4 opacity-50" />
                     <p className="text-[13px] text-center max-w-[250px]">
                         Drag and drop your CSV file here, or click to browse.

@@ -47,7 +47,7 @@ export default async function NewShiftRotationPage() {
             subtitle="Build a repeating shift pattern for an employee, department or team."
         >
             <Suspense fallback={
-                <div className="space-y-4 rounded-[var(--zoru-radius)] border bg-[var(--st-bg-secondary)] p-6">
+                <div className="space-y-4 rounded-[var(--st-radius)] border bg-[var(--st-bg-secondary)] p-6">
                     <Skeleton className="h-10 w-full max-w-sm" />
                     <Skeleton className="h-20 w-full" />
                     <Skeleton className="h-64 w-full" />

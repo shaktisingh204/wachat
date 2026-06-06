@@ -414,7 +414,7 @@ function RetentionSection({
                         <p className="text-[11.5px] text-[var(--st-text)]">{getError(['keepRunHistoryDays'])}</p>
                     )}
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                     <div>
                         <Label htmlFor="rt-purge" className="text-[13px]">
                             Purge failed runs
@@ -649,14 +649,14 @@ function VariablesSection({
             </div>
             <div className="mt-5 flex flex-col gap-2">
                 {value.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No variables yet. Click &quot;Add variable&quot; to create one.
                     </div>
                 ) : (
                     value.map((row, idx) => (
                         <div
                             key={idx}
-                            className="grid gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                            className="grid gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
                         >
                             <div className="grid gap-1.5">
                                 <Label

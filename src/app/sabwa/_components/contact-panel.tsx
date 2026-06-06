@@ -158,14 +158,14 @@ export function ContactPanel({
           <div
             role="group"
             aria-label="Media filter"
-            className="mb-3 grid grid-cols-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 text-xs"
+            className="mb-3 grid grid-cols-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 text-xs"
           >
             <Button
               type="button"
               variant={tab === 'photos' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTab('photos')}
-              className="rounded-[calc(var(--zoru-radius)-2px)]"
+              className="rounded-[calc(var(--st-radius)-2px)]"
             >
               Photos
               {buckets.photos.length ? (
@@ -179,7 +179,7 @@ export function ContactPanel({
               variant={tab === 'videos' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTab('videos')}
-              className="rounded-[calc(var(--zoru-radius)-2px)]"
+              className="rounded-[calc(var(--st-radius)-2px)]"
             >
               Videos
               {buckets.videos.length ? (
@@ -193,7 +193,7 @@ export function ContactPanel({
               variant={tab === 'docs' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTab('docs')}
-              className="rounded-[calc(var(--zoru-radius)-2px)]"
+              className="rounded-[calc(var(--st-radius)-2px)]"
             >
               Docs
               {buckets.docs.length ? (
@@ -220,7 +220,7 @@ export function ContactPanel({
               {active.map((m) => (
                 <li
                   key={m.messageId}
-                  className="flex items-center gap-2 rounded-[var(--zoru-radius)] p-2 hover:bg-[var(--st-bg-muted)]"
+                  className="flex items-center gap-2 rounded-[var(--st-radius)] p-2 hover:bg-[var(--st-bg-muted)]"
                 >
                   <FileText className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                   <span className="truncate text-xs text-[var(--st-text)]">
@@ -239,7 +239,7 @@ export function ContactPanel({
                 // eslint-disable-next-line @next/next/no-img-element
                 <div
                   key={m.messageId}
-                  className="aspect-square overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]"
+                  className="aspect-square overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]"
                 >
                   {tab === 'photos' ? (
                     // eslint-disable-next-line @next/next/no-img-element

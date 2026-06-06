@@ -255,7 +255,7 @@ export default function WebhooksPage() {
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <WebhookIcon className="h-5 w-5" />
             </div>
             <div>
@@ -662,7 +662,7 @@ function CreateWebhookDialogContent({
               <Label
                 key={ev.value}
                 htmlFor={`wh-ev-${ev.value}`}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Checkbox
                   id={`wh-ev-${ev.value}`}
@@ -711,7 +711,7 @@ function SecretRevealCard({
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
+        <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
           {secret}
         </code>
         <Button
@@ -806,7 +806,7 @@ function DeliveriesSheet({
               {deliveries.map((d) => (
                 <li
                   key={d.id}
-                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-xs text-[var(--st-text)]"
+                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-xs text-[var(--st-text)]"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -837,7 +837,7 @@ function DeliveriesSheet({
                     {formatDistanceToNow(new Date(d.ts), { addSuffix: true })}
                   </div>
                   {d.responseExcerpt ? (
-                    <pre className="mt-2 max-h-24 overflow-auto rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] p-2 text-[11px]">
+                    <pre className="mt-2 max-h-24 overflow-auto rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] p-2 text-[11px]">
                       {d.responseExcerpt}
                     </pre>
                   ) : null}

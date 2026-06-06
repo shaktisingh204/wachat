@@ -46,7 +46,7 @@ function PosSessionsListSkeleton() {
             {/* KPI strip skeleton */}
             <div className="grid grid-cols-2 gap-2.5 md:grid-cols-5">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3.5 flex items-start justify-between gap-2">
+                    <div key={i} className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3.5 flex items-start justify-between gap-2">
                         <div className="min-w-0 space-y-2">
                             <Skeleton className="h-3 w-16" />
                             <Skeleton className="h-6 w-12" />
@@ -69,7 +69,7 @@ function PosSessionsListSkeleton() {
             </div>
 
             {/* Table Card skeleton */}
-            <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>

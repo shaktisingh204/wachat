@@ -32,7 +32,7 @@ export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
                                 {kpi.label}
                             </p>
                             <span
-                                className={`flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] ${toneClass[tone]}`}
+                                className={`flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] ${toneClass[tone]}`}
                             >
                                 <Icon className="h-4 w-4" strokeWidth={1.75} />
                             </span>
@@ -71,8 +71,8 @@ export function HubQuickLinkGrid({ links }: { links: HubQuickLink[] }) {
                 const Icon = link.icon;
                 return (
                     <Link key={link.href} href={link.href} className="group">
-                        <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                        <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--st-shadow-md)]">
+                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                             </div>
                             <div className="flex items-start justify-between gap-2">

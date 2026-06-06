@@ -282,9 +282,9 @@ function Kpi({
   hint?: string;
 }) {
   return (
-    <Card className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
+    <Card className="p-4 transition-shadow hover:shadow-[var(--st-shadow-sm)]">
       <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           {icon}
         </span>
       </div>

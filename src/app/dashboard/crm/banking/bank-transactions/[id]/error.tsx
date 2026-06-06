@@ -16,7 +16,7 @@ export default function BankTransactionDetailErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] border-dashed p-8 text-center bg-[var(--st-bg-secondary)]/50">
+    <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] border-dashed p-8 text-center bg-[var(--st-bg-secondary)]/50">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text)]">
         <AlertTriangle className="h-6 w-6" />
       </div>

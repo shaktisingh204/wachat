@@ -321,7 +321,7 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
         </div>
 
         {/* Data Table with Virtualization */}
-        <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] overflow-hidden flex flex-col h-[500px] shadow-[var(--zoru-shadow-sm)]">
+        <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] overflow-hidden flex flex-col h-[500px] shadow-[var(--st-shadow-sm)]">
           {/* Header */}
           <div className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] flex w-full font-medium text-[11px] text-[var(--st-text-tertiary)] uppercase tracking-wide">
             <div className="w-12 p-3 flex items-center justify-center">

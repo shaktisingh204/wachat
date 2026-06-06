@@ -584,7 +584,7 @@ export default function TicketGroupsPage() {
                   value={kpis.total.toLocaleString()}
                   className={cn(
                     statusFilter === "all" &&
-                      "ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]",
+                      "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
                   )}
                 />
               </button>
@@ -598,7 +598,7 @@ export default function TicketGroupsPage() {
                   value={kpis.active.toLocaleString()}
                   className={cn(
                     statusFilter === "active" &&
-                      "ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]",
+                      "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
                   )}
                 />
               </button>

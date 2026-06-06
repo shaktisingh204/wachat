@@ -64,7 +64,7 @@ export function SidebarCards({ data }: { data: any }) {
             type="button"
             aria-label="Manage billing"
             onClick={() => router.push("/dashboard/billing")}
-            className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
+            className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
           >
             <ArrowRight className="h-3.5 w-3.5" />
           </button>

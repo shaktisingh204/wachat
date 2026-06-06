@@ -93,7 +93,7 @@ function ProjectConnectionCard({
   return (
     <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           <FacebookGlyph className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -266,7 +266,7 @@ export default function AllProjectsPage() {
       <div className="mt-8">
         <Card className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+            <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <Sparkles className="h-3.5 w-3.5" />
             </span>
             <div>

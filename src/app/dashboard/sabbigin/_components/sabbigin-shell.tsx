@@ -43,7 +43,7 @@ export function SabbiginNav({ active }: { active?: string }) {
                         key={href}
                         href={href}
                         className={cn(
-                            'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors',
+                            'inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors',
                             isActive
                                 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

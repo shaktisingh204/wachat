@@ -80,7 +80,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
     return {
       style: {
         backgroundColor,
-        borderRadius: 'var(--zoru-radius)',
+        borderRadius: 'var(--st-radius)',
         opacity: 0.9,
         color: '#fff',
         border: '0px',
@@ -91,7 +91,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
   };
 
   return (
-    <div className="h-[600px] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+    <div className="h-[600px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
       <Calendar
         localizer={localizer}
         events={events}

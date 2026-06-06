@@ -639,7 +639,7 @@ function DiscussionsTable({
     onPin: (id: string) => void;
 }) {
     return (
-        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+        <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[900px] text-[13px]">
                 <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <tr>
@@ -776,7 +776,7 @@ function DiscussionsKanban({
                     return (
                         <div
                             key={col.id}
-                            className="flex w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
+                            className="flex w-72 shrink-0 flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
                         >
                             <div className="mb-1 flex items-center justify-between px-1">
                                 <h4 className="text-[12.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">

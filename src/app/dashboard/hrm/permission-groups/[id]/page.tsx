@@ -65,7 +65,7 @@ function PageSkeleton() {
 
       <div className="flex flex-col gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-48 w-full rounded-[var(--zoru-radius)]" />
+          <Skeleton key={i} className="h-48 w-full rounded-[var(--st-radius)]" />
         ))}
       </div>
     </div>

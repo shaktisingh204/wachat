@@ -41,9 +41,9 @@ export default async function PaymentAccountActivityPage(props: {
                 <Suspense 
                     fallback={
                         <div className="space-y-4">
-                            <Skeleton className="h-32 w-full rounded-[var(--zoru-radius-lg)]" />
-                            <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-lg)]" />
-                            <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-lg)]" />
+                            <Skeleton className="h-32 w-full rounded-[var(--st-radius-lg)]" />
+                            <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                            <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
                         </div>
                     }
                 >

@@ -205,7 +205,7 @@ function DisconnectedHero() {
       <ZoruCardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
         <div
           aria-hidden
-          className="flex h-20 w-20 flex-none items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]"
+          className="flex h-20 w-20 flex-none items-center justify-center rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]"
         >
           <QrCode className="h-10 w-10" />
         </div>
@@ -323,7 +323,7 @@ function SessionHeaderCard({
                           setOpen(false);
                         }}
                         className={cn(
-                          "flex w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] px-2 py-2 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
+                          "flex w-full items-center justify-between gap-2 rounded-[var(--st-radius)] px-2 py-2 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
                           isActive && "bg-[var(--st-bg-muted)]",
                         )}
                       >
@@ -426,7 +426,7 @@ function KpiCardShell({
     <Card
       className={cn(
         "h-full transition-shadow",
-        href && "cursor-pointer hover:shadow-[var(--zoru-shadow-md)]",
+        href && "cursor-pointer hover:shadow-[var(--st-shadow-md)]",
         className,
       )}
     >
@@ -453,7 +453,7 @@ function KpiCardShell({
       <Link
         href={href}
         aria-label={label}
-        className="block rounded-[var(--zoru-radius-lg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2"
+        className="block rounded-[var(--st-radius-lg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2"
       >
         {body}
       </Link>
@@ -725,7 +725,7 @@ function QuickActions({
               </>
             );
             const className =
-              "flex h-auto flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-center text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2";
+              "flex h-auto flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-center text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2";
             if (href) {
               return (
                 <Link key={label} href={href} className={className}>
@@ -822,7 +822,7 @@ function RecentActivity({
                 <li key={id}>
                   <Link
                     href={href}
-                    className="-mx-2 flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                    className="-mx-2 flex items-center gap-3 rounded-[var(--st-radius)] px-2 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   >
                     <span
                       aria-hidden
@@ -892,7 +892,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
               <Link
                 href={href}
                 className={cn(
-                  "-mx-2 flex items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
+                  "-mx-2 flex items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
                   done && "text-[var(--st-text-secondary)]",
                 )}
               >

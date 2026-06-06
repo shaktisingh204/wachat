@@ -109,7 +109,7 @@ export default function MarkdownToHtmlPage() {
                 className="h-[500px] resize-none font-mono text-sm p-4 bg-[var(--st-bg-secondary)] border-[var(--st-border)]" 
               />
             ) : (
-              <div className="h-[500px] overflow-auto p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+              <div className="h-[500px] overflow-auto p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
                 <div 
                   className="prose prose-sm dark:prose-invert max-w-none
                              [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 [&_h1]:border-b [&_h1]:border-[var(--st-border-strong)] [&_h1]:pb-2

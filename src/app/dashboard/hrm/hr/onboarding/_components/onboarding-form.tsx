@@ -282,7 +282,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         </Button>
                     </div>
                     {checklist.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No checklist items. Click &ldquo;Add task&rdquo; to
                             create the first one.
                         </div>
@@ -291,7 +291,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                             {checklist.map((task) => (
                                 <div
                                     key={task.id}
-                                    className="grid items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[2fr_1fr_1fr_auto]"
+                                    className="grid items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[2fr_1fr_1fr_auto]"
                                 >
                                     <div className="space-y-1">
                                         <Label

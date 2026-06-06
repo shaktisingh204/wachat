@@ -12,7 +12,7 @@ export function PtNavigation() {
             <Link
                 href="/dashboard/hrm/payroll/professional-tax"
                 className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors",
                     pathname === '/dashboard/hrm/payroll/professional-tax'
                         ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
                         : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
@@ -23,7 +23,7 @@ export function PtNavigation() {
             <Link
                 href="/dashboard/hrm/payroll/professional-tax/slabs"
                 className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors",
                     pathname === '/dashboard/hrm/payroll/professional-tax/slabs'
                         ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
                         : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"

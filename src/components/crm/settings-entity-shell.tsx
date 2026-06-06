@@ -435,7 +435,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                                         icon={kpi.icon}
                                         className={
                                             kpi.active
-                                                ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                                                ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                                                 : undefined
                                         }
                                     />

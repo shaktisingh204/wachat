@@ -111,14 +111,14 @@ export function ApiKeyCreateDialog({
 
         {rawKey ? (
           <div className="space-y-3">
-            <div className="flex items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 p-3 text-sm text-[var(--st-warn)]">
+            <div className="flex items-start gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 p-3 text-sm text-[var(--st-warn)]">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
                 This is the only time SabNode will display the raw key. Store it
                 in your secret manager before closing this dialog.
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+            <div className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
               <code className="flex-1 truncate text-xs text-[var(--st-text)]">{rawKey}</code>
               <Button
                 type="button"
@@ -156,7 +156,7 @@ export function ApiKeyCreateDialog({
                     <label
                       key={s.value}
                       htmlFor={inputId}
-                      className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm hover:bg-[var(--st-bg-muted)]"
+                      className="flex cursor-pointer items-start gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm hover:bg-[var(--st-bg-muted)]"
                     >
                       <Checkbox
                         id={inputId}

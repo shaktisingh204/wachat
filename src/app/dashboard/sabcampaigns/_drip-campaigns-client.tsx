@@ -223,7 +223,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
         />
       </div>
 
-      <div className="mb-8 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
+      <div className="mb-8 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
         <h3 className="mb-4 text-sm font-medium text-[var(--st-text)]">Cross-Channel ROI (%)</h3>
         <ZoruChartContainer height={250}>
           <BarChart data={roiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -258,7 +258,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
           )}
         </div>
       ) : (
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>

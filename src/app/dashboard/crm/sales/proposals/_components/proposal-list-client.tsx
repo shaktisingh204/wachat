@@ -91,7 +91,7 @@ function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardPro
       type="button"
       onClick={onClick}
       className={[
-        'flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-all',
+        'flex flex-col gap-0.5 rounded-[var(--st-radius)] border px-4 py-3 text-left transition-all',
         toneClass,
         active ? 'ring-2 ring-[var(--st-accent)] ring-offset-1' : 'hover:opacity-80',
       ].join(' ')}
@@ -478,7 +478,7 @@ export function ProposalListClient({
                 }
               />
             ))}
-            <div className="flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+            <div className="flex flex-col gap-0.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
               <span className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
                 {fmtINR(
                   kpi.totalValue,

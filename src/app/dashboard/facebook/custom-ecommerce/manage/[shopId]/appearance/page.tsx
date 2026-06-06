@@ -222,7 +222,7 @@ export default function ShopAppearancePage() {
                 type="button"
                 onClick={() => handlePickPreset(p.id, p.primary)}
                 className={
-                  "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-left text-[13px] transition-colors " +
+                  "flex items-center gap-2 rounded-[var(--st-radius)] border px-3 py-2 text-left text-[13px] transition-colors " +
                   (presetId === p.id
                     ? "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                     : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]")
@@ -273,7 +273,7 @@ export default function ShopAppearancePage() {
             Storefront preview
           </h3>
           <div
-            className="mt-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-6"
+            className="mt-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-6"
             style={{
               backgroundColor: "var(--zoru-bg)",
               color: "var(--zoru-ink)",
@@ -295,9 +295,9 @@ export default function ShopAppearancePage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
+                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
                 >
-                  <div className="aspect-square w-full rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]" />
+                  <div className="aspect-square w-full rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]" />
                   <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
                     Sample product {i}
                   </p>

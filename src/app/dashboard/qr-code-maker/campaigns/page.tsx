@@ -150,7 +150,7 @@ export default function QrCampaignsPage() {
                 type="date"
                 value={formStartDate}
                 onChange={(e) => setFormStartDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
+                className="flex h-9 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
               />
             </div>
             <div className="space-y-1.5">
@@ -159,7 +159,7 @@ export default function QrCampaignsPage() {
                 type="date"
                 value={formEndDate}
                 onChange={(e) => setFormEndDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
+                className="flex h-9 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
               />
             </div>
           </div>

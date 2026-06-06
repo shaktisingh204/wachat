@@ -104,7 +104,7 @@ function SectionNav({ active }: { active: 'overview' | 'comments' | 'files' | 'r
     return (
         <nav
             aria-label="Notice sections"
-            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
+            className="flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
         >
             {items.map((item) => (
                 <a
@@ -112,8 +112,8 @@ function SectionNav({ active }: { active: 'overview' | 'comments' | 'files' | 'r
                     href={`#section-${item.id}`}
                     className={
                         item.id === active
-                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
-                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
+                            ? 'rounded-[calc(var(--st-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
+                            : 'rounded-[calc(var(--st-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                     }
                 >
                     {item.label}

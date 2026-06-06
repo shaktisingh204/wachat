@@ -172,7 +172,7 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
                     draggable
                     onDragStart={() => setDraggingId(s._id)}
                     onDragEnd={() => setDraggingId(null)}
-                    className="cursor-grab rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+                    className="cursor-grab rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                   >
                     <p className="text-sm text-[var(--st-text)] line-clamp-2">{s.title}</p>
                     <div className="mt-1 flex items-center justify-between text-xs">

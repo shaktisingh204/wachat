@@ -463,7 +463,7 @@ export function AwardsListClient({
 
                     {/* Programs table */}
                     {tab === 'programs' ? (
-                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+                        <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
                             <table className="w-full min-w-[700px] text-[13px]">
                                 <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                     <tr>
@@ -556,7 +556,7 @@ export function AwardsListClient({
                         </div>
                     ) : (
                         /* Appreciations table */
-                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+                        <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
                             <table className="w-full min-w-[800px] text-[13px]">
                                 <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                     <tr>

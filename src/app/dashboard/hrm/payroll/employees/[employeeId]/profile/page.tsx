@@ -238,7 +238,7 @@ export default async function EmployeeProfileSubPage({
                             </Link>
                         </div>
                         {primary ? (
-                            <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[12.5px]">
+                            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[12.5px]">
                                 <div className="text-[var(--st-text)]">
                                     {primary.name}
                                     {primary.relationship ? (
@@ -253,7 +253,7 @@ export default async function EmployeeProfileSubPage({
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
+                            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                                 No emergency contact on file.
                             </div>
                         )}

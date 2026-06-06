@@ -153,11 +153,11 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                             type="button"
                             onClick={() => onOpen(s)}
                             className={cn(
-                                'group flex flex-col items-stretch gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-left transition-colors hover:border-[var(--st-text)]/40',
+                                'group flex flex-col items-stretch gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-left transition-colors hover:border-[var(--st-text)]/40',
                                 s.archived && 'opacity-60',
                             )}
                         >
-                            <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                            <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                                 {s.thumbnailUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img

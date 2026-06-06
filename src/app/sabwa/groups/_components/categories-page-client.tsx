@@ -237,7 +237,7 @@ function EditCategoryDialog({
                   onClick={() => setIcon(n)}
                   aria-label={n}
                   className={cn(
-                    'flex h-10 items-center justify-center rounded-[var(--zoru-radius)] border transition',
+                    'flex h-10 items-center justify-center rounded-[var(--st-radius)] border transition',
                     icon === n
                       ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
                       : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
@@ -283,7 +283,7 @@ const CategoryRow = React.memo(function CategoryRow({
 }: CategoryRowProps) {
   const Icon = ICON_BY_NAME.get(category.icon ?? 'Tag') ?? Tag;
   return (
-    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+    <div className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
       <div className="flex flex-col">
         <Button
           variant="ghost"
@@ -479,7 +479,7 @@ function BulkAssignDialog({
 
           <div>
             <Label>Uncategorised groups</Label>
-            <ScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+            <ScrollArea className="mt-1 h-64 rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <div className="divide-y divide-[var(--st-border)]">
                 {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
@@ -653,7 +653,7 @@ export function CategoriesPageClient() {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
+          <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
             <FolderTree className="h-6 w-6" />
           </div>
           <div>

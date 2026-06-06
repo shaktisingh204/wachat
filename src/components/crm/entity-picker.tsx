@@ -726,7 +726,7 @@ export function EntityPicker({
             // we only stop bubbling so ancestor handlers don't react.
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-left text-sm text-[var(--st-text)]',
+              'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-left text-sm text-[var(--st-text)]',
               'transition-colors hover:border-[var(--st-text)]/40',
               'focus-visible:outline-none focus-visible:border-[var(--st-text)]',
               'disabled:cursor-not-allowed disabled:opacity-50',

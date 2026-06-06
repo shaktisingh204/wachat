@@ -671,7 +671,7 @@ const BoardColumn = React.memo(function BoardColumn({
       aria-colcount={colCount}
       aria-dropeffect={dropEffect}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border bg-[var(--st-bg-secondary)]/40 transition-colors',
+        'flex w-72 shrink-0 flex-col rounded-[var(--st-radius-lg)] border bg-[var(--st-bg-secondary)]/40 transition-colors',
         isDropTarget
           ? 'border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]'
           : 'border-[var(--st-border)]',
@@ -720,7 +720,7 @@ const BoardColumn = React.memo(function BoardColumn({
         {group.records.length === 0 ? (
           <div
             aria-hidden="true"
-            className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-xs text-[var(--st-text-secondary)]"
+            className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-xs text-[var(--st-text-secondary)]"
           >
             {isDropTarget ? 'Drop here' : 'No records'}
           </div>
@@ -939,14 +939,14 @@ const BoardCard = React.memo(function BoardCard({
 
 function BoardColumnSkeleton(): React.ReactElement {
   return (
-    <section className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
+    <section className="flex w-72 shrink-0 flex-col rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
       <div className="flex items-center gap-2 px-3 pt-3">
         <Skeleton className="h-6 w-24 rounded-full" />
         <Skeleton className="h-4 w-6" />
       </div>
       <div className="flex flex-col gap-2 p-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-[var(--zoru-radius-lg)]" />
+          <Skeleton key={i} className="h-20 w-full rounded-[var(--st-radius-lg)]" />
         ))}
       </div>
     </section>

@@ -116,7 +116,7 @@ function StoryInsightsRow({
       {STORY_METRICS.map((m) => (
         <div
           key={m.key}
-          className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
+          className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
         >
           <p className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">{m.label}</p>
           <p className="mt-0.5 text-sm text-[var(--st-text)]">
@@ -224,7 +224,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
             const src = s.thumbnail_url || s.media_url;
             return (
               <Card key={s.id} className="flex flex-col gap-3 p-3">
-                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                   {src ? (
                     s.media_type === 'VIDEO' ? (
                       <video

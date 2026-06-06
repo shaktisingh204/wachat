@@ -176,7 +176,7 @@ function RawKeyRevealDialog({
         </ZoruDialogHeader>
 
         {/* Key display area */}
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
           <p className="mb-1.5 text-xs font-medium text-[var(--st-text-secondary)]">Secret key</p>
           <div className="flex items-center gap-2">
             <code
@@ -203,7 +203,7 @@ function RawKeyRevealDialog({
         </div>
 
         {/* Warning banner */}
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 px-3 py-2.5">
+        <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 px-3 py-2.5">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-warn)]" />
           <p className="text-xs leading-relaxed text-[var(--st-warn)]">
             Store this key in a secrets manager or environment variable. SabNode
@@ -367,7 +367,7 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
   return (
     <div
       className={cn(
-        'flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3',
+        'flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3',
         'transition-colors',
         apiKey.revoked && 'opacity-50',
       )}
@@ -575,7 +575,7 @@ export function ApiKeyManager({
 
       {/* Active keys */}
       {activeKeys.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] py-10 text-center">
+        <div className="flex flex-col items-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] py-10 text-center">
           <Key className="h-7 w-7 text-[var(--st-text-tertiary)]" />
           <p className="text-sm font-medium text-[var(--st-text-secondary)]">No active API keys</p>
           <p className="text-xs text-[var(--st-text-tertiary)]">

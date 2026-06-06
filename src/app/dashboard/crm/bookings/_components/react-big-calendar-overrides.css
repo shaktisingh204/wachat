@@ -3,7 +3,7 @@
 }
 .rbc-toolbar button {
   color: var(--zoru-ink);
-  border-radius: var(--zoru-radius);
+  border-radius: var(--st-radius);
   border-color: var(--zoru-line);
 }
 .rbc-toolbar button.rbc-active {
@@ -11,7 +11,7 @@
   color: var(--zoru-ink);
 }
 .rbc-event {
-  border-radius: var(--zoru-radius);
+  border-radius: var(--st-radius);
 }
 .rbc-today {
   background-color: var(--zoru-surface-2);

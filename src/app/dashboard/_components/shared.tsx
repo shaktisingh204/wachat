@@ -79,7 +79,7 @@ export function NotificationCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2.5 text-left transition-colors",
+        "flex w-full items-center gap-2 rounded-[var(--st-radius)] border px-3 py-2.5 text-left transition-colors",
         inverted
           ? "border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)]/90"
           : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]",
@@ -134,10 +134,10 @@ export function ModuleTile({
     <button
       type="button"
       onClick={() => router.push(href)}
-      className="group flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)] focus-visible:outline-none"
+      className="group flex flex-col gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition-shadow hover:shadow-[var(--st-shadow-md)] focus-visible:outline-none"
     >
       <div className="flex items-center justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
           {icon}
         </span>
         <span className="inline-flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)]">
@@ -176,10 +176,10 @@ export function KpiTile({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-shadow hover:shadow-[var(--st-shadow-sm)]">
       <div className="flex items-start justify-between">
         {icon ? (
-          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             {icon}
           </span>
         ) : (

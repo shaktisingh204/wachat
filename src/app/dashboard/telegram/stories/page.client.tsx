@@ -937,7 +937,7 @@ function TelegramStoriesContent() {
                     </div>
                     {/* Pagination */}
                     {data.total > PAGE_SIZE ? (
-                        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
+                        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                             <span>
                                 {(page - 1) * PAGE_SIZE + 1}–
                                 {(page - 1) * PAGE_SIZE + rows.length} of{' '}

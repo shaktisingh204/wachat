@@ -215,7 +215,7 @@ export function DeviceSettingsClient() {
           <div
             role="group"
             aria-label="View mode"
-            className="hidden md:inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+            className="hidden md:inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             <Button
               type="button"
@@ -223,7 +223,7 @@ export function DeviceSettingsClient() {
               variant={view === 'grid' ? 'secondary' : 'ghost'}
               onClick={() => setView('grid')}
               aria-pressed={view === 'grid'}
-              className="h-7 rounded-[calc(var(--zoru-radius)-2px)] px-2"
+              className="h-7 rounded-[calc(var(--st-radius)-2px)] px-2"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               <span className="ml-1 text-xs">Grid</span>
@@ -234,7 +234,7 @@ export function DeviceSettingsClient() {
               variant={view === 'table' ? 'secondary' : 'ghost'}
               onClick={() => setView('table')}
               aria-pressed={view === 'table'}
-              className="h-7 rounded-[calc(var(--zoru-radius)-2px)] px-2"
+              className="h-7 rounded-[calc(var(--st-radius)-2px)] px-2"
             >
               <TableIcon className="h-3.5 w-3.5" />
               <span className="ml-1 text-xs">Table</span>

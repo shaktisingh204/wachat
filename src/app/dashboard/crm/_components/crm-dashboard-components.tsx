@@ -36,7 +36,7 @@ function SectionHead({
 }) {
   return (
     <div className="mb-4 flex items-start gap-3">
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
         <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
@@ -55,7 +55,7 @@ function EmptyState({
   text: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-10 text-center">
+    <div className="flex flex-col items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-10 text-center">
       <Icon className="mb-3 h-10 w-10 text-[var(--st-text-secondary)]/70" strokeWidth={1.5} />
       <p className="text-[13px] text-[var(--st-text-secondary)]">{text}</p>
     </div>
@@ -174,7 +174,7 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         {stages.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] px-4 py-3"
+            className="flex items-center gap-4 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-4 py-3"
           >
             <div className="min-w-0 flex-1 space-y-0.5">
               <p className="text-[13px] font-medium leading-tight text-[var(--st-text)]">
@@ -248,7 +248,7 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
         subtitle="Overview of pending payments"
       />
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
           <div className="min-w-0">
             <p className="text-[12px] font-medium text-[var(--st-danger)]">Overdue</p>
             <p className="mt-0.5 text-[22px] font-semibold leading-none text-[var(--st-danger)]">
@@ -261,7 +261,7 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
           <div className="min-w-0">
             <p className="text-[12px] font-medium text-[var(--st-text)]">Sent (Due)</p>
             <p className="mt-0.5 text-[22px] font-semibold leading-none text-[var(--st-text)]">

@@ -494,7 +494,7 @@ export function SabFilePicker({
                                 ))}
                             </div>
 
-                            <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
+                            <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
                                 {loading ? (
                                     <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
@@ -549,7 +549,7 @@ export function SabFilePicker({
                                                     <button
                                                         type="button"
                                                         className={cn(
-                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md',
+                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md',
                                                             selected &&
                                                                 'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30',
                                                         )}
@@ -559,7 +559,7 @@ export function SabFilePicker({
                                                             setTimeout(onConfirmPick, 0);
                                                         }}
                                                     >
-                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)]">
+                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)]">
                                                             {n.mime?.startsWith('image/') &&
                                                             n.url ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -615,7 +615,7 @@ export function SabFilePicker({
                                     e.preventDefault();
                                     onUploadFiles(e.dataTransfer.files);
                                 }}
-                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)]"
+                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)]"
                             >
                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] shadow-sm">
                                     <Upload className="h-5 w-5" />
@@ -641,7 +641,7 @@ export function SabFilePicker({
                                 }}
                             />
                             {tasks.length > 0 && (
-                                <div className="flex min-h-0 flex-1 flex-col rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                                <div className="flex min-h-0 flex-1 flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                                     <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-2">
                                         <span className="text-xs font-semibold text-[var(--st-text)]">
                                             Uploads
@@ -666,7 +666,7 @@ export function SabFilePicker({
                                         {tasks.map((t) => (
                                             <li
                                                 key={t.id}
-                                                className="flex flex-col gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]/60 bg-[var(--st-bg-secondary)]/40 p-2"
+                                                className="flex flex-col gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]/60 bg-[var(--st-bg-secondary)]/40 p-2"
                                             >
                                                 <div className="flex items-center justify-between gap-2 text-xs">
                                                     <span className="truncate font-medium text-[var(--st-text)]">
@@ -863,7 +863,7 @@ export function SabFileUrlInput({
         <div className={cn('flex items-center gap-2', className)}>
             <div
                 className={cn(
-                    'flex h-9 flex-1 items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-sm',
+                    'flex h-9 flex-1 items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-sm',
                     disabled && 'opacity-60',
                 )}
             >

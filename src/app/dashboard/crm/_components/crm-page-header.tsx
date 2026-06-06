@@ -96,7 +96,7 @@ export function CrmPageHeader({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           {Icon ? (
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
               <Icon className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
           ) : null}

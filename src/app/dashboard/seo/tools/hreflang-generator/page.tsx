@@ -209,7 +209,7 @@ export default function HreflangGeneratorPage() {
           const urlInvalid = r.url !== '' && !isValidUrl(r.url);
           
           return (
-            <div key={i} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-3 md:p-0 border border-[var(--st-border)] md:border-transparent rounded-[var(--zoru-radius)] md:rounded-none bg-[var(--st-bg-muted)] md:bg-transparent">
+            <div key={i} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-3 md:p-0 border border-[var(--st-border)] md:border-transparent rounded-[var(--st-radius)] md:rounded-none bg-[var(--st-bg-muted)] md:bg-transparent">
               <div className="w-full md:w-64 flex flex-col gap-1">
                 <div className="md:hidden text-xs font-medium text-[var(--st-text-secondary)] px-1">Language / Region</div>
                 <ZoruDynamicSelector

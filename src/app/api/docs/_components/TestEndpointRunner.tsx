@@ -172,7 +172,7 @@ export function TestEndpointRunner({
   };
 
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 space-y-4">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
         <Input
           type="password"
@@ -246,7 +246,7 @@ export function TestEndpointRunner({
         </div>
       ) : null}
 
-      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-xs font-mono text-[var(--st-text)] break-all">
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-xs font-mono text-[var(--st-text)] break-all">
         <span className="text-[var(--st-text-secondary)]">{method}</span>{' '}
         <span>{builtUrl}</span>
       </div>
@@ -277,7 +277,7 @@ export function TestEndpointRunner({
             <span className="text-[var(--st-text-tertiary)]">· {result.elapsedMs} ms</span>
           </div>
 
-          <details className="border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+          <details className="border border-[var(--st-border)] rounded-[var(--st-radius)]">
             <summary className="cursor-pointer px-3 py-1.5 text-xs text-[var(--st-text)] bg-[var(--st-bg-secondary)]">
               Response headers ({Object.keys(result.headers).length})
             </summary>
@@ -288,7 +288,7 @@ export function TestEndpointRunner({
             </pre>
           </details>
 
-          <details open className="border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+          <details open className="border border-[var(--st-border)] rounded-[var(--st-radius)]">
             <summary className="cursor-pointer px-3 py-1.5 text-xs text-[var(--st-text)] bg-[var(--st-bg-secondary)]">
               Response body
             </summary>

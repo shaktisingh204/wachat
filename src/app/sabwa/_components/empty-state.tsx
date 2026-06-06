@@ -75,7 +75,7 @@ export function EmptyState({
       {iconNode ? (
         <div
           aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+          className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
         >
           {iconNode}
         </div>

@@ -432,7 +432,7 @@ export function EcommProductDialog({
                       {variants.map((variant) => (
                         <div
                           key={variant.id}
-                          className="grid grid-cols-[1fr_2fr_auto] items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2"
+                          className="grid grid-cols-[1fr_2fr_auto] items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                         >
                           <Input
                             placeholder="Name (e.g. Color)"

@@ -118,7 +118,7 @@ export default function ProfileSettingsPage() {
       </PageHeader>
 
       {loading || !user ? (
-        <Skeleton className="h-[420px] w-full rounded-[var(--zoru-radius-lg)]" />
+        <Skeleton className="h-[420px] w-full rounded-[var(--st-radius-lg)]" />
       ) : (
         <form action={formAction} className="flex flex-col gap-4">
           <Card className="p-6">

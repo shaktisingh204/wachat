@@ -80,7 +80,7 @@ function KpiCard({ label, value, icon, active, onClick }: KpiCardProps) {
             className={[
                 'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
                 active
-                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
                     : '',
             ].join(' ')}
         >
@@ -174,7 +174,7 @@ export function WarehousesFiltersRow({
     hasActiveFilters,
 }: WarehousesFiltersRowProps) {
     return (
-        <div className="grid grid-cols-1 gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 md:grid-cols-3 lg:grid-cols-6">
             <div className="space-y-1">
                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Type

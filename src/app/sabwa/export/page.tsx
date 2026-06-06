@@ -238,7 +238,7 @@ export default function ExportPage() {
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
           <Download className="h-5 w-5" />
         </div>
         <div>
@@ -269,7 +269,7 @@ export default function ExportPage() {
               <div
                 role="group"
                 aria-label="Export scope"
-                className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+                className="inline-flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
               >
                 {SCOPE_OPTIONS.map((opt) => (
                   <Button
@@ -278,7 +278,7 @@ export default function ExportPage() {
                     size="sm"
                     variant={scopeKind === opt.value ? 'default' : 'ghost'}
                     onClick={() => setScopeKind(opt.value)}
-                    className="rounded-[calc(var(--zoru-radius)-2px)]"
+                    className="rounded-[calc(var(--st-radius)-2px)]"
                   >
                     {opt.label}
                   </Button>
@@ -301,7 +301,7 @@ export default function ExportPage() {
                       .filter(Boolean);
                     if (pasted.length === 0) return null;
                     return (
-                      <ul className="mt-1 max-h-32 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-[11px]">
+                      <ul className="mt-1 max-h-32 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-[11px]">
                         {pasted.map((jid) => {
                           const resolved = resolve(jid);
                           const pretty = formatJid(jid);
@@ -356,7 +356,7 @@ export default function ExportPage() {
                     <Label
                       key={key}
                       htmlFor={`fmt-${key}`}
-                      className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
+                      className="flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                     >
                       <ZoruRadioGroupItem id={`fmt-${key}`} value={key} />
                       <span>{FORMAT_LABELS[key]}</span>

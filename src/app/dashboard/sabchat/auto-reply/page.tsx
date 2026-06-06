@@ -139,7 +139,7 @@ export default function SabChatAutoReplyPage() {
         <Card>
           <ZoruCardHeader>
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <Bot className="h-4 w-4" />
               </span>
               <div>
@@ -169,7 +169,7 @@ export default function SabChatAutoReplyPage() {
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
-                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <div className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
                         id="welcomeEnabled"
                         name="welcomeEnabled"
@@ -205,7 +205,7 @@ export default function SabChatAutoReplyPage() {
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
-                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <div className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
                         id="awayMessageEnabled"
                         name="awayMessageEnabled"

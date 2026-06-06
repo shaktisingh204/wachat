@@ -183,7 +183,7 @@ async function OnboardingDetailContainer({ id }: { id: string }) {
             {o.checklist.map((t: any, i: number) => (
               <li
                 key={i}
-                className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
+                className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
               >
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                 <span className="flex min-w-0 flex-col">

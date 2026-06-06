@@ -230,7 +230,7 @@ function BroadcastListPane({
                   >
                     <div
                       aria-hidden
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                     >
                       <Users className="h-4 w-4" />
                     </div>
@@ -255,7 +255,7 @@ function BroadcastListPane({
                         e.stopPropagation();
                         onDelete(b.id);
                       }}
-                      className="rounded-[var(--zoru-radius)] p-1 text-[var(--st-text-secondary)] opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
+                      className="rounded-[var(--st-radius)] p-1 text-[var(--st-text-secondary)] opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -489,7 +489,7 @@ function BroadcastDetailPane({
                             onClick={() =>
                               onRemoveRecipients(broadcast.id, [r.jid])
                             }
-                            className="rounded-[var(--zoru-radius)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
+                            className="rounded-[var(--st-radius)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -531,7 +531,7 @@ function BroadcastDetailPane({
                   {media ? 'Replace media' : 'Attach media'}
                 </SabFilePickerButton>
                 {media && (
-                  <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
+                  <div className="flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                     <span className="max-w-[180px] truncate">{media.name}</span>
                     <button
                       type="button"
@@ -908,7 +908,7 @@ export default function BroadcastsPage() {
 
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <Send className="h-5 w-5" />
             </div>
             <div className="min-w-0">

@@ -35,7 +35,7 @@ async function AwardsView() {
 function AwardsSkeleton() {
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius-xl)] bg-[var(--st-bg)]">
+            <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--st-radius-lg)] bg-[var(--st-bg)]">
                 <div className="flex flex-col gap-2">
                     <Skeleton className="h-8 w-48" />
                     <Skeleton className="h-4 w-72" />
@@ -47,13 +47,13 @@ function AwardsSkeleton() {
             </div>
             
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-xl)]" />
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-xl)]" />
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-xl)]" />
-                <Skeleton className="h-24 w-full rounded-[var(--zoru-radius-xl)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
+                <Skeleton className="h-24 w-full rounded-[var(--st-radius-lg)]" />
             </div>
             
-            <Skeleton className="h-[400px] w-full rounded-[var(--zoru-radius-xl)]" />
+            <Skeleton className="h-[400px] w-full rounded-[var(--st-radius-lg)]" />
         </div>
     );
 }

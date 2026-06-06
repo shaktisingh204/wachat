@@ -67,7 +67,7 @@ export default function EmailNotificationsPage() {
         description:
           'CRM events fire transactional emails through the SabNode Email module. Pick which events should trigger emails.',
         render: () => (
-          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-sm text-[var(--st-text-secondary)]">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-sm text-[var(--st-text-secondary)]">
             Templates and sender identity come from the Email module. Click any
             event in the next step to enable/disable it.
           </div>
@@ -85,7 +85,7 @@ export default function EmailNotificationsPage() {
               return (
                 <label
                   key={ev.key}
-                  className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 cursor-pointer"
+                  className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 cursor-pointer"
                 >
                   <ev.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                   <span className="flex-1 text-sm">{ev.label}</span>

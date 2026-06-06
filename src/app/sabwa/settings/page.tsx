@@ -212,7 +212,7 @@ export default function ProfileSettingsPage() {
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
           <UserCog className="h-5 w-5" />
         </div>
         <div className="min-w-0">

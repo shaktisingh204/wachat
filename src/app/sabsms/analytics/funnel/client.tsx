@@ -312,7 +312,7 @@ export default function FunnelAnalyticsPage() {
                   onClick={() => setActiveVariant("control")}
                   className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                     activeVariant === "control" 
-                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]" 
+                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]" 
                       : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50"
                   }`}
                 >
@@ -322,7 +322,7 @@ export default function FunnelAnalyticsPage() {
                   onClick={() => setActiveVariant("variant")}
                   className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                     activeVariant === "variant" 
-                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]" 
+                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]" 
                       : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50"
                   }`}
                 >

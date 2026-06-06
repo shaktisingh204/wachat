@@ -136,7 +136,7 @@ async function DocumentTemplateDetailPageContainer({ params }: PageProps) {
 
             <Card className="p-6">
                 <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">Body</div>
-                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[13px] text-[var(--st-text)] font-sans">
+                <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[13px] text-[var(--st-text)] font-sans">
                     {body || (
                         <span className="text-[var(--st-text-secondary)]">No body content.</span>
                     )}

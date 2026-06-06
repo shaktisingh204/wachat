@@ -96,8 +96,8 @@ export function EditScheduleSheet({
           </ZoruSheetHeader>
 
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
-            <div className="flex items-start gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+            <div className="flex items-start gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <CalendarClock className="h-4 w-4" />
               </span>
               <div className="flex min-w-0 flex-col">

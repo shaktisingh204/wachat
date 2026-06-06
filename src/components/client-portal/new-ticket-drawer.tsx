@@ -106,7 +106,7 @@ export function NewTicketDrawer() {
                                     id="ct-priority"
                                     value={priority}
                                     onChange={(e) => setPriority(e.target.value as Priority)}
-                                    className="h-9 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
+                                    className="h-9 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
                                 >
                                     {PRIORITIES.map((p) => (
                                         <option key={p} value={p}>

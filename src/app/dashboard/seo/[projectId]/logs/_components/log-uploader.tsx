@@ -114,7 +114,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
         <div className="flex h-[300px] flex-col items-center justify-center p-4">
             {status === 'idle' && !file && (
                 <div 
-                    className={`flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed transition-colors ${isDragging ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]/80' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
+                    className={`flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--st-radius)] border-2 border-dashed transition-colors ${isDragging ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]/80' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
                     onDragOver={onDragOver}
                     onDragEnter={onDragEnter}
                     onDragLeave={onDragLeave}
@@ -139,7 +139,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {(file && (status === 'idle' || status === 'uploading' || status === 'parsing')) && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-6">
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-6">
                     <FileText className="mb-4 h-12 w-12 text-[var(--st-text)]" />
                     <div className="mb-2 text-center text-[var(--st-text)] font-medium">{file.name}</div>
                     <div className="mb-6 text-sm text-[var(--st-text-secondary)]">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
@@ -172,7 +172,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {status === 'success' && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-status-ok)] bg-[var(--st-status-ok)]/20 p-6 text-center">
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-status-ok)] bg-[var(--st-status-ok)]/20 p-6 text-center">
                     <CheckCircle className="mb-4 h-12 w-12 text-[var(--st-status-ok)]" />
                     <h3 className="mb-2 text-lg text-[var(--st-status-ok)] font-medium">Upload Complete!</h3>
                     <p className="mb-6 text-sm text-[var(--st-status-ok)]/80">Log file has been streamed and parsed successfully.</p>
@@ -181,7 +181,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {status === 'error' && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-danger)] bg-[var(--st-danger-soft)]/20 p-6 text-center">
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-danger)] bg-[var(--st-danger-soft)]/20 p-6 text-center">
                     <AlertCircle className="mb-4 h-12 w-12 text-[var(--st-danger)]" />
                     <h3 className="mb-2 text-lg text-[var(--st-danger)] font-medium">Upload Failed</h3>
                     <p className="mb-6 text-sm text-[var(--st-danger)]/80">{errorMessage}</p>

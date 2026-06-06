@@ -474,7 +474,7 @@ export function SalesOrdersListClient({
         const options = ['open', 'partial', 'fulfilled', 'closed', 'cancelled'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none"
+            className="h-8 w-28 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none"
             value={value !== undefined ? String(value) : 'open'}
             onChange={(e) => onChange(e.target.value)}
           >

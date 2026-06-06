@@ -194,8 +194,8 @@ export default function SettingsOverviewPage() {
               const Icon = tile.icon;
               return (
                 <Link key={tile.href} href={tile.href} className="group">
-                  <Card className="h-full p-4 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                  <Card className="h-full p-4 transition-shadow group-hover:shadow-[var(--st-shadow-md)]">
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                       <Icon className="h-[18px] w-[18px]" />
                     </div>
                     <div className="flex items-start justify-between gap-2">

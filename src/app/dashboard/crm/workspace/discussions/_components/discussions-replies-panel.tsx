@@ -72,7 +72,7 @@ export function DiscussionsRepliesPanel({
                     replies.map((r) => (
                         <div
                             key={r._id}
-                            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
+                            className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">

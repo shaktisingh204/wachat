@@ -563,16 +563,16 @@ export default function ProjectDetailPage(props: {
 
       {/* Tabs */}
       <Card className="p-6">
-        <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
+        <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                'flex-1 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                'flex-1 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                 activeTab === t.id
-                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
                   : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >

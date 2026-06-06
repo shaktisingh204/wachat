@@ -674,7 +674,7 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
               title={CHART_TYPE_LABELS[ct]}
               onClick={() => onChange({ chartType: ct })}
               className={cn(
-                'flex flex-col items-center gap-1 rounded-[var(--zoru-radius-sm)] border p-2 text-xs transition-colors',
+                'flex flex-col items-center gap-1 rounded-[var(--st-radius-sm)] border p-2 text-xs transition-colors',
                 state.chartType === ct
                   ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
                   : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)] hover:text-[var(--st-text)]',
@@ -1090,7 +1090,7 @@ function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) 
           className="flex flex-1 items-center gap-3 text-left"
           aria-expanded={expanded}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             {CHART_ICON[report.chartType ?? 'bar']}
           </span>
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
@@ -1200,7 +1200,7 @@ function ReportListSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <Card key={i} className="p-5">
           <div className="flex items-center gap-3">
-            <Skeleton className="h-8 w-8 rounded-[var(--zoru-radius-sm)]" />
+            <Skeleton className="h-8 w-8 rounded-[var(--st-radius-sm)]" />
             <div className="flex flex-1 flex-col gap-1.5">
               <Skeleton className="h-4 w-48" />
               <Skeleton className="h-3 w-32" />

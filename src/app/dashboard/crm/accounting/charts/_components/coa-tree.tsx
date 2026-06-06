@@ -155,7 +155,7 @@ export function CoaTree({ rows }: CoaTreeProps) {
                                                                     <Link
                                                                         href={`/dashboard/crm/accounting/charts/${row._id}`}
                                                                         onClick={(e) => handleAccountClick(row, e)}
-                                                                        className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-3 text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] rounded-[var(--zoru-radius-sm)] transition-colors"
+                                                                        className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-3 text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] rounded-[var(--st-radius-sm)] transition-colors"
                                                                     >
                                                                         <span className="truncate">
                                                                             {row.code ? (
@@ -262,7 +262,7 @@ export function CoaTree({ rows }: CoaTreeProps) {
                                         return (
                                             <div 
                                                 key={entry._id} 
-                                                className="p-3 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-lg hover:border-[var(--st-border-strong)] transition-colors space-y-2.5 shadow-[var(--zoru-shadow-sm)]"
+                                                className="p-3 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-lg hover:border-[var(--st-border-strong)] transition-colors space-y-2.5 shadow-[var(--st-shadow-sm)]"
                                             >
                                                 <div className="flex justify-between items-start gap-4">
                                                     <div className="space-y-0.5">

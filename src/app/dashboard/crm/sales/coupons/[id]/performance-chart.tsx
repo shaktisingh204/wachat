@@ -85,7 +85,7 @@ export function PerformanceChart({ usedCount, createdAt }: PerformanceChartProps
                 contentStyle={{ 
                   backgroundColor: 'var(--zoru-surface)', 
                   borderColor: 'var(--zoru-line)',
-                  borderRadius: 'var(--zoru-radius)',
+                  borderRadius: 'var(--st-radius)',
                   fontSize: '13px'
                 }} 
               />

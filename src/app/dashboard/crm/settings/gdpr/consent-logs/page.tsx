@@ -144,37 +144,37 @@ export default function ConsentLogsPage() {
           <StatCard
             label="Total entries"
             value={totalEntries.toLocaleString()}
-            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('granted')}>
           <StatCard
             label="Active (granted)"
             value={grantedEntries.toLocaleString()}
-            className={cn(statusFilter === 'granted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'granted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('revoked')}>
           <StatCard
             label="Withdrawn (revoked)"
             value={revokedEntries.toLocaleString()}
-            className={cn(statusFilter === 'revoked' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'revoked' && 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]')}
           />
         </button>
       </div>
 
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
+          <div className="inline-flex gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
           {(['leads', 'users'] as const).map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
               className={cn(
-                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                'rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                 tab === id
-                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
                   : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >

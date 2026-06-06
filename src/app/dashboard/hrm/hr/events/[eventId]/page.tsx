@@ -118,7 +118,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
             }
         >
             {event.bannerUrl ? (
-                <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={event.bannerUrl}

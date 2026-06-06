@@ -136,13 +136,13 @@ function FilterBar({
           placeholder="Search roadmaps..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] transition-all"
+          className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] transition-all"
         />
       </div>
       <select
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        className="px-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] w-full sm:w-auto transition-all"
+        className="px-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] w-full sm:w-auto transition-all"
       >
         <option value="all">All Statuses</option>
         <option value="draft">Draft</option>
@@ -168,7 +168,7 @@ function BulkActionsBar({
   onExportPdf: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2 animate-in fade-in slide-in-from-top-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2 animate-in fade-in slide-in-from-top-2">
       <span className="text-sm font-medium text-[var(--st-text-secondary)]">{selectedCount} selected</span>
       <div className="h-4 w-[1px] bg-[var(--st-border)] mx-2 hidden sm:block" />
       <Button variant="ghost" size="sm" onClick={onArchive}>

@@ -459,7 +459,7 @@ export default function SchedulerQueuePage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <ListChecks className="h-5 w-5" />
           </div>
           <div>
@@ -509,7 +509,7 @@ export default function SchedulerQueuePage() {
       </div>
 
       {/* ─── Filters ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+      <div className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
         <div className="flex flex-1 min-w-[180px] flex-col gap-1">
           <Label htmlFor="queue-search" className="text-[11px]">
             Search target or message
@@ -564,7 +564,7 @@ export default function SchedulerQueuePage() {
 
       {/* ─── Bulk bar ────────────────────────────────────────────────── */}
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]">
+        <div className="flex flex-wrap items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]">
           <span>
             <strong>{selected.size}</strong> selected
           </span>
@@ -616,7 +616,7 @@ export default function SchedulerQueuePage() {
       )}
 
       {/* ─── Table ──────────────────────────────────────────────────── */}
-      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -647,7 +647,7 @@ export default function SchedulerQueuePage() {
               Array.from({ length: 6 }).map((_, i) => (
                 <ZoruTableRow key={`queue-skeleton-${i}`}>
                   <ZoruTableCell colSpan={8} className="py-2">
-                    <Skeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                    <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
@@ -709,7 +709,7 @@ export default function SchedulerQueuePage() {
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
+                          "inline-flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
                         )}
                       >
                         <Icon className="h-3.5 w-3.5" />

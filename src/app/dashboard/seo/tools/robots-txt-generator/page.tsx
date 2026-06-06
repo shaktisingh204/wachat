@@ -163,7 +163,7 @@ export default function RobotsTxtGeneratorPage() {
   return (
     <ToolShell title="Robots.txt Generator" description="Generate and manage your robots.txt file with specific bot targeting.">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-3 items-end p-4 border rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+        <div className="flex flex-col sm:flex-row gap-3 items-end p-4 border rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
           <div className="flex-1 space-y-1 w-full">
             <Label>Import Existing (URL)</Label>
             <Input 
@@ -186,7 +186,7 @@ export default function RobotsTxtGeneratorPage() {
           {groups.map((g, i) => {
             const selectedOpt = BOT_OPTIONS.find(b => b.id === g.ua);
             return (
-              <div key={g.id} className="p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius)] space-y-4">
+              <div key={g.id} className="p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b border-[var(--st-border)]">
                   <h4 className="font-medium text-sm text-[var(--st-text-secondary)]">Group {i + 1}</h4>
                   {groups.length > 1 && (

@@ -226,7 +226,7 @@ export default function SabWaFlowsPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Workflow className="h-5 w-5" />
         </div>
@@ -277,7 +277,7 @@ export default function SabWaFlowsPage() {
         {loading && (
           <div className="grid gap-3 md:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 w-full rounded-[var(--zoru-radius-lg)]" />
+              <Skeleton key={i} className="h-28 w-full rounded-[var(--st-radius-lg)]" />
             ))}
           </div>
         )}
@@ -310,7 +310,7 @@ export default function SabWaFlowsPage() {
             <ZoruCardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <div
                 aria-hidden
-                className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+                className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
               >
                 <Workflow className="h-6 w-6" />
               </div>
@@ -342,7 +342,7 @@ export default function SabWaFlowsPage() {
               return (
                 <Card
                   key={flow._id}
-                  className="transition hover:shadow-[var(--zoru-shadow-md)]"
+                  className="transition hover:shadow-[var(--st-shadow-md)]"
                 >
                   <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="flex items-start justify-between gap-3">
@@ -411,7 +411,7 @@ export default function SabWaFlowsPage() {
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
+                className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa triggers reference"
               >
                 <ZoruCardHeader className="p-0">
@@ -430,13 +430,13 @@ export default function SabWaFlowsPage() {
                 {SABWA_TRIGGERS.map((trigger) => (
                   <div
                     key={trigger.id}
-                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {trigger.title}
                       </span>
-                      <code className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
+                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {trigger.id}
                       </code>
                     </div>
@@ -455,7 +455,7 @@ export default function SabWaFlowsPage() {
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
+                className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa actions reference"
               >
                 <ZoruCardHeader className="p-0">
@@ -474,13 +474,13 @@ export default function SabWaFlowsPage() {
                 {SABWA_ACTIONS.map((action) => (
                   <div
                     key={action.id}
-                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {action.title}
                       </span>
-                      <code className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
+                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {action.id}
                       </code>
                     </div>

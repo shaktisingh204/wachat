@@ -81,7 +81,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
                   aria-label="SabNode home"
                   className="inline-flex items-center gap-2"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-text)] text-xs text-[var(--st-text-inverted)]">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-text)] text-xs text-[var(--st-text-inverted)]">
                     S
                   </span>
                   <span className="hidden text-sm text-[var(--st-text)] sm:inline">

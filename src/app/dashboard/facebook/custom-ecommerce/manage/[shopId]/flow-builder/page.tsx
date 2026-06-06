@@ -190,7 +190,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
       case "image":
         return (
           <div className="space-y-1">
-            <div className="flex aspect-video w-full items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg)]/50">
+            <div className="flex aspect-video w-full items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg)]/50">
               <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" />
             </div>
             {node.data.caption ? (
@@ -211,7 +211,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
                 (btn: ButtonConfig, index: number) => (
                   <div
                     key={btn.id || index}
-                    className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg)]/50 py-1.5 text-center text-xs text-[var(--st-text)]"
+                    className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg)]/50 py-1.5 text-center text-xs text-[var(--st-text)]"
                   >
                     {btn.text || `Button ${index + 1}`}
                   </div>
@@ -243,7 +243,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
 
   return (
     <ZoruCardContent className="p-2 pt-0">
-      <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-2 text-sm text-[var(--st-text)]">
+      <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-sm text-[var(--st-text)]">
         {previewContent}
       </div>
     </ZoruCardContent>
@@ -308,7 +308,7 @@ function NodeComponent({
     >
       <Card
         className={cn(
-          "w-64 hover:-translate-y-0.5 hover:shadow-[var(--zoru-shadow-md)]",
+          "w-64 hover:-translate-y-0.5 hover:shadow-[var(--st-shadow-md)]",
           isSelected && "ring-2 ring-[var(--st-text)]",
         )}
       >
@@ -610,7 +610,7 @@ function PropertiesPanel({
                 Comma-separated keywords to start this flow.
               </p>
             </div>
-            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4">
+            <div className="flex items-center justify-between gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4">
               <div>
                 <Label htmlFor="isWelcomeFlow">
                   Set as welcome flow
@@ -789,7 +789,7 @@ function PropertiesPanel({
                 }
               />
             </div>
-            <div className="flex items-center justify-between rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
+            <div className="flex items-center justify-between rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-3">
               <Label htmlFor="typing-indicator" className="font-normal">
                 Show typing indicator
               </Label>
@@ -943,7 +943,7 @@ function PropertiesPanel({
                 ) => (
                   <div
                     key={index}
-                    className="relative space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2"
+                    className="relative space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                   >
                     <Button
                       type="button"
@@ -997,7 +997,7 @@ function PropertiesPanel({
               {elements.map((el, elIndex) => (
                 <div
                   key={el.id}
-                  className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                  className="relative space-y-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                 >
                   <Button
                     type="button"
@@ -1044,7 +1044,7 @@ function PropertiesPanel({
                     {(el.buttons || []).map((btn, btnIndex) => (
                       <div
                         key={btnIndex}
-                        className="relative space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+                        className="relative space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                       >
                         <Button
                           type="button"

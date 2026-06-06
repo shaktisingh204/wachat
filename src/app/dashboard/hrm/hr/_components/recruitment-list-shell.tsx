@@ -273,7 +273,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
           className={[
             'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
             activeKpi === k.filterValue
-              ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
+              ? 'ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]'
               : '',
           ].join(' ')}
         >
@@ -287,7 +287,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
   const viewSwitcher = views && views.length > 1 ? (
     <div
       role="tablist"
-      className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-0.5"
+      className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-0.5"
     >
       {views.map((v) => (
         <button
@@ -297,7 +297,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
           aria-selected={activeView === v.key}
           onClick={() => onPickView?.(v.key)}
           className={[
-            'inline-flex items-center gap-1 rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12px]',
+            'inline-flex items-center gap-1 rounded-[calc(var(--st-radius)-2px)] px-2.5 py-1 text-[12px]',
             activeView === v.key
               ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-xs)]'
               : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',

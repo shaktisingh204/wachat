@@ -237,7 +237,7 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <MessageSquareReply className="h-5 w-5" />
           </div>
           <div>
@@ -285,7 +285,7 @@ export default function Page() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <ZoruTableRow key={`qr-skeleton-${i}`}>
                     <ZoruTableCell colSpan={6} className="py-2">
-                      <Skeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                      <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
@@ -546,7 +546,7 @@ function QuickReplyDialog({
         </div>
 
         {/* Live preview */}
-        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Live preview
           </p>
@@ -557,7 +557,7 @@ function QuickReplyDialog({
             </code>{' '}
             the chat composer expands to:
           </p>
-          <div className="mt-2 max-w-md rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]">
+          <div className="mt-2 max-w-md rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)] shadow-[var(--st-shadow-sm)]">
             <p className="whitespace-pre-wrap">
               {body ? (
                 body

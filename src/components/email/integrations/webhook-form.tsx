@@ -152,7 +152,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
                   <label
                     key={ev.value}
                     htmlFor={inputId}
-                    className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-xs hover:bg-[var(--st-bg-muted)]"
+                    className="flex cursor-pointer items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-xs hover:bg-[var(--st-bg-muted)]"
                   >
                     <Checkbox
                       id={inputId}
@@ -166,7 +166,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
+          <div className="flex items-center justify-between rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
             <div>
               <Label htmlFor="hook-active">Active</Label>
               <p className="text-xs text-[var(--st-text-secondary)]">
@@ -183,7 +183,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
           {webhook?.signingSecret ? (
             <div className="space-y-1.5">
               <Label>Signing secret</Label>
-              <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+              <div className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
                 <code className="flex-1 truncate text-xs text-[var(--st-text)]">
                   {webhook.signingSecret}
                 </code>

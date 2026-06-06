@@ -194,7 +194,7 @@ function ZoruConversationListPane({
         </div>
 
         {isBulkMode && (
-          <div className="flex items-center justify-between bg-[var(--st-bg-muted)] p-2 rounded-[var(--zoru-radius-sm)]">
+          <div className="flex items-center justify-between bg-[var(--st-bg-muted)] p-2 rounded-[var(--st-radius-sm)]">
             <span className="text-xs font-medium">{selectedBulk.length} selected</span>
             <div className="flex gap-1">
               <Button variant="outline" size="icon-sm" className="h-6 w-6"><CheckCircle2 className="h-3 w-3" /></Button>
@@ -233,10 +233,10 @@ function ZoruConversationListPane({
                     type="button"
                     onClick={() => !isBulkMode && onSelectConversation(convo)}
                     className={cn(
-                      "flex w-full items-start gap-3 rounded-[var(--zoru-radius)] p-3 text-left transition-colors",
+                      "flex w-full items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors",
                       isBulkMode && "pl-8",
                       selected
-                        ? "bg-[var(--st-bg-muted)] shadow-[var(--zoru-shadow-sm)] ring-1 ring-[var(--st-border)]"
+                        ? "bg-[var(--st-bg-muted)] shadow-[var(--st-shadow-sm)] ring-1 ring-[var(--st-border)]"
                         : "hover:bg-[var(--st-bg-secondary)]",
                     )}
                   >
@@ -314,7 +314,7 @@ function ChatMessageBubble({
 
       <div
         className={cn(
-          "flex max-w-[70%] flex-col rounded-[var(--zoru-radius)] px-4 py-2.5 text-[13px] shadow-[var(--zoru-shadow-sm)]",
+          "flex max-w-[70%] flex-col rounded-[var(--st-radius)] px-4 py-2.5 text-[13px] shadow-[var(--st-shadow-sm)]",
           isAgent
             ? isWhisper 
               ? "bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white rounded-br-none border border-[var(--st-border)] dark:border-[var(--st-border)]" 
@@ -590,7 +590,7 @@ function ZoruSabChatWindow({
 
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">Satisfaction</h4>
-              <div className="flex items-center gap-2 p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <div className="flex items-center gap-2 p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
                 <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
                 <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />

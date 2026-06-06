@@ -200,7 +200,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                         </Button>
                     </div>
                     {items.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No items yet. Add one with the button above.
                         </div>
                     ) : (
@@ -208,7 +208,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                             {items.map((it, idx) => (
                                 <div
                                     key={idx}
-                                    className="grid grid-cols-1 items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
+                                    className="grid grid-cols-1 items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
                                 >
                                     <div className="space-y-1">
                                         <Label className="text-[11px] text-[var(--st-text-secondary)]">

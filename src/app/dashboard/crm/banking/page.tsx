@@ -211,7 +211,7 @@ async function BankingDashboardData() {
                         return (
                             <Card key={feat.title} className="p-4 flex flex-col gap-3">
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                         <Icon className="h-4 w-4" strokeWidth={2} />
                                     </div>
                                     <div className="flex-1">

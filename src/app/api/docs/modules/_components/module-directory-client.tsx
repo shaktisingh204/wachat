@@ -97,7 +97,7 @@ export function ModuleDirectoryClient({
                 <a
                   key={e.id}
                   href={`/api/docs/modules/${e.module}/${e.slug}`}
-                  className="flex items-center gap-4 p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)] hover:bg-[var(--st-bg-muted)] transition-colors"
+                  className="flex items-center gap-4 p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-bg-muted)] transition-colors"
                 >
                   <MethodBadge method={e.method} />
                   <span className="font-mono text-[13px]">{e.path}</span>
@@ -120,7 +120,7 @@ export function ModuleDirectoryClient({
                 <a
                   key={m.name}
                   href={'/api/docs/modules/' + m.name}
-                  className="block p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--zoru-shadow-md)]"
+                  className="block p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-md)]"
                 >
                   <div className="text-[14px] font-medium capitalize text-[var(--st-text)]">
                     {m.name}
@@ -134,7 +134,7 @@ export function ModuleDirectoryClient({
             </div>
 
             {filteredModules.length === 0 && filteredEndpoints.length === 0 && (
-              <div className="py-12 text-center text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+              <div className="py-12 text-center text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)]">
                 No modules or endpoints found matching &quot;{query}&quot;.
               </div>
             )}
@@ -147,7 +147,7 @@ export function ModuleDirectoryClient({
                     <a
                       key={e.id}
                       href={`/api/docs/modules/${e.module}/${e.slug}`}
-                      className="flex items-center gap-4 p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)] hover:bg-[var(--st-bg-muted)] transition-colors"
+                      className="flex items-center gap-4 p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-bg-muted)] transition-colors"
                     >
                       <MethodBadge method={e.method} />
                       <span className="font-mono text-[13px]">{e.path}</span>

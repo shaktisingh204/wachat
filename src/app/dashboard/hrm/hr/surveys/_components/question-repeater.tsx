@@ -153,7 +153,7 @@ export function QuestionRepeater({
             <input type="hidden" name={name} value={payload} />
 
             {items.length === 0 ? (
-                <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                     No questions yet. Add your first question to start.
                 </div>
             ) : (
@@ -161,7 +161,7 @@ export function QuestionRepeater({
                     {items.map((q, idx) => (
                         <li
                             key={q._key}
-                            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
+                            className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
                         >
                             <div className="mb-3 flex items-center gap-2">
                                 <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -301,7 +301,7 @@ function OptionsEditor({
         onChange(options.map((o, i) => (i === idx ? value : o)));
 
     return (
-        <div className="mt-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+        <div className="mt-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
             <div className="mb-2 text-[12px] font-medium text-[var(--st-text-secondary)]">
                 Options
             </div>

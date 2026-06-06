@@ -214,7 +214,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                         </Button>
                     </div>
                     {fields.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             At least one field is required.
                         </div>
                     ) : (
@@ -222,7 +222,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                             {fields.map((f, idx) => (
                                 <div
                                     key={f.rowKey}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto_1fr_auto]"
+                                    className="grid grid-cols-1 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto_1fr_auto]"
                                 >
                                     <div className="flex flex-col items-center justify-center gap-1 self-center">
                                         <button

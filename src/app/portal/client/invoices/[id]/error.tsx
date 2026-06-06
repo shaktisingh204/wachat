@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-[var(--st-bg)] rounded-[var(--zoru-radius)] border border-[var(--st-border)] mt-4">
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-[var(--st-bg)] rounded-[var(--st-radius)] border border-[var(--st-border)] mt-4">
       <AlertTriangle className="w-12 h-12 text-[var(--st-danger)] mb-4" />
       <h2 className="text-xl font-bold mb-2 text-[var(--st-text)]">Something went wrong</h2>
       <p className="text-[var(--st-text-secondary)] mb-6 max-w-md">

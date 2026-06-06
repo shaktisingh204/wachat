@@ -679,7 +679,7 @@ export function ViewToolbar({
 
           {canBoard && (
             <div
-              className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5"
+              className="inline-flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5"
               role="group"
               aria-label="View layout"
             >
@@ -1186,7 +1186,7 @@ const FilterDialog = React.memo(function FilterDialog({
         {/* Lab: advancedFilterGroups — AND / OR logic toggle */}
         {showLogicToggle && (
           <div
-            className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5 self-start"
+            className="inline-flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5 self-start"
             role="group"
             aria-label="Filter logic"
           >
