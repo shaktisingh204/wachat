@@ -1,6 +1,6 @@
 'use client';
 
-import { DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/zoruui';
+import { DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 

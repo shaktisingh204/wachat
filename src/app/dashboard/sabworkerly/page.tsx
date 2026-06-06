@@ -10,7 +10,7 @@ import {
     ZoruPageTitle,
     ZoruPageDescription,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions/user.actions';
 import {
     getSabworkerlyDashboardStats,

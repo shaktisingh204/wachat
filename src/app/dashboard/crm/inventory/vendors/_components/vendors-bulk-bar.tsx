@@ -11,7 +11,7 @@ import {
     ZoruDropdownMenuLabel,
     ZoruDropdownMenuSeparator,
     ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import type { VendorTypeOption } from './vendors-filters';
 

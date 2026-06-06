@@ -8,7 +8,7 @@ import {
   Input,
   Label,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';
 import type { SabtablesViewDoc } from '@/lib/rust-client/sabtables-views';
 

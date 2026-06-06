@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/zoruui';
+import { Badge, Card } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getMentionsForMe } from '@/app/actions/worksuite/chat.actions';

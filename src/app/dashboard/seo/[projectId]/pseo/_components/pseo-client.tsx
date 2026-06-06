@@ -8,7 +8,7 @@ import {
     ZoruCardTitle,
     ZoruCardDescription,
     Badge
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton, Dialog, ZoruDialogContent, ZoruDialogTrigger } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton, Dialog, ZoruDialogContent, ZoruDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Image as ImageIcon,
   CircleAlert,

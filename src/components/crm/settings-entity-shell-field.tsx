@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, Textarea } from '@/components/zoruui';
+import { Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 /**
  * Internal helpers for <SettingsEntityShell>:
  *  - FieldRenderer: renders one form field by `SettingsField` shape

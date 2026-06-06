@@ -13,7 +13,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPageDescription
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutPlans } from '@/app/actions/sabcheckout.actions';
 import { SabcheckoutPlansClient } from './plans-client';

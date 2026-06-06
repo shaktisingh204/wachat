@@ -11,7 +11,7 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmWarehouseById } from '@/app/actions/crm-warehouses.actions';
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 interface PageProps {
   params: Promise<{ id: string }>;

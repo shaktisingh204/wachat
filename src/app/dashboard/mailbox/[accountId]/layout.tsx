@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Inbox, PencilLine, Filter, Users } from 'lucide-react';
 
 import { getMailAccount } from '@/app/actions/mailbox.actions';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Account-scoped shell for `/dashboard/mailbox/[accountId]/*`.

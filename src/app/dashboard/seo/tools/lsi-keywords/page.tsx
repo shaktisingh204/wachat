@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, Tabs, ZoruZoruTabsList, ZoruZoruTabsTrigger, ZoruZoruTabsContent } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, Badge, Tabs, ZoruZoruTabsList, ZoruZoruTabsTrigger, ZoruZoruTabsContent } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy, Loader2, Check } from 'lucide-react';

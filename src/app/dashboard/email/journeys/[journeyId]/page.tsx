@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, Card } from '@/components/zoruui';
+import { Skeleton, Card } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { JourneyDetailClient } from '@/components/email/journeys/journey-detail-client';
 

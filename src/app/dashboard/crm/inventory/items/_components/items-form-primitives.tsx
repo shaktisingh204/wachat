@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Checkbox, Label } from '@/components/zoruui';
+import { Card, Checkbox, Label } from '@/components/sabcrm/20ui/compat';
 /**
  * Shared form primitives used by the item-form sections.
  *

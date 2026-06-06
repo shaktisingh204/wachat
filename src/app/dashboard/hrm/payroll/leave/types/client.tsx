@@ -12,7 +12,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -37,7 +37,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {

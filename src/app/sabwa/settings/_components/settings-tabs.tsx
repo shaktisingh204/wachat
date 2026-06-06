@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import { usePathname } from 'next/navigation';
 
 /**

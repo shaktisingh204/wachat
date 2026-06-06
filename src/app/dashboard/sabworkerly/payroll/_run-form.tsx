@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label } from '@/components/zoruui';
+import { Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { runSabworkerlyPayroll } from '@/app/actions/sabworkerly.actions';
 
 export function RunPayrollForm() {

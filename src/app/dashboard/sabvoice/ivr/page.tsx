@@ -18,7 +18,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {

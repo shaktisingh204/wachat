@@ -1,4 +1,4 @@
-import { Button, Card, Tabs, ZoruTabsContent as TabsContent, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger } from '@/components/zoruui';
+import { Button, Card, Tabs, ZoruTabsContent as TabsContent, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { Package, Pencil } from 'lucide-react';
 import type { WithId } from 'mongodb';
 

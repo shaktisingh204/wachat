@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';

@@ -23,7 +23,7 @@ import {
   ZoruSelectValue,
   Checkbox,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,

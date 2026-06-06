@@ -1,4 +1,4 @@
-import { Card, ZoruCardHeader, ZoruCardContent, ZoruCardFooter, PageHeader, Skeleton, Separator } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardContent, ZoruCardFooter, PageHeader, Skeleton, Separator } from '@/components/sabcrm/20ui/compat';
 
 export default function UserDashboardLoading() {
   return (

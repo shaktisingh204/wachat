@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useZoruToast } from '@/components/zoruui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Share2, Copy, Check } from 'lucide-react';
 import { setDashboardVisibility } from './share-action';
 

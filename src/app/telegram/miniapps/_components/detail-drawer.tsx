@@ -20,7 +20,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   Card,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useProject } from '@/context/project-context';
 import {
   listTelegramMiniAppSessionsAction,

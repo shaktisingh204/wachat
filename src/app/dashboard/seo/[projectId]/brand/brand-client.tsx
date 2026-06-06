@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Radar, RefreshCw, Link2, Unlink } from 'lucide-react';
 import { AlertsDialog } from './alerts-dialog';
 import { useEffect, useState } from 'react';

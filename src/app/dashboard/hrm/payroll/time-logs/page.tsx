@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { getTimeLogs } from '@/app/actions/worksuite/time.actions';
 import { TimeLogsClient } from './components/time-logs-client';
 import { ErrorBoundaryWrapper } from './components/error-boundary';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

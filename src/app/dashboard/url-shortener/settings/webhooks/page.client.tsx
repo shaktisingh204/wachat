@@ -26,7 +26,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Webhook, Search, AlertCircle } from 'lucide-react';
 
 const STORAGE_KEY = 'url-shortener-webhooks';

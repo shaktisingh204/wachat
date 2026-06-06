@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send, Terminal } from 'lucide-react';
 import { submitPublicLead } from '@/app/actions/worksuite/public.actions';
 import { FieldInput } from './_components/field-input';

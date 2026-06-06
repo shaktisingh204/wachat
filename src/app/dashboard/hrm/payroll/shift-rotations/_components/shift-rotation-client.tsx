@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, useTransition, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Edit, Play, Trash2, Download, Search } from 'lucide-react';

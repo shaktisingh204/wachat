@@ -3,7 +3,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruSkeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export default function NewProductionOrderLoading() {
   return (

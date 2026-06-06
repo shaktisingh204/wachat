@@ -23,7 +23,7 @@ import {
     SelectValue,
     SelectContent,
     SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { ProjectRuntime } from '@/lib/rust-client/sabcatalyst-projects';
 
 const RUNTIMES: ProjectRuntime[] = ['nodejs20', 'python311', 'deno', 'bun'];

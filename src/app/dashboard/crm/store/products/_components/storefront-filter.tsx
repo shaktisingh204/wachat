@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';

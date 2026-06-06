@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Skeleton } from '@/components/zoruui';
+import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { MousePointerClick, Users, TrendingUp, Globe2 } from 'lucide-react';
 
 interface AnalyticsSummaryCardsProps {

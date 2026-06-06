@@ -14,7 +14,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import React from 'react';
 import Image from 'next/image';
 

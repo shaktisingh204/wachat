@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
 import { OffboardingTask } from '@/lib/hrm-advanced-types';
 
 interface OffboardingFormProps {

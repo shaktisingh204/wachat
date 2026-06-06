@@ -3,7 +3,7 @@
 import React from 'react';
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/zoruui-domain/feature-lock';
-import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import { useAccountingStore } from './_components/accounting-store';
 
 export default function AccountingLayout({ children }: { children: React.ReactNode }) {

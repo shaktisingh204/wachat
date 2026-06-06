@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Input, Card, useZoruToast } from '@/components/zoruui';
+import { Button, Textarea, Input, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Paperclip, Send, LoaderCircle, Download, Check, CheckCheck } from 'lucide-react';
 
 import * as React from 'react';

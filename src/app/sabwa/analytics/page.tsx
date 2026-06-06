@@ -17,7 +17,7 @@ import {
   DatePicker,
   EmptyState,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   format,
   subDays } from 'date-fns';

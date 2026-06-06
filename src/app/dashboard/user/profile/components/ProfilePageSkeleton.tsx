@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, Skeleton } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export function ProfilePageSkeleton() {
     return (

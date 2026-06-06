@@ -7,7 +7,7 @@ import {
     Button,
     Card,
     ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

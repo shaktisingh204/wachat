@@ -29,7 +29,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WidgetKey } from '@/app/actions/dashboard-widgets.config';
 import type {
   DashboardWidgetItem,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
 import { User, Phone, Briefcase } from 'lucide-react';
 
 interface ContactMessageContentProps {

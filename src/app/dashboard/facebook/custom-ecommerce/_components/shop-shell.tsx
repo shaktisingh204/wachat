@@ -14,7 +14,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * Shared zoru-only chrome for the Custom E-commerce manage scope.
  *

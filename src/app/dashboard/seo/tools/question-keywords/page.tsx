@@ -11,7 +11,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Download, Loader2 } from 'lucide-react';

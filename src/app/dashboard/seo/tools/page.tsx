@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Badge, cn } from '@/components/zoruui';
+import { Card, ZoruCardContent, Input, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import {
   cn as _zoruCn,
   useMemo,

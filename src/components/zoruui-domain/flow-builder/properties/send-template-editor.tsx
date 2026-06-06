@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Input, RadioGroup, ZoruRadioGroupItem, Select } from '@/components/zoruui';
+import { Label, Input, RadioGroup, ZoruRadioGroupItem, Select } from '@/components/sabcrm/20ui/compat';
 import { SmartCombobox } from '@/components/zoruui-domain/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';

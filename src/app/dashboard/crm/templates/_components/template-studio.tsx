@@ -48,7 +48,7 @@ import {
     ZoruTooltipTrigger,
     ZoruTooltipContent,
     ZoruTooltipProvider
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { cn } from '@/components/zoruui/lib/cn';
 import { AiCopilotPanel } from './ai-copilot-panel';

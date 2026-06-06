@@ -11,7 +11,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -27,7 +27,7 @@ import {
 } from '@/app/actions/crm-reports.actions';
 import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
 import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
-import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/zoruui';
+import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
 
 interface PageProps {
   searchParams: Promise<{

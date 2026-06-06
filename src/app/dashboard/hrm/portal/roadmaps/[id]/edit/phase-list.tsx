@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useState, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus, Trash2, Search, Download, CheckSquare, Square, FileText } from 'lucide-react';
-import { Button, Input, Label, Card, ZoruCardContent } from '@/components/zoruui';
+import { Button, Input, Label, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import type { RoadmapPhase, RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 export type PhaseDraft = { id: string; name: string; tasks: RoadmapTask[] };
 

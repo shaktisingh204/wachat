@@ -1,4 +1,4 @@
-import { Button, Skeleton } from '@/components/zoruui';
+import { Button, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 

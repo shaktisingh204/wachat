@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Button, EmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 
 export default function EditVoucherBookError({

@@ -12,7 +12,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ZoruFacebookKanbanBoard } from '../_components/zoru-facebook-kanban-board';
 import {
   Suspense } from "react";

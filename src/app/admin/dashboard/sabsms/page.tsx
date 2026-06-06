@@ -17,7 +17,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabsmsHistoricalChart } from './HistoricalChart';
 import { QueueActions } from './QueueActions';
 

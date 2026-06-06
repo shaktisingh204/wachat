@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ZoruButton, ZoruCard, ZoruBreadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruBreadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function ApiDocsError({

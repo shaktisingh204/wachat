@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, EmptyState, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, EmptyState, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
 import { PieChart } from 'lucide-react';
 import {
   notFound } from 'next/navigation';

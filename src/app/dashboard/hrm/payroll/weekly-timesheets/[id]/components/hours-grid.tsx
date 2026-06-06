@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { format } from 'date-fns';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus, Search, Trash2 } from 'lucide-react';
-import { Card, Input, Checkbox, Button } from '@/components/zoruui';
+import { Card, Input, Checkbox, Button } from '@/components/sabcrm/20ui/compat';
 import { wsToISODate } from '@/lib/worksuite/time-types';
 
 interface HoursGridProps {

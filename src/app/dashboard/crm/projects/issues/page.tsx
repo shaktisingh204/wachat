@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {

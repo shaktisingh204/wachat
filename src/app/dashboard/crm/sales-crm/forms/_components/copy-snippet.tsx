@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 interface CopySnippetProps {
     text: string;

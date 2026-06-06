@@ -1,5 +1,5 @@
 import { ShoppingCart } from 'lucide-react';
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton } from '@/components/zoruui';
+import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function PurchasesLoading() {
     return (

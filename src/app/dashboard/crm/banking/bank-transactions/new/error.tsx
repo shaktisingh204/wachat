@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, EmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
 

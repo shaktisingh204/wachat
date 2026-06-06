@@ -33,7 +33,7 @@ import {
   Checkbox,
   Input,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { FieldMetadata } from '@/lib/sabcrm/types';
 
 /** A related record id paired with its resolved display label. */

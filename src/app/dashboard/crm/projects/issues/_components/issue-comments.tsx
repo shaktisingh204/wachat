@@ -6,7 +6,7 @@ import {
   Button,
   Card,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send, Trash2 } from 'lucide-react';
 import { saveWsIssueComment, deleteWsIssueComment } from '@/app/actions/worksuite/projects.actions';
 import { MarkdownEditor } from './markdown-editor';

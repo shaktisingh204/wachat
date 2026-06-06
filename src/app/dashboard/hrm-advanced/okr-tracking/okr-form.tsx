@@ -1,6 +1,6 @@
 import React from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
-import { Input, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import { Input, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
 
 interface OKRFormProps {
   open: boolean;

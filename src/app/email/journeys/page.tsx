@@ -32,7 +32,7 @@ import {
   Separator,
   Label,
   Textarea
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { 
   Mail, 

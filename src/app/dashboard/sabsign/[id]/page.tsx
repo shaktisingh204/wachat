@@ -30,7 +30,7 @@ import {
   Card,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   generateAuditTrailPdf,
   generateKioskLink,

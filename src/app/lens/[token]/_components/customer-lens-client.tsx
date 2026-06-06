@@ -10,7 +10,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { joinSablensCustomerSession } from '@/app/actions/sablens.actions';
 import { MockTransport } from '@/lib/sablens/mock-transport';
 import type { LensAnnotation } from '@/lib/sablens/transport';

@@ -12,7 +12,7 @@ import * as React from 'react';
 import { Brush, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 export interface SketchValue {

@@ -25,7 +25,7 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';

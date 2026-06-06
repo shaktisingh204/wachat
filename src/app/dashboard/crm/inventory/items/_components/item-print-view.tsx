@@ -1,4 +1,4 @@
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { fmtINR } from '@/lib/utils';
 /**
  * <ItemPrintView> — A4 label sheet for an item barcode or QR.

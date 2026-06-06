@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import {
     AlertCircle,
     ArrowRight,
@@ -42,7 +42,7 @@ import {
     ZoruPageHeading,
     ZoruPageTitle,
     ZoruPageDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
 import { ImportWizardShell } from './_components/import-wizard-shell';

@@ -19,7 +19,7 @@ import {
     ZoruSelectTrigger,
     ZoruSelectValue,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { createStorefront } from '@/app/actions/sabshop.actions';
 

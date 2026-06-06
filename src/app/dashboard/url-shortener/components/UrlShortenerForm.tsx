@@ -24,9 +24,9 @@ import {
   ZoruCommandGroup,
   ZoruCommandItem,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import NextLink from 'next/link';
-import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
+import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
 import { BulkImportDialog } from '@/components/zoruui-domain/bulk-url-import-dialog';
 import { TagPicker, type TagPickerTag } from '@/components/zoruui-domain/tag-picker';
 import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';

@@ -14,7 +14,7 @@ import {
   Table,
   TableBody,
   TableHeader,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { listDatasetsAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewDatasetPanel } from './_components/new-dataset-panel';

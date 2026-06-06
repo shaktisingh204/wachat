@@ -23,7 +23,7 @@ import {
   ZoruSelectValue,
   Switch,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Suspense, useCallback, useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {

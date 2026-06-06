@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useEffect } from 'react';
 

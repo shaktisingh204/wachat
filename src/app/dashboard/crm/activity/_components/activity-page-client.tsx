@@ -43,7 +43,7 @@ import {
   ZoruTabsContent as TabsContent,
   ZoruTabsList as TabsList,
   ZoruTabsTrigger as TabsTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   CalendarDays,
   Check,

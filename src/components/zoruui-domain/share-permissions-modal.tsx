@@ -6,7 +6,7 @@ import {
     Button, Input, Label, Badge, Select,
     ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
     Skeleton, Separator, cn, useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Share2, Trash2, LoaderCircle, UserPlus, Mail, Eye, Pencil } from 'lucide-react';
 import {
     getShares, createShare, revokeShare, updateShareRole,

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Suspense } from 'react';
 import { RoadmapForm } from './_components/roadmap-form';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

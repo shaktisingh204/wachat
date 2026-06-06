@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Badge, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -11,7 +11,7 @@ import { startOfMonth } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Download } from 'lucide-react';
 import { getComplianceData } from './actions';
 import { fmtINR } from '@/lib/utils';

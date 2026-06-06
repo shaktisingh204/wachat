@@ -26,7 +26,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
 import {
   Gauge,

@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function SubtasksLoading() {

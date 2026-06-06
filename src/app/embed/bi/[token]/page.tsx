@@ -14,7 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { resolveEmbedAction } from '@/app/actions/analytics-bi.actions';
 
 export const dynamic = 'force-dynamic';

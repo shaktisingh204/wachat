@@ -8,7 +8,7 @@ import {
 } from '@/app/actions/worksuite/knowledge.actions';
 import { AwardsListClient } from './_components/awards-list-client';
 import type { WsAward, WsAppreciation } from '@/lib/worksuite/knowledge-types';
-import { Card, Skeleton } from '@/components/zoruui';
+import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

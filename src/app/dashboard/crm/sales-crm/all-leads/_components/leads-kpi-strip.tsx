@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard, Skeleton } from '@/components/zoruui';
+import { StatCard, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { use } from 'react';
 import { BarChart3, CheckCircle2, Sparkles, Trophy, Users } from 'lucide-react';
 

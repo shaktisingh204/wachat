@@ -26,7 +26,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   archiveSabnotebookNote,
   deleteSabnotebookNote,

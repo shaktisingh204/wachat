@@ -24,7 +24,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateBalanceSheetData } from '@/app/actions/crm-accounting.actions';

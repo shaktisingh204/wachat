@@ -21,7 +21,7 @@ import {
   Card,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 
 interface SignPagePayload {

@@ -10,7 +10,7 @@ import {
   Input,
   Label,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * Field-section sub-components for <ContactForm>, extracted to keep
  * `contacts-form.tsx` under the 600-line scope cap.

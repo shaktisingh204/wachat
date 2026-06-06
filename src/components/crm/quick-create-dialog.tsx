@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription, Button, Input, Label } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { quickCreateEntity } from '@/app/actions/crm-quick-create.actions';

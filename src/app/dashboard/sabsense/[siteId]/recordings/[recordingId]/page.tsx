@@ -11,7 +11,7 @@ import {
     PageHeader,
     ZoruPageTitle,
     ZoruPageDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getPagesenseSite, getRecording } from '@/app/actions/sabsense.actions';
 

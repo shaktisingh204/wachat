@@ -10,7 +10,7 @@ import {
   Progress,
   Skeleton,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter,

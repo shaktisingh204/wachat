@@ -1,7 +1,7 @@
 'use client';
 
-import { Button, Input, Textarea, cn } from '@/components/zoruui';
-import { ZoruDynamicSelector } from '@/components/zoruui';
+import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { ZoruDynamicSelector } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useRef } from 'react';
 import { Download, Upload, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

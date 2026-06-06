@@ -9,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   connectSabpublishProvider,
   disconnectSabpublishProvider,

@@ -2,7 +2,7 @@
 import { fmtDate } from "@/lib/utils";
 
 import React, { useState } from 'react';
-import { Button, Input, Card, ZoruAvatar, Badge } from '@/components/zoruui';
+import { Button, Input, Card, ZoruAvatar, Badge } from '@/components/sabcrm/20ui/compat';
 import { Send, CheckCircle2, MessageCircle, MoreVertical, BarChart, Activity, Users, Megaphone, Target, Link as LinkIcon, Share2, TrendingUp, Mail } from 'lucide-react';
 import { createInboxMessage, updateInboxMessage } from '@/app/actions/marketing/universal-inbox.actions';
 import Link from 'next/link';

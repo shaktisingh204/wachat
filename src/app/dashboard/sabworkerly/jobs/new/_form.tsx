@@ -15,7 +15,7 @@ import {
     SelectValue,
     SelectContent,
     SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { addSabworkerlyJob } from '@/app/actions/sabworkerly.actions';
 
 interface ClientOpt { id: string; name: string }

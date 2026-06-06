@@ -15,7 +15,7 @@ import {
     ZoruCardHeader,
     ZoruCardTitle,
     ZoruCardDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { UserX } from 'lucide-react';
 
 interface PortalLayoutProps {

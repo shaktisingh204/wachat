@@ -12,7 +12,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, LoaderCircle, Plus, Save, Trash2, GripHorizontal } from 'lucide-react';
 import * as React from 'react';

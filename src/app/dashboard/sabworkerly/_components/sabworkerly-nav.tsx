@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import {
     LayoutDashboard,
     Users,

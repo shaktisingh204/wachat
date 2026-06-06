@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Input, Label } from '@/components/zoruui';
+import { Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 
 export function SimulatePointsCalculator({
     pointsPerCurrencyUnit,

@@ -13,7 +13,7 @@ import {
   Checkbox,
   Card,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState,
   useEffect,

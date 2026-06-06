@@ -12,7 +12,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

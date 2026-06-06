@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function InventoryItemDetailError({

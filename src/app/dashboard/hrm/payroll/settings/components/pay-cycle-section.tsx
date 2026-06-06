@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label } from '@/components/zoruui';
+import { Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { memo } from 'react';
 import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';

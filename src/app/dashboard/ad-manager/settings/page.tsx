@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
 import { Briefcase, Wallet, Bell, Shield } from 'lucide-react';
 import Link from 'next/link';
 

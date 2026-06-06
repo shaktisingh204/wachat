@@ -45,7 +45,7 @@ import {
     Separator,
     Switch,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 const FIELDS: { id: MailRuleConditionField; label: string }[] = [
     { id: 'from', label: 'From' },

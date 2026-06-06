@@ -1,4 +1,4 @@
-import { Card, type ZoruCardProps } from '@/components/zoruui';
+import { Card, type ZoruCardProps } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

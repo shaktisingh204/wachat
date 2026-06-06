@@ -1,4 +1,4 @@
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 /**
  * <RfqVendorBidsCard> — server component that lists all vendor bids
  * submitted against an RFQ. Highlights the awarded vendor and exposes

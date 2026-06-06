@@ -7,7 +7,7 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';

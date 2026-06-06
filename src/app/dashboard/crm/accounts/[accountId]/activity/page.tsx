@@ -7,7 +7,7 @@
 
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';

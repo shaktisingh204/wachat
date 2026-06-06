@@ -11,7 +11,7 @@ import {
     Button,
     Badge,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 import { StepEditor } from './step-editor';
 

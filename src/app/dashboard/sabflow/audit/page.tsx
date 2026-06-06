@@ -19,7 +19,7 @@ import {
   Badge,
   Button,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { type ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import {

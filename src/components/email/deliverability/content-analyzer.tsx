@@ -11,7 +11,7 @@ import {
   Button,
   Textarea,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export function ContentAnalyzer() {
   const [content, setContent] = useState('');

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
+import { Card, Badge, Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useEffect,
@@ -26,7 +26,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

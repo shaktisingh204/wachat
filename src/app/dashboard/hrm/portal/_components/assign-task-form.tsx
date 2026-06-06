@@ -12,8 +12,8 @@ import {
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruSheetFooter,
-} from '@/components/zoruui';
-import { useZoruToast } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { assignTaskToEmployee } from '@/app/actions/hrm-portal.actions';
 import type { CrmTask } from '@/lib/definitions';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';

@@ -17,7 +17,7 @@ import {
   ZoruCardTitle,
   EmptyState,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionUpdateWarmupRun,
   type WarmupRunDoc,

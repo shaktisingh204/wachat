@@ -22,7 +22,7 @@ import {
   Input,
   Textarea,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface ParamSpec {
   name: string;

@@ -11,7 +11,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Store } from 'lucide-react';
 import { listApps, listInstallsForTenant } from '@/lib/marketplace';
 import type { AppListFilter } from '@/lib/marketplace';

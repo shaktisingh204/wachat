@@ -1,7 +1,7 @@
 'use client';
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { ChartTooltipContent, ChartTooltip, ChartContainer, ChartConfig } from '@/components/zoruui';
+import { ChartTooltipContent, ChartTooltip, ChartContainer, ChartConfig } from '@/components/sabcrm/20ui/compat';
 
 export interface AnalyticsChartProps {
   data: {

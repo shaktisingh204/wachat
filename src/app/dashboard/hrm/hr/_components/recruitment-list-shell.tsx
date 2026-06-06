@@ -20,7 +20,7 @@ import {
   ZoruTableRow,
   Input,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Plus,

@@ -9,7 +9,7 @@ import {
   Card,
   Skeleton,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   getMyPinnedItems,
   reorderPinned,

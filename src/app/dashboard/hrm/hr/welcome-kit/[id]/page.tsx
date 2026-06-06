@@ -1,5 +1,5 @@
 import { fmtDate } from '@/lib/utils';
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';

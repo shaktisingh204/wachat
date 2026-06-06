@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export interface EmailKpiStripProps {
   sent: number;

@@ -1,7 +1,7 @@
 'use client';
 
 import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function EntityErrorBoundary({
     error,

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Download, Check, X, Eye } from 'lucide-react';
 import { updateVoucherStatus } from '../extended-actions';
 

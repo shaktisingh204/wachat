@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card, Button } from '@/components/zoruui';
+import { Card, Button } from '@/components/sabcrm/20ui/compat';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import type { GlobalSearchResult } from '@/types/platform';

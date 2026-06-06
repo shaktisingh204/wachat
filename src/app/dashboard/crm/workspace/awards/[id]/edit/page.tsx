@@ -10,7 +10,7 @@ import {
     ZoruCardTitle,
     ZoruCardDescription,
     StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Users, Award } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

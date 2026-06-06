@@ -16,7 +16,7 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Calendar, Plus, Search, Video, Clock, Users } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 

@@ -37,7 +37,7 @@ import {
   EmptyState,
   Separator,
   type ZoruChartTooltipProps,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 // Local bucket shapes that match CountByFieldResult.buckets / SumByFieldResult.buckets
 // (re-declared here to avoid importing the server-only analytics lib in a client component)

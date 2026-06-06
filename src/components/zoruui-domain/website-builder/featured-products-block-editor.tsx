@@ -24,7 +24,7 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';

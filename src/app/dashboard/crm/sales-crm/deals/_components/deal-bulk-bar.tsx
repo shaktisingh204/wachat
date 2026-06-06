@@ -13,7 +13,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   ListChecks,

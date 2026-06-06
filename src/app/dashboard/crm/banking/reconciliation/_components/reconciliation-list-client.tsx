@@ -33,7 +33,7 @@ import {
   ZoruTableRow,
   useZoruToast,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   CheckCircle2,

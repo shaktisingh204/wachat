@@ -1,5 +1,5 @@
 import { ClayCard } from '@/components/zoruui-domain';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
   return (

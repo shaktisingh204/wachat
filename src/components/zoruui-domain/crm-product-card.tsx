@@ -14,7 +14,7 @@ import {
   Card,
   Badge,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
 import type { WithId,
   EcommProduct,

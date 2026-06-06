@@ -22,7 +22,7 @@ import {
   Separator,
   Skeleton,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionGetEmailCampaign,
   actionGetEmailCampaignReport,

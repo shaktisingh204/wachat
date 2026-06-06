@@ -17,7 +17,7 @@ import {
   ZoruRadioGroupItem,
   Separator,
   ScrollArea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { Plus, Trash2 } from 'lucide-react';

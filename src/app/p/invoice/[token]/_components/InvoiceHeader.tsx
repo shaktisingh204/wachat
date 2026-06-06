@@ -1,7 +1,7 @@
 'use client';
 
 import { Printer } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { InvoiceData } from '../types';
 
 export function InvoiceHeader({ token, invoice }: { token: string, invoice: InvoiceData }) {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { useRealtimeBudget } from './use-realtime-budget';
 import { BudgetProgressBar } from './budget-progress-bar';
 

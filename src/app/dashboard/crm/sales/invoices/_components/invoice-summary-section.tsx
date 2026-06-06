@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Separator } from '@/components/zoruui';
+import { Card, Input, Label, Separator } from '@/components/sabcrm/20ui/compat';
 /**
  * <SummarySection> — invoice money summary card.
  *

@@ -1,4 +1,4 @@
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';

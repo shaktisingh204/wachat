@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { GridTrackingClient } from './_components/grid-tracking-client';
 import { getSeoProject } from '@/app/actions/seo.actions';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

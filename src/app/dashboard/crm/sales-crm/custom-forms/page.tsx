@@ -36,7 +36,7 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

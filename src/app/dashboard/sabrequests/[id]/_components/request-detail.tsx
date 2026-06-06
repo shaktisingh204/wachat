@@ -17,7 +17,7 @@ import {
     Card,
     Input,
     Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     decideRequest,
     updateRequest,

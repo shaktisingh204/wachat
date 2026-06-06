@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { AlertCircle } from 'lucide-react';
 

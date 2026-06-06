@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export default function SeoToolsLoading() {
   return (

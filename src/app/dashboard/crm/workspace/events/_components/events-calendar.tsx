@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Badge } from '@/components/zoruui';
+import { Button, Card, Badge } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 
 /**

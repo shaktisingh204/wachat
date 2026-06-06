@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Textarea } from '@/components/zoruui';
+import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { Paperclip, X } from 'lucide-react';
 /**

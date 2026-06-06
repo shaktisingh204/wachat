@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorkerForm } from './_form';
-import { PageHeader, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
+import { PageHeader, ZoruPageTitle, ZoruPageDescription } from '@/components/sabcrm/20ui/compat';
 
 export default function NewWorkerPage() {
     return (

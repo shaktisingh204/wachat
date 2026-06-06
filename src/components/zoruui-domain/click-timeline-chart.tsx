@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Card, Skeleton, cn } from '@/components/zoruui';
+import { Card, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
 import { MousePointerClick } from 'lucide-react';
 
 interface ClickTimelineChartProps {

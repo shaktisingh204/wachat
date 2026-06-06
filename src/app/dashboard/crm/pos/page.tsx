@@ -5,7 +5,7 @@ import {
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Skeleton } from '@/components/zoruui/skeleton';
 import {
     Banknote,

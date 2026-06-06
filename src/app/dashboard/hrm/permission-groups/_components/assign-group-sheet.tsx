@@ -24,7 +24,7 @@ import {
   ZoruSheetTitle,
   ZoruSheetTrigger,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   assignGroupToEmployee,
   removeGroupFromEmployee,

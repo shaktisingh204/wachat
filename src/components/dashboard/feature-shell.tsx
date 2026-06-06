@@ -16,7 +16,7 @@ import {
   Card,
   StatCard,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface FeatureShellProps {
   title: string;

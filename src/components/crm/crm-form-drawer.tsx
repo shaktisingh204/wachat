@@ -9,7 +9,7 @@ import {
   ZoruSheetDescription,
   ZoruSheetFooter,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { FilePlus2, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export interface FormSection {

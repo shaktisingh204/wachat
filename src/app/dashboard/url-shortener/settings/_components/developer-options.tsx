@@ -10,7 +10,7 @@ import {
   ZoruCardTitle,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Key, BookOpen, Webhook, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

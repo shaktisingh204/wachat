@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, Button } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 
 export default function SettingsError({

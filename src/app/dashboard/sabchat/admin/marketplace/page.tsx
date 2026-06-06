@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { listMarketplaceApps } from '@/app/actions/sabchat-admin.actions';
 import { AdminMarketplaceClient } from './_components/admin-marketplace-client';
 

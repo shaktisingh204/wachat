@@ -8,7 +8,7 @@ import {
   EmptyState, Checkbox, Card,
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Label,
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Papa from 'papaparse';

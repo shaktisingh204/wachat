@@ -22,7 +22,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/zoruui/empty-state';
 
 import { listSupportTicketsForRequester } from '@/app/actions/helpdesk.actions';

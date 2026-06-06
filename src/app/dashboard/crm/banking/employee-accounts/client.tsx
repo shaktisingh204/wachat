@@ -18,7 +18,7 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

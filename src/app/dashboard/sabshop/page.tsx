@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, Store } from 'lucide-react';
 
 import { listStorefronts } from '@/app/actions/sabshop.actions';

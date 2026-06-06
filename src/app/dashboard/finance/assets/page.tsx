@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { listAssets } from '@/app/actions/finance/assets.actions';
 import { AssetListClient } from './_components/assets-list-client';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

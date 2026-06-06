@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogFooter,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabcatalystAuthUser } from '@/lib/rust-client/sabcatalyst-auth-users';
 
 interface Props { projectId: string; initialUsers: SabcatalystAuthUser[] }

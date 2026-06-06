@@ -5,7 +5,7 @@ import {
   ZoruBreadcrumbList,
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 

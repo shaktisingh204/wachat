@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle, EmptyState, Skeleton } from '@/components/zoruui';
+import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';

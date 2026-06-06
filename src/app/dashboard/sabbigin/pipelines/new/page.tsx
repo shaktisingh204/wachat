@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label } from '@/components/zoruui';
+import { Button, Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { Trash2, Plus, ArrowLeft, Columns3 } from 'lucide-react';

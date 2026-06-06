@@ -2,8 +2,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { BioProfile } from '@/lib/definitions';
 import { Metadata } from 'next';
 import { Instagram, Twitter, Linkedin, Github, Globe, Mail } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

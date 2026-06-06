@@ -1,4 +1,4 @@
-import { Badge, type ZoruBadgeProps } from '@/components/zoruui';
+import { Badge, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
 /**
  * <StatusPill /> — thin convenience wrapper over <Badge> for the
  * recurring `{ label, tone }` shape used across CRM / HRM tables.

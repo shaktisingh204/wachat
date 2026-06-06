@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Interviews calendar — read-only month/week grid grouping interviews
  * by `scheduledAt` date.

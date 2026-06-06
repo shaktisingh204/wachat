@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Badge, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Badge, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { Bell, CheckCheck, Check } from 'lucide-react';
 

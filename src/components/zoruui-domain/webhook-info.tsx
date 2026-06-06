@@ -12,7 +12,7 @@ import {
   Skeleton,
   Badge,
   Select,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useToast } from '@/hooks/use-toast';
 import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucide-react';

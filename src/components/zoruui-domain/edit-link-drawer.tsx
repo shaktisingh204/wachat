@@ -11,7 +11,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WithId } from 'mongodb';
 import type { ShortUrl } from '@/lib/definitions';
 import { Settings, LoaderCircle } from 'lucide-react';

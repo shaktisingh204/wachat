@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { use } from 'react';
 import {
   formatDistanceToNow } from 'date-fns';

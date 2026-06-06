@@ -1,5 +1,5 @@
 import { fmtDate } from '@/lib/utils';
-import { Badge, Button, Card, Progress } from '@/components/zoruui';
+import { Badge, Button, Card, Progress } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';

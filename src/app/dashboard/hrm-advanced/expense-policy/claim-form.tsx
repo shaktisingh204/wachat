@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ExpenseClaim } from '@/lib/hrm-advanced-types';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
 
 interface ClaimFormProps {
   open: boolean;

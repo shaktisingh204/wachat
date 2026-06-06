@@ -5,7 +5,7 @@ import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
     CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell 
 } from 'recharts';
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 import { Download, FileText, Image as ImageIcon, LayoutDashboard, Settings2, GripVertical } from 'lucide-react';
 import {
     DndContext,

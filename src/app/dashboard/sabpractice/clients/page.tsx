@@ -15,7 +15,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { ClientCreateDialog } from './_components/client-create-dialog';
 

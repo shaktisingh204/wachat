@@ -44,7 +44,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */

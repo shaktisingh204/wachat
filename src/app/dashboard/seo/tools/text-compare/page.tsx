@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Card, ZoruCardContent, Switch, Label } from '@/components/zoruui';
+import { Textarea, Card, ZoruCardContent, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useRef } from 'react';
 import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Card, Badge, Button } from '@/components/zoruui';
+import { Card, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { bulkDeleteOldRuns } from '@/app/actions/crm-reports.actions';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { useRouter } from 'next/navigation';

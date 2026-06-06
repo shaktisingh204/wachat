@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Input } from '@/components/zoruui';
+import { Input } from '@/components/sabcrm/20ui/compat';
 import { Search } from 'lucide-react';
 
 export type Endpoint = {

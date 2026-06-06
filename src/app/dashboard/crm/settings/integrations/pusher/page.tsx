@@ -8,7 +8,7 @@ import {
   Label,
   Skeleton,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,

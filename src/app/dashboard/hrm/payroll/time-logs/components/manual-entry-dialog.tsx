@@ -10,7 +10,7 @@ import {
   Input,
   Button,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { saveTimeLog } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardContent } from '@/components/zoruui';
+import { Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
 
 import { listSabmonitorStatusPages } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';

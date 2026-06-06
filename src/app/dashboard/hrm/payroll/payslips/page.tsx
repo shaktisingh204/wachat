@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Eye,
   LoaderCircle,

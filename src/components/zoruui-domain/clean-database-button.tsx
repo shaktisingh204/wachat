@@ -11,7 +11,7 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';

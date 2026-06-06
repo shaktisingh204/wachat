@@ -12,7 +12,7 @@ import {
   PageHeader,
   ZoruPageDescription,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { PreviewRunnerClient } from '@/app/dashboard/sabcreator/[appId]/preview/_components/preview-runner-client';
 

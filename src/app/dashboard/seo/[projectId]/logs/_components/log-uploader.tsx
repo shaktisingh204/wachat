@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { uploadLogFile, saveLogReport } from '../actions';
 import { useRouter } from 'next/navigation';
 

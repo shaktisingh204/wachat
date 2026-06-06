@@ -6,8 +6,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { SidebarTrigger } from "./ui/sidebar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 

@@ -1,4 +1,4 @@
-import { Card, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/zoruui';
+import { Card, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 
 export default function LoadingShortUrl() {
   return (

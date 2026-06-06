@@ -10,7 +10,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import {
   useState,

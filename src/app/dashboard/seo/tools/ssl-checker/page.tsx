@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn, Progress, Badge } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, cn, Progress, Badge } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;

@@ -10,7 +10,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { MapPin, Play, Search, Map as MapIcon } from 'lucide-react';
 import { startGridTracking, getSeoProject, updateSeoProjectSettings } from '@/app/actions/seo.actions';

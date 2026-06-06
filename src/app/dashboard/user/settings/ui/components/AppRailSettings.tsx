@@ -4,7 +4,7 @@ import {
     Label,
     RadioGroup,
     ZoruRadioGroupItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface AppRailSettingsProps {
     currentPosition?: 'left' | 'top';

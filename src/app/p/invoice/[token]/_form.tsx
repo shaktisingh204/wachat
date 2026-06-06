@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label, Select } from '@/components/zoruui';
+import { Card, ZoruCardContent, Button, Input, Label, Select } from '@/components/sabcrm/20ui/compat';
 import { CreditCard, LoaderCircle, Terminal, HeartHandshake, Info } from 'lucide-react';
 import { recordPublicPayment } from '@/app/actions/worksuite/public.actions';
 

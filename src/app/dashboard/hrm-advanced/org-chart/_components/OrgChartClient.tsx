@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { OrgChartNode } from '@/lib/hrm-advanced-types';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, EmptyState, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/zoruui';
+import { Button, EmptyState, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { OrgChartForm } from './OrgChartForm';
 import { saveOrgChartNode, deleteOrgChartNode } from '@/app/actions/hrm-advanced/org-chart';

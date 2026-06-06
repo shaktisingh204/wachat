@@ -7,7 +7,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 
 import {
   Badge, Button, Card, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeLogs, startTimer, stopTimer, approveTimeLog, rejectTimeLog, bulkDeleteTimeLogs } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';

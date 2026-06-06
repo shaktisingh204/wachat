@@ -6,7 +6,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   ZoruBadge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Receipt } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

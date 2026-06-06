@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label, Checkbox } from '@/components/zoruui';
+import { Card, ZoruCardContent, Button, Input, Label, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { CheckCircle2, Eraser, LoaderCircle, Terminal, AlertCircle } from 'lucide-react';
 import { signContractPublic } from '@/app/actions/worksuite/public.actions';
 import { SignaturePad, type SignaturePadHandle } from '../../_components/signature-pad';

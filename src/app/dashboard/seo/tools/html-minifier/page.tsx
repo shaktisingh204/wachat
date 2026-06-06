@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Checkbox, Label, Button } from '@/components/zoruui';
+import { Textarea, Checkbox, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { minifyHtml } from './actions';

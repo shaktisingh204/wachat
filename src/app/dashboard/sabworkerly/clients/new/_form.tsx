@@ -10,7 +10,7 @@ import {
     Input,
     Label,
     Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { addSabworkerlyClient } from '@/app/actions/sabworkerly.actions';
 
 export function ClientForm() {

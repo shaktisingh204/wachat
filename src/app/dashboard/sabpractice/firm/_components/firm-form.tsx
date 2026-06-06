@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label, Textarea } from '@/components/zoruui';
+import { Button, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
     createSabpracticeFirm,
     updateSabpracticeFirm,

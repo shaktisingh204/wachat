@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import { Badge, Button, Card, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { ImageIcon, MoreVertical, Pencil, Send, Trash2, VideoIcon, X, XCircle } from 'lucide-react';
 import type { StoryRow, StoryStatus } from '@/lib/rust-client/telegram-stories';
 

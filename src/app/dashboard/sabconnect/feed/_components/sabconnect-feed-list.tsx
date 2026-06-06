@@ -10,7 +10,7 @@ import {
     Card,
     CardContent,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import type { SabConnectFeedItemDoc } from '@/lib/rust-client/sabconnect-feed';
 import { SabConnectFeedItemActions } from './sabconnect-feed-item-actions';

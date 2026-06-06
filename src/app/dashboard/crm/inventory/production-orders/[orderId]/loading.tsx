@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, Skeleton } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function ProductionOrderLoading() {
   return (

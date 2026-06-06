@@ -13,7 +13,7 @@ import {
   Label,
   Input,
   ZoruDateRangePicker,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Filter, X, SlidersHorizontal, Save } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 

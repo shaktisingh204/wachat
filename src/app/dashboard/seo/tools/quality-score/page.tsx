@@ -6,7 +6,7 @@ import {
   Button,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
   ZoruCardHeader, ZoruCardTitle, ZoruCardDescription
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useEffect } from 'react';
 import { Info, Save, History, TrendingUp, MousePointerClick, Target, LayoutDashboard } from 'lucide-react';
 

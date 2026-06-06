@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input } from '@/components/zoruui';
+import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Copy, Link2, LoaderCircle, X } from 'lucide-react';
 import { generatePublicToken } from '@/app/actions/worksuite/public.actions';

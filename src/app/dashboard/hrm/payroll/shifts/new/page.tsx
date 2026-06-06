@@ -21,7 +21,7 @@ import {
     ZoruTableRow,
     Input,
     Checkbox
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ShiftForm } from '../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';

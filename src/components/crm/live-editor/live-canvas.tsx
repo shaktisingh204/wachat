@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { Plus, GripVertical, Trash2 } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 interface LiveCanvasProps {
     docState: any;

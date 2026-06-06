@@ -12,7 +12,7 @@ import {
 } from '@/app/actions/crm/contracts.actions';
 
 import { ContractListClient } from './_components/contract-list-client';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

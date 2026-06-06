@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, Badge, cn, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { fetchRelatedKeywords, RelatedKeywordIdea } from './actions';

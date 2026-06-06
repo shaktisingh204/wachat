@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { useToast } from "@/hooks/use-toast";

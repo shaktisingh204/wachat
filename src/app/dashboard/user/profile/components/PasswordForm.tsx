@@ -13,7 +13,7 @@ import {
     Label,
     Button,
     Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { KeyRound, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { ActionResponse } from './types';

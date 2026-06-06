@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 
 export function AnnouncementPresence({ announcementId }: { announcementId: string }) {
     const [viewers, setViewers] = useState<number>(1);

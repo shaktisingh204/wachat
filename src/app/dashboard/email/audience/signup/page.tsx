@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, RouteComingSoon } from '@/components/zoruui';
+import { Skeleton, RouteComingSoon } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 
 export default function EmailSignupFormsPage() {

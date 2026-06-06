@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import { Flag, Tag, Hash } from 'lucide-react';
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 
 import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';

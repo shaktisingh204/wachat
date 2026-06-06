@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Card, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   SlidersHorizontal,

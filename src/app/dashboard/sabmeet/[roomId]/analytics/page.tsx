@@ -10,7 +10,7 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft } from 'lucide-react';
 import { getMeetRoom, getMeetRoomAnalytics } from '@/app/actions/sabmeet.actions';
 

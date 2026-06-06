@@ -17,7 +17,7 @@ import {
   ZoruDropdownMenuCheckboxItem,
   Card,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Settings2, ArrowUpDown, ChevronDown, Check, X, Edit2 } from 'lucide-react';
 
 export interface ColumnDef<T> {

@@ -6,7 +6,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ExternalLink, Send, Power, Copy, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import type { MiniAppRow } from '@/lib/rust-client/telegram-mini-apps';
 

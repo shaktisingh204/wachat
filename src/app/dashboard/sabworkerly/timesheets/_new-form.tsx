@@ -12,7 +12,7 @@ import {
     SelectValue,
     SelectContent,
     SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { addSabworkerlyTimesheet } from '@/app/actions/sabworkerly.actions';
 
 interface PlacementOpt { id: string; label: string; workerId: string }

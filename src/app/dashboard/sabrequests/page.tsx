@@ -14,7 +14,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { listBlueprints, listRequests } from '@/app/actions/sabrequests.actions';
 import { RequestsInbox } from './_components/requests-inbox';
 

@@ -20,7 +20,7 @@ import {
   TableRow,
   useZoruToast,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   GitCompare, Save, Download } from 'lucide-react';

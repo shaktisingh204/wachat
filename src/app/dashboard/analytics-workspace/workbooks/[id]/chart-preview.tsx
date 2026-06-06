@@ -15,7 +15,7 @@ import {
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { BiChartColumn, BiChartType } from '@/lib/rust-client/bi-charts';
 
 interface Props {

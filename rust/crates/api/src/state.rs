@@ -1256,6 +1256,15 @@ impl FromRef<AppState> for sabcatalyst_records::state::SabcatalystRecordsState {
         sabcatalyst_records::state::SabcatalystRecordsState::new(s.mongo.clone())
     }
 }
+
+// ─── WaChat completion crates: thin Mongo-only states constructed on demand ──
+// These crates wrap only a MongoHandle, so they need no AppState field — we
+// build them from `s.mongo` in `FromRef`, mirroring the sabcatalyst pattern.
+impl FromRef<AppState> for wachat_number_routing::WachatNumberRoutingState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_number_routing::WachatNumberRoutingState::new(s.mongo.clone())
+    }
+}
 impl FromRef<AppState> for sabcatalyst_usage::state::SabcatalystUsageState {
     fn from_ref(s: &AppState) -> Self {
         sabcatalyst_usage::state::SabcatalystUsageState::new(s.mongo.clone())

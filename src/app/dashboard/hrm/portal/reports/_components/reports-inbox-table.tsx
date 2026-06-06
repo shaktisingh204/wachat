@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Badge, Button, Checkbox } from '@/components/zoruui';
+import { Badge, Button, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { CheckCheck, LoaderCircle } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions.types';

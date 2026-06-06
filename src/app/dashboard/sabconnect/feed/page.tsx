@@ -16,7 +16,7 @@ import {
     ZoruPageTitle,
     ZoruPageDescription,
     Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     getSabConnectFeed,

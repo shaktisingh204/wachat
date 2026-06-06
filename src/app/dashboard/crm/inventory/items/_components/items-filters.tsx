@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <ItemsFilters> — collapsible filter row for the items list.
  *

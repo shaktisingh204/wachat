@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import {
     Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle,
     Input, Label, Textarea, Badge, useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     listThemes, createTheme, deleteTheme,

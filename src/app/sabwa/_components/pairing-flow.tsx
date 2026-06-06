@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, cn } from '@/components/zoruui';
+import { Button, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
 /**

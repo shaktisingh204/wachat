@@ -16,7 +16,7 @@ import {
   ZoruPageDescription,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
 import type { SabpublishSyncJobDoc } from '@/lib/rust-client/sabpublish-sync-jobs';

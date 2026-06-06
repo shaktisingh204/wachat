@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, Switch, Label } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, Badge, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useTransition } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { generateKeywords } from './actions';

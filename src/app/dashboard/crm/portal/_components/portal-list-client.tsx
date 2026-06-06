@@ -17,7 +17,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ListChecks,
   Search,
@@ -35,7 +35,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { bulkRevokePortalUsers } from '@/app/actions/crm-portal.actions';
 import { useRouter } from 'next/navigation';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   PortalKpiStrip,

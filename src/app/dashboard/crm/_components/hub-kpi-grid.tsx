@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export interface HubKpi {
     label: string;

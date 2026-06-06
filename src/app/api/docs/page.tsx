@@ -13,7 +13,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import catalogData from './_data/catalog.json';
 import { CodeTerminal, ModuleSelector } from './_components/ClientComponents';
 

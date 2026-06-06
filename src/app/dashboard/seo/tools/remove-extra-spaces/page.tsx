@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea } from '@/components/zoruui';
+import { Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import { Switch } from '@/components/zoruui/switch';
 import { Label } from '@/components/zoruui/label';
 import { RadioGroup, ZoruRadioCard } from '@/components/zoruui/radio-group';

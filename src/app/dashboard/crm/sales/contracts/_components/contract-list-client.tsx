@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Archive, CalendarRange, Download, FileSignature, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

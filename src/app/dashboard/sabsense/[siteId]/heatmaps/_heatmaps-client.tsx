@@ -18,7 +18,7 @@ import {
     ZoruPageDescription,
     ZoruPageActions,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { regenerateHeatmapSnapshot } from '@/app/actions/sabsense.actions';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';

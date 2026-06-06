@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Button, Input, Textarea, Label, Card, ZoruCardContent, cn } from '@/components/zoruui';
+import { Button, Input, Textarea, Label, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { FileText, File as FileIcon, Copy, Loader2, UploadCloud, X } from 'lucide-react';
 import md5 from 'md5';

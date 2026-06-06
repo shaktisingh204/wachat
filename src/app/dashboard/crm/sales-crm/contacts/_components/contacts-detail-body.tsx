@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Body cards for the contact detail page (extracted to keep
  * `[contactId]/page.tsx` under the 600-line scope cap).

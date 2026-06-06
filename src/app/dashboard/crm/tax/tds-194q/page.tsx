@@ -1,4 +1,4 @@
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 export const dynamic = 'force-dynamic';
 
 import { CheckCircle2, AlertTriangle } from 'lucide-react';

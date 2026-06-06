@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, Button } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useRef } from 'react';
 

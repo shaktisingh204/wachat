@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { Badge, Button, Card, Input, Skeleton } from '@/components/zoruui';
+import { Badge, Button, Card, Input, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowRight,
   Mail,

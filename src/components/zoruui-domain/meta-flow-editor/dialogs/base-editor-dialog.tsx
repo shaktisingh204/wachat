@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Button, ScrollArea } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
 interface BaseEditorDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

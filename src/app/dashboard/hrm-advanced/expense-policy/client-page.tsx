@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useOptimistic, useTransition, useCallback, useRef } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Checkbox, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState, Badge } from '@/components/zoruui';
+import { Button, Checkbox, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { ExpenseClaim } from '@/lib/hrm-advanced-types';
 import { saveExpenseClaim, deleteExpenseClaim, getExpenseClaims } from '@/app/actions/hrm-advanced/expense-policy';

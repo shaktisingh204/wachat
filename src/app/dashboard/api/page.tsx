@@ -1,4 +1,4 @@
-import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowUpRight,
   Key,

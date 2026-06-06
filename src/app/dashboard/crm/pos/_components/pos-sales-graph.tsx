@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { PosTransactionDoc } from '@/app/actions/crm-pos.actions';
 
 export function PosSalesGraph({ transactions }: { transactions: PosTransactionDoc[] }) {

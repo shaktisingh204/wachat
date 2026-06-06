@@ -11,8 +11,8 @@ import {
     ZoruSelectValue,
     ZoruSelectContent,
     ZoruSelectItem,
-} from '@/components/zoruui';
-import { useZoruToast } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { markTaskComplete } from '@/app/actions/hrm-portal.actions';
 import { CheckCircle2, ClipboardList, Download, FileText, Search, CheckSquare } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 /**
  * <LeadsFunnel> — compact 5-segment horizontal bar that visualises the
  * conversion funnel (New → Contacted → Qualified → Proposal → Won).

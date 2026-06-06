@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import {
     PageHeader, ZoruPageTitle, ZoruPageHeading, ZoruPageDescription,
     Card, Button, Badge, cn, useZoruToast, Skeleton
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { FolderOpen, Link2 } from 'lucide-react';
 import {
     getCollections, addLinkToCollection, removeLinkFromCollection,

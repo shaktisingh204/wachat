@@ -10,7 +10,7 @@ import {
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuGroup,
   Select,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { ChevronsUpDown, Check, LayoutTemplate, File, ShoppingCart } from 'lucide-react';

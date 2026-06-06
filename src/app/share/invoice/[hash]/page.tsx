@@ -5,7 +5,7 @@ import {
   getPublicInvoice,
   markInvoiceViewed,
 } from '@/app/actions/public-invoice.actions';
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 

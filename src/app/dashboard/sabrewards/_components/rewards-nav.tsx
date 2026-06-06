@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Gift, Users, Share2 } from 'lucide-react';
 
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 const ITEMS = [
   { href: '/dashboard/sabrewards/dashboard', label: 'Dashboard', icon: LayoutDashboard },

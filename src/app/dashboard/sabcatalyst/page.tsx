@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 
 import { listSabcatalystProjects } from '@/app/actions/sabcatalyst.actions';
-import { Button, Card, EmptyState, Badge } from '@/components/zoruui';
+import { Button, Card, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 import { NewProjectButton } from './_components/new-project-button';
 
 export const dynamic = 'force-dynamic';

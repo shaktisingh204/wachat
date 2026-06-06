@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, Skeleton } from '@/components/zoruui';
+import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 interface StatCardProps {
     label: string;

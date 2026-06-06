@@ -7,7 +7,7 @@ import {
   getEmployeeShifts,
 } from '@/app/actions/worksuite/shifts.actions';
 import { notFound } from 'next/navigation';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

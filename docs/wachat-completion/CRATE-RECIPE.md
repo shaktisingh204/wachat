@@ -132,11 +132,23 @@ where
 - Collection naming: `wa_<feature>` (e.g. `wa_ab_tests`). Reuse existing collection names where the
   feature already has data (see inventory).
 
-## Verify (scoped — do NOT build the whole 684-crate workspace)
+## Verify (scoped — do NOT build the whole 684-crate workspace) — PROVEN TIMINGS
 ```
-cd rust && cargo check -p wachat-<feature>
+cd rust && cargo check -p wachat-<feature>     # ~2.5s warm (single crate)
+cd rust && cargo check -p sabnode-api          # ~8s warm incremental (FULL router/state wiring)
 ```
-After central registration, also: `cargo check -p api` (compiles the router wiring).
+- The api binary's package name is **`sabnode-api`** (NOT `api`).
+- A crate is only checkable once it is a **workspace member** in `rust/Cargo.toml`. Pre-register the
+  member (and a compiling skeleton) BEFORE fanning out authors, so every parallel `cargo check`
+  can parse the workspace (a member path with no valid Cargo.toml breaks ALL workspace cargo commands).
+- The **derive-from-mongo `FromRef`** trick is CONFIRMED working: append to `state.rs` after the §17
+  sabcatalyst block, no `AppState` field, no `AppState::new` change:
+  ```rust
+  impl FromRef<AppState> for wachat_<feature>::Wachat<Feature>State {
+      fn from_ref(s: &AppState) -> Self { wachat_<feature>::Wachat<Feature>State::new(s.mongo.clone()) }
+  }
+  ```
+- Reference implementation that compiles green: `rust/crates/wachat-number-routing` (built 2026-06-06).
 
 ## Next.js side (the rest of the vertical)
 

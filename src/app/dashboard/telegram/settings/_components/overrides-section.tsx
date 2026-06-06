@@ -1,13 +1,13 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Label, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem, Input, Switch, Button, EmptyState } from '@/components/zoruui';
+import { Label, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem, Input, Switch, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { UserCog, Trash2 } from 'lucide-react';
 import { SectionCard, SwitchRow } from './shared';
 import { PARSE_MODES, IANA_TIMEZONES } from '../constants';
 import type { ProjectSettings } from '@/lib/rust-client/telegram-settings';
 import { getTelegramBotOverridesAction, saveTelegramBotOverridesAction, clearTelegramBotOverridesAction } from '@/app/actions/telegram-settings.actions';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 interface BotOption {
     _id: string;

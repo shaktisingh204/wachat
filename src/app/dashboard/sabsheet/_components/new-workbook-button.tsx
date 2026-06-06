@@ -12,7 +12,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabsheetWorkbook } from '@/app/actions/sabsheet.actions';
 
 export function NewWorkbookButton() {

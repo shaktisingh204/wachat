@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { createWebhook, deleteWebhook } from '@/app/actions/platform/webhooks.actions';
 import type { WebhookEndpoint } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Key } from 'lucide-react';

@@ -27,7 +27,7 @@ import {
     ZoruTableRow,
     ZoruTableCell,
     ZoruTableHead,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Input, Button, Badge, Checkbox, useZoruToast } from '@/components/zoruui';
+import { Input, Button, Badge, Checkbox, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Download, FileSpreadsheet, Search, Trash } from 'lucide-react';
 
 interface Employee {

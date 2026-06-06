@@ -11,7 +11,7 @@ import {
   Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface MergeTag {
   key: string;

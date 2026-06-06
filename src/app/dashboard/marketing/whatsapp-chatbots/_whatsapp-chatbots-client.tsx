@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, MessageSquare, Users, Activity, MessageCircle, Megaphone, TrendingUp, DollarSign, Target } from 'lucide-react';
 import { 
   Table, 
@@ -11,7 +11,7 @@ import {
   ZoruTableRow, 
   ZoruTableHead, 
   ZoruTableCell 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { 
   Dialog, 
   ZoruDialogTrigger, 
@@ -19,8 +19,8 @@ import {
   ZoruDialogHeader, 
   ZoruDialogFooter, 
   ZoruDialogTitle 
-} from '@/components/zoruui';
-import { Input, Label, Badge, useZoruToast, StatCard } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Badge, useZoruToast, StatCard } from '@/components/sabcrm/20ui/compat';
 import { createWhatsappBot, updateWhatsappBot, deleteWhatsappBot } from '@/app/actions/marketing/whatsapp-chatbots.actions';
 
 export function WhatsappBotClient({ initialData }: { initialData: any[] }) {

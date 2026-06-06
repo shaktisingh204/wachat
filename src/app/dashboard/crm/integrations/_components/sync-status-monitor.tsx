@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
 
 export function SyncStatusMonitor({

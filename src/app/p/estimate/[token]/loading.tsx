@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
 import { Database, FileText } from 'lucide-react';
 
 export default function LoadingEstimate() {

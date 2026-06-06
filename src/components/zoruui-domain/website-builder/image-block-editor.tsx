@@ -16,8 +16,8 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   Separator,
-} from '@/components/zoruui';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent, Slider } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent, Slider } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 

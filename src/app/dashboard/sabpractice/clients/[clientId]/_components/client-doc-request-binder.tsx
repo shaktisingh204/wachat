@@ -11,7 +11,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Badge, Button } from '@/components/zoruui';
+import { Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { uploadSabpracticeDocument } from '@/app/actions/sabpractice.actions';
 

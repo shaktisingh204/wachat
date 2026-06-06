@@ -1,4 +1,4 @@
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 
 /**
@@ -20,7 +20,7 @@ import {
 import { BookingListClient } from './_components/booking-list-client';
 
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

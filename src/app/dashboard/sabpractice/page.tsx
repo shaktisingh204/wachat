@@ -17,7 +17,7 @@ import {
     StatCard,
     EmptyState,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 async function OverviewData() {
     const now = new Date();

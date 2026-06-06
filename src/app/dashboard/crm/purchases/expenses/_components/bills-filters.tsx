@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label } from '@/components/zoruui';
+import { Input, Label } from '@/components/sabcrm/20ui/compat';
 /**
  * <BillsFilters> — collapsible filter row for the bills list (§1D).
  *

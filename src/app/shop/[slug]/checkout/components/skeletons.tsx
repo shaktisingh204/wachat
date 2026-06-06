@@ -1,4 +1,4 @@
-import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/sabcrm/20ui/compat';
 
 export function CheckoutPageSkeleton() {
   return (

@@ -18,7 +18,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Download, Flag, ListChecks, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 

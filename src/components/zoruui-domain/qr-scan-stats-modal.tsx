@@ -7,7 +7,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { BarChart2, MousePointerClick, Users, Info } from 'lucide-react';
 

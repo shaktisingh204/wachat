@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button } from '@/components/zoruui';
+import { Input, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,

@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruCardFooter,
   ZoruSeparator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';

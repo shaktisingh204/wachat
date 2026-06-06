@@ -21,7 +21,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionActivateEmailJourney,
   actionCloneEmailJourney,

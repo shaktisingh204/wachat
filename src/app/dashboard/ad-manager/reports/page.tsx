@@ -21,7 +21,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus, Download, Calendar, Mail, Save, Trash2, Search, Loader2 } from 'lucide-react';
 import * as React from 'react';

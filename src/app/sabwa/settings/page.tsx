@@ -27,7 +27,7 @@ import {
   Separator,
   Textarea,
   zoruSonnerToast as toast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   UserCog,
   RefreshCw,

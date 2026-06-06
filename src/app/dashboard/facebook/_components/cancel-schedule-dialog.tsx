@@ -12,7 +12,7 @@ import {
   ZoruAlertDialogTrigger,
   Button,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   XCircle } from "lucide-react";

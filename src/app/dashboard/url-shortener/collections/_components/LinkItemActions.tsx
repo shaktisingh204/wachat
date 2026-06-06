@@ -5,7 +5,7 @@ import {
     Button, ZoruDialog as Dialog, ZoruDialogContent as DialogContent, ZoruDialogHeader as DialogHeader, ZoruDialogTitle as DialogTitle,
     ZoruDropdownMenu as DropdownMenu, ZoruDropdownMenuContent as DropdownMenuContent, ZoruDropdownMenuItem as DropdownMenuItem, ZoruDropdownMenuTrigger as DropdownMenuTrigger,
     Input, Label, useZoruToast, Skeleton, ZoruDialogDescription as DialogDescription
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { MoreVertical, BarChart, Settings, QrCode as QrCodeIcon, Download, Trash, Plus } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { updateShortUrl, getShortUrlAnalyticsGeo } from '@/app/actions/url-shortener.actions';

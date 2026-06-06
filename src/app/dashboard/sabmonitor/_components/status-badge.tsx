@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Compact colored pill for a check / run / incident status. Uses the

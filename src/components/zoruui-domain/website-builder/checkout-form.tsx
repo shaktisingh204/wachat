@@ -11,7 +11,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCart } from '@/context/cart-context';
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/zoruui';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui/compat';
 import { useToast } from '@/hooks/use-toast';
 import { createEcommOrder } from '@/app/actions/custom-ecommerce.actions';
 import { useState, useTransition } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useTransition } from 'react';
-import { Badge, Button, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Clock, PlayCircle, StopCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
 

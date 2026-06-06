@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Suspense, useEffect, useState } from 'react';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { useParams } from 'next/navigation';

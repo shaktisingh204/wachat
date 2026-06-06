@@ -31,7 +31,7 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   ArchiveRestore,

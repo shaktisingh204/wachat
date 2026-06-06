@@ -1,7 +1,7 @@
 'use client';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
 

@@ -6,7 +6,7 @@
 
 import Link from 'next/link';
 
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listCrmActivities } from '@/app/actions/crm-activity.actions';
 

@@ -12,7 +12,7 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { TicketFormRenderer } from './_form';
 import { Database } from 'lucide-react';

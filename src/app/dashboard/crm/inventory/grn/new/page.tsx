@@ -16,7 +16,7 @@ import { Suspense } from 'react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { GrnForm, type GrnFormSeed } from '../_components/grn-form';
 import { getGrnSeedFromPo } from '@/app/actions/crm/grns.actions';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

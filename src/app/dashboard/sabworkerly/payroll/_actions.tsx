@@ -3,7 +3,7 @@
 import React, { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { updateSabworkerlyPayrollRunStatus } from '@/app/actions/sabworkerly.actions';
 
 export function PayrollRunActions({ id, status }: { id: string; status: string }) {

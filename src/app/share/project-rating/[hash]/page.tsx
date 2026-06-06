@@ -14,7 +14,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { getPublicProjectRating } from '@/app/actions/public-project-rating.actions';
 import { PublicRatingForm } from './_components/public-rating-form';
 

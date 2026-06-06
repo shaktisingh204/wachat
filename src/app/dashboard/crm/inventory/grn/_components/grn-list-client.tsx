@@ -23,7 +23,7 @@ import {
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,

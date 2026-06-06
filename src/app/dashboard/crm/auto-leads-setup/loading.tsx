@@ -1,5 +1,5 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card, StatCard, Progress } from '@/components/zoruui';
+import { Card, StatCard, Progress } from '@/components/sabcrm/20ui/compat';
 
 export default function AutoLeadsSetupLoading() {
   return (

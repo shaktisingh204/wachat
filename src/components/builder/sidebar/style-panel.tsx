@@ -9,7 +9,7 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   Select,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEditor } from '@/components/builder/editor-provider';
 

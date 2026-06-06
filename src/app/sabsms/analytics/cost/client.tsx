@@ -30,7 +30,7 @@ import {
   ChartLegend,
   ChartLegendContent,
   type ChartConfig,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
   LineChart,

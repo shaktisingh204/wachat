@@ -20,7 +20,7 @@ import {
   TableCell,
   Skeleton,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { actionListEmailTags } from '@/app/actions/email/audience.actions';
 import type { TagWithCount } from '@/lib/rust-client/email-audience';
 

@@ -9,7 +9,7 @@ import {
   ZoruPageTitle,
   useZoruToast,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { BioState } from './types';
 import { fetchBioData, saveBioData } from './api';
 import { BioProfileForm } from './_components/BioProfileForm';

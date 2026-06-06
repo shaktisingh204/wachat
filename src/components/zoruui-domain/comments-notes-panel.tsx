@@ -9,7 +9,7 @@ import {
   ZoruDialogTitle,
   Textarea,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Trash2, Paperclip, MessageSquare, StickyNote } from 'lucide-react';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 

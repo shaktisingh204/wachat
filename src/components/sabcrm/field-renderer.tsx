@@ -53,7 +53,7 @@ import {
   SelectContent,
   SelectItem,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import type {
   FieldMetadata,

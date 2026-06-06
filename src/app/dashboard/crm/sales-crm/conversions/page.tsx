@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/zoruui';
+import { Badge, Card } from '@/components/sabcrm/20ui/compat';
 import {
   redirect } from 'next/navigation';
 import {

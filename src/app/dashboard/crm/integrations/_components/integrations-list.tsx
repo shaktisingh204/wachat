@@ -15,7 +15,7 @@ import {
   EmptyState,
   Switch,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,

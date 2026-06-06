@@ -1,4 +1,4 @@
-import { Card, Button } from '@/components/zoruui';
+import { Card, Button } from '@/components/sabcrm/20ui/compat';
 import { BarChart2, Calendar, Clock, ExternalLink, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { SharePermissionsModal } from '@/components/zoruui-domain/share-permissions-modal';

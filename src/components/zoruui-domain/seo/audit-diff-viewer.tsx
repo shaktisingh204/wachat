@@ -9,7 +9,7 @@ import {
   ZoruDialogTrigger as DialogTrigger,
   Button,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SeoPageAudit } from '@/lib/seo/definitions';
 import { ArrowRight, CheckCircle, AlertCircle, FilePlus, FileMinus } from 'lucide-react';
 import { useMemo } from 'react';

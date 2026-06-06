@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Button, Input, Label, Card } from '@/components/zoruui';
+import { Button, Input, Label, Card } from '@/components/sabcrm/20ui/compat';
 import type { EnvelopeField, EnvelopeSigner, RoutingRule } from '@/lib/rust-client/esign-envelopes';
 
 const OPS: Array<RoutingRule['op']> = ['equals', 'not_equals', 'contains', 'gt', 'lt', 'truthy'];

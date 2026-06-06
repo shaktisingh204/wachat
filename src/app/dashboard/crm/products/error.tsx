@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function ProductsError({

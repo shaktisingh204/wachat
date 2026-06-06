@@ -23,7 +23,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type { SabnotebookNoteKind } from '@/lib/rust-client/sabnotebook-notes';
 

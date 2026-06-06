@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, useZoruToast } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { LinkIcon, CreditCard, ShieldCheck, MailOpen, Landmark } from 'lucide-react';
 import { fmtINR } from '@/lib/utils';
 

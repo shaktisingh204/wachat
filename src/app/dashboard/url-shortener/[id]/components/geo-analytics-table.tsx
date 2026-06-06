@@ -1,4 +1,4 @@
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { Globe } from 'lucide-react';
 
 export function GeoAnalyticsTable({ data }: { data: { country: string; count: number }[] }) {

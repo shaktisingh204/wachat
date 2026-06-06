@@ -13,7 +13,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WsShiftRotation } from '@/lib/worksuite/shifts-types';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import { useVirtualizer } from '@tanstack/react-virtual';

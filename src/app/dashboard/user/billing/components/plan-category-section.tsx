@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
+import { ZoruScrollArea, ZoruScrollBar } from '@/components/sabcrm/20ui/compat';
 import { PlanCard } from './plan-card';
 import type { Plan, WithId } from '@/lib/definitions';
 

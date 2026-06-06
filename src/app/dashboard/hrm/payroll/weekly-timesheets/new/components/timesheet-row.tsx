@@ -7,7 +7,7 @@ import {
   ZoruSelectValue,
   ZoruCheckbox,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Trash } from 'lucide-react';
 import type { EmployeeLite } from '../new-timesheet-client';
 

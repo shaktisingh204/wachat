@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { SetupWizardClient } from './setup-wizard-client';
 import { actionListEmailLists, actionListEmailSegments } from '@/app/actions/email/audience.actions';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const metadata = {
   title: 'Campaign Setup',

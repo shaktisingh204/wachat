@@ -8,7 +8,7 @@ import {
   ZoruCardDescription,
   Button,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Calendar, Mail, ArrowLeft, RefreshCw, XCircle } from 'lucide-react';
 

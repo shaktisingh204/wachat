@@ -17,8 +17,8 @@ import {
   ZoruAccordionTrigger,
   Switch,
   Textarea,
-} from '@/components/zoruui';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 

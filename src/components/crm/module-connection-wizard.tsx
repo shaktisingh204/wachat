@@ -22,7 +22,7 @@ import {
   ZoruCardTitle,
   Separator,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 import type {

@@ -12,7 +12,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WithId, EmailCampaign } from '@/lib/definitions';
 
 interface EmailActivityFeedProps {

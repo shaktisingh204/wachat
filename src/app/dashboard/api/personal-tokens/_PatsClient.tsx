@@ -24,7 +24,7 @@ import {
   Badge,
   EmptyState,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { TriangleAlert, Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {

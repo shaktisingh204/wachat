@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Save } from 'lucide-react';
 
 export function SubmitButton() {

@@ -11,7 +11,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useOptimistic, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';

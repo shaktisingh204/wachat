@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState, useTransition, useRef } from 'react';
-import { Button, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Button, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, Users, Download, Printer, Search, CheckSquare, Trash2, LoaderCircle } from 'lucide-react';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

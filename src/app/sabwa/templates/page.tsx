@@ -34,7 +34,7 @@ import {
   Skeleton,
   Textarea,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   BookCopy,
   Edit3,

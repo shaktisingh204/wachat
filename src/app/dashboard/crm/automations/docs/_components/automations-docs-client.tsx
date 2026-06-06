@@ -33,7 +33,7 @@ import {
   ZoruTabsContent as TabsContent,
   ZoruTabsList as TabsList,
   ZoruTabsTrigger as TabsTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Download, Loader2, Play, Pause, Plus, Trash2, X } from 'lucide-react';
 
 import {

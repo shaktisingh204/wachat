@@ -6,7 +6,7 @@ import {
     ZoruCard,
     ZoruBadge,
     ZoruEmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { listSabvaultAudit } from '@/app/actions/sabvault.actions';
 import type { SabvaultAuditAction } from '@/lib/rust-client/sabvault-audit';
 

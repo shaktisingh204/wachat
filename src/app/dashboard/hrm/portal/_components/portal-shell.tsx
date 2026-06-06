@@ -11,7 +11,7 @@
 
 import { useState, useCallback, useTransition, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import { ProfileCard } from './profile-card';
 import { KpiStrip } from './kpi-strip';
 import { Users, ClipboardList, ClipboardCheck, Loader2 } from 'lucide-react';

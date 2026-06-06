@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, cn } from '@/components/zoruui';
+import { Button, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useEffect, useState } from 'react';
 
 void _zoruCn;

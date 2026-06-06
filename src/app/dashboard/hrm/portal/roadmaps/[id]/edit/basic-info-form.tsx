@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, Label, Input, Textarea, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Card, ZoruCardContent, Label, Input, Textarea, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 
 type RoadmapStatus = 'draft' | 'active' | 'completed' | 'archived';
 

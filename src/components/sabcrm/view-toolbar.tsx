@@ -82,7 +82,7 @@ import {
   SelectContent,
   SelectItem,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   listViewsAction,
   saveViewAction,

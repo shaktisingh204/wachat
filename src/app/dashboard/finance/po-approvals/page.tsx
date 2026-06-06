@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { listPurchaseOrders } from '@/app/actions/finance/po-approvals.actions';
 import { PurchaseOrderListClient } from './_components/po-approvals-list-client';
 

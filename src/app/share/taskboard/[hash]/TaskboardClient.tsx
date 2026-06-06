@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Card, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/zoruui';
+import { Badge, Card, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import { PublicTaskboardView } from '@/app/actions/public-taskboard.actions';
 
 function formatDate(iso: string | null): string {

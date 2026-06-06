@@ -10,7 +10,7 @@ import {
   Textarea,
   Badge,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { Download, Layers, Play, Sparkles, Copy, Check } from 'lucide-react';

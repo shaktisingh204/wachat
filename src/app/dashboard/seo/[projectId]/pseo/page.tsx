@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { PseoClient } from './_components/pseo-client';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

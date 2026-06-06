@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, ZoruPageTitle } from '@/components/zoruui';
+import { PageHeader, ZoruPageTitle } from '@/components/sabcrm/20ui/compat';
 import { JobForm } from './_form';
 import { getSabworkerlyClients } from '@/app/actions/sabworkerly.actions';
 

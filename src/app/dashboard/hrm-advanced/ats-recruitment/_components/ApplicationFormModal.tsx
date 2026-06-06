@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Input } from '@/components/zoruui';
-import { Label } from '@/components/zoruui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { ATSApplication } from '@/lib/hrm-advanced-types';
 import { format } from 'date-fns';
 

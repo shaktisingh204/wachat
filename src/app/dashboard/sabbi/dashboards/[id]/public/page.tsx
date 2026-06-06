@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { notFound } from 'next/navigation';
-import { Card, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { type DashboardWidget, resolveWidgetData } from '@/app/actions/crm-dashboards.actions';
 import React from 'react';
 import dynamic from 'next/dynamic';

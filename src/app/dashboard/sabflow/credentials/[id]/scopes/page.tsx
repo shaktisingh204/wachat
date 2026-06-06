@@ -5,11 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { Key, Shield, Save, ArrowLeft, AlertCircle } from 'lucide-react';
 import { m } from 'motion/react';
 
-import { PageHeader } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/zoruui';
-import { Checkbox } from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     TableBody,
@@ -17,7 +17,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 // Mock scope categories and operations

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   Filter,
   RefreshCw,

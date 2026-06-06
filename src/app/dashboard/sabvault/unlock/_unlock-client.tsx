@@ -9,7 +9,7 @@ import {
     Label,
     ZoruCard,
     ZoruAlert,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     base64ToBytes,
     bytesToBase64,

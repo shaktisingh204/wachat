@@ -18,7 +18,7 @@ import {
     Avatar,
     AvatarFallback,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectPeople } from '@/app/actions/sabconnect.actions';
 

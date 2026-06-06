@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useCart } from '@/context/cart-context';
 

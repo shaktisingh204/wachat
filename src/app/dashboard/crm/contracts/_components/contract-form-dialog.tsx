@@ -16,7 +16,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * Contract create/edit dialog — extracted out of the contracts list
  * page to keep page.tsx under 600 lines.

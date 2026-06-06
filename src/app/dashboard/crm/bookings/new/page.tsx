@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { BookingForm } from '../_components/booking-form';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import type { CrmBookingDoc } from '@/lib/rust-client/crm-bookings';
 
 function BookingFormWithParams() {

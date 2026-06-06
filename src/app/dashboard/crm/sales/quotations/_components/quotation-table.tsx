@@ -7,7 +7,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * <QuotationTable> — the table-view body of the canonical quotations
  * list. Pure presentation; the parent owns filters / selection.

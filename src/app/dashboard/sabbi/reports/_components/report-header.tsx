@@ -9,7 +9,7 @@ import {
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export interface ReportHeaderProps {
   defaultRangeDays?: number;

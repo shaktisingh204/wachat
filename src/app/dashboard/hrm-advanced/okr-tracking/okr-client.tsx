@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
-import { Button, Input, EmptyState } from '@/components/zoruui';
+import { Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { saveOKR, deleteOKR } from '@/app/actions/hrm-advanced/okr-tracking';
 import { OKRForm } from './okr-form';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,

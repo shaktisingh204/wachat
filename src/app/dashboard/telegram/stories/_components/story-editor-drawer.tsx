@@ -19,7 +19,7 @@ import {
   Separator,
   Switch,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ImageIcon, Loader2, Plus, VideoIcon } from 'lucide-react';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { AreaEditor, AreaDraft } from './area-editor';

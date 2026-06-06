@@ -7,7 +7,7 @@ import {
     Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription,
     Input, Label, Badge, Checkbox, useZoruToast, Switch,
     Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Receipt, Search, ArrowLeft, Percent } from 'lucide-react';
 
 import { listTaxRules, upsertTaxRule, deleteTaxRule } from '@/app/actions/sabshop.actions';

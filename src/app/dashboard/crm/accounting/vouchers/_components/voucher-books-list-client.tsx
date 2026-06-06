@@ -11,7 +11,7 @@ import {
   ZoruAlertDialogTitle,
   Button,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 
 /**

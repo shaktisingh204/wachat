@@ -1,4 +1,4 @@
-import { ZoruWaterLoader } from '@/components/zoruui';
+import { ZoruWaterLoader } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
     return (

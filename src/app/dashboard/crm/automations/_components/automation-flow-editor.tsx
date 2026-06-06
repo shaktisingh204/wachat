@@ -12,7 +12,7 @@ import {
   NodeProps
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Badge, Button } from '@/components/zoruui';
+import { Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { Loader2 } from 'lucide-react';
 
 const CustomNode = ({ data, id }: NodeProps) => {

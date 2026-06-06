@@ -31,7 +31,7 @@ import {
     Switch,
     Textarea,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Plus, Save, Trash2, X, Upload } from 'lucide-react';

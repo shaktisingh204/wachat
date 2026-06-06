@@ -1,6 +1,6 @@
 import "@/styles/zoruui.css";
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/sabcrm/20ui/compat';
 import { Suspense } from 'react'
 import { LoaderCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 

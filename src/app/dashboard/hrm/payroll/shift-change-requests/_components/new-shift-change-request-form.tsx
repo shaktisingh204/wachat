@@ -9,7 +9,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruDialogFooter,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import type { WsEmployeeShift } from '@/lib/worksuite/shifts-types';
 

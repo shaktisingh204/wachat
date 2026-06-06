@@ -1,7 +1,7 @@
 'use client';
 
 import { Download, FileText, Filter, Users } from 'lucide-react';
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import Papa from 'papaparse';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';

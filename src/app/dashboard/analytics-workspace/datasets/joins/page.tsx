@@ -14,7 +14,7 @@ import {
   Table,
   TableBody,
   TableHeader,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   listDatasetsAction,
   listJoinsAction,

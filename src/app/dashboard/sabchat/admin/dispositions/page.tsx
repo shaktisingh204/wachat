@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { listAdminDispositions } from '@/app/actions/sabchat-admin.actions';
 import { AdminDispositionsClient } from '../_components/admin-dispositions-client';
 

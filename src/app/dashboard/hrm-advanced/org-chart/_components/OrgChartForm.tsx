@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { OrgChartNode } from '@/lib/hrm-advanced-types';
-import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Button } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Button } from '@/components/sabcrm/20ui/compat';
 
 interface OrgChartFormProps {
   open: boolean;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, RadioGroup, ZoruRadioGroupItem, Input } from '@/components/zoruui';
+import { Label, RadioGroup, ZoruRadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
 export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g. ${data.is_visible}" }: { label: string, value: any, onChange: (newValue: any) => void, placeholder?: string }) => {
     const currentMode = typeof value === 'boolean' ? 'boolean' : 'dynamic';
     

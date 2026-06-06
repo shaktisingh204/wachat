@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Input, Textarea, Select } from '@/components/zoruui';
+import { Label, Input, Textarea, Select } from '@/components/sabcrm/20ui/compat';
 import { SmartCombobox } from '@/components/zoruui-domain/smart-combobox';
 
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';

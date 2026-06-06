@@ -14,7 +14,7 @@ import {
   Label,
   Separator,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   disable2fa,
   disableEmail2fa,

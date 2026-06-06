@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button, EmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function NewIntegrationError({

@@ -21,7 +21,7 @@ import {
   Label,
   Progress,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Loader2, Plus, RotateCcw, Trash2 } from 'lucide-react';
 
 import {

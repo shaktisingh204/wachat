@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {

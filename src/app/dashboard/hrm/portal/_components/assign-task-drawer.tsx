@@ -7,7 +7,7 @@ import {
     ZoruSheetHeader,
     ZoruSheetTitle,
     ZoruSheetDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AssignTaskForm } from './assign-task-form';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 

@@ -5,7 +5,7 @@ import {
   Card, CardHeader, CardTitle, CardDescription, CardContent,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
   Button, Badge, Input
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { BarChart2, Plus, LineChart, PieChart, Search, Play, MoreVertical } from 'lucide-react';
 
 const mockCharts = [

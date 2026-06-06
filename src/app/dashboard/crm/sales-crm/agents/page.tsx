@@ -63,7 +63,7 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

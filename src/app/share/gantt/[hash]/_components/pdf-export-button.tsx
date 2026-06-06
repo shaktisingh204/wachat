@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 

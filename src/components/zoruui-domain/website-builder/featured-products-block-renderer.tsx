@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, Button } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import type { WithId,
   EcommProduct } from '@/lib/definitions';

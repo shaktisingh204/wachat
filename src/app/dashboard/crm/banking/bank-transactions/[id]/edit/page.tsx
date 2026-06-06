@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions/user.actions';
 import { getCrmBankTransactionById } from '@/app/actions/crm-bank-transactions.actions';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';

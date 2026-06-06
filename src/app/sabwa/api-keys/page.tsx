@@ -39,7 +39,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   format,
   formatDistanceToNow } from 'date-fns';

@@ -5,7 +5,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 /**
  * <DealListClient> — canonical Deals list view per CRM_REBUILD_PLAN §1D.

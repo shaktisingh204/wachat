@@ -1,4 +1,4 @@
-import { SabnodeWaterLoader } from '@/components/zoruui';
+import { SabnodeWaterLoader } from '@/components/sabcrm/20ui/compat';
 
 export default function BuilderLoading() {
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 
 export default function DashboardError({

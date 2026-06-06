@@ -14,7 +14,7 @@ import {
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

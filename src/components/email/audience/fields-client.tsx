@@ -21,7 +21,7 @@ import {
   Skeleton,
   Badge,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { actionGetEmailFieldSchema } from '@/app/actions/email/audience.actions';
 import type { CustomFieldDef } from '@/lib/rust-client/email-audience';
 

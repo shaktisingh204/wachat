@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeFirms } from '@/app/actions/sabpractice.actions';
-import { Card, CardContent, CardHeader, CardTitle, PageHeader } from '@/components/zoruui';
+import { Card, CardContent, CardHeader, CardTitle, PageHeader } from '@/components/sabcrm/20ui/compat';
 
 import { FirmForm } from './_components/firm-form';
 

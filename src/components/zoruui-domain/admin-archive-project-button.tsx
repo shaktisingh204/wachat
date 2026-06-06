@@ -10,7 +10,7 @@ import {
     ZoruAlertDialogDescription,
     ZoruAlertDialogFooter,
     ZoruAlertDialogCancel,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Archive, ArchiveRestore, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { setProjectArchived } from '@/app/actions/admin-hardening.actions';

@@ -27,7 +27,7 @@ import {
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 
 const chartConfig = {

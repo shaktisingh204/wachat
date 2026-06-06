@@ -1,6 +1,6 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn } from '@/components/sabcrm/20ui/compat';
 void _zoruCn;
 
 import { UserPlus } from 'lucide-react';

@@ -23,7 +23,7 @@ import {
   Textarea,
   cn,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionActivateEmailJourney,
   actionGetEmailJourney,

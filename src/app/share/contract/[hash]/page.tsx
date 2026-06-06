@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ContractSignPanel } from './contract-sign-panel';
 import DOMPurify from 'isomorphic-dompurify';
 import { fmtDate, fmtINR } from '@/lib/utils';

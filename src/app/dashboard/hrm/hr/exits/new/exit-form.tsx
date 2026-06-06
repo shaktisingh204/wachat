@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';

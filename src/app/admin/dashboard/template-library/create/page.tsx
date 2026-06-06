@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Skeleton } from '@/components/zoruui';
+import { Button, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Suspense, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';

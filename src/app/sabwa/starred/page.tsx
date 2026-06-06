@@ -19,7 +19,7 @@ import {
   cn,
   ZoruCheckbox,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   ChevronUp,

@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
   return (

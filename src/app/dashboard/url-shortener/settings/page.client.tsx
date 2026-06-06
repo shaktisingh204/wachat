@@ -8,7 +8,7 @@ import {
   ZoruCardTitle,
   Separator,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Globe } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';

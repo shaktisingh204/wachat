@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { CalendarOff, CheckCircle2, Clock, Hourglass, XCircle, } from 'lucide-react';
 
 /**

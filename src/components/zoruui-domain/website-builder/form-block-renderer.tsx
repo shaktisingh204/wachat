@@ -19,7 +19,7 @@ import {
   ZoruCardTitle,
   RadioGroup,
   ZoruRadioGroupItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useForm,
   Controller } from 'react-hook-form';

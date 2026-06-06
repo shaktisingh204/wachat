@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 import { createGenerativeAIDraft, updateGenerativeAIDraftStatus, deleteGenerativeAIDraft } from '@/app/actions/platform/generative-ai-drafter.actions';
 import type { GenerativeAIDraft } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, CheckCircle, XCircle, Bot, Cpu, ChevronLeft, ChevronRight } from 'lucide-react';

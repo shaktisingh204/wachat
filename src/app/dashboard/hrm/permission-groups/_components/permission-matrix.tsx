@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react';
-import { Checkbox, Badge } from '@/components/zoruui';
+import { Checkbox, Badge } from '@/components/sabcrm/20ui/compat';
 import type { ModulePermission, PermissionAction } from '@/app/actions/hrm-permission-groups.actions.types';
 /* ─── Config ─────────────────────────────────────────────────────────────── */
 

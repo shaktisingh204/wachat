@@ -30,7 +30,7 @@ import {
     Input,
     Label,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export interface ContactsClientProps {
     accountId: string;

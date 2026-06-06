@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Label, Textarea } from '@/components/zoruui';
+import { Button, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { Copy, Check, Download } from 'lucide-react';
 import { useMemo, useState } from 'react';
 

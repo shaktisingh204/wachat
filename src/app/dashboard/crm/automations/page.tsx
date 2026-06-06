@@ -25,7 +25,7 @@ import {
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
 
 import {

@@ -16,7 +16,7 @@ import {
     ZoruSheetHeader,
     ZoruSheetTitle,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     getMessageThread,

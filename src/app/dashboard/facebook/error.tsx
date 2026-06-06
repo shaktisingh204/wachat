@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function Error({
   error,

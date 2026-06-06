@@ -18,7 +18,7 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Download, LoaderCircle, Trophy, TrendingUp, Users } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';

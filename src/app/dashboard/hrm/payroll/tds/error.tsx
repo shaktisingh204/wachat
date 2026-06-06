@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+import { ZoruButton, ZoruEmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function TdsError({

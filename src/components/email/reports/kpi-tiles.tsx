@@ -8,7 +8,7 @@ import {
   Send,
   UserMinus,
 } from 'lucide-react';
-import { StatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import type { EmailMetricsTotals } from '@/lib/rust-client/email-reports';
 
 interface KpiTilesProps {

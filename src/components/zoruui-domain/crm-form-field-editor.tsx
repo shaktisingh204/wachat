@@ -15,7 +15,7 @@ import {
     ZoruAccordionContent,
     ZoruAccordionItem,
     ZoruAccordionTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { FormField, FormFieldValidation } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {

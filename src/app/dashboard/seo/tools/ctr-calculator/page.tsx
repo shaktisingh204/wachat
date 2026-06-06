@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Card, ZoruCardContent, Button, cn } from '@/components/zoruui';
+import { Input, Label, Card, ZoruCardContent, Button, cn } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { Copy, Download } from 'lucide-react';
 import React, { useMemo, useState } from 'react';

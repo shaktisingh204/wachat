@@ -26,7 +26,7 @@ import {
   AccordionTrigger,
   AccordionContent,
   Switch
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type { SabFilePick } from '@/components/sabfiles';
 import {

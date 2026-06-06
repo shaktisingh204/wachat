@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function ErrorBoundary({

@@ -18,7 +18,7 @@ import {
   Separator,
   Card,
   ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 

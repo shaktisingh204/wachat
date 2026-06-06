@@ -1,5 +1,5 @@
 import { fmtDate } from "@/lib/utils";
-import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import { getEcommOrderById, getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';

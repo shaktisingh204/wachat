@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Button } from '@/components/zoruui';
+import { Card, Button } from '@/components/sabcrm/20ui/compat';
 import { ReportExportButton } from './report-export-button';
 
 interface RunResultsTableProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useTransition } from 'react';

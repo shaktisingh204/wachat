@@ -11,7 +11,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { AgileVelocityDoc } from '@/lib/rust-client/agile-velocity';
 
 const {

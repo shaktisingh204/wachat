@@ -17,7 +17,7 @@ import {
   Button,
   Card,
   CardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   getSabwriterComment,
   resolveSabwriterComment,

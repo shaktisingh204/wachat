@@ -13,7 +13,7 @@ import {
     ZoruCardHeader,
     ZoruCardTitle,
     ZoruCardDescription
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { AutomationForm } from '../_components/automation-form';
 

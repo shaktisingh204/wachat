@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Progress, Button, cn } from '@/components/zoruui';
+import { Card, ZoruCardContent, Progress, Button, cn } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef } from 'react';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 

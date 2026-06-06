@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, Banknote, Clock, FileEdit, Wallet, } from 'lucide-react';
 
 /**

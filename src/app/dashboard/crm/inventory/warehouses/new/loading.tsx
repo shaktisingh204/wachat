@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function NewWarehouseLoading() {
   return (

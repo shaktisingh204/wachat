@@ -1,7 +1,7 @@
 'use client';
 
-import { Label, Input, Switch, Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { Slider } from '@/components/zoruui';
+import { Label, Input, Switch, Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Slider } from '@/components/sabcrm/20ui/compat';
 
 export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 
 // Hydration-safe date component

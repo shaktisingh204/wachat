@@ -21,7 +21,7 @@ import {
   ZoruPageDescription,
   ZoruPageActions,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabtablesBase } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesWorkspaceDoc } from '@/lib/rust-client/sabtables-workspaces';

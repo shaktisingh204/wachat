@@ -53,7 +53,7 @@ import {
   EmptyState,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   getRecordAction,
   updateRecordAction,

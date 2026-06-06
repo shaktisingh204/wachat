@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Sheet, ZoruSheetContent, ZoruSheetHeader, ZoruSheetTitle, ZoruSheetDescription, Badge } from '@/components/zoruui';
+import { Card, Sheet, ZoruSheetContent, ZoruSheetHeader, ZoruSheetTitle, ZoruSheetDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { ChevronDown, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
 
 /**

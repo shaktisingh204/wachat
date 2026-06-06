@@ -24,7 +24,7 @@ import {
     SelectValue,
     SelectContent,
     SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabcatalystApiKey, ApiKeyScope } from '@/lib/rust-client/sabcatalyst-api-keys';
 
 const SCOPES: ApiKeyScope[] = ['read', 'write', 'admin'];

@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 import { CheckCircle2, Archive, Tags, ArrowDownUp } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { CategoryOrderDialog } from './category-order-dialog';
 
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';

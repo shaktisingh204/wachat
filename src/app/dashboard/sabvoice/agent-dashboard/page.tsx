@@ -8,7 +8,7 @@ import {
   StatCard,
   Avatar,
   AvatarFallback,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   PhoneCall,

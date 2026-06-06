@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import QRCode from 'react-qr-code';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/zoruui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 import { QrCode as QrCodeIcon, Download, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 

@@ -9,7 +9,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import {
   EmailAccountList,

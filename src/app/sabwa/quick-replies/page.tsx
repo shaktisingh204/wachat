@@ -33,7 +33,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Edit3,
   MessageSquareReply,

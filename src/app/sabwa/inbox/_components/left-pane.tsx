@@ -9,7 +9,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Inbox,
   MessageSquare,

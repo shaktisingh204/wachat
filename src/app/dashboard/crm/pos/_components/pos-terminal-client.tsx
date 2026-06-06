@@ -13,7 +13,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogFooter,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Banknote,
   CreditCard,

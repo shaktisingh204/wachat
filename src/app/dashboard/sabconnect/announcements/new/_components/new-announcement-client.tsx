@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { AnnouncementForm } from '../../_components/announcement-form';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Badge } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { FileText, Link as LinkIcon, BarChart3, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions.types';

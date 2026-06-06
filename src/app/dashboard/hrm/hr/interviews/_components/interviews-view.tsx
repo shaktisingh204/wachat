@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarDays,
   CalendarRange,

@@ -31,7 +31,7 @@ import {
   StatCard,
   cn,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,

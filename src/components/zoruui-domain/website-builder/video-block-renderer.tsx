@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 import React from 'react';

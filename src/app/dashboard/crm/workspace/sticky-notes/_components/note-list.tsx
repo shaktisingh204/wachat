@@ -26,7 +26,7 @@ import {
   Input,
   ScrollArea,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type {
   SabnotebookNote,

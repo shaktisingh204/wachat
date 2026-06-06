@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 
-import { Button, Input } from '@/components/zoruui';
+import { Button, Input } from '@/components/sabcrm/20ui/compat';
 
 import {
     createSabConnectComment,

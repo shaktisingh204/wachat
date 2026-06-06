@@ -13,7 +13,7 @@ import {
     CardContent,
     Badge,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectGroups } from '@/app/actions/sabconnect.actions';
 import { CreateGroupDialog } from './_components/create-group-dialog';

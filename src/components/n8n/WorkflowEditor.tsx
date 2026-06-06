@@ -23,7 +23,7 @@ import {
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createId } from '@paralleldrive/cuid2';
 
 type Props = {

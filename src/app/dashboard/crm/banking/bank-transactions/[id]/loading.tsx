@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Skeleton, Card } from '@/components/zoruui';
+import { Skeleton, Card } from '@/components/sabcrm/20ui/compat';
 
 export default function BankTransactionDetailLoading() {
   return (

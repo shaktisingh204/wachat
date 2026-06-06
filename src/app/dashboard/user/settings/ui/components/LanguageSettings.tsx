@@ -4,9 +4,9 @@ import { useState, useMemo } from 'react';
 import {
     Label,
     Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Search, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 interface Language {
     code: string;

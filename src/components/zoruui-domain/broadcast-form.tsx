@@ -20,7 +20,7 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Papa from 'papaparse';

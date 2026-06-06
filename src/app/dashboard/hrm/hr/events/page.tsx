@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 
 /**

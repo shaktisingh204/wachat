@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { useToast } from '@/hooks/use-toast';
 

@@ -11,7 +11,7 @@ import {
     ZoruDropdownMenuLabel,
     ZoruDropdownMenuSeparator,
     ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 const STATUS_BULK_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
     { value: 'New', label: 'New' },

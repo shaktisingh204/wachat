@@ -11,7 +11,7 @@ import React, { Suspense } from 'react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
-import { Card, ZoruCardHeader, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 import { IssueForm } from '../../_components/issue-form';
 import { issueSchema } from '../../schema';

@@ -9,7 +9,7 @@ import {
   ZoruCardFooter,
   Button,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';

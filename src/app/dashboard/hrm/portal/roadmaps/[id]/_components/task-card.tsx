@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { CheckCircle2, CheckSquare, Square } from 'lucide-react';
 
-import { Badge, Button, Card } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
 import { fmtDate } from '@/lib/utils';
 import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 

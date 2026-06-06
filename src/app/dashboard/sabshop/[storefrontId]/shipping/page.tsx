@@ -8,7 +8,7 @@ import {
     Input, Label, Badge, useZoruToast, Switch,
     Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
     Separator, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Globe, Truck, MapPin, Search, PlusCircle, ArrowLeft, MoreHorizontal } from 'lucide-react';
 
 import {

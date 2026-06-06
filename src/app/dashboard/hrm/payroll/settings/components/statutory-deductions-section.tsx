@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Switch } from '@/components/zoruui';
+import { Card, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
 import { memo } from 'react';
 import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';
 

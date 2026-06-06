@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/zoruui';
+import { Badge, Card } from '@/components/sabcrm/20ui/compat';
 /**
  * <BillDetailBody> — body cards on the bill detail page.
  *

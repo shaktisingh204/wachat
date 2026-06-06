@@ -6,7 +6,7 @@ import {
   Card,
   ZoruCardContent,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {

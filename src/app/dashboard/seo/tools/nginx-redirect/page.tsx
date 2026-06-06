@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, cn } from '@/components/zoruui';
+import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import { Plus, Trash2, ArrowRight } from 'lucide-react';
 

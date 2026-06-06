@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useMemo } from 'react';
 import { History, ArrowRight, Plus, Loader2 } from 'lucide-react';
 import { fetchSnapshot } from '../actions';

@@ -12,7 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { BarChart3, RefreshCw } from 'lucide-react';
-import { Badge, Button, Skeleton } from '@/components/zoruui';
+import { Badge, Button, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   getProjectBurndown,
   type BurndownMode,

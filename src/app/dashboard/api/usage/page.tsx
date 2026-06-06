@@ -22,7 +22,7 @@ import {
   ZoruTableBody,
   ZoruTableRow,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { format } from 'date-fns';
 

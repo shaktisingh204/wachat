@@ -11,7 +11,7 @@ import {
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 export function CrmAutomationBlockEditor({ settings, onUpdate, availableAutomations }: { settings: any, onUpdate: (newSettings: any) => void, availableAutomations?: any[] }) {
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });

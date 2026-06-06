@@ -23,7 +23,7 @@ import {
     ZoruCardHeader,
     ZoruCardTitle,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     EntityDetailShell,

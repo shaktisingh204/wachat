@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { createCustomObject, deleteCustomObject, getCustomObjects } from '@/app/actions/platform/custom-object-builder.actions';
 import type { CustomObjectDefinition } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Database } from 'lucide-react';

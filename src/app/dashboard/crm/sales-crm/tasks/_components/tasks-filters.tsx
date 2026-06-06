@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, ZoruDateRangePicker, Label } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruDateRangePicker, Label } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   Clock,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ZoruDateRangePicker, ZoruDateRangePickerProps, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ZoruDateRangePicker, ZoruDateRangePickerProps, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
 import { use, useEffect, useState, useCallback } from 'react';
 import { LineChart, Loader2, CheckCircle, Search, Filter } from 'lucide-react';
 import { startGscAuth, getGscIntegration } from '@/app/actions/seo-gsc.actions';

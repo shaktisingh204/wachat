@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 

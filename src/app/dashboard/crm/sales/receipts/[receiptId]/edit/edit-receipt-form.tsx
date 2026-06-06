@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast, Select } from '@/components/zoruui';
+import { Button, Card, Input, Label, Textarea, useZoruToast, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -8,7 +8,7 @@ import {
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 
-import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
+import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Save } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { updatePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';

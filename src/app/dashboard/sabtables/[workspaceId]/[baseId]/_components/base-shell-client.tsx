@@ -21,7 +21,7 @@ import {
   Input,
   Label,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabtablesTable } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';

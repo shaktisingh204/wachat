@@ -25,7 +25,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 

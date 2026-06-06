@@ -9,7 +9,7 @@ import {
   Card,
   Skeleton,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailJourney,
   actionListEmailJourneyTemplates,

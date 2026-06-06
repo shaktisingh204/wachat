@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   Clock } from 'lucide-react';
 

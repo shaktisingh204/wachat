@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

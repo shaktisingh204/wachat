@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { Banknote, CheckCircle2, CircleDollarSign, FileEdit, Loader2, } from 'lucide-react';
 
 /**

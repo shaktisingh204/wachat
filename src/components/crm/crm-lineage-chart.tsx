@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge, Tooltip, ZoruTooltipTrigger, ZoruTooltipContent, ZoruTooltipProvider } from '@/components/zoruui';
+import { Card, Badge, Tooltip, ZoruTooltipTrigger, ZoruTooltipContent, ZoruTooltipProvider } from '@/components/sabcrm/20ui/compat';
 import { Check, ArrowRight, FileText, ArrowRightCircle } from 'lucide-react';
 
 export interface LineageNode {

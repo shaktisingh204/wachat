@@ -14,7 +14,7 @@ import {
     LuX,
 } from 'react-icons/lu';
 
-import { Badge, Button, Card, type ZoruBadgeProps } from '@/components/zoruui';
+import { Badge, Button, Card, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
 import { useToast } from '@/hooks/use-toast';
 import {
     acceptInvitation,

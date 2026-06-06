@@ -20,7 +20,7 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   StatCard
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutPages, listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutPageStatus } from '@/lib/rust-client/sabcheckout-pages';

@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import {
     Button, Input, cn, useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Folder, Plus, Trash2, LoaderCircle, FolderX } from 'lucide-react';
 import {
     getCollections, createCollection, deleteCollection,

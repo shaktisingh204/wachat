@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { listBankRecons } from '@/app/actions/finance/bank-reconciliation.actions';
 import { BankReconListClient } from './_components/bank-reconciliation-list-client';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

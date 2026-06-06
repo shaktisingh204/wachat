@@ -12,7 +12,7 @@ import {
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal, Pencil, Trash2, CheckCircle2, XCircle, FileText } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';

@@ -8,11 +8,11 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Input } from '@/components/zoruui';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -20,8 +20,8 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from '@/components/zoruui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { 
   MoreHorizontal, 
   Search, 

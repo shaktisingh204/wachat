@@ -12,6 +12,10 @@
  */
 import './tokens.css';
 
+// Shared classname helper, re-exported so migrated files can import `cn` from
+// the 20ui system (ZoruUI re-exported the same util).
+export { cn } from '@/lib/utils';
+
 export * from './button';
 export * from './card';
 export * from './badge';

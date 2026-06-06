@@ -10,7 +10,7 @@ import {
   Input,
   Badge,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   planFeatureMap,
   planFeaturesDefaults } from '@/lib/plans';

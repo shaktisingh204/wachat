@@ -9,7 +9,7 @@ import {
   ZoruDialogTitle,
   ZoruDialogTrigger,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 

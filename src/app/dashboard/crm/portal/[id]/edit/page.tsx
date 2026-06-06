@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPortalUserById } from '@/app/actions/crm-portal.actions';

@@ -5,7 +5,7 @@ import {
   Button,
   StatCard,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   Download,

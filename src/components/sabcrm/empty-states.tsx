@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { EmptyState, type ZoruEmptyStateProps } from '@/components/zoruui';
+import { EmptyState, type ZoruEmptyStateProps } from '@/components/sabcrm/20ui/compat';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // No records / No results state

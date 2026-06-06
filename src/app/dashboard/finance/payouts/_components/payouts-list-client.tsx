@@ -22,8 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Badge,
-} from '@/components/zoruui';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPayout, updatePayout, deletePayout, Payout } from '@/app/actions/finance/payouts.actions';

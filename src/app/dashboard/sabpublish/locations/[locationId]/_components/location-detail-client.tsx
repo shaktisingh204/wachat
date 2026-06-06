@@ -13,7 +13,7 @@ import {
   ZoruTabsContent,
   ZoruTabsList,
   ZoruTabsTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProfileFieldDoc } from '@/lib/rust-client/sabpublish-profile-fields';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';

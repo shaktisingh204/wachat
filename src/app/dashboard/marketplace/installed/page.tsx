@@ -10,7 +10,7 @@ import {
   Button,
   Card,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useMemo
 } from 'react';

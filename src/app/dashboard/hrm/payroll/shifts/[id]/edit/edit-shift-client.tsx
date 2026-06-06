@@ -15,7 +15,7 @@ import {
     ZoruTableCell,
     Checkbox,
     useZoruToast 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Download, Users, AlertCircle, FileText, Trash } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 

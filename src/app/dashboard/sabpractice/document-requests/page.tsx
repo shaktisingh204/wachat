@@ -15,7 +15,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 async function DocRequestsData() {
     const list = await listSabpracticeDocumentRequests({ status: 'open', limit: 200 });

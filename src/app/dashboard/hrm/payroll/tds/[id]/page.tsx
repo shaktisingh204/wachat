@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { notFound, redirect } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';

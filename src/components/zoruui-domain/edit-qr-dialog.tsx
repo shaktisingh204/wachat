@@ -5,7 +5,7 @@ import { updateQrCode } from '@/app/actions/qr-code.actions';
 import {
     Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
     Button, Input, Label, cn, useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { QrCodeWithShortUrl } from '@/lib/definitions';
 import { LoaderCircle, Pencil } from 'lucide-react';
 

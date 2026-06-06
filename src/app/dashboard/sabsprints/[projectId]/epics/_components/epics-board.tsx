@@ -16,7 +16,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createEpic } from '@/app/actions/agile.actions';
 import type { AgileEpicDoc } from '@/lib/rust-client/agile-epics';
 import type { AgileStoryDoc } from '@/lib/rust-client/agile-stories';

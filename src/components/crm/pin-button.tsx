@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Pin, PinOff } from 'lucide-react';
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/zoruui/lib/cn';
 import {
   togglePin,

@@ -10,7 +10,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * <CustomFieldInput> + <CustomFieldDisplay> — render a single
  * `WsCustomField` instance.

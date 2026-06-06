@@ -12,7 +12,7 @@ import {
   Input,
   Card,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Calculator, Info } from 'lucide-react';
 
 export interface CalculatorItem {

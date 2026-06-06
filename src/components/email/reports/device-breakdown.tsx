@@ -12,7 +12,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { EmailDeviceBreakdown } from '@/lib/rust-client/email-reports';
 
 interface DeviceBreakdownProps {

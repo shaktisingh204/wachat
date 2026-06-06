@@ -9,7 +9,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface EmailQuickActionsProps {
   accountId?: string;

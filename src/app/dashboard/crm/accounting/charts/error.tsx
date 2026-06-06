@@ -1,7 +1,7 @@
 'use client';
 
 import { FallbackProps } from 'react-error-boundary';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function ChartsError({ error, resetErrorBoundary }: FallbackProps) {

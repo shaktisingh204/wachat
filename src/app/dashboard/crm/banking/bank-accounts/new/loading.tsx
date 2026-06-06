@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 const BASE = '/dashboard/crm/banking/bank-accounts';

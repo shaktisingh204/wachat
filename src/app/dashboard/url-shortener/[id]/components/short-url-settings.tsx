@@ -1,4 +1,4 @@
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { Settings } from 'lucide-react';
 import { EditLinkDrawer } from '@/components/zoruui-domain/edit-link-drawer';
 import { LinkHistoryDrawer } from '@/components/zoruui-domain/link-history-drawer';

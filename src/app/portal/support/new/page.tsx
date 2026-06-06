@@ -25,7 +25,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSupportTicket } from '@/app/actions/helpdesk.actions';
 
 export default function NewSupportTicketPage(): React.JSX.Element {

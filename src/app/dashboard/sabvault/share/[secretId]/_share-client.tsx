@@ -15,7 +15,7 @@ import {
     ZoruSelectContent,
     ZoruSelectItem,
     ZoruBadge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     revokeSabvaultShare,
     shareSabvaultSecret,

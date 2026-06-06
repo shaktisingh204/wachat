@@ -18,7 +18,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Camera, Loader2, ScanLine } from 'lucide-react';
 
 import {

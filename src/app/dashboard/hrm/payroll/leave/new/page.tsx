@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import ApplyLeaveClient from './client';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import {
   getLeaveTypes,
   getLeaveBalance,

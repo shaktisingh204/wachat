@@ -14,7 +14,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { FileDeadlineButton } from './_components/file-deadline-button';
 

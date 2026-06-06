@@ -13,7 +13,7 @@ import {
   Progress,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Check,

@@ -11,13 +11,13 @@ import {
   ZoruDialogTrigger,
   Input,
   zoruToast as toast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/zoruui';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui/compat';
 
 import { Plus } from 'lucide-react';
 import { createSeoProject } from '@/app/actions/seo.actions';

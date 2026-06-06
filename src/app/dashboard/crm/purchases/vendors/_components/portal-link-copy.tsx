@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Copy, Link as LinkIcon, Check } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export function PortalLinkCopy({ vendorId }: { vendorId: string }) {
     const [copied, setCopied] = React.useState(false);

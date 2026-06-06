@@ -15,7 +15,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface AssignedEmployee {
   employeeId: string;

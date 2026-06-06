@@ -27,7 +27,7 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

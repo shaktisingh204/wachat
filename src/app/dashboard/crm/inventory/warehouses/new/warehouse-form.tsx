@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Input, Label, useZoruToast } from '@/components/zoruui';
+import { Checkbox, Input, Label, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**

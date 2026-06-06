@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export default function NotificationsError({
     error,

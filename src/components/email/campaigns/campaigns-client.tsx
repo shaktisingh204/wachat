@@ -35,7 +35,7 @@ import {
   ZoruTableRow,
   Textarea,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailCampaign,
   actionDeleteEmailCampaign,

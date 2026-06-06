@@ -5,7 +5,7 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
     Button, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, 
     ZoruSelectTrigger, ZoruSelectValue, useZoruToast 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { CalendarClock, Mail } from 'lucide-react';
 import { scheduleAnalyticsReport } from '@/app/actions/crm-analytics-reports.actions';
 

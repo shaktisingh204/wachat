@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/zoruui';
+import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { TdsForm } from '../_components/tds-form';
 import { Users } from 'lucide-react';
 import { BulkUpload } from './components/bulk-upload';

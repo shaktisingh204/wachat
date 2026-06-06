@@ -16,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Bell, BellRing, Trash2, Check, AlertCircle } from 'lucide-react';
 import { saveAlertConfig, deleteAlertConfig, markAlertRead } from './actions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

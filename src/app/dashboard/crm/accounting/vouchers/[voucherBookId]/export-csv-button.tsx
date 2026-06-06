@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Download } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export interface ExportCsvButtonProps {
     data: any[];

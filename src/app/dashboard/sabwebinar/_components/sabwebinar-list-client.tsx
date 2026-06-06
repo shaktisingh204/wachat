@@ -16,7 +16,7 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Search, Video, Calendar, Users } from 'lucide-react';
 import type { Sabwebinar, SabwebinarStatus } from '@/app/actions/sabwebinar.actions';
 

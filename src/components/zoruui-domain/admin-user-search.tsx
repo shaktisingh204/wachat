@@ -1,6 +1,6 @@
 'use client';
 
-import { Input } from '@/components/zoruui';
+import { Input } from '@/components/sabcrm/20ui/compat';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';

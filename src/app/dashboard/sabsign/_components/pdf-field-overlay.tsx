@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Trash2, GripHorizontal } from 'lucide-react';
 import type { EnvelopeField, EsignFieldType } from '@/lib/rust-client/esign-envelopes';
 

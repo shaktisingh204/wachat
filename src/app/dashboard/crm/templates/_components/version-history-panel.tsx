@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { History, RotateCcw, Eye, ArrowLeft, CheckCircle2, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 const fmtVerDateTime = (ts: string | Date) => {
     const date = new Date(ts);

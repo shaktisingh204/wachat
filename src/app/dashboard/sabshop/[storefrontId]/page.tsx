@@ -26,7 +26,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getStorefront } from '@/app/actions/sabshop.actions';
 

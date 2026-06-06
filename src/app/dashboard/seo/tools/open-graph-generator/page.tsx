@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, cn } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui/select';
 

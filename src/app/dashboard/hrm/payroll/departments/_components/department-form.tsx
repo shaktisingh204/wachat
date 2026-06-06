@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruColorPicker, Input, Label, Switch, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, ZoruColorPicker, Input, Label, Switch, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,

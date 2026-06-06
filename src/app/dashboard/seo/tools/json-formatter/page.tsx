@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, ZoruCardContent, cn } from '@/components/zoruui';
+import { Button, Textarea, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useRef, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { JsonTreeView } from '@/components/sabflow/inspector/JsonTreeView';

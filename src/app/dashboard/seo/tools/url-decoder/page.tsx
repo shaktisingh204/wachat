@@ -13,7 +13,7 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

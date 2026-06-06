@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Input, Label, Button, Switch } from '@/components/zoruui';
+import { Card, Input, Label, Button, Switch } from '@/components/sabcrm/20ui/compat';
 import { GripVertical, Trash2, Plus, QrCode, BarChart2, Settings2 } from 'lucide-react';
 import { BioState, BioLink } from '../types';
 import { BioAnalytics } from './BioAnalytics';

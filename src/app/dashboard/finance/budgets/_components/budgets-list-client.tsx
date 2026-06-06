@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBudget, updateBudget, deleteBudget, Budget } from '@/app/actions/finance/budgets.actions';

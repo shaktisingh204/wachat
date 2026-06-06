@@ -18,7 +18,7 @@ import {
   ZoruSelectItem,
   useZoruToast,
   ZoruToastAction,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Users } from 'lucide-react';
 import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';

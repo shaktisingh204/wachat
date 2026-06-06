@@ -24,7 +24,7 @@ import {
   Badge,
   Progress,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createVendor, updateVendor, deleteVendor, Vendor } from '@/app/actions/finance/vendor-portal.actions';

@@ -1,4 +1,4 @@
-import { zoruBadgeVariants } from '@/components/zoruui';
+import { zoruBadgeVariants } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

@@ -6,7 +6,7 @@ import {
   Badge,
   Button,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { DnsRecord, DnsRecordStatus } from '@/lib/rust-client/email-deliverability';
 
 interface DnsRecordRowProps {

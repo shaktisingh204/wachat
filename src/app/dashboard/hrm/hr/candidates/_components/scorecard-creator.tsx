@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Textarea, Label } from '@/components/zoruui';
+import { Button, Textarea, Label } from '@/components/sabcrm/20ui/compat';
 import { addCandidateNote } from '@/app/actions/hr-recruitment-mutations.actions';
 import { toast } from 'sonner';
 

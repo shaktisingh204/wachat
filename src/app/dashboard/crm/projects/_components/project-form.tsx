@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, Textarea, useZoruToast, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Input, Label, Switch, Textarea, useZoruToast, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';

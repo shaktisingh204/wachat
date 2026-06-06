@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import { Trash2 } from 'lucide-react';
 import { TelegramProjectGate } from './telegram-project-gate';
 import type { StoryArea } from '@/lib/rust-client/telegram-stories';

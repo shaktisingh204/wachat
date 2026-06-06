@@ -9,7 +9,7 @@ import {
   CardContent,
   EmptyState,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { replySabpublishReview } from '@/app/actions/sabpublish.actions';
 import type { SabpublishReviewDoc } from '@/lib/rust-client/sabpublish-reviews';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Skeleton } from '@/components/zoruui';
+import { Card, Input, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Search } from 'lucide-react';
 
 /**

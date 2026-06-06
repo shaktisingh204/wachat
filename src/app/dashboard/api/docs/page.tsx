@@ -13,7 +13,7 @@ import {
   ZoruTableRow,
   ZoruBadge,
   ZoruSeparator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { CodeBlock } from '@/components/zoruui-domain/code-block';
 import { ArrowLeft,
   BookOpen } from 'lucide-react';

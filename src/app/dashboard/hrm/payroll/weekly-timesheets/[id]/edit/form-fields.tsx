@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Label, Select, Input, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Label, Select, Input, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 
 type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, useZoruToast } from '@/components/zoruui';
+import { Checkbox, useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <TaskChecklist> — interactive checklist for the task detail page.
  *

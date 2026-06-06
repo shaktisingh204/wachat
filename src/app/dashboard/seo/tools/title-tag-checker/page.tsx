@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';

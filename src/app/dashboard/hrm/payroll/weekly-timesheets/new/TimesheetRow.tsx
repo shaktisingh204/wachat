@@ -9,7 +9,7 @@ import {
   ZoruSelectValue,
   Button,
   ZoruCheckbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
 import { Mail, CheckCircle2, Clock, XCircle } from 'lucide-react';
 
 interface Signer {

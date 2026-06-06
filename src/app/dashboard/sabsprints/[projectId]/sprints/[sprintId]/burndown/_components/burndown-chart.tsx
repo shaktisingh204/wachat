@@ -14,7 +14,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { AgileBurndownSampleDoc } from '@/lib/rust-client/agile-burndown';
 import type { AgileSprintDoc } from '@/lib/rust-client/agile-sprints';
 

@@ -3,11 +3,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 import { createRedactionPolicy, deleteRedactionPolicy, updateRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
 import type { RedactionPolicy } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/zoruui';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
 
 interface DataRedactionClientProps {
   initialData: RedactionPolicy[];

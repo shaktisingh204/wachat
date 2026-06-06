@@ -12,7 +12,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Loader2, Inbox, Eye } from 'lucide-react';
-import { Button, Badge, Label, Textarea, Checkbox } from '@/components/zoruui';
+import { Button, Badge, Label, Textarea, Checkbox } from '@/components/sabcrm/20ui/compat';
 import type { SubmissionRow } from '../page';
 
 interface Props {

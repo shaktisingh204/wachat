@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import {
   getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
 import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
@@ -18,7 +18,7 @@ import { usePathname,
   useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import { MessageSquare, LoaderCircle, Archive } from 'lucide-react';
 import { AdminArchiveProjectButton } from '@/components/zoruui-domain/admin-archive-project-button';

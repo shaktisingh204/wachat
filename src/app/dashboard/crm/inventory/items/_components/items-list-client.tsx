@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <ItemsListClient> — canonical Items list view per CRM_REBUILD_PLAN §1D.
  *

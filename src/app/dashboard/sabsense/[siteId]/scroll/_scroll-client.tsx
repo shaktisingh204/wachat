@@ -16,7 +16,7 @@ import {
     ZoruPageTitle,
     ZoruPageDescription,
     Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';

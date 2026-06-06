@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { CalendarCheck, CalendarX, FileSpreadsheet, BookOpen, Star } from 'lucide-react';
 import Link from 'next/link';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

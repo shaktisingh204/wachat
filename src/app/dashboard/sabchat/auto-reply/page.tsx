@@ -25,7 +25,7 @@ import {
   Switch,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEffect } from "react";
 import { useActionState } from "react";

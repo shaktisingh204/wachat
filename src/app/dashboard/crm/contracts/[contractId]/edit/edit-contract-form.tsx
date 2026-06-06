@@ -13,7 +13,7 @@ import {
   Switch,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';

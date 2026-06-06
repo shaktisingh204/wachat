@@ -13,7 +13,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 
 import { SabFilePickerButton } from '@/components/sabfiles';

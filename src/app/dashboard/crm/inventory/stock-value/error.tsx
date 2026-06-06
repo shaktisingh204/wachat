@@ -1,7 +1,7 @@
 'use client';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function ErrorPage({
     error,

@@ -11,7 +11,7 @@ import {
   ZoruCardTitle,
   StatCard,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
   getRewardsDashboard,

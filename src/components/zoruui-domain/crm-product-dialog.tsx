@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,

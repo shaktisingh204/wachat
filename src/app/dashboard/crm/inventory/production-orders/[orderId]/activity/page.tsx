@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

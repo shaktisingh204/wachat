@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { 
     Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { installMarketplaceApp, uninstallMarketplaceApp } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) {

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Textarea } from '@/components/zoruui';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { addManualLogEntry } from '../actions';
 import { toast } from 'sonner';
 

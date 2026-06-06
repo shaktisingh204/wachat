@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select } from '@/components/zoruui';
+import { Input, Label, Select } from '@/components/sabcrm/20ui/compat';
 import { DataSourceEditor } from '../shared/data-source-editor';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';

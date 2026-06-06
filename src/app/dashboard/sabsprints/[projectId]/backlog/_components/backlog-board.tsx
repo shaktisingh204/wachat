@@ -21,7 +21,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   createStory,
   reorderStories,

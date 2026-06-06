@@ -41,7 +41,7 @@ import {
     ZoruCardContent,
     Badge,
     useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { cn } from '@/components/zoruui/lib/cn';
 import {

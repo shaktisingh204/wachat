@@ -1,4 +1,4 @@
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Pin } from 'lucide-react';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import type { CrmAnnouncementStatus } from '@/lib/rust-client/crm-announcements';

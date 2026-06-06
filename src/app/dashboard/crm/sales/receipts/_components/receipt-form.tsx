@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription } from '@/components/zoruui';
+import { Button, Card, Input, Label, Textarea, useZoruToast, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,

@@ -15,7 +15,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSprint } from '@/app/actions/agile.actions';
 
 export function SprintCreateForm({ projectId }: { projectId: string }) {

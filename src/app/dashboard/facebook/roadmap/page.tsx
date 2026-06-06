@@ -28,7 +28,7 @@ import {
   ZoruTextarea,
   ZoruLabel,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   BarChart3,
   Bot,

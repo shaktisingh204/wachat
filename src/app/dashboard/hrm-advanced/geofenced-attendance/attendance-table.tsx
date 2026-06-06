@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AttendanceRecord } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 interface AttendanceTableProps {
   data: AttendanceRecord[];

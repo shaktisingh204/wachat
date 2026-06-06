@@ -9,7 +9,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectContent,
   ZoruSelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload, X } from 'lucide-react';
 
 /**

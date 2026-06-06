@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Plus, Edit2, Trash2, Users, Layers } from 'lucide-react';

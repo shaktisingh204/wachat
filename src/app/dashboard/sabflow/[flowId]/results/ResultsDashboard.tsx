@@ -8,7 +8,7 @@ import {
   ZoruChart,
   DataTable,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Users, CheckCircle, Activity, MessageSquare, XCircle } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';

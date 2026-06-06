@@ -1,4 +1,4 @@
-import { ZoruProvider } from '@/components/zoruui';
+import { ZoruProvider } from '@/components/sabcrm/20ui/compat';
 import "@/styles/zoruui.css";
 import { ZoruGalleryLayout } from "./ZoruGalleryLayout";
 

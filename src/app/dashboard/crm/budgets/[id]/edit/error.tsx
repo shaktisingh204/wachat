@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function BudgetEditError({

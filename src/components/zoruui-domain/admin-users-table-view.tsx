@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
 import { ApproveUserButton } from '@/components/zoruui-domain/approve-user-button';
 import { AdminAssignUserPlanDialog } from '@/components/zoruui-domain/admin-assign-user-plan-dialog';

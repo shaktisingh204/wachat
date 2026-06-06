@@ -6,7 +6,7 @@ import {
   Input,
   Label,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   Plus,

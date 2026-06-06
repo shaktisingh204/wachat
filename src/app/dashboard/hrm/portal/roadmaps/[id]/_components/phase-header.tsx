@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
-import { Input, Progress } from '@/components/zoruui';
+import { Input, Progress } from '@/components/sabcrm/20ui/compat';
 
 interface PhaseHeaderProps {
   name: string;

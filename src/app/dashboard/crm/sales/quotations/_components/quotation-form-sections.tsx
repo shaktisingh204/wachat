@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Textarea } from '@/components/zoruui';
+import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 /**
  * <QuotationFormSections> — the top-of-form sections of
  * `<QuotationForm>` (Header · Customer · Subject · Notes). Extracted

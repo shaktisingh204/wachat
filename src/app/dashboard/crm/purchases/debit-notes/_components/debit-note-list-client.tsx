@@ -12,7 +12,7 @@ import {
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal, Trash2, Pencil, BadgeDollarSign } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';

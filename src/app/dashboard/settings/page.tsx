@@ -10,7 +10,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ArrowUpRight,
   Bell,

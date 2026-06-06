@@ -18,7 +18,7 @@ import {
     TableRow,
     TableHead,
     TableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     getSabworkerlyClientById,
     getSabworkerlyJobs,

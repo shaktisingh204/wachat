@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Separator } from '@/components/zoruui';
+import { Card, Input, Label, Separator } from '@/components/sabcrm/20ui/compat';
 /**
  * Sub-sections of `<SalesOrdersForm>` — shipping address card + totals
  * preview card. Extracted to keep the parent form under the 600-line

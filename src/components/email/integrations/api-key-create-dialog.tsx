@@ -14,7 +14,7 @@ import {
   Input,
   Label,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailApiKey,
   type EmailApiKeyScope,

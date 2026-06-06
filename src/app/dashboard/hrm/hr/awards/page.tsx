@@ -10,7 +10,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';

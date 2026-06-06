@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Switch, Separator, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, Card } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Switch, Separator, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, Card } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useState, useEffect } from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';

@@ -11,7 +11,7 @@ import {
   Button,
   Checkbox,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, GripVertical, Search } from 'lucide-react';
 import {
   DndContext,

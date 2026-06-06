@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, cn, Switch, Label, Button } from '@/components/zoruui';
+import { Textarea, cn, Switch, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { useState, useMemo } from 'react';
 import { marked, type MarkedOptions } from 'marked';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

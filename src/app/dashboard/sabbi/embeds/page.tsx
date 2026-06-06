@@ -5,7 +5,7 @@ import {
   Card, CardHeader, CardTitle, CardDescription, CardContent,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
   Button, Badge, Input, Switch, Label
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { LayoutDashboard, Plus, Search, Code, ExternalLink, Copy, Settings, Trash2 } from 'lucide-react';
 
 const mockEmbeds = [

@@ -9,7 +9,7 @@ import {
   Card,
   ZoruCardContent,
   Textarea
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 function useTextWidth() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

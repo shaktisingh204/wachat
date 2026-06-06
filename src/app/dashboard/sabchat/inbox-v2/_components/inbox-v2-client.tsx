@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { Button, Input, Badge, ZoruDropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/zoruui';
+import { Button, Input, Badge, ZoruDropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import { CommandPalette } from './command-palette';
 import { Contact360 } from './contact-360';
 import { ChevronDown, X } from 'lucide-react';

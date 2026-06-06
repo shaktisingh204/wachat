@@ -14,7 +14,7 @@ import {
   Checkbox,
   RadioGroup,
   ZoruRadioGroupItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { FormField } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {

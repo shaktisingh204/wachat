@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { TagsClient } from '@/components/email/audience/tags-client';
 import { Tag } from 'lucide-react';

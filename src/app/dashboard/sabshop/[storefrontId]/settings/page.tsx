@@ -6,7 +6,7 @@ import {
     Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter,
     Button, Input, Label, Badge, Switch, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem,
     Separator, useZoruToast, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { 
     Settings, Store, CreditCard, ShoppingBag, Bell, Globe, 
     Truck, Receipt, Save, RefreshCw, Upload, Plus, AlertCircle 

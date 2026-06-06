@@ -20,7 +20,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSablensSession } from '@/app/actions/sablens.actions';
 import type { SablensSessionMode } from '@/lib/rust-client/sablens-sessions';
 

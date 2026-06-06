@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button } from '@/components/zoruui';
+import { Card, Button } from '@/components/sabcrm/20ui/compat';
 import { Mail, Phone, UserCircle2 } from 'lucide-react';
 
 /**

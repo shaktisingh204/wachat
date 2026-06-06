@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { Button, Card, Input, Label } from '@/components/zoruui';
+import { Button, Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { submitSignature } from '@/app/actions/sabsign.actions';
 
 interface KioskPayload {

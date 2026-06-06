@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * <ContractRelatedRail> — server-rendered right rail. Status card, party
  * chips, and a "Related" stub listing renewal/amendment counts. The

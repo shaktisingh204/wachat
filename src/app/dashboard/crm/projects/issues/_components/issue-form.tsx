@@ -10,7 +10,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useId, useMemo, useState } from 'react';
 import {

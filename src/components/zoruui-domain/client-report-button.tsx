@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { useState, useTransition } from 'react';
 
 import { FileText, LoaderCircle } from 'lucide-react';

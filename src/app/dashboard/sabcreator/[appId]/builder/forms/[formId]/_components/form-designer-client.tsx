@@ -42,7 +42,7 @@ import {
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { updateSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
 import type {

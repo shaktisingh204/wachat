@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea, Card, ZoruCardContent, Checkbox, Label, Button } from '@/components/zoruui';
+import { Textarea, Card, ZoruCardContent, Checkbox, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { Copy, Check } from 'lucide-react';
 
 const BUILTIN_LISTS = {

@@ -9,7 +9,7 @@ import {
   Input,
   Label,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { Palette, Plus, Trash2, ChevronLeft } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';

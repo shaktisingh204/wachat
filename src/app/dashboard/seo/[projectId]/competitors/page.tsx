@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { CompetitorsClient } from './_components/competitors-client';
 import { getCompetitorAnalysisData } from '@/app/actions/seo.actions';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

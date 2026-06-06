@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, StatCard, cn, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Card, StatCard, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   AtSign,

@@ -23,7 +23,7 @@ import {
   ZoruPageTitle,
   Skeleton,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionGetDeliverabilityScore,
   actionGetLatestPlacementTest,

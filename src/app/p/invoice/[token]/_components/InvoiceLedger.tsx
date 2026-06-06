@@ -10,7 +10,7 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Database } from 'lucide-react';
 import { fmtCurrency, fmtDate } from '@/lib/worksuite/format';
 import { InvoiceData } from '../types';

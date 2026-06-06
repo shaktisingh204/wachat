@@ -23,7 +23,7 @@ import {
   ZoruSelectValue,
   Label,
   Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Users,
   Plus,

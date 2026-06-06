@@ -4,7 +4,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { ZoruProvider } from '@/components/zoruui';
+import { ZoruProvider } from '@/components/sabcrm/20ui/compat';
 
 export default function RequestsLayout({
     children,

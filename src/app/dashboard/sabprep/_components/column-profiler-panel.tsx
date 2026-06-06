@@ -9,7 +9,7 @@ import {
     Badge,
     Button,
     Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { ColumnProfile } from '@/lib/rust-client/sabprep-profiles';
 
 interface Props {

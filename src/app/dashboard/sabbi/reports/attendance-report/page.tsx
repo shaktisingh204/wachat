@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';

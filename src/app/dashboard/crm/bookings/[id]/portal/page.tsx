@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getBooking } from '@/app/actions/crm/bookings.actions';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import { PortalActions, ClientDate } from './portal-client';
 export const dynamic = 'force-dynamic';
 

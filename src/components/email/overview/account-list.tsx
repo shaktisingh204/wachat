@@ -17,7 +17,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 

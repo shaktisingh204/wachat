@@ -8,7 +8,7 @@ import {
   ZoruCardDescription,
   ZoruCardContent,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Upload, LoaderCircle } from 'lucide-react';
 import { importProfessionalTaxRecordsCsv } from '@/app/actions/crm-professional-tax.actions';

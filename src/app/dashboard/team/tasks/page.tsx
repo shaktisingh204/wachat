@@ -28,7 +28,7 @@ import {
   Textarea,
   useZoruToast,
   type ZoruBadgeProps,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Calendar,
   Check,

@@ -1,6 +1,6 @@
 'use client';
 
-import { zoruButtonVariants } from '@/components/zoruui';
+import { zoruButtonVariants } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 

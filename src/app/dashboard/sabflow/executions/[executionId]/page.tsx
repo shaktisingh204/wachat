@@ -17,16 +17,16 @@ import {
   TerminalSquare,
 } from "lucide-react";
 
-import { PageHeader } from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/zoruui';
-import { ScrollArea } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { cn } from "@/lib/utils";
 
 type NodeStatus = "success" | "running" | "error" | "pending";

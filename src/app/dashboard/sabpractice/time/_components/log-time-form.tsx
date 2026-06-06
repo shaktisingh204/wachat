@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label } from '@/components/zoruui';
+import { Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { logSabpracticeTime } from '@/app/actions/sabpractice.actions';
 
 export function LogTimeForm() {

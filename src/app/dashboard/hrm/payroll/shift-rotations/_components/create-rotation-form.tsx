@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Card, Input, Label, Button } from '@/components/zoruui';
+import { Card, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 

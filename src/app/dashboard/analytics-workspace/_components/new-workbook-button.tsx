@@ -15,7 +15,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export function NewWorkbookButton() {
   const router = useRouter();

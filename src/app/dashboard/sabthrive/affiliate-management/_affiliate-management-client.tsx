@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { 
   Table, 
@@ -11,7 +11,7 @@ import {
   ZoruTableRow, 
   ZoruTableHead, 
   ZoruTableCell 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { 
   Dialog, 
   ZoruDialogTrigger, 
@@ -19,11 +19,11 @@ import {
   ZoruDialogHeader, 
   ZoruDialogFooter, 
   ZoruDialogTitle 
-} from '@/components/zoruui';
-import { Input } from '@/components/zoruui';
-import { Label } from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
-import { useZoruToast } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { createAffiliate, updateAffiliate, deleteAffiliate } from '@/app/actions/marketing/affiliate-management.actions';
 
 export function AffiliateClient({ initialData }: { initialData: any[] }) {

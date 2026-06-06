@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui';
+import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
 import { createAdminInbox, deleteAdminInbox } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminInboxesClient({ initialData }: { initialData: any[] }) {

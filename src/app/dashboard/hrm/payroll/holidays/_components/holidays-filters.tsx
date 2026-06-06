@@ -9,7 +9,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   XCircle } from 'lucide-react';

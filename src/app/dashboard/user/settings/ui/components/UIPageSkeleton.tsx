@@ -4,7 +4,7 @@ import {
     ZoruCardContent,
     ZoruCardFooter,
     Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export function UIPageSkeleton() {
     return (

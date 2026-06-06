@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { ClientPage } from './_components/client-page';
 export const dynamic = 'force-dynamic';
 

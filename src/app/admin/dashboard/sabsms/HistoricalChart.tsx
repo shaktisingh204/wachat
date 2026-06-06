@@ -1,7 +1,7 @@
 'use client';
 
 import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export function SabsmsHistoricalChart({ data }: { data: any[] }) {
   const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = ZoruChart;

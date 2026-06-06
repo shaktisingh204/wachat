@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
 import { Printer } from 'lucide-react';
 
 export function QrCodeCard({ value, code }: { value: string, code: string }) {

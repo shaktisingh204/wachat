@@ -14,7 +14,7 @@ import {
   Badge,
   Card,
   ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/zoruui/empty-state';
 import { listKbArticles } from '@/app/actions/crm-knowledge-base.actions';
 

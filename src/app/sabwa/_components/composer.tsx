@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Textarea } from '@/components/zoruui';
+import { Button, Input, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarClock,
   Loader2,

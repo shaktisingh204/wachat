@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Skeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip, Input, Label, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { Button, Card, Skeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip, Input, Label, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, use } from 'react';
 
 import { Star, Link as LinkIcon, BarChart, Globe, Target, Map, Trash2, Save, Plus } from 'lucide-react';

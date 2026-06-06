@@ -26,20 +26,20 @@ import {
   Info,
 } from "lucide-react"
 
-import { PageHeader } from '@/components/zoruui'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/zoruui'
-import { Badge } from '@/components/zoruui'
-import { Button } from '@/components/zoruui'
-import { Input } from '@/components/zoruui'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/zoruui'
-import { Progress } from '@/components/zoruui'
+import { PageHeader } from '@/components/sabcrm/20ui/compat'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/sabcrm/20ui/compat'
+import { Badge } from '@/components/sabcrm/20ui/compat'
+import { Button } from '@/components/sabcrm/20ui/compat'
+import { Input } from '@/components/sabcrm/20ui/compat'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat'
+import { Progress } from '@/components/sabcrm/20ui/compat'
 import {
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogDescription,
-} from '@/components/zoruui'
+} from '@/components/sabcrm/20ui/compat'
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 type ConnectionStatus = "Connected" | "Expired" | "Error"

@@ -46,7 +46,7 @@ import {
   Label,
   Textarea,
   ZoruDateRangePicker,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { DateRange } from 'react-day-picker';
 
 type Row = WithId<CrmKpi>;

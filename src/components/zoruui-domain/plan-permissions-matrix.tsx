@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button, Switch, Badge, Label } from '@/components/zoruui';
+import { Input, Button, Switch, Badge, Label } from '@/components/sabcrm/20ui/compat';
 import {
   moduleCategories,
   permissionActions } from '@/lib/permission-modules';

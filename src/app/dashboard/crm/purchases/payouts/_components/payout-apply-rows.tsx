@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input } from '@/components/zoruui';
+import { Button, Input } from '@/components/sabcrm/20ui/compat';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 /**

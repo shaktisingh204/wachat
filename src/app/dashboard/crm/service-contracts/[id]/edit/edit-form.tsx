@@ -34,7 +34,7 @@ import {
     Label,
     Switch,
     Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Plus, Save, X } from 'lucide-react';

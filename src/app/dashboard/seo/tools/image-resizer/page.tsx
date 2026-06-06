@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectItem,
   cn
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useRef } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';

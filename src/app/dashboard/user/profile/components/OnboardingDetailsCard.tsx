@@ -7,7 +7,7 @@ import {
     ZoruCardTitle,
     Badge,
     Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { UserProfileFormProps } from './types';
 import { 
     CheckCircle2, 

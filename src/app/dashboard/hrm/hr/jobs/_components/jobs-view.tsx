@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   XCircle,

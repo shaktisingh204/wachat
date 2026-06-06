@@ -12,7 +12,7 @@ import {
   RadioGroup,
   ZoruRadioGroupItem,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,

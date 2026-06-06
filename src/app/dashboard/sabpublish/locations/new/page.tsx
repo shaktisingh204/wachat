@@ -14,7 +14,7 @@ import {
   ZoruPageDescription,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabpublishLocation } from '@/app/actions/sabpublish.actions';
 
 export default function NewSabpublishLocationPage() {

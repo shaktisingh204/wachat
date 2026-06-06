@@ -20,7 +20,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 type Source = 'csv_upload' | 'mongo_collection' | 'rest_api';
 

@@ -7,7 +7,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * <DealTable> — the table-view body of the canonical deals list.
  *

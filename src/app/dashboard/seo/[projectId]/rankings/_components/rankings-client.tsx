@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useEffect,
@@ -23,7 +23,7 @@ import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
 import { RankingsTable } from '@/components/zoruui-domain/seo/rankings-table';
 import { AddKeywordDialog } from '@/components/zoruui-domain/seo/add-keyword-dialog';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 

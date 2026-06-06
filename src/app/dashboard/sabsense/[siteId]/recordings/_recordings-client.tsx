@@ -24,7 +24,7 @@ import {
     ZoruTableRow,
     EmptyState,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { Recording } from '@/lib/rust-client/pagesense-recordings';

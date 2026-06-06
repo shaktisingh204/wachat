@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Badge } from '@/components/zoruui';
+import { Card, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';

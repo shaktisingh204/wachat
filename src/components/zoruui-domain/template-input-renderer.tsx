@@ -17,7 +17,7 @@ import {
   ZoruPopoverTrigger,
   Select,
   Card,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card } from '@/components/zoruui';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
 import {
   useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';

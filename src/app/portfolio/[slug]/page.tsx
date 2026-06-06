@@ -6,8 +6,8 @@ import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { LayoutGrid, Star } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';
-import { Avatar, AvatarFallback } from '@/components/zoruui';
-import { Card, CardContent } from '@/components/zoruui';
+import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

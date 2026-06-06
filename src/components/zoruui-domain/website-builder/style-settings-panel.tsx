@@ -13,8 +13,8 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   Button,
-} from '@/components/zoruui';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/sabcrm/20ui/compat';
 import * as LucideIcons from 'lucide-react';
 
 const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));

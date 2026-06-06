@@ -42,7 +42,7 @@ import {
     ZoruCollapsible,
     ZoruCollapsibleContent,
     ZoruCollapsibleTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 /**
  * Server → client boundary is serialization-only: icons are passed as

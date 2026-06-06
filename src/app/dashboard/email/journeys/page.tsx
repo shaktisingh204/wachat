@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, ZoruPageActions, Button, Card } from '@/components/zoruui';
+import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, ZoruPageActions, Button, Card } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { JourneysClient } from '@/components/email/journeys/journeys-client';
 import { GitBranch, Plus } from 'lucide-react';

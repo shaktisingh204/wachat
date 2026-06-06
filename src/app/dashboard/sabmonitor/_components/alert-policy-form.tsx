@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/zoruui';
+import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import {
     createSabmonitorAlertPolicy,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export function AnnouncementPresence({ entityId }: { entityId: string }) {
     const [viewers, setViewers] = useState<{ id: string; name: string; color: string }[]>([

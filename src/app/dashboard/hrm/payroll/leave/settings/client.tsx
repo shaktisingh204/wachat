@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Input, Label, Switch, useZoruToast } from '@/components/zoruui';
+import { Card, Button, Input, Label, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useOptimistic, useEffect, useState, useTransition } from 'react';
 import { LoaderCircle, Save } from 'lucide-react';
 

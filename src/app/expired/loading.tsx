@@ -1,5 +1,5 @@
 import { LoaderCircle } from 'lucide-react';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export default function ExpiredLoading() {
     return (

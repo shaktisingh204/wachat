@@ -13338,6 +13338,7 @@ dependencies = [
  "wachat-instagram",
  "wachat-media",
  "wachat-meta-client",
+ "wachat-number-routing",
  "wachat-pay",
  "wachat-payment-request",
  "wachat-projects",
@@ -18713,6 +18714,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-ads-roadmap"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "wachat-ai-training"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-analytics"
 version = "0.1.0"
 dependencies = [
@@ -18820,6 +18861,26 @@ dependencies = [
  "tracing",
  "wachat-meta-client",
  "wachat-types",
+]
+
+[[package]]
+name = "wachat-canned-messages"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -19197,6 +19258,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-flow-events"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-flows"
 version = "0.1.0"
 dependencies = [
@@ -19232,6 +19313,26 @@ dependencies = [
  "tokio",
  "tracing",
  "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-interactive-builder"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -19295,6 +19396,46 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "wachat-number-routing"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "wachat-opt-out-settings"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -19392,6 +19533,26 @@ dependencies = [
  "wachat-rate-limit",
  "wachat-send",
  "wachat-types",
+]
+
+[[package]]
+name = "wachat-quality-history"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -19545,6 +19706,26 @@ dependencies = [
  "wachat-send-flows",
  "wachat-send-orders",
  "wachat-types",
+]
+
+[[package]]
+name = "wachat-setup-kb"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]

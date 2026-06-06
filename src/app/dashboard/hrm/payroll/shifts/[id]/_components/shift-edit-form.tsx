@@ -6,7 +6,7 @@ import {
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 import { ShiftForm } from '../../_components/shift-form';
 

@@ -20,7 +20,7 @@ import {
     Badge,
     Checkbox,
     Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 import { cancelEWayBill } from '@/app/actions/crm-india-eway.actions';

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useTransition, useRef } from 'react';
-import { Card, Button, Input, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Card, Button, Input, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { Download, Edit2, Search, Trash, FileText } from 'lucide-react';
 import { toast } from 'sonner';

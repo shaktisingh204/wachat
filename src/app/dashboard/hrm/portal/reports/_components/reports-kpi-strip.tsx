@@ -5,7 +5,7 @@ import {
   Card,
   ZoruCardContent,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ClipboardList, Clock, CheckCircle2, CalendarDays } from 'lucide-react';
 
 export interface KpiItem {

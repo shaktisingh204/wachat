@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Metadata } from 'next';
 import { Mail, MessageSquare, FileText, Sparkles, Plus, Layers } from 'lucide-react';
-import { PageHeader, ZoruPageHeading, ZoruPageEyebrow, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
+import { PageHeader, ZoruPageHeading, ZoruPageEyebrow, ZoruPageTitle, ZoruPageDescription } from '@/components/sabcrm/20ui/compat';
 
 import { getCrmUnifiedTemplates } from '@/app/actions/crm-templates.actions';
 import { TemplatesListClient } from './_components/templates-list-client';

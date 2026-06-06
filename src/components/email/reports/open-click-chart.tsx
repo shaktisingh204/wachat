@@ -11,7 +11,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { LineChart } from 'lucide-react';
 import type { EmailTimeseriesPoint } from '@/lib/rust-client/email-reports';
 

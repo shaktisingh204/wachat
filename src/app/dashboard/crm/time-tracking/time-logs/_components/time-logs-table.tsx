@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Checkbox, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { Badge, Button, Checkbox, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   Square,

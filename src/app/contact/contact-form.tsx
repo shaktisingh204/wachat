@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
 import { submitContact, type ContactFormState } from './actions';
 import { toast } from 'sonner';
 

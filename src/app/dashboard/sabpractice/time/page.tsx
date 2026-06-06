@@ -17,7 +17,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { LogTimeForm } from './_components/log-time-form';
 

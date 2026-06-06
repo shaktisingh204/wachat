@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import {
   Send,

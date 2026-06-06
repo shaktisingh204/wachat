@@ -11,7 +11,7 @@ import {
   Input,
   Label,
   Textarea
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { PlusCircle } from 'lucide-react';
 import { addDisciplinaryHearing } from '@/app/actions/hr.actions';
 import { toast } from 'sonner';

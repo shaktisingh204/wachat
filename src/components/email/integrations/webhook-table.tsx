@@ -29,7 +29,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   actionDeleteEmailWebhook,
   actionTestEmailWebhook,

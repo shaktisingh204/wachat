@@ -14,7 +14,7 @@ import {
   Separator,
   Switch,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Bell, Boxes, Settings2, Users } from 'lucide-react';
 import { useTransition } from 'react';
 

@@ -20,7 +20,7 @@ import {
     ZoruDialogFooter,
     Input,
     Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabshowDeck } from '@/app/actions/sabshow.actions';
 
 export function NewDeckButton() {

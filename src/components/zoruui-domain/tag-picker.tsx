@@ -7,7 +7,7 @@ import {
     useZoruToast,
     type ZoruTagPickerProps,
     type ZoruTagPickerTag,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     createUserTag,
     deleteUserTag,

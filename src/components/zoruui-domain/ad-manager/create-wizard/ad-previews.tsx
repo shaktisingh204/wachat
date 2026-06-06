@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, ScrollArea, ZoruScrollBar } from '@/components/zoruui';
+import { Button, Badge, ScrollArea, ZoruScrollBar } from '@/components/sabcrm/20ui/compat';
 import {
   Heart,
   MessageCircle,

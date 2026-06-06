@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import {
     Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
     Button, Badge, Skeleton, cn, useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { History, RotateCcw, LoaderCircle, Clock } from 'lucide-react';
 import { getShortUrlHistory, rollbackShortUrl } from '@/app/actions/url-shortener.actions';
 

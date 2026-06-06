@@ -15,7 +15,7 @@ import {
     Radio,
 } from 'lucide-react';
 
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 const ITEMS = [
     { href: '/dashboard/sabmonitor', label: 'Overview', icon: LayoutDashboard, exact: true },

@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EstimateActionsPanel } from './estimate-actions-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 

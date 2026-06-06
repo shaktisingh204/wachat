@@ -12,7 +12,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   cn as _zoruCn,
   useMemo,

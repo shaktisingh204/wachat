@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Switch } from '@/components/zoruui';
+import { Textarea, Switch } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useRef, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

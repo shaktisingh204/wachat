@@ -10,7 +10,7 @@ import {
   ZoruDrawerTrigger,
   ScrollArea,
   type ZoruButtonProps,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 

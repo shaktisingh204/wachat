@@ -21,7 +21,7 @@ import {
     ZoruTabsTrigger,
     ZoruTabsContent,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { OverviewTab } from './_components/overview-tab';
 import { FunctionsTab } from './_components/functions-tab';

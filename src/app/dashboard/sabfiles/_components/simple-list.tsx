@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, cn, useZoruToast } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   File as FileIcon,
   FileImage,

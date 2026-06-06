@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 
 import { InstagramIcon } from './custom-sidebar-components';

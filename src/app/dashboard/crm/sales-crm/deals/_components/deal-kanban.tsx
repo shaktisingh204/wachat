@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Button, useZoruToast } from '@/components/zoruui';
+import { Badge, Card, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { Clock, Trophy } from 'lucide-react';
 

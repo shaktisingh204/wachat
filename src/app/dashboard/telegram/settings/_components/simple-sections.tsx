@@ -9,8 +9,8 @@ import {
     ZoruSelectItem,
     Textarea,
     Badge,
-} from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { Loader2, Sparkles, Clock3, AlertCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
 import type { ProjectSettings } from '@/lib/rust-client/telegram-settings';

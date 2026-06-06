@@ -1,4 +1,4 @@
-import { Badge, Card, Button } from '@/components/zoruui';
+import { Badge, Card, Button } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 

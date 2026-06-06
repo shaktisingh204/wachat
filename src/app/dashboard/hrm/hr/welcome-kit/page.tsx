@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn } from '@/components/sabcrm/20ui/compat';
 void _zoruCn;
 
 import { Heart } from 'lucide-react';

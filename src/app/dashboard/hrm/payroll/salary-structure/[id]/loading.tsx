@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
     return (

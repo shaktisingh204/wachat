@@ -1,6 +1,6 @@
 'use client';
 
-import { Separator, Input, Label } from '@/components/zoruui';
+import { Separator, Input, Label } from '@/components/sabcrm/20ui/compat';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/zoruui';
+import { Button, useZoruToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { Download, FileText, Table } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';

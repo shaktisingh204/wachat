@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, cn } from '@/components/zoruui';
+import { Badge, Card, cn } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**

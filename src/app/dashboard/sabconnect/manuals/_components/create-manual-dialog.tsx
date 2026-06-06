@@ -15,7 +15,7 @@ import {
     Textarea,
     Label,
     Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { createSabConnectManual } from '@/app/actions/sabconnect.actions';
 

@@ -10,7 +10,7 @@ import {
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { PatsClient } from './_PatsClient';
 
 export const dynamic = 'force-dynamic';

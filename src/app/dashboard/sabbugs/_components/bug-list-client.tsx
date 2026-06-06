@@ -23,7 +23,7 @@ import {
   TableHead,
   TableCell,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { listBugs, saveCurrentFilter, deleteSavedFilter } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc } from '@/lib/rust-client/bug-tracker-bugs';

@@ -10,7 +10,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   getCrmSettings } from '@/app/actions/crm-settings.actions';
 import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, type ZoruButtonProps } from '@/components/zoruui';
+import { Button, type ZoruButtonProps } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

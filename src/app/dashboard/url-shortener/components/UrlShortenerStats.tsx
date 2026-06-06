@@ -1,4 +1,4 @@
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import type { WithId, ShortUrl } from '@/lib/definitions';
 import { useMemo } from 'react';
 

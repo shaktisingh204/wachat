@@ -1,4 +1,4 @@
-import { Input, Label, Select } from '@/components/zoruui';
+import { Input, Label, Select } from '@/components/sabcrm/20ui/compat';
 import type { LeadFormField } from '../types';
 
 export function FieldInput({

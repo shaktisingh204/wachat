@@ -329,6 +329,7 @@ pub fn build(state: AppState) -> Router {
     let wachat_public = wachat_public_api::router::<AppState>();
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
+    let wachat_number_routing = wachat_number_routing::router::<AppState>();
     let crm_lookup = crm_lookup::router::<AppState>();
     let crm_accounts = crm_accounts::router::<AppState>();
     let crm_pipelines = crm_pipelines::router::<AppState>();
@@ -591,6 +592,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/features", wachat_features)
         .nest("/v1/wachat/analytics", wachat_analytics)
         .nest("/v1/wachat/public", wachat_public)
+        .nest("/v1/wachat/number-routing", wachat_number_routing)
         .nest("/v1/wachat", wachat_send)
         .nest("/v1/meta/suite", meta_suite)
         .nest("/v1/meta/token", meta_token)

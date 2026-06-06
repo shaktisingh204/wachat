@@ -34,7 +34,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast, DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { CheckCheck, Download, Trash2, X, XCircle, MoreHorizontal } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 

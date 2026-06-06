@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { UserCircle2, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, Card, Badge } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent, Card, Badge } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/utils';

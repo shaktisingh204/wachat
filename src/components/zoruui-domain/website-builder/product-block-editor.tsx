@@ -11,7 +11,7 @@ import {
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings: any, onUpdate: (newSettings: any) => void, blockType: string }) {
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });

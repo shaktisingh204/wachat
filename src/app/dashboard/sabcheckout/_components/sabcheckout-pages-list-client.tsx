@@ -16,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import type { SabcheckoutPageDoc } from '@/lib/rust-client/sabcheckout-pages';
 

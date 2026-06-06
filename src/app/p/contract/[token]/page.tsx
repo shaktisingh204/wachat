@@ -11,7 +11,7 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { fmtCurrency } from '@/lib/worksuite/format';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ContractSignForm } from './_form';

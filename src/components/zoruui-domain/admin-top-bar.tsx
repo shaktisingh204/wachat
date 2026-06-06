@@ -13,7 +13,7 @@ import {
     ZoruDropdownMenuLabel,
     ZoruDropdownMenuSeparator,
     cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 // Map path segments to readable labels
 const labelMap: Record<string, string> = {

@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect } from 'react';
 import { Save, Trash2, Download } from 'lucide-react';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch, Label, Skeleton, ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle } from '@/components/zoruui';
+import { Switch, Label, Skeleton, ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle } from '@/components/sabcrm/20ui/compat';
 import { useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';

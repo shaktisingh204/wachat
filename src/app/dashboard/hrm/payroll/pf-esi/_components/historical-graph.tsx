@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui/chart';
 import {
     AreaChart,

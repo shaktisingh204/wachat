@@ -1,6 +1,6 @@
 'use client';
 
-import { EmptyState } from '@/components/zoruui';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect } from 'react';
 import { useRouter } from 'next/navigation';

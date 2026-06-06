@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Mail, Inbox, FileText, BarChart, Settings, Search, RefreshCw, Eye, MousePointerClick, Send, Star, Trash, Archive, User, Plus, X } from 'lucide-react';
-import { Button, Card, Input } from '@/components/zoruui';
+import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
 
 type TabType = 'inbox' | 'templates' | 'analytics' | 'settings';
 

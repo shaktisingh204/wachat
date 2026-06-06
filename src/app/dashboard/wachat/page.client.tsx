@@ -12,7 +12,7 @@ import {
   ZoruEmptyState,
   Skeleton,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import {

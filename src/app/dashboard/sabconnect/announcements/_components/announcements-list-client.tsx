@@ -41,7 +41,7 @@ import {
     StatCard,
     Card,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';

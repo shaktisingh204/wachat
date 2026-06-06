@@ -39,7 +39,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { type PnlDeepKpis } from '@/app/actions/crm-inventory.actions';
 import {
     dateStamp,

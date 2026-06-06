@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   Tag,
   X } from 'lucide-react';

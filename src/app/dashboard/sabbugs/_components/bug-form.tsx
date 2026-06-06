@@ -15,7 +15,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createBug, updateBug } from '@/app/actions/bug-tracker.actions';

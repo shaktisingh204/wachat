@@ -20,7 +20,7 @@ import {
   ZoruSheetTrigger,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
 import { GroupForm } from './group-form';
 import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';

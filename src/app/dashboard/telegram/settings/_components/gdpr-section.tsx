@@ -22,7 +22,7 @@ import {
     ZoruSelectItem,
     ZoruSelectTrigger,
     ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Download, Globe2, Loader2, Trash2 } from 'lucide-react';
 import { NumberRow, SectionCard } from './shared';
 import type { ProjectSettings, GdprRequestRow } from '@/lib/rust-client/telegram-settings';
@@ -31,7 +31,7 @@ import {
     requestTelegramDataDeletionAction,
     requestTelegramDataExportAction,
 } from '@/app/actions/telegram-settings.actions';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 export function GdprSection({
     projectId,

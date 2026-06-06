@@ -21,7 +21,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';

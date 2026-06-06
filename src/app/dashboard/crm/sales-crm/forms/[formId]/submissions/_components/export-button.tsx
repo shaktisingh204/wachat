@@ -10,7 +10,7 @@ import {
     ZoruDropdownMenuItem,
     ZoruDropdownMenuTrigger,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { exportSubmissions } from '@/app/actions/crm-forms.actions';
 
 export interface ExportButtonProps {

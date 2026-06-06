@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, EmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 import * as React from 'react';
 import Link from 'next/link';

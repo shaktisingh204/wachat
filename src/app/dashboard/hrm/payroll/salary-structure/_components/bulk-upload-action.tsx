@@ -12,7 +12,7 @@ import {
     DialogDescription,
     DialogFooter,
     useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 export function BulkUploadAction() {
     const [open, setOpen] = useState(false);

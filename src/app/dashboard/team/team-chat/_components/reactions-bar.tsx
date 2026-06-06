@@ -11,7 +11,7 @@ import {
     Popover,
     ZoruPopoverContent,
     ZoruPopoverTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 const QUICK_EMOJIS = ['👍', '❤️', '🎉', '🙏', '😂', '🔥'];
 const PICKER_EMOJIS = [

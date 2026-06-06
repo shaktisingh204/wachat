@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions.types';

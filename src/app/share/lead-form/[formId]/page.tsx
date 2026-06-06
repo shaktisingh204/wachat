@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { LeadFormClient } from './lead-form-client';
 
 export const dynamic = 'force-dynamic';

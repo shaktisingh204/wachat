@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { TaskCard } from './task-card';
 import { AddTaskDrawer, type DirectReport } from './add-task-drawer';
 import { PhaseHeader } from './phase-header';

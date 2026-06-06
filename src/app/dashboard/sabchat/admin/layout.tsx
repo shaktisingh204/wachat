@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 
 export default function SabchatAdminLayout({ children }: { children: React.ReactNode }) {
     const navItems = [

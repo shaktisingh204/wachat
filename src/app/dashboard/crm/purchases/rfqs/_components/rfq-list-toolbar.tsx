@@ -9,7 +9,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ClipboardList,
   Clock,

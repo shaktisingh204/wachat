@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode, useState } from 'react';
-import { Button, Input, Card, ZoruCardContent } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { Copy, Download, AlertCircle, RefreshCw } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiWhois, apiFetchUrl } from '@/lib/seo-tools/api-client';

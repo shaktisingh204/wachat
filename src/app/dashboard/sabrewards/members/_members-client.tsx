@@ -34,7 +34,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { adjustRewardsMember } from '@/app/actions/rewards.actions';
 import type { RewardsMemberDoc } from '@/lib/rust-client/rewards-members';

@@ -13,7 +13,7 @@ import {
   ZoruPageDescription,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 
 export function SabpublishLocationsListClient({

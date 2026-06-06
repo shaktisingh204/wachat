@@ -7,7 +7,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -24,7 +24,7 @@ import { saveLoan } from '@/app/actions/crm-loans.actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
-import { ZoruDatePicker } from '@/components/zoruui';
+import { ZoruDatePicker } from '@/components/sabcrm/20ui/compat';
 import { format } from 'date-fns';
 
 function SubmitButton() {

@@ -1,4 +1,4 @@
-import { Card, Separator } from '@/components/zoruui';
+import { Card, Separator } from '@/components/sabcrm/20ui/compat';
 import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
 
 import { SubscribeAllButton } from '@/components/zoruui-domain/subscribe-all-button';

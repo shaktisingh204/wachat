@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Banknote,
   Download,

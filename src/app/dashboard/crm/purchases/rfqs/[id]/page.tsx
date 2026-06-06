@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import React, { Suspense } from 'react';

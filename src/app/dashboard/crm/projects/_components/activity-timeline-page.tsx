@@ -22,7 +22,7 @@ import {
   DialogClose,
   Label,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   CalendarRange,

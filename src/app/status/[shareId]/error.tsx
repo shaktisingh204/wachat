@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
 
 export default function ErrorBoundary({
     error,

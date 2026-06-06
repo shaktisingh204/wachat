@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <EmployeesListClient> — canonical Employees list view per §1D.
  *

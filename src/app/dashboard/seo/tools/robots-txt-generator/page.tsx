@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, ZoruDynamicSelector, ZoruToaster, useZoruToast } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, ZoruDynamicSelector, ZoruToaster, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Plus, Trash, Upload, Loader2, Download } from 'lucide-react';

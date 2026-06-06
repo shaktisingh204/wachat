@@ -16,7 +16,7 @@ import {
     TableHead,
     TableCell,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Users } from 'lucide-react';
 import { getSabworkerlyWorkers } from '@/app/actions/sabworkerly.actions';
 

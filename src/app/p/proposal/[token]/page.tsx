@@ -13,7 +13,7 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { fmtDate, fmtDateTime } from '@/lib/worksuite/format';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ProposalSignForm } from './_form';

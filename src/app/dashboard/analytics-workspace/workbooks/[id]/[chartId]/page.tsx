@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/zoruui';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { getChartAction, runChartAction } from '@/app/actions/analytics-bi.actions';
 
 import { ChartPreview } from '../chart-preview';

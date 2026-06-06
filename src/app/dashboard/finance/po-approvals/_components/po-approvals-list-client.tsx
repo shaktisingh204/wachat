@@ -22,7 +22,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, CheckCircle, XCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';

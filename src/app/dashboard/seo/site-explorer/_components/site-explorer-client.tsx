@@ -12,7 +12,7 @@ import {
   Skeleton,
   ZoruChartContainer,
   ZoruChartTooltip,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useRef,

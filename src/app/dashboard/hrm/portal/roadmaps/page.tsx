@@ -24,7 +24,7 @@ import {
   Progress,
   Card,
   ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 /* ─── Error Boundary ─────────────────────────────────────────────────── */
 

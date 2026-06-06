@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { withTimeout } from '../lib/timeout';
 import { fmtINR } from '@/lib/utils';
@@ -23,7 +23,7 @@ import { BomDetailActions } from '../_components/bom-detail-actions';
 import { BomDetailRail } from '../_components/bom-detail-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

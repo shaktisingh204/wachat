@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/zoruui';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { CheckCircle2, FileText, Layers, RotateCw } from 'lucide-react';
 
 import * as React from 'react';

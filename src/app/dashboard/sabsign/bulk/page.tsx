@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card, Button, Input } from '@/components/zoruui';
+import { Card, Button, Input } from '@/components/sabcrm/20ui/compat';
 
 export default function BulkSendPage() {
   return (

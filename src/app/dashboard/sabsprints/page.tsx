@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

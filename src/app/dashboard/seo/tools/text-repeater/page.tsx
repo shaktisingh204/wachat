@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Textarea, Switch, Button } from '@/components/zoruui';
+import { Input, Label, Textarea, Switch, Button } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

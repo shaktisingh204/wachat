@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { CheckCircle2, FileText, Send, XCircle } from 'lucide-react';
 
 interface ContractStatusTimelineProps {

@@ -8,7 +8,7 @@ import {
     Input,
     Label,
     Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     publishSabshowDeck,
     unpublishSabshowDeck,

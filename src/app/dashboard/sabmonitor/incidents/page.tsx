@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Card, CardContent } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
 
 import { listSabmonitorIncidents } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';

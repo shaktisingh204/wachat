@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button, Card, ZoruCardContent } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export default function BacklinkCheckerError({
   error,

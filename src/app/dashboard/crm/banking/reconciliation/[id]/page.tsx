@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Paperclip, Pencil, Sparkles, CheckCircle2, Clock } from 'lucide-react';

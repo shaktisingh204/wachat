@@ -17,7 +17,7 @@ import {
   Mail,
 } from 'lucide-react';
 
-import { Button, ScrollArea, Separator } from '@/components/zoruui';
+import { Button, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
 import type { EmailBuilderBlock, EmailBuilderBlockType } from '@/lib/email/types';
 import { makeDefaultBlock } from './block-defaults';
 

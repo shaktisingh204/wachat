@@ -19,7 +19,7 @@ import {
     SelectItem,
     RadioGroup,
     ZoruRadioGroupItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';

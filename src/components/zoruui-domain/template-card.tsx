@@ -14,7 +14,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';

@@ -17,7 +17,7 @@ import {
     ZoruDrawerTitle,
     ZoruDrawerFooter,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     startTeamHuddle,

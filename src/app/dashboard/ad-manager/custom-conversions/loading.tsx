@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Skeleton, Card, ZoruCardContent, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/zoruui';
+import { Skeleton, Card, ZoruCardContent, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 export default function CustomConversionsLoading() {

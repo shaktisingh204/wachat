@@ -37,10 +37,10 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { syncWithGstPortal, reconcileGstr2bVsLocal } from '@/app/actions/crm-india-gst.actions';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
     downloadCsv,

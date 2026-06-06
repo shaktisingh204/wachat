@@ -5,7 +5,7 @@ import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import {
   Button,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   Inbox,

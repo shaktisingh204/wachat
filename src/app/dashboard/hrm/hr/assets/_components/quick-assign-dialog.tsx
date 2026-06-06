@@ -12,7 +12,7 @@ import {
     Label,
     Input,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { saveAssetAssignment } from '@/app/actions/crm-asset-assignments.actions';

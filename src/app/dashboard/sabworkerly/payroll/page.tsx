@@ -14,7 +14,7 @@ import {
     TableHead,
     TableCell,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Banknote } from 'lucide-react';
 import { getSabworkerlyPayrollRuns } from '@/app/actions/sabworkerly.actions';
 import { RunPayrollForm } from './_run-form';

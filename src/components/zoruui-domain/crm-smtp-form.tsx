@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, Separator, Card, useZoruToast } from '@/components/zoruui';
+import { Button, Input, Label, Switch, Separator, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Server, Save } from 'lucide-react';

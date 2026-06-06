@@ -13,7 +13,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";

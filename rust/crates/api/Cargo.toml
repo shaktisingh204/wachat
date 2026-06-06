@@ -57,6 +57,7 @@ wachat-send-router = { path = "../wachat-send-router" }
 wachat-public-api = { path = "../wachat-public-api" }
 wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
+wachat-number-routing = { path = "../wachat-number-routing" }
 crm-lookup = { path = "../crm-lookup" }
 crm-accounts = { path = "../crm-accounts" }
 crm-pipelines = { path = "../crm-pipelines" }

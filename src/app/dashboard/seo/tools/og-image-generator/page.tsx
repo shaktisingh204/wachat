@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea } from '@/components/zoruui';
+import { Button, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useRef, useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

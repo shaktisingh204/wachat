@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea } from '@/components/zoruui';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
 interface EditorProps {
   node: any;
   onUpdate: (data: Partial<{ text: string }>) => void;

@@ -10,7 +10,7 @@ import {
   ZoruDialogTitle,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Loader2 } from 'lucide-react';
 

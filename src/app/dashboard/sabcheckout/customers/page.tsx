@@ -19,7 +19,7 @@ import {
   ZoruPageDescription,
   Input,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutCustomers } from '@/app/actions/sabcheckout.actions';
 

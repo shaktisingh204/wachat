@@ -3,12 +3,12 @@
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Card, CardContent } from '@/components/zoruui';
-import { Label } from '@/components/zoruui';
-import { Input } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Textarea } from '@/components/zoruui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 const INIT_SNIPPETS = {
   basic: `<script>

@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger as DropdownMenuTriggerPrimitive,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { exportRecordsAction } from '@/app/actions/sabcrm.actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';

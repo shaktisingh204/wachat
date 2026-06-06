@@ -11,7 +11,7 @@ import {
     Label,
     Textarea,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveShift } from '@/app/actions/crm-shifts.actions';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';

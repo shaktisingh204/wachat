@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Label } from '@/components/zoruui/label';
-import { Input, ZoruButton } from '@/components/zoruui';
+import { Input, ZoruButton } from '@/components/sabcrm/20ui/compat';
 
 export function TdsAdjustForm({
     editingRow,

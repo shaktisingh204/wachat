@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from '@/components/zoruui';
+import { Label } from '@/components/sabcrm/20ui/compat';
 export function CartBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     return (
         <div className="space-y-4 text-center text-zoru-ink-muted p-4">

@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { listAdminBusinessHours } from '@/app/actions/sabchat-admin.actions';
 import { AdminBusinessHoursClient } from '../_components/admin-business-hours-client';
 

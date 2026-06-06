@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, Button, Badge, Card } from '@/components/zoruui';
+import { Input, Label, Switch, Button, Badge, Card } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import { Save, Trash2, History } from 'lucide-react';
 import { diffChars } from 'diff';

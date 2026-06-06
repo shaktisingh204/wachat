@@ -7,7 +7,7 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { CreditCard } from 'lucide-react';
 import { fmtCurrency, fmtDateTime } from '@/lib/worksuite/format';
 import { PaymentData } from '../types';

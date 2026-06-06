@@ -8,7 +8,7 @@ import {
   Button,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   TemplateInputRenderer } from './template-input-renderer';
 import { useActionState,

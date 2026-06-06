@@ -6,7 +6,7 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from "next/navigation";

@@ -10,7 +10,7 @@ import {
   Progress,
   Skeleton,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, use } from 'react';
 
 import { AlertCircle, Play, RefreshCw, Loader2, Download, Printer, Calendar, ArrowRight } from 'lucide-react';

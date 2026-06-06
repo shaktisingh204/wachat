@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Card, ZoruCardHeader as CardHeader, ZoruCardTitle as CardTitle, ZoruCardContent as CardContent } from '@/components/zoruui';
+import { Button, Input, Label, Card, ZoruCardHeader as CardHeader, ZoruCardTitle as CardTitle, ZoruCardContent as CardContent } from '@/components/sabcrm/20ui/compat';
 import { CrmFormBuilder } from '@/components/zoruui-domain/crm-form-builder';
 import { FileText, UserPlus, FileSignature, ArrowRight } from 'lucide-react';
 

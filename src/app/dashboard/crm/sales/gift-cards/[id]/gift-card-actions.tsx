@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Button, useZoruToast, Input, Label } from '@/components/zoruui';
+import { Button, useZoruToast, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { Mail, PlusCircle, MinusCircle, Printer, Loader2 } from 'lucide-react';
 import { addGiftCardFunds, redeemGiftCard, emailGiftCard } from '@/app/actions/crm-gift-cards.actions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 
 export function GiftCardActions({
     id,

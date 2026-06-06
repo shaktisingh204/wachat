@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import { Button, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/zoruui';
+import { Button, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { updateVendorTypeOrder } from '@/app/actions/crm-vendor-types.actions';
 
 function SortableItem({ id, item }: { id: string, item: any }) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label } from '@/components/zoruui';
+import { Input, Label } from '@/components/sabcrm/20ui/compat';
 /**
  * <EmployeesFilters> — collapsible filter row for the employees list.
  *

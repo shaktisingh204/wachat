@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Badge, Input } from '@/components/zoruui';
+import { Button, Card, Badge, Input } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import {
   Megaphone,

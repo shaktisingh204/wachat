@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/sabcrm/20ui/compat';
 import React from 'react';
 
 import { cn } from '@/lib/utils';

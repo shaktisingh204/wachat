@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Label, Textarea } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   Sparkles,
   Wand2,

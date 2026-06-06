@@ -19,7 +19,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
 function relativeTime(iso?: string): string {

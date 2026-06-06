@@ -20,7 +20,7 @@ import {
     DialogFooter,
     DialogTitle,
     DialogDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
     encryptPayload,

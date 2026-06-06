@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { BarChart, Users, CheckCircle2, TrendingUp } from 'lucide-react';
 
 export function AnnouncementAnalytics({ entityId }: { entityId: string }) {

@@ -12,7 +12,7 @@ import {
     ZoruEmptyState,
     ZoruScrollArea,
     Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabvaultFolderDoc } from '@/lib/rust-client/sabvault-folders';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 

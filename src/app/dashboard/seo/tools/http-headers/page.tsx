@@ -11,7 +11,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import React, { useState } from 'react';
 import { ArrowRightIcon, AlertCircle } from 'lucide-react';
 

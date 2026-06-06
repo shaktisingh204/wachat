@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/zoruui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 import type { CrmVendorBidDoc } from '@/lib/rust-client/crm-vendor-bids';
 
 interface VendorBidsComparisonProps {

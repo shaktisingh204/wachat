@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/zoruui/button';
 import { Card } from '@/components/zoruui/card';
 import { Badge } from '@/components/zoruui/badge';
-import { EmptyState } from '@/components/zoruui';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listSabshowDecks } from '@/app/actions/sabshow.actions';
 
 import { NewDeckButton } from './_components/new-deck-button';

@@ -11,7 +11,7 @@ import {
     CardContent,
     Badge,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectManuals } from '@/app/actions/sabconnect.actions';
 import { CreateManualDialog } from './_components/create-manual-dialog';

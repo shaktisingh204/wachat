@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import { Button, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCheck,
   Download,

@@ -9,7 +9,7 @@ import {
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 
 export default function NewProductionOrderError({

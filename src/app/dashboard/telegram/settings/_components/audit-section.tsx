@@ -9,12 +9,12 @@ import {
     Button,
     Input,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ChevronRight, ClipboardList, Loader2 } from 'lucide-react';
 import { SectionCard } from './shared';
 import type { AuditRow } from '@/lib/rust-client/telegram-settings';
 import { listTelegramSettingsAuditAction } from '@/app/actions/telegram-settings.actions';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 export function AuditSection({ projectId }: { projectId: string }) {
     const { toast } = useZoruToast();

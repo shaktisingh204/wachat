@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
 import { ShoppingBag } from 'lucide-react';
 
 interface ProductMessageContentProps {

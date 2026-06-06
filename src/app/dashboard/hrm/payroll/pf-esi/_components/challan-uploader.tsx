@@ -5,7 +5,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SabFileUrlInput } from '@/components/sabfiles/sab-file-picker';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { updatePfEsiDocumentUrl } from '@/app/actions/crm-pf-esi.actions';
 
 interface ChallanUploaderProps {

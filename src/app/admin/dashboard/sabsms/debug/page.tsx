@@ -11,7 +11,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabsmsDebugSendForm } from './debug-form';
 import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 

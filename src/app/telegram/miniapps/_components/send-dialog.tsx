@@ -19,7 +19,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useProject } from '@/context/project-context';
 import { sendTelegramMiniAppAction } from '@/app/actions/telegram-extra.actions';
 import type { MiniAppRow } from '@/lib/rust-client/telegram-mini-apps';

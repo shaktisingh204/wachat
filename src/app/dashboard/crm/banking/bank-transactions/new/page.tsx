@@ -12,7 +12,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
 import { BankTransactionForm } from '../_components/bank-transaction-form';
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

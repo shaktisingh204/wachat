@@ -34,7 +34,7 @@ import {
     Textarea,
     Badge,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 interface ChipInputProps {
     id: string;

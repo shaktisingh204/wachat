@@ -1,5 +1,5 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { MessageSquare } from 'lucide-react';
 import React from 'react';
 

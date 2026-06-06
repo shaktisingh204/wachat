@@ -4,7 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, Card, Button, ZoruDateRangePicker, Input } from '@/components/zoruui';
+import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, Card, Button, ZoruDateRangePicker, Input } from '@/components/sabcrm/20ui/compat';
 import type { ActivityLog } from '@/types/platform';
 import { DateRange } from "react-day-picker";
 import { useDebounce } from 'use-debounce';

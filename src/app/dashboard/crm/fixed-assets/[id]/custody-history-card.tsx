@@ -1,4 +1,4 @@
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';

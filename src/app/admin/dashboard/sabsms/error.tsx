@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/zoruui/button';
 
 export default function SabsmsError({

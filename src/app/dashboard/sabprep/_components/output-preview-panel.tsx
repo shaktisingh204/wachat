@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge } from '@/components/sabcrm/20ui/compat';
 import type { Row, StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;

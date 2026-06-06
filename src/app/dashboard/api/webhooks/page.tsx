@@ -13,7 +13,7 @@ import {
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { WebhooksClient } from './_WebhooksClient';
 
 export const dynamic = 'force-dynamic';

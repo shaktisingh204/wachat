@@ -18,7 +18,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Home, Plus, Trash2, Check, Settings, MoreVertical } from 'lucide-react';

@@ -1,4 +1,4 @@
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { getPlans } from '@/app/actions/plan.actions';
 import type { Plan, WithId } from '@/lib/definitions';
 import Link from 'next/link';

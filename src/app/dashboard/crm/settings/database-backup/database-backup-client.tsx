@@ -23,7 +23,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Database, HardDrive, Clock, Trash2, Download, Play } from 'lucide-react';
 import {
   createBackup,

@@ -14,7 +14,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { getPublicGantt } from '@/app/actions/public-gantt.actions';
 import { PublicGanttChart } from './_components/public-gantt-chart';
 import { PdfExportButton } from './_components/pdf-export-button';

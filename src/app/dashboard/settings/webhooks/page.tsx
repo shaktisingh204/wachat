@@ -24,7 +24,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from 'react';

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
     constructor(props: { children: React.ReactNode }) {

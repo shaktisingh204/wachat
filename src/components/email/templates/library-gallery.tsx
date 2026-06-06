@@ -19,7 +19,7 @@ import {
   ZoruCardTitle,
   EmptyState,
   zoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { actionForkLibraryTemplate } from '@/app/actions/email/templates.actions';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 

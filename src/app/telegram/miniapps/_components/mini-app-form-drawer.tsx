@@ -21,7 +21,7 @@ import {
   ZoruDrawerFooter,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import {

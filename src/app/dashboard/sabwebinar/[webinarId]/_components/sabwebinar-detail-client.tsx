@@ -22,7 +22,7 @@ import {
   ZoruTabsList,
   ZoruTabsTrigger,
   ZoruTabsContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   type Sabwebinar,

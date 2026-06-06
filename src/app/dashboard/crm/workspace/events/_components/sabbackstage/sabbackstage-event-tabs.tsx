@@ -15,7 +15,7 @@ import {
   ZoruTabsList,
   ZoruTabsTrigger,
   ZoruTabsContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { SabbackstageTicketingTab } from './sabbackstage-ticketing-tab';
 import { SabbackstageSponsorsTab } from './sabbackstage-sponsors-tab';

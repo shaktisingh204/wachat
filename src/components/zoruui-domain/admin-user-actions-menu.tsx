@@ -16,7 +16,7 @@ import {
     ZoruAlertDialogDescription,
     ZoruAlertDialogFooter,
     ZoruAlertDialogCancel,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     MoreHorizontal,
     LoaderCircle,

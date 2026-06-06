@@ -1,4 +1,4 @@
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import type { Metadata } from 'next';

@@ -16,10 +16,10 @@ import {
   Switch,
   Separator,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, TrendingUp, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent, Slider } from '@/components/zoruui';
+import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent, Slider } from '@/components/sabcrm/20ui/compat';
 import Image from 'next/image';
 
 import { SabFilePickerButton } from '@/components/sabfiles';

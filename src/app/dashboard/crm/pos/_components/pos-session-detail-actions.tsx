@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, zoruSonnerToast } from '@/components/zoruui';
+import { Button, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { Printer } from 'lucide-react';
 

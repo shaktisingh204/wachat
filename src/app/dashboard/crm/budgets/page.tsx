@@ -5,7 +5,7 @@ import { LoaderCircle } from 'lucide-react';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { BudgetsListClient } from './_components/budgets-list-client';

@@ -1,7 +1,7 @@
 'use client';
 
 import { AwardsForm } from '../_components/awards-form';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, StatCard } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, StatCard } from '@/components/sabcrm/20ui/compat';
 import { Trophy, Users, Star, Lightbulb } from 'lucide-react';
 
 export default function NewAwardPage() {

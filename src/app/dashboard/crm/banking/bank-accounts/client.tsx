@@ -19,7 +19,7 @@ import {
     ZoruTableRow,
     Checkbox,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';

@@ -12,7 +12,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { updateBug } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc, BugStatus } from '@/lib/rust-client/bug-tracker-bugs';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Textarea } from '@/components/zoruui';
+import { Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 
 interface EditorProps {
   node: any;

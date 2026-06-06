@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   Archive,

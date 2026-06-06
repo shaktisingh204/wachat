@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <DiscussionsRepliesPanel> — client island rendered inside the detail
  * page. Loads replies on mount, owns the composer + per-row delete.

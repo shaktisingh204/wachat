@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/zoruui';
+import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <AttendanceListClient> — canonical Attendance list view per §1D.
  *

@@ -14,7 +14,7 @@ import {
     TableHead,
     TableCell,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Receipt } from 'lucide-react';
 import {
     getSabworkerlyInvoices,

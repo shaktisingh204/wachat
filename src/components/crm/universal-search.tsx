@@ -9,7 +9,7 @@ import {
   Popover,
   ZoruPopoverAnchor,
   ZoruPopoverContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { searchAll, type UniversalSearchResult } from '@/app/actions/universal-search.actions';
 import { cn } from '@/components/zoruui/lib/cn';
 

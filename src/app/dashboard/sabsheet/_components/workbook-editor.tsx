@@ -11,7 +11,7 @@ import {
   ZoruTabsList,
   ZoruTabsTrigger,
   ZoruTabsContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import {
   addSabsheetComment,

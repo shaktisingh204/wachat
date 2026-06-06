@@ -1,6 +1,6 @@
 import React from 'react';
 import { Send, Check, X, Download, FileText } from 'lucide-react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 interface TimesheetActionsProps {
   status: string;

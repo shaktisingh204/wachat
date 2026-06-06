@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui';
-import { Card, CardContent as ZoruCardContent, CardHeader as ZoruCardHeader, CardTitle as ZoruCardTitle } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent as ZoruCardContent, CardHeader as ZoruCardHeader, CardTitle as ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 

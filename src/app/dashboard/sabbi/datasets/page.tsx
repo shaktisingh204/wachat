@@ -5,7 +5,7 @@ import {
   Card, CardHeader, CardTitle, CardDescription, CardContent,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
   Button, Badge, Input
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Database, Plus, RefreshCw, FileText, UploadCloud, Link2, Search, Trash2, Edit } from 'lucide-react';
 
 const mockDatasets = [

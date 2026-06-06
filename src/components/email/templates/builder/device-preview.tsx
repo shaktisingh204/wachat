@@ -15,7 +15,7 @@ import {
   ZoruDrawerHeader,
   ZoruDrawerTitle,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 type DeviceMode = 'desktop' | 'mobile';
 type ColorMode = 'light' | 'dark';

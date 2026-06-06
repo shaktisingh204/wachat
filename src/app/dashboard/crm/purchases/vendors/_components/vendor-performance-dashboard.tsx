@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 
 export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
   // Aggregate mock performance metrics based on vendors

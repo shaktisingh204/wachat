@@ -11,7 +11,7 @@ import {
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';

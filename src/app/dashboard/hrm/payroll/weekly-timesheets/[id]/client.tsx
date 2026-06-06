@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, addDays } from 'date-fns';
 
-import { Badge, Card, useZoruToast } from '@/components/zoruui';
+import { Badge, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   submitWeeklyTimesheet,

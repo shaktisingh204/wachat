@@ -39,7 +39,7 @@ import {
   Popover,
   ZoruPopoverContent,
   ZoruPopoverAnchor,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 /* ─── Public API ─────────────────────────────────────────────────────── */

@@ -7,7 +7,7 @@ import {
     ZoruStatCard,
     ZoruBadge,
     ZoruEmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { listSabvaultSecrets } from '@/app/actions/sabvault.actions';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 

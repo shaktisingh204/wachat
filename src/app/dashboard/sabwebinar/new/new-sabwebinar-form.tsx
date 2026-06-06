@@ -15,7 +15,7 @@ import {
   PageHeader,
   ZoruPageTitle,
   ZoruPageDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { createSabwebinar } from '@/app/actions/sabwebinar.actions';
 
 export function NewSabwebinarForm() {

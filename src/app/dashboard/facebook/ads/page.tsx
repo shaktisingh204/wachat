@@ -10,7 +10,7 @@ import {
   ZoruBreadcrumbSeparator,
   Button,
   Card,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ArrowRight,
   BarChart3,

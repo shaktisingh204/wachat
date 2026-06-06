@@ -16,7 +16,7 @@ import {
     SelectValue,
     SelectContent,
     SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { X, FileIcon } from 'lucide-react';
 import { addSabworkerlyWorker } from '@/app/actions/sabworkerly.actions';

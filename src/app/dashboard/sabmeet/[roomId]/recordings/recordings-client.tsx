@@ -15,7 +15,7 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { ArrowLeft, Video as VideoIcon, FileText } from 'lucide-react';
 import type { MeetRoom, MeetRecording } from '@/app/actions/sabmeet.actions.types';

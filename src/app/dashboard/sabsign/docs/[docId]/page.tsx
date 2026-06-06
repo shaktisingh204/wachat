@@ -37,7 +37,7 @@ import {
   CardContent,
   Input,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   getSabwriterDocument,
   updateSabwriterDocument,

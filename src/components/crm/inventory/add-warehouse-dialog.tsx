@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
 import * as React from "react";
 import { saveCrmWarehouse } from "@/app/actions/crm-warehouses.actions";
 import { useToast } from "@/hooks/use-toast";

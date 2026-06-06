@@ -17,7 +17,7 @@ import {
     Separator,
     Skeleton,
     useZoruToast
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { use, useEffect, useMemo, useState } from 'react';
 import { Swords, Plus, AlertCircle, Link as LinkIcon, Activity } from 'lucide-react';
 import { analyzeGaps, summarizeByCompetitor } from '@/lib/seo-suite/competitors';

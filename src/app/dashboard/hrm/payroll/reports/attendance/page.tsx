@@ -10,7 +10,7 @@ import {
   ZoruPopoverTrigger,
   useZoruToast,
   ZoruSelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   SlidersHorizontal,
@@ -31,7 +31,7 @@ import { generateAttendanceReportData,
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
+import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 

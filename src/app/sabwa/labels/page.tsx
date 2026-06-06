@@ -38,7 +38,7 @@ import {
   Skeleton,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   MoreHorizontal,

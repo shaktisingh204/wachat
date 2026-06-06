@@ -17,7 +17,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * Shared dialogs for the Deals detail action group.
  *

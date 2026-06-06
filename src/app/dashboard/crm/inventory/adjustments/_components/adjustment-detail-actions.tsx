@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import { Button, Input, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Archive,

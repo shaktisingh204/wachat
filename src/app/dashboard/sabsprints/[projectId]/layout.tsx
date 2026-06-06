@@ -3,7 +3,7 @@
  * each page render its own ZoruUI `PageHeader` + body. Async params are
  * Next 16 — we await before reading `projectId`.
  */
-import { PageHeader } from '@/components/zoruui';
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
 
 import { AgileNav } from './_components/agile-nav';
 

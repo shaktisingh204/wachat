@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 export function ActivityFilter() {
   const router = useRouter();

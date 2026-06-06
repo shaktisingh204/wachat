@@ -21,7 +21,7 @@ import {
     Input,
     Label,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { addCrmContact } from '@/app/actions/crm.actions';
 

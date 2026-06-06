@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogFooter,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { SabcatalystTable, TableField } from '@/lib/rust-client/sabcatalyst-tables';
 
 interface Props { projectId: string; initialTables: SabcatalystTable[] }

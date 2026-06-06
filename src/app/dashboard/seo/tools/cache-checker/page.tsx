@@ -12,7 +12,7 @@ import {
   TableBody,
   TableCell,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Download, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';

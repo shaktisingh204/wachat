@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';

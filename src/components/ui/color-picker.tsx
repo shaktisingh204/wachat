@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover, ZoruPopoverContent, ZoruPopoverTrigger, Button } from '@/components/zoruui';
+import { Popover, ZoruPopoverContent, ZoruPopoverTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { SketchPicker } from 'react-color';

@@ -17,7 +17,7 @@ import {
   Textarea,
   Input,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   submitProjectRating,
   type PublicProjectRatingCategories,

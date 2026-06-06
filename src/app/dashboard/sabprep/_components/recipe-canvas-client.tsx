@@ -11,7 +11,7 @@ import {
     ZoruCardContent,
     Input,
     Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
     previewRecipe,
     runRecipe,

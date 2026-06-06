@@ -12,7 +12,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogClose,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Edit, Check, AlertTriangle, Barcode, Calendar } from 'lucide-react';
 
 /**

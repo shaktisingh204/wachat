@@ -29,7 +29,7 @@
  */
 
 import * as React from 'react';
-import { StatCard, ScrollArea, cn } from '@/components/zoruui';
+import { StatCard, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
 import type { CrmDashboardKpis, ObjectRecordCount } from '@/app/actions/sabcrm.actions.types';
 import {
   useSabcrmSettings,

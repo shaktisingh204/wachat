@@ -19,7 +19,7 @@ import {
   ZoruSelectValue,
   ZoruSelectContent,
   ZoruSelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 
 function generateId() {

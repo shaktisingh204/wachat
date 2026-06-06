@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Badge } from '@/components/zoruui';
+import { Card, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   UserCheck,
   Banknote,

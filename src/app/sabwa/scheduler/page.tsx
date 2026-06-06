@@ -15,7 +15,7 @@ import {
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   CalendarClock,
   ChevronLeft,

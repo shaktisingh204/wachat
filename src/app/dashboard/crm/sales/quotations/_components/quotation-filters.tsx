@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <QuotationFilters> — collapsible filter row for the quotations list.
  *

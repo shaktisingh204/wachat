@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Skeleton } from '@/components/zoruui';
+import { Card, CardContent, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function LoadingEditPaymentAccount() {
     return (

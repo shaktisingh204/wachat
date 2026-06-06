@@ -58,7 +58,7 @@ import {
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";

@@ -9,7 +9,7 @@ import {
   ZoruTabsList as TabsList,
   ZoruTabsTrigger as TabsTrigger,
   ZoruTabsContent as TabsContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';

@@ -26,7 +26,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Check, Plus, X, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';

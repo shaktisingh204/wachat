@@ -4,7 +4,7 @@ import {
   Badge,
   Button,
   ZoruDateRangePicker,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   X } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';

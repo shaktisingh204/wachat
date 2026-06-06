@@ -12,7 +12,7 @@ import * as React from 'react';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruSkeleton, ZoruCard } from '@/components/zoruui';
+import { ZoruSkeleton, ZoruCard } from '@/components/sabcrm/20ui/compat';
 import { ItemForm } from '../_components/item-form';
 
 export const dynamic = 'force-dynamic';

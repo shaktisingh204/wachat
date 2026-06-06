@@ -8,6 +8,11 @@
  */
 export * from './index';
 
+// ZoruToaster is ZoruUI's self-contained (Sonner-style) toaster — it needs NO
+// provider, unlike the 20ui Toaster. Keep it pointing at the real ZoruUI one so
+// standalone <ZoruToaster/> renders don't break during the migration.
+export { ZoruToaster } from '@/components/zoruui';
+
 export {
   Accordion as ZoruAccordion,
   AccordionContent as ZoruAccordionContent,
@@ -178,7 +183,6 @@ export {
   TestimonialCard as ZoruTestimonialCard,
   TestimonialsColumns as ZoruTestimonialsColumns,
   Textarea as ZoruTextarea,
-  Toaster as ZoruToaster,
   ToastProvider as ZoruToastProvider,
   Tooltip as ZoruTooltip,
   TooltipContent as ZoruTooltipContent,
@@ -193,4 +197,59 @@ export {
   Th as ZoruTableHead,
   Td as ZoruTableCell,
   TCaption as ZoruTableCaption,
+} from './index';
+
+// Type-only aliases (ZoruXProps etc.) — erased at build, safe as 'export type'.
+export type {
+  ActionSearchBarProps as ZoruActionSearchBarProps,
+  AlertProps as ZoruAlertProps,
+  AppRailItem as ZoruAppRailItem,
+  AppRailProps as ZoruAppRailProps,
+  AppSidebarProps as ZoruAppSidebarProps,
+  BadgeProps as ZoruBadgeProps,
+  ButtonProps as ZoruButtonProps,
+  CalendarProps as ZoruCalendarProps,
+  CallToActionProps as ZoruCallToActionProps,
+  CardProps as ZoruCardProps,
+  CarouselProps as ZoruCarouselProps,
+  ChartContainerProps as ZoruChartContainerProps,
+  ColorPickerProps as ZoruColorPickerProps,
+  CommandDialogProps as ZoruCommandDialogProps,
+  DataTableProps as ZoruDataTableProps,
+  DatePickerProps as ZoruDatePickerProps,
+  DateRangePickerProps as ZoruDateRangePickerProps,
+  DialogContentProps as ZoruDialogContentProps,
+  EmptyStateProps as ZoruEmptyStateProps,
+  FeatureCardProps as ZoruFeatureCardProps,
+  FeatureGridProps as ZoruFeatureGridProps,
+  FullscreenCalendarProps as ZoruFullscreenCalendarProps,
+  HeroPillProps as ZoruHeroPillProps,
+  HomeShellProps as ZoruHomeShellProps,
+  IconPickerProps as ZoruIconPickerProps,
+  InputProps as ZoruInputProps,
+  JobListingProps as ZoruJobListingProps,
+  KbdProps as ZoruKbdProps,
+  LabelProps as ZoruLabelProps,
+  Logos3Props as ZoruLogos3Props,
+  NotificationPopoverProps as ZoruNotificationPopoverProps,
+  PageHeaderProps as ZoruPageHeaderProps,
+  PricingCardProps as ZoruPricingCardProps,
+  PricingFeature as ZoruPricingFeature,
+  PricingTier as ZoruPricingTier,
+  ProgressProps as ZoruProgressProps,
+  RadioCardProps as ZoruRadioCardProps,
+  SheetContentProps as ZoruSheetContentProps,
+  SidebarGroup as ZoruSidebarGroup,
+  SidebarLeaf as ZoruSidebarLeaf,
+  SkeletonProps as ZoruSkeletonProps,
+  StatCardProps as ZoruStatCardProps,
+  TableWithDialogProps as ZoruTableWithDialogProps,
+  TagPickerProps as ZoruTagPickerProps,
+  Testimonial as ZoruTestimonial,
+  TestimonialsColumnsProps as ZoruTestimonialsColumnsProps,
+  TextareaProps as ZoruTextareaProps,
+  ToastAction as ZoruToastAction,
+  UserDropdownItem as ZoruUserDropdownItem,
+  UserDropdownProps as ZoruUserDropdownProps,
+  WaterLoaderProps as ZoruWaterLoaderProps,
 } from './index';

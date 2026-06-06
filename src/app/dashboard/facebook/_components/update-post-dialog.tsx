@@ -11,7 +11,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   Save } from "lucide-react";

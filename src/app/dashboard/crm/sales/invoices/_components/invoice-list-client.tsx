@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useZoruToast, Input } from '@/components/zoruui';
+import { Button, Card, useZoruToast, Input } from '@/components/sabcrm/20ui/compat';
 import { Plus, Receipt } from 'lucide-react';
 
 /**

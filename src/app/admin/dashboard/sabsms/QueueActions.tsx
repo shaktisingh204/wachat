@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/zoruui/button';
 import { retryFailedMessages, cancelQueuedMessages } from './actions';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 
 export function QueueActions() {
   const [loadingRetry, setLoadingRetry] = useState(false);

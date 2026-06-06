@@ -40,7 +40,7 @@ import {
   StatCard,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { downloadCsv, downloadXlsx, type ExportRow } from '@/lib/crm-list-export';

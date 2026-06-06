@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Label } from '@/components/zoruui';
+import { Input, Label } from '@/components/sabcrm/20ui/compat';
 import { useEditor } from '@/components/builder/editor-provider';
 
 import React from 'react';

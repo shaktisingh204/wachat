@@ -12,7 +12,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { listSablensSessions } from '@/app/actions/sablens.actions';
 import { CirclePlus, Hammer, Smartphone, Video } from 'lucide-react';
 

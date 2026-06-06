@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button, Label, ScrollArea, Separator, Badge } from '@/components/zoruui';
+import { Input, Button, Label, ScrollArea, Separator, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2 } from 'lucide-react';
 import { ActionEditor } from '../shared/action-editor';
 import { v4 as uuidv4 } from 'uuid';

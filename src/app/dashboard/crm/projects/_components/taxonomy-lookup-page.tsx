@@ -21,7 +21,7 @@ import {
   StatCard,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   FileSpreadsheet,

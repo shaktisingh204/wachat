@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Candidates kanban — groups candidates by stage. Read-only board for
  * now (drag-to-reorder will land in a follow-up that wires the stage

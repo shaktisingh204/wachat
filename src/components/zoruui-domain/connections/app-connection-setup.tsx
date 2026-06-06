@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label } from '@/components/zoruui';
+import { Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useFormStatus } from 'react-dom';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';

@@ -1,4 +1,4 @@
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 
 import { AlertTriangle } from 'lucide-react';

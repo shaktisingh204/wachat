@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, Input, Label, cn, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Card, ZoruCardContent, Input, Label, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   Copy,

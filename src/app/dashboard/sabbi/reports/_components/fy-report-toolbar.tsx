@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { Button, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 

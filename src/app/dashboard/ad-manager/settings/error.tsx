@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
-import { ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/sabcrm/20ui/compat';
 
 export default function AdManagerSettingsError({
   error,

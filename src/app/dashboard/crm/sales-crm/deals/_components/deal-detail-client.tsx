@@ -6,7 +6,7 @@ import {
   Badge,
   Button,
   Card,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Handshake,
   ListChecks,

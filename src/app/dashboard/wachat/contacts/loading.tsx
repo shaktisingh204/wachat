@@ -1,5 +1,5 @@
 import { FeatureShell } from '@/components/dashboard/feature-shell';
-import { Card } from '@/components/zoruui';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { Loader2 } from 'lucide-react';
 
 export default function ContactsLoading() {

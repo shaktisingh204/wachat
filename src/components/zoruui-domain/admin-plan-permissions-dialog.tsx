@@ -9,7 +9,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogDescription,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { LoaderCircle, ShieldCheck } from 'lucide-react';

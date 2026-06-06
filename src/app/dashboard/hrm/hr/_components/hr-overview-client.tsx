@@ -9,7 +9,7 @@ import {
   Button,
   EmptyState,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Users,
   Briefcase,

@@ -17,7 +17,7 @@ import {
   zoruToast,
   Badge,
   Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { actionCreateEmailCampaign } from '@/app/actions/email/campaigns.actions';
 import type { EmailListDoc, EmailSegmentDoc } from '@/lib/rust-client/email-audience';
 

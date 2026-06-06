@@ -18,7 +18,7 @@ import {
   ZoruAccordionContent,
   Badge,
   cn 
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 

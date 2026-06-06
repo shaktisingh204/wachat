@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function CacheCheckerError({

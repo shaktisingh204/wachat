@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { marked } from 'marked';
-import { Textarea } from '@/components/zoruui';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
 
 interface MarkdownEditorProps {
   id?: string;

@@ -6,7 +6,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruButton
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Search, RefreshCw } from 'lucide-react';
 
 export type SortOption = 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc';

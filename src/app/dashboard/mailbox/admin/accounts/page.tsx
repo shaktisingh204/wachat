@@ -12,7 +12,7 @@ import {
     listMailAccounts,
     listMailDomains,
 } from '@/app/actions/mailbox.actions';
-import { Button, EmptyState, PageHeader } from '@/components/zoruui';
+import { Button, EmptyState, PageHeader } from '@/components/sabcrm/20ui/compat';
 
 import { AccountsClient } from './accounts-client';
 

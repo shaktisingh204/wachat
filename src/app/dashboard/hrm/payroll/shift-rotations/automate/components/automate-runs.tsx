@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Checkbox, Input, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { Card, Badge, Button, Checkbox, Input, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 import { RotateCw, Download, Search, Trash2 } from 'lucide-react';
 import type { WsAutomateShift } from '@/lib/worksuite/shifts-types';
 import { useEffect, useState, useMemo } from 'react';

@@ -18,7 +18,7 @@ import { Copy, Pencil } from 'lucide-react';
 import nextDynamic from 'next/dynamic';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 

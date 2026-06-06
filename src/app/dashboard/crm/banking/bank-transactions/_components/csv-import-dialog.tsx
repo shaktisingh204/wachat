@@ -16,7 +16,7 @@ import {
   ZoruSelectValue,
   useZoruToast,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   FileUp,
   LoaderCircle,

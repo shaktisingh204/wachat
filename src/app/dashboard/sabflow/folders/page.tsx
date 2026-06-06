@@ -16,11 +16,11 @@ import {
 } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/zoruui';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui';
-import { Badge } from '@/components/zoruui';
-import { Button } from '@/components/zoruui';
-import { Input } from '@/components/zoruui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
 
 type FolderNode = {
   id: string;

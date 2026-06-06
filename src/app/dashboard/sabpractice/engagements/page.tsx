@@ -14,7 +14,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 async function EngagementsData() {
     const list = await listSabpracticeEngagements({ status: 'all', limit: 200 });

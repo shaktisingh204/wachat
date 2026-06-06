@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, useZoruToast } from '@/components/zoruui';
+import { Button, Badge, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 

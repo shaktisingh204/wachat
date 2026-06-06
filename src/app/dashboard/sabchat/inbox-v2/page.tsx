@@ -4,7 +4,7 @@ import {
     ZoruCardDescription,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { listInboxes, listConversations } from '@/app/actions/sabchat-v2.actions';
 import { InboxV2Client } from './_components/inbox-v2-client';
 

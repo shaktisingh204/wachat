@@ -10,7 +10,7 @@ import {
     Card,
     CardContent,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectCustomApps } from '@/app/actions/sabconnect.actions';
 import { CreateCustomAppDialog } from './_components/create-custom-app-dialog';

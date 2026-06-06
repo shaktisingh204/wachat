@@ -25,7 +25,7 @@ import {
   ZoruTableRow,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   format } from 'date-fns';
 import {

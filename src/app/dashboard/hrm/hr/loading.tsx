@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Card } from '@/components/zoruui';
+import { Skeleton, Card } from '@/components/sabcrm/20ui/compat';
 
 export default function HrLoading() {
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Tooltip, ZoruTooltipProvider, ZoruTooltipTrigger, ZoruTooltipContent, Popover, ZoruPopoverTrigger, ZoruPopoverContent } from '@/components/zoruui';
+import { Card, Button, Tooltip, ZoruTooltipProvider, ZoruTooltipTrigger, ZoruTooltipContent, Popover, ZoruPopoverTrigger, ZoruPopoverContent } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,

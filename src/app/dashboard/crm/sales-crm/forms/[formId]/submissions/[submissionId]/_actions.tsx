@@ -14,7 +14,7 @@ import {
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
     updateSubmissionStatus,
     deleteSubmission,

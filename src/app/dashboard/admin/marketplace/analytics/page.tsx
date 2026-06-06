@@ -20,8 +20,8 @@
 import { redirect } from 'next/navigation';
 import { BarChart3, Download, Eye, Search, ShieldCheck, Store } from 'lucide-react';
 
-import { Card, CardContent } from '@/components/zoruui';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
 
 import { getAdminSession } from '@/lib/admin-session';
 import { connectToDatabase } from '@/lib/mongodb';

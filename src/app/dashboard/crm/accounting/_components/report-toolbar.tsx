@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Label } from '@/components/zoruui';
+import { Button, DatePicker, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, StatCard, Switch, useZoruToast } from '@/components/zoruui';
+import { Badge, Button, Card, StatCard, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,

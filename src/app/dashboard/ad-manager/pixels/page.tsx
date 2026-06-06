@@ -16,7 +16,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Target,
   Plus,

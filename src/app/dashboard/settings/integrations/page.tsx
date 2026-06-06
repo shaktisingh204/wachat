@@ -17,7 +17,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';

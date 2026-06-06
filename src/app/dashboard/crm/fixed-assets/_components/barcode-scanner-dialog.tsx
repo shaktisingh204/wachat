@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/zoruui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { ScanBarcode } from 'lucide-react';
 
 export function BarcodeScannerDialog() {

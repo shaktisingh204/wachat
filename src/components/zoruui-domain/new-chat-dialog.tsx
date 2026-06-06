@@ -21,7 +21,7 @@ import {
   ZoruPopoverContent as PopoverContent,
   ZoruPopoverTrigger as PopoverTrigger,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 

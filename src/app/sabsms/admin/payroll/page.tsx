@@ -10,7 +10,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listPayrollRuns, type CrmPayrollRunDoc } from '@/app/actions/crm-payroll-runs.actions';
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
 import { AttendanceRecord } from '@/lib/hrm-advanced-types';
 
 interface AttendanceFormProps {

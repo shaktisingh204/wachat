@@ -9,7 +9,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   LoaderCircle } from 'lucide-react';
 

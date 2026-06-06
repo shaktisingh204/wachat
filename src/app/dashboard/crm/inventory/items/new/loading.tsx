@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card, ZoruCardContent } from '@/components/zoruui';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { Loader2 } from 'lucide-react';
 
 export default function NewItemLoading() {

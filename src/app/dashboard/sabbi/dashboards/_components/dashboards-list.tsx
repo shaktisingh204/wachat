@@ -10,7 +10,7 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { LayoutDashboard, Lock, Plus, Search, Share2, Star } from 'lucide-react';

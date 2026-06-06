@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 
-import { Card, CardContent } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
 
 import {
     getSabmonitorTrace,

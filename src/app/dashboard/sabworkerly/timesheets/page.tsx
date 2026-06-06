@@ -14,7 +14,7 @@ import {
     TableHead,
     TableCell,
     EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ClockIcon } from 'lucide-react';
 import {
     getSabworkerlyTimesheets,

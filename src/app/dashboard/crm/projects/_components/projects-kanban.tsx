@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/zoruui';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 

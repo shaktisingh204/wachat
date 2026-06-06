@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { RefreshCw } from 'lucide-react';
 import {
   ReportExportButton,

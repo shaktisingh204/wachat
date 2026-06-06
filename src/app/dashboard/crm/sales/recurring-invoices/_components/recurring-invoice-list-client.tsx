@@ -30,7 +30,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

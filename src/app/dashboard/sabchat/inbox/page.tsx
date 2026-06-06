@@ -12,7 +12,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ZoruSabChatClient } from '../_components/zoru-sabchat-client';
 import {
   Suspense } from "react";
