@@ -1,9 +1,31 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Trash2, Mail, Pencil, Archive } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   actionDeleteTransactionalTemplate,
   actionListTransactionalTemplates,
@@ -11,22 +33,29 @@ import {
 } from '@/app/actions/email/templates-transactional.actions';
 import type { TransactionalTemplateDoc } from '@/lib/rust-client/email-templates-transactional';
 
+const NEW_TEMPLATE_HREF = '/dashboard/email/templates/transactional/new';
+
 export function TransactionalTemplatesClient() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState<TransactionalTemplateDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [pending, startTransition] = useTransition();
 
-  const refresh = useCallback(async (q?: string) => {
-    setLoading(true);
-    const res = await actionListTransactionalTemplates({ q, limit: 100 });
-    if (res.ok) {
-      setItems(res.data.items);
-    } else {
-      toast.error(res.error);
-    }
-    setLoading(false);
-  }, []);
+  const refresh = useCallback(
+    async (q?: string) => {
+      setLoading(true);
+      const res = await actionListTransactionalTemplates({ q, limit: 100 });
+      if (res.ok) {
+        setItems(res.data.items);
+      } else {
+        toast.error(res.error);
+      }
+      setLoading(false);
+    },
+    [toast],
+  );
 
   useEffect(() => {
     refresh();
@@ -57,50 +86,46 @@ export function TransactionalTemplatesClient() {
   };
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Transactional templates</PageTitle>
           <PageDescription>
-            Key-addressable templates rendered on demand — password resets, order confirmations, OTPs.
-            Distinct from marketing templates.
+            Key-addressable templates rendered on demand, for password resets, order confirmations,
+            and OTPs. Distinct from marketing templates.
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button asChild>
-            <Link href="/dashboard/email/templates/transactional/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New template
-            </Link>
+          <Button variant="primary" iconLeft={Plus} onClick={() => router.push(NEW_TEMPLATE_HREF)}>
+            New template
           </Button>
         </PageActions>
       </PageHeader>
 
       <Card className="p-4">
-        <Input
-          placeholder="Search by name or key..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onBlur={() => refresh(query)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') refresh(query);
-          }}
-        />
+        <Field label="Search templates">
+          <Input
+            placeholder="Search by name or key"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onBlur={() => refresh(query)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') refresh(query);
+            }}
+          />
+        </Field>
       </Card>
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
         <EmptyState
-          icon={<Mail className="h-8 w-8" />}
+          icon={Mail}
           title="No transactional templates"
           description="Create your first template to start sending triggered emails."
           action={
-            <Button asChild>
-              <Link href="/dashboard/email/templates/transactional/new">
-                <Plus className="mr-2 h-4 w-4" />
-                New template
-              </Link>
+            <Button variant="primary" iconLeft={Plus} onClick={() => router.push(NEW_TEMPLATE_HREF)}>
+              New template
             </Button>
           }
         />
@@ -121,7 +146,10 @@ export function TransactionalTemplatesClient() {
               {items.map((item) => (
                 <Tr key={item._id}>
                   <Td className="font-medium">
-                    <Link className="hover:underline" href={`/dashboard/email/templates/transactional/${item._id}`}>
+                    <Link
+                      className="hover:underline"
+                      href={`/dashboard/email/templates/transactional/${item._id}`}
+                    >
                       {item.name}
                     </Link>
                     {item.archived && (
@@ -131,7 +159,7 @@ export function TransactionalTemplatesClient() {
                     )}
                   </Td>
                   <Td>
-                    <code className="rounded bg-[color:var(--st-bg-muted)] px-1.5 py-0.5 text-xs">
+                    <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-xs">
                       {item.key}
                     </code>
                   </Td>
@@ -139,27 +167,30 @@ export function TransactionalTemplatesClient() {
                   <Td>{item.vars?.length ?? 0}</Td>
                   <Td>v{item.version}</Td>
                   <Td className="text-right">
-                    <Button size="icon" variant="ghost" asChild>
-                      <Link href={`/dashboard/email/templates/transactional/${item._id}`}>
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleArchive(item)}
-                      disabled={pending}
-                    >
-                      <Archive className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleDelete(item._id)}
-                      disabled={pending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <IconButton
+                        label={`Edit ${item.name}`}
+                        icon={Pencil}
+                        variant="ghost"
+                        onClick={() =>
+                          router.push(`/dashboard/email/templates/transactional/${item._id}`)
+                        }
+                      />
+                      <IconButton
+                        label={item.archived ? `Unarchive ${item.name}` : `Archive ${item.name}`}
+                        icon={Archive}
+                        variant="ghost"
+                        onClick={() => handleArchive(item)}
+                        disabled={pending}
+                      />
+                      <IconButton
+                        label={`Delete ${item.name}`}
+                        icon={Trash2}
+                        variant="ghost"
+                        onClick={() => handleDelete(item._id)}
+                        disabled={pending}
+                      />
+                    </div>
                   </Td>
                 </Tr>
               ))}

@@ -1,6 +1,39 @@
 'use client';
 
-import { Badge, Button, Card, Input, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, Progress } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SegmentedControl,
+  Slider,
+  Progress,
+  Spinner,
+  Skeleton,
+  EmptyState,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import {
   Users,
   Plus,
@@ -9,10 +42,8 @@ import {
   Search,
   Target,
   RefreshCw,
-  LoaderCircle,
-  Globe } from 'lucide-react';
-
-import { cn } from '@/lib/utils';
+  Globe,
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -34,39 +65,14 @@ import type { CustomAudience } from '@/lib/definitions';
 /* ------------------------------------------------------------------ */
 function AudienceRowSkeleton() {
   return (
-    <div className="flex items-center gap-4 px-5 py-4 animate-pulse">
-      <div className="h-9 w-9 rounded-full bg-[var(--st-bg-muted)]" />
+    <div className="flex items-center gap-4 px-5 py-4">
+      <Skeleton circle width={36} />
       <div className="flex-1 space-y-2">
-        <div className="h-3.5 w-40 rounded bg-[var(--st-bg-muted)]" />
-        <div className="h-2.5 w-24 rounded bg-[var(--st-bg-muted)]" />
+        <Skeleton width={160} height={14} radius={4} />
+        <Skeleton width={96} height={10} radius={4} />
       </div>
-      <div className="h-6 w-16 rounded-full bg-[var(--st-bg-muted)]" />
-      <div className="h-3 w-14 rounded bg-[var(--st-bg-muted)]" />
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Empty state                                                        */
-/* ------------------------------------------------------------------ */
-function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] mb-4">
-        {type === 'custom' ? (
-          <Users className="h-5 w-5 text-[var(--st-text-secondary)]" />
-        ) : (
-          <Copy className="h-5 w-5 text-[var(--st-text-secondary)]" />
-        )}
-      </div>
-      <p className="text-[13px] font-medium text-[var(--st-text)] mb-1">
-        No {type === 'custom' ? 'custom' : 'lookalike'} audiences
-      </p>
-      <p className="text-[11px] text-[var(--st-text-secondary)] max-w-[240px]">
-        {type === 'custom'
-          ? 'Create a custom audience from your website visitors, customer lists, or engagement data.'
-          : 'Build lookalike audiences from your existing custom audiences to reach similar people.'}
-      </p>
+      <Skeleton width={64} height={24} radius={999} />
+      <Skeleton width={56} height={12} radius={4} />
     </div>
   );
 }
@@ -76,17 +82,17 @@ function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
 /* ------------------------------------------------------------------ */
 function NoAccountState() {
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--st-bg-muted)] mb-5">
-        <Users className="h-6 w-6 text-[var(--st-text-secondary)]" />
-      </div>
-      <p className="text-[15px] font-medium text-[var(--st-text)] mb-1">No ad account selected</p>
-      <p className="text-[13px] text-[var(--st-text-secondary)] mb-5 max-w-xs">
-        Pick an ad account to view and manage your audiences.
-      </p>
-      <Link href="/dashboard/ad-manager/ad-accounts">
-        <Button variant="default">Go to Ad Accounts</Button>
-      </Link>
+    <div className="py-24">
+      <EmptyState
+        icon={Users}
+        title="No ad account selected"
+        description="Pick an ad account to view and manage your audiences."
+        action={
+          <Link href="/dashboard/ad-manager/ad-accounts">
+            <Button variant="primary">Go to Ad Accounts</Button>
+          </Link>
+        }
+      />
     </div>
   );
 }
@@ -104,7 +110,7 @@ function AudienceRow({
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const subtype = audience.subtype || 'CUSTOM';
 
-  const badgeVariant = (() => {
+  const badgeTone = (() => {
     switch (subtype) {
       case 'LOOKALIKE':
         return 'warning' as const;
@@ -113,23 +119,24 @@ function AudienceRow({
       case 'ENGAGEMENT':
         return 'success' as const;
       default:
-        return 'secondary' as const;
+        return 'neutral' as const;
     }
   })();
 
-  const isPopulating = audience.operation_status?.code === 400 || audience.delivery_status?.code === 400;
+  const isPopulating =
+    audience.operation_status?.code === 400 || audience.delivery_status?.code === 400;
 
   return (
     <>
-      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-[var(--st-border)] last:border-b-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-[var(--st-border)] last:border-b-0 hover:bg-[var(--st-bg-muted)] transition-colors">
         {/* icon */}
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
           {subtype === 'LOOKALIKE' ? (
-            <Copy className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <Copy className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
           ) : subtype === 'WEBSITE' ? (
-            <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
           ) : (
-            <Target className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <Target className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
           )}
         </div>
 
@@ -137,22 +144,26 @@ function AudienceRow({
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-medium text-[var(--st-text)] truncate">{audience.name}</p>
           {audience.description && (
-            <p className="text-[11px] text-[var(--st-text-secondary)] truncate mt-0.5">{audience.description}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)] truncate mt-0.5">
+              {audience.description}
+            </p>
           )}
           {isPopulating && (
             <div className="mt-2.5 flex items-center gap-2 max-w-[200px]">
-              <Progress value={65} className="h-1.5 flex-1" indicatorClassName="bg-warning animate-pulse" />
-              <span className="text-[10px] text-[var(--st-text-secondary)] font-medium">Populating...</span>
+              <Progress value={65} tone="warning" size="sm" className="flex-1" />
+              <span className="text-[10px] text-[var(--st-text-secondary)] font-medium">
+                Populating...
+              </span>
             </div>
           )}
         </div>
 
         {/* badge */}
         <div className="flex items-center gap-2">
-          <Badge variant={badgeVariant}>{subtype}</Badge>
+          <Badge tone={badgeTone}>{subtype}</Badge>
           {isPopulating && (
-            <Badge variant="warning" className="animate-pulse bg-warning/20 text-warning-foreground border-warning/50">
-              <LoaderCircle className="h-3 w-3 animate-spin mr-1 inline" />
+            <Badge tone="warning">
+              <Spinner size={12} label="Populating" className="mr-1 inline-block align-middle" />
               Populating
             </Badge>
           )}
@@ -160,37 +171,39 @@ function AudienceRow({
 
         {/* approximate count */}
         <span className="text-[13px] text-[var(--st-text)] tabular-nums min-w-[72px] text-right">
-          {audience.approximate_count_lower_bound === -1 ? 'Under 1000' : audience.approximate_count_lower_bound
-            ? formatNumber(audience.approximate_count_lower_bound)
-            : '--'}
+          {audience.approximate_count_lower_bound === -1
+            ? 'Under 1000'
+            : audience.approximate_count_lower_bound
+              ? formatNumber(audience.approximate_count_lower_bound)
+              : '--'}
         </span>
 
         {/* delete */}
-        <Button
+        <IconButton
+          label={`Delete ${audience.name}`}
+          icon={Trash2}
           variant="ghost"
-          size="icon"
-          className="opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+          className="opacity-0 group-hover:opacity-100"
           onClick={() => setConfirmOpen(true)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        />
       </div>
 
       {/* delete confirmation dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-[15px]">Delete audience</DialogTitle>
-            <DialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
-              Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be undone.
+            <DialogTitle>Delete audience</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>
               Cancel
             </Button>
             <Button
-              variant="destructive"
+              variant="danger"
               size="sm"
               onClick={() => {
                 onDelete(audience.id);
@@ -203,34 +216,6 @@ function AudienceRow({
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Tab pills (segmented buttons — Zoru has no tab primitive)          */
-/* ------------------------------------------------------------------ */
-function TabPill({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'h-8 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150',
-        active
-          ? 'bg-[var(--st-text)] text-white shadow-sm'
-          : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/80',
-      )}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -257,7 +242,9 @@ function CreateAudienceSheet({
   // Custom fields
   const [customName, setCustomName] = React.useState('');
   const [customDesc, setCustomDesc] = React.useState('');
-  const [customSubtype, setCustomSubtype] = React.useState<'WEBSITE' | 'ENGAGEMENT' | 'CUSTOM'>('WEBSITE');
+  const [customSubtype, setCustomSubtype] = React.useState<'WEBSITE' | 'ENGAGEMENT' | 'CUSTOM'>(
+    'WEBSITE',
+  );
 
   // Lookalike fields
   const [lookOrigin, setLookOrigin] = React.useState('');
@@ -286,7 +273,7 @@ function CreateAudienceSheet({
       });
     } else {
       res = await createLookalikeAudience(activeAccount.account_id, {
-        name: `Lookalike — ${lookRatio}%`,
+        name: `Lookalike ${lookRatio}%`,
         origin_audience_id: lookOrigin,
         country: lookCountry,
         ratio: lookRatio / 100,
@@ -307,60 +294,54 @@ function CreateAudienceSheet({
   };
 
   const canSubmit =
-    type === 'custom'
-      ? customName.trim().length > 0
-      : lookOrigin.length > 0;
+    type === 'custom' ? customName.trim().length > 0 : lookOrigin.length > 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md bg-[var(--st-bg-secondary)] overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-[18px] font-semibold text-[var(--st-text)]">Create audience</SheetTitle>
-          <SheetDescription className="text-[13px] text-[var(--st-text-secondary)]">
-            Build a custom or lookalike audience for targeting.
-          </SheetDescription>
+          <SheetTitle>Create audience</SheetTitle>
+          <SheetDescription>Build a custom or lookalike audience for targeting.</SheetDescription>
         </SheetHeader>
 
-        {/* type tabs */}
-        <div className="flex gap-2 mb-6">
-          <TabPill active={type === 'custom'} onClick={() => setType('custom')}>
-            Custom Audience
-          </TabPill>
-          <TabPill active={type === 'lookalike'} onClick={() => setType('lookalike')}>
-            Lookalike Audience
-          </TabPill>
+        {/* type segmented control */}
+        <div className="mb-6">
+          <SegmentedControl
+            aria-label="Audience type"
+            value={type}
+            onChange={(v) => setType(v as 'custom' | 'lookalike')}
+            items={[
+              { value: 'custom', label: 'Custom Audience' },
+              { value: 'lookalike', label: 'Lookalike Audience' },
+            ]}
+            fullWidth
+          />
         </div>
 
         {type === 'custom' ? (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                Name
-              </Label>
+            <Field label="Name">
               <Input
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                placeholder="e.g. Website visitors — last 30 days"
+                placeholder="e.g. Website visitors, last 30 days"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                Description
-              </Label>
+            <Field label="Description">
               <Input
                 value={customDesc}
                 onChange={(e) => setCustomDesc(e.target.value)}
                 placeholder="Optional description"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                Source type
-              </Label>
-              <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
-                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+            <Field label="Source type">
+              <Select
+                value={customSubtype}
+                onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}
+              >
+                <SelectTrigger aria-label="Source type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -369,16 +350,13 @@ function CreateAudienceSheet({
                   <SelectItem value="CUSTOM">Customer list</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                Source audience
-              </Label>
+            <Field label="Source audience">
               <Select value={lookOrigin} onValueChange={setLookOrigin}>
-                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                <SelectTrigger aria-label="Source audience">
                   <SelectValue placeholder="Select a source audience" />
                 </SelectTrigger>
                 <SelectContent>
@@ -389,14 +367,11 @@ function CreateAudienceSheet({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                Country
-              </Label>
+            <Field label="Country">
               <Select value={lookCountry} onValueChange={setLookCountry}>
-                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                <SelectTrigger aria-label="Country">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -407,46 +382,45 @@ function CreateAudienceSheet({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                  Similarity ratio
-                </Label>
-                <span className="text-[13px] font-semibold text-[var(--st-text)] tabular-nums">{lookRatio}%</span>
-              </div>
-              <input
-                type="range"
+            <Field
+              label={
+                <span className="flex items-center justify-between">
+                  <span>Similarity ratio</span>
+                  <span className="text-[13px] font-semibold text-[var(--st-text)] tabular-nums">
+                    {lookRatio}%
+                  </span>
+                </span>
+              }
+            >
+              <Slider
+                ariaLabel="Similarity ratio"
+                value={lookRatio}
+                onValueChange={(v) => setLookRatio(Array.isArray(v) ? v[0] : v)}
                 min={1}
                 max={10}
                 step={1}
-                value={lookRatio}
-                onChange={(e) => setLookRatio(Number(e.target.value))}
-                className="w-full accent-foreground h-1.5 rounded-full appearance-none bg-[var(--st-bg-muted)] cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-[var(--st-text-secondary)]">
+              <div className="flex justify-between text-[10px] text-[var(--st-text-secondary)] mt-1.5">
                 <span>1% most similar</span>
                 <span>10% broadest</span>
               </div>
-            </div>
+            </Field>
           </div>
         )}
 
         {/* actions */}
         <div className="flex gap-3 mt-8 pt-5 border-t border-[var(--st-border)]">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" block onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
-            variant="default"
-            className="flex-1"
+            variant="primary"
+            block
             onClick={submit}
-            disabled={submitting || !canSubmit}
+            loading={submitting}
+            disabled={!canSubmit}
           >
             {submitting ? 'Creating...' : 'Create audience'}
           </Button>
@@ -506,23 +480,17 @@ function SyncCrmDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-              Audience Name
-            </Label>
+          <Field label="Audience name">
             <Input
               value={audienceName}
               onChange={(e) => setAudienceName(e.target.value)}
               placeholder="e.g. High Value Customers"
             />
-          </div>
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-              CRM Segment
-            </Label>
+          <Field label="CRM segment">
             <Select value={segment} onValueChange={setSegment}>
-              <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+              <SelectTrigger aria-label="CRM segment">
                 <SelectValue placeholder="Select segment" />
               </SelectTrigger>
               <SelectContent>
@@ -532,14 +500,19 @@ function SyncCrmDialog({
                 <SelectItem value="high_value">High Value (LTV &gt; $500)</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </Field>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
-          <Button variant="default" onClick={submit} disabled={submitting || !audienceName.trim()}>
+          <Button
+            variant="primary"
+            onClick={submit}
+            loading={submitting}
+            disabled={!audienceName.trim()}
+          >
             {submitting ? 'Syncing...' : 'Sync & Create'}
           </Button>
         </DialogFooter>
@@ -590,12 +563,8 @@ export default function AudiencesPage() {
   };
 
   /* ---- derived ---- */
-  const customAudiences = audiences.filter(
-    (a) => (a.subtype || 'CUSTOM') !== 'LOOKALIKE',
-  );
-  const lookalikeAudiences = audiences.filter(
-    (a) => a.subtype === 'LOOKALIKE',
-  );
+  const customAudiences = audiences.filter((a) => (a.subtype || 'CUSTOM') !== 'LOOKALIKE');
+  const lookalikeAudiences = audiences.filter((a) => a.subtype === 'LOOKALIKE');
 
   const displayed = tab === 'custom' ? customAudiences : lookalikeAudiences;
   const filtered = displayed.filter(
@@ -613,52 +582,51 @@ export default function AudiencesPage() {
       <AmBreadcrumb page="Audiences" />
 
       {/* header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[26px] font-semibold tracking-tight text-[var(--st-text)]">Audiences</h1>
-          <Badge variant="secondary">
-            <span className="tabular-nums">{audiences.length}</span>
-          </Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setSyncOpen(true)}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+      <PageHeader>
+        <PageHeading>
+          <PageTitle>
+            <span className="flex items-center gap-3">
+              Audiences
+              <Badge tone="neutral">
+                <span className="tabular-nums">{audiences.length}</span>
+              </Badge>
+            </span>
+          </PageTitle>
+        </PageHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={RefreshCw} onClick={() => setSyncOpen(true)}>
             Sync CRM
           </Button>
-          <Button
-            variant="default"
-            onClick={() => setSheetOpen(true)}
-          >
-            <Plus className="h-4 w-4" />
+          <Button variant="primary" iconLeft={Plus} onClick={() => setSheetOpen(true)}>
             Create audience
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      {/* tab pills + search */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex gap-2">
-          <TabPill active={tab === 'custom'} onClick={() => setTab('custom')}>
-            Custom Audiences
-            <span className="ml-1.5 tabular-nums opacity-60">{customAudiences.length}</span>
-          </TabPill>
-          <TabPill active={tab === 'lookalike'} onClick={() => setTab('lookalike')}>
-            Lookalike Audiences
-            <span className="ml-1.5 tabular-nums opacity-60">{lookalikeAudiences.length}</span>
-          </TabPill>
-        </div>
+      {/* tab segmented control + search */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <SegmentedControl
+          aria-label="Audience category"
+          value={tab}
+          onChange={(v) => setTab(v as 'custom' | 'lookalike')}
+          items={[
+            { value: 'custom', label: `Custom Audiences ${customAudiences.length}` },
+            { value: 'lookalike', label: `Lookalike Audiences ${lookalikeAudiences.length}` },
+          ]}
+        />
 
         <Input
-          leadingSlot={<Search className="h-3.5 w-3.5" />}
+          iconLeft={Search}
           placeholder="Search audiences..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-[240px]"
+          aria-label="Search audiences"
         />
       </div>
 
       {/* audience list */}
-      <Card className="p-0 overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         {/* column header */}
         <div className="flex items-center gap-4 px-5 py-2.5 border-b border-[var(--st-border)] text-[10px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">
           <div className="w-9 shrink-0" />
@@ -676,11 +644,19 @@ export default function AudiencesPage() {
             <AudienceRowSkeleton />
           </>
         ) : filtered.length === 0 ? (
-          <EmptyState type={tab} />
+          <div className="py-16">
+            <EmptyState
+              icon={tab === 'custom' ? Users : Copy}
+              title={`No ${tab === 'custom' ? 'custom' : 'lookalike'} audiences`}
+              description={
+                tab === 'custom'
+                  ? 'Create a custom audience from your website visitors, customer lists, or engagement data.'
+                  : 'Build lookalike audiences from your existing custom audiences to reach similar people.'
+              }
+            />
+          </div>
         ) : (
-          filtered.map((a) => (
-            <AudienceRow key={a.id} audience={a} onDelete={handleDelete} />
-          ))
+          filtered.map((a) => <AudienceRow key={a.id} audience={a} onDelete={handleDelete} />)
         )}
       </Card>
 
@@ -693,11 +669,7 @@ export default function AudiencesPage() {
       />
 
       {/* sync dialog */}
-      <SyncCrmDialog
-        open={syncOpen}
-        onOpenChange={setSyncOpen}
-        onCreated={load}
-      />
+      <SyncCrmDialog open={syncOpen} onOpenChange={setSyncOpen} onCreated={load} />
     </div>
   );
 }

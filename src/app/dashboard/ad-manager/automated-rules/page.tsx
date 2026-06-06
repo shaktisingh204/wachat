@@ -1,17 +1,49 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Zap,
   Plus,
-  CircleAlert,
   RefreshCw,
   Trash2 } from 'lucide-react';
 
 import * as React from 'react';
 
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { getAutomatedRules, createAutomatedRule, deleteAutomatedRule } from '@/app/actions/ad-manager-features.actions';
 
 const ENTITY_TYPES = ['CAMPAIGN', 'ADSET', 'AD'] as const;
@@ -100,7 +132,7 @@ export default function AutomatedRulesPage() {
 
     const handleCreate = async () => {
         if (!activeAccount || !name || conditions.some(c => !c.value)) {
-            toast({ title: 'Validation', description: 'Name and all threshold values are required.', variant: 'destructive' });
+            toast.error({ title: 'Validation', description: 'Name and all threshold values are required.' });
             return;
         }
         setSubmitting(true);
@@ -118,9 +150,9 @@ export default function AutomatedRulesPage() {
         const res = await createAutomatedRule(null, fd);
         setSubmitting(false);
         if (res.error) {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Error', description: res.error });
         } else {
-            toast({ title: 'Created', description: res.message });
+            toast.success({ title: 'Created', description: res.message });
             setDialogOpen(false);
             resetForm();
             fetchRules();
@@ -130,10 +162,10 @@ export default function AutomatedRulesPage() {
     const handleDelete = async (id: string) => {
         const res = await deleteAutomatedRule(id);
         if (res.success) {
-            toast({ title: 'Deleted', description: 'Rule deleted.' });
+            toast.success({ title: 'Deleted', description: 'Rule deleted.' });
             setRules(prev => prev.filter(r => r.id !== id));
         } else {
-            toast({ title: 'Error', description: res.error || 'Failed to delete.', variant: 'destructive' });
+            toast.error({ title: 'Error', description: res.error || 'Failed to delete.' });
         }
         setDeleteId(null);
     };
@@ -148,22 +180,20 @@ export default function AutomatedRulesPage() {
                     .join(' AND ');
             }
         } catch { /* ignore */ }
-        return '—';
+        return '-';
     };
 
     const formatAction = (rule: any) => {
         try {
-            return rule.execution_spec?.execution_type?.replace(/_/g, ' ') || '—';
-        } catch { return '—'; }
+            return rule.execution_spec?.execution_type?.replace(/_/g, ' ') || '-';
+        } catch { return '-'; }
     };
 
     if (!activeAccount) {
         return (
             <div>
-                <Alert>
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to manage automated rules.</AlertDescription>
+                <Alert tone="warning" title="No ad account selected">
+                    Pick an ad account to manage automated rules.
                 </Alert>
             </div>
         );
@@ -171,39 +201,43 @@ export default function AutomatedRulesPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <Zap className="h-6 w-6" /> Automated rules
-                    </h1>
-                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle className="flex items-center gap-2">
+                        <Zap className="h-6 w-6" aria-hidden="true" /> Automated rules
+                    </PageTitle>
+                    <PageDescription>
                         Automatically pause, scale or notify based on performance thresholds.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={fetchRules} disabled={loading}>
-                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <IconButton
+                        label="Refresh rules"
+                        icon={RefreshCw}
+                        variant="outline"
+                        onClick={fetchRules}
+                        disabled={loading}
+                        className={loading ? 'animate-spin' : undefined}
+                    />
+                    <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+                        Create rule
                     </Button>
-                    <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={() => setDialogOpen(true)}>
-                        <Plus className="h-4 w-4 mr-1" /> Create rule
-                    </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
-            <Card>
-                <CardBody className="p-0">
+            <Card padding="none">
+                <CardBody>
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} height={40} />)}
                         </div>
                     ) : rules.length === 0 ? (
-                        <div className="py-16 text-center">
-                            <Zap className="h-12 w-12 mx-auto text-[var(--st-text-secondary)]" />
-                            <p className="mt-3 font-semibold">No automated rules yet</p>
-                            <p className="text-sm text-[var(--st-text-secondary)] max-w-md mx-auto mt-1">
-                                Examples: pause ads with CTR below 0.5%, increase budget by 20% when ROAS exceeds 4x,
-                                or send a notification when daily spend crosses a threshold.
-                            </p>
+                        <div className="py-16">
+                            <EmptyState
+                                icon={Zap}
+                                title="No automated rules yet"
+                                description="Examples: pause ads with CTR below 0.5%, increase budget by 20% when ROAS exceeds 4x, or send a notification when daily spend crosses a threshold."
+                            />
                         </div>
                     ) : (
                         <Table>
@@ -213,7 +247,7 @@ export default function AutomatedRulesPage() {
                                     <Th>Condition</Th>
                                     <Th>Action</Th>
                                     <Th>Status</Th>
-                                    <Th className="w-16" />
+                                    <Th width={64} />
                                 </Tr>
                             </THead>
                             <TBody>
@@ -225,19 +259,18 @@ export default function AutomatedRulesPage() {
                                             <Badge variant="outline">{formatAction(r)}</Badge>
                                         </Td>
                                         <Td>
-                                            <Badge variant={r.status === 'ENABLED' ? 'default' : 'secondary'}>
+                                            <Badge tone={r.status === 'ENABLED' ? 'success' : 'neutral'}>
                                                 {r.status || 'UNKNOWN'}
                                             </Badge>
                                         </Td>
                                         <Td>
-                                            <Button
+                                            <IconButton
+                                                label="Delete rule"
+                                                icon={Trash2}
                                                 variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)]"
+                                                size="sm"
                                                 onClick={() => setDeleteId(r.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            />
                                         </Td>
                                     </Tr>
                                 ))}
@@ -255,14 +288,13 @@ export default function AutomatedRulesPage() {
                         <DialogDescription>Set conditions and actions that run automatically.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Templates</Label>
+                        <Field label="Templates">
                             <div className="flex flex-wrap gap-2">
                                 {RULE_TEMPLATES.map((t) => (
-                                    <Button 
-                                        key={t.name} 
-                                        variant="outline" 
-                                        size="sm" 
+                                    <Button
+                                        key={t.name}
+                                        variant="outline"
+                                        size="sm"
                                         onClick={() => {
                                             setName(t.name);
                                             setEntityType(t.entityType);
@@ -274,136 +306,128 @@ export default function AutomatedRulesPage() {
                                     </Button>
                                 ))}
                             </div>
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label>Rule name *</Label>
+                        <Field label="Rule name" required>
                             <Input placeholder="e.g. Pause low CTR campaigns" value={name} onChange={e => setName(e.target.value)} />
-                        </div>
+                        </Field>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Entity type</Label>
+                            <Field label="Entity type">
                                 <Select value={entityType} onValueChange={setEntityType}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger aria-label="Entity type"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {ENTITY_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Action</Label>
+                            </Field>
+                            <Field label="Action">
                                 <Select value={actionType} onValueChange={setActionType}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger aria-label="Action"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {ACTION_TYPES.map(t => <SelectItem key={t} value={t}>{t.replace(/_/g, ' ')}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         </div>
-                        <div className="space-y-3 border p-4 rounded-lg bg-[var(--st-bg-muted)]/30">
+                        <Card variant="ghost" className="space-y-3 bg-[var(--st-bg-muted)]/30">
                             <div className="flex items-center justify-between">
-                                <Label className="text-base font-medium">Conditions (AND logic)</Label>
-                                <Button 
-                                    variant="outline" 
+                                <p className="text-base font-medium text-[var(--st-text)]">Conditions (AND logic)</p>
+                                <Button
+                                    variant="outline"
                                     size="sm"
+                                    iconLeft={Plus}
                                     onClick={() => setConditions([...conditions, { metricField: 'spend', operator: 'GREATER_THAN', value: '' }])}
                                 >
-                                    <Plus className="h-4 w-4 mr-1" /> Add
+                                    Add
                                 </Button>
                             </div>
-                            
+
                             {conditions.map((cond, idx) => (
                                 <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs">Metric</Label>
-                                        <Select 
-                                            value={cond.metricField} 
+                                    <Field label="Metric">
+                                        <Select
+                                            value={cond.metricField}
                                             onValueChange={(v) => {
                                                 const newC = [...conditions];
                                                 newC[idx].metricField = v;
                                                 setConditions(newC);
                                             }}
                                         >
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectTrigger aria-label="Metric"><SelectValue /></SelectTrigger>
                                             <SelectContent>
                                                 {METRIC_FIELDS.map(m => <SelectItem key={m} value={m}>{m.toUpperCase()}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs">Operator</Label>
-                                        <Select 
-                                            value={cond.operator} 
+                                    </Field>
+                                    <Field label="Operator">
+                                        <Select
+                                            value={cond.operator}
                                             onValueChange={(v) => {
                                                 const newC = [...conditions];
                                                 newC[idx].operator = v;
                                                 setConditions(newC);
                                             }}
                                         >
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectTrigger aria-label="Operator"><SelectValue /></SelectTrigger>
                                             <SelectContent>
                                                 {OPERATORS.map(o => <SelectItem key={o} value={o}>{o.replace(/_/g, ' ')}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs">Value *</Label>
-                                        <Input 
-                                            type="number" 
-                                            placeholder="0" 
-                                            value={cond.value} 
+                                    </Field>
+                                    <Field label="Value" required>
+                                        <Input
+                                            type="number"
+                                            placeholder="0"
+                                            value={cond.value}
                                             onChange={(e) => {
                                                 const newC = [...conditions];
                                                 newC[idx].value = e.target.value;
                                                 setConditions(newC);
-                                            }} 
+                                            }}
                                         />
-                                    </div>
+                                    </Field>
                                     <div className="pb-1">
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className="h-9 w-9 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                                        <IconButton
+                                            label="Remove condition"
+                                            icon={Trash2}
+                                            variant="ghost"
                                             onClick={() => setConditions(conditions.filter((_, i) => i !== idx))}
                                             disabled={conditions.length === 1}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        />
                                     </div>
                                 </div>
                             ))}
-                        </div>
-                        
-                        <div className="space-y-3 border p-4 rounded-lg bg-[var(--st-bg-muted)]/30">
-                            <Label className="text-base font-medium">Logic Preview</Label>
+                        </Card>
+
+                        <Card variant="ghost" className="space-y-3 bg-[var(--st-bg-muted)]/30">
+                            <p className="text-base font-medium text-[var(--st-text)]">Logic Preview</p>
                             <div className="grid grid-cols-5 gap-2">
                                 {METRIC_FIELDS.map(m => (
-                                    <div key={m} className="space-y-1">
-                                        <Label className="text-xs uppercase">{m}</Label>
-                                        <Input 
-                                            className="text-xs h-8"
+                                    <Field key={m} label={<span className="uppercase">{m}</span>}>
+                                        <Input
+                                            inputSize="sm"
                                             value={mockData[m] || ''}
                                             onChange={e => setMockData(prev => ({...prev, [m]: e.target.value}))}
                                         />
-                                    </div>
+                                    </Field>
                                 ))}
                             </div>
-                            <div className="mt-2 flex items-center gap-2 text-sm">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-[var(--st-text)]">
                                 <span>Preview Result:</span>
                                 {evaluatePreview() === true ? (
-                                    <Badge className="bg-[var(--st-text)]">Will Trigger</Badge>
+                                    <Badge tone="success">Will Trigger</Badge>
                                 ) : evaluatePreview() === false ? (
-                                    <Badge variant="secondary">Will Not Trigger</Badge>
+                                    <Badge tone="neutral">Will Not Trigger</Badge>
                                 ) : (
                                     <Badge variant="outline">Incomplete Conditions</Badge>
                                 )}
                             </div>
-                        </div>
+                        </Card>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                        <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting}>
-                            {submitting ? 'Creating…' : 'Create rule'}
+                        <Button variant="primary" onClick={handleCreate} loading={submitting}>
+                            {submitting ? 'Creating...' : 'Create rule'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -418,7 +442,7 @@ export default function AutomatedRulesPage() {
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
+                        <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

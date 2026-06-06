@@ -7,12 +7,26 @@ import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-overrides.css';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui';
-import { CircleAlert } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { CalendarRange } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { getCampaignCalendarData } from '@/app/actions/ad-manager-features.actions';
 
 const locales = {
@@ -57,7 +71,7 @@ export default function CampaignCalendarPage() {
     const { toast } = useToast();
     const [loading, setLoading] = React.useState(true);
     const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
-    
+
     // Quick edit modal state
     const [selectedCampaign, setSelectedCampaign] = React.useState<Campaign | null>(null);
     const [editName, setEditName] = React.useState('');
@@ -68,7 +82,7 @@ export default function CampaignCalendarPage() {
         const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
         getCampaignCalendarData(actId).then((res) => {
             if (res.error) {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Error', description: res.error });
                 setCampaigns([]);
             } else {
                 setCampaigns(res.campaigns || []);
@@ -77,24 +91,11 @@ export default function CampaignCalendarPage() {
         });
     }, [activeAccount, toast]);
 
-    if (!activeAccount) {
-        return (
-            <div className="space-y-6">
-                <AmBreadcrumb page="Calendar" />
-                <Alert>
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view the campaign calendar.</AlertDescription>
-                </Alert>
-            </div>
-        );
-    }
-
     const events: CampaignEvent[] = React.useMemo(() => {
         return campaigns.map(c => {
             const start = c.start_time ? new Date(c.start_time) : new Date();
             let end: Date;
-            
+
             if (c.stop_time) {
                 end = new Date(c.stop_time);
             } else {
@@ -122,6 +123,7 @@ export default function CampaignCalendarPage() {
     const eventStyleGetter = (event: CampaignEvent) => {
         const backgroundColor = statusColor(event.resource.effective_status || event.resource.status);
         return {
+            // Runtime-computed status color passed to react-big-calendar's API.
             style: {
                 backgroundColor,
                 borderRadius: '4px',
@@ -135,6 +137,20 @@ export default function CampaignCalendarPage() {
         };
     };
 
+    if (!activeAccount) {
+        return (
+            <div className="space-y-6">
+                <AmBreadcrumb page="Calendar" />
+                <EmptyState
+                    icon={CalendarRange}
+                    title="No ad account selected"
+                    description="Pick an ad account to view the campaign calendar."
+                    tone="warning"
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <AmBreadcrumb page="Calendar" />
@@ -144,17 +160,17 @@ export default function CampaignCalendarPage() {
             />
 
             {loading ? (
-                <Skeleton className="h-[600px] w-full" />
+                <Skeleton height={600} width="100%" />
             ) : (
                 <Card>
-                    <CardBody className="p-4">
+                    <CardBody>
                         <div className="h-[600px]">
                             <Calendar
                                 localizer={localizer}
                                 events={events}
                                 startAccessor="start"
                                 endAccessor="end"
-                                style={{ height: '100%' }}
+                                className="h-full"
                                 onSelectEvent={handleSelectEvent}
                                 eventPropGetter={eventStyleGetter}
                                 views={['month', 'week', 'day', 'agenda']}
@@ -169,41 +185,51 @@ export default function CampaignCalendarPage() {
             <Dialog open={!!selectedCampaign} onOpenChange={(open) => !open && setSelectedCampaign(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Quick Edit Campaign</DialogTitle>
+                        <DialogTitle>Quick edit campaign</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Campaign Name</Label>
-                            <Input 
-                                placeholder="Campaign Name" 
-                                value={editName} 
-                                onChange={(e) => setEditName(e.target.value)} 
+                        <Field label="Campaign name">
+                            <Input
+                                placeholder="Campaign name"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
                             />
-                        </div>
-                        <div className="text-sm text-[var(--st-text-secondary)]">
-                            <strong>Status:</strong> {selectedCampaign?.effective_status || selectedCampaign?.status}
-                            <br />
-                            <strong>Start:</strong> {selectedCampaign?.start_time ? new Date(selectedCampaign.start_time).toLocaleString() : 'N/A'}
-                            <br />
-                            <strong>End:</strong> {selectedCampaign?.stop_time ? new Date(selectedCampaign.stop_time).toLocaleString() : 'Ongoing'}
-                        </div>
+                        </Field>
+                        <dl className="space-y-2 text-sm text-[var(--st-text-secondary)]">
+                            <div className="flex items-center gap-2">
+                                <dt className="font-medium text-[var(--st-text)]">Status</dt>
+                                <dd>
+                                    <Badge tone="neutral">
+                                        {selectedCampaign?.effective_status || selectedCampaign?.status}
+                                    </Badge>
+                                </dd>
+                            </div>
+                            <div className="flex gap-2">
+                                <dt className="font-medium text-[var(--st-text)]">Start</dt>
+                                <dd>{selectedCampaign?.start_time ? new Date(selectedCampaign.start_time).toLocaleString() : 'N/A'}</dd>
+                            </div>
+                            <div className="flex gap-2">
+                                <dt className="font-medium text-[var(--st-text)]">End</dt>
+                                <dd>{selectedCampaign?.stop_time ? new Date(selectedCampaign.stop_time).toLocaleString() : 'Ongoing'}</dd>
+                            </div>
+                        </dl>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setSelectedCampaign(null)}>Cancel</Button>
-                        <Button 
-                            className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
+                        <Button
+                            variant="primary"
                             onClick={() => {
                                 // Mock saving the campaign edit
-                                setCampaigns(prev => prev.map(c => 
-                                    c.id === selectedCampaign?.id 
-                                        ? { ...c, name: editName } 
+                                setCampaigns(prev => prev.map(c =>
+                                    c.id === selectedCampaign?.id
+                                        ? { ...c, name: editName }
                                         : c
                                 ));
-                                toast({ title: 'Success', description: 'Campaign updated successfully.' });
+                                toast.success({ title: 'Success', description: 'Campaign updated successfully.' });
                                 setSelectedCampaign(null);
                             }}
                         >
-                            Save Changes
+                            Save changes
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { listGlEntrys } from '@/app/actions/finance/gl.actions';
 import { GlEntryListClient } from './_components/gl-list-client';
 import { Skeleton } from '@/components/sabcrm/20ui';
@@ -10,9 +10,18 @@ async function GlEntryListContainer() {
   return <GlEntryListClient initialItems={items || []} error={error} />;
 }
 
+function GlEntryFallback() {
+  return (
+    <div className="p-8 space-y-4">
+      <Skeleton height={40} className="w-full" />
+      <Skeleton height={400} className="w-full" />
+    </div>
+  );
+}
+
 export default function GlEntryPage() {
   return (
-    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+    <Suspense fallback={<GlEntryFallback />}>
       <GlEntryListContainer />
     </Suspense>
   );

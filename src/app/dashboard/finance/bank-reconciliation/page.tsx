@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { listBankRecons } from '@/app/actions/finance/bank-reconciliation.actions';
 import { BankReconListClient } from './_components/bank-reconciliation-list-client';
 import { Skeleton } from '@/components/sabcrm/20ui';
@@ -10,9 +10,18 @@ async function BankReconListContainer() {
   return <BankReconListClient initialItems={items || []} error={error} />;
 }
 
+function BankReconFallback() {
+  return (
+    <div className="space-y-4 p-8">
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-[400px] w-full" />
+    </div>
+  );
+}
+
 export default function BankReconPage() {
   return (
-    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+    <Suspense fallback={<BankReconFallback />}>
       <BankReconListContainer />
     </Suspense>
   );

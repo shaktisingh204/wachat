@@ -1,5 +1,16 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Skeleton,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+} from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { FieldsClient } from '@/components/email/audience/fields-client';
 import { Database } from 'lucide-react';
@@ -11,7 +22,7 @@ function FieldsSkeleton() {
         <PageHeading>
           <PageTitle>
             <span className="inline-flex items-center gap-3">
-              <Database className="h-6 w-6" /> Custom Fields
+              <Database className="h-6 w-6" aria-hidden="true" /> Custom Fields
             </span>
           </PageTitle>
           <PageDescription>
@@ -26,9 +37,9 @@ function FieldsSkeleton() {
         </CardHeader>
         <CardBody>
           <div className="space-y-2">
-             <Skeleton className="h-10 w-full" />
-             <Skeleton className="h-10 w-full" />
-             <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
         </CardBody>
       </Card>

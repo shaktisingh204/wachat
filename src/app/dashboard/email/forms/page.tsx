@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { Skeleton, RouteComingSoon } from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 
@@ -9,8 +11,15 @@ export default function EmailFormsPage() {
         <RouteComingSoon
           title="Forms"
           description="Signup forms, popups and hosted landing pages."
-          parentHref="/dashboard/email"
-          parentLabel="Back to email overview"
+          action={
+            <Link
+              href="/dashboard/email"
+              className="u-btn u-btn--secondary u-btn--sm"
+            >
+              <ArrowLeft size={14} aria-hidden="true" />
+              <span className="u-btn__label">Back to email overview</span>
+            </Link>
+          }
         />
       </Suspense>
     </EmailSuiteLayout>

@@ -1,6 +1,38 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Switch, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Skeleton,
+  Alert,
+  Switch,
+  Badge,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Input,
+  Textarea,
+  Field,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -9,13 +41,13 @@ import {
 import { useRouter } from 'next/navigation';
 import { ArrowLeft,
   Image as ImageIcon,
-  CircleAlert,
   RefreshCw,
   EllipsisVertical,
   Pause,
   Play,
   Copy,
-  Trash2 } from 'lucide-react';
+  Trash2,
+  Plus } from 'lucide-react';
 import { getAds,
   updateEntityStatus,
   updateAd,
@@ -25,9 +57,7 @@ import { getAds,
   getFacebookPagesForAdCreation,
   createAd } from '@/app/actions/ad-manager.actions';
 import { useAdManager } from '@/context/ad-manager-context';
-import { Plus } from 'lucide-react';
 
-import { useToast } from '@/hooks/use-toast';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 function PageSkeleton() {
@@ -76,7 +106,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
 
     const handleCreateAd = () => {
         if (!createName || !selectedPageId || !createMessage || !createLink) {
-            toast({ title: 'Validation Error', description: 'Please fill in all fields.', variant: 'destructive' });
+            toast({ title: 'Validation Error', description: 'Please fill in all fields.', tone: 'danger' });
             return;
         }
         startCreatingTransition(async () => {
@@ -97,9 +127,9 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
             };
             const result = await createAd(activeAccount!.account_id, payload);
             if (result.error) {
-                toast({ title: 'Create Failed', description: result.error, variant: 'destructive' });
+                toast({ title: 'Create Failed', description: result.error, tone: 'danger' });
             } else {
-                toast({ title: 'Ad Created successfully' });
+                toast.success('Ad created successfully');
                 setIsCreateOpen(false);
                 setCreateName('');
                 setCreateMessage('');
@@ -149,21 +179,21 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
         const result = await updateEntityStatus(id, 'ad', newStatus);
 
         if (result.success) {
-            toast({ title: 'Status Updated', description: `Ad is now ${newStatus.toLowerCase()}.` });
+            toast({ title: 'Status Updated', description: `Ad is now ${newStatus.toLowerCase()}.`, tone: 'success' });
         } else {
             setAds(prev => prev.map(item =>
                 item.id === id ? { ...item, status: currentStatus as any } : item
             ));
-            toast({ title: 'Update Failed', description: result.error, variant: 'destructive' });
+            toast({ title: 'Update Failed', description: result.error, tone: 'danger' });
         }
     };
 
     const handleDuplicate = async (id: string) => {
         const result = await duplicateAd(id);
         if (result.error) {
-            toast({ title: 'Duplicate Failed', description: result.error, variant: 'destructive' });
+            toast({ title: 'Duplicate Failed', description: result.error, tone: 'danger' });
         } else {
-            toast({ title: 'Duplicated', description: 'Ad duplicated successfully.' });
+            toast.success('Ad duplicated successfully.');
             fetchAds();
         }
     };
@@ -171,9 +201,9 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
     const handleDelete = async (id: string) => {
         const result = await deleteAd(id);
         if (result.error) {
-            toast({ title: 'Delete Failed', description: result.error, variant: 'destructive' });
+            toast({ title: 'Delete Failed', description: result.error, tone: 'danger' });
         } else {
-            toast({ title: 'Deleted', description: 'Ad deleted.' });
+            toast.success('Ad deleted.');
             setAds(prev => prev.filter(a => a.id !== id));
         }
         setDeleteId(null);
@@ -188,10 +218,10 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
         setAds(prev => prev.map(a => a.id === id ? { ...a, name: editingName.trim() } : a));
         const res = await updateAd(id, { name: editingName.trim() });
         if (res.error) {
-            toast({ title: 'Failed to update name', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed to update name', description: res.error, tone: 'danger' });
             setAds(originalAds);
         } else {
-            toast({ title: 'Name updated successfully' });
+            toast.success('Name updated successfully');
         }
         setEditingAdId(null);
     };
@@ -207,14 +237,21 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                 description={`Ad Set ID: ${adSetId}`}
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Back">
-                            <ArrowLeft className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" onClick={fetchAds} disabled={isLoading} aria-label="Refresh">
-                            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        </Button>
-                        <Button variant="default" size="sm" onClick={() => setIsCreateOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" />
+                        <IconButton
+                            label="Go back"
+                            icon={ArrowLeft}
+                            variant="ghost"
+                            onClick={() => router.back()}
+                        />
+                        <IconButton
+                            label="Refresh ads"
+                            icon={RefreshCw}
+                            variant="outline"
+                            onClick={fetchAds}
+                            disabled={isLoading}
+                            className={isLoading ? 'is-loading' : undefined}
+                        />
+                        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setIsCreateOpen(true)}>
                             Create Ad
                         </Button>
                     </div>
@@ -222,37 +259,34 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
             />
 
             {error && (
-                <Alert variant="destructive">
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>Error fetching Ads</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
+                <Alert tone="danger" title="Error fetching Ads">
+                    {error}
                 </Alert>
             )}
 
             {ads.length === 0 ? (
-                <Card className="border-dashed border-2 py-12">
-                    <div className="flex flex-col items-center justify-center text-center gap-4">
-                        <div className="bg-[var(--st-text)]/10 p-4 rounded-full">
-                            <ImageIcon className="h-12 w-12 text-[var(--st-text)]" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-semibold">No Ads Found</h3>
-                            <p className="text-[var(--st-text-secondary)] mt-1">This ad set currently has no ads.</p>
-                        </div>
-                    </div>
-                </Card>
+                <EmptyState
+                    icon={ImageIcon}
+                    title="No Ads Found"
+                    description="This ad set currently has no ads."
+                    action={
+                        <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreateOpen(true)}>
+                            Create Ad
+                        </Button>
+                    }
+                />
             ) : (
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {ads.map((ad) => (
-                        <Card key={ad.id} className="overflow-hidden">
+                        <Card key={ad.id} padding="none" className="overflow-hidden">
                             <div className="aspect-video relative bg-[var(--st-bg-muted)] flex items-center justify-center overflow-hidden">
                                 {ad.imageUrl ? (
                                     <img src={ad.imageUrl} alt={ad.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon className="h-12 w-12 text-[var(--st-text-secondary)]" />
+                                    <ImageIcon className="h-12 w-12 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                 )}
                                 <div className="absolute top-2 right-2">
-                                    <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>{ad.status}</Badge>
+                                    <Badge tone={ad.status === 'ACTIVE' ? 'success' : 'neutral'}>{ad.status}</Badge>
                                 </div>
                             </div>
                             <CardHeader className="p-4">
@@ -260,20 +294,21 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     {editingAdId === ad.id ? (
                                         <div className="flex-1 flex items-center gap-2">
                                             <Input
+                                                inputSize="sm"
                                                 value={editingName}
                                                 onChange={(e) => setEditingName(e.target.value)}
-                                                className="h-7 text-sm"
+                                                aria-label="Ad name"
                                                 autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') handleSaveName(ad.id);
                                                     if (e.key === 'Escape') setEditingAdId(null);
                                                 }}
                                             />
-                                            <Button size="sm" className="h-7" onClick={() => handleSaveName(ad.id)}>Save</Button>
+                                            <Button variant="primary" size="sm" onClick={() => handleSaveName(ad.id)}>Save</Button>
                                         </div>
                                     ) : (
-                                        <CardTitle 
-                                            className="text-base truncate cursor-pointer hover:underline" 
+                                        <CardTitle
+                                            className="text-base truncate cursor-pointer hover:underline"
                                             title={ad.name}
                                             onClick={() => {
                                                 setEditingName(ad.name);
@@ -285,32 +320,31 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     )}
                                     <div className="flex items-center gap-1 shrink-0">
                                         <Switch
-                                            className="scale-75"
+                                            size="sm"
+                                            aria-label={`Toggle ${ad.name} status`}
                                             checked={ad.status === 'ACTIVE'}
                                             onCheckedChange={() => handleStatusToggle(ad.id, ad.status)}
                                         />
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <EllipsisVertical className="h-4 w-4" />
-                                                </Button>
+                                                <IconButton label="Ad actions" icon={EllipsisVertical} variant="ghost" size="sm" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleStatusToggle(ad.id, ad.status)}>
-                                                    {ad.status === 'ACTIVE' ? (
-                                                        <><Pause className="h-4 w-4 mr-2" /> Pause</>
-                                                    ) : (
-                                                        <><Play className="h-4 w-4 mr-2" /> Resume</>
-                                                    )}
+                                                <DropdownMenuItem
+                                                    iconLeft={ad.status === 'ACTIVE' ? Pause : Play}
+                                                    onSelect={() => handleStatusToggle(ad.id, ad.status)}
+                                                >
+                                                    {ad.status === 'ACTIVE' ? 'Pause' : 'Resume'}
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDuplicate(ad.id)}>
-                                                    <Copy className="h-4 w-4 mr-2" /> Duplicate
+                                                <DropdownMenuItem iconLeft={Copy} onSelect={() => handleDuplicate(ad.id)}>
+                                                    Duplicate
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
-                                                    className="text-[var(--st-text)] focus:text-[var(--st-text)]"
-                                                    onClick={() => setDeleteId(ad.id)}
+                                                    variant="danger"
+                                                    iconLeft={Trash2}
+                                                    onSelect={() => setDeleteId(ad.id)}
                                                 >
-                                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                                    Delete
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -348,21 +382,19 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                         <DialogTitle>Create New Ad</DialogTitle>
                         <DialogDescription>Build a new ad creative directly into this Ad Set.</DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="flex flex-col gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Ad Name</Label>
-                            <Input 
-                                placeholder="My New Ad" 
-                                value={createName} 
-                                onChange={(e) => setCreateName(e.target.value)} 
+                        <Field label="Ad Name">
+                            <Input
+                                placeholder="My New Ad"
+                                value={createName}
+                                onChange={(e) => setCreateName(e.target.value)}
                             />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>Facebook Page</Label>
+                        </Field>
+
+                        <Field label="Facebook Page">
                             <Select value={selectedPageId} onValueChange={setSelectedPageId}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Facebook Page">
                                     <SelectValue placeholder="Select a page" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -371,12 +403,11 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label>Ad Status</Label>
+                        <Field label="Ad Status">
                             <Select value={createStatus} onValueChange={setCreateStatus}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Ad Status">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -384,34 +415,34 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     <SelectItem value="ACTIVE">Active</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>Link URL</Label>
-                            <Input 
-                                type="url"
-                                placeholder="https://example.com" 
-                                value={createLink} 
-                                onChange={(e) => setCreateLink(e.target.value)} 
-                            />
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label>Primary Text</Label>
-                            <Textarea 
-                                placeholder="Tell people what your ad is about..." 
-                                value={createMessage} 
+                        <Field label="Link URL">
+                            <Input
+                                type="url"
+                                placeholder="https://example.com"
+                                value={createLink}
+                                onChange={(e) => setCreateLink(e.target.value)}
+                            />
+                        </Field>
+
+                        <Field label="Primary Text">
+                            <Textarea
+                                placeholder="Tell people what your ad is about..."
+                                value={createMessage}
                                 onChange={(e) => setCreateMessage(e.target.value)}
                                 className="resize-none"
                                 rows={3}
                             />
-                        </div>
+                        </Field>
                     </div>
 
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                        <Button 
-                            onClick={handleCreateAd} 
+                        <Button
+                            variant="primary"
+                            loading={isCreating}
+                            onClick={handleCreateAd}
                             disabled={isCreating || !createName || !selectedPageId || !createMessage || !createLink}
                         >
                             {isCreating ? 'Creating...' : 'Create Ad'}
@@ -429,7 +460,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
+                        <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -12,7 +12,14 @@ async function BudgetListContainer() {
 
 export default function BudgetPage() {
   return (
-    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-4 p-8">
+          <Skeleton height={40} width="100%" radius="var(--st-radius)" />
+          <Skeleton height={400} width="100%" radius="var(--st-radius)" />
+        </div>
+      }
+    >
       <BudgetListContainer />
     </Suspense>
   );

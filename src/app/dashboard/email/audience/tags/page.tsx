@@ -1,5 +1,16 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Skeleton,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+} from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { TagsClient } from '@/components/email/audience/tags-client';
 import { Tag } from 'lucide-react';
@@ -11,7 +22,7 @@ function TagsSkeleton() {
         <PageHeading>
           <PageTitle>
             <span className="inline-flex items-center gap-3">
-              <Tag className="h-6 w-6" /> Tags
+              <Tag className="h-6 w-6" aria-hidden="true" /> Tags
             </span>
           </PageTitle>
           <PageDescription>
@@ -26,9 +37,9 @@ function TagsSkeleton() {
         </CardHeader>
         <CardBody>
           <div className="space-y-2">
-             <Skeleton className="h-10 w-full" />
-             <Skeleton className="h-10 w-full" />
-             <Skeleton className="h-10 w-full" />
+            <Skeleton width="100%" height={40} />
+            <Skeleton width="100%" height={40} />
+            <Skeleton width="100%" height={40} />
           </div>
         </CardBody>
       </Card>

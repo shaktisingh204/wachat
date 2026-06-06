@@ -1,15 +1,37 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
-  Wallet,
-  AlertCircle,
-  RefreshCw,
-  Copy,
-  Download,
-  CreditCard,
-  FileText,
-  Lock
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    IconButton,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    Progress,
+    Skeleton,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
+import {
+    Wallet,
+    RefreshCw,
+    Copy,
+    Download,
+    CreditCard,
+    FileText,
+    Lock,
 } from 'lucide-react';
 
 import * as React from 'react';
@@ -37,7 +59,7 @@ export default function BillingPage() {
         if (!activeAccount) return;
         setLoading(true);
         setPermissionError(null);
-        
+
         (async () => {
             try {
                 const [detailsRes, txRes] = await Promise.all([
@@ -60,7 +82,7 @@ export default function BillingPage() {
                     }
                     return null;
                 };
-                
+
                 const detailsPermError = checkPermError(detailsRes);
                 const txPermError = checkPermError(txRes);
 
@@ -104,7 +126,7 @@ export default function BillingPage() {
         }
 
         setDownloading(true);
-        toast({ title: 'Preparing ZIP', description: 'Fetching invoices, this may take a moment...' });
+        toast({ title: 'Preparing ZIP', description: 'Fetching invoices, this may take a moment.' });
 
         try {
             const zip = new JSZip();
@@ -145,10 +167,8 @@ export default function BillingPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Billing" />
-                <Alert className="bg-[var(--st-bg-secondary)]/50 border border-[var(--st-border)]">
-                    <AlertCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    <AlertTitle className="text-[var(--st-text)]">No ad account selected</AlertTitle>
-                    <AlertDescription className="text-[var(--st-text-secondary)]">Pick an ad account to view billing info.</AlertDescription>
+                <Alert tone="neutral" title="No ad account selected" className="mt-6">
+                    Pick an ad account to view billing info.
                 </Alert>
             </div>
         );
@@ -162,28 +182,29 @@ export default function BillingPage() {
                     title="Billing"
                     description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
                 />
-                <Card className="border border-[var(--st-border)]/20 bg-[var(--st-text)]/5 shadow-[var(--st-shadow-sm)]">
-                    <CardHeader className="pb-3 text-center flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 flex items-center justify-center mb-3">
-                            <Lock className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
-                        </div>
-                        <CardTitle className="text-xl text-[var(--st-text)]">Connect Billing Permissions</CardTitle>
+                <Card>
+                    <CardHeader className="flex flex-col items-center pb-3 text-center">
+                        <span
+                            className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
+                            aria-hidden="true"
+                        >
+                            <Lock className="h-6 w-6" />
+                        </span>
+                        <CardTitle className="text-xl">Connect Billing Permissions</CardTitle>
                     </CardHeader>
-                    <CardBody className="text-center space-y-4">
-                        <p className="text-[var(--st-text-secondary)] max-w-md mx-auto">
+                    <CardBody className="space-y-4 text-center">
+                        <p className="mx-auto max-w-md text-[var(--st-text-secondary)]">
                             We cannot access billing information for this account. Please reconnect your Meta account and make sure to explicitly grant <strong>Ads Management</strong> and <strong>Billing</strong> permissions.
                         </p>
-                        <div className="text-sm bg-[var(--st-bg-muted)] p-3 rounded-md text-[var(--st-text-secondary)] inline-block text-left break-words max-w-full">
+                        <div className="mx-auto inline-block max-w-full break-words rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3 text-left text-sm text-[var(--st-text-secondary)]">
                             <strong>Meta Error:</strong> {permissionError}
                         </div>
-                        <div className="pt-4 flex justify-center gap-3">
+                        <div className="flex justify-center gap-3 pt-4">
                             <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)}>
                                 Try Again
                             </Button>
                             <Link href="/dashboard/settings/integrations">
-                                <Button>
-                                    Go to Integrations
-                                </Button>
+                                <Button variant="primary">Go to Integrations</Button>
                             </Link>
                         </div>
                     </CardBody>
@@ -195,53 +216,52 @@ export default function BillingPage() {
     return (
         <div className="space-y-6">
             <AmBreadcrumb page="Billing" />
-            <AmHeader
-                title={
-                    <div className="flex items-center gap-3">
-                        Billing
-                        {details?.account_status && details.account_status !== 1 && (
-                            <Badge variant="destructive" className="ml-2 text-xs">Account Disabled</Badge>
-                        )}
-                        {details?.min_daily_budget && (
-                            <Badge variant="outline" className="ml-2 text-xs">Min Budget Applies</Badge>
-                        )}
-                    </div>
-                }
-                description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                navigator.clipboard.writeText(activeAccount.account_id);
-                                toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
-                            }}
-                            className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                        >
-                            <Copy className="h-3.5 w-3.5 mr-1" /> Copy Account ID
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setRefreshKey((k) => k + 1)}
-                            className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        </Button>
-                    </div>
-                }
-            />
+            <PageHeader className="mt-5">
+                <PageHeading>
+                    <PageTitle>
+                        <span className="flex items-center gap-3">
+                            Billing
+                            {details?.account_status && details.account_status !== 1 && (
+                                <Badge tone="danger" className="ml-2 text-xs">Account Disabled</Badge>
+                            )}
+                            {details?.min_daily_budget && (
+                                <Badge variant="outline" className="ml-2 text-xs">Min Budget Applies</Badge>
+                            )}
+                        </span>
+                    </PageTitle>
+                    <PageDescription>{`Payment methods, spend and account balance for ${activeAccount.name}.`}</PageDescription>
+                </PageHeading>
+                <PageActions>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        iconLeft={Copy}
+                        onClick={() => {
+                            navigator.clipboard.writeText(activeAccount.account_id);
+                            toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
+                        }}
+                    >
+                        Copy Account ID
+                    </Button>
+                    <IconButton
+                        variant="outline"
+                        label="Refresh billing data"
+                        icon={RefreshCw}
+                        onClick={() => setRefreshKey((k) => k + 1)}
+                        className={loading ? '[&_svg]:animate-spin' : undefined}
+                    />
+                </PageActions>
+            </PageHeader>
 
-            <div className="grid md:grid-cols-3 gap-3">
+            <div className="grid gap-3 md:grid-cols-3">
                 {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28" />)
+                    Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} height={112} />)
                 ) : (
                     <>
-                        <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                        <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
-                                    <Wallet className="h-4 w-4" /> Amount spent
+                                <CardTitle className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                                    <Wallet className="h-4 w-4" aria-hidden="true" /> Amount spent
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -250,10 +270,10 @@ export default function BillingPage() {
                                 </div>
                             </CardBody>
                         </Card>
-                        <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                        <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
-                                    <Wallet className="h-4 w-4" /> Balance
+                                <CardTitle className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                                    <Wallet className="h-4 w-4" aria-hidden="true" /> Balance
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -262,10 +282,10 @@ export default function BillingPage() {
                                 </div>
                             </CardBody>
                         </Card>
-                        <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                        <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
-                                    <Wallet className="h-4 w-4" /> Spending limit
+                                <CardTitle className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                                    <Wallet className="h-4 w-4" aria-hidden="true" /> Spending limit
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -276,7 +296,7 @@ export default function BillingPage() {
                                 </div>
                             </CardBody>
                         </Card>
-                        <Card className="md:col-span-3 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                        <Card className="md:col-span-3">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-sm text-[var(--st-text-secondary)]">Spending limit progress</CardTitle>
                             </CardHeader>
@@ -287,7 +307,11 @@ export default function BillingPage() {
                                             <span className="text-[var(--st-text)]">{formatMoney((Number(details.amount_spent) || 0) / 100, details.currency)} spent</span>
                                             <span className="text-[var(--st-text-secondary)]">{formatMoney(Number(details.spend_cap) / 100, details.currency)} limit</span>
                                         </div>
-                                        <Progress value={Math.min(100, ((Number(details.amount_spent) || 0) / Number(details.spend_cap)) * 100)} className="h-2" />
+                                        <Progress
+                                            value={Math.min(100, ((Number(details.amount_spent) || 0) / Number(details.spend_cap)) * 100)}
+                                            aria-label="Spending limit progress"
+                                            size="sm"
+                                        />
                                     </div>
                                 ) : (
                                     <div className="text-sm text-[var(--st-text-secondary)]">No spending limit set for this account.</div>
@@ -298,19 +322,19 @@ export default function BillingPage() {
                 )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+            <div className="grid gap-6 md:grid-cols-2">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Account details
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" /> Account details
                         </CardTitle>
                     </CardHeader>
                     <CardBody className="space-y-2 text-sm">
-                        {loading ? <Skeleton className="h-32" /> : (
+                        {loading ? <Skeleton height={128} /> : (
                             <>
                                 <Row label="Account ID" value={details?.account_id} />
                                 <Row label="Account status" value={
-                                    <Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">{details?.account_status === 1 ? 'Active' : 'Disabled'}</Badge>
+                                    <Badge variant="outline">{details?.account_status === 1 ? 'Active' : 'Disabled'}</Badge>
                                 } />
                                 <Row label="Currency" value={details?.currency} />
                                 <Row label="Timezone" value={details?.timezone_name} />
@@ -321,33 +345,35 @@ export default function BillingPage() {
                     </CardBody>
                 </Card>
 
-                <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" /> Payment Methods
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" /> Payment Methods
                         </CardTitle>
                     </CardHeader>
                     <CardBody className="text-sm">
-                        {loading ? <Skeleton className="h-32" /> : (
+                        {loading ? <Skeleton height={128} /> : (
                             <div className="space-y-3">
                                 {details?.funding_source_details ? (
-                                    <div className="p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)] flex items-center justify-between">
+                                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-10 w-14 bg-[var(--st-bg-muted)] rounded flex items-center justify-center border border-[var(--st-border)]">
+                                            <span className="flex h-10 w-14 items-center justify-center rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]" aria-hidden="true">
                                                 <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                                            </div>
+                                            </span>
                                             <div>
                                                 <div className="font-medium text-[var(--st-text)]">{details.funding_source_details.display_string || 'Primary Payment Method'}</div>
-                                                <div className="text-xs text-[var(--st-text-secondary)] capitalize">
+                                                <div className="text-xs capitalize text-[var(--st-text-secondary)]">
                                                     {details.funding_source_details.type === '1' ? 'Credit Card' : details.funding_source_details.type === '2' ? 'PayPal' : 'Payment Method'}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-6 text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-md">
-                                        No payment methods found.
-                                    </div>
+                                    <EmptyState
+                                        icon={CreditCard}
+                                        size="sm"
+                                        title="No payment methods found"
+                                    />
                                 )}
                             </div>
                         )}
@@ -355,32 +381,33 @@ export default function BillingPage() {
                 </Card>
             </div>
 
-            <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Invoice History
+                    <CardTitle className="flex items-center gap-2 text-base">
+                        <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" /> Invoice History
                     </CardTitle>
-                    <Button 
-                        size="sm" 
-                        onClick={handleDownloadAllInvoices} 
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        iconLeft={Download}
+                        onClick={handleDownloadAllInvoices}
                         disabled={loading || downloading || transactions.length === 0}
                     >
-                        <Download className="h-4 w-4 mr-2" /> 
                         {downloading ? 'Zipping...' : 'Download All (.zip)'}
                     </Button>
                 </CardHeader>
                 <CardBody>
-                    {loading ? <Skeleton className="h-48" /> : (
+                    {loading ? <Skeleton height={192} /> : (
                         transactions.length > 0 ? (
-                            <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
+                            <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                                 <Table>
-                                    <THead className="bg-[var(--st-bg-muted)]">
+                                    <THead>
                                         <Tr>
                                             <Th>Date</Th>
                                             <Th>Transaction ID</Th>
                                             <Th>Status</Th>
-                                            <Th className="text-right">Amount</Th>
-                                            <Th className="w-[100px]"></Th>
+                                            <Th align="right">Amount</Th>
+                                            <Th width={100}><span className="sr-only">Invoice</span></Th>
                                         </Tr>
                                     </THead>
                                     <TBody>
@@ -393,21 +420,26 @@ export default function BillingPage() {
                                                     {tx.id}
                                                 </Td>
                                                 <Td>
-                                                    <Badge variant={tx.status === 'completed' ? 'default' : 'outline'} className="capitalize">
+                                                    <Badge tone={tx.status === 'completed' ? 'success' : 'neutral'} variant={tx.status === 'completed' ? undefined : 'outline'} className="capitalize">
                                                         {tx.status || 'Unknown'}
                                                     </Badge>
                                                 </Td>
-                                                <Td className="text-right font-medium">
-                                                    {tx.app_amount && tx.currency 
+                                                <Td align="right" className="font-medium">
+                                                    {tx.app_amount && tx.currency
                                                         ? formatMoney(Number(tx.app_amount.amount || tx.app_amount) / 100, tx.currency)
-                                                        : '—'}
+                                                        : '-'}
                                                 </Td>
-                                                <Td className="text-right">
+                                                <Td align="right">
                                                     {tx.download_invoice_uri ? (
-                                                        <a href={tx.download_invoice_uri} target="_blank" rel="noreferrer" title="Download PDF">
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                                <Download className="h-4 w-4" />
-                                                            </Button>
+                                                        <a
+                                                            href={tx.download_invoice_uri}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            aria-label="Download invoice PDF"
+                                                            title="Download invoice PDF"
+                                                            className="u-btn u-icon-btn u-btn--ghost u-icon-btn--sm"
+                                                        >
+                                                            <Download className="h-4 w-4" aria-hidden="true" />
                                                         </a>
                                                     ) : null}
                                                 </Td>
@@ -417,10 +449,10 @@ export default function BillingPage() {
                                 </Table>
                             </div>
                         ) : (
-                            <div className="text-center py-12 text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-md">
-                                <FileText className="h-8 w-8 mx-auto mb-3 text-[var(--st-border)]" />
-                                <p>No invoice history available.</p>
-                            </div>
+                            <EmptyState
+                                icon={FileText}
+                                title="No invoice history available"
+                            />
                         )
                     )}
                 </CardBody>
@@ -431,9 +463,9 @@ export default function BillingPage() {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="flex justify-between py-1.5 border-b border-[var(--st-border)] last:border-0">
+        <div className="flex justify-between border-b border-[var(--st-border)] py-1.5 last:border-0">
             <span className="text-[var(--st-text-secondary)]">{label}</span>
-            <span className="font-medium text-[var(--st-text)]">{value || '—'}</span>
+            <span className="font-medium text-[var(--st-text)]">{value || '-'}</span>
         </div>
     );
 }

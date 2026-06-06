@@ -29,14 +29,14 @@ function JourneyDetailSkeleton() {
         <Skeleton className="h-8 w-24" />
       </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-         <Card className="p-6 h-[600px]">
-            <div className="flex flex-col items-center gap-4">
-               <Skeleton className="h-16 w-64 rounded-xl" />
-               <div className="h-8 w-px bg-border" />
-               <Skeleton className="h-16 w-64 rounded-xl" />
-            </div>
-         </Card>
-         <Card className="p-6 h-[600px]" />
+        <Card padding="none" className="p-6 h-[600px]">
+          <div className="flex flex-col items-center gap-4">
+            <Skeleton className="h-16 w-64 rounded-xl" />
+            <div className="h-8 w-px bg-[var(--st-border)]" />
+            <Skeleton className="h-16 w-64 rounded-xl" />
+          </div>
+        </Card>
+        <Card padding="none" className="p-6 h-[600px]" />
       </div>
     </div>
   );

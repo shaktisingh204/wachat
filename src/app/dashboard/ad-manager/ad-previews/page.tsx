@@ -1,9 +1,21 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Badge, Skeleton, Dialog, DialogContent, DialogTrigger } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Skeleton,
+  EmptyState,
+  SegmentedControl,
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  useToast } from '@/components/sabcrm/20ui';
 import {
   Image as ImageIcon,
-  CircleAlert,
   RefreshCw,
   ExternalLink } from 'lucide-react';
 
@@ -11,7 +23,6 @@ import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader, AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { getAdPreviews } from '@/app/actions/ad-manager-features.actions';
 
 type Ad = {
@@ -28,12 +39,20 @@ type Ad = {
     };
 };
 
+type StatusFilter = 'ALL' | 'ACTIVE' | 'PAUSED';
+
+const FILTER_ITEMS: ReadonlyArray<{ value: StatusFilter; label: string }> = [
+    { value: 'ALL', label: 'All' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'PAUSED', label: 'Paused' },
+];
+
 export default function AdPreviewsPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
     const [loading, setLoading] = React.useState(true);
     const [ads, setAds] = React.useState<Ad[]>([]);
-    const [filter, setFilter] = React.useState<'ALL' | 'ACTIVE' | 'PAUSED'>('ALL');
+    const [filter, setFilter] = React.useState<StatusFilter>('ALL');
 
     const fetchData = React.useCallback(async () => {
         if (!activeAccount) return;
@@ -41,7 +60,7 @@ export default function AdPreviewsPage() {
         const actId = activeAccount.id;
         const res = await getAdPreviews(actId);
         if (res.error) {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Error', description: res.error });
             setAds([]);
         } else {
             setAds(res.ads || []);
@@ -69,64 +88,77 @@ export default function AdPreviewsPage() {
                 title="Ad preview gallery"
                 description="Browse your ad creatives and preview copy."
                 actions={
-                    <Button variant="outline" onClick={fetchData} disabled={loading}>
-                        <RefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
+                    <Button
+                        variant="outline"
+                        onClick={fetchData}
+                        loading={loading}
+                        iconLeft={RefreshCw}
+                    >
+                        Refresh
                     </Button>
                 }
             />
 
-            <div className="flex gap-2">
-                {(['ALL', 'ACTIVE', 'PAUSED'] as const).map((s) => (
-                    <Button
-                        key={s}
-                        variant={filter === s ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter(s)}
-                    >
-                        {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
-                    </Button>
-                ))}
-            </div>
+            <SegmentedControl
+                aria-label="Filter ads by status"
+                items={FILTER_ITEMS}
+                value={filter}
+                onChange={setFilter}
+                size="sm"
+            />
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
+                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} height={256} />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <Card><CardBody className="p-8 text-center text-[var(--st-text-secondary)]">No ads found.</CardBody></Card>
+                <Card padding="none">
+                    <CardBody>
+                        <EmptyState
+                            icon={ImageIcon}
+                            title="No ads found"
+                            description="No ad creatives match this filter yet."
+                        />
+                    </CardBody>
+                </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
                         const img = ad.creative?.thumbnail_url || ad.creative?.image_url;
                         return (
-                            <Card key={ad.id} className="overflow-hidden">
+                            <Card key={ad.id} padding="none" className="overflow-hidden">
                                 {img ? (
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <div className="h-40 bg-[var(--st-bg-muted)] overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                                            <button
+                                                type="button"
+                                                aria-label={`Enlarge preview for ${ad.name}`}
+                                                className="block h-40 w-full bg-[var(--st-bg-secondary)] overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                            >
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={img} alt={ad.name} className="w-full h-full object-cover" />
-                                            </div>
+                                            </button>
                                         </DialogTrigger>
-                                        <DialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center bg-black/95 border-none shadow-2xl [&>button]:text-white [&>button:hover]:text-white [&>button:hover]:bg-white/20">
+                                        <DialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={img} alt={ad.name} className="w-full h-full object-contain" />
                                         </DialogContent>
                                     </Dialog>
                                 ) : (
-                                    <div className="h-40 bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-text-secondary)]">
-                                        <ImageIcon className="h-10 w-10" />
+                                    <div className="h-40 bg-[var(--st-bg-secondary)] flex items-center justify-center text-[var(--st-text-secondary)]">
+                                        <ImageIcon className="h-10 w-10" aria-hidden="true" />
                                     </div>
                                 )}
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm font-medium flex items-center justify-between">
-                                        <span className="truncate mr-2">{ad.name}</span>
-                                        <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                                    <CardTitle className="text-sm font-medium flex items-center justify-between gap-2">
+                                        <span className="truncate">{ad.name}</span>
+                                        <Badge tone={ad.status === 'ACTIVE' ? 'success' : 'neutral'}>
                                             {ad.status}
                                         </Badge>
                                     </CardTitle>
                                 </CardHeader>
                                 <CardBody className="space-y-1 text-sm">
-                                    {ad.creative?.title && <p className="font-medium">{ad.creative.title}</p>}
+                                    {ad.creative?.title && <p className="font-medium text-[var(--st-text)]">{ad.creative.title}</p>}
                                     {ad.creative?.body && (
                                         <p className="text-[var(--st-text-secondary)] text-xs line-clamp-3">{ad.creative.body}</p>
                                     )}
@@ -134,9 +166,9 @@ export default function AdPreviewsPage() {
                                         href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs text-[var(--st-text)] hover:underline mt-2"
+                                        className="inline-flex items-center gap-1 text-xs text-[var(--st-accent)] hover:underline mt-2"
                                     >
-                                        View on Facebook <ExternalLink className="h-3 w-3" />
+                                        View on Facebook <ExternalLink className="h-3 w-3" aria-hidden="true" />
                                     </a>
                                 </CardBody>
                             </Card>

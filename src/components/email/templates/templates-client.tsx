@@ -1,15 +1,27 @@
 'use client';
 
 /**
- * `Your templates` + `Library` page client. Segmented button switches
- * between the two sections (per the no-tab-UI directive). New-template
- * action creates a draft and routes into the builder.
+ * "Your templates" + "Library" page client. A SegmentedControl switches between
+ * the two sections (per the no-tab-UI directive). The new-template action
+ * creates a draft and routes into the builder. Pure 20ui.
  */
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Library, Plus, SquarePen } from 'lucide-react';
 
-import { Button, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Skeleton, cn, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  SegmentedControl,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailTemplate,
   actionDeleteEmailTemplate,
@@ -25,6 +37,7 @@ type Section = 'mine' | 'library';
 
 export function TemplatesClient() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [section, setSection] = useState<Section>('mine');
   const [mine, setMine] = useState<EmailTemplateDoc[] | null>(null);
@@ -64,7 +77,7 @@ export function TemplatesClient() {
       if (res.ok) {
         router.push(`/dashboard/email/templates/${res.data._id}/builder`);
       } else {
-        toast({ title: 'Could not create template', description: res.error, variant: 'destructive' });
+        toast.error({ title: 'Could not create template', description: res.error });
       }
     });
   };
@@ -72,10 +85,10 @@ export function TemplatesClient() {
   const handleDelete = async (t: EmailTemplateDoc) => {
     const res = await actionDeleteEmailTemplate(t._id);
     if (res.ok) {
-      toast({ title: 'Template deleted' });
+      toast.success('Template deleted');
       reloadMine();
     } else {
-      toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+      toast.error({ title: 'Delete failed', description: res.error });
     }
   };
 
@@ -93,25 +106,39 @@ export function TemplatesClient() {
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button type="button" onClick={handleCreate} disabled={createPending}>
-            <Plus /> {createPending ? 'Creating…' : 'New template'}
+          <Button
+            type="button"
+            iconLeft={Plus}
+            onClick={handleCreate}
+            loading={createPending}
+          >
+            {createPending ? 'Creating' : 'New template'}
           </Button>
         </PageActions>
       </PageHeader>
 
-      <SegmentedButton
+      <SegmentedControl<Section>
+        aria-label="Section"
         value={section}
         onChange={setSection}
-        options={[
-          { value: 'mine',    label: 'Your templates', icon: SquarePen, count: mine?.length },
-          { value: 'library', label: 'Library',        icon: Library,   count: library?.length },
+        items={[
+          {
+            value: 'mine',
+            icon: SquarePen,
+            label: <SectionLabel text="Your templates" count={mine?.length} />,
+          },
+          {
+            value: 'library',
+            icon: Library,
+            label: <SectionLabel text="Library" count={library?.length} />,
+          },
         ]}
       />
 
       {loadError ? (
-        <p className="rounded border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 p-3 text-sm text-[var(--st-danger)]">
-          Failed to load: {loadError}
-        </p>
+        <Alert tone="danger" title="Failed to load templates">
+          {loadError}
+        </Alert>
       ) : null}
 
       {section === 'mine' ? (
@@ -122,8 +149,13 @@ export function TemplatesClient() {
             templates={mine}
             onDelete={handleDelete}
             emptyCta={
-              <Button type="button" onClick={handleCreate} disabled={createPending}>
-                <Plus /> New template
+              <Button
+                type="button"
+                iconLeft={Plus}
+                onClick={handleCreate}
+                loading={createPending}
+              >
+                New template
               </Button>
             }
           />
@@ -137,61 +169,17 @@ export function TemplatesClient() {
   );
 }
 
-/* ────────── Segmented button (no tabs primitive per directive) ────────── */
-
-interface SegOption<V extends string> {
-  value: V;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  count?: number;
-}
-
-function SegmentedButton<V extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: V;
-  onChange: (v: V) => void;
-  options: SegOption<V>[];
-}) {
+/** Segment label with an optional count badge folded in (SegmentedControl has no native count slot). */
+function SectionLabel({ text, count }: { text: string; count?: number }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="Section"
-      className="inline-flex overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
-    >
-      {options.map((opt) => {
-        const Icon = opt.icon;
-        const active = opt.value === value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(opt.value)}
-            className={cn(
-              'inline-flex items-center gap-2 px-4 py-2 text-sm transition-colors',
-              active
-                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-                : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
-            )}
-          >
-            <Icon className="h-4 w-4" />
-            {opt.label}
-            {typeof opt.count === 'number' ? (
-              <span className={cn(
-                'rounded-full px-1.5 py-0.5 text-xs',
-                active ? 'bg-white/20' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
-              )}>
-                {opt.count}
-              </span>
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
+    <span className="inline-flex items-center gap-2">
+      {text}
+      {typeof count === 'number' ? (
+        <Badge tone="neutral" kind="soft">
+          {count}
+        </Badge>
+      ) : null}
+    </span>
   );
 }
 

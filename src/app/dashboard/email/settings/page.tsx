@@ -1,14 +1,37 @@
 'use client';
 
-import { Alert, AlertTitle, AlertDescription, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input, Label, Textarea, Switch, Badge, Skeleton, Separator, PageHeader, PageHeading, PageTitle, PageDescription, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  Button,
+  Field,
+  Textarea,
+  Switch,
+  Badge,
+  Skeleton,
+  Separator,
+  EmptyState,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useEffect,
-  useState } from 'react';
+  useState,
+  useActionState,
+  type ComponentType } from 'react';
 import { useSearchParams,
   useRouter } from "next/navigation";
 import { CrmSmtpForm } from '@/components/zoruui-domain/crm-smtp-form';
-// Link imported below
 import { AlertCircle,
   Mail,
   FileText,
@@ -20,7 +43,6 @@ import { AlertCircle,
   ArrowLeft,
   Trash2,
   CheckCircle,
-  LoaderCircle,
   Save } from 'lucide-react';
 import { getEmailSettings,
   saveEmailComplianceSettings,
@@ -31,21 +53,19 @@ import type { EmailSettings as CrmEmailSettings,
   WithId } from '@/lib/definitions';
 import { GoogleIcon,
   OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
-import Link from "next/link";
 import { ModuleLayout } from '@/components/zoruui-domain/module-layout';
 import { ModuleSidebar } from '@/components/zoruui-domain/module-sidebar';
 import { CodeBlock } from '@/components/zoruui-domain/code-block';
-import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { EmailSuiteLayout } from '@/components/email/layout';
 
 function PageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-4 w-96" />
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-48 w-full" />
+            <Skeleton height={40} width={256} />
+            <Skeleton height={16} width={384} />
+            <Skeleton height={256} width="100%" />
+            <Skeleton height={192} width="100%" />
         </div>
     );
 }
@@ -58,33 +78,37 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
     const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (state.message) toast({ title: 'Success', description: state.message });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        if (state.message) toast.success(state.message);
+        if (state.error) toast.error(state.error);
     }, [state, toast]);
 
     const compliance = user.emailSettings?.compliance || { unsubscribeLink: true, physicalAddress: '' };
 
     return (
         <form action={formAction}>
-            <Card className="p-0">
+            <Card padding="none">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance & Unsubscribe</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance and Unsubscribe</CardTitle>
                     <CardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</CardDescription>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                    <div className="flex items-center space-x-2 rounded-lg border border-[var(--st-border)] p-4">
-                        <Switch id="unsubscribeLink" name="unsubscribeLink" defaultChecked={compliance.unsubscribeLink} />
-                        <Label htmlFor="unsubscribeLink">Automatically include an unsubscribe link in email footers.</Label>
+                    <div className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
+                        <Switch
+                            id="unsubscribeLink"
+                            name="unsubscribeLink"
+                            defaultChecked={compliance.unsubscribeLink}
+                            label="Automatically include an unsubscribe link in email footers."
+                        />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="physicalAddress">Physical Mailing Address</Label>
-                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
-                        <p className="text-xs text-[var(--st-text-secondary)]">Required by CAN-SPAM for all commercial emails.</p>
-                    </div>
+                    <Field
+                        label="Physical Mailing Address"
+                        help="Required by CAN-SPAM for all commercial emails."
+                    >
+                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g. 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
+                    </Field>
                 </CardBody>
                 <CardFooter>
-                    <Button type="submit" disabled={pending}>
-                        {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    <Button type="submit" variant="primary" loading={pending} iconLeft={Save}>
                         Save Compliance Settings
                     </Button>
                 </CardFooter>
@@ -109,10 +133,10 @@ function DeliverabilityTab() {
     };
 
     return (
-        <Card className="p-0">
+        <Card padding="none">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Domain Authentication</CardTitle>
-                <CardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain's DNS settings.</CardDescription>
+                <CardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain&apos;s DNS settings.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-6">
                 <div>
@@ -127,12 +151,8 @@ function DeliverabilityTab() {
                     <CodeBlock language="text" code={`Type: ${spfRecord.type}\nHost: ${spfRecord.host}\nValue: ${spfRecord.value}`} />
                     <p className="text-xs text-[var(--st-text-secondary)] mt-2">If you already have an SPF record, add `include:sabnode.com` to it.</p>
                 </div>
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Note</AlertTitle>
-                    <AlertDescription>
-                        DNS changes can take up to 48 hours to propagate. These values are placeholders; your specific records will be provided upon domain verification.
-                    </AlertDescription>
+                <Alert tone="info" title="Note">
+                    DNS changes can take up to 48 hours to propagate. These values are placeholders; your specific records will be provided upon domain verification.
                 </Alert>
             </CardBody>
         </Card>
@@ -145,23 +165,21 @@ function IntegrationsTab({ userId }: { userId: string }) {
 
     return (
         <div className="space-y-6">
-            <Card className="p-0">
+            <Card padding="none">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API & Webhooks</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API and Webhooks</CardTitle>
                     <CardDescription>Programmatically interact with your email data.</CardDescription>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                    <div className="space-y-2">
-                        <Label>API Key</Label>
+                    <Field label="API Key">
                         <CodeBlock code={apiKey} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Webhook URL for Incoming Events</Label>
+                    </Field>
+                    <Field label="Webhook URL for Incoming Events">
                         <CodeBlock code={webhookUrl} />
-                    </div>
+                    </Field>
                 </CardBody>
             </Card>
-            <Card className="p-0">
+            <Card padding="none">
                 <CardHeader>
                     <CardTitle>CRM Sync</CardTitle>
                     <CardDescription>Sync contacts and activities with your favorite CRM.</CardDescription>
@@ -174,9 +192,18 @@ function IntegrationsTab({ userId }: { userId: string }) {
     )
 }
 
-function OnboardingCard({ title, description, icon: Icon, href, features }: any) {
+interface OnboardingCardProps {
+    title: string;
+    description: string;
+    icon: ComponentType<{ className?: string }>;
+    href?: string;
+    features: string[];
+}
+
+function OnboardingCard({ title, description, icon: Icon, href, features }: OnboardingCardProps) {
+    const router = useRouter();
     return (
-        <Card className="p-0 hover:border-[var(--st-border)] transition-colors cursor-pointer group relative overflow-hidden h-full flex flex-col">
+        <Card variant="interactive" padding="none" className="h-full flex flex-col">
             <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                     <Icon className="h-6 w-6" />
@@ -186,9 +213,9 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: any)
             </CardHeader>
             <CardBody className="flex-grow">
                 <ul className="text-sm text-[var(--st-text-secondary)] space-y-2 mb-6">
-                    {features.map((feature: string, i: number) => (
+                    {features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2">
-                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)] mt-1.5 shrink-0" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)] mt-1.5 shrink-0" aria-hidden="true" />
                             <span>{feature}</span>
                         </li>
                     ))}
@@ -196,8 +223,12 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: any)
             </CardBody>
             <CardFooter>
                 {href ? (
-                    <Button asChild className="w-full">
-                        <Link href={href}>{title === 'Custom SMTP' ? 'Configure SMTP' : `Connect ${title}`}</Link>
+                    <Button
+                        variant="primary"
+                        block
+                        onClick={() => { window.location.assign(href); }}
+                    >
+                        {title === 'Custom SMTP' ? 'Configure SMTP' : `Connect ${title}`}
                     </Button>
                 ) : (
                     <div className="w-full mt-4">
@@ -247,10 +278,8 @@ function EmailSettingsPageContent() {
 
     if (!user) {
         return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Not Logged In</AlertTitle>
-                <AlertDescription>Please log in to manage email settings.</AlertDescription>
+            <Alert tone="danger" title="Not Logged In">
+                Please log in to manage email settings.
             </Alert>
         );
     }
@@ -258,37 +287,35 @@ function EmailSettingsPageContent() {
     if (view === 'list') {
         return (
             <div className="space-y-8">
-                <div className="flex items-center justify-between">
-                    <PageHeader>
-                        <PageHeading>
-                            <PageTitle>
-                                <span className="inline-flex items-center gap-3">
-                                    <Mail className="h-7 w-7" /> Email Suite
-                                </span>
-                            </PageTitle>
-                            <PageDescription>Manage your connected email accounts.</PageDescription>
-                        </PageHeading>
-                    </PageHeader>
-                    <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
-                        <Plus className="h-4 w-4" /> Connect New Account
-                    </Button>
-                </div>
+                <PageHeader>
+                    <PageHeading>
+                        <PageTitle>
+                            <span className="inline-flex items-center gap-3">
+                                <Mail className="h-7 w-7" /> Email Suite
+                            </span>
+                        </PageTitle>
+                        <PageDescription>Manage your connected email accounts.</PageDescription>
+                    </PageHeading>
+                    <PageActions>
+                        <Button variant="primary" iconLeft={Plus} onClick={() => router.push('/dashboard/email/settings?view=connect')}>
+                            Connect New Account
+                        </Button>
+                    </PageActions>
+                </PageHeader>
 
                 {allSettings.length === 0 ? (
-                    <Card className="p-0">
-                        <CardBody className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-                            <div className="bg-[var(--st-bg-muted)] p-4 rounded-full">
-                                <Mail className="h-10 w-10 text-[var(--st-text)]" />
-                            </div>
-                            <div className="space-y-1">
-                                <h2 className="text-xl text-[var(--st-text)]">No email accounts yet</h2>
-                                <p className="text-sm text-[var(--st-text-secondary)] max-w-md">
-                                    Connect a Gmail, Outlook, or custom SMTP account to start sending campaigns and syncing conversations.
-                                </p>
-                            </div>
-                            <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
-                                <Plus className="h-4 w-4" /> Connect Your First Account
-                            </Button>
+                    <Card padding="none">
+                        <CardBody className="py-16">
+                            <EmptyState
+                                icon={Mail}
+                                title="No email accounts yet"
+                                description="Connect a Gmail, Outlook, or custom SMTP account to start sending campaigns and syncing conversations."
+                                action={
+                                    <Button variant="primary" iconLeft={Plus} onClick={() => router.push('/dashboard/email/settings?view=connect')}>
+                                        Connect Your First Account
+                                    </Button>
+                                }
+                            />
                         </CardBody>
                     </Card>
                 ) : (
@@ -296,21 +323,21 @@ function EmailSettingsPageContent() {
                     {allSettings.map((account) => {
                         const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
                         return (
-                            <Card key={account._id.toString()} className="p-0 group hover:border-[var(--st-border)] transition-all cursor-pointer" onClick={() => {
+                            <Card key={account._id.toString()} variant="interactive" padding="none" onClick={() => {
                                 router.push(`/dashboard/email/settings?view=manage&accountId=${account._id.toString()}`);
                             }}>
                                 <CardHeader>
                                     <div className="flex justify-between items-start">
-                                        <div className="p-3 bg-[var(--st-bg-muted)] rounded-full transition-colors">
-                                            <Icon className="h-6 w-6 text-[var(--st-text)] transition-colors" />
-                                        </div>
-                                        <Badge variant="success"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
+                                        <span className="p-3 bg-[var(--st-bg-secondary)] rounded-full" aria-hidden="true">
+                                            <Icon className="h-6 w-6 text-[var(--st-text)]" />
+                                        </span>
+                                        <Badge tone="success" className="inline-flex items-center"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
                                     </div>
                                     <CardTitle className="pt-4 truncate">{account.fromName || 'Unnamed Account'}</CardTitle>
                                     <CardDescription className="truncate">{account.fromEmail}</CardDescription>
                                 </CardHeader>
                                 <CardFooter>
-                                    <Button variant="outline" className="w-full">Manage Settings</Button>
+                                    <Button variant="outline" block>Manage Settings</Button>
                                 </CardFooter>
                             </Card>
                         )
@@ -326,15 +353,15 @@ function EmailSettingsPageContent() {
             <EmailSuiteLayout>
                 <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
                     <div className="w-full flex justify-start">
-                        <Button variant="ghost" onClick={() => router.push('/dashboard/email')}>
-                            <ArrowLeft className="h-4 w-4" /> Back to Accounts
+                        <Button variant="ghost" iconLeft={ArrowLeft} onClick={() => router.push('/dashboard/email')}>
+                            Back to Accounts
                         </Button>
                     </div>
 
                     <div className="text-center space-y-4 max-w-2xl">
-                        <div className="bg-[var(--st-bg-muted)] p-4 rounded-full w-fit mx-auto">
-                            <Mail className="h-12 w-12 text-[var(--st-text)]" />
-                        </div>
+                        <span className="bg-[var(--st-bg-secondary)] p-4 rounded-full w-fit mx-auto block" aria-hidden="true">
+                            <Mail className="h-12 w-12 text-[var(--st-text)] mx-auto" />
+                        </span>
                         <h1 className="text-3xl text-[var(--st-text)]">Connect Your Email</h1>
                         <p className="text-lg text-[var(--st-text-secondary)]">
                             Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
@@ -348,19 +375,19 @@ function EmailSettingsPageContent() {
                                 description="Best for Google Workspace users."
                                 icon={GoogleIcon}
                                 href="/api/crm/auth/google/connect"
-                                features={["One-click secure OAuth", "Sync emails & threads", "Import Google Contacts"]}
+                                features={["One-click secure OAuth", "Sync emails and threads", "Import Google Contacts"]}
                             />
                             <OnboardingCard
                                 title="Outlook"
-                                description="For Microsoft 365 & Outlook."
+                                description="For Microsoft 365 and Outlook."
                                 icon={OutlookIcon}
                                 href="/api/crm/auth/outlook/connect"
                                 features={["Enterprise grade security", "Seamless integration", "Calendar sync ready"]}
                             />
                         </div>
-                        <div className="w-full">
-                            <div className="h-full border border-[var(--st-border)] rounded-lg p-6 flex flex-col justify-center gap-4 bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm">
-                                <div className="flex items-center gap-3 mb-2">
+                        <Card padding="lg">
+                            <div className="flex flex-col justify-center gap-4">
+                                <div className="flex items-center gap-3 mb-2 text-[var(--st-text)]">
                                     <Mail className="h-6 w-6" /> Custom SMTP
                                 </div>
                                 <p className="text-sm text-[var(--st-text-secondary)] mb-4">Connect any email provider via SMTP/IMAP credentials.</p>
@@ -368,7 +395,7 @@ function EmailSettingsPageContent() {
                                     <CrmSmtpForm settings={null} />
                                 </div>
                             </div>
-                        </div>
+                        </Card>
                     </div>
                 </div>
             </EmailSuiteLayout>
@@ -377,7 +404,11 @@ function EmailSettingsPageContent() {
 
     const currentSettings = allSettings.find(s => s._id.toString() === activeSettingsId);
     if (!currentSettings && activeSettingsId) {
-        return <EmailSuiteLayout><div className="p-4">Account not found.</div></EmailSuiteLayout>;
+        return (
+            <EmailSuiteLayout>
+                <EmptyState icon={AlertCircle} title="Account not found." />
+            </EmailSuiteLayout>
+        );
     }
 
     if (!currentSettings) {
@@ -388,10 +419,10 @@ function EmailSettingsPageContent() {
         <EmailSuiteLayout>
             <div className="flex flex-col gap-8 h-full">
                 <div className="flex items-center gap-4 mb-2">
-                    <Button variant="ghost" size="sm" onClick={() => {
+                    <Button variant="ghost" size="sm" iconLeft={ArrowLeft} onClick={() => {
                         router.push('/dashboard/email');
                     }}>
-                        <ArrowLeft className="h-4 w-4" /> Back
+                        Back
                     </Button>
                     <span className="text-[var(--st-text-secondary)]">/</span>
                     <span className="text-[var(--st-text)]">{currentSettings?.fromEmail}</span>
@@ -415,34 +446,33 @@ function EmailSettingsPageContent() {
                 >
                     {activeTab === 'email' && currentSettings && (
                         <div className="space-y-6">
-                            <Card className="p-0">
+                            <Card padding="none">
                                 <CardHeader>
                                     <CardTitle className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
+                                        <span className="flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" aria-hidden="true" />
                                             Connected via <span className="capitalize">{currentSettings.provider}</span>
-                                        </div>
-                                        <Badge variant="ghost">{currentSettings.fromEmail}</Badge>
+                                        </span>
+                                        <Badge tone="neutral">{currentSettings.fromEmail}</Badge>
                                     </CardTitle>
                                     <CardDescription>This account is active and ready to send campaigns.</CardDescription>
                                 </CardHeader>
                                 <CardBody>
                                     <div className="flex items-center gap-4">
                                         <Button variant="outline">Re-authorize Connection</Button>
-                                        <Button variant="outline" className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20" onClick={async () => {
+                                        <Button variant="danger" iconLeft={Trash2} onClick={async () => {
                                             if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
                                                 setIsLoading(true);
                                                 const result = await disconnectEmailSettings(currentSettings._id.toString());
                                                 if (result.message) {
-                                                    toast({ title: 'Disconnected', description: result.message });
+                                                    toast.success(result.message);
                                                     router.push('/dashboard/email');
                                                 } else if (result.error) {
-                                                    toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                                                    toast.error(result.error);
                                                 }
                                                 setIsLoading(false);
                                             }
                                         }}>
-                                            <Trash2 className="h-4 w-4" />
                                             Disconnect Account
                                         </Button>
                                     </div>
@@ -470,8 +500,8 @@ function EmailSettingsPageContent() {
                                 </CardDescription>
                             </CardHeader>
                             <CardBody>
-                                <Button asChild>
-                                    <Link href="/dashboard/email/templates">Open template library</Link>
+                                <Button variant="primary" onClick={() => router.push('/dashboard/email/templates')}>
+                                    Open template library
                                 </Button>
                             </CardBody>
                         </Card>

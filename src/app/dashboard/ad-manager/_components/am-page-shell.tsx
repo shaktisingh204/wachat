@@ -1,22 +1,33 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageActions, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
-import {
-  CircleAlert } from "lucide-react";
-
 /**
- * Shared chrome for /dashboard/ad-manager ZoruUI pages.
+ * Shared chrome for /dashboard/ad-manager pages (pure 20ui).
  *
- * - <AmBreadcrumb> renders SabNode › Ad Manager › <section>.
+ * - <AmBreadcrumb> renders SabNode > Ad Manager > <section>.
  * - <AmHeader> renders PageHeader with title / description / actions.
- * - <AmNoProject> is the canonical empty state for "No project selected".
- * - <AmErrorAlert> is the canonical error.
+ * - <AmNoProject> is the canonical "No project selected" notice.
+ * - <AmErrorAlert> is the canonical error notice.
  *
- * All migrated ad-manager pages import from here so headers stay
- * consistent. Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
+ * All migrated ad-manager pages import from here so headers stay consistent.
+ * Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
  */
 
 import * as React from "react";
+
+import {
+  Alert,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+} from "@/components/sabcrm/20ui";
 
 interface AmBreadcrumbProps {
   page: string;
@@ -72,9 +83,7 @@ export function AmHeader({
     <PageHeader className={className ?? "mt-5"}>
       <PageHeading>
         <PageTitle>{title}</PageTitle>
-        {description && (
-          <PageDescription>{description}</PageDescription>
-        )}
+        {description && <PageDescription>{description}</PageDescription>}
       </PageHeading>
       {actions ? <PageActions>{actions}</PageActions> : null}
     </PageHeader>
@@ -83,22 +92,16 @@ export function AmHeader({
 
 export function AmNoProject() {
   return (
-    <Alert variant="destructive" className="mt-6">
-      <CircleAlert />
-      <AlertTitle>No project selected</AlertTitle>
-      <AlertDescription>
-        Please select a project from the main dashboard to manage ad campaigns.
-      </AlertDescription>
+    <Alert tone="warning" title="No project selected" className="mt-6">
+      Please select a project from the main dashboard to manage ad campaigns.
     </Alert>
   );
 }
 
 export function AmErrorAlert({ message }: { message: string }) {
   return (
-    <Alert variant="destructive" className="mt-6">
-      <CircleAlert />
-      <AlertTitle>Something went wrong</AlertTitle>
-      <AlertDescription>{message}</AlertDescription>
+    <Alert tone="danger" title="Something went wrong" className="mt-6">
+      {message}
     </Alert>
   );
 }

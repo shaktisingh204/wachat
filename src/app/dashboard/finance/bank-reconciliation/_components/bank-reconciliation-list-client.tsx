@@ -2,15 +2,39 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Alert,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Inbox } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBankRecon, updateBankRecon, deleteBankRecon, BankRecon } from '@/app/actions/finance/bank-reconciliation.actions';
-import { toast } from 'sonner';
 import { fmtDate, fmtINR } from '@/lib/utils';
+
+const OPTIONAL_FIELDS = ['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'];
 
 export function BankReconListClient({ initialItems, error }: { initialItems: BankRecon[], error?: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,9 +63,11 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
     setIsViewOpen(true);
   }
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -113,108 +139,106 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
       subtitle="Reconcile bank statements with your internal ledgers."
       primaryAction={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>AccountId</Label>
-              <Input 
-                name="accountId" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.accountId : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("accountId")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>StatementDate</Label>
-              <Input 
-                name="statementDate" 
-                type="date"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.statementDate ? new Date(items.find(i => i._id === editingId)!.statementDate).toISOString().split('T')[0] : '' : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("statementDate")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>StatementBalance</Label>
-              <Input 
-                name="statementBalance"
-                type="number"
-                step="any" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.statementBalance : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("statementBalance")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>BookBalance</Label>
-              <Input 
-                name="bookBalance" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.bookBalance : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("bookBalance")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Status</Label>
-              <Input 
-                name="status" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.status : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("status")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
+                <div className="grid gap-4">
+                  <Field label="Account ID" required={!OPTIONAL_FIELDS.includes('accountId')}>
+                    <Input
+                      name="accountId"
+                      defaultValue={editingItem?.accountId ?? ''}
+                    />
+                  </Field>
+                  <Field label="Statement Date" required={!OPTIONAL_FIELDS.includes('statementDate')}>
+                    <Input
+                      name="statementDate"
+                      type="date"
+                      defaultValue={editingItem?.statementDate ? new Date(editingItem.statementDate).toISOString().split('T')[0] : ''}
+                    />
+                  </Field>
+                  <Field label="Statement Balance" required={!OPTIONAL_FIELDS.includes('statementBalance')}>
+                    <Input
+                      name="statementBalance"
+                      type="number"
+                      step="any"
+                      defaultValue={editingItem?.statementBalance ?? ''}
+                    />
+                  </Field>
+                  <Field label="Book Balance" required={!OPTIONAL_FIELDS.includes('bookBalance')}>
+                    <Input
+                      name="bookBalance"
+                      type="number"
+                      step="any"
+                      defaultValue={editingItem?.bookBalance ?? ''}
+                    />
+                  </Field>
+                  <Field label="Status" required={!OPTIONAL_FIELDS.includes('status')}>
+                    <Input
+                      name="status"
+                      defaultValue={editingItem?.status ?? ''}
+                    />
+                  </Field>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
+        <Alert tone="danger" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
       <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
+        <div className="w-full max-w-sm">
+          <Input
+            placeholder="Search records..."
+            iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <Table>
           <THead>
             <Tr>
-              <Th>AccountId</Th><Th>StatementDate</Th><Th>StatementBalance</Th><Th>BookBalance</Th><Th>Status</Th>
-              <Th className="w-[80px]"></Th>
+              <Th>Account ID</Th>
+              <Th>Statement Date</Th>
+              <Th align="right">Statement Balance</Th>
+              <Th align="right">Book Balance</Th>
+              <Th>Status</Th>
+              <Th align="right" width={80}>Actions</Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
-                <Td colSpan={6} className="h-24 text-center">
-                  No results.
+                <Td colSpan={6}>
+                  <EmptyState
+                    icon={Inbox}
+                    title="No results"
+                    description="No bank reconciliation records match your search."
+                  />
                 </Td>
               </Tr>
             ) : (
@@ -222,22 +246,20 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
                 <Tr key={item._id}>
                   <Td>{String(item.accountId ?? '')}</Td>
                   <Td>{item.statementDate ? fmtDate(new Date(item.statementDate)) : ''}</Td>
-                  <Td>{fmtINR(Number(item.statementBalance || 0))}</Td>
-                  <Td>{fmtINR(Number(item.bookBalance || 0))}</Td>
+                  <Td align="right">{fmtINR(Number(item.statementBalance || 0))}</Td>
+                  <Td align="right">{fmtINR(Number(item.bookBalance || 0))}</Td>
                   <Td>{String(item.status ?? '')}</Td>
-                  <Td>
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <Button variant="ghost" size="sm" iconLeft={MoreHorizontal} aria-label="Row actions" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
+                        <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -254,11 +276,11 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
           <DialogHeader>
             <DialogTitle>View Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
+                <div className="text-sm font-medium capitalize text-[var(--st-text-secondary)]">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm text-[var(--st-text)]">{String(value)}</div>
               </div>
             ))}
           </div>

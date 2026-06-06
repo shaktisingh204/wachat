@@ -2,16 +2,61 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  SelectField,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Badge,
+  type BadgeTone,
+  StatCard,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Inbox, Wallet } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPayout, updatePayout, deletePayout, Payout } from '@/app/actions/finance/payouts.actions';
-import { toast } from 'sonner';
 import { fmtINR, fmtDate } from '@/lib/utils';
+
+const RECIPIENT_TYPE_OPTIONS = [
+  { value: 'EMPLOYEE', label: 'Employee' },
+  { value: 'VENDOR', label: 'Vendor' },
+];
+
+function statusTone(status: string | undefined): BadgeTone {
+  switch (String(status ?? '').toLowerCase()) {
+    case 'completed':
+      return 'success';
+    case 'pending':
+      return 'warning';
+    case 'failed':
+    case 'cancelled':
+      return 'danger';
+    default:
+      return 'neutral';
+  }
+}
 
 export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -19,6 +64,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
   const [search, setSearch] = useState('');
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewingItem, setViewingItem] = useState<Payout | null>(null);
+  const [recipientType, setRecipientType] = useState<string | null>(null);
 
   function exportToCsv() {
     if (items.length === 0) return;
@@ -35,12 +81,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
     link.click();
   }
 
-  function openView(item: Payout) {
-    setViewingItem(item);
-    setIsViewOpen(true);
-  }
-
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -48,7 +89,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/realtime/payouts`;
     let ws: WebSocket;
-    
+
     try {
       ws = new WebSocket(wsUrl);
       ws.onmessage = (event) => {
@@ -136,13 +177,17 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
 
   function openNew() {
     setEditingId(null);
+    setRecipientType(null);
     setIsDialogOpen(true);
   }
 
   function openEdit(id: string) {
     setEditingId(id);
+    setRecipientType(items.find(i => i._id === id)?.recipientType ?? null);
     setIsDialogOpen(true);
   }
+
+  const editing = editingId ? items.find(i => i._id === editingId) : undefined;
 
   return (
     <EntityListShell
@@ -150,160 +195,144 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
       subtitle="Manage and trigger direct payouts to employees or vendors."
       primaryAction={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>RecipientId</Label>
-              <Input 
-                name="recipientId" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.recipientId : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("recipientId")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>RecipientType</Label>
-              <Input 
-                name="recipientType" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.recipientType : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("recipientType")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Amount</Label>
-              <Input 
-                name="amount" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.amount : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("amount")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>PaymentMethod</Label>
-              <Input 
-                name="paymentMethod" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.paymentMethod : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("paymentMethod")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>ExecutionDate</Label>
-              <Input 
-                name="executionDate" 
-                type="date"
-                defaultValue={editingId ? (items.find(i => i._id === editingId)?.executionDate ? new Date(items.find(i => i._id === editingId)!.executionDate!).toISOString().split('T')[0] : '') : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("executionDate")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Status</Label>
-              <Input 
-                name="status" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.status : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("status")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
+                <div className="grid gap-4">
+                  <Field label="Recipient ID" required>
+                    <Input
+                      name="recipientId"
+                      defaultValue={editing?.recipientId ?? ''}
+                    />
+                  </Field>
+                  <Field label="Recipient Type" required>
+                    <input type="hidden" name="recipientType" value={recipientType ?? ''} />
+                    <SelectField
+                      value={recipientType}
+                      onChange={setRecipientType}
+                      options={RECIPIENT_TYPE_OPTIONS}
+                      placeholder="Select recipient type"
+                      aria-label="Recipient Type"
+                    />
+                  </Field>
+                  <Field label="Amount" required>
+                    <Input
+                      name="amount"
+                      type="number"
+                      step="any"
+                      defaultValue={editing?.amount ?? ''}
+                    />
+                  </Field>
+                  <Field label="Payment Method">
+                    <Input
+                      name="paymentMethod"
+                      defaultValue={editing?.paymentMethod ?? ''}
+                    />
+                  </Field>
+                  <Field label="Execution Date">
+                    <Input
+                      name="executionDate"
+                      type="date"
+                      defaultValue={editing?.executionDate ? new Date(editing.executionDate).toISOString().split('T')[0] : ''}
+                    />
+                  </Field>
+                  <Field label="Status">
+                    <Input
+                      name="status"
+                      defaultValue={editing?.status ?? ''}
+                    />
+                  </Field>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" variant="primary" loading={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
-      {error && (
-        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
-          {error}
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Payouts</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">{totalPayouts}</div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">{pendingPayouts}</div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">{completedPayouts}</div>
-          </CardBody>
-        </Card>
+      <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <StatCard label="Total Payouts" value={totalPayouts} icon={Wallet} />
+        <StatCard label="Pending" value={pendingPayouts} />
+        <StatCard label="Completed" value={completedPayouts} />
       </div>
 
       <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
+        <div className="w-full max-w-sm">
+          <Input
+            placeholder="Search records..."
+            iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
+            aria-label="Search records"
           />
         </div>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <Table>
           <THead>
             <Tr>
-              <Th>RecipientId</Th><Th>RecipientType</Th><Th>Amount</Th><Th>PaymentMethod</Th><Th>ExecutionDate</Th><Th>Status</Th>
-              <Th className="w-[80px]"></Th>
+              <Th>Recipient ID</Th>
+              <Th>Recipient Type</Th>
+              <Th align="right">Amount</Th>
+              <Th>Payment Method</Th>
+              <Th>Execution Date</Th>
+              <Th>Status</Th>
+              <Th width={80}><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
-                <Td colSpan={7} className="h-24 text-center">
-                  No results.
+                <Td colSpan={7}>
+                  <EmptyState
+                    icon={Inbox}
+                    title="No payouts found"
+                    description="No records match your search. New payouts will appear here."
+                  />
                 </Td>
               </Tr>
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.recipientId ?? '')}</Td><Td>{String(item.recipientType ?? '')}</Td><Td>{fmtINR(item.amount)}</Td><Td>{String(item.paymentMethod ?? '')}</Td><Td>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</Td><Td>{String(item.status ?? '')}</Td>
+                  <Td>{String(item.recipientId ?? '')}</Td>
+                  <Td>{String(item.recipientType ?? '')}</Td>
+                  <Td align="right">{fmtINR(item.amount)}</Td>
+                  <Td>{String(item.paymentMethod ?? '')}</Td>
+                  <Td>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</Td>
+                  <Td>
+                    {item.status ? (
+                      <Badge tone={statusTone(item.status)} dot>
+                        {String(item.status)}
+                      </Badge>
+                    ) : null}
+                  </Td>
                   <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton label="Open row actions" icon={MoreHorizontal} variant="ghost" size="sm" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
+                        <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -320,11 +349,11 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
           <DialogHeader>
             <DialogTitle>View Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
+                <div className="text-sm font-medium capitalize text-[var(--st-text-secondary)]">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm text-[var(--st-text)]">{String(value)}</div>
               </div>
             ))}
           </div>

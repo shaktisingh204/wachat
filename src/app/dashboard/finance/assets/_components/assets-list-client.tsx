@@ -2,15 +2,44 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Card,
+  EmptyState,
+  Alert,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox } from 'lucide-react';
 import { createAsset, updateAsset, deleteAsset, Asset } from '@/app/actions/finance/assets.actions';
-import { toast } from 'sonner';
 import { fmtINR } from '@/lib/utils';
 
 export function AssetListClient({ initialItems, error }: { initialItems: Asset[], error?: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,9 +68,11 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
     setIsViewOpen(true);
   }
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -108,116 +139,114 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
   }
 
   return (
-    <EntityListShell
-      title="Asset Depreciation"
-      subtitle="Track assets and their depreciation over time."
-      primaryAction={
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+    <div className="flex w-full flex-col gap-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Asset Depreciation</PageTitle>
+          <PageDescription>Track assets and their depreciation over time.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>Name</Label>
-              <Input 
-                name="name" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.name : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("name")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>PurchasePrice</Label>
-              <Input 
-                name="purchasePrice" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.purchasePrice : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("purchasePrice")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>SalvageValue</Label>
-              <Input 
-                name="salvageValue" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.salvageValue : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("salvageValue")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>UsefulLifeYears</Label>
-              <Input 
-                name="usefulLifeYears" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.usefulLifeYears : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("usefulLifeYears")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>AccumulatedDepreciation</Label>
-              <Input 
-                name="accumulatedDepreciation" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.accumulatedDepreciation : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("accumulatedDepreciation")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-        </div>
-      }
-    >
-      {error && (
-        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
-          {error}
-        </div>
-      )}
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto px-1 py-4">
+                <Field label="Name" required>
+                  <Input
+                    name="name"
+                    defaultValue={editingItem?.name ?? ''}
+                  />
+                </Field>
+                <Field label="Purchase Price" required>
+                  <Input
+                    name="purchasePrice"
+                    type="number"
+                    step="any"
+                    defaultValue={editingItem?.purchasePrice ?? ''}
+                  />
+                </Field>
+                <Field label="Salvage Value">
+                  <Input
+                    name="salvageValue"
+                    type="number"
+                    step="any"
+                    defaultValue={editingItem?.salvageValue ?? ''}
+                  />
+                </Field>
+                <Field label="Useful Life Years" required>
+                  <Input
+                    name="usefulLifeYears"
+                    type="number"
+                    step="any"
+                    defaultValue={editingItem?.usefulLifeYears ?? ''}
+                  />
+                </Field>
+                <Field label="Accumulated Depreciation">
+                  <Input
+                    name="accumulatedDepreciation"
+                    type="number"
+                    step="any"
+                    defaultValue={editingItem?.accumulatedDepreciation ?? ''}
+                  />
+                </Field>
+                <DialogFooter>
+                  <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </PageActions>
+      </PageHeader>
 
-      <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
+      {error ? (
+        <Alert tone="danger">{error}</Alert>
+      ) : null}
+
+      <div className="w-full max-w-sm">
+        <Field label="Search records">
+          <Input
+            placeholder="Search records..."
+            iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-        </div>
+        </Field>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <Card variant="outlined" padding="none" className="overflow-hidden">
         <Table>
           <THead>
             <Tr>
-              <Th>Name</Th><Th>PurchasePrice</Th><Th>SalvageValue</Th><Th>UsefulLifeYears</Th><Th>AccumulatedDepreciation</Th>
-              <Th className="w-[80px]"></Th>
+              <Th>Name</Th>
+              <Th>Purchase Price</Th>
+              <Th>Salvage Value</Th>
+              <Th>Useful Life Years</Th>
+              <Th>Accumulated Depreciation</Th>
+              <Th width={80} align="right">
+                <span className="sr-only">Actions</span>
+              </Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
-                <Td colSpan={6} className="h-24 text-center">
-                  No results.
+                <Td colSpan={6}>
+                  <EmptyState
+                    icon={Inbox}
+                    title="No results"
+                    description="No asset records match your search."
+                  />
                 </Td>
               </Tr>
             ) : (
@@ -228,22 +257,25 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
                   <Td>{fmtINR(Number(item.salvageValue || 0))}</Td>
                   <Td>{String(item.usefulLifeYears ?? '')}</Td>
                   <Td>{fmtINR(Number(item.accumulatedDepreciation || 0))}</Td>
-                  <Td>
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton
+                          label="Row actions"
+                          icon={MoreHorizontal}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openView(item as any)}>
-                          <Eye className="mr-2 h-4 w-4" /> View Details
+                        <DropdownMenuItem iconLeft={Eye} onClick={() => openView(item as any)}>
+                          View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
+                        <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -253,23 +285,25 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
             )}
           </TBody>
         </Table>
-      </div>
+      </Card>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>View Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto px-1 py-4">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
+                <div className="text-sm font-medium capitalize text-[var(--st-text-secondary)]">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </div>
+                <div className="col-span-2 text-sm text-[var(--st-text)]">{String(value)}</div>
               </div>
             ))}
           </div>
         </DialogContent>
       </Dialog>
-    </EntityListShell>
+    </div>
   );
 }

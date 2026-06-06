@@ -1,10 +1,7 @@
 'use client';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui';
-import {
-  useState,
-  useEffect,
-  useTransition } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -12,34 +9,47 @@ import {
   Plus,
   Megaphone,
   ExternalLink,
-  LoaderCircle,
   TriangleAlert,
   Info,
   ShieldCheck,
-  } from 'lucide-react';
+} from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Dot,
+  EmptyState,
+  IconButton,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  useToast,
+  cn,
+} from '@/components/sabcrm/20ui';
+
 import { useAdManager } from '@/context/ad-manager-context';
-import { 
+import {
   getAdAccounts,
   deleteAdAccount,
-  getAdAccountDetails 
+  getAdAccountDetails,
 } from '@/app/actions/ad-manager.actions';
-
-/**
- * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
- *
- * ZoruUI rewrite.
- * Select, disconnect, or connect new Meta ad accounts.
- */
-
-import * as React from 'react';
 
 import {
   AmBreadcrumb,
   AmHeader,
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
-import { useToast } from '@/hooks/use-toast';
+
+/**
+ * /dashboard/ad-manager/ad-accounts. Manage connected Meta ad accounts.
+ *
+ * 20ui rewrite. Select, disconnect, or connect new Meta ad accounts.
+ */
 
 export interface AdAccount {
   id: string;
@@ -61,7 +71,7 @@ export interface AdAccount {
   is_prepay_account?: boolean;
 }
 
-/* ── loading skeleton ──────────────────────────────────────────── */
+/* loading skeleton */
 
 function PageSkeleton() {
   return (
@@ -73,7 +83,7 @@ function PageSkeleton() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} className="!p-0">
+          <Card key={i} padding="none">
             <div className="p-5">
               <div className="h-5 w-36 animate-pulse rounded bg-[var(--st-bg-muted)]" />
               <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-[var(--st-bg-muted)]" />
@@ -88,7 +98,7 @@ function PageSkeleton() {
   );
 }
 
-/* ── disconnect confirmation dialog ────────────────────────────── */
+/* disconnect confirmation dialog */
 
 function DisconnectDialog({
   account,
@@ -110,21 +120,17 @@ function DisconnectDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
+        <IconButton
           variant="ghost"
-          size="icon"
-          className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-          aria-label={`Disconnect ${account.name}`}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+          size="sm"
+          icon={Trash2}
+          label={`Disconnect ${account.name}`}
+        />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)]">
-            Disconnect ad account?
-          </DialogTitle>
-          <DialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
+          <DialogTitle>Disconnect ad account?</DialogTitle>
+          <DialogDescription>
             Are you sure you want to disconnect{' '}
             <strong className="text-[var(--st-text)]">{account.name}</strong>? This
             will remove it from your dashboard but will not affect the account
@@ -132,13 +138,9 @@ function DisconnectDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-3 rounded-xl bg-[var(--st-bg-muted)]/40 p-3.5 text-[12px] text-[var(--st-text)]">
-          <TriangleAlert className="h-4 w-4 shrink-0" />
-          <span>
-            You will need to re-connect via Facebook to access this account
-            again.
-          </span>
-        </div>
+        <Alert tone="warning" icon={TriangleAlert}>
+          You will need to re-connect via Facebook to access this account again.
+        </Alert>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
@@ -150,14 +152,11 @@ function DisconnectDialog({
             Cancel
           </Button>
           <Button
-            variant="destructive"
+            variant="danger"
             size="sm"
+            loading={isDeleting}
             onClick={handleConfirm}
-            disabled={isDeleting}
           >
-            {isDeleting ? (
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-            ) : null}
             Disconnect
           </Button>
         </DialogFooter>
@@ -166,7 +165,7 @@ function DisconnectDialog({
   );
 }
 
-/* ── account card ──────────────────────────────────────────────── */
+/* account card */
 
 function AccountCard({
   account,
@@ -181,11 +180,11 @@ function AccountCard({
 }) {
   return (
     <Card
+      variant="interactive"
+      padding="none"
       className={cn(
-        'group cursor-pointer p-0 transition-all duration-200',
-        isActive
-          ? 'border-[var(--st-border)] ring-2 ring-[var(--st-border)]/15'
-          : 'hover:border-[var(--st-border)] hover:shadow-md',
+        'group cursor-pointer',
+        isActive && 'ring-2 ring-[var(--st-accent)]/20',
       )}
       onClick={onSelect}
     >
@@ -203,24 +202,24 @@ function AccountCard({
                 </Badge>
               )}
             </div>
-            <p className="mt-1.5 font-mono text-[11px] text-[var(--st-text-secondary)] tracking-wide">
+            <p className="mt-1.5 font-mono text-[11px] tracking-wide text-[var(--st-text-secondary)]">
               {account.account_id}
             </p>
           </div>
 
           {/* Status dot */}
-          <span
-            className={cn(
-              'mt-1 h-2.5 w-2.5 shrink-0 rounded-full',
-              isActive ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]/30',
-            )}
+          <Dot
+            tone={isActive ? 'accent' : 'neutral'}
+            pulse={isActive}
+            className="mt-1 shrink-0"
+            aria-label={isActive ? 'Active account' : 'Inactive account'}
           />
         </div>
 
         {/* Meta tags */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <Badge variant="secondary">
-            <ShieldCheck className="mr-0.5 h-3 w-3" />
+            <ShieldCheck className="mr-0.5 h-3 w-3" aria-hidden="true" />
             Connected
           </Badge>
           {account.currency && (
@@ -228,7 +227,11 @@ function AccountCard({
           )}
           {/* Account health indicator */}
           <Badge variant={account.account_status === 1 ? 'success' : 'secondary'}>
-            {account.account_status === 1 ? 'Active' : account.account_status === 2 ? 'Disabled' : 'Unknown'}
+            {account.account_status === 1
+              ? 'Active'
+              : account.account_status === 2
+                ? 'Disabled'
+                : 'Unknown'}
           </Badge>
         </div>
         {/* Last used timestamp */}
@@ -247,14 +250,14 @@ function AccountCard({
       {/* Card footer */}
       <div className="flex items-center justify-between border-t border-[var(--st-border)] px-5 py-3">
         <Button
-          variant={isActive ? 'default' : 'outline'}
+          variant={isActive ? 'primary' : 'outline'}
           size="sm"
+          iconLeft={Megaphone}
           onClick={(e) => {
             e.stopPropagation();
             onSelect();
           }}
         >
-          <Megaphone className="h-3 w-3" />
           {isActive ? 'Manage campaigns' : 'Select account'}
         </Button>
 
@@ -265,14 +268,12 @@ function AccountCard({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
           >
-            <Button
+            <IconButton
               variant="ghost"
-              size="icon"
-              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-              aria-label="View on Facebook"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
+              size="sm"
+              icon={ExternalLink}
+              label="View on Facebook"
+            />
           </a>
           <div onClick={(e) => e.stopPropagation()}>
             <DisconnectDialog account={account} onDisconnect={onDisconnect} />
@@ -283,70 +284,49 @@ function AccountCard({
   );
 }
 
-/* ── empty state ───────────────────────────────────────────────── */
+/* empty state */
 
-function EmptyState() {
+function AdAccountsEmptyState() {
   return (
-    <Card
-      className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-[var(--st-border)] py-16 text-center"
-    >
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
-        <Megaphone className="h-7 w-7 text-[var(--st-text)]" strokeWidth={1.75} />
-      </div>
-      <div>
-        <h3 className="text-[16px] font-semibold text-[var(--st-text)]">
-          No ad accounts connected
-        </h3>
-        <p className="mt-1.5 max-w-md text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
-          Connect your Facebook Ad Account to start creating and managing
-          campaigns directly from SabNode.
-        </p>
-      </div>
-      <Link href="/api/auth/ad-manager/login">
-        <Button variant="default" size="md">
-          <Plus className="h-3.5 w-3.5" />
-          Connect ad account
-        </Button>
-      </Link>
+    <Card padding="lg" className="border-2 border-dashed border-[var(--st-border)]">
+      <EmptyState
+        icon={Megaphone}
+        title="No ad accounts connected"
+        description="Connect your Facebook Ad Account to start creating and managing campaigns directly from SabNode."
+        action={
+          <Link href="/api/auth/ad-manager/login">
+            <Button variant="primary" size="md" iconLeft={Plus}>
+              Connect ad account
+            </Button>
+          </Link>
+        }
+      />
     </Card>
   );
 }
 
-/* ── info card ─────────────────────────────────────────────────── */
+/* info note */
 
 function InfoCard() {
   return (
-    <Card className="!p-4">
-      <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
-          <Info className="h-4 w-4 text-[var(--st-text)]" />
-        </div>
-        <div>
-          <p className="text-[13px] font-semibold text-[var(--st-text)]">
-            How to connect accounts
-          </p>
-          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)] leading-relaxed">
-            When you click "Connect ad account", you will be redirected to
-            Facebook to authorize SabNode. Make sure you have admin access to the
-            ad accounts you want to connect. You can manage permissions anytime
-            from{' '}
-            <a
-              href="https://business.facebook.com/settings/ad-accounts"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-[var(--st-text)] hover:underline"
-            >
-              Meta Business Settings
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-    </Card>
+    <Alert tone="info" icon={Info} title="How to connect accounts">
+      When you click &ldquo;Connect ad account&rdquo;, you will be redirected to
+      Facebook to authorize SabNode. Make sure you have admin access to the ad
+      accounts you want to connect. You can manage permissions anytime from{' '}
+      <a
+        href="https://business.facebook.com/settings/ad-accounts"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-[var(--st-text)] hover:underline"
+      >
+        Meta Business Settings
+      </a>
+      .
+    </Alert>
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* page */
 
 export default function AdAccountsPage() {
   const [accounts, setAccounts] = useState<AdAccount[]>([]);
@@ -364,7 +344,7 @@ export default function AdAccountsPage() {
         toast({
           title: 'Error fetching accounts',
           description: error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         setAccounts(data || []);
@@ -398,12 +378,13 @@ export default function AdAccountsPage() {
       toast({
         title: 'Sync complete',
         description: 'Successfully refreshed all ad accounts.',
+        tone: 'success',
       });
     } else {
       toast({
         title: 'Sync finished with errors',
         description: `Failed to refresh ${errorCount} account(s).`,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   };
@@ -422,6 +403,7 @@ export default function AdAccountsPage() {
     toast({
       title: 'Account selected',
       description: `Now managing ${account.name}`,
+      tone: 'success',
     });
     router.push('/dashboard/ad-manager/campaigns');
   };
@@ -432,6 +414,7 @@ export default function AdAccountsPage() {
       toast({
         title: 'Account disconnected',
         description: 'The ad account has been removed.',
+        tone: 'success',
       });
       if (activeAccount?.id === accountId) {
         selectAccount(null);
@@ -441,7 +424,7 @@ export default function AdAccountsPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   };
@@ -460,13 +443,17 @@ export default function AdAccountsPage() {
         description="Connect and manage your Meta ad accounts to run campaigns."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="md" onClick={handleBulkSync} disabled={isPageLoading || isSyncing || accounts.length === 0}>
-              <LoaderCircle className={cn("h-3.5 w-3.5", (isPageLoading || isSyncing) && "animate-spin")} />
+            <Button
+              variant="outline"
+              size="md"
+              loading={isPageLoading || isSyncing}
+              onClick={handleBulkSync}
+              disabled={isPageLoading || isSyncing || accounts.length === 0}
+            >
               Sync Accounts
             </Button>
             <Link href="/api/auth/ad-manager/login" className="shrink-0">
-              <Button variant="default" size="md">
-                <Plus className="h-3.5 w-3.5" />
+              <Button variant="primary" size="md" iconLeft={Plus}>
                 Connect account
               </Button>
             </Link>
@@ -478,7 +465,7 @@ export default function AdAccountsPage() {
       <div className="mt-6">
         {accounts.length === 0 ? (
           <div className="space-y-5">
-            <EmptyState />
+            <AdAccountsEmptyState />
             <InfoCard />
           </div>
         ) : (
@@ -496,7 +483,7 @@ export default function AdAccountsPage() {
               ))}
             </div>
 
-            {/* Info card */}
+            {/* Info note */}
             <InfoCard />
           </div>
         )}

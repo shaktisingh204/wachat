@@ -1,7 +1,8 @@
 'use client';
+
 import { useEffect } from 'react';
-import { Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
-import { AlertCircle } from 'lucide-react';
+import { Button, Alert } from '@/components/sabcrm/20ui';
+import { RefreshCw } from 'lucide-react';
 
 export default function ErrorBoundary({
     error,
@@ -15,15 +16,11 @@ export default function ErrorBoundary({
     }, [error]);
 
     return (
-        <div className="p-6 flex flex-col items-start gap-4">
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Something went wrong!</AlertTitle>
-                <AlertDescription>
-                    {error.message || 'Failed to load campaign data. The Meta API might be unavailable.'}
-                </AlertDescription>
+        <div className="flex flex-col items-start gap-4 p-6">
+            <Alert tone="danger" title="Something went wrong">
+                {error.message || 'Failed to load campaign data. The Meta API might be unavailable.'}
             </Alert>
-            <Button onClick={() => reset()} variant="outline">
+            <Button variant="outline" iconLeft={RefreshCw} onClick={() => reset()}>
                 Try again
             </Button>
         </div>
