@@ -2,8 +2,24 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MapPin } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, Progress } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    EmptyState,
+    Field,
+    Input,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Progress,
+} from '@/components/sabcrm/20ui';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';
@@ -34,7 +50,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
         const total = maxBySession.size;
         const buckets = new Array<number>(10).fill(0);
         for (const v of maxBySession.values()) {
-            // Bucket index: depth >= 10% → bucket[0], >= 20% → bucket[1], …
+            // Bucket index: depth >= 10% goes to bucket[0], >= 20% to bucket[1], and so on.
             for (let i = 0; i < 10; i++) {
                 if (v >= (i + 1) / 10) buckets[i] += 1;
             }
@@ -47,8 +63,12 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
-                Site not found.
+            <div className="ui20 p-8">
+                <EmptyState
+                    icon={MapPin}
+                    title="Site not found"
+                    description="We couldn't load this site. It may have been removed or you may not have access."
+                />
             </div>
         );
     }
@@ -60,13 +80,15 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
     };
 
     return (
-        <div className="zoruui p-8 space-y-6">
+        <div className="ui20 p-8 space-y-6">
             <PageHeader>
-                <PageTitle>{site.name} — Scroll map</PageTitle>
-                <PageDescription>
-                    Percentage of sessions that scrolled past each decile of the
-                    viewport.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>{site.name} scroll map</PageTitle>
+                    <PageDescription>
+                        Percentage of sessions that scrolled past each decile of the
+                        viewport.
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
@@ -77,17 +99,17 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                 </CardHeader>
                 <CardBody>
                     <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                        <div className="space-y-2">
-                            <Label htmlFor="ps-url">URL path</Label>
+                        <Field label="URL path">
                             <Input
-                                id="ps-url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 placeholder="/"
                             />
-                        </div>
+                        </Field>
                         <div className="flex items-end">
-                            <Button onClick={apply}>Apply</Button>
+                            <Button variant="primary" onClick={apply}>
+                                Apply
+                            </Button>
                         </div>
                     </div>
                 </CardBody>
@@ -104,11 +126,14 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                     <div className="space-y-3">
                         {deciles.pct.map((pct, i) => (
                             <div key={i} className="space-y-1">
-                                <div className="flex justify-between text-xs text-[color:var(--st-text-secondary)]">
+                                <div className="flex justify-between text-xs text-[var(--st-text-secondary)]">
                                     <span>Past {(i + 1) * 10}%</span>
                                     <span>{pct}%</span>
                                 </div>
-                                <Progress value={pct} />
+                                <Progress
+                                    value={pct}
+                                    aria-label={`Sessions that scrolled past ${(i + 1) * 10}%`}
+                                />
                             </div>
                         ))}
                     </div>

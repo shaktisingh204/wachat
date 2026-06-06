@@ -4,7 +4,36 @@ import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Globe, Trash2, KeyRound, Copy } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Table, THead, TBody, Tr, Th, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Field,
+    Input,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Badge,
+    EmptyState,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     createPagesenseSite,
@@ -23,20 +52,20 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
 
     const handleCreate = () => {
         if (!name.trim() || !domain.trim()) {
-            toast({ title: 'Missing fields', description: 'Name and domain are required.', variant: 'destructive' });
+            toast.error({ title: 'Missing fields', description: 'Name and domain are required.' });
             return;
         }
         startTransition(async () => {
             const res = await createPagesenseSite({ name, domain });
             if (res.success) {
-                toast({ title: 'Site created' });
+                toast.success('Site created');
                 setIsOpen(false);
                 setName('');
                 setDomain('');
                 // server action revalidates the path; force refresh via location for now
                 if (typeof window !== 'undefined') window.location.reload();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Error', description: res.error });
             }
         });
     };
@@ -46,9 +75,9 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
             const res = await deletePagesenseSite(id);
             if (res.success) {
                 setSites((prev) => prev.filter((s) => s._id !== id));
-                toast({ title: 'Site archived' });
+                toast.success('Site archived');
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Error', description: res.error });
             }
         });
     };
@@ -56,21 +85,23 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
     const copy = (text: string) => {
         if (typeof navigator !== 'undefined') {
             navigator.clipboard?.writeText(text);
-            toast({ title: 'Copied' });
+            toast.success('Copied');
         }
     };
 
     return (
-        <div className="zoruui p-8 space-y-6">
+        <div className="p-8 space-y-6">
             <PageHeader>
-                <PageTitle>PageSense</PageTitle>
-                <PageDescription>
-                    Conversion-rate optimization — heatmaps, funnels, session
-                    recordings, and form analytics for your sites.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>PageSense</PageTitle>
+                    <PageDescription>
+                        Conversion-rate optimization, heatmaps, funnels, session
+                        recordings, and form analytics for your sites.
+                    </PageDescription>
+                </PageHeaderHeading>
                 <PageActions>
-                    <Button onClick={() => setIsOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" /> New site
+                    <Button variant="primary" iconLeft={Plus} onClick={() => setIsOpen(true)}>
+                        New site
                     </Button>
                 </PageActions>
             </PageHeader>
@@ -81,8 +112,8 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                     title="No sites yet"
                     description="Register a site to start collecting heatmaps and recordings."
                     action={
-                        <Button onClick={() => setIsOpen(true)}>
-                            <Plus className="mr-2 h-4 w-4" /> New site
+                        <Button variant="primary" iconLeft={Plus} onClick={() => setIsOpen(true)}>
+                            New site
                         </Button>
                     }
                 />
@@ -101,7 +132,7 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                     <Th>Name</Th>
                                     <Th>Domain</Th>
                                     <Th>Status</Th>
-                                    <Th className="text-right">Actions</Th>
+                                    <Th align="right">Actions</Th>
                                 </Tr>
                             </THead>
                             <TBody>
@@ -119,26 +150,29 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                             {s.domain}
                                         </Td>
                                         <Td>
-                                            <Badge variant={s.isActive ? 'default' : 'secondary'}>
+                                            <Badge tone={s.isActive ? 'success' : 'neutral'}>
                                                 {s.isActive ? 'Active' : 'Paused'}
                                             </Badge>
                                         </Td>
-                                        <Td className="text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => setSnippetSite(s)}
-                                            >
-                                                <KeyRound className="mr-2 h-4 w-4" /> Snippet
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDelete(s._id)}
-                                                disabled={pending}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                        <Td align="right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    iconLeft={KeyRound}
+                                                    onClick={() => setSnippetSite(s)}
+                                                >
+                                                    Snippet
+                                                </Button>
+                                                <IconButton
+                                                    label="Archive site"
+                                                    icon={Trash2}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(s._id)}
+                                                    disabled={pending}
+                                                />
+                                            </div>
                                         </Td>
                                     </Tr>
                                 ))}
@@ -155,30 +189,26 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                         <DialogTitle>Register a new site</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="ps-name">Site name</Label>
+                        <Field label="Site name">
                             <Input
-                                id="ps-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Acme marketing site"
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="ps-domain">Domain</Label>
+                        </Field>
+                        <Field label="Domain">
                             <Input
-                                id="ps-domain"
                                 value={domain}
                                 onChange={(e) => setDomain(e.target.value)}
                                 placeholder="acme.example.com"
                             />
-                        </div>
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleCreate} disabled={pending}>
+                        <Button variant="primary" onClick={handleCreate} loading={pending}>
                             Create
                         </Button>
                     </DialogFooter>
@@ -197,7 +227,7 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                 Add this snippet to the &lt;head&gt; of every page on
                                 <span className="font-mono"> {snippetSite.domain}</span>.
                             </p>
-                            <pre className="rounded-md bg-[color:var(--st-bg-muted)] p-3 text-xs overflow-x-auto">
+                            <pre className="rounded-[var(--st-radius)] bg-[color:var(--st-bg-secondary)] p-3 text-xs overflow-x-auto text-[color:var(--st-text)]">
 {`<script async
   src="/pagesense-snippet.js"
   data-snippet-key="${snippetSite.snippetKey}"
@@ -207,14 +237,15 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                iconLeft={Copy}
                                 onClick={() => copy(snippetSite.snippetKey)}
                             >
-                                <Copy className="mr-2 h-4 w-4" /> Copy snippet key
+                                Copy snippet key
                             </Button>
                         </div>
                     )}
                     <DialogFooter>
-                        <Button onClick={() => setSnippetSite(null)}>Done</Button>
+                        <Button variant="primary" onClick={() => setSnippetSite(null)}>Done</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -2,21 +2,52 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Progress, EmptyState } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Badge,
+  Progress,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createVendor, updateVendor, deleteVendor, Vendor } from '@/app/actions/finance/vendor-portal.actions';
-import { toast } from 'sonner';
 
 export function VendorListClient({ initialItems, error }: { initialItems: Vendor[], error?: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [isViewOpen, setIsViewOpen] = useState(false);
-  const [viewingItem, setViewingItem] = useState<Vendor | null>(null);
+  const [status, setStatus] = useState('ACTIVE');
+
+  const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
   function exportToCsv() {
     if (items.length === 0) return;
@@ -33,12 +64,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
     link.click();
   }
 
-  function openView(item: Vendor) {
-    setViewingItem(item);
-    setIsViewOpen(true);
-  }
-
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -98,11 +124,13 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
 
   function openNew() {
     setEditingId(null);
+    setStatus('ACTIVE');
     setIsDialogOpen(true);
   }
 
-  function openEdit(id: string) {
-    setEditingId(id);
+  function openEdit(item: Vendor) {
+    setEditingId(item._id as string);
+    setStatus((item.onboardingStatus as string) || 'ACTIVE');
     setIsDialogOpen(true);
   }
 
@@ -112,139 +140,139 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
       subtitle="A portal for vendors to see their invoices and POs."
       primaryAction={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>Vendor Name</Label>
-              <Input 
-                name="name" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.name : ''} 
-                required 
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>Contact Email</Label>
-                <Input 
-                  name="contactEmail" 
-                  type="email"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.contactEmail : ''} 
-                  required 
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Contact Phone</Label>
-                <Input 
-                  name="contactPhone" 
-                  type="tel"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.contactPhone : ''} 
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>Payment Terms</Label>
-                <Input 
-                  name="paymentTerms" 
-                  placeholder="e.g. NET_30"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.paymentTerms : ''} 
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Active Contracts</Label>
-                <Input 
-                  name="activeContracts" 
-                  type="number"
-                  min="0"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.activeContracts : '0'} 
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>Performance Score (0-100)</Label>
-                <Input 
-                  name="performanceScore" 
-                  type="number"
-                  min="0"
-                  max="100"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.performanceScore : '0'} 
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Status</Label>
-                <select 
-                  name="onboardingStatus"
-                  className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  defaultValue={editingId ? items.find(i => i._id === editingId)?.onboardingStatus : 'ACTIVE'}
-                >
-                  <option value="ACTIVE">Active</option>
-                  <option value="ONBOARDING">Onboarding</option>
-                  <option value="INACTIVE">Inactive</option>
-                </select>
-              </div>
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+                <div className="grid gap-4">
+                  <Field label="Vendor Name" required>
+                    <Input
+                      name="name"
+                      defaultValue={editingItem?.name ?? ''}
+                      required
+                    />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Contact Email" required>
+                      <Input
+                        name="contactEmail"
+                        type="email"
+                        defaultValue={editingItem?.contactEmail ?? ''}
+                        required
+                      />
+                    </Field>
+                    <Field label="Contact Phone">
+                      <Input
+                        name="contactPhone"
+                        type="tel"
+                        defaultValue={editingItem?.contactPhone ?? ''}
+                      />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Payment Terms">
+                      <Input
+                        name="paymentTerms"
+                        placeholder="e.g. NET_30"
+                        defaultValue={editingItem?.paymentTerms ?? ''}
+                      />
+                    </Field>
+                    <Field label="Active Contracts">
+                      <Input
+                        name="activeContracts"
+                        type="number"
+                        min="0"
+                        defaultValue={editingItem?.activeContracts ?? '0'}
+                      />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Performance Score (0-100)">
+                      <Input
+                        name="performanceScore"
+                        type="number"
+                        min="0"
+                        max="100"
+                        defaultValue={editingItem?.performanceScore ?? '0'}
+                      />
+                    </Field>
+                    <Field label="Status">
+                      <Select value={status} onValueChange={setStatus}>
+                        <SelectTrigger aria-label="Status">
+                          <SelectValue placeholder="Pick a status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="ONBOARDING">Onboarding</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <input type="hidden" name="onboardingStatus" value={status} />
+                    </Field>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
+        <div className="mb-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
           {error}
         </div>
       )}
 
       <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
+        <div className="w-full max-w-sm">
+          <Input
+            placeholder="Search records..."
+            iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
+            aria-label="Search records"
           />
         </div>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <Table>
           <THead>
             <Tr>
-              <Th>Vendor</Th><Th>Directory Contact</Th><Th>Performance</Th><Th>Terms & Contracts</Th><Th>Status</Th>
-              <Th className="w-[80px]"></Th>
+              <Th>Vendor</Th>
+              <Th>Directory Contact</Th>
+              <Th>Performance</Th>
+              <Th>Terms &amp; Contracts</Th>
+              <Th>Status</Th>
+              <Th width={80}></Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
                 <Td colSpan={6} className="p-8">
-                  <EmptyState 
-                    icon={<Store className="h-6 w-6" />}
+                  <EmptyState
+                    icon={Store}
                     title="No vendors found"
                     description="Get started by creating a new vendor record."
                     action={
-                      <Button onClick={openNew} size="sm">
-                        <Plus className="mr-2 h-4 w-4" /> Add Vendor
+                      <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                        Add Vendor
                       </Button>
                     }
                   />
@@ -255,62 +283,62 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                 <Tr key={item._id}>
                   <Td>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--st-text)]/10">
-                        <Building2 className="h-4 w-4 text-[var(--st-text)]" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
+                        <Building2 className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
                       </div>
-                      <span className="font-medium">{String(item.name ?? 'Unknown')}</span>
+                      <span className="font-medium text-[var(--st-text)]">{String(item.name ?? 'Unknown')}</span>
                     </div>
                   </Td>
                   <Td>
                     <div className="flex flex-col gap-1 text-sm">
                       {item.contactEmail && (
                         <div className="flex items-center gap-1.5 text-[var(--st-text-secondary)]">
-                          <Mail className="h-3 w-3" />
-                          <a href={`mailto:${item.contactEmail}`} className="hover:underline text-[var(--st-text)]">{item.contactEmail}</a>
+                          <Mail className="h-3 w-3" aria-hidden="true" />
+                          <a href={`mailto:${item.contactEmail}`} className="text-[var(--st-text)] hover:underline">{item.contactEmail}</a>
                         </div>
                       )}
                       {item.contactPhone && (
                         <div className="flex items-center gap-1.5 text-[var(--st-text-secondary)]">
-                          <Phone className="h-3 w-3" />
+                          <Phone className="h-3 w-3" aria-hidden="true" />
                           <a href={`tel:${item.contactPhone}`} className="hover:underline">{item.contactPhone}</a>
                         </div>
                       )}
-                      {!item.contactEmail && !item.contactPhone && <span className="text-[var(--st-text-secondary)] italic">No contact info</span>}
+                      {!item.contactEmail && !item.contactPhone && <span className="italic text-[var(--st-text-secondary)]">No contact info</span>}
                     </div>
                   </Td>
-                  <Td className="w-[200px]">
+                  <Td width={200}>
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-[var(--st-text-secondary)]">Score</span>
-                        <span className="font-medium">{item.performanceScore || 0}/100</span>
+                        <span className="font-medium text-[var(--st-text)]">{item.performanceScore || 0}/100</span>
                       </div>
-                      <Progress value={Number(item.performanceScore || 0)} className="h-1.5" />
+                      <Progress value={Number(item.performanceScore || 0)} size="sm" aria-label="Performance score" />
                     </div>
                   </Td>
                   <Td>
                     <div className="flex flex-col gap-1 text-sm">
-                      <div>Terms: <span className="font-medium">{item.paymentTerms || 'N/A'}</span></div>
+                      <div className="text-[var(--st-text)]">Terms: <span className="font-medium">{item.paymentTerms || 'N/A'}</span></div>
                       <div className="text-[var(--st-text-secondary)]">{item.activeContracts || 0} active contracts</div>
                     </div>
                   </Td>
                   <Td>
-                    <Badge variant={item.onboardingStatus === 'ACTIVE' ? 'default' : item.onboardingStatus === 'INACTIVE' ? 'destructive' : 'secondary'}>
+                    <Badge
+                      tone={item.onboardingStatus === 'ACTIVE' ? 'success' : item.onboardingStatus === 'INACTIVE' ? 'danger' : 'neutral'}
+                    >
                       {item.onboardingStatus || 'ACTIVE'}
                     </Badge>
                   </Td>
                   <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton label="Open actions" icon={MoreHorizontal} variant="ghost" size="sm" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item)}>
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
+                        <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -321,22 +349,6 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
           </TBody>
         </Table>
       </div>
-
-      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>View Details</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </EntityListShell>
   );
 }

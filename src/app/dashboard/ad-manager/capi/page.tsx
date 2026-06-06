@@ -1,11 +1,30 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
-  ShieldCheck,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
+import {
   Copy,
   ExternalLink,
-  Send } from 'lucide-react';
+  Send,
+  ShieldCheck,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -65,19 +84,18 @@ export default function CapiPage() {
             <AmBreadcrumb page="Conversions API" />
             <AmHeader
                 title="Conversions API (CAPI)"
-                description="Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ / ad-blocker signal loss."
+                description="Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ and ad-blocker signal loss."
                 actions={
-                    <Badge className="bg-[var(--st-text)] text-white">
-                        <ShieldCheck className="h-3 w-3 mr-1" /> Server-side
+                    <Badge tone="neutral" kind="solid">
+                        <ShieldCheck className="h-3 w-3 mr-1" aria-hidden="true" /> Server-side
                     </Badge>
                 }
             />
 
-            <Alert>
-                <ShieldCheck className="h-4 w-4" />
+            <Alert tone="info" icon={ShieldCheck}>
                 <AlertTitle>Why CAPI?</AlertTitle>
                 <AlertDescription>
-                    Meta Pixel alone loses ~30% of events on modern browsers. CAPI closes that gap by sending events server-to-server,
+                    Meta Pixel alone loses about 30% of events on modern browsers. CAPI closes that gap by sending events server-to-server,
                     and lets you match purchase revenue to ads with near-perfect attribution.
                 </AlertDescription>
             </Alert>
@@ -88,19 +106,23 @@ export default function CapiPage() {
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {pixels.length === 0 ? (
-                        <p className="text-sm text-[var(--st-text-secondary)]">No pixels yet — create one from Pixels & datasets first.</p>
+                        <EmptyState
+                            size="sm"
+                            title="No pixels yet"
+                            description="Create one from Pixels and datasets first."
+                        />
                     ) : (
                         <div className="flex flex-wrap gap-2">
                             {pixels.map((p) => (
-                                <button
+                                <Button
                                     key={p.id}
+                                    size="sm"
+                                    variant={p.id === selectedPixelId ? 'primary' : 'secondary'}
+                                    aria-pressed={p.id === selectedPixelId}
                                     onClick={() => setSelectedPixelId(p.id)}
-                                    className={`px-3 py-1.5 rounded-full text-xs border ${
-                                        p.id === selectedPixelId ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : ''
-                                    }`}
                                 >
                                     {p.name}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     )}
@@ -112,11 +134,14 @@ export default function CapiPage() {
                     <CardTitle className="text-base">2. Endpoint</CardTitle>
                 </CardHeader>
                 <CardBody>
-                    <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] p-2.5 rounded font-mono text-xs">
+                    <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] p-2.5 rounded-[var(--st-radius)] font-mono text-xs">
                         <span className="flex-1 break-all">{endpoint}</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
-                            <Copy className="h-3 w-3" />
-                        </Button>
+                        <IconButton
+                            label="Copy endpoint URL"
+                            icon={Copy}
+                            size="sm"
+                            onClick={() => copy(endpoint)}
+                        />
                     </div>
                 </CardBody>
             </Card>
@@ -126,14 +151,15 @@ export default function CapiPage() {
                     <CardTitle className="text-base">3. Sample event payload</CardTitle>
                 </CardHeader>
                 <CardBody>
-                    <pre className="bg-[var(--st-bg-muted)] p-3 rounded text-xs overflow-x-auto">{samplePayload}</pre>
+                    <pre className="bg-[var(--st-bg-muted)] p-3 rounded-[var(--st-radius)] text-xs overflow-x-auto">{samplePayload}</pre>
                     <Button
                         variant="outline"
                         size="sm"
                         className="mt-2"
+                        iconLeft={Copy}
                         onClick={() => copy(samplePayload)}
                     >
-                        <Copy className="h-3 w-3 mr-1" /> Copy payload
+                        Copy payload
                     </Button>
                 </CardBody>
             </Card>
@@ -144,14 +170,13 @@ export default function CapiPage() {
                 </CardHeader>
                 <CardBody className="space-y-4 text-sm">
                     <p>
-                        SabNode provides a server action <code className="px-1 py-0.5 bg-[var(--st-bg-muted)] rounded">sendConversionApiEvent</code> you can
+                        SabNode provides a server action <code className="px-1 py-0.5 bg-[var(--st-bg-muted)] rounded-[var(--st-radius-sm)]">sendConversionApiEvent</code> you can
                         call from your e-commerce checkout, CRM webhook, or backend.
                     </p>
                     <div className="flex items-end gap-3">
-                        <div className="space-y-1.5">
-                            <p className="text-xs font-medium text-[var(--st-text-secondary)]">Event name</p>
+                        <Field label="Event name" className="w-[180px]">
                             <Select value={testEventName} onValueChange={setTestEventName}>
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger aria-label="Event name">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -161,8 +186,11 @@ export default function CapiPage() {
                                     <SelectItem value="AddToCart">AddToCart</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                         <Button
+                            variant="primary"
+                            iconLeft={Send}
+                            loading={sendingTest}
                             disabled={!selectedPixelId || sendingTest}
                             onClick={async () => {
                                 if (!selectedPixelId) return;
@@ -176,18 +204,21 @@ export default function CapiPage() {
                                 }
                             }}
                         >
-                            <Send className="h-4 w-4 mr-1" />
                             {sendingTest ? 'Sending...' : 'Send Test Event'}
                         </Button>
                     </div>
-                    <Button variant="outline" asChild>
-                        <a
-                            href="https://developers.facebook.com/docs/marketing-api/conversions-api"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Read Meta CAPI docs <ExternalLink className="h-3 w-3 ml-1" />
-                        </a>
+                    <Button
+                        variant="outline"
+                        iconRight={ExternalLink}
+                        onClick={() =>
+                            window.open(
+                                'https://developers.facebook.com/docs/marketing-api/conversions-api',
+                                '_blank',
+                                'noreferrer',
+                            )
+                        }
+                    >
+                        Read Meta CAPI docs
                     </Button>
                 </CardBody>
             </Card>

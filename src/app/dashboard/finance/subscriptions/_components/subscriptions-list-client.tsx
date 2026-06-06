@@ -2,15 +2,47 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Alert, AlertTitle, AlertDescription, EmptyState, StatCard } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, AlertCircle, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Alert,
+  EmptyState,
+  StatCard,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, Download } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';
-import { toast } from 'sonner';
 import { fmtINR, fmtDate } from '@/lib/utils';
+
+const BILLING_CYCLES = ['MONTHLY', 'YEARLY'] as const;
+const STATUSES = ['ACTIVE', 'PAUSED', 'CANCELLED'] as const;
 
 export function SubscriptionListClient({ initialItems, error }: { initialItems: Subscription[], error?: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -18,6 +50,8 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
   const [search, setSearch] = useState('');
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewingItem, setViewingItem] = useState<Subscription | null>(null);
+
+  const editing = editingId ? items.find(i => i._id === editingId) : undefined;
 
   function exportToCsv() {
     if (items.length === 0) return;
@@ -39,12 +73,12 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
     setIsViewOpen(true);
   }
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
   const activeItems = items.filter(item => !item.status || String(item.status).toUpperCase() === 'ACTIVE');
-  
+
   const mrr = activeItems.reduce((acc, item) => {
     const amount = Number(item.amount) || 0;
     const cycle = String(item.billingCycle).toUpperCase();
@@ -57,7 +91,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
   const now = new Date();
   const next30Days = new Date();
   next30Days.setDate(next30Days.getDate() + 30);
-  
+
   const upcomingRenewals = activeItems.filter(item => {
     if (!item.nextBillingDate) return false;
     const billingDate = new Date(item.nextBillingDate);
@@ -134,166 +168,158 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       subtitle="Manage recurring billing and subscriptions."
       primaryAction={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>CustomerId</Label>
-              <Input 
-                name="customerId" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.customerId : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("customerId")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>PlanId</Label>
-              <Input 
-                name="planId" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.planId : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("planId")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>BillingCycle</Label>
-              <Input 
-                name="billingCycle" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.billingCycle : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("billingCycle")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>NextBillingDate</Label>
-              <Input 
-                name="nextBillingDate" 
-                type="date"
-                defaultValue={editingId ? (items.find(i => i._id === editingId)?.nextBillingDate ? new Date(items.find(i => i._id === editingId)!.nextBillingDate!).toISOString().split('T')[0] : '') : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("nextBillingDate")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Amount</Label>
-              <Input 
-                name="amount" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.amount : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("amount")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Status</Label>
-              <Input 
-                name="status" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.status : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("status")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              {/* `editingId` keys the form so defaultValues reset between create/edit. */}
+              <form key={editingId ?? 'new'} onSubmit={onSubmit} className="max-h-[70vh] overflow-y-auto px-1 py-4">
+                <div className="grid gap-4">
+                  <Field label="Customer ID" required>
+                    <Input name="customerId" defaultValue={editing?.customerId ?? ''} required />
+                  </Field>
+                  <Field label="Plan ID" required>
+                    <Input name="planId" defaultValue={editing?.planId ?? ''} required />
+                  </Field>
+                  <Field label="Billing Cycle" required>
+                    <Select name="billingCycle" defaultValue={editing?.billingCycle ?? 'MONTHLY'}>
+                      <SelectTrigger aria-label="Billing Cycle">
+                        <SelectValue placeholder="Select a billing cycle" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BILLING_CYCLES.map(cycle => (
+                          <SelectItem key={cycle} value={cycle}>{cycle}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Next Billing Date" required>
+                    <Input
+                      name="nextBillingDate"
+                      type="date"
+                      defaultValue={editing?.nextBillingDate ? new Date(editing.nextBillingDate).toISOString().split('T')[0] : ''}
+                      required
+                    />
+                  </Field>
+                  <Field label="Amount" required>
+                    <Input
+                      name="amount"
+                      type="number"
+                      step="any"
+                      defaultValue={editing?.amount ?? ''}
+                      required
+                    />
+                  </Field>
+                  <Field label="Status">
+                    <Select name="status" defaultValue={editing?.status ?? 'ACTIVE'}>
+                      <SelectTrigger aria-label="Status">
+                        <SelectValue placeholder="Select a status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map(s => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
       {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Loading Subscriptions</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert tone="danger" title="Error Loading Subscriptions" className="mb-6">
+          {error}
         </Alert>
       )}
 
       {!error && items.length === 0 ? (
-        <EmptyState 
+        <EmptyState
           title="No subscriptions yet"
           description="Create your first subscription to track recurring revenue."
-          icon={<CreditCard className="h-6 w-6" />}
+          icon={CreditCard}
           action={
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> Add Subscription
+            <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+              Add Subscription
             </Button>
           }
         />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <StatCard 
-              label="MRR" 
-              value={fmtINR(mrr)} 
-              icon={<DollarSign className="text-[var(--st-text-secondary)]" />} 
-            />
-            <StatCard 
-              label="ARR" 
-              value={fmtINR(arr)} 
-              icon={<DollarSign className="text-[var(--st-text-secondary)]" />} 
-            />
-            <StatCard 
-              label="Upcoming Renewals (30 Days)" 
-              value={upcomingRenewals.toString()} 
-              icon={<Calendar className="text-[var(--st-text-secondary)]" />} 
-            />
+            <StatCard label="MRR" value={fmtINR(mrr)} icon={DollarSign} />
+            <StatCard label="ARR" value={fmtINR(arr)} icon={DollarSign} />
+            <StatCard label="Upcoming Renewals (30 Days)" value={upcomingRenewals.toString()} icon={Calendar} />
           </div>
 
           <div className="mb-6 flex items-center gap-2">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-              <Input 
-                placeholder="Search records..." 
-                className="pl-8"
+            <div className="w-full max-w-sm">
+              <Input
+                placeholder="Search records..."
+                iconLeft={Search}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
+                aria-label="Search records"
               />
             </div>
           </div>
 
-          <div className="rounded-md border bg-white overflow-hidden">
+          <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
             <Table>
               <THead>
                 <Tr>
-                  <Th>CustomerId</Th><Th>PlanId</Th><Th>BillingCycle</Th><Th>NextBillingDate</Th><Th>Amount</Th><Th>Status</Th>
-                  <Th className="w-[80px]"></Th>
+                  <Th>Customer ID</Th>
+                  <Th>Plan ID</Th>
+                  <Th>Billing Cycle</Th>
+                  <Th>Next Billing Date</Th>
+                  <Th align="right">Amount</Th>
+                  <Th>Status</Th>
+                  <Th width={80}></Th>
                 </Tr>
               </THead>
               <TBody>
                 {filteredItems.length === 0 ? (
                   <Tr>
-                    <Td colSpan={7} className="h-24 text-center">
+                    <Td colSpan={7} align="center">
                       No results.
                     </Td>
                   </Tr>
                 ) : (
                   filteredItems.map((item) => (
                     <Tr key={item._id}>
-                      <Td>{String(item.customerId ?? '')}</Td><Td>{String(item.planId ?? '')}</Td><Td>{String(item.billingCycle ?? '')}</Td><Td>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</Td><Td>{fmtINR(item.amount)}</Td><Td>{String(item.status ?? '')}</Td>
+                      <Td>{String(item.customerId ?? '')}</Td>
+                      <Td>{String(item.planId ?? '')}</Td>
+                      <Td>{String(item.billingCycle ?? '')}</Td>
+                      <Td>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</Td>
+                      <Td align="right">{fmtINR(item.amount)}</Td>
+                      <Td>{String(item.status ?? '')}</Td>
                       <Td>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                            <IconButton label="Row actions" icon={MoreHorizontal} size="sm" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                            <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                              Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                              <Trash className="mr-2 h-4 w-4" /> Delete
+                            <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                              Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -312,11 +338,11 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
           <DialogHeader>
             <DialogTitle>View Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
+                <div className="text-sm font-medium capitalize text-[var(--st-text-secondary)]">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm text-[var(--st-text)]">{String(value)}</div>
               </div>
             ))}
           </div>

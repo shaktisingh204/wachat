@@ -1,5 +1,7 @@
 import React, { Suspense } from 'react';
 
+import { Spinner } from '@/components/sabcrm/20ui';
+
 import {
     getPagesenseSite,
     listFormAnalytics,
@@ -26,8 +28,9 @@ export default function FormsPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
-                    Loading form analytics…
+                <div className="ui20 flex items-center gap-2 p-8 text-sm text-[var(--st-text-secondary)]">
+                    <Spinner size="sm" label="Loading form analytics" />
+                    Loading form analytics.
                 </div>
             }
         >

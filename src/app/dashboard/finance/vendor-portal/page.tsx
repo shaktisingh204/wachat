@@ -13,8 +13,15 @@ async function VendorPageContainer() {
 
 export default function VendorPage() {
   return (
-    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
-      <VendorPageContainer  />
+    <Suspense
+      fallback={
+        <div className="p-8 space-y-4">
+          <Skeleton height={40} width="100%" />
+          <Skeleton height={400} width="100%" />
+        </div>
+      }
+    >
+      <VendorPageContainer />
     </Suspense>
   );
 }

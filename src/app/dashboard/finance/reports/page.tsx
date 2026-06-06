@@ -1,78 +1,72 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { useGSAP } from '@gsap/react';
-import gsapCore from 'gsap';
-import { Download, Printer } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  SegmentedControl,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import { Download, Printer, BarChart3, Scale } from 'lucide-react';
 
-gsapCore.registerPlugin(useGSAP);
+type ReportKey = 'trial_balance' | 'pl' | 'balance_sheet';
+
+const REPORT_OPTIONS: ReadonlyArray<{ value: ReportKey; label: string }> = [
+  { value: 'trial_balance', label: 'Trial Balance' },
+  { value: 'pl', label: 'Profit & Loss' },
+  { value: 'balance_sheet', label: 'Balance Sheet' },
+];
+
+const REPORT_TITLE: Record<ReportKey, string> = {
+  trial_balance: 'Trial Balance as of Today',
+  pl: 'Profit & Loss Statement (Current FY)',
+  balance_sheet: 'Balance Sheet as of Today',
+};
 
 export default function ReportsPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeReport, setActiveReport] = useState<'trial_balance' | 'pl' | 'balance_sheet'>('trial_balance');
-
-  useGSAP(() => {
-    gsapCore.from('.animate-fade', {
-      y: 15,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  }, { scope: containerRef, dependencies: [activeReport] });
+  const [activeReport, setActiveReport] = useState<ReportKey>('trial_balance');
 
   return (
-    <div className="p-6 space-y-6" ref={containerRef}>
-      <div className="animate-fade flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Financial Reports</h1>
-          <p className="text-[var(--st-text-secondary)] mt-1">
-            Real-time interactive reports.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Printer className="w-4 h-4 mr-2" />
+    <div className="p-6 space-y-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Financial Reports</PageTitle>
+          <PageDescription>Real-time interactive reports.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" size="sm" iconLeft={Printer}>
             Print
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" iconLeft={Download}>
             Export Excel
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      <div className="animate-fade flex space-x-2 border-b pb-2">
-        <Button 
-          variant={activeReport === 'trial_balance' ? 'default' : 'ghost'} 
-          onClick={() => setActiveReport('trial_balance')}
-        >
-          Trial Balance
-        </Button>
-        <Button 
-          variant={activeReport === 'pl' ? 'default' : 'ghost'} 
-          onClick={() => setActiveReport('pl')}
-        >
-          Profit & Loss
-        </Button>
-        <Button 
-          variant={activeReport === 'balance_sheet' ? 'default' : 'ghost'} 
-          onClick={() => setActiveReport('balance_sheet')}
-        >
-          Balance Sheet
-        </Button>
-      </div>
+      <SegmentedControl
+        aria-label="Select report"
+        items={REPORT_OPTIONS}
+        value={activeReport}
+        onChange={setActiveReport}
+      />
 
-      <Card className="animate-fade">
+      <Card>
         <CardHeader>
-          <CardTitle>
-            {activeReport === 'trial_balance' && 'Trial Balance as of Today'}
-            {activeReport === 'pl' && 'Profit & Loss Statement (Current FY)'}
-            {activeReport === 'balance_sheet' && 'Balance Sheet as of Today'}
-          </CardTitle>
+          <CardTitle>{REPORT_TITLE[activeReport]}</CardTitle>
         </CardHeader>
         <CardBody>
           {activeReport === 'trial_balance' && (
@@ -80,50 +74,54 @@ export default function ReportsPage() {
               <THead>
                 <Tr>
                   <Th>Particulars</Th>
-                  <Th className="text-right">Debit (₹)</Th>
-                  <Th className="text-right">Credit (₹)</Th>
+                  <Th align="right">Debit (₹)</Th>
+                  <Th align="right">Credit (₹)</Th>
                 </Tr>
               </THead>
               <TBody>
                 <Tr>
                   <Td className="font-medium">Cash in Hand</Td>
-                  <Td className="text-right">45,000.00</Td>
-                  <Td className="text-right"></Td>
+                  <Td align="right">45,000.00</Td>
+                  <Td align="right" />
                 </Tr>
                 <Tr>
                   <Td className="font-medium">Bank Accounts</Td>
-                  <Td className="text-right">1,25,000.00</Td>
-                  <Td className="text-right"></Td>
+                  <Td align="right">1,25,000.00</Td>
+                  <Td align="right" />
                 </Tr>
                 <Tr>
                   <Td className="font-medium">Sales Account</Td>
-                  <Td className="text-right"></Td>
-                  <Td className="text-right">3,50,000.00</Td>
+                  <Td align="right" />
+                  <Td align="right">3,50,000.00</Td>
                 </Tr>
                 <Tr>
                   <Td className="font-medium">Capital Account</Td>
-                  <Td className="text-right"></Td>
-                  <Td className="text-right">5,00,000.00</Td>
+                  <Td align="right" />
+                  <Td align="right">5,00,000.00</Td>
                 </Tr>
-                <Tr className="border-t-2 font-bold">
+                <Tr className="font-bold border-t-2 border-[var(--st-border)]">
                   <Td>Total</Td>
-                  <Td className="text-right">8,50,000.00</Td>
-                  <Td className="text-right">8,50,000.00</Td>
+                  <Td align="right">8,50,000.00</Td>
+                  <Td align="right">8,50,000.00</Td>
                 </Tr>
               </TBody>
             </Table>
           )}
 
           {activeReport === 'pl' && (
-            <div className="text-center text-[var(--st-text-secondary)] py-10">
-              Profit & Loss statement visualization goes here.
-            </div>
+            <EmptyState
+              icon={BarChart3}
+              title="Profit & Loss statement"
+              description="The Profit & Loss visualization will appear here."
+            />
           )}
 
           {activeReport === 'balance_sheet' && (
-            <div className="text-center text-[var(--st-text-secondary)] py-10">
-              Balance Sheet visualization goes here.
-            </div>
+            <EmptyState
+              icon={Scale}
+              title="Balance Sheet"
+              description="The Balance Sheet visualization will appear here."
+            />
           )}
         </CardBody>
       </Card>

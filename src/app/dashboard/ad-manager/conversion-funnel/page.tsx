@@ -1,11 +1,23 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
-  Filter,
-  RefreshCw,
-  DollarSign,
-  Download } from 'lucide-react';
+    Badge,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    StatCard,
+    Skeleton,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Button,
+} from '@/components/sabcrm/20ui';
+import { RefreshCw, DollarSign, Download, BarChart3 } from 'lucide-react';
 
 import * as React from 'react';
 
@@ -14,7 +26,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getConversionFunnel } from '@/app/actions/ad-manager-features.actions';
 import {
     AmBreadcrumb,
-    AmErrorAlert,
     AmHeader,
     AmNoProject,
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -60,7 +71,7 @@ export default function ConversionFunnelPage() {
 
     const handleExport = React.useCallback(() => {
         if (!funnel) return;
-        
+
         const rows = [
             ['Step', 'Count', 'Drop-off %', 'Cost Per Step ($)'],
         ];
@@ -108,11 +119,22 @@ export default function ConversionFunnelPage() {
                 description="Last 30 days funnel from impressions to purchases."
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={handleExport} disabled={!funnel || loading}>
-                            <Download className="h-4 w-4 mr-1" /> Export CSV
+                        <Button
+                            variant="outline"
+                            iconLeft={Download}
+                            onClick={handleExport}
+                            disabled={!funnel || loading}
+                        >
+                            Export CSV
                         </Button>
-                        <Button variant="outline" onClick={fetchData} disabled={loading}>
-                            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+                        <Button
+                            variant="outline"
+                            iconLeft={RefreshCw}
+                            onClick={fetchData}
+                            disabled={loading}
+                            loading={loading}
+                        >
+                            Refresh
                         </Button>
                     </div>
                 }
@@ -120,21 +142,27 @@ export default function ConversionFunnelPage() {
 
             {loading ? (
                 <div className="space-y-4">
-                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} height={56} radius="var(--st-radius)" />
+                    ))}
                 </div>
             ) : !funnel ? (
-                <Card><CardBody className="p-8 text-center text-[var(--st-text-secondary)]">No funnel data available.</CardBody></Card>
+                <Card>
+                    <CardBody>
+                        <EmptyState
+                            icon={BarChart3}
+                            title="No funnel data available"
+                            description="There is no conversion data for this account over the last 30 days."
+                        />
+                    </CardBody>
+                </Card>
             ) : (
                 <>
-                    <Card>
-                        <CardBody className="p-4 flex items-center gap-3">
-                            <DollarSign className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                            <div>
-                                <div className="text-sm text-[var(--st-text-secondary)]">Total spend (30d)</div>
-                                <div className="text-2xl font-bold tabular-nums">${funnel.spend.toFixed(2)}</div>
-                            </div>
-                        </CardBody>
-                    </Card>
+                    <StatCard
+                        icon={DollarSign}
+                        label="Total spend (30d)"
+                        value={`$${funnel.spend.toFixed(2)}`}
+                    />
 
                     <Card>
                         <CardHeader><CardTitle className="text-base">Funnel steps</CardTitle></CardHeader>
@@ -144,25 +172,25 @@ export default function ConversionFunnelPage() {
                                 const prevCount = idx > 0 ? funnel[STEPS[idx - 1].key] : count;
                                 const dropOff = idx > 0 && prevCount > 0 ? ((1 - count / prevCount) * 100).toFixed(1) : null;
                                 const widthPct = Math.max((count / maxVal) * 100, 2);
-                                const costPer = funnel.spend > 0 && count > 0 ? (funnel.spend / count).toFixed(2) : '—';
+                                const costPer = funnel.spend > 0 && count > 0 ? (funnel.spend / count).toFixed(2) : '-';
 
                                 return (
                                     <div key={step.key}>
                                         <div className="flex items-center justify-between mb-1">
-                                            <span className="text-sm font-medium">{step.label}</span>
+                                            <span className="text-sm font-medium text-[var(--st-text)]">{step.label}</span>
                                             <div className="flex items-center gap-3 text-sm">
-                                                <span className="tabular-nums font-semibold">{count.toLocaleString()}</span>
+                                                <span className="tabular-nums font-semibold text-[var(--st-text)]">{count.toLocaleString()}</span>
                                                 {dropOff && (
-                                                    <span className="text-[var(--st-text)] text-xs">-{dropOff}%</span>
+                                                    <Badge tone="danger" kind="soft">-{dropOff}%</Badge>
                                                 )}
                                                 <span className="text-[var(--st-text-secondary)] text-xs tabular-nums">
                                                     ${costPer}/ea
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-6">
+                                        <div className="w-full bg-[var(--st-bg-muted)] rounded-[var(--st-radius-pill)] h-6">
                                             <div
-                                                className="bg-[var(--st-text)] h-6 rounded-full transition-all duration-500"
+                                                className="bg-[var(--st-accent)] h-6 rounded-[var(--st-radius-pill)] transition-all duration-500"
                                                 style={{ width: `${widthPct}%` }}
                                             />
                                         </div>
@@ -175,18 +203,28 @@ export default function ConversionFunnelPage() {
                     <Card>
                         <CardHeader><CardTitle className="text-base">Cost per step</CardTitle></CardHeader>
                         <CardBody>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                {STEPS.map((step) => {
-                                    const count = funnel[step.key];
-                                    const cost = count > 0 ? (funnel.spend / count).toFixed(2) : '—';
-                                    return (
-                                        <div key={step.key} className="text-center">
-                                            <div className="text-xs text-[var(--st-text-secondary)]">{step.label}</div>
-                                            <div className="text-lg font-bold tabular-nums">${cost}</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            <Table>
+                                <THead>
+                                    <Tr>
+                                        <Th>Step</Th>
+                                        <Th align="right">Count</Th>
+                                        <Th align="right">Cost per result</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {STEPS.map((step) => {
+                                        const count = funnel[step.key];
+                                        const cost = count > 0 ? (funnel.spend / count).toFixed(2) : '-';
+                                        return (
+                                            <Tr key={step.key}>
+                                                <Td>{step.label}</Td>
+                                                <Td align="right" className="tabular-nums">{count.toLocaleString()}</Td>
+                                                <Td align="right" className="tabular-nums font-semibold">${cost}</Td>
+                                            </Tr>
+                                        );
+                                    })}
+                                </TBody>
+                            </Table>
                         </CardBody>
                     </Card>
                 </>

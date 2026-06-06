@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 
 import { getPagesenseSite, listRecordings } from '@/app/actions/sabsense.actions';
+import { Spinner } from '@/components/sabcrm/20ui';
 
 import { RecordingsClient } from './_recordings-client';
 
@@ -36,8 +37,9 @@ export default function RecordingsPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
-                    Loading recordings…
+                <div className="ui20 flex items-center gap-2 p-8 text-sm text-[var(--st-text-secondary)]">
+                    <Spinner size="sm" label="Loading recordings" />
+                    <span>Loading recordings.</span>
                 </div>
             }
         >

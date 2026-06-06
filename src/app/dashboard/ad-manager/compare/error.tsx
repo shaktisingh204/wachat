@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
-import { Button } from '@/components/sabcrm/20ui';
+import { RefreshCw } from 'lucide-react';
+
+import { Alert, Button } from '@/components/sabcrm/20ui';
 
 export default function AdManagerCompareError({
   error,
@@ -17,9 +18,11 @@ export default function AdManagerCompareError({
 
   return (
     <div className="flex flex-col gap-4 p-6">
-      <AmErrorAlert message={error.message || 'An unexpected error occurred while comparing campaigns.'} />
+      <Alert tone="danger" title="Something went wrong">
+        {error.message || 'An unexpected error occurred while comparing campaigns.'}
+      </Alert>
       <div>
-        <Button onClick={() => reset()} variant="outline">
+        <Button onClick={() => reset()} variant="outline" iconLeft={RefreshCw}>
           Try again
         </Button>
       </div>

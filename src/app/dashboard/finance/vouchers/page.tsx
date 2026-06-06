@@ -1,90 +1,124 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { UploadCloud } from 'lucide-react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'context/gsap'; // We'll just import gsap from 'gsap' usually, assuming standard import
-// Wait, the skill says: import { useGSAP } from "@gsap/react"; and use gsap. Let's do `import gsap from "gsap";`
-import gsapCore from 'gsap';
+import React, { useEffect } from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarGroup,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Button,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFilePickerButton } from '@/components/sabfiles';
+import { ScanLine } from 'lucide-react';
+
+const TODAY = new Date().toISOString().split('T')[0];
 
 export default function VouchersPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Register plugin is better done at layout level, but we can do it here if needed or just useGSAP directly.
-  gsapCore.registerPlugin(useGSAP);
-
-  useGSAP(() => {
-    gsapCore.from('.animate-fade', {
-      y: 20,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.5,
-      ease: 'power2.out'
-    });
-  }, { scope: containerRef });
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Global shortcuts for saving
+      // Global shortcut for saving the voucher.
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        console.log('Saved voucher');
+        toast.success('Voucher saved');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [toast]);
+
+  const handleSave = () => {
+    toast.success('Voucher saved');
+  };
 
   return (
-    <div className="p-6 space-y-6" ref={containerRef}>
-      <div className="animate-fade flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Voucher Entry</h1>
-          <p className="text-[var(--st-text-secondary)] mt-1">
+    <div className="ui20 p-6 space-y-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Voucher Entry</PageTitle>
+          <PageDescription>
             Fast, keyboard-first data entry. Use Tab and Shift+Tab to navigate. Cmd+S to save.
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-[var(--st-text-secondary)] font-medium">Active Editors:</div>
-          <div className="flex -space-x-3">
-            <Avatar className="w-8 h-8 border-2 border-background">
-              <AvatarImage src="https://i.pravatar.cc/100?img=1" />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Active editors</span>
+          <AvatarGroup max={2} size="sm" label="2 active editors, plus 2 more">
+            <Avatar>
+              <AvatarImage src="https://i.pravatar.cc/100?img=1" alt="Editor A" />
               <AvatarFallback>A</AvatarFallback>
             </Avatar>
-            <Avatar className="w-8 h-8 border-2 border-background">
-              <AvatarImage src="https://i.pravatar.cc/100?img=2" />
+            <Avatar>
+              <AvatarImage src="https://i.pravatar.cc/100?img=2" alt="Editor B" />
               <AvatarFallback>B</AvatarFallback>
             </Avatar>
-            <Avatar className="w-8 h-8 border-2 border-background flex items-center justify-center bg-[var(--st-bg-muted)] text-xs">
-              +2
+            <Avatar>
+              <AvatarFallback>C</AvatarFallback>
             </Avatar>
-          </div>
-        </div>
-      </div>
+            <Avatar>
+              <AvatarFallback>D</AvatarFallback>
+            </Avatar>
+          </AvatarGroup>
+        </PageActions>
+      </PageHeader>
 
-      <div className="animate-fade max-w-4xl border-2 border-dashed border-primary/20 bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 transition-colors rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer">
-        <UploadCloud className="w-10 h-10 text-[var(--st-text)] mb-2" />
-        <h3 className="font-semibold">AI Zero-Data Entry (OCR)</h3>
-        <p className="text-sm text-[var(--st-text-secondary)]">Drag and drop a receipt or invoice here, and AI will auto-fill the voucher below.</p>
-      </div>
+      <Card variant="outlined" className="max-w-4xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ScanLine size={18} aria-hidden="true" />
+            AI Zero-Data Entry (OCR)
+          </CardTitle>
+          <CardDescription>
+            Pick a receipt or invoice from SabFiles and AI will auto-fill the voucher below.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <SabFilePickerButton
+            accept="all"
+            variant="outline"
+            onPick={(pick) => {
+              toast.info(`Scanning ${pick.name ?? 'file'} for voucher data`);
+            }}
+          >
+            Choose receipt or invoice
+          </SabFilePickerButton>
+        </CardBody>
+      </Card>
 
-      <Card className="animate-fade max-w-4xl">
+      <Card variant="outlined" className="max-w-4xl">
         <CardHeader>
           <CardTitle>New Voucher</CardTitle>
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Voucher Type</Label>
+            <Field label="Voucher Type">
               <Select defaultValue="journal">
-                <SelectTrigger>
+                <SelectTrigger aria-label="Voucher type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -94,34 +128,34 @@ export default function VouchersPage() {
                   <SelectItem value="contra">Contra (F4)</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Date</Label>
-              <Input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>Voucher No.</Label>
+            <Field label="Date">
+              <Input type="date" defaultValue={TODAY} />
+            </Field>
+
+            <Field label="Voucher No.">
               <Input type="text" placeholder="Auto-generated" disabled />
-            </div>
+            </Field>
           </div>
 
-          <div className="border rounded-md">
-            <Table>
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden">
+            <Table hover={false}>
               <THead>
                 <Tr>
-                  <Th className="w-[100px]">Dr/Cr</Th>
+                  <Th width={100}>Dr/Cr</Th>
                   <Th>Particulars (Ledger Account)</Th>
-                  <Th className="text-right">Debit (₹)</Th>
-                  <Th className="text-right">Credit (₹)</Th>
+                  <Th align="right">Debit (₹)</Th>
+                  <Th align="right">Credit (₹)</Th>
                 </Tr>
               </THead>
               <TBody>
                 <Tr>
                   <Td>
                     <Select defaultValue="dr">
-                      <SelectTrigger className="border-0 focus:ring-0 px-2"><SelectValue /></SelectTrigger>
+                      <SelectTrigger aria-label="Debit or credit, row 1">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="dr">Dr</SelectItem>
                         <SelectItem value="cr">Cr</SelectItem>
@@ -129,19 +163,27 @@ export default function VouchersPage() {
                     </Select>
                   </Td>
                   <Td>
-                    <Input placeholder="Search Ledger (Alt+L)..." className="border-0 focus-visible:ring-1" autoFocus />
+                    <Field label="Ledger, row 1" className="sr-only">
+                      <Input placeholder="Search Ledger (Alt+L)..." autoFocus />
+                    </Field>
                   </Td>
-                  <Td>
-                    <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" />
+                  <Td align="right">
+                    <Field label="Debit amount, row 1" className="sr-only">
+                      <Input type="number" placeholder="0.00" className="text-right" />
+                    </Field>
                   </Td>
-                  <Td>
-                    <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" disabled />
+                  <Td align="right">
+                    <Field label="Credit amount, row 1" className="sr-only">
+                      <Input type="number" placeholder="0.00" className="text-right" disabled />
+                    </Field>
                   </Td>
                 </Tr>
                 <Tr>
                   <Td>
                     <Select defaultValue="cr">
-                      <SelectTrigger className="border-0 focus:ring-0 px-2"><SelectValue /></SelectTrigger>
+                      <SelectTrigger aria-label="Debit or credit, row 2">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="dr">Dr</SelectItem>
                         <SelectItem value="cr">Cr</SelectItem>
@@ -149,35 +191,45 @@ export default function VouchersPage() {
                     </Select>
                   </Td>
                   <Td>
-                    <Input placeholder="Search Ledger (Alt+L)..." className="border-0 focus-visible:ring-1" />
+                    <Field label="Ledger, row 2" className="sr-only">
+                      <Input placeholder="Search Ledger (Alt+L)..." />
+                    </Field>
                   </Td>
-                  <Td>
-                    <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" disabled />
+                  <Td align="right">
+                    <Field label="Debit amount, row 2" className="sr-only">
+                      <Input type="number" placeholder="0.00" className="text-right" disabled />
+                    </Field>
                   </Td>
-                  <Td>
-                    <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" />
+                  <Td align="right">
+                    <Field label="Credit amount, row 2" className="sr-only">
+                      <Input type="number" placeholder="0.00" className="text-right" />
+                    </Field>
                   </Td>
                 </Tr>
               </TBody>
             </Table>
           </div>
 
-          <div className="space-y-2">
-            <Label>Narration</Label>
+          <Field label="Narration">
             <Input placeholder="Being..." />
-          </div>
-
-          <div className="flex justify-between items-center pt-4 border-t">
-            <div className="text-sm text-[var(--st-text-secondary)] flex items-center space-x-4">
-              <span>Total Debit: <strong className="text-[var(--st-text)]">₹0.00</strong></span>
-              <span>Total Credit: <strong className="text-[var(--st-text)]">₹0.00</strong></span>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline">Clear (Esc)</Button>
-              <Button>Save Voucher (Cmd+S)</Button>
-            </div>
-          </div>
+          </Field>
         </CardBody>
+        <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-4 text-sm text-[var(--st-text-secondary)]">
+            <span>
+              Total Debit: <strong className="text-[var(--st-text)]">₹0.00</strong>
+            </span>
+            <span>
+              Total Credit: <strong className="text-[var(--st-text)]">₹0.00</strong>
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline">Clear (Esc)</Button>
+            <Button variant="primary" onClick={handleSave}>
+              Save Voucher (Cmd+S)
+            </Button>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -1,16 +1,48 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Plus, Edit2, Trash2, FlaskConical } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  EmptyState,
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { createAbTest, updateAbTest, deleteAbTest } from '@/app/actions/marketing/ab-testing.actions';
+
+const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'running', label: 'Running' },
+  { value: 'completed', label: 'Completed' },
+];
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  draft: 'neutral',
+  running: 'info',
+  completed: 'success',
+};
 
 export function AbTestClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -19,26 +51,26 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const { toast } = useToast();
-  
-  // Form State
-  const [experimentName, setExperimentName] = useState<any>("");
-  const [status, setStatus] = useState<any>("");
 
-  const filteredData = data.filter(item => 
-    JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+  // Form State
+  const [experimentName, setExperimentName] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+
+  const filteredData = data.filter((item) =>
+    JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
   );
 
   const openNew = () => {
     setEditingItem(null);
-    setExperimentName("");
-    setStatus("");
+    setExperimentName('');
+    setStatus('');
     setIsDialogOpen(true);
   };
 
   const openEdit = (item: any) => {
     setEditingItem(item);
-    setExperimentName(item.experimentName || "");
-    setStatus(item.status || "");
+    setExperimentName(item.experimentName || '');
+    setStatus(item.status || '');
     setIsDialogOpen(true);
   };
 
@@ -46,18 +78,18 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
     setLoading(true);
     const payload = {
       experimentName,
-      status
+      status,
     };
 
     try {
       if (editingItem) {
         const res = await updateAbTest(editingItem._id, payload);
         if (res.success) {
-          setData(data.map(i => i._id === editingItem._id ? { ...i, ...payload } : i));
-          toast({ title: 'Success', description: 'Record updated successfully.' });
+          setData(data.map((i) => (i._id === editingItem._id ? { ...i, ...payload } : i)));
+          toast.success('Record updated successfully.');
           setIsDialogOpen(false);
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to update record.', variant: 'destructive' });
+          toast.error(res.error || 'Failed to update record.');
         }
       } else {
         const res = await createAbTest(payload);
@@ -65,11 +97,11 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
           // Optimistically reload page or add
           window.location.reload();
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to create record.', variant: 'destructive' });
+          toast.error(res.error || 'Failed to create record.');
         }
       }
     } catch (err) {
-      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+      toast.error('An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
@@ -77,13 +109,13 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    
+
     const res = await deleteAbTest(id);
     if (res.success) {
-      setData(data.filter(i => i._id !== id));
-      toast({ title: 'Success', description: 'Record deleted.' });
+      setData(data.filter((i) => i._id !== id));
+      toast.success('Record deleted.');
     } else {
-      toast({ title: 'Error', description: res.error || 'Failed to delete record.', variant: 'destructive' });
+      toast.error(res.error || 'Failed to delete record.');
     }
   };
 
@@ -95,8 +127,7 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
               Create New
             </Button>
           </DialogTrigger>
@@ -105,83 +136,92 @@ export function AbTestClient({ initialData }: { initialData: any[] }) {
               <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="experimentName" className="text-right">experimentName</Label>
-                  
-                    <Input
-                      id="experimentName"
-                      type="text"
-                      value={experimentName}
-                      onChange={(e) => setExperimentName(e.target.value)}
-                      className="col-span-3"
-                    />
-                  
-                </div>
-              
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">status</Label>
-                  
-                    <select
-                      id="status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      className="col-span-3 flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">Select option</option>
-                      <option value="draft">draft</option>
-                      <option value="running">running</option>
-                      <option value="completed">completed</option>
-                    </select>
-                  
-                </div>
-              
+              <Field label="Experiment name">
+                <Input
+                  type="text"
+                  value={experimentName}
+                  onChange={(e) => setExperimentName(e.target.value)}
+                  placeholder="Headline copy test"
+                />
+              </Field>
+
+              <Field label="Status">
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger aria-label="Status">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
             <DialogFooter>
-              <Button disabled={loading} onClick={handleSave}>Save</Button>
+              <Button variant="primary" loading={loading} onClick={handleSave}>
+                Save
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       }
     >
       {filteredData.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
-          No records found.
-        </div>
+        <EmptyState
+          icon={FlaskConical}
+          title="No records found"
+          description="Create your first A/B test to start experimenting."
+          action={
+            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+              Create New
+            </Button>
+          }
+        />
       ) : (
-        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+        <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           <Table>
             <THead>
               <Tr>
-                <Th className="capitalize">experimentName</Th>
-                <Th className="capitalize">status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th>Experiment name</Th>
+                <Th>Status</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
-              {filteredData.map((item) => (
-                <Tr key={item._id}>
-                  
+              {filteredData.map((item) => {
+                const statusValue = String(item.status || '');
+                return (
+                  <Tr key={item._id}>
+                    <Td>{String(item.experimentName || '')}</Td>
                     <Td>
-                      {String(item.experimentName || '')}
+                      {statusValue ? (
+                        <Badge tone={STATUS_TONE[statusValue] ?? 'neutral'} kind="soft" dot>
+                          {statusValue}
+                        </Badge>
+                      ) : null}
                     </Td>
-                  
-                  
-                    <Td>
-                      {String(item.status || '')}
+                    <Td align="right">
+                      <div className="flex items-center justify-end gap-1">
+                        <IconButton
+                          label="Edit record"
+                          icon={Edit2}
+                          variant="ghost"
+                          onClick={() => openEdit(item)}
+                        />
+                        <IconButton
+                          label="Delete record"
+                          icon={Trash2}
+                          variant="ghost"
+                          onClick={() => handleDelete(item._id)}
+                        />
+                      </div>
                     </Td>
-                  
-                  <Td className="text-right space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
-                  </Td>
-                </Tr>
-              ))}
+                  </Tr>
+                );
+              })}
             </TBody>
           </Table>
         </div>

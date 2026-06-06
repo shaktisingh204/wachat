@@ -1,16 +1,35 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  EmptyState,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import {
+  ArrowDown,
+  ArrowUp,
   GitCompareArrows,
-  CircleAlert,
-  X } from 'lucide-react';
+  Inbox,
+  X,
+} from 'lucide-react';
 
 import * as React from 'react';
 
-import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
+import { AmBreadcrumb, AmHeader, AmNoProject } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/components/sabcrm/20ui';
 import { listCampaigns } from '@/app/actions/ad-manager.actions';
 import { compareCampaigns } from '@/app/actions/ad-manager-features.actions';
 
@@ -26,6 +45,13 @@ const METRICS: { key: keyof ComparisonRow; label: string; format: (v: string) =>
     { key: 'cpm', label: 'CPM', format: (v) => `$${Number(v || 0).toFixed(2)}`, higherIsBetter: false },
     { key: 'ctr', label: 'CTR', format: (v) => `${Number(v || 0).toFixed(2)}%`, higherIsBetter: true },
 ];
+
+function statusTone(status: string): 'success' | 'warning' | 'neutral' {
+    const s = status.toUpperCase();
+    if (s === 'ACTIVE') return 'success';
+    if (s === 'PAUSED') return 'warning';
+    return 'neutral';
+}
 
 export default function CampaignComparePage() {
     const { activeAccount } = useAdManager();
@@ -46,7 +72,7 @@ export default function CampaignComparePage() {
         setLoadingList(true);
         listCampaigns(activeAccount.account_id).then((res) => {
             if (res.error) {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Could not load campaigns', description: res.error });
             } else {
                 setCampaigns((res.data || []).map((c: any) => ({ id: c.id, name: c.name, status: c.status })));
             }
@@ -58,7 +84,7 @@ export default function CampaignComparePage() {
         setSelected((prev) => {
             const next = new Set(prev);
             if (next.has(id)) { next.delete(id); } else {
-                if (next.size >= 5) { toast({ title: 'Max 5 campaigns' }); return prev; }
+                if (next.size >= 5) { toast({ title: 'You can compare up to 5 campaigns', tone: 'warning' }); return prev; }
                 next.add(id);
             }
             return next;
@@ -66,11 +92,11 @@ export default function CampaignComparePage() {
     };
 
     const runComparison = async () => {
-        if (selected.size < 2) { toast({ title: 'Select at least 2 campaigns' }); return; }
+        if (selected.size < 2) { toast({ title: 'Select at least 2 campaigns to compare', tone: 'warning' }); return; }
         setComparing(true);
         const res = await compareCampaigns(Array.from(selected));
         if (res.error) {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Comparison failed', description: res.error });
         } else {
             setResults(res.comparisons || []);
         }
@@ -84,8 +110,8 @@ export default function CampaignComparePage() {
             <div className="space-y-6">
                 <AmBreadcrumb page="Compare" />
                 <div className="space-y-4">
-                    <Skeleton className="h-20 w-full" />
-                    <Skeleton className="h-[300px] w-full" />
+                    <Skeleton height={80} width="100%" />
+                    <Skeleton height={300} width="100%" />
                 </div>
             </div>
         );
@@ -95,11 +121,7 @@ export default function CampaignComparePage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Compare" />
-                <Alert>
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to compare campaigns.</AlertDescription>
-                </Alert>
+                <AmNoProject />
             </div>
         );
     }
@@ -118,48 +140,57 @@ export default function CampaignComparePage() {
             <AmBreadcrumb page="Compare" />
             <AmHeader
                 title="Campaign comparison"
-                description="Select 2-5 campaigns to compare side by side."
+                description="Select 2 to 5 campaigns to compare side by side."
                 actions={
                     <div className="flex gap-2 items-center">
-                        <GitCompareArrows className="h-5 w-5 text-[var(--st-text-secondary)]" />
+                        <GitCompareArrows className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
                         {selected.size > 0 && (
-                            <Button variant="outline" size="sm" onClick={clearAll}>
-                                <X className="h-4 w-4 mr-1" /> Clear
+                            <Button variant="outline" size="sm" iconLeft={X} onClick={clearAll}>
+                                Clear
                             </Button>
                         )}
-                        <Button onClick={runComparison} disabled={comparing || selected.size < 2}>
-                            {comparing ? 'Comparing...' : `Compare (${selected.size})`}
+                        <Button variant="primary" loading={comparing} disabled={selected.size < 2} onClick={runComparison}>
+                            {comparing ? 'Comparing' : `Compare (${selected.size})`}
                         </Button>
                     </div>
                 }
             />
 
             {loadingList ? (
-                <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
+                <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} height={40} width="100%" />)}</div>
             ) : (
                 <Card>
                     <CardHeader><CardTitle className="text-base">Select campaigns</CardTitle></CardHeader>
                     <CardBody className="max-h-60 overflow-y-auto space-y-2">
                         {campaigns.length === 0 ? (
-                            <p className="text-sm text-[var(--st-text-secondary)]">No campaigns found.</p>
+                            <EmptyState
+                                icon={Inbox}
+                                size="sm"
+                                title="No campaigns found"
+                                description="There are no campaigns in this ad account yet."
+                            />
                         ) : campaigns.map((c) => (
-                            <label key={c.id} className="flex items-center gap-3 cursor-pointer hover:bg-[var(--st-bg-muted)]/50 rounded p-1.5">
-                                <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggle(c.id)} />
-                                <span className="text-sm flex-1 truncate">{c.name}</span>
-                                <span className="text-xs text-[var(--st-text-secondary)]">{c.status}</span>
-                            </label>
+                            <div key={c.id} className="flex items-center gap-3 rounded-[var(--st-radius)] p-1.5 hover:bg-[var(--st-bg-muted)]/50">
+                                <Checkbox
+                                    checked={selected.has(c.id)}
+                                    onChange={() => toggle(c.id)}
+                                    label={<span className="block truncate">{c.name}</span>}
+                                    className="min-w-0 flex-1"
+                                />
+                                <Badge tone={statusTone(c.status)} kind="soft" className="shrink-0">{c.status}</Badge>
+                            </div>
                         ))}
                     </CardBody>
                 </Card>
             )}
 
             {results.length > 0 && (
-                <Card>
-                    <CardBody className="p-0 overflow-x-auto">
+                <Card padding="none">
+                    <CardBody className="overflow-x-auto p-0">
                         <Table>
                             <THead>
                                 <Tr>
-                                    <Th className="sticky left-0 bg-[var(--st-bg-secondary)] z-10">Metric</Th>
+                                    <Th className="sticky left-0 z-10 bg-[var(--st-bg-secondary)]">Metric</Th>
                                     {results.map((r) => (
                                         <Th key={r.campaignId} className="min-w-[140px]">
                                             {r.campaign_name || r.campaignId}
@@ -172,16 +203,27 @@ export default function CampaignComparePage() {
                                     const bw = bestWorst(m.key, m.higherIsBetter);
                                     return (
                                         <Tr key={m.key}>
-                                            <Td className="font-medium sticky left-0 bg-[var(--st-bg-secondary)] z-10">{m.label}</Td>
+                                            <Td className="sticky left-0 z-10 bg-[var(--st-bg-secondary)] font-medium">{m.label}</Td>
                                             {results.map((r) => {
                                                 const isBest = r.campaignId === bw.best;
                                                 const isWorst = r.campaignId === bw.worst;
                                                 return (
-                                                    <Td
-                                                        key={r.campaignId}
-                                                        className={`tabular-nums ${isBest ? 'text-[var(--st-text)] font-semibold' : ''} ${isWorst ? 'text-[var(--st-text)]' : ''}`}
-                                                    >
-                                                        {m.format(r[m.key])}
+                                                    <Td key={r.campaignId} className="tabular-nums">
+                                                        <span className="inline-flex items-center gap-1.5">
+                                                            <span className={isBest ? 'font-semibold text-[var(--st-text)]' : 'text-[var(--st-text)]'}>
+                                                                {m.format(r[m.key])}
+                                                            </span>
+                                                            {isBest && (
+                                                                <Badge tone="success" kind="soft" className="shrink-0">
+                                                                    <ArrowUp className="h-3 w-3" aria-hidden="true" /> Best
+                                                                </Badge>
+                                                            )}
+                                                            {isWorst && (
+                                                                <Badge tone="danger" kind="soft" className="shrink-0">
+                                                                    <ArrowDown className="h-3 w-3" aria-hidden="true" /> Worst
+                                                                </Badge>
+                                                            )}
+                                                        </span>
                                                     </Td>
                                                 );
                                             })}

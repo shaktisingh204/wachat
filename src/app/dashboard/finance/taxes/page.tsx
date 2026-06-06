@@ -11,9 +11,27 @@ async function TaxRecordPageContainer({ searchParams }: { searchParams: { period
   return <TaxRecordListClient initialItems={items || []} error={error} initialPeriod={searchParams.period} />;
 }
 
+function TaxRecordPageFallback() {
+  return (
+    <div className="p-8 space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+      <Skeleton className="h-10 w-full max-w-sm" />
+      <Skeleton className="h-[400px] w-full" />
+    </div>
+  );
+}
+
 export default function TaxRecordPage({ searchParams }: { searchParams: { period?: string } }) {
   return (
-    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+    <Suspense fallback={<TaxRecordPageFallback />}>
       <TaxRecordPageContainer searchParams={searchParams} />
     </Suspense>
   );

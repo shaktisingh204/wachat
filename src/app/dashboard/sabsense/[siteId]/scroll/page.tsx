@@ -1,5 +1,7 @@
 import React, { Suspense } from 'react';
 
+import { Spinner } from '@/components/sabcrm/20ui';
+
 import {
     getPagesenseSite,
     listHeatmapEvents,
@@ -40,8 +42,9 @@ export default function ScrollPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
-                    Loading scroll map…
+                <div className="ui20 flex items-center gap-3 p-8 text-sm text-[var(--st-text-secondary)]">
+                    <Spinner size="sm" label="Loading scroll map" />
+                    <span>Loading scroll map.</span>
                 </div>
             }
         >

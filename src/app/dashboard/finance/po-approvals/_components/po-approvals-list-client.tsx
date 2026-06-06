@@ -2,15 +2,54 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, CheckCircle, XCircle, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Badge,
+  type BadgeTone,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import {
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+  Search,
+  CheckCircle,
+  XCircle,
+  Download,
+  FileText,
+} from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';
-import { toast } from 'sonner';
 import { fmtINR } from '@/lib/utils';
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  approved: 'success',
+  rejected: 'danger',
+};
 
 export function PurchaseOrderListClient({ initialItems }: { initialItems: PurchaseOrder[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,7 +78,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
     setIsViewOpen(true);
   }
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -137,141 +176,150 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
     setIsDialogOpen(true);
   }
 
+  const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
+
   return (
     <EntityListShell
       title="PO Approvals"
       subtitle="Approve purchase orders from vendors."
       primaryAction={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportToCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>VendorId</Label>
-              <Input 
-                name="vendorId" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.vendorId : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("vendorId")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>TotalAmount</Label>
-              <Input 
-                name="totalAmount" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.totalAmount : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("totalAmount")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>ApprovedBy</Label>
-              <Input 
-                name="approvedBy" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.approvedBy : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("approvedBy")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Status</Label>
-              <Input 
-                name="status" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.status : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("status")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
+                <div className="grid gap-4">
+                  <Field label="Vendor ID" required>
+                    <Input
+                      name="vendorId"
+                      defaultValue={editingItem?.vendorId ?? ''}
+                    />
+                  </Field>
+                  <Field label="Total Amount" required>
+                    <Input
+                      name="totalAmount"
+                      type="number"
+                      step="any"
+                      defaultValue={editingItem?.totalAmount ?? ''}
+                    />
+                  </Field>
+                  <Field label="Approved By">
+                    <Input
+                      name="approvedBy"
+                      defaultValue={editingItem?.approvedBy ?? ''}
+                    />
+                  </Field>
+                  <Field label="Status">
+                    <Input
+                      name="status"
+                      defaultValue={editingItem?.status ?? ''}
+                    />
+                  </Field>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <Button type="submit" variant="primary" loading={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
-      
-
       <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div className="w-full max-w-sm">
+          <Field label="Search records">
+            <Input
+              iconLeft={Search}
+              placeholder="Search records..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </Field>
         </div>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <Table>
           <THead>
             <Tr>
-              <Th>VendorId</Th><Th>TotalAmount</Th><Th>ApprovedBy</Th><Th>Status</Th>
-              <Th className="w-[120px] text-right">Actions</Th>
+              <Th>Vendor ID</Th>
+              <Th>Total Amount</Th>
+              <Th>Approved By</Th>
+              <Th>Status</Th>
+              <Th align="right" width={120}>Actions</Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
-                <Td colSpan={5} className="h-24 text-center">
-                  No results.
+                <Td colSpan={5}>
+                  <EmptyState
+                    icon={FileText}
+                    title="No purchase orders"
+                    description="No records match your search. New purchase orders will appear here."
+                  />
                 </Td>
               </Tr>
             ) : (
-              filteredItems.map((item) => (
-                <Tr key={item._id}>
-                  <Td>{String(item.vendorId ?? '')}</Td>
-                  <Td>{fmtINR(item.totalAmount)}</Td>
-                  <Td>{String(item.approvedBy ?? '')}</Td>
-                  <Td>
-                    <Badge variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}>
-                      {String(item.status ?? 'pending')}
-                    </Badge>
-                  </Td>
-                  <Td className="text-right flex items-center justify-end gap-1">
-                    {item.status !== 'approved' && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleApprove(item._id as string)} title="Approve">
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {item.status !== 'rejected' && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleReject(item._id as string)} title="Reject">
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </Td>
-                </Tr>
-              ))
+              filteredItems.map((item) => {
+                const status = String(item.status ?? 'pending');
+                return (
+                  <Tr key={item._id}>
+                    <Td>{String(item.vendorId ?? '')}</Td>
+                    <Td>{fmtINR(item.totalAmount)}</Td>
+                    <Td>{String(item.approvedBy ?? '')}</Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[status] ?? 'neutral'}>{status}</Badge>
+                    </Td>
+                    <Td align="right">
+                      <div className="flex items-center justify-end gap-1">
+                        {item.status !== 'approved' && (
+                          <IconButton
+                            label="Approve"
+                            icon={CheckCircle}
+                            onClick={() => handleApprove(item._id as string)}
+                          />
+                        )}
+                        {item.status !== 'rejected' && (
+                          <IconButton
+                            label="Reject"
+                            icon={XCircle}
+                            onClick={() => handleReject(item._id as string)}
+                          />
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <IconButton label="More actions" icon={MoreHorizontal} />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem iconLeft={FileText} onClick={() => openView(item)}>
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </Td>
+                  </Tr>
+                );
+              })
             )}
           </TBody>
         </Table>
@@ -282,11 +330,11 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
           <DialogHeader>
             <DialogTitle>View Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto px-1 py-4">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
-                <div className="col-span-2 text-sm">{String(value)}</div>
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
+                <div className="text-sm font-medium capitalize text-[var(--st-text-secondary)]">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm text-[var(--st-text)]">{String(value)}</div>
               </div>
             ))}
           </div>

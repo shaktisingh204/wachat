@@ -2,9 +2,39 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Play } from 'lucide-react';
+import { Plus, Trash2, Play, Filter } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Progress, Badge, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+    Field,
+    Input,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Progress,
+    Badge,
+    EmptyState,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     createFunnel,
@@ -36,7 +66,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
+            <div className="p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -50,18 +80,18 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
 
     const handleCreate = () => {
         if (!name.trim() || steps.length === 0) {
-            toast({ title: 'Missing name or steps', variant: 'destructive' });
+            toast.error('Missing name or steps');
             return;
         }
         startTransition(async () => {
             const res = await createFunnel({ siteId: site._id, name, steps });
             if (res.success) {
-                toast({ title: 'Funnel created' });
+                toast.success('Funnel created');
                 setIsOpen(false);
                 setName('');
                 router.refresh();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast({ title: 'Error', description: res.error, tone: 'danger' });
             }
         });
     };
@@ -72,7 +102,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
             if (res.success) {
                 router.refresh();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast({ title: 'Error', description: res.error, tone: 'danger' });
             }
         });
     };
@@ -83,24 +113,26 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
         startTransition(async () => {
             const res = await runFunnel(site._id, { funnelId, periodFromMs, periodToMs });
             if (res.success) {
-                toast({ title: 'Funnel run queued' });
+                toast.success('Funnel run queued');
                 router.refresh();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast({ title: 'Error', description: res.error, tone: 'danger' });
             }
         });
     };
 
     return (
-        <div className="zoruui p-8 space-y-6">
+        <div className="p-8 space-y-6">
             <PageHeader>
-                <PageTitle>{site.name} — Funnels</PageTitle>
-                <PageDescription>
-                    Define ordered steps and inspect dropoff across each transition.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>{site.name} funnels</PageTitle>
+                    <PageDescription>
+                        Define ordered steps and inspect dropoff across each transition.
+                    </PageDescription>
+                </PageHeaderHeading>
                 <PageActions>
-                    <Button onClick={() => setIsOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" /> New funnel
+                    <Button variant="primary" iconLeft={Plus} onClick={() => setIsOpen(true)}>
+                        New funnel
                     </Button>
                 </PageActions>
             </PageHeader>
@@ -109,11 +141,12 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
 
             {funnels.length === 0 ? (
                 <EmptyState
+                    icon={Filter}
                     title="No funnels yet"
                     description="Create a funnel to track multi-step conversion paths."
                     action={
-                        <Button onClick={() => setIsOpen(true)}>
-                            <Plus className="mr-2 h-4 w-4" /> New funnel
+                        <Button variant="primary" iconLeft={Plus} onClick={() => setIsOpen(true)}>
+                            New funnel
                         </Button>
                     }
                 />
@@ -125,30 +158,31 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                         return (
                             <Card key={f._id}>
                                 <CardHeader>
-                                    <div className="flex items-start justify-between">
+                                    <div className="flex items-start justify-between gap-4">
                                         <div>
                                             <CardTitle>{f.name}</CardTitle>
                                             <CardDescription>
-                                                {f.steps.length} step(s) · {runs.length} run(s)
+                                                {f.steps.length} step(s), {runs.length} run(s)
                                             </CardDescription>
                                         </div>
                                         <div className="flex gap-2">
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
+                                                iconLeft={Play}
                                                 onClick={() => handleRun(f._id)}
                                                 disabled={pending}
                                             >
-                                                <Play className="mr-2 h-4 w-4" /> Run
+                                                Run
                                             </Button>
-                                            <Button
+                                            <IconButton
                                                 size="sm"
                                                 variant="ghost"
+                                                icon={Trash2}
+                                                label={`Delete funnel ${f.name}`}
                                                 onClick={() => handleDelete(f._id)}
                                                 disabled={pending}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            />
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -171,7 +205,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                                                   {i + 1}. {step.name}
                                                               </span>
                                                               <span className="text-[color:var(--st-text-secondary)]">
-                                                                  {step.count} ·{' '}
+                                                                  {step.count},{' '}
                                                                   {Math.round(step.dropoffRate * 100)}% drop
                                                               </span>
                                                           </div>
@@ -187,7 +221,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                                       <span>
                                                           {i + 1}. {step.name}
                                                       </span>
-                                                      <Badge variant="secondary">
+                                                      <Badge tone="neutral">
                                                           {step.matchType}: {step.pattern}
                                                       </Badge>
                                                   </div>
@@ -211,64 +245,70 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                         <DialogTitle>New funnel</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="f-name">Name</Label>
+                        <Field label="Name">
                             <Input
-                                id="f-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Signup funnel"
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Steps</Label>
-                            {steps.map((s, i) => (
-                                <div key={i} className="grid grid-cols-[1fr_120px_1fr_auto] gap-2">
-                                    <Input
-                                        placeholder="Step name"
-                                        value={s.name}
-                                        onChange={(e) => updateStep(i, { name: e.target.value })}
-                                    />
-                                    <Select
-                                        value={s.matchType}
-                                        onValueChange={(v) =>
-                                            updateStep(i, { matchType: v as StepMatchType })
-                                        }
+                        </Field>
+                        <Field label="Steps">
+                            <div className="space-y-2">
+                                {steps.map((s, i) => (
+                                    <div
+                                        key={i}
+                                        className="grid grid-cols-[1fr_120px_1fr_auto] gap-2"
                                     >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="url">URL</SelectItem>
-                                            <SelectItem value="event">Event</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Input
-                                        placeholder="Pattern"
-                                        value={s.pattern}
-                                        onChange={(e) =>
-                                            updateStep(i, { pattern: e.target.value })
-                                        }
-                                    />
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => removeStep(i)}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button variant="ghost" size="sm" onClick={addStep}>
-                                <Plus className="mr-2 h-4 w-4" /> Add step
-                            </Button>
-                        </div>
+                                        <Input
+                                            placeholder="Step name"
+                                            aria-label={`Step ${i + 1} name`}
+                                            value={s.name}
+                                            onChange={(e) =>
+                                                updateStep(i, { name: e.target.value })
+                                            }
+                                        />
+                                        <Select
+                                            value={s.matchType}
+                                            onValueChange={(v) =>
+                                                updateStep(i, { matchType: v as StepMatchType })
+                                            }
+                                        >
+                                            <SelectTrigger aria-label={`Step ${i + 1} match type`}>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="url">URL</SelectItem>
+                                                <SelectItem value="event">Event</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Input
+                                            placeholder="Pattern"
+                                            aria-label={`Step ${i + 1} pattern`}
+                                            value={s.pattern}
+                                            onChange={(e) =>
+                                                updateStep(i, { pattern: e.target.value })
+                                            }
+                                        />
+                                        <IconButton
+                                            variant="ghost"
+                                            size="sm"
+                                            icon={Trash2}
+                                            label={`Remove step ${i + 1}`}
+                                            onClick={() => removeStep(i)}
+                                        />
+                                    </div>
+                                ))}
+                                <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addStep}>
+                                    Add step
+                                </Button>
+                            </div>
+                        </Field>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleCreate} disabled={pending}>
+                        <DialogClose asChild>
+                            <Button variant="ghost">Cancel</Button>
+                        </DialogClose>
+                        <Button variant="primary" onClick={handleCreate} loading={pending}>
                             Create
                         </Button>
                     </DialogFooter>

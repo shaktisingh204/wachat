@@ -2,15 +2,44 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Receipt } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
-import { toast } from 'sonner';
 import { fmtINR } from '@/lib/utils';
+
+const OPTIONAL_FIELDS = ['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'];
 
 export function TaxRecordListClient({ initialItems, error, initialPeriod }: { initialItems: TaxRecord[], error?: string, initialPeriod?: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [periodFilter, setPeriodFilter] = useState(initialPeriod || '');
@@ -19,21 +48,6 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
   const [search, setSearch] = useState('');
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewingItem, setViewingItem] = useState<TaxRecord | null>(null);
-
-  function exportToCsv() {
-    if (items.length === 0) return;
-    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
-    const csvContent = [
-      headers.join(','),
-      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'taxes_export.csv';
-    link.click();
-  }
 
   function openView(item: TaxRecord) {
     setViewingItem(item);
@@ -48,7 +62,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
     setPeriodFilter(initialPeriod || '');
   }, [initialPeriod]);
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -157,149 +171,144 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
     return acc;
   }, {} as Record<string, { income: number, owed: number }>);
 
+  const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
+
   return (
     <EntityListShell
       title="Tax Filing"
       subtitle="Manage and file your organization taxes."
       primaryAction={
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={handleExport}>
+            Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={openNew}>
-                <Plus className="mr-2 h-4 w-4" /> New Record
+              <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+                New Record
               </Button>
             </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-              <div className="grid gap-4">
-            <div className="space-y-1">
-              <Label>TaxPeriod</Label>
-              <Input 
-                name="taxPeriod" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.taxPeriod : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("taxPeriod")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Jurisdiction</Label>
-              <Input 
-                name="jurisdiction" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.jurisdiction : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("jurisdiction")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>TaxableIncome</Label>
-              <Input 
-                name="taxableIncome" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.taxableIncome : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("taxableIncome")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>TaxOwed</Label>
-              <Input 
-                name="taxOwed" 
-                type="number"
-                step="any"
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.taxOwed : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("taxOwed")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>IsFiled</Label>
-              <Input 
-                name="isFiled" 
-                defaultValue={editingId ? String(items.find(i => i._id === editingId)?.isFiled ?? '') : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("isFiled")} 
-              />
-            </div></div>
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+                <div className="grid gap-4">
+                  <Field label="Tax period" required={!OPTIONAL_FIELDS.includes('taxPeriod')}>
+                    <Input
+                      name="taxPeriod"
+                      defaultValue={editingItem?.taxPeriod ?? ''}
+                    />
+                  </Field>
+                  <Field label="Jurisdiction" required={!OPTIONAL_FIELDS.includes('jurisdiction')}>
+                    <Input
+                      name="jurisdiction"
+                      defaultValue={editingItem?.jurisdiction ?? ''}
+                    />
+                  </Field>
+                  <Field label="Taxable income" required={!OPTIONAL_FIELDS.includes('taxableIncome')}>
+                    <Input
+                      name="taxableIncome"
+                      type="number"
+                      step="any"
+                      defaultValue={editingItem?.taxableIncome ?? ''}
+                    />
+                  </Field>
+                  <Field label="Tax owed" required={!OPTIONAL_FIELDS.includes('taxOwed')}>
+                    <Input
+                      name="taxOwed"
+                      type="number"
+                      step="any"
+                      defaultValue={editingItem?.taxOwed ?? ''}
+                    />
+                  </Field>
+                  <Field label="Is filed" required={!OPTIONAL_FIELDS.includes('isFiled')}>
+                    <Input
+                      name="isFiled"
+                      defaultValue={editingItem ? String(editingItem.isFiled ?? '') : ''}
+                    />
+                  </Field>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <Button type="submit" variant="primary" loading={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
+        <div className="mb-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-sm text-[var(--st-text)]">
           {error}
         </div>
       )}
 
       {/* Summary Widgets */}
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-2">Total Taxable Income</div>
-          <div className="text-2xl font-bold">{fmtINR(totalTaxable)}</div>
-        </div>
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-2">Total Tax Owed</div>
-          <div className="text-2xl font-bold">{fmtINR(totalOwed)}</div>
-        </div>
-        <div className="rounded-xl border bg-white p-6 shadow-sm max-h-[120px] overflow-y-auto">
-          <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-2">By Jurisdiction (Owed)</div>
-          <div className="space-y-1">
-            {Object.entries(byJurisdiction).map(([j, vals]: [string, any]) => (
-              <div key={j} className="flex justify-between text-sm">
-                <span>{j}</span>
-                <span className="font-semibold">{fmtINR(vals.owed)}</span>
-              </div>
-            ))}
-            {Object.keys(byJurisdiction).length === 0 && (
-              <div className="text-sm text-[var(--st-text-secondary)]">No data</div>
-            )}
-          </div>
-        </div>
+        <StatCard label="Total Taxable Income" value={fmtINR(totalTaxable)} />
+        <StatCard label="Total Tax Owed" value={fmtINR(totalOwed)} />
+        <Card padding="md" className="max-h-[120px] overflow-y-auto">
+          <CardHeader>
+            <CardTitle>By Jurisdiction (Owed)</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-1">
+              {Object.entries(byJurisdiction).map(([j, vals]: [string, any]) => (
+                <div key={j} className="flex justify-between text-sm">
+                  <span>{j}</span>
+                  <span className="font-semibold">{fmtINR(vals.owed)}</span>
+                </div>
+              ))}
+              {Object.keys(byJurisdiction).length === 0 && (
+                <div className="text-sm text-[var(--st-text-secondary)]">No data</div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
-      <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
-        <div className="relative flex-1 w-full max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
+      <div className="mb-6 flex flex-col sm:flex-row items-end gap-4 justify-between">
+        <Field label="Search records" className="flex-1 w-full max-w-sm">
+          <Input
+            placeholder="Search records..."
+            iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-        </div>
-        
-        <form onSubmit={handleFilter} className="flex items-center gap-2 w-full sm:w-auto">
-          <Input
-            placeholder="Filter by Period (e.g. 2024)"
-            value={periodFilter}
-            onChange={(e) => setPeriodFilter(e.target.value)}
-            className="w-full sm:w-[200px]"
-          />
+        </Field>
+
+        <form onSubmit={handleFilter} className="flex items-end gap-2 w-full sm:w-auto">
+          <Field label="Filter by period" className="w-full sm:w-[200px]">
+            <Input
+              placeholder="e.g. 2024"
+              value={periodFilter}
+              onChange={(e) => setPeriodFilter(e.target.value)}
+            />
+          </Field>
           <Button type="submit" variant="secondary">Apply</Button>
         </form>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
         <Table>
           <THead>
             <Tr>
-              <Th>TaxPeriod</Th><Th>Jurisdiction</Th><Th>TaxableIncome</Th><Th>TaxOwed</Th><Th>IsFiled</Th>
-              <Th className="w-[80px]"></Th>
+              <Th>Tax Period</Th><Th>Jurisdiction</Th><Th>Taxable Income</Th><Th>Tax Owed</Th><Th>Is Filed</Th>
+              <Th width={80}>{''}</Th>
             </Tr>
           </THead>
           <TBody>
             {filteredItems.length === 0 ? (
               <Tr>
-                <Td colSpan={6} className="h-24 text-center">
-                  No results.
+                <Td colSpan={6}>
+                  <EmptyState
+                    icon={Receipt}
+                    title="No tax records"
+                    description="No results match your search. Create a record to get started."
+                  />
                 </Td>
               </Tr>
             ) : (
@@ -309,16 +318,14 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
                   <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton label="Open row actions" icon={MoreHorizontal} variant="ghost" size="sm" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <DropdownMenuItem iconLeft={Pencil} onClick={() => openEdit(item._id as string)}>
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
+                        <DropdownMenuItem variant="danger" iconLeft={Trash} onClick={() => handleDelete(item._id as string)}>
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -337,7 +344,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
-              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+              <div key={key} className="grid grid-cols-3 gap-4 border-b border-[var(--st-border)] pb-2">
                 <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                 <div className="col-span-2 text-sm">{String(value)}</div>
               </div>

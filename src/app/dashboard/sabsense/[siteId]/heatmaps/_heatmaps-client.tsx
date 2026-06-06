@@ -2,9 +2,26 @@
 
 import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Monitor, Smartphone, Tablet, RefreshCw } from 'lucide-react';
+import { Monitor, Smartphone, Tablet, RefreshCw, MousePointerClick, MapPin } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    Field,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageTitle,
+    SegmentedControl,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import { regenerateHeatmapSnapshot } from '@/app/actions/sabsense.actions';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
@@ -20,6 +37,12 @@ const DEVICE_WIDTHS: Record<DeviceKey, number> = {
     tablet: 768,
     mobile: 375,
 };
+
+const DEVICE_ITEMS = [
+    { value: 'desktop' as const, label: 'Desktop', icon: Monitor },
+    { value: 'tablet' as const, label: 'Tablet', icon: Tablet },
+    { value: 'mobile' as const, label: 'Mobile', icon: Smartphone },
+];
 
 interface Props {
     site: PagesenseSite | null;
@@ -80,32 +103,43 @@ export function HeatmapsClient({
                 periodToMs,
             });
             if (res.success) {
-                toast({ title: 'Snapshot regenerated', description: `Sample size: ${res.data?.sampleSize ?? 0}` });
+                toast.success({
+                    title: 'Snapshot regenerated',
+                    description: `Sample size: ${res.data?.sampleSize ?? 0}`,
+                });
                 router.refresh();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Could not regenerate snapshot', description: res.error });
             }
         });
     };
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
-                Site not found.
+            <div className="p-8">
+                <EmptyState
+                    icon={MapPin}
+                    title="Site not found"
+                    description="This site is no longer available, or you do not have access to it."
+                />
             </div>
         );
     }
 
     return (
-        <div className="zoruui p-8 space-y-6">
+        <div className="p-8 space-y-6">
             <PageHeader>
-                <PageTitle>{site.name} — Heatmaps</PageTitle>
+                <PageTitle>{site.name} heatmaps</PageTitle>
                 <PageDescription>
                     Click density overlay. Pick a URL and a device viewport.
                 </PageDescription>
                 <PageActions>
-                    <Button onClick={handleRegenerate} disabled={pending}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                    <Button
+                        variant="primary"
+                        iconLeft={RefreshCw}
+                        onClick={handleRegenerate}
+                        loading={pending}
+                    >
                         Regenerate snapshot
                     </Button>
                 </PageActions>
@@ -119,49 +153,25 @@ export function HeatmapsClient({
                     <CardDescription>Page URL and device viewport.</CardDescription>
                 </CardHeader>
                 <CardBody>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto]">
-                        <div className="space-y-2">
-                            <Label htmlFor="ps-url">URL path</Label>
+                    <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+                        <Field label="URL path" id="ps-url">
                             <Input
-                                id="ps-url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 placeholder="/"
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Device</Label>
-                            <div className="flex gap-2">
-                                <Button
-                                    size="sm"
-                                    variant={device === 'desktop' ? 'default' : 'ghost'}
-                                    onClick={() => setDevice('desktop')}
-                                    aria-pressed={device === 'desktop'}
-                                >
-                                    <Monitor className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant={device === 'tablet' ? 'default' : 'ghost'}
-                                    onClick={() => setDevice('tablet')}
-                                    aria-pressed={device === 'tablet'}
-                                >
-                                    <Tablet className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant={device === 'mobile' ? 'default' : 'ghost'}
-                                    onClick={() => setDevice('mobile')}
-                                    aria-pressed={device === 'mobile'}
-                                >
-                                    <Smartphone className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>&nbsp;</Label>
-                            <Button onClick={handleApplyUrl}>Apply</Button>
-                        </div>
+                        </Field>
+                        <Field label="Device">
+                            <SegmentedControl
+                                items={DEVICE_ITEMS}
+                                value={device}
+                                onChange={setDevice}
+                                aria-label="Device viewport"
+                            />
+                        </Field>
+                        <Button variant="secondary" onClick={handleApplyUrl}>
+                            Apply
+                        </Button>
                     </div>
                 </CardBody>
             </Card>
@@ -170,15 +180,22 @@ export function HeatmapsClient({
                 <CardHeader>
                     <CardTitle>Click density</CardTitle>
                     <CardDescription>
-                        {totalClicks} clicks · {snapshots.length} snapshot(s) on file.
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                            <Badge tone="accent">
+                                {totalClicks} {totalClicks === 1 ? 'click' : 'clicks'}
+                            </Badge>
+                            <Badge tone="neutral">
+                                {snapshots.length} {snapshots.length === 1 ? 'snapshot' : 'snapshots'} on file
+                            </Badge>
+                        </span>
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
                     <div
-                        className="relative mx-auto overflow-hidden rounded-md border border-[color:var(--st-border)] bg-[color:var(--st-bg-muted)]"
+                        className="relative mx-auto overflow-hidden rounded-[var(--st-radius)] border border-[color:var(--st-border)] bg-[color:var(--st-bg-secondary)]"
                         style={{ width, aspectRatio: '4 / 3' }}
                     >
-                        {/* Stub screenshot — TODO: real screenshot service. */}
+                        {/* Stub screenshot. TODO: real screenshot service. */}
                         {site.screenshotUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -187,8 +204,8 @@ export function HeatmapsClient({
                                 className="absolute inset-0 h-full w-full object-cover opacity-70"
                             />
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-xs text-[color:var(--st-text-secondary)]">
-                                No screenshot yet — overlay shows click density on a blank canvas.
+                            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs text-[color:var(--st-text-secondary)]">
+                                No screenshot yet. Overlay shows click density on a blank canvas.
                             </div>
                         )}
                         {/* Heat overlay */}
@@ -203,7 +220,7 @@ export function HeatmapsClient({
                                 const x = i % grid.cols;
                                 const y = Math.floor(i / grid.cols);
                                 const intensity = grid.max > 0 ? count / grid.max : 0;
-                                const hue = 60 - 60 * intensity; // yellow → red
+                                const hue = 60 - 60 * intensity; // yellow to red
                                 return (
                                     <rect
                                         key={i}
@@ -216,6 +233,17 @@ export function HeatmapsClient({
                                 );
                             })}
                         </svg>
+
+                        {totalClicks === 0 ? (
+                            <div className="absolute inset-0 flex items-center justify-center bg-[color:var(--st-bg)]/60">
+                                <EmptyState
+                                    size="sm"
+                                    icon={MousePointerClick}
+                                    title="No clicks recorded"
+                                    description="Once visitors interact with this page, their clicks appear here."
+                                />
+                            </div>
+                        ) : null}
                     </div>
                 </CardBody>
             </Card>

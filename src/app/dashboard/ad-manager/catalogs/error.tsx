@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertDescription, AlertTitle, Alert, Button } from '@/components/sabcrm/20ui';
-import { AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription, Button } from '@/components/sabcrm/20ui';
 
 export default function CatalogsError({
   error,
@@ -17,14 +16,13 @@ export default function CatalogsError({
 
   return (
     <div className="p-6">
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error Loading Catalogs</AlertTitle>
-        <AlertDescription className="mt-2">
-          <p className="mb-4">
+      <Alert tone="danger">
+        <AlertTitle>Error loading catalogs</AlertTitle>
+        <AlertDescription>
+          <p className="mb-4 text-[var(--st-text-secondary)]">
             {error.message || 'An unexpected error occurred while loading catalogs.'}
           </p>
-          <Button onClick={() => reset()} variant="outline">
+          <Button variant="outline" onClick={() => reset()}>
             Try again
           </Button>
         </AlertDescription>

@@ -1,18 +1,32 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Skeleton, EmptyState } from '@/components/sabcrm/20ui';
 import {
-  Package,
-  Plus,
-  CircleAlert,
-  RefreshCw,
-  ExternalLink } from 'lucide-react';
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Package, Plus, RefreshCw, ExternalLink } from 'lucide-react';
 
 import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
 import { getAdCatalogs, createAdCatalog } from '@/app/actions/ad-manager-features.actions';
 
 export default function CatalogsPage() {
@@ -41,16 +55,16 @@ export default function CatalogsPage() {
 
     const handleCreate = async () => {
         if (!activeAccount || !name.trim()) {
-            toast({ title: 'Validation', description: 'Catalog name is required.', variant: 'destructive' });
+            toast.error({ title: 'Catalog name is required.', tone: 'danger' });
             return;
         }
         setSubmitting(true);
         const res = await createAdCatalog(activeAccount.account_id, name.trim());
         setSubmitting(false);
         if (res.error) {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Error', description: res.error });
         } else {
-            toast({ title: 'Created', description: res.message });
+            toast.success({ title: 'Catalog created', description: res.message });
             setDialogOpen(false);
             setName('');
             fetchCatalogs();
@@ -62,7 +76,9 @@ export default function CatalogsPage() {
             <div className="space-y-6">
                 <AmBreadcrumb page="Catalogs" />
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} height={160} className="w-full" />
+                    ))}
                 </div>
             </div>
         );
@@ -72,10 +88,8 @@ export default function CatalogsPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Catalogs" />
-                <Alert>
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to manage catalogs.</AlertDescription>
+                <Alert tone="warning" title="No ad account selected">
+                    Pick an ad account to manage catalogs.
                 </Alert>
             </div>
         );
@@ -89,39 +103,44 @@ export default function CatalogsPage() {
                 description="Manage catalogs for Dynamic Product Ads, Advantage+ catalog ads, and Shops."
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={fetchCatalogs} disabled={loading}>
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        </Button>
-                        <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={() => setDialogOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" /> New catalog
+                        <IconButton
+                            label="Refresh catalogs"
+                            icon={RefreshCw}
+                            variant="outline"
+                            onClick={fetchCatalogs}
+                            disabled={loading}
+                            className={loading ? 'is-loading' : undefined}
+                        />
+                        <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+                            New catalog
                         </Button>
                     </div>
                 }
             />
 
-            <Alert>
-                <Package className="h-4 w-4" />
-                <AlertTitle>Tip</AlertTitle>
-                <AlertDescription>
-                    Catalogs live at the business level. Connect a Meta Business account from Settings
-                    to manage product feeds, product sets, and DPA creative here.
-                </AlertDescription>
+            <Alert tone="info" icon={Package} title="Tip">
+                Catalogs live at the business level. Connect a Meta Business account from Settings
+                to manage product feeds, product sets, and DPA creative here.
             </Alert>
 
             {loading ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} height={160} className="w-full" />
+                    ))}
                 </div>
             ) : catalogs.length === 0 ? (
                 <EmptyState
-                    icon={<Package />}
+                    icon={Package}
                     title="No catalogs yet"
-                    description="Create a catalog from your Shopify/WooCommerce store or upload a CSV feed."
+                    description="Create a catalog from your Shopify or WooCommerce store, or upload a CSV feed."
                     action={
-                        <Button variant="outline" asChild>
-                            <a href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">
-                                Open Commerce Manager <ExternalLink className="h-3 w-3 ml-1" />
-                            </a>
+                        <Button
+                            variant="outline"
+                            iconRight={ExternalLink}
+                            onClick={() => window.open('https://business.facebook.com/commerce', '_blank', 'noopener,noreferrer')}
+                        >
+                            Open Commerce Manager
                         </Button>
                     }
                 />
@@ -130,8 +149,8 @@ export default function CatalogsPage() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {catalogs.map((c) => (
                             <Card key={c.id}>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">{c.name}</CardTitle>
+                                <CardHeader>
+                                    <CardTitle>{c.name}</CardTitle>
                                 </CardHeader>
                                 <CardBody className="space-y-2">
                                     <div className="flex items-center justify-between text-sm">
@@ -148,10 +167,12 @@ export default function CatalogsPage() {
                         ))}
                     </div>
                     <div className="flex justify-center">
-                        <Button variant="outline" asChild>
-                            <a href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">
-                                Open Commerce Manager <ExternalLink className="h-3 w-3 ml-1" />
-                            </a>
+                        <Button
+                            variant="outline"
+                            iconRight={ExternalLink}
+                            onClick={() => window.open('https://business.facebook.com/commerce', '_blank', 'noopener,noreferrer')}
+                        >
+                            Open Commerce Manager
                         </Button>
                     </div>
                 </>
@@ -165,15 +186,18 @@ export default function CatalogsPage() {
                         <DialogDescription>Create a product catalog for your ad account.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Catalog name *</Label>
-                            <Input placeholder="e.g. Spring Collection 2026" value={name} onChange={e => setName(e.target.value)} />
-                        </div>
+                        <Field label="Catalog name" required>
+                            <Input
+                                placeholder="e.g. Spring Collection 2026"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                            />
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => { setDialogOpen(false); setName(''); }}>Cancel</Button>
-                        <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
-                            {submitting ? 'Creating…' : 'Create'}
+                        <Button variant="primary" loading={submitting} onClick={handleCreate} disabled={submitting || !name.trim()}>
+                            {submitting ? 'Creating' : 'Create'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
