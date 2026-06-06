@@ -1,9 +1,24 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import React, { Component, ReactNode } from 'react';
 import { Download, Copy, CheckCircle2 } from 'lucide-react';
+
+import {
+  Button,
+  Input,
+  Field,
+  Card,
+  CardBody,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Alert,
+  Badge,
+} from '@/components/sabcrm/20ui';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
@@ -21,11 +36,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-[var(--st-border)] m-4">
-          <CardBody className="p-4 text-[var(--st-text)] text-sm">
-            Something went wrong: {this.state.error?.message}
-          </CardBody>
-        </Card>
+        <div className="m-4">
+          <Alert tone="danger" title="Something went wrong">
+            {this.state.error?.message}
+          </Alert>
+        </div>
       );
     }
     return this.props.children;
@@ -88,51 +103,82 @@ function AltTextCheckerContent() {
 
   return (
     <ToolShell title="Alt Text Checker" description="Find images missing alt attributes on any page.">
-      <div className="flex gap-2">
-        <Input 
-          value={url} 
-          onChange={(e) => setUrl(e.target.value)} 
-          placeholder="https://example.com" 
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-        />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
+      <div className="flex items-end gap-2">
+        <Field label="Page URL" className="flex-1">
+          <Input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+          />
+        </Field>
+        <Button variant="primary" onClick={run} loading={loading} disabled={loading}>
+          {loading ? 'Loading...' : 'Check'}
+        </Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
+      {error && (
+        <Alert tone="danger" title="Could not check this page">
+          {error}
+        </Alert>
+      )}
       {images.length > 0 && (
         <>
           <div className="flex items-center justify-between">
-            <div className="text-sm text-[var(--st-text-secondary)]">{images.length} images · <span className="text-[var(--st-text)] font-semibold">{missing} missing alt</span></div>
+            <div className="text-sm text-[var(--st-text-secondary)]">
+              {images.length} images ·{' '}
+              <span className="text-[var(--st-text)] font-semibold">{missing} missing alt</span>
+            </div>
             {missing > 0 && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={copyMissingToClipboard}>
-                  {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={copied ? CheckCircle2 : Copy}
+                  onClick={copyMissingToClipboard}
+                >
                   {copied ? 'Copied' : 'Copy Missing'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={exportMissingToCsv}>
-                  <Download className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" iconLeft={Download} onClick={exportMissingToCsv}>
                   Export Missing (CSV)
                 </Button>
               </div>
             )}
           </div>
-          <Card><CardBody className="p-0">
-            <div className="max-h-[600px] overflow-auto">
-              <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-[var(--st-bg-secondary)]"><tr className="border-b"><th className="text-left p-2">Image</th><th className="text-left p-2">Alt</th></tr></thead>
-                <tbody>
-                  {images.map((img, i) => {
-                    const isMissing = !img.hasAlt || !img.alt;
-                    return (
-                      <tr key={i} className={`border-b ${isMissing ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20' : ''}`}>
-                        <td className="p-2 font-mono truncate max-w-xs">{img.src}</td>
-                        <td className="p-2">{!isMissing ? img.alt : <span className="text-[var(--st-text)]">(missing)</span>}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardBody></Card>
+          <Card padding="none">
+            <CardBody className="p-0">
+              <div className="max-h-[600px] overflow-auto">
+                <Table density="compact" stickyHeader>
+                  <THead>
+                    <Tr>
+                      <Th>Image</Th>
+                      <Th>Alt</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {images.map((img, i) => {
+                      const isMissing = !img.hasAlt || !img.alt;
+                      return (
+                        <Tr key={i} selected={isMissing}>
+                          <Td truncate className="max-w-xs font-mono text-xs">
+                            {img.src}
+                          </Td>
+                          <Td className="text-xs">
+                            {!isMissing ? (
+                              img.alt
+                            ) : (
+                              <Badge tone="danger" kind="soft">
+                                missing
+                              </Badge>
+                            )}
+                          </Td>
+                        </Tr>
+                      );
+                    })}
+                  </TBody>
+                </Table>
+              </div>
+            </CardBody>
+          </Card>
         </>
       )}
     </ToolShell>

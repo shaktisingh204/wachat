@@ -8,7 +8,24 @@ const LeadsBarChart = dynamic(
   () => import('./leads-conversion-charts').then((mod) => mod.LeadsBarChart),
   { ssr: false }
 );
-import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import { Inbox } from 'lucide-react';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
@@ -132,55 +149,35 @@ export function LeadsConversionView({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            From
-          </span>
-          <input
-            type="date"
-            name="from"
-            defaultValue={from}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            To
-          </span>
-          <input
-            type="date"
-            name="to"
-            defaultValue={to}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Source
-          </span>
-          <input
+        <Field label="From">
+          <Input type="date" name="from" defaultValue={from} inputSize="sm" />
+        </Field>
+        <Field label="To">
+          <Input type="date" name="to" defaultValue={to} inputSize="sm" />
+        </Field>
+        <Field label="Source">
+          <Input
             type="text"
             value={sourceInput}
             onChange={(e) => setSourceInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-28"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Owner
-          </span>
-          <input
+        </Field>
+        <Field label="Owner">
+          <Input
             type="text"
             value={ownerInput}
             onChange={(e) => setOwnerInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-28"
           />
-        </label>
-        <Button type="submit" size="sm" disabled={isPending}>
+        </Field>
+        <Button type="submit" variant="primary" size="sm" disabled={isPending}>
           Apply
         </Button>
         <div className="ml-auto flex gap-2">
@@ -222,61 +219,45 @@ export function LeadsConversionView({
 
       {/* Funnel bar chart */}
       <Card>
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-            Funnel by stage
-          </h2>
-          <p className="text-[12px] text-[var(--st-text-secondary)]">
+        <CardHeader className="mb-3">
+          <CardTitle>Funnel by stage</CardTitle>
+          <CardDescription>
             Bar labels show stage-over-stage conversion %.
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
         <LeadsBarChart chartData={chartData} />
       </Card>
 
       {/* Conversion rate by source table */}
       {bySource.length > 0 && (
         <Card>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-              Conversion by source
-            </h2>
-          </div>
-          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+          <CardHeader className="mb-3">
+            <CardTitle>Conversion by source</CardTitle>
+          </CardHeader>
+          <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
             <Table>
               <THead>
-                <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                  <Th className="text-[var(--st-text-secondary)]">
-                    Source
-                  </Th>
-                  <Th className="text-right text-[var(--st-text-secondary)]">
-                    Leads
-                  </Th>
-                  <Th className="text-right text-[var(--st-text-secondary)]">
-                    Converted
-                  </Th>
-                  <Th className="text-right text-[var(--st-text-secondary)]">
-                    Conv. rate
-                  </Th>
+                <Tr>
+                  <Th>Source</Th>
+                  <Th align="right">Leads</Th>
+                  <Th align="right">Converted</Th>
+                  <Th align="right">Conv. rate</Th>
                 </Tr>
               </THead>
               <TBody>
                 {bySource.map((s) => (
-                  <Tr key={s.source} className="border-[var(--st-border)]">
+                  <Tr key={s.source}>
                     <Td className="font-medium text-[var(--st-text)]">
                       {s.source}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.total)}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.converted)}
                     </Td>
-                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
-                      <Badge
-                        variant={
-                          s.conversionRate >= 20 ? 'default' : 'secondary'
-                        }
-                      >
+                    <Td align="right" className="text-[13px] font-medium text-[var(--st-text)]">
+                      <Badge tone={s.conversionRate >= 20 ? 'success' : 'neutral'}>
                         {s.conversionRate.toFixed(1)}%
                       </Badge>
                     </Td>
@@ -290,40 +271,32 @@ export function LeadsConversionView({
 
       {/* Leads table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                <Th className="text-[var(--st-text-secondary)]">
-                  Lead
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Company
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Status
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Source
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Created
-                </Th>
+              <Tr>
+                <Th>Lead</Th>
+                <Th>Company</Th>
+                <Th>Status</Th>
+                <Th>Source</Th>
+                <Th align="right">Created</Th>
               </Tr>
             </THead>
             <TBody>
               {leads.length === 0 ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={5}
-                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    No leads.
+                <Tr>
+                  <Td colSpan={5}>
+                    <EmptyState
+                      icon={Inbox}
+                      size="sm"
+                      title="No leads"
+                      description="No leads match the current filters."
+                    />
                   </Td>
                 </Tr>
               ) : (
                 leads.map((l) => (
-                  <Tr key={l.id} className="border-[var(--st-border)]">
+                  <Tr key={l.id}>
                     <Td className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales-crm/leads?leadId=${l.id}`}
@@ -332,16 +305,16 @@ export function LeadsConversionView({
                       />
                     </Td>
                     <Td className="text-[13px] text-[var(--st-text)]">
-                      {l.company ?? '—'}
+                      {l.company ?? '-'}
                     </Td>
                     <Td>
                       <Badge
-                        variant={
+                        tone={
                           l.status === 'Converted'
-                            ? 'default'
+                            ? 'success'
                             : l.status === 'Lost'
-                              ? 'destructive'
-                              : 'secondary'
+                              ? 'danger'
+                              : 'neutral'
                         }
                       >
                         {l.status}
@@ -350,10 +323,10 @@ export function LeadsConversionView({
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {l.source}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text-secondary)]">
                       {l.createdAt
                         ? new Date(l.createdAt).toLocaleDateString()
-                        : '—'}
+                        : '-'}
                     </Td>
                   </Tr>
                 ))

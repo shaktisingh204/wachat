@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Field, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui';
 import {
   AlarmClock,
   AlertTriangle,
@@ -68,7 +68,6 @@ import type {
     ThreadStatus,
 } from '@/lib/rust-client/telegram-business-inbox';
 
-const ACCENT = '#229ED9';
 const POLL_MS = 5000;
 
 const STATUS_FILTERS = [
@@ -82,9 +81,11 @@ const STATUS_FILTERS = [
 
 const PRIORITY_OPTIONS: ThreadPriority[] = ['low', 'normal', 'high', 'urgent'];
 
-const PRIORITY_TONE: Record<ThreadPriority, 'ghost' | 'secondary' | 'warning' | 'danger'> = {
-    low: 'ghost',
-    normal: 'secondary',
+type BadgeToneName = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
+
+const PRIORITY_TONE: Record<ThreadPriority, BadgeToneName> = {
+    low: 'neutral',
+    normal: 'neutral',
     high: 'warning',
     urgent: 'danger',
 };
@@ -132,8 +133,12 @@ function fmtSlaCountdown(iso?: string, breached?: boolean): { text: string; tone
     return { text: `SLA in ${hrs}h`, tone: 'success' };
 }
 
+function slaBadgeTone(tone: 'warning' | 'danger' | 'success'): BadgeToneName {
+    return tone === 'danger' ? 'danger' : tone === 'warning' ? 'warning' : 'neutral';
+}
+
 function fmtSeconds(secs: number): string {
-    if (!secs) return '—';
+    if (!secs) return '-';
     if (secs < 60) return `${secs}s`;
     const mins = Math.round(secs / 60);
     if (mins < 60) return `${mins}m`;
@@ -221,7 +226,7 @@ export default function Page() {
             .then((res) => {
                 if (cancelled) return;
                 setThreadsState(res);
-                if (res.error) toast({ title: 'Failed to load threads', description: res.error, variant: 'destructive' });
+                if (res.error) toast({ title: 'Failed to load threads', description: res.error, tone: 'danger' });
             })
             .finally(() => {
                 if (!cancelled) setIsLoadingThreads(false);
@@ -290,34 +295,34 @@ export default function Page() {
     const onAssign = async (agentId: string | null) => {
         if (!projectId || !selectedId) return;
         const res = await assignThreadAction(selectedId, projectId, agentId);
-        toast({
-            title: res.success ? 'Assignment updated.' : 'Failed',
-            description: res.success ? res.message : res.error,
-            variant: res.success ? 'default' : 'destructive',
-        });
-        if (res.success) refresh();
+        if (res.success) {
+            toast({ title: 'Assignment updated.', description: res.message, tone: 'success' });
+            refresh();
+        } else {
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
+        }
     };
 
     const onStatus = async (status: ThreadStatus, snoozedUntil?: string) => {
         if (!projectId || !selectedId) return;
         const res = await setThreadStatusAction(selectedId, projectId, status, snoozedUntil);
-        toast({
-            title: res.success ? `Status set to ${status}.` : 'Failed',
-            description: res.success ? res.message : res.error,
-            variant: res.success ? 'default' : 'destructive',
-        });
-        if (res.success) refresh();
+        if (res.success) {
+            toast({ title: `Status set to ${status}.`, description: res.message, tone: 'success' });
+            refresh();
+        } else {
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
+        }
     };
 
     const onPriority = async (priority: ThreadPriority) => {
         if (!projectId || !selectedId) return;
         const res = await setThreadPriorityAction(selectedId, projectId, priority);
-        toast({
-            title: res.success ? 'Priority updated.' : 'Failed',
-            description: res.success ? res.message : res.error,
-            variant: res.success ? 'default' : 'destructive',
-        });
-        if (res.success) refresh();
+        if (res.success) {
+            toast({ title: 'Priority updated.', description: res.message, tone: 'success' });
+            refresh();
+        } else {
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
+        }
     };
 
     const onAddTag = async (tag: string) => {
@@ -341,7 +346,7 @@ export default function Page() {
             setComposer('');
             refresh();
         } else {
-            toast({ title: 'Failed to send', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed to send', description: res.error, tone: 'danger' });
         }
     };
 
@@ -355,7 +360,7 @@ export default function Page() {
             setNoteDraft('');
             refresh();
         } else {
-            toast({ title: 'Failed to add note', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed to add note', description: res.error, tone: 'danger' });
         }
     };
 
@@ -363,7 +368,7 @@ export default function Page() {
         if (!projectId || !selectedId) return;
         const res = await deleteNoteAction(selectedId, noteId, projectId);
         if (res.success) refresh();
-        else toast({ title: 'Failed', description: res.error, variant: 'destructive' });
+        else toast({ title: 'Failed', description: res.error, tone: 'danger' });
     };
 
     // ---------- Bulk ----------
@@ -390,15 +395,13 @@ export default function Page() {
             action,
             payload,
         });
-        toast({
-            title: res.success ? `Updated ${('updated' in res ? res.updated : 0)} threads.` : 'Failed',
-            description: res.success ? undefined : res.error,
-            variant: res.success ? 'default' : 'destructive',
-        });
         if (res.success) {
+            toast({ title: `Updated ${('updated' in res ? res.updated : 0)} threads.`, tone: 'success' });
             setSelectedIds(new Set());
             setBulkMode(false);
             refresh();
+        } else {
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
         }
     };
 
@@ -408,9 +411,9 @@ export default function Page() {
 
     if (!projectId) {
         return (
-            <div className="p-6">
+            <div className="ui20 p-6">
                 <EmptyState
-                    icon={<Inbox />}
+                    icon={Inbox}
                     title="Select a project"
                     description="Choose an active project to view its Telegram business inbox."
                 />
@@ -419,7 +422,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] flex-col bg-[var(--st-bg-secondary)]">
+        <div className="ui20 flex h-[calc(100vh-4rem)] flex-col bg-[var(--st-bg-secondary)]">
             <TelegramProjectGate />
             {/* Analytics summary bar */}
             <AnalyticsBar
@@ -430,20 +433,21 @@ export default function Page() {
                 onOpenSla={() => setSlaOpen(true)}
                 onEvalSla={async () => {
                     const res = await slaEvalAction(projectId);
-                    toast({
-                        title: res.success
-                            ? `Evaluated ${'evaluated' in res ? res.evaluated : 0}, ${'breached' in res ? res.breached : 0} breached.`
-                            : 'Failed',
-                        description: res.success ? undefined : res.error,
-                        variant: res.success ? 'default' : 'destructive',
-                    });
+                    if (res.success) {
+                        toast({
+                            title: `Evaluated ${'evaluated' in res ? res.evaluated : 0}, ${'breached' in res ? res.breached : 0} breached.`,
+                            tone: 'success',
+                        });
+                    } else {
+                        toast({ title: 'Failed', description: res.error, tone: 'danger' });
+                    }
                     refresh();
                 }}
             />
 
             <div className="flex min-h-0 flex-1 overflow-hidden">
                 {/* LEFT pane */}
-                <div className="flex w-[300px] flex-shrink-0 flex-col border-r">
+                <div className="flex w-[300px] flex-shrink-0 flex-col border-r border-[var(--st-border)]">
                     <ThreadListHeader
                         statusFilter={statusFilter}
                         setStatusFilter={setStatusFilter}
@@ -491,7 +495,7 @@ export default function Page() {
                     {!thread ? (
                         <div className="flex h-full items-center justify-center p-8">
                             <EmptyState
-                                icon={<MessageSquare />}
+                                icon={MessageSquare}
                                 title="No conversation selected"
                                 description="Pick a thread on the left to view its messages, assign agents, and write internal notes."
                             />
@@ -519,7 +523,7 @@ export default function Page() {
                 </div>
 
                 {/* RIGHT pane */}
-                <div className="flex w-[320px] flex-shrink-0 flex-col border-l">
+                <div className="flex w-[320px] flex-shrink-0 flex-col border-l border-[var(--st-border)]">
                     {thread ? (
                         <RightPane
                             thread={thread}
@@ -575,12 +579,14 @@ export default function Page() {
                             Cancel
                         </Button>
                         <Button
+                            variant="primary"
+                            iconLeft={Check}
                             onClick={async () => {
                                 setResolveOpen(false);
                                 await onStatus('resolved');
                             }}
                         >
-                            <Check className="mr-1 h-4 w-4" /> Resolve
+                            Resolve
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -609,14 +615,14 @@ function AnalyticsBar({
     onEvalSla: () => void;
 }) {
     return (
-        <div className="flex flex-shrink-0 items-center gap-6 border-b bg-[var(--st-bg-secondary)] px-4 py-3">
+        <div className="flex flex-shrink-0 items-center gap-6 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
             <div className="flex items-center gap-2">
-                <Inbox className="h-5 w-5" style={{ color: ACCENT }} />
-                <h1 className="text-base font-semibold">Telegram Business Inbox</h1>
+                <Inbox className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
+                <h1 className="text-base font-semibold text-[var(--st-text)]">Telegram Business Inbox</h1>
             </div>
             <Separator orientation="vertical" className="h-6" />
             <Stat label="Open" value={openCount} icon={CircleDot} />
-            <Stat label="Breached" value={breachedCount} icon={AlertTriangle} tone="destructive" />
+            <Stat label="Breached" value={breachedCount} icon={AlertTriangle} tone="danger" />
             <Stat
                 label="Avg first response"
                 value={fmtSeconds(analytics?.avgFirstResponseSeconds ?? 0)}
@@ -628,14 +634,14 @@ function AnalyticsBar({
                 icon={CheckCheck}
             />
             <div className="ml-auto flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={onEvalSla}>
-                    <AlarmClock className="mr-1 h-4 w-4" /> Re-evaluate SLA
+                <Button variant="ghost" size="sm" iconLeft={AlarmClock} onClick={onEvalSla}>
+                    Re-evaluate SLA
                 </Button>
-                <Button variant="ghost" size="sm" onClick={onOpenRules}>
-                    <ListChecks className="mr-1 h-4 w-4" /> Auto-assign
+                <Button variant="ghost" size="sm" iconLeft={ListChecks} onClick={onOpenRules}>
+                    Auto-assign
                 </Button>
-                <Button variant="ghost" size="sm" onClick={onOpenSla}>
-                    <Settings className="mr-1 h-4 w-4" /> SLA
+                <Button variant="ghost" size="sm" iconLeft={Settings} onClick={onOpenSla}>
+                    SLA
                 </Button>
             </div>
         </div>
@@ -650,14 +656,14 @@ function Stat({
 }: {
     label: string;
     value: React.ReactNode;
-    icon: React.ComponentType<{ className?: string }>;
-    tone?: 'destructive';
+    icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+    tone?: 'danger';
 }) {
     return (
         <div className="flex items-center gap-2">
-            <Icon className={`h-4 w-4 ${tone === 'destructive' ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`} />
+            <Icon className={`h-4 w-4 ${tone === 'danger' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}`} aria-hidden={true} />
             <div className="leading-tight">
-                <div className={`text-sm font-medium ${tone === 'destructive' ? 'text-[var(--st-text)]' : ''}`}>{value}</div>
+                <div className={`text-sm font-medium ${tone === 'danger' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'}`}>{value}</div>
                 <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">{label}</div>
             </div>
         </div>
@@ -719,27 +725,28 @@ function ThreadListHeader(props: {
     } = props;
 
     return (
-        <div className="flex-shrink-0 space-y-2 border-b p-3">
+        <div className="flex-shrink-0 space-y-2 border-b border-[var(--st-border)] p-3">
             <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search threads…"
+                    placeholder="Search threads"
+                    iconLeft={Search}
+                    inputSize="sm"
                     className="h-8 flex-1"
+                    aria-label="Search threads"
                 />
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
                                 size="icon"
-                                variant={bulkMode ? 'default' : 'ghost'}
+                                variant={bulkMode ? 'primary' : 'ghost'}
                                 onClick={() => setBulkMode(!bulkMode)}
                                 className="h-8 w-8"
+                                iconLeft={ListChecks}
                                 aria-label="Bulk select"
-                            >
-                                <ListChecks className="h-4 w-4" />
-                            </Button>
+                            />
                         </TooltipTrigger>
                         <TooltipContent>Bulk select</TooltipContent>
                     </Tooltip>
@@ -747,29 +754,33 @@ function ThreadListHeader(props: {
             </div>
 
             <div className="grid grid-cols-5 gap-1 text-xs">
-                {STATUS_FILTERS.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setStatusFilter(opt.value)}
-                        className={`flex flex-col items-center rounded-md px-1 py-1 transition ${
-                            statusFilter === opt.value
-                                ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
-                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
-                        }`}
-                    >
-                        <span className="truncate">{opt.label}</span>
-                        {opt.value === 'open' && <span className="text-[10px]">{counts.open}</span>}
-                        {opt.value === 'pending' && <span className="text-[10px]">{counts.pending}</span>}
-                        {opt.value === 'snoozed' && <span className="text-[10px]">{counts.snoozed}</span>}
-                        {opt.value === 'resolved' && <span className="text-[10px]">{counts.resolved}</span>}
-                    </button>
-                ))}
+                {STATUS_FILTERS.map((opt) => {
+                    const active = statusFilter === opt.value;
+                    return (
+                        <Button
+                            key={opt.value}
+                            variant="ghost"
+                            onClick={() => setStatusFilter(opt.value)}
+                            aria-pressed={active}
+                            className={`!h-auto !flex-col !gap-0 !px-1 !py-1 [&_.u-btn__label]:flex [&_.u-btn__label]:flex-col [&_.u-btn__label]:items-center ${
+                                active
+                                    ? 'bg-[var(--st-accent-soft)] font-medium text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)]'
+                            }`}
+                        >
+                            <span className="truncate">{opt.label}</span>
+                            {opt.value === 'open' && <span className="text-[10px]">{counts.open}</span>}
+                            {opt.value === 'pending' && <span className="text-[10px]">{counts.pending}</span>}
+                            {opt.value === 'snoozed' && <span className="text-[10px]">{counts.snoozed}</span>}
+                            {opt.value === 'resolved' && <span className="text-[10px]">{counts.resolved}</span>}
+                        </Button>
+                    );
+                })}
             </div>
 
             <div className="flex flex-wrap gap-2">
                 <Select value={assignedFilter} onValueChange={setAssignedFilter}>
-                    <SelectTrigger className="h-8 flex-1">
+                    <SelectTrigger className="h-8 flex-1" aria-label="Filter by assignee">
                         <SelectValue placeholder="Assignee" />
                     </SelectTrigger>
                     <SelectContent>
@@ -785,7 +796,7 @@ function ThreadListHeader(props: {
                 </Select>
 
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger className="h-8 flex-1">
+                    <SelectTrigger className="h-8 flex-1" aria-label="Filter by priority">
                         <SelectValue placeholder="Priority" />
                     </SelectTrigger>
                     <SelectContent>
@@ -803,22 +814,27 @@ function ThreadListHeader(props: {
                 <Input
                     value={tagFilter}
                     onChange={(e) => setTagFilter(e.target.value)}
-                    placeholder="Filter by tag…"
+                    placeholder="Filter by tag"
+                    inputSize="sm"
                     className="h-8"
+                    aria-label="Filter by tag"
                 />
-                <label className="flex flex-shrink-0 cursor-pointer items-center gap-1 text-xs">
-                    <Checkbox checked={hasUnread} onCheckedChange={(v) => setHasUnread(Boolean(v))} />
-                    Unread
-                </label>
+                <Checkbox
+                    size="sm"
+                    label="Unread"
+                    checked={hasUnread}
+                    onChange={(e) => setHasUnread(e.target.checked)}
+                    className="flex-shrink-0 text-xs"
+                />
             </div>
 
             {bulkMode && (
-                <div className="rounded-md border bg-[var(--st-bg-muted)]/40 p-2">
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2">
                     <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="font-medium">{selectedCount} selected</span>
-                        <button onClick={toggleAll} className="text-[var(--st-text)] hover:underline">
+                        <span className="font-medium text-[var(--st-text)]">{selectedCount} selected</span>
+                        <Button variant="ghost" size="sm" onClick={toggleAll} className="!h-auto !px-1 !py-0">
                             {allSelected ? 'Clear' : 'Select all'}
-                        </button>
+                        </Button>
                     </div>
                     <div className="flex flex-wrap gap-1">
                         <Button size="sm" variant="ghost" onClick={() => onBulkAction('status', { status: 'resolved' })}>
@@ -844,18 +860,21 @@ function BulkTagButton({ onAdd }: { onAdd: (tag: string) => Promise<void> }) {
     const [val, setVal] = React.useState('');
     return (
         <>
-            <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
-                <Tag className="mr-1 h-3 w-3" /> Tag
+            <Button size="sm" variant="ghost" iconLeft={Tag} onClick={() => setOpen(true)}>
+                Tag
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Add tag</DialogTitle>
                     </DialogHeader>
-                    <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="tag-name" />
+                    <Field label="Tag name">
+                        <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="tag-name" />
+                    </Field>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                         <Button
+                            variant="primary"
                             onClick={async () => {
                                 await onAdd(val);
                                 setOpen(false);
@@ -882,8 +901,8 @@ function BulkAssignButton({
     const [open, setOpen] = React.useState(false);
     return (
         <>
-            <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
-                <UserCircle2 className="mr-1 h-3 w-3" /> Assign
+            <Button size="sm" variant="ghost" iconLeft={UserCircle2} onClick={() => setOpen(true)}>
+                Assign
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
@@ -891,26 +910,30 @@ function BulkAssignButton({
                         <DialogTitle>Assign to agent</DialogTitle>
                     </DialogHeader>
                     <div className="max-h-60 space-y-1 overflow-y-auto">
-                        <button
+                        <Button
+                            variant="ghost"
+                            block
                             onClick={async () => {
                                 await onAssign(null);
                                 setOpen(false);
                             }}
-                            className="w-full rounded p-2 text-left text-sm hover:bg-[var(--st-bg-muted)]"
+                            className="!justify-start"
                         >
                             Unassign
-                        </button>
+                        </Button>
                         {agents.map((a) => (
-                            <button
+                            <Button
                                 key={a._id}
+                                variant="ghost"
+                                block
                                 onClick={async () => {
                                     await onAssign(a._id);
                                     setOpen(false);
                                 }}
-                                className="w-full rounded p-2 text-left text-sm hover:bg-[var(--st-bg-muted)]"
+                                className="!justify-start"
                             >
                                 {a.name}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </DialogContent>
@@ -954,65 +977,67 @@ function ThreadList({
     if (threads.length === 0) {
         return (
             <div className="p-6">
-                <EmptyState icon={<Inbox />} title="No threads" description="No conversations match these filters yet." />
+                <EmptyState icon={Inbox} title="No threads" description="No conversations match these filters yet." />
             </div>
         );
     }
     return (
         <ScrollArea className="flex-1">
-            <div className="divide-y">
+            <div className="divide-y divide-[var(--st-border)]">
                 {threads.map((t) => {
                     const agent = t.assignedAgentId ? agents.find((a) => a._id === t.assignedAgentId) : null;
                     const sla = fmtSlaCountdown(t.slaDueAt, t.slaBreached);
                     const isSelected = selectedId === t._id;
                     return (
-                        <button
+                        <Button
                             key={t._id}
-                            type="button"
+                            variant="ghost"
+                            block
                             onClick={() => onSelect(t._id)}
-                            className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition ${
-                                isSelected ? 'bg-[var(--st-text)]/5' : 'hover:bg-[var(--st-bg-muted)]/50'
+                            aria-pressed={isSelected}
+                            className={`!h-auto !justify-start !rounded-none !px-3 !py-2.5 text-left [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:items-start [&_.u-btn__label]:gap-2 ${
+                                isSelected ? 'bg-[var(--st-accent-soft)]' : ''
                             }`}
                         >
                             {bulkMode && (
-                                <div className="pt-1">
-                                    <Checkbox checked={selectedIds.has(t._id)} />
-                                </div>
+                                <span className="pt-1">
+                                    <Checkbox checked={selectedIds.has(t._id)} readOnly aria-label="Select thread" />
+                                </span>
                             )}
                             <Avatar className="h-10 w-10 flex-shrink-0">
                                 <AvatarFallback>{initials(t.title)}</AvatarFallback>
                             </Avatar>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="truncate font-medium text-sm">{t.title}</div>
-                                    <div className="flex-shrink-0 text-[10px] text-[var(--st-text-secondary)]">
+                            <span className="min-w-0 flex-1">
+                                <span className="flex items-center justify-between gap-2">
+                                    <span className="truncate text-sm font-medium text-[var(--st-text)]">{t.title}</span>
+                                    <span className="flex-shrink-0 text-[10px] text-[var(--st-text-secondary)]">
                                         {fmtRelative(t.lastInboundAt ?? t.updatedAt)}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <div className="truncate text-xs text-[var(--st-text-secondary)]">
-                                        {t.lastMessageDirection === 'outbound' && '↳ '}
-                                        {t.lastMessagePreview || '—'}
-                                    </div>
-                                </div>
-                                <div className="mt-1 flex flex-wrap items-center gap-1">
+                                    </span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <span className="truncate text-xs text-[var(--st-text-secondary)]">
+                                        {t.lastMessageDirection === 'outbound' && 'reply: '}
+                                        {t.lastMessagePreview || '-'}
+                                    </span>
+                                </span>
+                                <span className="mt-1 flex flex-wrap items-center gap-1">
                                     {t.unreadCount > 0 && (
-                                        <Badge variant="default" className="h-4 px-1 text-[10px]">
+                                        <Badge tone="accent" className="h-4 px-1 text-[10px]">
                                             {t.unreadCount}
                                         </Badge>
                                     )}
                                     {t.priority !== 'normal' && (
-                                        <Badge variant={PRIORITY_TONE[t.priority]} className="h-4 px-1 text-[10px]">
+                                        <Badge tone={PRIORITY_TONE[t.priority]} className="h-4 px-1 text-[10px]">
                                             {t.priority}
                                         </Badge>
                                     )}
                                     {t.status !== 'open' && (
-                                        <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+                                        <Badge tone="neutral" className="h-4 px-1 text-[10px]">
                                             {t.status}
                                         </Badge>
                                     )}
                                     {sla && (
-                                        <Badge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
+                                        <Badge tone={slaBadgeTone(sla.tone)} className="h-4 px-1 text-[10px]">
                                             {sla.text}
                                         </Badge>
                                     )}
@@ -1026,14 +1051,14 @@ function ThreadList({
                                     {t.tags.slice(0, 2).map((tag) => (
                                         <span
                                             key={tag}
-                                            className="rounded bg-[var(--st-bg-muted)] px-1 text-[10px] text-[var(--st-text-secondary)]"
+                                            className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-1 text-[10px] text-[var(--st-text-secondary)]"
                                         >
                                             #{tag}
                                         </span>
                                     ))}
-                                </div>
-                            </div>
-                        </button>
+                                </span>
+                            </span>
+                        </Button>
                     );
                 })}
             </div>
@@ -1062,18 +1087,18 @@ function ThreadHeader({
 }) {
     const sla = fmtSlaCountdown(thread.slaDueAt, thread.slaBreached);
     return (
-        <div className="flex flex-shrink-0 items-center gap-3 border-b bg-[var(--st-bg-secondary)] px-4 py-3">
+        <div className="flex flex-shrink-0 items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
             <Avatar className="h-10 w-10">
                 <AvatarFallback>{initials(thread.title)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-                <div className="truncate font-semibold">{thread.title}</div>
+                <div className="truncate font-semibold text-[var(--st-text)]">{thread.title}</div>
                 <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                     <span>{thread.type}</span>
                     <span>·</span>
                     <span>Last activity {fmtRelative(thread.lastInboundAt ?? thread.updatedAt)}</span>
                     {sla && (
-                        <Badge variant={sla.tone === 'danger' ? 'danger' : sla.tone === 'warning' ? 'warning' : 'secondary'} className="h-4 px-1 text-[10px]">
+                        <Badge tone={slaBadgeTone(sla.tone)} className="h-4 px-1 text-[10px]">
                             {sla.text}
                         </Badge>
                     )}
@@ -1083,7 +1108,7 @@ function ThreadHeader({
                 value={thread.assignedAgentId ?? 'unassigned'}
                 onValueChange={(v) => onAssign(v === 'unassigned' ? null : v)}
             >
-                <SelectTrigger className="h-8 w-40">
+                <SelectTrigger className="h-8 w-40" aria-label="Assign agent">
                     <SelectValue placeholder="Assign" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1096,7 +1121,7 @@ function ThreadHeader({
                 </SelectContent>
             </Select>
             <Select value={thread.status} onValueChange={(v) => onStatus(v as ThreadStatus)}>
-                <SelectTrigger className="h-8 w-32">
+                <SelectTrigger className="h-8 w-32" aria-label="Thread status">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1108,7 +1133,7 @@ function ThreadHeader({
                 </SelectContent>
             </Select>
             <Select value={thread.priority} onValueChange={(v) => onPriority(v as ThreadPriority)}>
-                <SelectTrigger className="h-8 w-28">
+                <SelectTrigger className="h-8 w-28" aria-label="Thread priority">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1119,8 +1144,8 @@ function ThreadHeader({
                     ))}
                 </SelectContent>
             </Select>
-            <Button size="sm" onClick={onResolve}>
-                <CheckCheck className="mr-1 h-4 w-4" /> Resolve
+            <Button variant="primary" size="sm" iconLeft={CheckCheck} onClick={onResolve}>
+                Resolve
             </Button>
         </div>
     );
@@ -1145,10 +1170,10 @@ function MessageList({ messages }: { messages: InboxMessage[] }) {
                 return (
                     <div key={m._id} className={`flex ${outbound ? 'justify-end' : 'justify-start'}`}>
                         <div
-                            className={`max-w-[70%] rounded-lg px-3 py-2 text-sm shadow-sm ${
+                            className={`max-w-[70%] rounded-[var(--st-radius)] px-3 py-2 text-sm shadow-sm ${
                                 outbound
-                                    ? 'bg-[var(--st-text)] text-white'
-                                    : 'bg-[var(--st-bg-secondary)] border'
+                                    ? 'bg-[var(--st-accent)] text-white'
+                                    : 'border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
                             }`}
                         >
                             {m.text && <div className="whitespace-pre-wrap">{m.text}</div>}
@@ -1156,7 +1181,7 @@ function MessageList({ messages }: { messages: InboxMessage[] }) {
                             <div className="mt-1 text-[10px] opacity-70">
                                 {new Date(m.createdAt).toLocaleTimeString()}
                                 {m.status === 'failed' && (
-                                    <span className="ml-1 text-[var(--st-text)]">· failed</span>
+                                    <span className="ml-1">· failed</span>
                                 )}
                             </div>
                         </div>
@@ -1181,13 +1206,14 @@ function Composer({
     isSending: boolean;
 }) {
     return (
-        <div className="flex flex-shrink-0 items-end gap-2 border-t bg-[var(--st-bg-secondary)] p-3">
+        <div className="flex flex-shrink-0 items-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             <Textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                placeholder="Type a reply…"
+                placeholder="Type a reply"
                 rows={2}
                 className="flex-1 resize-none"
+                aria-label="Reply message"
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -1196,8 +1222,8 @@ function Composer({
                 }}
                 disabled={disabled}
             />
-            <Button onClick={onSend} disabled={disabled || !value.trim()}>
-                {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            <Button variant="primary" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Send reply">
+                {isSending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
             </Button>
         </div>
     );
@@ -1247,21 +1273,21 @@ function RightPane({
                                 <AvatarFallback>{initials(thread.title)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <div className="font-medium">{thread.title}</div>
+                                <div className="font-medium text-[var(--st-text)]">{thread.title}</div>
                                 <div className="text-xs text-[var(--st-text-secondary)]">{thread.type}</div>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-1 pt-2 text-xs">
                             <div className="text-[var(--st-text-secondary)]">Chat ID</div>
-                            <div className="font-mono">{thread.chatId}</div>
+                            <div className="font-mono text-[var(--st-text)]">{thread.chatId}</div>
                             <div className="text-[var(--st-text-secondary)]">Created</div>
-                            <div>{fmtRelative(thread.createdAt)} ago</div>
+                            <div className="text-[var(--st-text)]">{fmtRelative(thread.createdAt)} ago</div>
                             <div className="text-[var(--st-text-secondary)]">Notes</div>
-                            <div>{thread.internalNotesCount}</div>
+                            <div className="text-[var(--st-text)]">{thread.internalNotesCount}</div>
                             {agent && (
                                 <>
                                     <div className="text-[var(--st-text-secondary)]">Agent</div>
-                                    <div>{agent.name}</div>
+                                    <div className="text-[var(--st-text)]">{agent.name}</div>
                                 </>
                             )}
                         </div>
@@ -1271,85 +1297,90 @@ function RightPane({
                 {/* Tags */}
                 <div>
                     <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-                        <Tag className="h-3 w-3" /> Tags
+                        <Tag className="h-3 w-3" aria-hidden="true" /> Tags
                     </div>
                     <div className="flex flex-wrap gap-1">
                         {thread.tags.map((t) => (
-                            <Badge key={t} variant="secondary" className="cursor-default gap-1">
+                            <Badge key={t} tone="neutral" className="cursor-default gap-1">
                                 #{t}
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     aria-label={`Remove ${t}`}
                                     onClick={() => onRemoveTag(t)}
-                                    className="ml-1 opacity-50 hover:opacity-100"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
+                                    className="!ml-1 !h-auto !p-0 opacity-50 hover:opacity-100"
+                                    iconLeft={X}
+                                />
                             </Badge>
                         ))}
-                        <div className="flex items-center gap-1">
-                            <Input
-                                value={newTag}
-                                onChange={(e) => setNewTag(e.target.value)}
-                                placeholder="+ tag"
-                                className="h-6 w-24 text-xs"
-                                onKeyDown={async (e) => {
-                                    if (e.key === 'Enter' && newTag.trim()) {
-                                        await onAddTag(newTag.trim());
-                                        setNewTag('');
-                                    }
-                                }}
-                            />
-                        </div>
+                        <Input
+                            value={newTag}
+                            onChange={(e) => setNewTag(e.target.value)}
+                            placeholder="+ tag"
+                            inputSize="sm"
+                            className="h-6 w-24 text-xs"
+                            aria-label="Add tag"
+                            onKeyDown={async (e) => {
+                                if (e.key === 'Enter' && newTag.trim()) {
+                                    await onAddTag(newTag.trim());
+                                    setNewTag('');
+                                }
+                            }}
+                        />
                     </div>
                 </div>
 
                 {/* Notes */}
                 <div>
                     <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-                        <StickyNote className="h-3 w-3" /> Internal notes
+                        <StickyNote className="h-3 w-3" aria-hidden="true" /> Internal notes
                     </div>
                     <div className="space-y-2">
                         <div className="flex items-end gap-1">
                             <Textarea
                                 value={noteDraft}
                                 onChange={(e) => setNoteDraft(e.target.value)}
-                                placeholder="Write a note (mention with @userId)…"
+                                placeholder="Write a note (mention with @userId)"
                                 rows={2}
                                 className="resize-none text-xs"
+                                aria-label="New internal note"
                             />
                             <Button
+                                variant="primary"
                                 size="sm"
                                 onClick={onAddNote}
                                 disabled={isAddingNote || !noteDraft.trim()}
+                                aria-label="Add note"
                             >
-                                {isAddingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                                {isAddingNote ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <Plus className="h-3 w-3" aria-hidden="true" />}
                             </Button>
                         </div>
                         {notes.length === 0 && (
-                            <div className="rounded border border-dashed p-2 text-center text-xs text-[var(--st-text-secondary)]">
+                            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-center text-xs text-[var(--st-text-secondary)]">
                                 No notes yet.
                             </div>
                         )}
                         {notes.map((n) => (
-                            <div key={n._id} className="rounded border bg-[var(--st-bg-muted)] p-2 text-xs">
+                            <div key={n._id} className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs">
                                 <div className="mb-1 flex items-center justify-between text-[10px] text-[var(--st-text-secondary)]">
-                                    <span>by {n.authorId.slice(0, 8)}…</span>
+                                    <span>by {n.authorId.slice(0, 8)}</span>
                                     <div className="flex items-center gap-1">
                                         <span>{fmtRelative(n.createdAt)}</span>
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => onDeleteNote(n._id)}
                                             aria-label="Delete note"
-                                        >
-                                            <Trash2 className="h-3 w-3 opacity-50 hover:opacity-100" />
-                                        </button>
+                                            className="!h-auto !p-0 opacity-50 hover:opacity-100"
+                                            iconLeft={Trash2}
+                                        />
                                     </div>
                                 </div>
-                                <div className="whitespace-pre-wrap">{n.body}</div>
+                                <div className="whitespace-pre-wrap text-[var(--st-text)]">{n.body}</div>
                                 {n.mentions.length > 0 && (
                                     <div className="mt-1 flex gap-1 text-[10px]">
                                         {n.mentions.map((m) => (
-                                            <span key={m} className="text-[var(--st-text)]">@{m}</span>
+                                            <span key={m} className="text-[var(--st-accent)]">@{m}</span>
                                         ))}
                                     </div>
                                 )}
@@ -1388,16 +1419,18 @@ function RightPane({
                         </div>
                         <div className="space-y-1">
                             {relatedThreads.map((r) => (
-                                <button
+                                <Button
                                     key={r._id}
+                                    variant="ghost"
+                                    block
                                     onClick={() => onJumpTo(r._id)}
-                                    className="block w-full rounded border p-2 text-left text-xs hover:bg-[var(--st-bg-muted)]"
+                                    className="!h-auto !justify-start !px-2 !py-2 text-left text-xs [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:flex-col [&_.u-btn__label]:items-start border border-[var(--st-border)]"
                                 >
-                                    <div className="font-medium">{r.title}</div>
-                                    <div className="text-[var(--st-text-secondary)]">
+                                    <span className="font-medium text-[var(--st-text)]">{r.title}</span>
+                                    <span className="text-[var(--st-text-secondary)]">
                                         {r.status} · {fmtRelative(r.lastInboundAt ?? r.updatedAt)} ago
-                                    </div>
-                                </button>
+                                    </span>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -1446,11 +1479,11 @@ function RulesDrawer({
         if (!confirm('Delete this rule?')) return;
         const res = await deleteAutoAssignAction(id, projectId);
         if (res.success) {
-            toast({ title: 'Rule deleted.' });
+            toast({ title: 'Rule deleted.', tone: 'success' });
             load();
             refresh();
         } else {
-            toast({ title: 'Failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
         }
     };
 
@@ -1465,17 +1498,19 @@ function RulesDrawer({
                 </DrawerHeader>
                 <div className="space-y-3 p-4">
                     <Button
+                        variant="primary"
+                        iconLeft={Plus}
                         onClick={() => {
                             setEditing(null);
                             setShowForm(true);
                         }}
                     >
-                        <Plus className="mr-1 h-4 w-4" /> New rule
+                        New rule
                     </Button>
                     {isLoading && <Skeleton className="h-20 w-full" />}
                     {!isLoading && rules.length === 0 && (
                         <EmptyState
-                            icon={<ListChecks />}
+                            icon={ListChecks}
                             title="No rules yet"
                             description="Add a rule to automatically route incoming threads."
                         />
@@ -1484,26 +1519,22 @@ function RulesDrawer({
                         {rules.map((r) => (
                             <Card key={r._id}>
                                 <CardBody className="flex items-center gap-2 py-2">
-                                    <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                                    <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium">{r.name}</span>
-                                            <Badge variant={r.enabled ? 'success' : 'ghost'} className="h-4 px-1 text-[10px]">
+                                            <span className="font-medium text-[var(--st-text)]">{r.name}</span>
+                                            <Badge tone={r.enabled ? 'success' : 'neutral'} className="h-4 px-1 text-[10px]">
                                                 {r.enabled ? 'on' : 'off'}
                                             </Badge>
                                             <span className="text-xs text-[var(--st-text-secondary)]">priority {r.priority}</span>
                                         </div>
                                         <div className="text-xs text-[var(--st-text-secondary)]">
-                                            {r.assignTo?.kind ?? 'agent'} →{' '}
+                                            {r.assignTo?.kind ?? 'agent'} to{' '}
                                             {(r.assignTo?.agentIds ?? []).join(', ') || 'none'}
                                         </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setShowForm(true); }} aria-label="Edit rule">
-                                        <Pencil className="h-3 w-3" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" onClick={() => onDelete(r._id)} aria-label="Delete rule">
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
+                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setShowForm(true); }} aria-label="Edit rule" iconLeft={Pencil} />
+                                    <Button size="icon" variant="ghost" onClick={() => onDelete(r._id)} aria-label="Delete rule" iconLeft={Trash2} />
                                 </CardBody>
                             </Card>
                         ))}
@@ -1567,7 +1598,7 @@ function RuleForm({
 
     const onSave = async () => {
         if (!name.trim()) {
-            toast({ title: 'Name required', variant: 'destructive' });
+            toast({ title: 'Name required', tone: 'danger' });
             return;
         }
         setBusy(true);
@@ -1594,10 +1625,10 @@ function RuleForm({
             : await createAutoAssignAction(body);
         setBusy(false);
         if (res.success) {
-            toast({ title: rule ? 'Rule updated.' : 'Rule created.' });
+            toast({ title: rule ? 'Rule updated.' : 'Rule created.', tone: 'success' });
             onSaved();
         } else {
-            toast({ title: 'Failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
         }
     };
 
@@ -1608,30 +1639,25 @@ function RuleForm({
                     <DialogTitle>{rule ? 'Edit rule' : 'New rule'}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="rule-name">Name</label>
-                        <Input id="rule-name" value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
+                    <Field label="Name">
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                    </Field>
                     <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <label className="text-xs font-medium" htmlFor="rule-priority">Priority (lower = first)</label>
-                            <Input id="rule-priority" type="number" value={priority} onChange={(e) => setPriority(Number(e.target.value))} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className="text-xs font-medium" htmlFor="rule-enabled">Enabled</label>
+                        <Field label="Priority (lower = first)">
+                            <Input type="number" value={priority} onChange={(e) => setPriority(Number(e.target.value))} />
+                        </Field>
+                        <Field label="Enabled">
                             <div className="pt-2">
-                                <Checkbox id="rule-enabled" checked={enabled} onCheckedChange={(v) => setEnabled(Boolean(v))} />
+                                <Checkbox checked={enabled} onChange={(e) => setEnabled(e.target.checked)} aria-label="Enabled" />
                             </div>
-                        </div>
+                        </Field>
                     </div>
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="rule-keywords">Match keywords (comma-separated)</label>
-                        <Input id="rule-keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="refund, billing, urgent" />
-                    </div>
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="rule-kind">Assignment kind</label>
+                    <Field label="Match keywords (comma-separated)">
+                        <Input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="refund, billing, urgent" />
+                    </Field>
+                    <Field label="Assignment kind">
                         <Select value={kind} onValueChange={setKind}>
-                            <SelectTrigger id="rule-kind"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label="Assignment kind"><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="agent">Fixed agent (first in list)</SelectItem>
                                 <SelectItem value="round_robin">Round robin</SelectItem>
@@ -1639,40 +1665,40 @@ function RuleForm({
                                 <SelectItem value="least_loaded">Least loaded</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                     <div>
-                        <label className="text-xs font-medium">Agents</label>
+                        <div className="mb-1 text-xs font-medium text-[var(--st-text)]">Agents</div>
                         <div className="grid grid-cols-2 gap-1">
                             {agents.map((a) => (
-                                <label key={a._id} className="flex items-center gap-1 text-xs">
-                                    <Checkbox
-                                        checked={agentIds.includes(a._id)}
-                                        onCheckedChange={(v) => {
-                                            setAgentIds((prev) =>
-                                                v ? [...prev, a._id] : prev.filter((id) => id !== a._id),
-                                            );
-                                        }}
-                                    />
-                                    {a.name}
-                                </label>
+                                <Checkbox
+                                    key={a._id}
+                                    size="sm"
+                                    label={a.name}
+                                    className="text-xs"
+                                    checked={agentIds.includes(a._id)}
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setAgentIds((prev) =>
+                                            checked ? [...prev, a._id] : prev.filter((id) => id !== a._id),
+                                        );
+                                    }}
+                                />
                             ))}
                         </div>
                     </div>
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="rule-tags">Apply tags (comma-separated)</label>
-                        <Input id="rule-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
-                    </div>
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="rule-sla">SLA seconds (optional)</label>
-                        <Input id="rule-sla" type="number" value={setSla} onChange={(e) => setSetSla(e.target.value)} />
-                    </div>
+                    <Field label="Apply tags (comma-separated)">
+                        <Input value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
+                    </Field>
+                    <Field label="SLA seconds (optional)">
+                        <Input type="number" value={setSla} onChange={(e) => setSetSla(e.target.value)} />
+                    </Field>
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={busy}>
                         Cancel
                     </Button>
-                    <Button onClick={onSave} disabled={busy}>
-                        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                    <Button variant="primary" onClick={onSave} disabled={busy}>
+                        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : 'Save'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -1717,11 +1743,11 @@ function SlaDrawer({
         if (!confirm('Delete this SLA policy?')) return;
         const res = await deleteSlaAction(id, projectId);
         if (res.success) {
-            toast({ title: 'SLA deleted.' });
+            toast({ title: 'SLA deleted.', tone: 'success' });
             load();
             refresh();
         } else {
-            toast({ title: 'Failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
         }
     };
 
@@ -1735,13 +1761,13 @@ function SlaDrawer({
                     </DrawerDescription>
                 </DrawerHeader>
                 <div className="space-y-3 p-4">
-                    <Button onClick={() => { setEditing(null); setShowForm(true); }}>
-                        <Plus className="mr-1 h-4 w-4" /> New SLA
+                    <Button variant="primary" iconLeft={Plus} onClick={() => { setEditing(null); setShowForm(true); }}>
+                        New SLA
                     </Button>
                     {isLoading && <Skeleton className="h-20 w-full" />}
                     {!isLoading && policies.length === 0 && (
                         <EmptyState
-                            icon={<AlarmClock />}
+                            icon={AlarmClock}
                             title="No SLA policies"
                             description="Add one to start measuring response and resolution times."
                         />
@@ -1751,7 +1777,7 @@ function SlaDrawer({
                             <Card key={p._id}>
                                 <CardBody className="flex items-center gap-2 py-2">
                                     <div className="flex-1">
-                                        <div className="font-medium">{p.name}</div>
+                                        <div className="font-medium text-[var(--st-text)]">{p.name}</div>
                                         <div className="text-xs text-[var(--st-text-secondary)]">
                                             First response {fmtSeconds(p.firstResponseSeconds)} · Resolution {fmtSeconds(p.resolutionSeconds)}
                                             {p.applyToTags && p.applyToTags.length > 0 && (
@@ -1759,12 +1785,8 @@ function SlaDrawer({
                                             )}
                                         </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setShowForm(true); }} aria-label="Edit policy">
-                                        <Pencil className="h-3 w-3" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" onClick={() => onDelete(p._id)} aria-label="Delete policy">
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
+                                    <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setShowForm(true); }} aria-label="Edit policy" iconLeft={Pencil} />
+                                    <Button size="icon" variant="ghost" onClick={() => onDelete(p._id)} aria-label="Delete policy" iconLeft={Trash2} />
                                 </CardBody>
                             </Card>
                         ))}
@@ -1817,7 +1839,7 @@ function SlaForm({
 
     const onSave = async () => {
         if (!name.trim()) {
-            toast({ title: 'Name required', variant: 'destructive' });
+            toast({ title: 'Name required', tone: 'danger' });
             return;
         }
         setBusy(true);
@@ -1833,10 +1855,10 @@ function SlaForm({
             : await createSlaAction(body);
         setBusy(false);
         if (res.success) {
-            toast({ title: policy ? 'SLA updated.' : 'SLA created.' });
+            toast({ title: policy ? 'SLA updated.' : 'SLA created.', tone: 'success' });
             onSaved();
         } else {
-            toast({ title: 'Failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Failed', description: res.error, tone: 'danger' });
         }
     };
 
@@ -1847,31 +1869,27 @@ function SlaForm({
                     <DialogTitle>{policy ? 'Edit SLA' : 'New SLA'}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="sla-name">Name</label>
-                        <Input id="sla-name" value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
+                    <Field label="Name">
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                    </Field>
                     <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <label className="text-xs font-medium" htmlFor="sla-first">First response (s)</label>
-                            <Input id="sla-first" type="number" value={first} onChange={(e) => setFirst(e.target.value)} />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium" htmlFor="sla-resolution">Resolution (s)</label>
-                            <Input id="sla-resolution" type="number" value={resolution} onChange={(e) => setResolution(e.target.value)} />
-                        </div>
+                        <Field label="First response (s)">
+                            <Input type="number" value={first} onChange={(e) => setFirst(e.target.value)} />
+                        </Field>
+                        <Field label="Resolution (s)">
+                            <Input type="number" value={resolution} onChange={(e) => setResolution(e.target.value)} />
+                        </Field>
                     </div>
-                    <div>
-                        <label className="text-xs font-medium" htmlFor="sla-tags">Apply to tags (comma-separated; blank = global)</label>
-                        <Input id="sla-tags" value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
-                    </div>
+                    <Field label="Apply to tags (comma-separated; blank = global)">
+                        <Input value={tagsCsv} onChange={(e) => setTagsCsv(e.target.value)} />
+                    </Field>
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={busy}>
                         Cancel
                     </Button>
-                    <Button onClick={onSave} disabled={busy}>
-                        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                    <Button variant="primary" onClick={onSave} disabled={busy}>
+                        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : 'Save'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

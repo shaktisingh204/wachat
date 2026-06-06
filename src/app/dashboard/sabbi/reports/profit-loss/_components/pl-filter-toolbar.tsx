@@ -2,7 +2,16 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import {
   downloadCsv,
@@ -19,6 +28,8 @@ interface Props {
   exportHeaders: string[];
   exportRows: ExportRow[];
 }
+
+const CUSTOM_FY = 'custom';
 
 function buildFyOptions() {
   const now = new Date();
@@ -85,8 +96,8 @@ export function PlFilterToolbar({
     pushParams({});
   };
 
-  const onFyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const opt = fyOptions.find((o) => o.label === e.target.value);
+  const onFyChange = (value: string) => {
+    const opt = fyOptions.find((o) => o.label === value);
     if (!opt) return;
     setFromVal(opt.from);
     setToVal(opt.to);
@@ -96,95 +107,85 @@ export function PlFilterToolbar({
   return (
     <form
       onSubmit={onApply}
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          FY
-        </span>
-        <select
-          value={matchedFy?.label ?? ''}
-          onChange={onFyChange}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-        >
-          <option value="">Custom</option>
-          {fyOptions.map((o) => (
-            <option key={o.label} value={o.label}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Field label="FY" className="w-36">
+        <Select value={matchedFy?.label ?? CUSTOM_FY} onValueChange={onFyChange}>
+          <SelectTrigger aria-label="Financial year">
+            <SelectValue placeholder="Custom" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={CUSTOM_FY}>Custom</SelectItem>
+            {fyOptions.map((o) => (
+              <SelectItem key={o.label} value={o.label}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          From
-        </span>
-        <input
+      <Field label="From">
+        <Input
           type="date"
+          inputSize="sm"
           value={fromVal}
           onChange={(e) => setFromVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+          aria-label="From date"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          To
-        </span>
-        <input
+      <Field label="To">
+        <Input
           type="date"
+          inputSize="sm"
           value={toVal}
           onChange={(e) => setToVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+          aria-label="To date"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          Period
-        </span>
-        <select
-          value={granularityVal}
-          onChange={(e) => setGranularityVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-        >
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-        </select>
-      </label>
+      <Field label="Period" className="w-32">
+        <Select value={granularityVal} onValueChange={setGranularityVal}>
+          <SelectTrigger aria-label="Period granularity">
+            <SelectValue placeholder="Monthly" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="quarterly">Quarterly</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          Department
-        </span>
-        <input
+      <Field label="Department" className="w-28">
+        <Input
           type="text"
+          inputSize="sm"
           value={deptVal}
           onChange={(e) => setDeptVal(e.target.value)}
           placeholder="Any"
-          className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+          aria-label="Department"
         />
-      </label>
+      </Field>
 
-      <Button type="submit" size="sm" disabled={isPending}>
+      <Button type="submit" size="sm" variant="primary" disabled={isPending}>
         Apply
       </Button>
       <Button
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={RefreshCcw}
         onClick={() => startTransition(() => router.refresh())}
         disabled={isPending}
-        aria-label="Refresh"
       >
-        <RefreshCcw className="h-3.5 w-3.5" />
         Refresh
       </Button>
       <Button
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={FileDown}
         onClick={() =>
           downloadCsv(
             `profit-loss-${dateStamp()}.csv`,
@@ -192,15 +193,14 @@ export function PlFilterToolbar({
             exportRows,
           )
         }
-        aria-label="Export CSV"
       >
-        <FileDown className="h-3.5 w-3.5" />
         CSV
       </Button>
       <Button
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={FileSpreadsheet}
         onClick={() =>
           void downloadXlsx(
             `profit-loss-${dateStamp()}.xlsx`,
@@ -209,9 +209,7 @@ export function PlFilterToolbar({
             'P&L',
           )
         }
-        aria-label="Export XLSX"
       >
-        <FileSpreadsheet className="h-3.5 w-3.5" />
         XLSX
       </Button>
     </form>

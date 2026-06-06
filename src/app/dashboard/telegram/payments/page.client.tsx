@@ -1,47 +1,103 @@
 'use client';
 
 import { fmtINR } from "@/lib/utils";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  CreditCard,
-  Plus,
-  RefreshCw,
-  Trash2,
-  Pencil,
-  Send,
-  Link2,
-  Search,
-  Download,
-  DollarSign,
-  CheckCircle2,
-  Clock3,
-  Undo2,
-  TestTube,
-  Eye,
-  Loader2,
-  } from 'lucide-react';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    Badge,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    IconButton,
+    Input,
+    Label,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    StatCard,
+    Switch,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    Textarea,
+    cn,
+    useToast,
+    type BadgeVariant,
+} from '@/components/sabcrm/20ui';
+import {
+    CreditCard,
+    Plus,
+    RefreshCw,
+    Trash2,
+    Pencil,
+    Send,
+    Link2,
+    Search,
+    Download,
+    DollarSign,
+    CheckCircle2,
+    Clock3,
+    Undo2,
+    TestTube,
+    Eye,
+    Loader2,
+} from 'lucide-react';
 import {
     Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  } from 'recharts';
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';
-import {
-    SabFileUrlInput,
-  } from '@/components/sabfiles';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 /**
- * Telegram Payments dashboard — multi-tenant, project-scoped.
+ * Telegram Payments dashboard. Multi-tenant, project-scoped.
  *
- * Surface (segmented views, per zoruui no-tab-UI directive):
+ * Surface (segmented views, per the no-tab-UI directive):
  *   - Payments   list + analytics chart + filters + CSV export + refund
- *   - Invoices   sent invoices & invoice links from this project
+ *   - Invoices   sent invoices and invoice links from this project
  *   - Templates  reusable invoice payloads (CRUD via drawer)
  *   - Providers  saved provider tokens (CRUD + token-validity test)
  *
@@ -83,13 +139,11 @@ import type {
 } from '@/lib/rust-client/telegram-payments';
 
 // ---------------------------------------------------------------------------
-//  Constants & helpers
+//  Constants and helpers
 // ---------------------------------------------------------------------------
 
-const ACCENT = '#229ED9';
-
 const CURRENCY_OPTIONS = [
-    { code: 'XTR', label: 'XTR — Telegram Stars' },
+    { code: 'XTR', label: 'XTR, Telegram Stars' },
     { code: 'USD', label: 'USD' },
     { code: 'EUR', label: 'EUR' },
     { code: 'GBP', label: 'GBP' },
@@ -100,11 +154,11 @@ const CURRENCY_OPTIONS = [
 
 type View = 'payments' | 'invoices' | 'templates' | 'providers';
 
-const VIEWS: Array<{ key: View; label: string }> = [
-    { key: 'payments', label: 'Payments' },
-    { key: 'invoices', label: 'Invoices' },
-    { key: 'templates', label: 'Templates' },
-    { key: 'providers', label: 'Providers' },
+const VIEWS: Array<{ value: View; label: string }> = [
+    { value: 'payments', label: 'Payments' },
+    { value: 'invoices', label: 'Invoices' },
+    { value: 'templates', label: 'Templates' },
+    { value: 'providers', label: 'Providers' },
 ];
 
 const STATUS_OPTIONS = [
@@ -123,9 +177,9 @@ function fmtCurrency(amountSmallestUnit: number, currency: string): string {
 }
 
 function fmtDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return '-';
     return d.toLocaleString();
 }
 
@@ -137,48 +191,15 @@ function startOfNDaysAgo(n: number): Date {
 }
 
 function StatusBadge({ status }: { status: string }) {
-    const tone: 'success' | 'warning' | 'danger' | 'secondary' =
+    const variant: BadgeVariant =
         status === 'succeeded'
             ? 'success'
             : status === 'refunded'
               ? 'warning'
               : status === 'failed'
-                ? 'danger'
+                ? 'destructive'
                 : 'secondary';
-    return <Badge variant={tone}>{status || '—'}</Badge>;
-}
-
-// ---------------------------------------------------------------------------
-//  Segmented view switcher (no tab primitive in zoruui)
-// ---------------------------------------------------------------------------
-
-function ViewSwitcher({
-    view,
-    onChange,
-}: {
-    view: View;
-    onChange: (v: View) => void;
-}) {
-    return (
-        <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-            {VIEWS.map((v) => (
-                <button
-                    key={v.key}
-                    type="button"
-                    onClick={() => onChange(v.key)}
-                    className={cn(
-                        'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
-                        view === v.key
-                            ? 'bg-[var(--st-text)] text-white shadow-sm'
-                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]',
-                    )}
-                    aria-pressed={view === v.key}
-                >
-                    {v.label}
-                </button>
-            ))}
-        </div>
-    );
+    return <Badge variant={variant}>{status || '-'}</Badge>;
 }
 
 // ===========================================================================
@@ -192,7 +213,7 @@ export default function TelegramPaymentsPage() {
 
     const [view, setView] = React.useState<View>('payments');
 
-    // shared resources — bots, providers, templates — used across views
+    // shared resources: bots, providers, templates, used across views
     const [bots, setBots] = React.useState<BotOption[]>([]);
     const [providers, setProviders] = React.useState<ProviderRow[]>([]);
     const [templates, setTemplates] = React.useState<TemplateRow[]>([]);
@@ -380,6 +401,7 @@ export default function TelegramPaymentsPage() {
         return (
             <div className="px-6 py-12">
                 <EmptyState
+                    icon={CreditCard}
                     title="No project selected"
                     description="Pick a project from the sidebar to manage Telegram payments."
                 />
@@ -412,11 +434,8 @@ export default function TelegramPaymentsPage() {
                 <PageHeading>
                     <PageEyebrow>Telegram</PageEyebrow>
                     <PageTitle>
-                        <span
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-full"
-                            style={{ background: `${ACCENT}1A`, color: ACCENT }}
-                        >
-                            <CreditCard className="h-5 w-5" aria-hidden />
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+                            <CreditCard className="h-5 w-5" aria-hidden="true" />
                         </span>
                         Telegram Payments
                     </PageTitle>
@@ -425,7 +444,7 @@ export default function TelegramPaymentsPage() {
                         for {activeProject?.name ?? 'this project'}.
                     </PageDescription>
                 </PageHeading>
-                <div className="flex items-center gap-2">
+                <PageActions>
                     <Button
                         type="button"
                         variant="outline"
@@ -434,10 +453,11 @@ export default function TelegramPaymentsPage() {
                     >
                         <RefreshCw
                             className={cn('h-4 w-4', isLoading && 'animate-spin')}
+                            aria-hidden="true"
                         />
                         Refresh
                     </Button>
-                </div>
+                </PageActions>
             </PageHeader>
 
             {/* KPI strip + primary-currency picker */}
@@ -447,29 +467,34 @@ export default function TelegramPaymentsPage() {
                     value={
                         analytics
                             ? fmtCurrency(kpi.revenue, primaryCurrency)
-                            : '—'
+                            : '-'
                     }
-                    icon={<DollarSign />}
+                    icon={DollarSign}
                 />
                 <StatCard
                     label="Successful"
                     value={String(kpi.successful)}
-                    icon={<CheckCircle2 />}
+                    icon={CheckCircle2}
                 />
                 <StatCard
                     label="Pending"
                     value={String(kpi.pending)}
-                    icon={<Clock3 />}
+                    icon={Clock3}
                 />
                 <StatCard
                     label="Refunded"
                     value={String(kpi.refunded)}
-                    icon={<Undo2 />}
+                    icon={Undo2}
                 />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <ViewSwitcher view={view} onChange={setView} />
+                <SegmentedControl<View>
+                    items={VIEWS}
+                    value={view}
+                    onChange={setView}
+                    aria-label="Payments view"
+                />
                 <div className="flex items-center gap-2">
                     <Label className="text-xs text-[var(--st-text-secondary)]">
                         Display currency
@@ -478,7 +503,7 @@ export default function TelegramPaymentsPage() {
                         value={primaryCurrency}
                         onValueChange={(v) => setPrimaryCurrency(v)}
                     >
-                        <SelectTrigger className="w-[160px]">
+                        <SelectTrigger className="w-[160px]" aria-label="Display currency">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -492,7 +517,7 @@ export default function TelegramPaymentsPage() {
                 </div>
             </div>
 
-            {/* Body — one section per view */}
+            {/* Body: one section per view */}
             {view === 'payments' && (
                 <PaymentsSection
                     projectId={projectId}
@@ -622,7 +647,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
             <Card className="p-4">
                 <div className="mb-3 flex items-center justify-between">
                     <div>
-                        <div className="text-sm font-medium">Daily volume</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Daily volume</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">
                             Revenue is summed across successful payments. Drag the
                             range above to focus.
@@ -636,7 +661,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 data={props.analytics.by_day}
                                 margin={{ top: 8, right: 8, bottom: 8, left: 0 }}
                             >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
                                 <XAxis
                                     dataKey="date"
                                     tickLine={false}
@@ -651,12 +676,19 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 />
                                 <Tooltip
                                     contentStyle={{
-                                        borderRadius: 8,
+                                        borderRadius: 'var(--st-radius)',
                                         fontSize: 12,
+                                        background: 'var(--st-bg)',
+                                        border: '1px solid var(--st-border)',
+                                        color: 'var(--st-text)',
                                     }}
                                     formatter={(v: number) => [v, 'count']}
                                 />
-                                <Bar dataKey="count" fill={ACCENT} radius={[4, 4, 0, 0]} />
+                                <Bar
+                                    dataKey="count"
+                                    fill="var(--st-accent)"
+                                    radius={[4, 4, 0, 0]}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
@@ -671,15 +703,13 @@ function PaymentsSection(props: PaymentsSectionProps) {
             <Card className="flex flex-wrap items-end gap-3 p-3">
                 <div className="flex min-w-[200px] flex-1 flex-col gap-1">
                     <Label className="text-xs">Search</Label>
-                    <div className="relative">
-                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-                        <Input
-                            placeholder="chat id, user id, or charge id"
-                            value={props.search}
-                            onChange={(e) => props.onSearch(e.target.value)}
-                            className="pl-8"
-                        />
-                    </div>
+                    <Input
+                        iconLeft={Search}
+                        placeholder="chat id, user id, or charge id"
+                        value={props.search}
+                        onChange={(e) => props.onSearch(e.target.value)}
+                        aria-label="Search payments"
+                    />
                 </div>
                 <div className="flex flex-col gap-1">
                     <Label className="text-xs">Status</Label>
@@ -687,7 +717,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         value={props.statusFilter}
                         onValueChange={props.onStatusFilter}
                     >
-                        <SelectTrigger className="w-[160px]">
+                        <SelectTrigger className="w-[160px]" aria-label="Status filter">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -705,7 +735,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         value={props.currencyFilter}
                         onValueChange={props.onCurrencyFilter}
                     >
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-[140px]" aria-label="Currency filter">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -728,6 +758,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 new Date(e.target.value).toISOString(),
                             )
                         }
+                        aria-label="From date"
                     />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -740,9 +771,10 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                 new Date(e.target.value).toISOString(),
                             )
                         }
+                        aria-label="To date"
                     />
                 </div>
-                <Button type="button" onClick={props.onApply}>
+                <Button type="button" variant="primary" onClick={props.onApply}>
                     Apply
                 </Button>
                 <Button
@@ -750,13 +782,13 @@ function PaymentsSection(props: PaymentsSectionProps) {
                     variant="outline"
                     onClick={props.onCsvExport}
                 >
-                    <Download className="h-4 w-4" />
+                    <Download className="h-4 w-4" aria-hidden="true" />
                     Export CSV
                 </Button>
             </Card>
 
             {/* Table */}
-            <Card className="overflow-hidden">
+            <Card padding="none" className="overflow-hidden">
                 <Table>
                     <THead>
                         <Tr>
@@ -765,7 +797,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             <Th>Amount</Th>
                             <Th>Status</Th>
                             <Th>Created</Th>
-                            <Th className="text-right">Actions</Th>
+                            <Th align="right">Actions</Th>
                         </Tr>
                     </THead>
                     <TBody>
@@ -781,14 +813,14 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         {props.payments.map((p) => (
                             <Tr key={p._id}>
                                 <Td>
-                                    <div className="text-sm">{p.username ?? '—'}</div>
+                                    <div className="text-sm text-[var(--st-text)]">{p.username ?? '-'}</div>
                                     <div className="text-xs text-[var(--st-text-secondary)]">
-                                        {p.chatId ?? p.userId ?? '—'}
+                                        {p.chatId ?? p.userId ?? '-'}
                                     </div>
                                 </Td>
                                 <Td>
                                     <span className="truncate font-mono text-xs">
-                                        {p.payload ?? '—'}
+                                        {p.payload ?? '-'}
                                     </span>
                                 </Td>
                                 <Td>
@@ -798,24 +830,20 @@ function PaymentsSection(props: PaymentsSectionProps) {
                                     <StatusBadge status={p.status} />
                                 </Td>
                                 <Td>{fmtDate(p.createdAt)}</Td>
-                                <Td className="text-right">
-                                    <Button
-                                        size="icon-sm"
-                                        variant="ghost"
-                                        aria-label="View"
+                                <Td align="right">
+                                    <IconButton
+                                        label="View payment"
+                                        icon={Eye}
+                                        size="sm"
                                         onClick={() => openDetail(p)}
-                                    >
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
+                                    />
                                     {p.status === 'succeeded' && (
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
-                                            aria-label="Refund"
+                                        <IconButton
+                                            label="Refund payment"
+                                            icon={Undo2}
+                                            size="sm"
                                             onClick={() => setRefundTarget(p)}
-                                        >
-                                            <Undo2 className="h-4 w-4" />
-                                        </Button>
+                                        />
                                     )}
                                 </Td>
                             </Tr>
@@ -824,7 +852,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                 </Table>
                 <div className="flex items-center justify-between border-t border-[var(--st-border)] px-3 py-2 text-xs">
                     <div className="text-[var(--st-text-secondary)]">
-                        Page {props.page} of {totalPages} • {props.paymentsTotal} total
+                        Page {props.page} of {totalPages} . {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
                         <Button
@@ -866,41 +894,41 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <Label className="text-xs">Amount</Label>
-                                    <div>{fmtCurrency(detail.amount, detail.currency)}</div>
+                                    <div className="text-[var(--st-text)]">{fmtCurrency(detail.amount, detail.currency)}</div>
                                 </div>
                                 <div>
                                     <Label className="text-xs">Status</Label>
-                                    <StatusBadge status={detail.status} />
+                                    <div><StatusBadge status={detail.status} /></div>
                                 </div>
                                 <div>
                                     <Label className="text-xs">Chat ID</Label>
                                     <div className="font-mono text-xs">
-                                        {detail.chatId ?? '—'}
+                                        {detail.chatId ?? '-'}
                                     </div>
                                 </div>
                                 <div>
                                     <Label className="text-xs">User ID</Label>
                                     <div className="font-mono text-xs">
-                                        {detail.userId ?? '—'}
+                                        {detail.userId ?? '-'}
                                     </div>
                                 </div>
                                 <div>
                                     <Label className="text-xs">Telegram charge id</Label>
                                     <div className="break-all font-mono text-xs">
-                                        {detail.telegramPaymentChargeId ?? '—'}
+                                        {detail.telegramPaymentChargeId ?? '-'}
                                     </div>
                                 </div>
                                 <div>
                                     <Label className="text-xs">Provider charge id</Label>
                                     <div className="break-all font-mono text-xs">
-                                        {detail.providerPaymentChargeId ?? '—'}
+                                        {detail.providerPaymentChargeId ?? '-'}
                                     </div>
                                 </div>
                             </div>
                             {detail.orderInfo ? (
                                 <div>
                                     <Label className="text-xs">Order info</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
                                 </div>
@@ -908,7 +936,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.shippingAddress ? (
                                 <div>
                                     <Label className="text-xs">Shipping address</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
                                 </div>
@@ -934,7 +962,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         <AlertDialogDescription>
                             {refundTarget?.currency === 'XTR'
                                 ? 'Telegram Stars will be returned to the buyer via refundStarPayment. This cannot be undone.'
-                                : 'Fiat refunds are processed by your payment provider. We will mark this payment as refunded locally — reconcile with your provider for the actual refund.'}
+                                : 'Fiat refunds are processed by your payment provider. We will mark this payment as refunded locally. Reconcile with your provider for the actual refund.'}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -946,7 +974,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             onClick={confirmRefund}
                         >
                             {isRefunding && (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                             )}
                             Refund
                         </AlertDialogAction>
@@ -975,7 +1003,7 @@ function InvoicesSection({
     }, [templates]);
 
     return (
-        <Card className="overflow-hidden">
+        <Card padding="none" className="overflow-hidden">
             <Table>
                 <THead>
                     <Tr>
@@ -1006,7 +1034,7 @@ function InvoicesSection({
                             </Td>
                             <Td>
                                 <span className="font-mono text-xs">
-                                    {inv.chatId ?? '—'}
+                                    {inv.chatId ?? '-'}
                                 </span>
                             </Td>
                             <Td>
@@ -1021,12 +1049,12 @@ function InvoicesSection({
                                         href={inv.invoiceLink}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-xs underline"
+                                        className="text-xs text-[var(--st-accent)] underline"
                                     >
                                         Open
                                     </a>
                                 ) : (
-                                    '—'
+                                    '-'
                                 )}
                             </Td>
                             <Td>{fmtDate(inv.createdAt)}</Td>
@@ -1070,15 +1098,16 @@ function TemplatesSection({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium">Invoice templates</h2>
+                <h2 className="text-sm font-medium text-[var(--st-text)]">Invoice templates</h2>
                 <Button
+                    variant="primary"
                     onClick={() => setDrawer({ open: true, editing: null })}
                 >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" aria-hidden="true" />
                     New template
                 </Button>
             </div>
-            <Card className="overflow-hidden">
+            <Card padding="none" className="overflow-hidden">
                 <Table>
                     <THead>
                         <Tr>
@@ -1086,7 +1115,7 @@ function TemplatesSection({
                             <Th>Title</Th>
                             <Th>Currency</Th>
                             <Th>Amount</Th>
-                            <Th className="text-right">Actions</Th>
+                            <Th align="right">Actions</Th>
                         </Tr>
                     </THead>
                     <TBody>
@@ -1112,33 +1141,27 @@ function TemplatesSection({
                                     <Td>
                                         {fmtCurrency(total, t.currency)}
                                     </Td>
-                                    <Td className="text-right">
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                    <Td align="right">
+                                        <IconButton
+                                            label="Send invoice"
+                                            icon={Send}
+                                            size="sm"
                                             onClick={() => setSendDialog(t)}
-                                            aria-label="Send invoice"
-                                        >
-                                            <Send className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                        />
+                                        <IconButton
+                                            label="Edit template"
+                                            icon={Pencil}
+                                            size="sm"
                                             onClick={() =>
                                                 setDrawer({ open: true, editing: t })
                                             }
-                                            aria-label="Edit"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                        />
+                                        <IconButton
+                                            label="Delete template"
+                                            icon={Trash2}
+                                            size="sm"
                                             onClick={() => setDeleteTarget(t)}
-                                            aria-label="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        />
                                     </Td>
                                 </Tr>
                             );
@@ -1352,7 +1375,7 @@ function TemplateDrawer({
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Currency">
                             <Select value={currency} onValueChange={setCurrency}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Currency">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1372,7 +1395,7 @@ function TemplateDrawer({
                                 }
                                 disabled={currency === 'XTR'}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Provider">
                                     <SelectValue placeholder="None" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1397,7 +1420,7 @@ function TemplateDrawer({
                     </Field>
 
                     {/* Prices */}
-                    <div className="rounded-md border border-[var(--st-border)] p-3">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                         <div className="mb-2 flex items-center justify-between">
                             <Label>Price lines</Label>
                             <Button
@@ -1406,7 +1429,7 @@ function TemplateDrawer({
                                 variant="outline"
                                 onClick={addPrice}
                             >
-                                <Plus className="h-3.5 w-3.5" />
+                                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                                 Add line
                             </Button>
                         </div>
@@ -1419,6 +1442,7 @@ function TemplateDrawer({
                                         onChange={(e) =>
                                             updatePrice(i, { label: e.target.value })
                                         }
+                                        aria-label="Price label"
                                         className="flex-1"
                                     />
                                     <Input
@@ -1434,17 +1458,15 @@ function TemplateDrawer({
                                                 amountCents: Number(e.target.value) || 0,
                                             })
                                         }
+                                        aria-label="Price amount"
                                         className="w-40"
                                     />
-                                    <Button
-                                        type="button"
-                                        size="icon-sm"
-                                        variant="ghost"
+                                    <IconButton
+                                        label="Remove price line"
+                                        icon={Trash2}
+                                        size="sm"
                                         onClick={() => removePrice(i)}
-                                        aria-label="Remove line"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -1472,8 +1494,8 @@ function TemplateDrawer({
                     <Button variant="outline" onClick={onClose} disabled={saving}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={saving}>
-                        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    <Button variant="primary" onClick={handleSave} disabled={saving}>
+                        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
                         {editing ? 'Save changes' : 'Create template'}
                     </Button>
                 </SheetFooter>
@@ -1501,10 +1523,10 @@ function ToggleRow({
     onChange: (v: boolean) => void;
 }) {
     return (
-        <label className="flex items-center justify-between gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
-            <span>{label}</span>
-            <Switch checked={value} onCheckedChange={onChange} />
-        </label>
+        <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
+            <span className="text-[var(--st-text)]">{label}</span>
+            <Switch checked={value} onCheckedChange={onChange} aria-label={label} />
+        </div>
     );
 }
 
@@ -1581,31 +1603,16 @@ function SendInvoiceDialog({
                         directly to a chat, or get a shareable invoice link.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-                    {(['send', 'link'] as const).map((m) => (
-                        <button
-                            key={m}
-                            type="button"
-                            onClick={() => setMode(m)}
-                            className={cn(
-                                'h-7 flex-1 rounded-full text-xs',
-                                mode === m
-                                    ? 'bg-[var(--st-text)] text-white'
-                                    : 'text-[var(--st-text-secondary)]',
-                            )}
-                        >
-                            {m === 'send' ? (
-                                <>
-                                    <Send className="mr-1 inline h-3 w-3" /> Send to chat
-                                </>
-                            ) : (
-                                <>
-                                    <Link2 className="mr-1 inline h-3 w-3" /> Invoice link
-                                </>
-                            )}
-                        </button>
-                    ))}
-                </div>
+                <SegmentedControl<'send' | 'link'>
+                    items={[
+                        { value: 'send', label: 'Send to chat', icon: Send },
+                        { value: 'link', label: 'Invoice link', icon: Link2 },
+                    ]}
+                    value={mode}
+                    onChange={setMode}
+                    fullWidth
+                    aria-label="Invoice delivery mode"
+                />
                 <div className="flex flex-col gap-3">
                     <Field label="Bot">
                         <Select
@@ -1613,7 +1620,7 @@ function SendInvoiceDialog({
                             onValueChange={setBotId}
                             disabled={bots.length === 0}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Bot">
                                 <SelectValue placeholder="Pick a bot" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1628,20 +1635,20 @@ function SendInvoiceDialog({
                     {mode === 'send' ? (
                         <Field label="Chat ID">
                             <Input
-                                placeholder="-100… or numeric user id"
+                                placeholder="-100... or numeric user id"
                                 value={chatId}
                                 onChange={(e) => setChatId(e.target.value)}
                             />
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2 text-xs">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs">
                             <div className="mb-1 text-[var(--st-text-secondary)]">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="break-all underline"
+                                className="break-all text-[var(--st-accent)] underline"
                             >
                                 {linkResult}
                             </a>
@@ -1654,15 +1661,16 @@ function SendInvoiceDialog({
                     </Button>
                     {mode === 'send' ? (
                         <Button
+                            variant="primary"
                             onClick={doSend}
                             disabled={busy || !botId || !chatId.trim()}
                         >
-                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
                             Send invoice
                         </Button>
                     ) : (
-                        <Button onClick={doLink} disabled={busy}>
-                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        <Button variant="primary" onClick={doLink} disabled={busy}>
+                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
                             Create link
                         </Button>
                     )}
@@ -1715,22 +1723,23 @@ function ProvidersSection({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium">Provider tokens</h2>
+                <h2 className="text-sm font-medium text-[var(--st-text)]">Provider tokens</h2>
                 <Button
+                    variant="primary"
                     onClick={() => setDrawer({ open: true, editing: null })}
                     disabled={bots.length === 0}
                 >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" aria-hidden="true" />
                     Add provider
                 </Button>
             </div>
             {bots.length === 0 && (
                 <Card className="p-4 text-sm text-[var(--st-text-secondary)]">
-                    Connect a Telegram bot to this project first — provider tokens
+                    Connect a Telegram bot to this project first. Provider tokens
                     are attached to a specific bot.
                 </Card>
             )}
-            <Card className="overflow-hidden">
+            <Card padding="none" className="overflow-hidden">
                 <Table>
                     <THead>
                         <Tr>
@@ -1739,7 +1748,7 @@ function ProvidersSection({
                             <Th>Token</Th>
                             <Th>Currency</Th>
                             <Th>Mode</Th>
-                            <Th className="text-right">Actions</Th>
+                            <Th align="right">Actions</Th>
                         </Tr>
                     </THead>
                     <TBody>
@@ -1758,7 +1767,7 @@ function ProvidersSection({
                                 <Tr key={p._id}>
                                     <Td>{p.label}</Td>
                                     <Td>
-                                        @{bot?.username ?? '—'}
+                                        @{bot?.username ?? '-'}
                                     </Td>
                                     <Td>
                                         <span className="font-mono text-xs">
@@ -1771,38 +1780,29 @@ function ProvidersSection({
                                             {p.testMode ? 'Test' : 'Live'}
                                         </Badge>
                                     </Td>
-                                    <Td className="text-right">
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                    <Td align="right">
+                                        <IconButton
+                                            label="Test provider"
+                                            icon={testingId === p._id ? Loader2 : TestTube}
+                                            size="sm"
                                             disabled={testingId === p._id}
+                                            className={testingId === p._id ? 'animate-spin' : undefined}
                                             onClick={() => handleTest(p)}
-                                            aria-label="Test provider"
-                                        >
-                                            {testingId === p._id ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <TestTube className="h-4 w-4" />
-                                            )}
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                        />
+                                        <IconButton
+                                            label="Edit provider"
+                                            icon={Pencil}
+                                            size="sm"
                                             onClick={() =>
                                                 setDrawer({ open: true, editing: p })
                                             }
-                                            aria-label="Edit"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
+                                        />
+                                        <IconButton
+                                            label="Delete provider"
+                                            icon={Trash2}
+                                            size="sm"
                                             onClick={() => setDeleteTarget(p)}
-                                            aria-label="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        />
                                     </Td>
                                 </Tr>
                             );
@@ -1934,7 +1934,7 @@ function ProviderDrawer({
                         {editing ? 'Edit provider' : 'New provider token'}
                     </SheetTitle>
                     <SheetDescription>
-                        Tokens are issued by BotFather + your payment provider.
+                        Tokens are issued by BotFather and your payment provider.
                         Provider tokens are stored server-side and never returned
                         to the browser.
                     </SheetDescription>
@@ -1942,7 +1942,7 @@ function ProviderDrawer({
                 <div className="flex flex-col gap-3 py-4">
                     <Field label="Label">
                         <Input
-                            placeholder="e.g. Stripe — USD"
+                            placeholder="e.g. Stripe, USD"
                             value={label}
                             onChange={(e) => setLabel(e.target.value)}
                         />
@@ -1954,7 +1954,7 @@ function ProviderDrawer({
                                 onValueChange={setBotId}
                                 disabled={bots.length === 0}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Bot">
                                     <SelectValue placeholder="Pick a bot" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1978,13 +1978,13 @@ function ProviderDrawer({
                             type="password"
                             value={providerToken}
                             onChange={(e) => setProviderToken(e.target.value)}
-                            placeholder="284685063:TEST:…"
+                            placeholder="284685063:TEST:..."
                             autoComplete="off"
                         />
                     </Field>
                     <Field label="Currency">
                         <Select value={currency} onValueChange={setCurrency}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Currency">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -2008,8 +2008,8 @@ function ProviderDrawer({
                     <Button variant="outline" onClick={onClose} disabled={busy}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={busy}>
-                        {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    <Button variant="primary" onClick={handleSave} disabled={busy}>
+                        {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
                         Save
                     </Button>
                 </SheetFooter>

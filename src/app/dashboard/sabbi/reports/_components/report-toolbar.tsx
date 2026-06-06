@@ -1,8 +1,9 @@
-import { Button } from '@/components/sabcrm/20ui';
+import { Button, Card, CardBody, Field, Input } from '@/components/sabcrm/20ui';
+import { fmtINR } from '@/lib/utils';
 import * as React from 'react';
 
 /**
- * ReportToolbar — a URL-driven date range filter used by Worksuite
+ * ReportToolbar - a URL-driven date range filter used by Worksuite
  * report pages. Renders a simple `<form method="get">` so the page
  * can remain a server component.
  */
@@ -18,32 +19,16 @@ export function ReportToolbar({
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          From
-        </span>
-        <input
-          type="date"
-          name="from"
-          defaultValue={from}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          To
-        </span>
-        <input
-          type="date"
-          name="to"
-          defaultValue={to}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-        />
-      </label>
+      <Field label="From">
+        <Input type="date" name="from" defaultValue={from} inputSize="sm" />
+      </Field>
+      <Field label="To">
+        <Input type="date" name="to" defaultValue={to} inputSize="sm" />
+      </Field>
       {extra}
-      <Button type="submit" size="sm">
+      <Button type="submit" variant="primary" size="sm">
         Apply
       </Button>
     </form>
@@ -51,7 +36,7 @@ export function ReportToolbar({
 }
 
 /**
- * StatCard — a compact summary card used at the top of report pages.
+ * StatCard - a compact summary card used at the top of report pages.
  */
 export function StatCard({
   label,
@@ -72,23 +57,25 @@ export function StatCard({
     blue: 'text-[var(--st-text)]',
   };
   return (
-    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 shadow-sm">
-      <div className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-        {label}
-      </div>
-      <div
-        className={`mt-1 text-[22px] font-semibold leading-tight ${toneClass[tone]}`}
-      >
-        {value}
-      </div>
-      {hint ? (
-        <div className="mt-1 text-[12px] text-[var(--st-text-secondary)]">{hint}</div>
-      ) : null}
-    </div>
+    <Card variant="outlined" padding="none">
+      <CardBody className="p-4">
+        <div className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+          {label}
+        </div>
+        <div
+          className={`mt-1 text-[22px] font-semibold leading-tight ${toneClass[tone]}`}
+        >
+          {value}
+        </div>
+        {hint ? (
+          <div className="mt-1 text-[12px] text-[var(--st-text-secondary)]">{hint}</div>
+        ) : null}
+      </CardBody>
+    </Card>
   );
 }
 
-/** BarRow — a simple horizontal bar for tables of categorical data. */
+/** BarRow - a simple horizontal bar for tables of categorical data. */
 export function BarRow({
   label,
   value,
@@ -130,8 +117,6 @@ export function BarRow({
 }
 
 /** Format currency using INR by default. */
-import { fmtINR } from '@/lib/utils';
-
 export function fmtMoney(n: number, currency = 'INR'): string {
   return fmtINR(n, currency);
 }
@@ -141,17 +126,17 @@ export function fmtNumber(n: number): string {
 }
 
 export function fmtPct(n: number, digits = 1): string {
-  if (!isFinite(n)) return '—';
+  if (!isFinite(n)) return '-';
   return `${n >= 0 ? '' : ''}${n.toFixed(digits)}%`;
 }
 
 export function fmtDays(n: number): string {
-  if (!isFinite(n) || n <= 0) return '—';
+  if (!isFinite(n) || n <= 0) return '-';
   return `${Math.round(n)} days`;
 }
 
 export function fmtMinutes(m: number): string {
-  if (!m) return '—';
+  if (!m) return '-';
   if (m < 60) return `${Math.round(m)} min`;
   const h = Math.floor(m / 60);
   const mm = Math.round(m % 60);

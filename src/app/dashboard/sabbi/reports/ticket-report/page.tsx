@@ -11,9 +11,10 @@ import {
     listTicketReportRows,
 } from '@/app/actions/worksuite/reports.actions';
 import { TicketReportClient } from './_components/ticket-report-client';
+import { TicketFilters } from './_components/ticket-filters';
 
 /**
- * Ticket Report — server page.
+ * Ticket Report - server page.
  *
  * Aggregates ticket metrics + a paged ticket list for the table, then
  * delegates rendering of the charts/table/export controls to the
@@ -46,7 +47,7 @@ export default async function TicketReportPage(props: {
         listTicketReportRows(sp.from, sp.to, filters, page, limit),
     ]);
 
-    const topPriority = m.byPriority[0]?.priority ?? '—';
+    const topPriority = m.byPriority[0]?.priority ?? '-';
     const topPriorityCount = m.byPriority[0]?.count ?? 0;
 
     return (
@@ -58,59 +59,11 @@ export default async function TicketReportPage(props: {
                     from={sp.from}
                     to={sp.to}
                     extra={
-                        <>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                    Priority
-                                </span>
-                                <select
-                                    name="priority"
-                                    defaultValue={sp.priority ?? ''}
-                                    className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-                                >
-                                    <option value="">All</option>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
-                            </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                    Channel
-                                </span>
-                                <select
-                                    name="channel"
-                                    defaultValue={sp.channel ?? ''}
-                                    className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-                                >
-                                    <option value="">All</option>
-                                    <option value="email">Email</option>
-                                    <option value="web">Web</option>
-                                    <option value="phone">Phone</option>
-                                    <option value="chat">Chat</option>
-                                    <option value="whatsapp">WhatsApp</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                    Status
-                                </span>
-                                <select
-                                    name="status"
-                                    defaultValue={sp.status ?? ''}
-                                    className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-                                >
-                                    <option value="">All</option>
-                                    <option value="open">Open</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="on_hold">On hold</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="closed">Closed</option>
-                                </select>
-                            </label>
-                        </>
+                        <TicketFilters
+                            priority={sp.priority}
+                            channel={sp.channel}
+                            status={sp.status}
+                        />
                     }
                 />
             }

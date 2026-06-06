@@ -1,6 +1,29 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +31,6 @@ import {
   useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertCircle,
-  ChevronDown,
   Image as ImageIcon,
   RefreshCw } from 'lucide-react';
 
@@ -19,7 +41,7 @@ import {
   } from '@/app/actions/facebook-albums.actions';
 
 /**
- * /dashboard/facebook/albums — Facebook Page photo albums.
+ * /dashboard/facebook/albums - Facebook Page photo albums.
  *
  * Lists albums for the active project's connected Page via the
  * `wachat-facebook-content` Rust crate. Click an album to expand its
@@ -62,7 +84,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [loading, startLoading] = useTransition();
 
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string>('');
   const [photosByAlbum, setPhotosByAlbum] = useState<Record<string, Photo[]>>({});
   const [photoLoading, startPhotoLoading] = useTransition();
 
@@ -84,28 +106,31 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
     refresh();
   }, [refresh]);
 
-  const onExpand = (albumId: string) => {
-    if (expanded === albumId) {
-      setExpanded(null);
-      return;
-    }
+  const loadPhotos = useCallback(
+    (albumId: string) => {
+      if (photosByAlbum[albumId]) return; // cached
+      startPhotoLoading(async () => {
+        const res = await getFacebookAlbumPhotosAction(projectId, albumId);
+        if (res.error) return;
+        setPhotosByAlbum((prev) => ({
+          ...prev,
+          [albumId]: (res.data as Photo[]) ?? [],
+        }));
+      });
+    },
+    [photosByAlbum, projectId],
+  );
+
+  const onValueChange = (albumId: string) => {
     setExpanded(albumId);
-    if (photosByAlbum[albumId]) return; // cached
-    startPhotoLoading(async () => {
-      const res = await getFacebookAlbumPhotosAction(projectId, albumId);
-      if (res.error) return;
-      setPhotosByAlbum((prev) => ({
-        ...prev,
-        [albumId]: (res.data as Photo[]) ?? [],
-      }));
-    });
+    if (albumId) loadPhotos(albumId);
   };
 
   if (!projectId) {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<ImageIcon />}
+          icon={ImageIcon}
           title="No project selected"
           description="Pick a Facebook page / project to see its albums."
         />
@@ -131,23 +156,28 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Albums</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Albums</PageTitle>
+          <PageDescription>
             Photo albums on the connected Facebook Page. Backed by{' '}
             <code>wachat-facebook-content</code>.
-          </p>
-        </div>
-        <Button variant="ghost" onClick={refresh} disabled={loading}>
-          <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
-          Refresh
-        </Button>
-      </header>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="ghost"
+            onClick={refresh}
+            loading={loading}
+            iconLeft={RefreshCw}
+          >
+            Refresh
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle />
+        <Alert tone="danger" icon={AlertCircle}>
           <AlertTitle>Could not load albums</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -161,24 +191,24 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
         </div>
       ) : albums.length === 0 ? (
         <EmptyState
-          icon={<ImageIcon />}
+          icon={ImageIcon}
           title="No albums"
-          description="This Page doesn't have any photo albums yet."
+          description="This Page does not have any photo albums yet."
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <Accordion
+          type="single"
+          collapsible
+          value={expanded}
+          onValueChange={onValueChange}
+        >
           {albums.map((a) => {
-            const isOpen = expanded === a.id;
             const photos = photosByAlbum[a.id] ?? [];
             return (
-              <li key={a.id}>
-                <Card className="flex flex-col gap-3 p-4">
-                  <button
-                    type="button"
-                    onClick={() => onExpand(a.id)}
-                    className="flex items-center gap-3 text-left"
-                  >
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--st-bg-muted)]">
+              <AccordionItem key={a.id} value={a.id}>
+                <AccordionTrigger>
+                  <span className="flex items-center gap-3">
+                    <span className="h-16 w-16 shrink-0 overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                       {a.cover_photo?.source ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -187,68 +217,61 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                           className="h-full w-full object-cover"
                         />
                       ) : null}
-                    </div>
-                    <div className="flex-1">
-                      <p className="line-clamp-1 text-base text-[var(--st-text)]">
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block line-clamp-1 text-base text-[var(--st-text)]">
                         {a.name ?? '(untitled)'}
-                      </p>
+                      </span>
                       {a.description ? (
-                        <p className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
+                        <span className="block line-clamp-1 text-xs text-[var(--st-text-secondary)]">
                           {a.description}
-                        </p>
+                        </span>
                       ) : null}
-                      <div className="mt-1 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
-                        <Badge variant="ghost">{a.count ?? 0} photos</Badge>
+                      <span className="mt-1 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
+                        <Badge tone="neutral">{a.count ?? 0} photos</Badge>
                         {a.privacy ? <span>{a.privacy}</span> : null}
                         <span>{safeDate(a.updated_time ?? a.created_time)}</span>
-                      </div>
-                    </div>
-                    <ChevronDown
-                      className={
-                        'h-4 w-4 transition ' + (isOpen ? 'rotate-180' : '')
-                      }
-                    />
-                  </button>
+                      </span>
+                    </span>
+                  </span>
+                </AccordionTrigger>
 
-                  {isOpen ? (
-                    <div className="border-t border-[var(--st-border)] pt-3">
-                      {photoLoading && photos.length === 0 ? (
-                        <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
-                          <Skeleton className="aspect-square w-full" />
-                          <Skeleton className="aspect-square w-full" />
-                          <Skeleton className="aspect-square w-full" />
-                        </div>
-                      ) : photos.length === 0 ? (
-                        <p className="text-xs text-[var(--st-text-secondary)]">No photos.</p>
-                      ) : (
-                        <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
-                          {photos.map((p) => (
-                            <a
-                              key={p.id}
-                              href={p.source ?? p.picture ?? '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="aspect-square overflow-hidden rounded-md bg-[var(--st-bg-muted)]"
-                            >
-                              {p.source || p.picture ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={p.picture ?? p.source}
-                                  alt={p.name ?? ''}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : null}
-                            </a>
-                          ))}
-                        </div>
-                      )}
+                <AccordionContent>
+                  {photoLoading && photos.length === 0 ? (
+                    <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
+                      <Skeleton className="aspect-square w-full" />
+                      <Skeleton className="aspect-square w-full" />
+                      <Skeleton className="aspect-square w-full" />
                     </div>
-                  ) : null}
-                </Card>
-              </li>
+                  ) : photos.length === 0 ? (
+                    <p className="text-xs text-[var(--st-text-secondary)]">No photos.</p>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
+                      {photos.map((p) => (
+                        <a
+                          key={p.id}
+                          href={p.source ?? p.picture ?? '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="aspect-square overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]"
+                        >
+                          {p.source || p.picture ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={p.picture ?? p.source}
+                              alt={p.name ?? ''}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : null}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
             );
           })}
-        </ul>
+        </Accordion>
       )}
     </div>
   );

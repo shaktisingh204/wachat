@@ -1,6 +1,27 @@
 import React from 'react';
-import { Button, DatePicker, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
-import { ImageIcon, Loader2, Plus, VideoIcon } from 'lucide-react';
+import {
+    Button,
+    DatePicker,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    Field,
+    Input,
+    Label,
+    RadioGroup,
+    RadioGroupItem,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Switch,
+    Textarea,
+} from '@/components/sabcrm/20ui';
+import { ImageIcon, Plus, VideoIcon } from 'lucide-react';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { AreaEditor, AreaDraft } from './area-editor';
 import type {
@@ -118,23 +139,6 @@ function Section({
     );
 }
 
-function Field({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-        </label>
-    );
-}
-
 export function StoryEditorDrawer({
     open,
     onOpenChange,
@@ -168,7 +172,7 @@ export function StoryEditorDrawer({
                         {editorForm.storyId ? 'Edit story' : 'New story'}
                     </DrawerTitle>
                     <DrawerDescription>
-                        Stories last 6–48 hours on Telegram. Use 24h unless
+                        Stories last 6-48 hours on Telegram. Use 24h unless
                         you have a reason to do otherwise.
                     </DrawerDescription>
                 </DrawerHeader>
@@ -248,8 +252,8 @@ export function StoryEditorDrawer({
                                             <SelectContent>
                                                 {channels.length === 0 ? (
                                                     <div className="px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
-                                                        No channels —
-                                                        connect a channel
+                                                        No channels yet.
+                                                        Connect a channel
                                                         first in
                                                         /dashboard/telegram/channels.
                                                     </div>
@@ -326,7 +330,7 @@ export function StoryEditorDrawer({
                     {/* 2. Content */}
                     <Section
                         title="2. Content"
-                        description="Media + caption. Media is picked from your SabFiles library."
+                        description="Media and caption. Media is picked from your SabFiles library."
                     >
                         <div className="grid gap-3">
                             <Field label="Media kind">
@@ -340,16 +344,23 @@ export function StoryEditorDrawer({
                                             mediaSabFileId: '',
                                         }))
                                     }
+                                    orientation="horizontal"
                                     className="flex gap-3"
                                 >
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
+                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm">
                                         <RadioGroupItem value="photo" />
-                                        <ImageIcon className="h-3.5 w-3.5" />
+                                        <ImageIcon
+                                            className="h-3.5 w-3.5"
+                                            aria-hidden="true"
+                                        />
                                         Photo
                                     </label>
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
+                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm">
                                         <RadioGroupItem value="video" />
-                                        <VideoIcon className="h-3.5 w-3.5" />
+                                        <VideoIcon
+                                            className="h-3.5 w-3.5"
+                                            aria-hidden="true"
+                                        />
                                         Video
                                     </label>
                                 </RadioGroup>
@@ -360,6 +371,11 @@ export function StoryEditorDrawer({
                                     editorForm.mediaKind === 'photo'
                                         ? 'Photo from SabFiles'
                                         : 'Video from SabFiles'
+                                }
+                                help={
+                                    !editorForm.mediaSabFileId
+                                        ? 'Telegram fetches the file directly, so it must be in your library.'
+                                        : undefined
                                 }
                             >
                                 <SabFileUrlInput
@@ -378,12 +394,6 @@ export function StoryEditorDrawer({
                                     }
                                     pickerTitle="Pick story media"
                                 />
-                                {!editorForm.mediaSabFileId && (
-                                    <span className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
-                                        Telegram fetches the file directly,
-                                        so it must be in your library.
-                                    </span>
-                                )}
                             </Field>
 
                             <Field label="Caption">
@@ -396,7 +406,7 @@ export function StoryEditorDrawer({
                                             caption: e.target.value,
                                         }))
                                     }
-                                    placeholder="Story caption — optional"
+                                    placeholder="Story caption, optional"
                                 />
                             </Field>
                             <div className="grid gap-3 sm:grid-cols-2">
@@ -442,6 +452,7 @@ export function StoryEditorDrawer({
                                         type="button"
                                         variant="ghost"
                                         size="sm"
+                                        iconLeft={Plus}
                                         onClick={() =>
                                             setEditorForm((f) => ({
                                                 ...f,
@@ -464,7 +475,6 @@ export function StoryEditorDrawer({
                                             }))
                                         }
                                     >
-                                        <Plus className="h-3.5 w-3.5" />
                                         Add area
                                     </Button>
                                 </div>
@@ -544,7 +554,10 @@ export function StoryEditorDrawer({
                                 </Select>
                             </Field>
                             {editorForm.privacyKind === 'selected' ? (
-                                <Field label="User ids (max 200)">
+                                <Field
+                                    label="User ids (max 200)"
+                                    help="Comma- or whitespace-separated numeric Telegram user ids."
+                                >
                                     <Textarea
                                         rows={3}
                                         value={editorForm.userIdsRaw}
@@ -556,10 +569,6 @@ export function StoryEditorDrawer({
                                         }
                                         placeholder="1234567, 9876543"
                                     />
-                                    <span className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
-                                        Comma- or whitespace-separated
-                                        numeric Telegram user ids.
-                                    </span>
                                 </Field>
                             ) : null}
                         </div>
@@ -580,28 +589,30 @@ export function StoryEditorDrawer({
                                             editorForm.activePeriod ===
                                             p.value;
                                         return (
-                                            <button
+                                            <Button
                                                 type="button"
                                                 key={p.value}
+                                                variant={
+                                                    active
+                                                        ? 'primary'
+                                                        : 'outline'
+                                                }
+                                                size="sm"
+                                                aria-pressed={active}
                                                 onClick={() =>
                                                     setEditorForm((f) => ({
                                                         ...f,
                                                         activePeriod: p.value,
                                                     }))
                                                 }
-                                                className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                                                    active
-                                                        ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-                                                        : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
-                                                }`}
                                             >
                                                 {p.label}
-                                            </button>
+                                            </Button>
                                         );
                                     })}
                                 </div>
                             </Field>
-                            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
+                            <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                                 <div>
                                     <p className="text-sm text-[var(--st-text)]">
                                         Pin to chat page
@@ -613,6 +624,7 @@ export function StoryEditorDrawer({
                                 </div>
                                 <Switch
                                     checked={editorForm.postToChatPage}
+                                    aria-label="Pin to chat page"
                                     onCheckedChange={(v) =>
                                         setEditorForm((f) => ({
                                             ...f,
@@ -621,7 +633,7 @@ export function StoryEditorDrawer({
                                     }
                                 />
                             </div>
-                            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
+                            <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                                 <div>
                                     <p className="text-sm text-[var(--st-text)]">
                                         Protect content
@@ -632,6 +644,7 @@ export function StoryEditorDrawer({
                                 </div>
                                 <Switch
                                     checked={editorForm.protectContent}
+                                    aria-label="Protect content"
                                     onCheckedChange={(v) =>
                                         setEditorForm((f) => ({
                                             ...f,
@@ -658,13 +671,14 @@ export function StoryEditorDrawer({
                                     scheduleMode: v as 'now' | 'later',
                                 }))
                             }
+                            orientation="horizontal"
                             className="flex gap-3"
                         >
-                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
+                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm">
                                 <RadioGroupItem value="now" />
                                 Save as draft / Post now
                             </label>
-                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
+                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm">
                                 <RadioGroupItem value="later" />
                                 Schedule for later
                             </label>
@@ -699,7 +713,7 @@ export function StoryEditorDrawer({
                     </Section>
 
                     {editorErr ? (
-                        <p className="rounded-md border border-[var(--st-danger)]/50 bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
+                        <p className="rounded-[var(--st-radius)] border border-[var(--st-danger)]/50 bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                             {editorErr}
                         </p>
                     ) : null}
@@ -713,13 +727,12 @@ export function StoryEditorDrawer({
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         size="sm"
                         onClick={onSave}
+                        loading={savingEditor}
                         disabled={savingEditor}
                     >
-                        {savingEditor ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : null}
                         {editorForm.storyId ? 'Save changes' : 'Create'}
                     </Button>
                 </div>

@@ -1,9 +1,30 @@
 /**
- * Scheduled reports — CRUD.
+ * Scheduled reports. CRUD.
  */
 import Link from 'next/link';
+import { CalendarClock } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Table,
+  TBody,
+  Td,
+  THead,
+  Th,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import {
   listSchedulesAction,
   listWorkbooksAction,
@@ -12,6 +33,24 @@ import {
 import { NewSchedulePanel } from './new-schedule-panel';
 
 export const dynamic = 'force-dynamic';
+
+type ScheduleStatus = string | undefined | null;
+
+function statusTone(status: ScheduleStatus): 'success' | 'warning' | 'danger' | 'neutral' {
+  switch (status) {
+    case 'active':
+    case 'enabled':
+      return 'success';
+    case 'paused':
+    case 'pending':
+      return 'warning';
+    case 'failed':
+    case 'error':
+      return 'danger';
+    default:
+      return 'neutral';
+  }
+}
 
 export default async function SchedulesPage() {
   const [schedulesRes, workbooksRes] = await Promise.all([
@@ -22,18 +61,20 @@ export default async function SchedulesPage() {
   const workbooks = 'items' in workbooksRes ? workbooksRes.items : [];
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Scheduled reports</h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
-            Email a workbook on a cron schedule. PDF / CSV / inline body.
-          </p>
-        </div>
-        <Button asChild variant="ghost">
-          <Link href="/dashboard/analytics-workspace">Workbooks</Link>
-        </Button>
-      </header>
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Scheduled reports</PageTitle>
+          <PageDescription>
+            Email a workbook on a cron schedule. PDF, CSV, or inline body.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="ghost">
+            <Link href="/dashboard/analytics-workspace">Workbooks</Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <NewSchedulePanel
         workbooks={workbooks.map((w) => ({ id: w._id, name: w.name }))}
@@ -43,39 +84,47 @@ export default async function SchedulesPage() {
         <CardHeader>
           <CardTitle>Active schedules</CardTitle>
           <CardDescription>
-            Cron evaluation runs in the BI worker; next-run timestamps are
+            Cron evaluation runs in the BI worker. Next-run timestamps are
             populated after the first tick.
           </CardDescription>
         </CardHeader>
         <CardBody>
           {schedules.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No scheduled reports.</p>
+            <EmptyState
+              icon={CalendarClock}
+              title="No scheduled reports"
+              description="Create a schedule above to email a workbook on a recurring cadence."
+            />
           ) : (
             <Table>
               <THead>
-                <tr>
-                  <th className="text-left">Name</th>
-                  <th className="text-left">Workbook</th>
-                  <th className="text-left">Cron</th>
-                  <th className="text-left">Format</th>
-                  <th className="text-left">Status</th>
-                  <th className="text-left">Last run</th>
-                </tr>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Workbook</Th>
+                  <Th>Cron</Th>
+                  <Th>Format</Th>
+                  <Th>Status</Th>
+                  <Th>Last run</Th>
+                </Tr>
               </THead>
               <TBody>
                 {schedules.map((s) => (
-                  <tr key={s._id} className="border-t border-[var(--st-border)]">
-                    <td className="py-2">{s.name}</td>
-                    <td className="py-2 text-[var(--st-text-secondary)]">{s.workbookId}</td>
-                    <td className="py-2 font-mono text-xs">{s.cron}</td>
-                    <td className="py-2">
-                      <Badge variant="outline">{s.format}</Badge>
-                    </td>
-                    <td className="py-2">
-                      <Badge variant="outline">{s.status}</Badge>
-                    </td>
-                    <td className="py-2 text-[var(--st-text-secondary)]">{s.lastRunAt ?? '—'}</td>
-                  </tr>
+                  <Tr key={s._id}>
+                    <Td>{s.name}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">{s.workbookId}</Td>
+                    <Td className="font-mono text-xs">{s.cron}</Td>
+                    <Td>
+                      <Badge tone="accent">{s.format}</Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(s.status)} dot>
+                        {s.status}
+                      </Badge>
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {s.lastRunAt ?? '-'}
+                    </Td>
+                  </Tr>
                 ))}
               </TBody>
             </Table>

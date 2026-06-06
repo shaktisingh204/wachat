@@ -1,8 +1,30 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { ExternalLink, Link as LinkIcon, Loader2, Monitor, Pencil, ShieldCheck, Smartphone } from 'lucide-react';
-import { Button, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Card } from '@/components/sabcrm/20ui';
+import { ExternalLink, Link as LinkIcon, Monitor, Pencil, ShieldCheck, Smartphone, Inbox, BarChart3 } from 'lucide-react';
+import {
+  Button,
+  Textarea,
+  Field,
+  useToast,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Card,
+  CardBody,
+  Badge,
+  EmptyState,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listTelegramMiniAppSessionsAction,
@@ -13,14 +35,24 @@ import type { MiniAppRow, SessionRow, AnalyticsResp } from '@/lib/rust-client/te
 import { ClientDate } from './client-date';
 import { KpiCard } from './kpi-card';
 
-const ACCENT = '#229ED9';
-
 function directLink(botUsername: string | undefined, slug: string): string {
   if (!botUsername || !slug) return '';
   return `https://t.me/${botUsername}/${slug}`;
 }
 
 type DetailTab = 'overview' | 'sessions' | 'analytics' | 'settings';
+
+const TABS = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'sessions', label: 'Sessions' },
+  { value: 'analytics', label: 'Analytics' },
+  { value: 'settings', label: 'Settings' },
+] as const;
+
+const DEVICES = [
+  { value: 'desktop', label: '', icon: Monitor },
+  { value: 'mobile', label: '', icon: Smartphone },
+] as const;
 
 export function DetailDrawer({
   app,
@@ -71,7 +103,7 @@ export function DetailDrawer({
             toast({
               title: 'Sessions failed',
               description: res.error,
-              variant: 'destructive',
+              tone: 'danger',
             });
           }
           setSessions(res.sessions ?? []);
@@ -79,7 +111,7 @@ export function DetailDrawer({
           toast({
             title: 'Sessions failed',
             description: String(e),
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       });
@@ -98,7 +130,7 @@ export function DetailDrawer({
             toast({
               title: 'Analytics failed',
               description: res.error,
-              variant: 'destructive',
+              tone: 'danger',
             });
           }
           setAnalytics(res);
@@ -106,7 +138,7 @@ export function DetailDrawer({
           toast({
             title: 'Analytics failed',
             description: String(e),
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       });
@@ -153,36 +185,21 @@ export function DetailDrawer({
           <DrawerTitle>
             {app.name}
             <span className="ml-2 text-[11px] text-[var(--st-text-secondary)] font-normal">
-              @{app.botUsername || '—'} / {app.slug}
+              @{app.botUsername || '-'} / {app.slug}
             </span>
           </DrawerTitle>
           <DrawerDescription>{app.description || ' '}</DrawerDescription>
         </DrawerHeader>
 
         {/* Segmented section nav */}
-        <div className="flex gap-1 px-4">
-          {(
-            [
-              ['overview', 'Overview'],
-              ['sessions', 'Sessions'],
-              ['analytics', 'Analytics'],
-              ['settings', 'Settings'],
-            ] as const
-          ).map(([k, label]) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setTab(k)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-[12px]',
-                tab === k
-                  ? 'bg-zoru-bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-              )}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="px-4">
+          <SegmentedControl
+            aria-label="Mini app detail sections"
+            items={TABS}
+            value={tab}
+            onChange={(v) => setTab(v)}
+            size="sm"
+          />
         </div>
 
         <div className="overflow-y-auto px-4 py-3">
@@ -195,7 +212,7 @@ export function DetailDrawer({
                   rel="noreferrer noopener"
                   className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                 >
-                  <LinkIcon className="h-3.5 w-3.5" /> {app.webAppUrl}
+                  <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" /> {app.webAppUrl}
                 </a>
                 {link && (
                   <a
@@ -204,39 +221,25 @@ export function DetailDrawer({
                     rel="noreferrer noopener"
                     className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                   >
-                    <ExternalLink className="h-3.5 w-3.5" /> {link}
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /> {link}
                   </a>
                 )}
-                <div className="ml-auto inline-flex overflow-hidden rounded-md border border-[var(--st-border)]">
-                  <button
-                    type="button"
-                    onClick={() => setDevice('desktop')}
-                    className={cn(
-                      'px-2 py-1 text-[11px]',
-                      device === 'desktop' && 'bg-zoru-bg-[var(--st-bg-muted)]',
-                    )}
-                  >
-                    <Monitor className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDevice('mobile')}
-                    className={cn(
-                      'px-2 py-1 text-[11px]',
-                      device === 'mobile' && 'bg-zoru-bg-[var(--st-bg-muted)]',
-                    )}
-                  >
-                    <Smartphone className="h-3.5 w-3.5" />
-                  </button>
+                <div className="ml-auto">
+                  <SegmentedControl
+                    aria-label="Preview device"
+                    items={DEVICES}
+                    value={device}
+                    onChange={(v) => setDevice(v)}
+                    size="sm"
+                  />
                 </div>
               </div>
-              <div className="flex justify-center rounded-md border border-[var(--st-border)] bg-zoru-bg-[var(--st-bg-muted)] p-3">
+              <div className="flex justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                 <div
-                  className="overflow-hidden rounded-md border border-[var(--st-border)] bg-white"
+                  className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white max-w-full"
                   style={{
                     width: device === 'desktop' ? 720 : 360,
                     height: device === 'desktop' ? 480 : 640,
-                    maxWidth: '100%',
                   }}
                 >
                   <iframe
@@ -246,48 +249,43 @@ export function DetailDrawer({
                   />
                 </div>
               </div>
-              <div className="rounded-md border border-[var(--st-border)] p-3">
-                <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-                  Test init-data
-                </div>
-                <Textarea
-                  value={initData}
-                  onChange={(e) => setInitData(e.target.value)}
-                  rows={4}
-                  placeholder="Paste a Telegram WebApp initData string here…"
-                />
-                <div className="mt-2 flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    onClick={onValidate}
-                    disabled={!initData || validating}
+              <Card padding="md">
+                <CardBody>
+                  <Field
+                    label="Test init-data"
+                    help="Paste a Telegram WebApp initData string to verify its signature."
                   >
-                    {validating ? (
-                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
-                    )}
-                    Validate
-                  </Button>
-                  {initDataResult && (
-                    <span
-                      className={cn(
-                        'text-[11px]',
-                        initDataResult.ok
-                          ? 'text-[var(--st-text)]'
-                          : 'text-[var(--st-text)]',
-                      )}
+                    <Textarea
+                      value={initData}
+                      onChange={(e) => setInitData(e.target.value)}
+                      rows={4}
+                      placeholder="Paste a Telegram WebApp initData string here"
+                    />
+                  </Field>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      iconLeft={ShieldCheck}
+                      loading={validating}
+                      onClick={onValidate}
+                      disabled={!initData || validating}
                     >
-                      {initDataResult.ok ? 'Signature OK' : 'Signature failed'}
-                    </span>
+                      Validate
+                    </Button>
+                    {initDataResult && (
+                      <Badge tone={initDataResult.ok ? 'success' : 'danger'} dot>
+                        {initDataResult.ok ? 'Signature OK' : 'Signature failed'}
+                      </Badge>
+                    )}
+                  </div>
+                  {initDataResult && (
+                    <pre className="mt-2 max-h-40 overflow-auto rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-[11px] text-[var(--st-text)]">
+                      {initDataResult.body}
+                    </pre>
                   )}
-                </div>
-                {initDataResult && (
-                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-bg-[var(--st-bg-muted)] p-2 text-[11px]">
-                    {initDataResult.body}
-                  </pre>
-                )}
-              </div>
+                </CardBody>
+              </Card>
             </div>
           )}
 
@@ -304,19 +302,21 @@ export function DetailDrawer({
 
           {tab === 'settings' && (
             <div className="flex flex-col gap-3">
-              <Button variant="outline" onClick={onEdit}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit mini app
+              <Button variant="outline" iconLeft={Pencil} onClick={onEdit}>
+                Edit mini app
               </Button>
-              <div className="rounded-md border border-[var(--st-border)] p-3 text-[12px]">
-                <div className="text-[var(--st-text-secondary)]">App id</div>
-                <div className="font-mono text-[var(--st-text)]">{app._id}</div>
-                <div className="mt-2 text-[var(--st-text-secondary)]">Bot id</div>
-                <div className="font-mono text-[var(--st-text)]">{app.botId}</div>
-                <div className="mt-2 text-[var(--st-text-secondary)]">Created</div>
-                <div><ClientDate date={app.createdAt} /></div>
-                <div className="mt-2 text-[var(--st-text-secondary)]">Updated</div>
-                <div><ClientDate date={app.updatedAt} /></div>
-              </div>
+              <Card padding="md">
+                <CardBody className="text-[12px]">
+                  <div className="text-[var(--st-text-secondary)]">App id</div>
+                  <div className="font-mono text-[var(--st-text)]">{app._id}</div>
+                  <div className="mt-2 text-[var(--st-text-secondary)]">Bot id</div>
+                  <div className="font-mono text-[var(--st-text)]">{app.botId}</div>
+                  <div className="mt-2 text-[var(--st-text-secondary)]">Created</div>
+                  <div className="text-[var(--st-text)]"><ClientDate date={app.createdAt} /></div>
+                  <div className="mt-2 text-[var(--st-text-secondary)]">Updated</div>
+                  <div className="text-[var(--st-text)]"><ClientDate date={app.updatedAt} /></div>
+                </CardBody>
+              </Card>
             </div>
           )}
         </div>
@@ -335,9 +335,11 @@ function SessionsTable({
   if (loading) return <Skeleton className="h-40 w-full" />;
   if (sessions.length === 0)
     return (
-      <div className="rounded-md border border-[var(--st-border)] p-6 text-center text-[12px] text-[var(--st-text-secondary)]">
-        No validated sessions yet.
-      </div>
+      <EmptyState
+        icon={Inbox}
+        title="No validated sessions yet"
+        description="Sessions appear here once a user opens the mini app and its init-data is verified."
+      />
     );
   return (
     <Table>
@@ -353,15 +355,15 @@ function SessionsTable({
         {sessions.map((s) => (
           <Tr key={s._id}>
             <Td>
-              {s.username ? `@${s.username}` : s.firstName ?? '—'}
+              {s.username ? `@${s.username}` : s.firstName ?? '-'}
             </Td>
             <Td className="font-mono text-[11px]">
-              {s.userId ?? '—'}
+              {s.userId ?? '-'}
             </Td>
             <Td>
               <ClientDate date={s.validatedAt} />
             </Td>
-            <Td>{s.device ?? '—'}</Td>
+            <Td>{s.device ?? '-'}</Td>
           </Tr>
         ))}
       </TBody>
@@ -378,7 +380,13 @@ function AnalyticsView({
 }) {
   if (loading) return <Skeleton className="h-40 w-full" />;
   if (!analytics)
-    return <div className="text-[12px] text-[var(--st-text-secondary)]">No data.</div>;
+    return (
+      <EmptyState
+        icon={BarChart3}
+        title="No analytics yet"
+        description="Opens and unique users for this mini app will show up here once it has traffic."
+      />
+    );
   const max = analytics.byDay.reduce((m, d) => Math.max(m, d.opens), 0) || 1;
   return (
     <div className="flex flex-col gap-3">
@@ -391,36 +399,34 @@ function AnalyticsView({
           hint="unique / opens"
         />
       </div>
-      <div className="rounded-md border border-[var(--st-border)] p-3">
-        <div className="mb-2 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-          Opens by day
-        </div>
-        <div className="flex h-32 items-end gap-1">
-          {analytics.byDay.length === 0 ? (
-            <span className="text-[11px] text-[var(--st-text-secondary)]">No data.</span>
-          ) : (
-            analytics.byDay.map((d) => (
-              <div
-                key={d.date}
-                className="flex flex-1 flex-col items-center gap-1"
-                title={`${d.date}: ${d.opens}`}
-              >
+      <Card padding="md">
+        <CardBody>
+          <div className="mb-2 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
+            Opens by day
+          </div>
+          <div className="flex h-32 items-end gap-1">
+            {analytics.byDay.length === 0 ? (
+              <span className="text-[11px] text-[var(--st-text-secondary)]">No data.</span>
+            ) : (
+              analytics.byDay.map((d) => (
                 <div
-                  className="w-full rounded-t"
-                  style={{
-                    backgroundColor: ACCENT,
-                    height: `${(d.opens / max) * 100}%`,
-                    minHeight: 2,
-                  }}
-                />
-                <span className="text-[9px] text-[var(--st-text-secondary)]">
-                  {d.date.slice(5)}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+                  key={d.date}
+                  className="flex flex-1 flex-col items-center gap-1"
+                  title={`${d.date}: ${d.opens}`}
+                >
+                  <div
+                    className="w-full min-h-[2px] rounded-t bg-[var(--st-accent)]"
+                    style={{ height: `${(d.opens / max) * 100}%` }}
+                  />
+                  <span className="text-[9px] text-[var(--st-text-secondary)]">
+                    {d.date.slice(5)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

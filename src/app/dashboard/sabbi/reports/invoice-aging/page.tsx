@@ -1,6 +1,32 @@
 export const dynamic = 'force-dynamic';
 
-import { Card, Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui';
+import Link from 'next/link';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  Button,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  EmptyState,
+  type BadgeTone,
+  type BadgeStyleKind,
+} from '@/components/sabcrm/20ui';
+import { FileWarning } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -14,6 +40,11 @@ const PAGE_SIZES = [10, 20, 50, 100];
 
 const BUCKET_ORDER = ['0-30', '31-60', '61-90', '90+'] as const;
 type Bucket = (typeof BUCKET_ORDER)[number];
+
+// Radix Select cannot use an empty-string item value, so the "all"/"default"
+// rows submit a sentinel that the page treats as "no filter".
+const BUCKET_ALL = 'all';
+const CURRENCY_DEFAULT = 'INR';
 
 export default async function InvoiceAgingPage(props: {
   searchParams: Promise<{
@@ -31,12 +62,15 @@ export default async function InvoiceAgingPage(props: {
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
   const clientSearch = sp.client?.trim().toLowerCase() ?? '';
-  const bucketFilter = sp.bucket as Bucket | undefined;
+  const rawBucket = sp.bucket && sp.bucket !== BUCKET_ALL ? sp.bucket : undefined;
+  const bucketFilter = rawBucket as Bucket | undefined;
+  const rawCurrency =
+    sp.currency && sp.currency !== CURRENCY_DEFAULT ? sp.currency : undefined;
 
   const { kpis, byClient, rows: filtered } = await getInvoiceAgingDeep({
     client: clientSearch || undefined,
     bucket: bucketFilter,
-    currency: sp.currency || undefined,
+    currency: rawCurrency,
   });
 
   const pageRows = filtered.slice((page - 1) * limit, page * limit);
@@ -76,11 +110,12 @@ export default async function InvoiceAgingPage(props: {
     Outstanding: r.outstanding,
   }));
 
-  const bucketVariant: Record<string, 'success' | 'warning' | 'danger' | 'destructive'> = {
-    '0-30': 'success',
-    '31-60': 'warning',
-    '61-90': 'danger',
-    '90+': 'destructive',
+  // Aging buckets carry meaning through tone (taste rule: colour = status only).
+  const bucketBadge: Record<string, { tone: BadgeTone; kind: BadgeStyleKind }> = {
+    '0-30': { tone: 'success', kind: 'soft' },
+    '31-60': { tone: 'warning', kind: 'soft' },
+    '61-90': { tone: 'danger', kind: 'soft' },
+    '90+': { tone: 'danger', kind: 'solid' },
   };
 
   return (
@@ -89,17 +124,16 @@ export default async function InvoiceAgingPage(props: {
       subtitle="Outstanding receivables grouped by days past due."
       primaryAction={
         <div className="flex items-center gap-3">
-          <form action={async () => {
-            'use server';
-            // Placeholder for sending bulk dunning emails
-            console.log('Sending bulk dunning emails for 90+ days...');
-          }}>
-            <button
-              type="submit"
-              className="h-9 rounded-lg bg-[var(--st-danger-soft)] px-4 text-[13px] font-medium text-[var(--st-danger)] border border-[var(--st-danger)] hover:bg-[var(--st-danger)]/20"
-            >
+          <form
+            action={async () => {
+              'use server';
+              // Placeholder for sending bulk dunning emails
+              console.log('Sending bulk dunning emails for 90+ days...');
+            }}
+          >
+            <Button type="submit" variant="danger" size="sm">
               Send Dunning (90+)
-            </button>
+            </Button>
           </form>
           <FyReportToolbar
             from={sp.from}
@@ -115,63 +149,59 @@ export default async function InvoiceAgingPage(props: {
       {/* Filter row */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5"
       >
         {sp.from && <input type="hidden" name="from" value={sp.from} />}
         {sp.to && <input type="hidden" name="to" value={sp.to} />}
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Client search</span>
-          <input
+        <Field label="Client search" className="w-48">
+          <Input
             type="text"
             name="client"
+            inputSize="sm"
             defaultValue={sp.client ?? ''}
-            placeholder="Client name..."
-            className="h-9 w-48 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            placeholder="Client name"
           />
-        </label>
+        </Field>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Aging bucket</span>
-          <select
-            name="bucket"
-            defaultValue={sp.bucket ?? ''}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          >
-            <option value="">All buckets</option>
-            <option value="0-30">0–30 days</option>
-            <option value="31-60">31–60 days</option>
-            <option value="61-90">61–90 days</option>
-            <option value="90+">90+ days</option>
-          </select>
-        </label>
+        <Field label="Aging bucket">
+          <Select name="bucket" defaultValue={sp.bucket || BUCKET_ALL}>
+            <SelectTrigger aria-label="Aging bucket">
+              <SelectValue placeholder="All buckets" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={BUCKET_ALL}>All buckets</SelectItem>
+              <SelectItem value="0-30">0-30 days</SelectItem>
+              <SelectItem value="31-60">31-60 days</SelectItem>
+              <SelectItem value="61-90">61-90 days</SelectItem>
+              <SelectItem value="90+">90+ days</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Currency</span>
-          <select
-            name="currency"
-            defaultValue={sp.currency ?? ''}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          >
-            <option value="">INR (default)</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-          </select>
-        </label>
+        <Field label="Currency">
+          <Select name="currency" defaultValue={sp.currency || CURRENCY_DEFAULT}>
+            <SelectTrigger aria-label="Currency">
+              <SelectValue placeholder="INR (default)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={CURRENCY_DEFAULT}>INR (default)</SelectItem>
+              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="EUR">EUR</SelectItem>
+              <SelectItem value="GBP">GBP</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
 
-        <button
-          type="submit"
-          className="h-9 rounded-lg bg-[var(--st-text)] px-4 text-[13px] font-medium text-white"
-        >
+        <Button type="submit" variant="primary" size="sm">
           Apply
-        </button>
-        <a
+        </Button>
+        <Link
           href="?"
-          className="inline-flex h-9 items-center rounded-lg border border-[var(--st-border)] px-3 text-[13px] text-[var(--st-text-secondary)]"
+          className="inline-flex h-9 items-center px-1 text-[13px] text-[var(--st-text-secondary)] underline-offset-4 hover:text-[var(--st-text)] hover:underline"
         >
           Reset
-        </a>
+        </Link>
       </form>
 
       {/* KPI cards */}
@@ -188,23 +218,29 @@ export default async function InvoiceAgingPage(props: {
       </div>
 
       {/* Chart */}
-      <Card className="p-6">
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">By client</h2>
-          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>By client</CardTitle>
+          <CardDescription>
             Top 10 clients by outstanding amount across aging buckets.
-          </p>
-        </div>
-        {byClient.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No outstanding invoices.</div>
-        ) : (
-          <AgingStackedBar data={byClient.slice(0, 10)} />
-        )}
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          {byClient.length === 0 ? (
+            <EmptyState
+              icon={FileWarning}
+              title="No outstanding invoices"
+              description="Receivables are fully settled for this period."
+            />
+          ) : (
+            <AgingStackedBar data={byClient.slice(0, 10)} />
+          )}
+        </CardBody>
       </Card>
 
       {/* Table with summary row */}
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
               <Tr className="border-[var(--st-border)] hover:bg-transparent">
@@ -221,11 +257,13 @@ export default async function InvoiceAgingPage(props: {
             <TBody>
               {pageRows.length === 0 ? (
                 <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={8}
-                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    No overdue invoices matching filters.
+                  <Td colSpan={8} className="p-0">
+                    <EmptyState
+                      icon={FileWarning}
+                      size="sm"
+                      title="No overdue invoices"
+                      description="Nothing matches the current filters."
+                    />
                   </Td>
                 </Tr>
               ) : (
@@ -252,13 +290,18 @@ export default async function InvoiceAgingPage(props: {
                       <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.dueDate}</Td>
                       <Td className="text-right text-[13px] text-[var(--st-text)]">{r.daysOverdue}</Td>
                       <Td>
-                        <Badge variant={bucketVariant[r.bucket]}>{r.bucket}</Badge>
+                        <Badge
+                          tone={bucketBadge[r.bucket]?.tone ?? 'neutral'}
+                          kind={bucketBadge[r.bucket]?.kind ?? 'soft'}
+                        >
+                          {r.bucket}
+                        </Badge>
                       </Td>
                       <Td>
                         {r.isDisputed ? (
-                          <Badge variant="destructive">Disputed</Badge>
+                          <Badge tone="danger">Disputed</Badge>
                         ) : (
-                          <Badge variant="secondary">Active</Badge>
+                          <Badge tone="neutral">Active</Badge>
                         )}
                       </Td>
                       <Td className="text-right text-[13px] font-medium text-[var(--st-danger)]">
@@ -279,7 +322,7 @@ export default async function InvoiceAgingPage(props: {
                       31-60: {fmtMoney(totals.d3160)}
                     </Td>
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">
-                      61-90: {fmtMoney(totals.d6190)} · 90+: {fmtMoney(totals.over90)}
+                      61-90: {fmtMoney(totals.d6190)} - 90+: {fmtMoney(totals.over90)}
                     </Td>
                     <Td className="text-right text-[13px] font-bold text-[var(--st-danger)]">
                       {fmtMoney(totals.outstanding)}

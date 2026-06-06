@@ -12,7 +12,21 @@ const SalesPieChart = dynamic(
   () => import('./sales-deals-charts').then((mod) => mod.SalesPieChart),
   { ssr: false }
 );
-import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  Button,
+  Field,
+  Input,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';
@@ -132,7 +146,7 @@ export function SalesDealsView({
   return (
     <div className="flex flex-col gap-4">
       {/* Draggable Stages for Interactive Filtering */}
-      <div className="flex flex-wrap gap-2 items-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+      <div className="flex flex-wrap gap-2 items-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
         <span className="text-[12px] font-medium text-[var(--st-text-secondary)] mr-2">
           Drag stage to filter:
         </span>
@@ -153,32 +167,16 @@ export function SalesDealsView({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            From
-          </span>
-          <input
-            type="date"
-            name="from"
-            defaultValue={from}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            To
-          </span>
-          <input
-            type="date"
-            name="to"
-            defaultValue={to}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label 
-          className={`flex flex-col gap-1 rounded-lg p-1 transition-colors ${isDragOver ? 'bg-[var(--st-text)]/20 ring-1 ring-primary' : ''}`}
+        <Field label="From">
+          <Input type="date" name="from" defaultValue={from} inputSize="sm" />
+        </Field>
+        <Field label="To">
+          <Input type="date" name="to" defaultValue={to} inputSize="sm" />
+        </Field>
+        <div
+          className={`rounded-[var(--st-radius)] p-1 transition-colors ${isDragOver ? 'bg-[var(--st-accent-soft)] ring-1 ring-[var(--st-accent)]' : ''}`}
           onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={(e) => {
@@ -188,30 +186,28 @@ export function SalesDealsView({
             if (dropped) setStageInput(dropped);
           }}
         >
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Stage
-          </span>
-          <input
-            type="text"
-            value={stageInput}
-            onChange={(e) => setStageInput(e.target.value)}
-            placeholder="Drop here or type"
-            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Pipeline
-          </span>
-          <input
+          <Field label="Stage">
+            <Input
+              type="text"
+              value={stageInput}
+              onChange={(e) => setStageInput(e.target.value)}
+              placeholder="Drop here or type"
+              inputSize="sm"
+              className="w-32"
+            />
+          </Field>
+        </div>
+        <Field label="Pipeline">
+          <Input
             type="text"
             value={pipelineInput}
             onChange={(e) => setPipelineInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-28"
           />
-        </label>
-        <Button type="submit" size="sm" disabled={isPending}>
+        </Field>
+        <Button type="submit" variant="primary" size="sm" disabled={isPending}>
           Apply
         </Button>
         <div className="ml-auto flex gap-2">
@@ -254,27 +250,23 @@ export function SalesDealsView({
       {/* Charts */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-              Won vs lost by month
-            </h2>
-          </div>
+          <CardHeader className="mb-3">
+            <CardTitle>Won vs lost by month</CardTitle>
+          </CardHeader>
           <SalesLineChart lineData={lineData} />
         </Card>
 
         <Card>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-              Stage distribution
-            </h2>
-          </div>
+          <CardHeader className="mb-3">
+            <CardTitle>Stage distribution</CardTitle>
+          </CardHeader>
           <SalesPieChart pieData={pieData} />
         </Card>
       </div>
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
               <Tr className="border-[var(--st-border)] hover:bg-transparent">
@@ -290,10 +282,10 @@ export function SalesDealsView({
                 <Th className="text-[var(--st-text-secondary)]">
                   Pipeline
                 </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
+                <Th align="right" className="text-[var(--st-text-secondary)]">
                   Value
                 </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
+                <Th align="right" className="text-[var(--st-text-secondary)]">
                   Created
                 </Th>
               </Tr>
@@ -303,7 +295,8 @@ export function SalesDealsView({
                 <Tr className="border-[var(--st-border)]">
                   <Td
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
+                    align="center"
+                    className="h-20 text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No deals.
                   </Td>
@@ -336,13 +329,13 @@ export function SalesDealsView({
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.pipeline}
                     </Td>
-                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(d.value)}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.createdAt
                         ? new Date(d.createdAt).toLocaleDateString()
-                        : '—'}
+                        : '-'}
                     </Td>
                   </Tr>
                 ))

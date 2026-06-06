@@ -1,8 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui';
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  Button,
+  IconButton,
+  Checkbox,
+  Switch,
+  Slider,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/sabcrm/20ui";
+import { Eye, EyeOff } from "lucide-react";
 import type { WebhookSubscriptionRow } from "@/lib/rust-client/telegram-webhooks";
 import { TELEGRAM_ALLOWED_UPDATES } from "@/lib/rust-client/telegram-webhooks-shared";
 import { putTelegramWebhookSubscriptionAction } from "@/app/actions/telegram-webhooks.actions";
@@ -95,11 +114,17 @@ export function SubscriptionDrawer({
         </DrawerHeader>
         <div className="flex flex-col gap-4 p-4">
           {!editing?._id && (
-            <div>
-              <Label>Bot</Label>
+            <Field
+              label="Bot"
+              help={
+                subs.length === 0
+                  ? "No bots configured yet. Connect one under Telegram Bots first."
+                  : undefined
+              }
+            >
               <Select value={botId} onValueChange={setBotId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pick a bot…" />
+                <SelectTrigger aria-label="Bot">
+                  <SelectValue placeholder="Pick a bot..." />
                 </SelectTrigger>
                 <SelectContent>
                   {subs.map((s) => (
@@ -109,24 +134,16 @@ export function SubscriptionDrawer({
                   ))}
                 </SelectContent>
               </Select>
-              {subs.length === 0 && (
-                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-                  No bots configured yet — connect one under Telegram → Bots
-                  first.
-                </p>
-              )}
-            </div>
+            </Field>
           )}
-          <div>
-            <Label>URL (https only)</Label>
+          <Field label="URL (https only)">
             <Input
-              placeholder="https://example.com/api/telegram/webhook/…"
+              placeholder="https://example.com/api/telegram/webhook/..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
             />
-          </div>
-          <div>
-            <Label>Secret token</Label>
+          </Field>
+          <Field label="Secret token">
             <div className="flex items-center gap-2">
               <Input
                 type={showSecret ? "text" : "password"}
@@ -134,70 +151,66 @@ export function SubscriptionDrawer({
                 onChange={(e) => setSecret(e.target.value)}
                 placeholder="(generated if empty)"
               />
-              <Button
-                type="button"
+              <IconButton
+                label={showSecret ? "Hide secret token" : "Show secret token"}
+                icon={showSecret ? EyeOff : Eye}
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSecret((v) => !v)}
-              >
-                {showSecret ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
+              />
             </div>
-          </div>
-          <div>
-            <Label>
-              Allowed updates ({allowed.length} of{" "}
-              {TELEGRAM_ALLOWED_UPDATES.length})
-            </Label>
-            <div className="grid grid-cols-2 gap-2 rounded-md border p-2 sm:grid-cols-3">
+          </Field>
+          <Field
+            label={`Allowed updates (${allowed.length} of ${TELEGRAM_ALLOWED_UPDATES.length})`}
+          >
+            <div className="grid grid-cols-2 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 sm:grid-cols-3">
               {TELEGRAM_ALLOWED_UPDATES.map((u) => (
-                <label
+                <Checkbox
                   key={u}
-                  className="flex items-center gap-2 rounded px-1 text-xs hover:bg-[var(--st-bg-muted)]/50"
-                >
-                  <Checkbox
-                    checked={allowed.includes(u)}
-                    onCheckedChange={() => toggle(u)}
-                  />
-                  {u}
-                </label>
+                  size="sm"
+                  label={u}
+                  checked={allowed.includes(u)}
+                  onChange={() => toggle(u)}
+                  className="text-xs"
+                />
               ))}
             </div>
-          </div>
-          <div>
-            <Label>Max connections: {maxConns}</Label>
-            <input
-              type="range"
+          </Field>
+          <Field label={`Max connections: ${maxConns}`}>
+            <Slider
               min={1}
               max={100}
               value={maxConns}
-              onChange={(e) => setMaxConns(parseInt(e.target.value, 10))}
-              className="w-full accent-[var(--st-text)]"
+              onValueChange={(v) =>
+                setMaxConns(Array.isArray(v) ? v[0] : v)
+              }
+              ariaLabel="Max connections"
             />
-          </div>
-          <label className="flex items-center justify-between rounded-md border p-3">
+          </Field>
+          <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             <div>
-              <div className="text-sm font-medium">Drop pending updates</div>
+              <div className="text-sm font-medium text-[var(--st-text)]">
+                Drop pending updates
+              </div>
               <p className="text-xs text-[var(--st-text-secondary)]">
                 Discard updates Telegram queued before the new webhook was set.
               </p>
             </div>
-            <Switch checked={dropPending} onCheckedChange={setDropPending} />
-          </label>
+            <Switch
+              checked={dropPending}
+              onCheckedChange={setDropPending}
+              aria-label="Drop pending updates"
+            />
+          </div>
         </div>
-        <div className="flex items-center justify-end gap-2 border-t p-4">
+        <DrawerFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button variant="primary" onClick={save} loading={saving}>
             Save
           </Button>
-        </div>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

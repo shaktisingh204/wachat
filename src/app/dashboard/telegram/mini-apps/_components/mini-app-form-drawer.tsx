@@ -1,8 +1,29 @@
 'use client';
 
 import { useState, useRef, useEffect, useTransition, useCallback, useMemo } from 'react';
-import { Loader2, X as XIcon } from 'lucide-react';
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  ColorPicker,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  Field,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Tag,
+  Textarea,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import {
@@ -11,7 +32,6 @@ import {
 } from '@/app/actions/telegram-extra.actions';
 import type { MiniAppRow, UpsertBody, ThemeParams } from '@/lib/rust-client/telegram-mini-apps';
 
-const ACCENT = '#229ED9';
 const SLUG_RE = /^[a-z0-9_]+$/;
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
@@ -93,30 +113,12 @@ function ColorSwatchInput({
 }) {
   const valid = HEX_RE.test(value);
   return (
-    <div className="flex flex-col gap-1">
-      <Label className="text-[11px] text-[var(--st-text-secondary)]">{label}</Label>
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          aria-label={`${label} color`}
-          value={valid ? value : '#000000'}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-0"
-        />
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={cn(
-            'h-8 text-[12px] font-mono',
-            !valid && value && 'border-[var(--st-border)]/60',
-          )}
-          placeholder="#RRGGBB"
-        />
-      </div>
-      {!valid && value ? (
-        <span className="text-[10px] text-[var(--st-text)]">Expected #RRGGBB</span>
-      ) : null}
-    </div>
+    <Field
+      label={label}
+      error={!valid && value ? 'Expected #RRGGBB' : undefined}
+    >
+      <ColorPicker value={value || '#000000'} onChange={onChange} />
+    </Field>
   );
 }
 
@@ -141,24 +143,13 @@ function ChipInput({
     setDraft('');
   }, [draft, onChange, value]);
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
       {value.map((v) => (
-        <span
-          key={v}
-          className="inline-flex items-center gap-1 rounded-full bg-zoru-bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
-        >
+        <Tag key={v} onRemove={() => onChange(value.filter((x) => x !== v))} removeLabel={`Remove ${v}`}>
           {v}
-          <button
-            type="button"
-            aria-label={`Remove ${v}`}
-            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-            onClick={() => onChange(value.filter((x) => x !== v))}
-          >
-            <XIcon className="h-3 w-3" />
-          </button>
-        </span>
+        </Tag>
       ))}
-      <input
+      <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
@@ -171,7 +162,8 @@ function ChipInput({
         }}
         onBlur={commit}
         placeholder={placeholder || 'Add domain and press Enter'}
-        className="flex-1 min-w-[140px] bg-transparent text-[12px] outline-none placeholder:text-[var(--st-text-secondary)]"
+        aria-label="Add allowed domain"
+        className="flex-1 min-w-[140px] border-0 bg-transparent px-0"
       />
     </div>
   );
@@ -261,6 +253,7 @@ export function MiniAppFormDrawer({
           toast({
             title: mode === 'edit' ? 'Mini app updated' : 'Mini app created',
             description: res.message,
+            tone: 'success',
           });
           onSaved();
           onOpenChange(false);
@@ -268,14 +261,14 @@ export function MiniAppFormDrawer({
           toast({
             title: 'Could not save',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       } catch (e) {
         toast({
           title: 'Could not save',
           description: String(e),
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     });
@@ -299,7 +292,7 @@ export function MiniAppFormDrawer({
           </DrawerTitle>
           <DrawerDescription>
             Register a Telegram Web App URL for one of your bots. Users open
-            it from a chat or the bot's menu button.
+            it from a chat or the bot&apos;s menu button.
           </DrawerDescription>
         </DrawerHeader>
 
@@ -307,14 +300,13 @@ export function MiniAppFormDrawer({
           {/* ------- Basics ------- */}
           <section className="flex flex-col gap-3">
             <h3 className="text-[12px] font-medium text-[var(--st-text)]">Basics</h3>
-            <div className="flex flex-col gap-1">
-              <Label>Bot</Label>
+            <Field label="Bot">
               <Select
                 value={form.botId}
                 onValueChange={(v) => setForm((p) => ({ ...p, botId: v }))}
                 disabled={mode === 'edit'}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Bot">
                   <SelectValue placeholder="Select a bot" />
                 </SelectTrigger>
                 <SelectContent>
@@ -325,10 +317,9 @@ export function MiniAppFormDrawer({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <Label>Name</Label>
+            <Field label="Name">
               <Input
                 value={form.name}
                 onChange={(e) => {
@@ -341,10 +332,12 @@ export function MiniAppFormDrawer({
                 }}
                 placeholder="My Mini App"
               />
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <Label>Slug</Label>
+            <Field
+              label="Slug"
+              help="Used in the t.me direct link. Lowercase letters, digits, underscores only."
+            >
               <Input
                 value={form.slug}
                 onChange={(e) => {
@@ -352,43 +345,32 @@ export function MiniAppFormDrawer({
                   setForm((p) => ({ ...p, slug: e.target.value }));
                 }}
                 placeholder="my_mini_app"
-                className={cn(
-                  'font-mono',
-                  !slugValid && form.slug && 'border-[var(--st-border)]/60',
-                )}
+                invalid={!slugValid && !!form.slug}
+                className="font-mono"
               />
-              <span className="text-[11px] text-[var(--st-text-secondary)]">
-                Used in the t.me direct link. Lowercase letters, digits,
-                underscores only.
-              </span>
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <Label>Web App URL</Label>
+            <Field label="Web App URL">
               <Input
                 value={form.webAppUrl}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, webAppUrl: e.target.value }))
                 }
                 placeholder="https://example.com/app"
-                className={cn(
-                  !urlValid && form.webAppUrl && 'border-[var(--st-border)]/60',
-                )}
+                invalid={!urlValid && !!form.webAppUrl}
               />
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <Label>Short name (optional)</Label>
+            <Field label="Short name (optional)">
               <Input
                 value={form.shortName}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, shortName: e.target.value }))
                 }
               />
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <Label>Description (optional)</Label>
+            <Field label="Description (optional)">
               <Textarea
                 value={form.description}
                 onChange={(e) =>
@@ -396,23 +378,21 @@ export function MiniAppFormDrawer({
                 }
                 rows={3}
               />
-            </div>
+            </Field>
           </section>
 
           {/* ------- Branding + Theme ------- */}
           <section className="flex flex-col gap-3">
             <h3 className="text-[12px] font-medium text-[var(--st-text)]">Branding</h3>
-            <div className="flex flex-col gap-1">
-              <Label>Photo (SabFiles)</Label>
+            <Field label="Photo (SabFiles)">
               <SabFileUrlInput
                 value={form.photoUrl}
                 onChange={(v) => setForm((p) => ({ ...p, photoUrl: v }))}
                 accept="image"
                 placeholder="Pick or upload an image"
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label>Default button label</Label>
+            </Field>
+            <Field label="Default button label">
               <Input
                 value={form.defaultButtonLabel}
                 onChange={(e) =>
@@ -423,7 +403,7 @@ export function MiniAppFormDrawer({
                 }
                 placeholder="Open"
               />
-            </div>
+            </Field>
 
             <h3 className="mt-2 text-[12px] font-medium text-[var(--st-text)]">
               Theme params
@@ -452,12 +432,12 @@ export function MiniAppFormDrawer({
                 />
               ))}
             </div>
-            <div className="mt-2 rounded-md border border-[var(--st-border)] p-3">
+            <div className="mt-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
               <div className="mb-2 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Preview
               </div>
               <div
-                className="rounded-md p-3"
+                className="rounded-[var(--st-radius)] p-3"
                 style={{
                   backgroundColor: form.themeParams.bg_color,
                   color: form.themeParams.text_color,
@@ -470,25 +450,22 @@ export function MiniAppFormDrawer({
                   Hint text
                 </div>
                 <div className="text-[13px]">{form.name || 'Mini app name'}</div>
-                <a
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
+                <span
                   className="text-[12px] underline"
                   style={{ color: form.themeParams.link_color }}
                 >
                   link text
-                </a>
+                </span>
                 <div className="mt-2">
-                  <button
-                    type="button"
-                    className="rounded px-3 py-1.5 text-[12px]"
+                  <span
+                    className="inline-block rounded px-3 py-1.5 text-[12px]"
                     style={{
                       backgroundColor: form.themeParams.button_color,
                       color: form.themeParams.button_text_color,
                     }}
                   >
                     {form.defaultButtonLabel || 'Open'}
-                  </button>
+                  </span>
                 </div>
               </div>
             </div>
@@ -502,11 +479,11 @@ export function MiniAppFormDrawer({
               placeholder="example.com"
             />
 
-            <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2">
+            <div className="mt-2 flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2">
               <div>
                 <div className="text-[12px] text-[var(--st-text)]">Status</div>
                 <div className="text-[11px] text-[var(--st-text-secondary)]">
-                  Disabled mini apps don't accept opens.
+                  Disabled mini apps do not accept opens.
                 </div>
               </div>
               <Switch
@@ -517,6 +494,7 @@ export function MiniAppFormDrawer({
                     status: c ? 'active' : 'disabled',
                   }))
                 }
+                aria-label="Mini app status"
               />
             </div>
           </section>
@@ -527,13 +505,11 @@ export function MiniAppFormDrawer({
             Cancel
           </Button>
           <Button
+            variant="primary"
             onClick={submit}
             disabled={!canSubmit}
-            style={{ backgroundColor: ACCENT }}
+            loading={saving}
           >
-            {saving ? (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-            ) : null}
             {mode === 'edit' ? 'Save changes' : 'Create mini app'}
           </Button>
         </DrawerFooter>

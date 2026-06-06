@@ -19,6 +19,7 @@ import {
     Mail,
     MailOpen,
     PencilLine,
+    Search,
     Star,
     Trash2,
 } from 'lucide-react';
@@ -29,7 +30,23 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
 import type { MailMessageDoc } from '@/lib/rust-client/mail-messages';
-import { Badge, Button, Card, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    IconButton,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 type SortKey = 'date' | 'sender' | 'subject';
 
@@ -124,11 +141,7 @@ export function InboxClient({
             updateLocal(m._id!, { unread: false });
             const res = await markMailMessage(m._id!, { unread: false }, accountId);
             if (!res.ok) {
-                toast({
-                    title: 'Could not mark read',
-                    description: res.error,
-                    variant: 'destructive',
-                });
+                toast.error({ title: 'Could not mark read', description: res.error });
             }
         }
     };
@@ -139,7 +152,7 @@ export function InboxClient({
         const res = await markMailMessage(m._id!, { starred: next }, accountId);
         if (!res.ok) {
             updateLocal(m._id!, { starred: !next });
-            toast({ title: 'Star failed', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Star failed', description: res.error });
         }
     };
 
@@ -149,7 +162,7 @@ export function InboxClient({
         const res = await markMailMessage(m._id!, { unread: next }, accountId);
         if (!res.ok) {
             updateLocal(m._id!, { unread: !next });
-            toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Update failed', description: res.error });
         }
     };
 
@@ -158,10 +171,10 @@ export function InboxClient({
         const res = await markMailMessage(m._id!, { folderId }, accountId);
         setBusy(false);
         if (!res.ok) {
-            toast({ title: 'Move failed', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Move failed', description: res.error });
             return;
         }
-        toast({ title: 'Moved' });
+        toast.success('Moved');
         setMessages((prev) => prev.filter((x) => x._id !== m._id));
         setSelectedId(null);
         router.refresh();
@@ -170,16 +183,15 @@ export function InboxClient({
     return (
         <div className="grid h-[calc(100vh-7rem)] grid-cols-1 gap-3 p-3 md:grid-cols-[14rem_1fr] lg:grid-cols-[14rem_22rem_1fr]">
             {/* Folder tree */}
-            <aside className="flex min-h-0 flex-col gap-1 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
-                <Button asChild size="sm" className="mb-2 w-full justify-start">
-                    <Link href={`/dashboard/mailbox/${accountId}/compose`}>
-                        <PencilLine className="mr-2 h-4 w-4" />
+            <aside className="flex min-h-0 flex-col gap-1 overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
+                <Link href={`/dashboard/mailbox/${accountId}/compose`} className="mb-2 block">
+                    <Button variant="primary" size="sm" block iconLeft={PencilLine} className="justify-start">
                         Compose
-                    </Link>
-                </Button>
+                    </Button>
+                </Link>
                 {folders.length === 0 ? (
                     <p className="px-2 py-3 text-xs text-[var(--st-text-secondary)]">
-                        No folders yet — defaults appear on first sync.
+                        No folders yet. Defaults appear on first sync.
                     </p>
                 ) : (
                     folders.map((f) => {
@@ -187,41 +199,45 @@ export function InboxClient({
                         const isActive = id === activeFolderId;
                         const Icon = f.type === 'inbox' ? Inbox : Folder;
                         return (
-                            <button
+                            <Button
                                 key={id}
-                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                block
                                 onClick={() => setActiveFolderId(id)}
                                 className={cn(
-                                    'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm',
+                                    'justify-between',
                                     isActive
                                         ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
+                                        : 'text-[var(--st-text-secondary)]',
                                 )}
                             >
                                 <span className="flex items-center gap-2 truncate">
-                                    <Icon className="h-4 w-4" />
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
                                     <span className="truncate">{f.name}</span>
                                 </span>
                                 {f.unreadCount ? (
-                                    <Badge variant="secondary">{f.unreadCount}</Badge>
+                                    <Badge tone="neutral">{f.unreadCount}</Badge>
                                 ) : null}
-                            </button>
+                            </Button>
                         );
                     })
                 )}
             </aside>
 
             {/* Message list */}
-            <section className="flex min-h-0 flex-col gap-2 overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]">
+            <section className="flex min-h-0 flex-col gap-2 overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                 <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-2">
                     <Input
+                        inputSize="sm"
+                        iconLeft={Search}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search subject, sender, snippet…"
-                        className="h-8"
+                        placeholder="Search subject, sender, snippet"
+                        aria-label="Search messages"
                     />
                     <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-                        <SelectTrigger className="h-8 w-28 shrink-0">
+                        <SelectTrigger className="w-28 shrink-0" aria-label="Sort messages by">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -230,26 +246,19 @@ export function InboxClient({
                             <SelectItem value="subject">Subject</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button
-                        type="button"
+                    <IconButton
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
+                        size="sm"
+                        icon={sortDir === 'desc' ? ArrowDownAZ : ArrowUpAZ}
+                        label="Toggle sort direction"
                         onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
-                        aria-label="Toggle sort direction"
-                    >
-                        {sortDir === 'desc' ? (
-                            <ArrowDownAZ className="h-4 w-4" />
-                        ) : (
-                            <ArrowUpAZ className="h-4 w-4" />
-                        )}
-                    </Button>
+                    />
                 </div>
                 <div className="flex-1 overflow-auto">
                     {filtered.length === 0 ? (
                         <EmptyState
-                            compact
-                            icon={<Mail className="h-5 w-5" />}
+                            size="sm"
+                            icon={Mail}
                             title="No messages"
                             description="When mail arrives, it will land here."
                         />
@@ -304,10 +313,10 @@ export function InboxClient({
             </section>
 
             {/* Preview pane */}
-            <section className="hidden min-h-0 overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] lg:flex lg:flex-col">
+            <section className="hidden min-h-0 overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] lg:flex lg:flex-col">
                 {!selected ? (
                     <EmptyState
-                        icon={<Mail className="h-8 w-8" />}
+                        icon={Mail}
                         title="Select a message"
                         description="Click any row to preview it here."
                     />
@@ -316,51 +325,37 @@ export function InboxClient({
                         <header className="flex flex-col gap-2 border-b border-[var(--st-border)] p-4">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <h2 className="truncate text-base font-semibold">
+                                    <h2 className="truncate text-base font-semibold text-[var(--st-text)]">
                                         {selected.subject || '(no subject)'}
                                     </h2>
                                     <p className="truncate text-sm text-[var(--st-text-secondary)]">
                                         From{' '}
-                                        <span className="font-medium">
+                                        <span className="font-medium text-[var(--st-text)]">
                                             {selected.fromAddr?.name ?? selected.fromAddr?.email}
                                         </span>{' '}
-                                        · {formatTime(selected.receivedAt ?? selected.createdAt)}
+                                        - {formatTime(selected.receivedAt ?? selected.createdAt)}
                                     </p>
                                 </div>
                                 <div className="flex shrink-0 items-center gap-1">
-                                    <Button
-                                        type="button"
+                                    <IconButton
                                         variant="ghost"
-                                        size="icon"
+                                        icon={Star}
+                                        label={selected.starred ? 'Remove star' : 'Add star'}
                                         onClick={() => handleToggleStar(selected)}
-                                        aria-label="Toggle star"
-                                    >
-                                        <Star
-                                            className={cn(
-                                                'h-4 w-4',
-                                                selected.starred && 'fill-[var(--st-text-secondary)] text-[var(--st-text)]',
-                                            )}
-                                        />
-                                    </Button>
-                                    <Button
-                                        type="button"
+                                        className={cn(selected.starred && 'text-[var(--st-text)]')}
+                                    />
+                                    <IconButton
                                         variant="ghost"
-                                        size="icon"
+                                        icon={selected.unread ? Mail : MailOpen}
+                                        label={selected.unread ? 'Mark as read' : 'Mark as unread'}
                                         onClick={() => handleToggleRead(selected)}
-                                        aria-label="Toggle read"
-                                    >
-                                        {selected.unread ? (
-                                            <Mail className="h-4 w-4" />
-                                        ) : (
-                                            <MailOpen className="h-4 w-4" />
-                                        )}
-                                    </Button>
+                                    />
                                     <Select
                                         value={selected.folderId}
                                         onValueChange={(v) => handleMove(selected, v)}
                                     >
-                                        <SelectTrigger className="h-8 w-32">
-                                            <SelectValue placeholder="Move…" />
+                                        <SelectTrigger className="w-32" aria-label="Move to folder">
+                                            <SelectValue placeholder="Move" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {folders.map((f) => (
@@ -370,33 +365,30 @@ export function InboxClient({
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <Button
-                                        type="button"
+                                    <IconButton
                                         variant="ghost"
-                                        size="icon"
+                                        icon={Trash2}
+                                        label="Move to trash"
                                         disabled={busy}
                                         onClick={() => {
                                             const trash = folders.find((f) => f.type === 'trash');
                                             if (trash?._id) handleMove(selected, trash._id);
                                         }}
-                                        aria-label="Move to trash"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    />
                                 </div>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-xs text-[var(--st-text-secondary)]">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                 <span>To:</span>
                                 {(selected.toAddrs ?? []).map((t, i) => (
-                                    <Badge key={i} variant="secondary">
+                                    <Badge key={i} tone="neutral">
                                         {t.name ? `${t.name} <${t.email}>` : t.email}
                                     </Badge>
                                 ))}
                             </div>
                         </header>
                         <div className="flex-1 overflow-auto p-4 text-sm">
-                            <Card className="max-w-3xl border-dashed">
-                                <div className="p-4 text-sm text-[var(--st-text-secondary)]">
+                            <Card variant="outlined" padding="none" className="max-w-3xl">
+                                <CardBody className="text-sm text-[var(--st-text-secondary)]">
                                     {selected.snippet ? (
                                         <p>{selected.snippet}</p>
                                     ) : (
@@ -404,21 +396,21 @@ export function InboxClient({
                                             Full body lives in SabFiles
                                             {selected.bodyFileId
                                                 ? ` (ref ${selected.bodyFileId})`
-                                                : ' — no body fetched yet'}
+                                                : '. No body fetched yet'}
                                             .
                                         </p>
                                     )}
-                                </div>
+                                </CardBody>
                             </Card>
                             {selected.attachmentFileIds && selected.attachmentFileIds.length > 0 ? (
                                 <>
                                     <Separator className="my-4" />
-                                    <h3 className="mb-2 text-sm font-medium">Attachments</h3>
+                                    <h3 className="mb-2 text-sm font-medium text-[var(--st-text)]">Attachments</h3>
                                     <ul className="flex flex-wrap gap-2 text-xs">
                                         {selected.attachmentFileIds.map((fid) => (
                                             <li
                                                 key={fid}
-                                                className="rounded-md border border-[var(--st-border)] px-2 py-1 font-mono text-[var(--st-text-secondary)]"
+                                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] px-2 py-1 font-mono text-[var(--st-text-secondary)]"
                                             >
                                                 {fid}
                                             </li>

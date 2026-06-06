@@ -1,6 +1,25 @@
 'use client';
 
-import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { Plus, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -15,14 +34,14 @@ interface RedirectRule {
 }
 
 export default function HtaccessRedirectPage() {
-  const [rows, setRows] = useState<RedirectRule[]>([{ 
-    from: '/old-path', 
+  const [rows, setRows] = useState<RedirectRule[]>([{
+    from: '/old-path',
     fromMatchType: 'exact',
-    query: '', 
+    query: '',
     queryMatchType: 'exact',
-    to: '/new-path', 
-    type: '301', 
-    queryHandling: 'ignore' 
+    to: '/new-path',
+    type: '301',
+    queryHandling: 'ignore'
   }]);
 
   const [domainRedirect, setDomainRedirect] = useState<'none' | 'https' | 'www' | 'non-www' | 'https-www' | 'https-non-www'>('none');
@@ -40,7 +59,7 @@ export default function HtaccessRedirectPage() {
 
   const out = useMemo(() => {
     const lines = ['<IfModule mod_rewrite.c>', 'RewriteEngine On'];
-    
+
     if (domainRedirect === 'https') {
       lines.push('\n# Force HTTPS');
       lines.push('RewriteCond %{HTTPS} off');
@@ -158,7 +177,7 @@ export default function HtaccessRedirectPage() {
       lines.push('\n# Custom Redirects');
       for (const r of rows) {
         if (!r.from || !r.to) continue;
-        
+
         let fromUrlRaw = r.from.trim();
         let queryPart = r.query.trim();
         let queryMatch = r.queryMatchType;
@@ -170,7 +189,7 @@ export default function HtaccessRedirectPage() {
            } catch(e) {}
         }
 
-        let fromPathRaw = fromUrlRaw.replace(/^\//, ''); 
+        let fromPathRaw = fromUrlRaw.replace(/^\//, '');
 
         if (fromPathRaw.includes('?')) {
           const parts = fromPathRaw.split('?');
@@ -182,7 +201,7 @@ export default function HtaccessRedirectPage() {
         }
 
         let fromPath = fromPathRaw;
-        
+
         if (r.fromMatchType === 'exact') {
            fromPath = `^${fromPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`;
         } else if (r.fromMatchType === 'startsWith') {
@@ -203,13 +222,13 @@ export default function HtaccessRedirectPage() {
 
         let toPath = r.to;
         let flags = [`R=${r.type}`, 'L'];
-        
+
         if (r.queryHandling === 'append') {
           flags.push('QSA');
         } else if (r.queryHandling === 'discard') {
           flags.push('QSD');
         }
-        
+
         lines.push(`RewriteRule ${fromPath} ${toPath} [${flags.join(',')}]`);
       }
     }
@@ -224,172 +243,195 @@ export default function HtaccessRedirectPage() {
 
   return (
     <ToolShell title=".htaccess Redirect Generator" description="Generate Apache .htaccess rewrite redirects.">
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <div>
-            <h3 className="text-sm font-semibold mb-2">Predefined Snippets</h3>
-            <div className="space-y-4 text-sm bg-[var(--st-bg-muted)]/20 p-4 border rounded-md">
-              <div className="mb-2">
-                <div className="mb-2 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Domain & Protocol Redirect</div>
-                <select 
-                  className="border rounded h-8 w-full px-2 bg-[var(--st-bg-secondary)] text-sm"
-                  value={domainRedirect}
-                  onChange={(e) => setDomainRedirect(e.target.value as any)}
-                >
-                  <option value="none">None</option>
-                  <option value="https">Force HTTPS (Keep WWW/Non-WWW)</option>
-                  <option value="www">Force WWW (Keep HTTP/HTTPS)</option>
-                  <option value="non-www">Force Non-WWW (Keep HTTP/HTTPS)</option>
-                  <option value="https-www">Force HTTPS + WWW</option>
-                  <option value="https-non-www">Force HTTPS + Non-WWW</option>
-                </select>
+          <Card variant="outlined" padding="none">
+            <CardHeader>
+              <CardTitle>Predefined Snippets</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4 text-sm">
+              <div>
+                <Field label="Domain & Protocol Redirect">
+                  <Select value={domainRedirect} onValueChange={(v) => setDomainRedirect(v as typeof domainRedirect)}>
+                    <SelectTrigger aria-label="Domain and protocol redirect">
+                      <SelectValue placeholder="Select a redirect" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="https">Force HTTPS (Keep WWW/Non-WWW)</SelectItem>
+                      <SelectItem value="www">Force WWW (Keep HTTP/HTTPS)</SelectItem>
+                      <SelectItem value="non-www">Force Non-WWW (Keep HTTP/HTTPS)</SelectItem>
+                      <SelectItem value="https-www">Force HTTPS + WWW</SelectItem>
+                      <SelectItem value="https-non-www">Force HTTPS + Non-WWW</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
 
-              <div className="pt-3 border-t">
+              <div className="pt-3 border-t border-[var(--st-border)]">
                 <div className="mb-2 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Performance & Security</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={enableGzip} onChange={e => setEnableGzip(e.target.checked)} className="rounded" />
-                    Enable Gzip
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={enableBrowserCache} onChange={e => setEnableBrowserCache(e.target.checked)} className="rounded" />
-                    Browser Caching
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={blockBadBots} onChange={e => setBlockBadBots(e.target.checked)} className="rounded" />
-                    Block Bad Bots
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={disableXmlRpc} onChange={e => setDisableXmlRpc(e.target.checked)} className="rounded" />
-                    Disable XML-RPC
-                  </label>
+                  <Checkbox label="Enable Gzip" checked={enableGzip} onChange={e => setEnableGzip(e.target.checked)} />
+                  <Checkbox label="Browser Caching" checked={enableBrowserCache} onChange={e => setEnableBrowserCache(e.target.checked)} />
+                  <Checkbox label="Block Bad Bots" checked={blockBadBots} onChange={e => setBlockBadBots(e.target.checked)} />
+                  <Checkbox label="Disable XML-RPC" checked={disableXmlRpc} onChange={e => setDisableXmlRpc(e.target.checked)} />
                 </div>
               </div>
 
-              <div className="pt-3 border-t">
+              <div className="pt-3 border-t border-[var(--st-border)]">
                 <div className="mb-2 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">File & Directory Security</div>
-                <label className="flex items-center gap-2 cursor-pointer mb-2">
-                  <input type="checkbox" checked={redirectIndex} onChange={e => setRedirectIndex(e.target.checked)} className="rounded" />
-                  Redirect index.php to Root (/)
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer mb-2">
-                  <input type="checkbox" checked={preventDirListing} onChange={e => setPreventDirListing(e.target.checked)} className="rounded" />
-                  Prevent Directory Listing
-                </label>
-                <div className="pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer mb-2">
-                    <input type="checkbox" checked={preventHotlinking} onChange={e => setPreventHotlinking(e.target.checked)} className="rounded" />
-                    Prevent Image Hotlinking
-                  </label>
+                <div className="flex flex-col gap-2">
+                  <Checkbox label="Redirect index.php to Root (/)" checked={redirectIndex} onChange={e => setRedirectIndex(e.target.checked)} />
+                  <Checkbox label="Prevent Directory Listing" checked={preventDirListing} onChange={e => setPreventDirListing(e.target.checked)} />
+                  <Checkbox label="Prevent Image Hotlinking" checked={preventHotlinking} onChange={e => setPreventHotlinking(e.target.checked)} />
                   {preventHotlinking && (
-                    <div className="pl-6 mt-1 mb-2">
-                      <div className="mb-1 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Allowed Domains (comma separated)</div>
-                      <Input value={allowedDomains} onChange={e => setAllowedDomains(e.target.value)} placeholder="e.g. example.com, mydomain.com" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+                    <div className="pl-6 mt-1">
+                      <Field label="Allowed Domains (comma separated)">
+                        <Input value={allowedDomains} onChange={e => setAllowedDomains(e.target.value)} placeholder="e.g. example.com, mydomain.com" inputSize="sm" />
+                      </Field>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="pt-3 border-t">
-                <div className="mb-2 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Trailing Slash Handling</div>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="slash" checked={trailingSlash === 'none'} onChange={() => setTrailingSlash('none')} /> None
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="slash" checked={trailingSlash === 'add'} onChange={() => setTrailingSlash('add')} /> Force Slash (/)
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="slash" checked={trailingSlash === 'remove'} onChange={() => setTrailingSlash('remove')} /> Remove Slash
-                  </label>
-                </div>
+              <div className="pt-3 border-t border-[var(--st-border)]">
+                <Field label="Trailing Slash Handling">
+                  <RadioGroup value={trailingSlash} onValueChange={(v) => setTrailingSlash(v as typeof trailingSlash)} orientation="horizontal" aria-label="Trailing slash handling">
+                    <Radio value="none" label="None" />
+                    <Radio value="add" label="Force Slash (/)" />
+                    <Radio value="remove" label="Remove Slash" />
+                  </RadioGroup>
+                </Field>
               </div>
 
-              <div className="pt-3 border-t">
-                <div className="mb-1 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Custom 404 Error Document (Path)</div>
-                <Input value={errorDocument404} onChange={e => setErrorDocument404(e.target.value)} placeholder="e.g. /404.html" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+              <div className="pt-3 border-t border-[var(--st-border)]">
+                <Field label="Custom 404 Error Document (Path)">
+                  <Input value={errorDocument404} onChange={e => setErrorDocument404(e.target.value)} placeholder="e.g. /404.html" inputSize="sm" />
+                </Field>
               </div>
 
-              <div className="pt-3 border-t">
-                <div className="mb-1 text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Block IP Addresses (comma separated)</div>
-                <Input value={blockedIps} onChange={e => setBlockedIps(e.target.value)} placeholder="e.g. 192.168.1.1, 10.0.0.1" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+              <div className="pt-3 border-t border-[var(--st-border)]">
+                <Field label="Block IP Addresses (comma separated)">
+                  <Input value={blockedIps} onChange={e => setBlockedIps(e.target.value)} placeholder="e.g. 192.168.1.1, 10.0.0.1" inputSize="sm" />
+                </Field>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold">Custom Redirect Rules</h3>
-              <Button variant="outline" size="sm" onClick={() => setRows((r) => [...r, { from: '', fromMatchType: 'exact', query: '', queryMatchType: 'exact', to: '', type: '301', queryHandling: 'ignore' }])}>+ Add Rule</Button>
-            </div>
-            <div className="space-y-4">
+          <Card variant="outlined" padding="none">
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>Custom Redirect Rules</CardTitle>
+              <Button variant="outline" size="sm" iconLeft={Plus} onClick={() => setRows((r) => [...r, { from: '', fromMatchType: 'exact', query: '', queryMatchType: 'exact', to: '', type: '301', queryHandling: 'ignore' }])}>Add Rule</Button>
+            </CardHeader>
+            <CardBody className="space-y-4">
               {rows.map((r, i) => (
-                <div key={i} className="flex flex-col gap-3 p-3 border rounded-md relative bg-[var(--st-bg-muted)]/10">
-                  <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-[var(--st-bg-secondary)] border shadow-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
-                  
+                <div key={i} className="flex flex-col gap-3 p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] relative bg-[var(--st-bg-secondary)]">
+                  <div className="absolute -top-2 -right-2">
+                    <IconButton
+                      label="Remove rule"
+                      icon={X}
+                      variant="outline"
+                      size="sm"
+                      className="h-6 w-6 rounded-full bg-[var(--st-bg-secondary)]"
+                      onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-6">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">From Path</label>
-                      <Input value={r.from} onChange={(e) => updateRow(i, { from: e.target.value })} placeholder="/old-path" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+                      <Field label="From Path">
+                        <Input value={r.from} onChange={(e) => updateRow(i, { from: e.target.value })} placeholder="/old-path" inputSize="sm" />
+                      </Field>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Path Match</label>
-                      <select className="border rounded h-8 w-full px-2 bg-[var(--st-bg-secondary)] text-sm" value={r.fromMatchType} onChange={(e) => updateRow(i, { fromMatchType: e.target.value as any })}>
-                        <option value="exact">Exact</option>
-                        <option value="startsWith">Starts</option>
-                        <option value="regex">Regex</option>
-                      </select>
+                      <Field label="Path Match">
+                        <Select value={r.fromMatchType} onValueChange={(v) => updateRow(i, { fromMatchType: v as RedirectRule['fromMatchType'] })}>
+                          <SelectTrigger aria-label="Path match type">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="exact">Exact</SelectItem>
+                            <SelectItem value="startsWith">Starts</SelectItem>
+                            <SelectItem value="regex">Regex</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Redirect</label>
-                      <select className="border rounded h-8 w-full px-2 bg-[var(--st-bg-secondary)] text-sm" value={r.type} onChange={(e) => updateRow(i, { type: e.target.value })}>
-                        <option value="301">301 (Perm)</option>
-                        <option value="302">302 (Temp)</option>
-                      </select>
+                      <Field label="Redirect">
+                        <Select value={r.type} onValueChange={(v) => updateRow(i, { type: v })}>
+                          <SelectTrigger aria-label="Redirect type">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="301">301 (Perm)</SelectItem>
+                            <SelectItem value="302">302 (Temp)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-6">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Query String (Optional)</label>
-                      <Input value={r.query} onChange={(e) => updateRow(i, { query: e.target.value })} placeholder="id=123" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+                      <Field label="Query String (Optional)">
+                        <Input value={r.query} onChange={(e) => updateRow(i, { query: e.target.value })} placeholder="id=123" inputSize="sm" />
+                      </Field>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Query Match</label>
-                      <select className="border rounded h-8 w-full px-2 bg-[var(--st-bg-secondary)] text-sm" value={r.queryMatchType} onChange={(e) => updateRow(i, { queryMatchType: e.target.value as any })}>
-                        <option value="exact">Exact</option>
-                        <option value="contains">Contains</option>
-                        <option value="regex">Regex</option>
-                      </select>
+                      <Field label="Query Match">
+                        <Select value={r.queryMatchType} onValueChange={(v) => updateRow(i, { queryMatchType: v as RedirectRule['queryMatchType'] })}>
+                          <SelectTrigger aria-label="Query match type">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="exact">Exact</SelectItem>
+                            <SelectItem value="contains">Contains</SelectItem>
+                            <SelectItem value="regex">Regex</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">Query Action</label>
-                      <select className="border rounded h-8 w-full px-2 bg-[var(--st-bg-secondary)] text-sm" value={r.queryHandling} onChange={(e) => updateRow(i, { queryHandling: e.target.value as any })}>
-                        <option value="ignore">Default</option>
-                        <option value="append">Append (QSA)</option>
-                        <option value="discard">Discard (QSD)</option>
-                      </select>
+                      <Field label="Query Action">
+                        <Select value={r.queryHandling} onValueChange={(v) => updateRow(i, { queryHandling: v as RedirectRule['queryHandling'] })}>
+                          <SelectTrigger aria-label="Query action">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ignore">Default</SelectItem>
+                            <SelectItem value="append">Append (QSA)</SelectItem>
+                            <SelectItem value="discard">Discard (QSD)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-12">
-                      <label className="text-[10px] uppercase text-[var(--st-text-secondary)] font-semibold">To Destination</label>
-                      <Input value={r.to} onChange={(e) => updateRow(i, { to: e.target.value })} placeholder="https://example.com/new-path" className="h-8 text-sm bg-[var(--st-bg-secondary)]" />
+                      <Field label="To Destination">
+                        <Input value={r.to} onChange={(e) => updateRow(i, { to: e.target.value })} placeholder="https://example.com/new-path" inputSize="sm" />
+                      </Field>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         </div>
 
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Generated .htaccess</h3>
-          <Textarea readOnly value={out} className="h-full min-h-[400px] font-mono text-xs whitespace-pre bg-[var(--st-bg-muted)]/5" />
-        </div>
+        <Card variant="outlined" padding="none">
+          <CardHeader>
+            <CardTitle>Generated .htaccess</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <Field label="Output" className="h-full">
+              <Textarea readOnly value={out} className="h-full min-h-[400px] font-mono text-xs whitespace-pre" />
+            </Field>
+          </CardBody>
+        </Card>
       </div>
 
     </ToolShell>

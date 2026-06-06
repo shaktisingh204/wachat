@@ -1,24 +1,70 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Download,
-  Eye,
-  EyeOff,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Search,
-  Send,
-  Terminal,
-  Trash2,
-  Upload,
-  } from 'lucide-react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Checkbox,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    Switch,
+    TBody,
+    THead,
+    Table,
+    Td,
+    Textarea,
+    Th,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertCircle,
+    ChevronLeft,
+    ChevronRight,
+    Copy,
+    Download,
+    Eye,
+    EyeOff,
+    MoreHorizontal,
+    Pencil,
+    Plus,
+    Search,
+    Send,
+    Terminal,
+    Trash2,
+    Upload,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -54,7 +100,6 @@ import type {
     RunRow,
 } from '@/lib/rust-client/telegram-commands';
 
-const ACCENT = '#229ED9';
 const PAGE_SIZE = 20;
 
 const SCOPE_OPTIONS: { value: CommandScopeKind | 'all'; label: string }[] = [
@@ -91,7 +136,7 @@ const LANGUAGE_OPTIONS = [
     { value: 'ar', label: 'Arabic (ar)' },
     { value: 'zh', label: 'Chinese (zh)' },
     { value: 'ja', label: 'Japanese (ja)' },
-    { value: LANG_CUSTOM, label: 'Custom…' },
+    { value: LANG_CUSTOM, label: 'Custom' },
 ];
 
 const PARSE_PLAIN = '__plain__';
@@ -320,7 +365,7 @@ function validateForm(form: FormState): string | null {
 }
 
 function fmtDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString();
     } catch {
@@ -700,7 +745,7 @@ export default function TelegramCommandsPage() {
             toast({
                 title: 'Nothing to import',
                 description:
-                    'Pull first — Telegram returned no live commands for this scope.',
+                    'Pull first. Telegram returned no live commands for this scope.',
             });
             return;
         }
@@ -727,14 +772,14 @@ export default function TelegramCommandsPage() {
         if (res.success) {
             toast({
                 title: 'Imported',
-                description: `Inserted ${res.inserted} · skipped ${res.skipped}.`,
+                description: `Inserted ${res.inserted}, skipped ${res.skipped}.`,
             });
             setDiffOpen(false);
             await reload();
         } else {
             toast({
                 title: 'Import failed',
-                description: res.error ?? (res.errors ?? []).join(' • '),
+                description: res.error ?? (res.errors ?? []).join(', '),
                 variant: 'destructive',
             });
         }
@@ -897,54 +942,45 @@ export default function TelegramCommandsPage() {
 
     return (
         <div className="flex flex-col gap-6">
+            <TelegramProjectGate />
+
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background: `linear-gradient(135deg, ${ACCENT} 0%, #007DBB 100%)`,
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
+            <PageHeader bordered={false} className="items-start gap-4">
+                <span
+                    aria-hidden="true"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#229ED9_0%,#007DBB_100%)] shadow-[0_10px_28px_rgba(0,125,187,0.25)]"
                 >
                     <Terminal className="h-6 w-6 text-white" strokeWidth={1.75} />
-                </div>
-                <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
-                        Telegram
-                    </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram Commands
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
+                </span>
+                <PageHeaderHeading className="flex-1">
+                    <PageEyebrow>Telegram</PageEyebrow>
+                    <PageTitle>Telegram Commands</PageTitle>
+                    <PageDescription>
                         Define a project-wide command registry with scope, language, and handler
-                        payload. Push to one or many bots — pull live snapshots to diff against
+                        payload. Push to one or many bots, pull live snapshots to diff against
                         Telegram.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-                        <Upload className="h-3.5 w-3.5" />
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => setImportOpen(true)}>
                         Import
                     </Button>
-                    <Button variant="outline" size="sm" onClick={runExport}>
-                        <Download className="h-3.5 w-3.5" />
+                    <Button variant="outline" size="sm" iconLeft={Download} onClick={runExport}>
                         Export CSV
                     </Button>
-                    <Button variant="outline" size="sm" onClick={openDiff}>
-                        <Eye className="h-3.5 w-3.5" />
+                    <Button variant="outline" size="sm" iconLeft={Eye} onClick={openDiff}>
                         Pull from Telegram
                     </Button>
-                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
-                        <Plus className="h-3.5 w-3.5" />
+                    <Button size="sm" iconLeft={Plus} onClick={openCreate} disabled={!projectId}>
                         New command
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {!projectId ? (
                 <Card className="p-6">
                     <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle className="h-4 w-4" aria-hidden="true" />
                         <span className="text-sm">Select a project to view commands.</span>
                     </div>
                 </Card>
@@ -954,7 +990,7 @@ export default function TelegramCommandsPage() {
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <KpiCard
                     label="Total commands"
-                    value={data ? data.total.toLocaleString() : '—'}
+                    value={data ? data.total.toLocaleString() : '-'}
                     loading={loading}
                 />
                 <KpiCard
@@ -962,13 +998,13 @@ export default function TelegramCommandsPage() {
                     value={
                         data
                             ? new Set(rows.map((r) => r.scope.kind)).size.toString()
-                            : '—'
+                            : '-'
                     }
                     loading={loading}
                 />
                 <KpiCard
                     label="Invocations (7d)"
-                    value={analytics ? analytics.totalRuns.toLocaleString() : '—'}
+                    value={analytics ? analytics.totalRuns.toLocaleString() : '-'}
                     loading={!analytics}
                 />
                 <KpiCard
@@ -976,7 +1012,7 @@ export default function TelegramCommandsPage() {
                     value={
                         analytics && analytics.totalRuns > 0
                             ? `${analytics.successRate.toFixed(1)}%`
-                            : '—'
+                            : '-'
                     }
                     loading={!analytics}
                 />
@@ -985,18 +1021,18 @@ export default function TelegramCommandsPage() {
             {/* Filter bar */}
             <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
+                    <div className="flex-1 min-w-[220px]">
                         <Input
+                            iconLeft={Search}
+                            aria-label="Search commands"
                             placeholder="Search command or description"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8"
                         />
                     </div>
                     <div className="min-w-[180px]">
                         <Select value={botFilter} onValueChange={setBotFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by bot">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1012,7 +1048,7 @@ export default function TelegramCommandsPage() {
                     </div>
                     <div className="min-w-[200px]">
                         <Select value={scopeFilter} onValueChange={setScopeFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by scope">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1026,6 +1062,7 @@ export default function TelegramCommandsPage() {
                     </div>
                     <div className="min-w-[160px]">
                         <Input
+                            aria-label="Filter by language"
                             placeholder="Language (e.g. en)"
                             value={languageFilter}
                             onChange={(e) => setLanguageFilter(e.target.value.toLowerCase())}
@@ -1036,17 +1073,17 @@ export default function TelegramCommandsPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
+                                iconLeft={Trash2}
                                 onClick={() => setBulkDeleteOpen(true)}
                             >
-                                <Trash2 className="h-3.5 w-3.5" />
                                 Delete {selected.size}
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
+                                iconLeft={Send}
                                 onClick={() => setPushBulkOpen(true)}
                             >
-                                <Send className="h-3.5 w-3.5" />
                                 Push to all bots
                             </Button>
                         </>
@@ -1064,127 +1101,126 @@ export default function TelegramCommandsPage() {
                     </div>
                 ) : data?.error ? (
                     <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle className="h-4 w-4" aria-hidden="true" />
                         {data.error}
                     </div>
                 ) : rows.length === 0 ? (
                     <EmptyState
                         title="No commands yet"
                         description="Define a command, attach a handler, then push to one or more bots."
-                        icon={<Terminal className="h-5 w-5" />}
+                        icon={Terminal}
                         action={
-                            <Button size="sm" onClick={openCreate} disabled={!projectId}>
-                                <Plus className="h-3.5 w-3.5" />
+                            <Button size="sm" iconLeft={Plus} onClick={openCreate} disabled={!projectId}>
                                 New command
                             </Button>
                         }
                     />
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                                <tr>
-                                    <th className="w-10 p-3">
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th align="center" width={40}>
                                         <Checkbox
-                                            checked={
-                                                allSelected
-                                                    ? true
-                                                    : someSelected
-                                                      ? 'indeterminate'
-                                                      : false
-                                            }
-                                            onCheckedChange={(v) => toggleAll(!!v)}
+                                            aria-label="Select all commands"
+                                            checked={allSelected}
+                                            indeterminate={someSelected && !allSelected}
+                                            onChange={(e) => toggleAll(e.target.checked)}
                                         />
-                                    </th>
-                                    <th className="p-3 font-medium">Command</th>
-                                    <th className="p-3 font-medium">Description</th>
-                                    <th className="p-3 font-medium">Bot</th>
-                                    <th className="p-3 font-medium">Scope</th>
-                                    <th className="p-3 font-medium">Lang</th>
-                                    <th className="p-3 font-medium">Handler</th>
-                                    <th className="p-3 font-medium">Hidden</th>
-                                    <th className="p-3 font-medium text-right">Runs</th>
-                                    <th className="p-3" />
-                                </tr>
-                            </thead>
-                            <tbody>
+                                    </Th>
+                                    <Th>Command</Th>
+                                    <Th>Description</Th>
+                                    <Th>Bot</Th>
+                                    <Th>Scope</Th>
+                                    <Th>Lang</Th>
+                                    <Th>Handler</Th>
+                                    <Th>Hidden</Th>
+                                    <Th align="right">Runs</Th>
+                                    <Th />
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {rows.map((row) => {
                                     const checked = selected.has(row._id);
                                     const botLabel = row.botId
                                         ? bots.find((b) => b.id === row.botId)?.label ?? row.botId
                                         : 'All bots';
                                     return (
-                                        <tr
-                                            key={row._id}
-                                            className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40"
-                                        >
-                                            <td className="p-3">
+                                        <Tr key={row._id} selected={checked}>
+                                            <Td align="center">
                                                 <Checkbox
+                                                    aria-label={`Select /${row.command}`}
                                                     checked={checked}
-                                                    onCheckedChange={(v) =>
+                                                    onChange={(e) =>
                                                         setSelected((prev) => {
                                                             const next = new Set(prev);
-                                                            if (v) next.add(row._id);
+                                                            if (e.target.checked) next.add(row._id);
                                                             else next.delete(row._id);
                                                             return next;
                                                         })
                                                     }
                                                 />
-                                            </td>
-                                            <td className="p-3">
-                                                <button
-                                                    className="font-mono text-[13px] text-[var(--st-text)] hover:underline"
+                                            </Td>
+                                            <Td>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="font-mono"
                                                     onClick={() => openDetail(row)}
                                                 >
                                                     /{row.command}
-                                                </button>
-                                            </td>
-                                            <td className="p-3 max-w-[260px] truncate text-[var(--st-text-secondary)]">
-                                                {row.description || '—'}
-                                            </td>
-                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
+                                                </Button>
+                                            </Td>
+                                            <Td truncate className="max-w-[260px] text-[var(--st-text-secondary)]">
+                                                {row.description || '-'}
+                                            </Td>
+                                            <Td className="text-[var(--st-text-secondary)]">
                                                 {botLabel}
-                                            </td>
-                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text-secondary)]">
                                                 {scopeLabel(row.scope)}
-                                            </td>
-                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
-                                                {row.languageCode ?? '—'}
-                                            </td>
-                                            <td className="p-3">
+                                            </Td>
+                                            <Td className="text-[var(--st-text-secondary)]">
+                                                {row.languageCode ?? '-'}
+                                            </Td>
+                                            <Td>
                                                 <Badge variant="secondary">
                                                     {HANDLER_OPTIONS.find(
                                                         (h) => h.value === row.handler.kind,
                                                     )?.label ?? row.handler.kind}
                                                 </Badge>
-                                            </td>
-                                            <td className="p-3">
+                                            </Td>
+                                            <Td>
                                                 <Switch
+                                                    aria-label={`Toggle hidden for /${row.command}`}
                                                     checked={row.hidden}
                                                     onCheckedChange={(v) => toggleHidden(row, v)}
                                                 />
-                                            </td>
-                                            <td className="p-3 text-right">
+                                            </Td>
+                                            <Td align="right">
                                                 {row.runCount.toLocaleString()}
-                                            </td>
-                                            <td className="p-3">
+                                            </Td>
+                                            <Td>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="sm">
-                                                            <MoreHorizontal className="h-3.5 w-3.5" />
-                                                        </Button>
+                                                        <IconButton
+                                                            label={`Actions for /${row.command}`}
+                                                            icon={MoreHorizontal}
+                                                            variant="ghost"
+                                                            size="sm"
+                                                        />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem
                                                             onSelect={() => openEdit(row)}
                                                         >
-                                                            <Pencil className="h-3.5 w-3.5" />
+                                                            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                                                             Edit
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onSelect={() => duplicateRow(row)}
                                                         >
-                                                            <Copy className="h-3.5 w-3.5" />
+                                                            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                                                             Duplicate
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
@@ -1193,46 +1229,46 @@ export default function TelegramCommandsPage() {
                                                                 setDetailTab('runs');
                                                             }}
                                                         >
-                                                            <Eye className="h-3.5 w-3.5" />
+                                                            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                                                             View runs
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onSelect={() => openPush(row)}
                                                         >
-                                                            <Send className="h-3.5 w-3.5" />
+                                                            <Send className="h-3.5 w-3.5" aria-hidden="true" />
                                                             Push to Telegram
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             onSelect={() => setDeleteRow(row)}
                                                         >
-                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                             Delete
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
-                                            </td>
-                                        </tr>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                 )}
                 {data && rows.length > 0 ? (
                     <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                         <span>
-                            {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
+                            {(page - 1) * PAGE_SIZE + 1}-{(page - 1) * PAGE_SIZE + rows.length} of{' '}
                             {data.total}
                         </span>
                         <div className="flex items-center gap-1">
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                iconLeft={ChevronLeft}
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                             >
-                                <ChevronLeft className="h-3.5 w-3.5" />
                                 Prev
                             </Button>
                             <span className="px-2">
@@ -1241,11 +1277,11 @@ export default function TelegramCommandsPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                iconRight={ChevronRight}
                                 disabled={!data.hasMore}
                                 onClick={() => setPage((p) => p + 1)}
                             >
                                 Next
-                                <ChevronRight className="h-3.5 w-3.5" />
                             </Button>
                         </div>
                     </div>
@@ -1397,17 +1433,17 @@ export default function TelegramCommandsPage() {
                             </Select>
                         </Field>
                         <Field label="Hidden on push">
-                            <div className="flex items-center gap-2 pt-1.5">
-                                <Switch
-                                    checked={editorForm.hidden}
-                                    onCheckedChange={(v) =>
-                                        setEditorForm((f) => ({ ...f, hidden: v }))
-                                    }
-                                />
-                                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
-                                    {editorForm.hidden ? 'Excluded from setMyCommands' : 'Included'}
-                                </span>
-                            </div>
+                            <Switch
+                                checked={editorForm.hidden}
+                                onCheckedChange={(v) =>
+                                    setEditorForm((f) => ({ ...f, hidden: v }))
+                                }
+                                label={
+                                    editorForm.hidden
+                                        ? 'Excluded from setMyCommands'
+                                        : 'Included'
+                                }
+                            />
                         </Field>
                         {(editorForm.scopeKind === 'chat' ||
                             editorForm.scopeKind === 'chat_administrators' ||
@@ -1476,7 +1512,7 @@ export default function TelegramCommandsPage() {
                                                     replyText: e.target.value,
                                                 }))
                                             }
-                                            placeholder="Hi {{name}} — welcome!"
+                                            placeholder="Hi {{name}}, welcome!"
                                         />
                                     </Field>
                                 </div>
@@ -1503,17 +1539,16 @@ export default function TelegramCommandsPage() {
                                     </Select>
                                 </Field>
                                 <Field label="Disable preview">
-                                    <div className="flex items-center gap-2 pt-1.5">
-                                        <Switch
-                                            checked={editorForm.disablePreview}
-                                            onCheckedChange={(v) =>
-                                                setEditorForm((f) => ({
-                                                    ...f,
-                                                    disablePreview: v,
-                                                }))
-                                            }
-                                        />
-                                    </div>
+                                    <Switch
+                                        aria-label="Disable web page preview"
+                                        checked={editorForm.disablePreview}
+                                        onCheckedChange={(v) =>
+                                            setEditorForm((f) => ({
+                                                ...f,
+                                                disablePreview: v,
+                                            }))
+                                        }
+                                    />
                                 </Field>
                             </>
                         )}
@@ -1541,7 +1576,7 @@ export default function TelegramCommandsPage() {
                                 <Field label="File">
                                     <div className="flex flex-col gap-2">
                                         {editorForm.mediaUrl ? (
-                                            <div className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-[12.5px]">
+                                            <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[12.5px]">
                                                 <span className="truncate text-[var(--st-text-secondary)]">
                                                     {editorForm.mediaUrl.split('/').pop() ??
                                                         editorForm.mediaUrl}
@@ -1611,7 +1646,7 @@ export default function TelegramCommandsPage() {
                                                 flowId: e.target.value,
                                             }))
                                         }
-                                        placeholder="65f3…"
+                                        placeholder="65f3..."
                                     />
                                 </Field>
                             </div>
@@ -1662,7 +1697,7 @@ export default function TelegramCommandsPage() {
                                                     httpHeaders: e.target.value,
                                                 }))
                                             }
-                                            placeholder='{ "Authorization": "Bearer …" }'
+                                            placeholder='{ "Authorization": "Bearer ..." }'
                                         />
                                     </Field>
                                 </div>
@@ -1684,7 +1719,7 @@ export default function TelegramCommandsPage() {
                             </>
                         )}
                         {editorError ? (
-                            <p className="sm:col-span-2 text-[12.5px] text-[var(--st-danger)]">
+                            <p className="sm:col-span-2 text-[12.5px] text-[var(--st-danger)]" role="alert">
                                 {editorError}
                             </p>
                         ) : null}
@@ -1697,8 +1732,7 @@ export default function TelegramCommandsPage() {
                         >
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={saveEditor} disabled={saving}>
-                            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button size="sm" loading={saving} onClick={saveEditor} disabled={saving}>
                             Save
                         </Button>
                     </div>
@@ -1781,8 +1815,7 @@ export default function TelegramCommandsPage() {
                         <Button variant="outline" size="sm" onClick={() => setPushOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runPush} disabled={pushBusy || !pushBot}>
-                            {pushBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button size="sm" loading={pushBusy} onClick={runPush} disabled={pushBusy || !pushBot}>
                             Push
                         </Button>
                     </DialogFooter>
@@ -1840,8 +1873,7 @@ export default function TelegramCommandsPage() {
                                 placeholder="e.g. en"
                             />
                         </Field>
-                        <Button size="sm" onClick={runDiff} disabled={diffBusy || !diffBot}>
-                            {diffBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button size="sm" loading={diffBusy} onClick={runDiff} disabled={diffBusy || !diffBot}>
                             Fetch
                         </Button>
                         {diff ? <DiffView diff={diff} /> : null}
@@ -1880,6 +1912,7 @@ export default function TelegramCommandsPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <Textarea
+                        aria-label="Command import JSON"
                         value={importJson}
                         onChange={(e) => setImportJson(e.target.value)}
                         rows={12}
@@ -1890,8 +1923,7 @@ export default function TelegramCommandsPage() {
                         <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runImport} disabled={importing}>
-                            {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button size="sm" loading={importing} onClick={runImport} disabled={importing}>
                             Import
                         </Button>
                     </DialogFooter>
@@ -1911,7 +1943,7 @@ export default function TelegramCommandsPage() {
                         <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
@@ -1929,7 +1961,7 @@ export default function TelegramCommandsPage() {
                         <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmBulkDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmBulkDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
@@ -1975,7 +2007,7 @@ export default function TelegramCommandsPage() {
                                     <Button
                                         key={t}
                                         size="sm"
-                                        variant={detailTab === t ? 'default' : 'outline'}
+                                        variant={detailTab === t ? 'primary' : 'outline'}
                                         onClick={() => setDetailTab(t)}
                                     >
                                         {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -2031,23 +2063,6 @@ function KpiCard({
     );
 }
 
-function Field({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-        </label>
-    );
-}
-
 function DiffView({ diff }: { diff: PullResp }) {
     const localMap = new Map<string, BotCommandView>();
     for (const c of diff.local) localMap.set(c.command, c);
@@ -2055,54 +2070,54 @@ function DiffView({ diff }: { diff: PullResp }) {
     for (const c of diff.live) liveMap.set(c.command, c);
     const all = Array.from(new Set([...localMap.keys(), ...liveMap.keys()])).sort();
     return (
-        <div className="rounded-md border border-[var(--st-border)]">
-            <table className="w-full text-[12.5px]">
-                <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[var(--st-text-tertiary)]">
-                    <tr>
-                        <th className="p-2">Command</th>
-                        <th className="p-2">Local</th>
-                        <th className="p-2">Live</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
+            <Table density="compact">
+                <THead>
+                    <Tr>
+                        <Th>Command</Th>
+                        <Th>Local</Th>
+                        <Th>Live</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {all.length === 0 ? (
-                        <tr>
-                            <td className="p-2 text-[var(--st-text-secondary)]" colSpan={3}>
+                        <Tr>
+                            <Td className="text-[var(--st-text-secondary)]" colSpan={3}>
                                 No commands either side.
-                            </td>
-                        </tr>
+                            </Td>
+                        </Tr>
                     ) : (
                         all.map((cmd) => {
                             const l = localMap.get(cmd);
                             const r = liveMap.get(cmd);
                             const same = l && r && l.description === r.description;
                             return (
-                                <tr key={cmd} className="border-b border-[var(--st-border)]/60 last:border-b-0">
-                                    <td className="p-2 font-mono">/{cmd}</td>
-                                    <td className="p-2">
+                                <Tr key={cmd}>
+                                    <Td className="font-mono">/{cmd}</Td>
+                                    <Td>
                                         {l ? (
                                             <span className={same ? '' : 'text-[var(--st-warn)]'}>
                                                 {l.description}
                                             </span>
                                         ) : (
-                                            <span className="text-[var(--st-danger)]">—</span>
+                                            <span className="text-[var(--st-danger)]">-</span>
                                         )}
-                                    </td>
-                                    <td className="p-2">
+                                    </Td>
+                                    <Td>
                                         {r ? (
                                             <span className={same ? '' : 'text-[var(--st-warn)]'}>
                                                 {r.description}
                                             </span>
                                         ) : (
-                                            <span className="text-[var(--st-danger)]">—</span>
+                                            <span className="text-[var(--st-danger)]">-</span>
                                         )}
-                                    </td>
-                                </tr>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </tbody>
-            </table>
+                </TBody>
+            </Table>
         </div>
     );
 }
@@ -2110,39 +2125,39 @@ function DiffView({ diff }: { diff: PullResp }) {
 function DetailOverview({ row, bots }: { row: CommandRow; bots: BotOption[] }) {
     return (
         <div className="grid gap-2 text-[13px]">
-            <Row label="Bot">
+            <DetailRow label="Bot">
                 {row.botId
                     ? bots.find((b) => b.id === row.botId)?.label ?? row.botId
                     : 'All bots in project'}
-            </Row>
-            <Row label="Scope">{scopeLabel(row.scope)}</Row>
-            <Row label="Language">{row.languageCode ?? 'Universal'}</Row>
-            <Row label="Handler">
+            </DetailRow>
+            <DetailRow label="Scope">{scopeLabel(row.scope)}</DetailRow>
+            <DetailRow label="Language">{row.languageCode ?? 'Universal'}</DetailRow>
+            <DetailRow label="Handler">
                 <Badge variant="secondary">
                     {HANDLER_OPTIONS.find((h) => h.value === row.handler.kind)?.label ??
                         row.handler.kind}
                 </Badge>
-            </Row>
-            <Row label="Hidden">
+            </DetailRow>
+            <DetailRow label="Hidden">
                 {row.hidden ? (
                     <span className="text-[var(--st-warn)] inline-flex items-center gap-1">
-                        <EyeOff className="h-3.5 w-3.5" />
+                        <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
                         Hidden on push
                     </span>
                 ) : (
                     'Visible'
                 )}
-            </Row>
-            <Row label="Runs">{row.runCount.toLocaleString()}</Row>
-            <Row label="Last run">{fmtDate(row.lastRunAt)}</Row>
-            <Row label="Created">{fmtDate(row.createdAt)}</Row>
-            <Row label="Updated">{fmtDate(row.updatedAt)}</Row>
+            </DetailRow>
+            <DetailRow label="Runs">{row.runCount.toLocaleString()}</DetailRow>
+            <DetailRow label="Last run">{fmtDate(row.lastRunAt)}</DetailRow>
+            <DetailRow label="Created">{fmtDate(row.createdAt)}</DetailRow>
+            <DetailRow label="Updated">{fmtDate(row.updatedAt)}</DetailRow>
             {row.handler.payload ? (
                 <div>
                     <p className="mb-1 text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                         Payload
                     </p>
-                    <pre className="overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-[11.5px]">
+                    <pre className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[11.5px]">
                         {JSON.stringify(row.handler.payload, null, 2)}
                     </pre>
                 </div>
@@ -2167,35 +2182,35 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
         );
     }
     return (
-        <div className="rounded-md border border-[var(--st-border)]">
-            <table className="w-full text-[12.5px]">
-                <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[var(--st-text-tertiary)]">
-                    <tr>
-                        <th className="p-2">When</th>
-                        <th className="p-2">Chat</th>
-                        <th className="p-2">User</th>
-                        <th className="p-2">Status</th>
-                        <th className="p-2">Error</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
+            <Table density="compact">
+                <THead>
+                    <Tr>
+                        <Th>When</Th>
+                        <Th>Chat</Th>
+                        <Th>User</Th>
+                        <Th>Status</Th>
+                        <Th>Error</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {runs.map((r) => (
-                        <tr key={r._id} className="border-b border-[var(--st-border)]/60 last:border-b-0">
-                            <td className="p-2">{fmtDate(r.createdAt)}</td>
-                            <td className="p-2 font-mono">{r.chatId ?? '—'}</td>
-                            <td className="p-2 font-mono">{r.userId ?? '—'}</td>
-                            <td className="p-2">
+                        <Tr key={r._id}>
+                            <Td>{fmtDate(r.createdAt)}</Td>
+                            <Td className="font-mono">{r.chatId ?? '-'}</Td>
+                            <Td className="font-mono">{r.userId ?? '-'}</Td>
+                            <Td>
                                 {r.success ? (
                                     <Badge variant="success">ok</Badge>
                                 ) : (
                                     <Badge variant="warning">failed</Badge>
                                 )}
-                            </td>
-                            <td className="p-2 text-[var(--st-danger)]">{r.errorMessage ?? '—'}</td>
-                        </tr>
+                            </Td>
+                            <Td className="text-[var(--st-danger)]">{r.errorMessage ?? '-'}</Td>
+                        </Tr>
                     ))}
-                </tbody>
-            </table>
+                </TBody>
+            </Table>
         </div>
     );
 }
@@ -2222,10 +2237,9 @@ function DetailDiff({
     return <DiffView diff={diff} />;
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)]/60 py-1.5 last:border-b-0">
-            <TelegramProjectGate />
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] py-1.5 last:border-b-0">
             <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>

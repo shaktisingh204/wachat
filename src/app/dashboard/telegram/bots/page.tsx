@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel, Checkbox } from '@/components/sabcrm/20ui';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageHeader, PageHeaderHeading, PageTitle, PageDescription, PageActions, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel, Checkbox } from '@/components/sabcrm/20ui';
 import {
   Activity,
   AlertTriangle,
@@ -65,22 +65,22 @@ function StatusBadge({ status }: { status: BotStatus }) {
     }
     if (status === 'error') {
         return (
-            <Badge variant="danger">
+            <Badge variant="destructive">
                 <AlertTriangle className="h-3 w-3" aria-hidden /> Error
             </Badge>
         );
     }
     return (
-        <Badge variant="ghost">
+        <Badge variant="secondary">
             <Unlink className="h-3 w-3" aria-hidden /> Disconnected
         </Badge>
     );
 }
 
 function formatRelative(iso: string | undefined): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return '-';
     const diff = Date.now() - d.getTime();
     const sec = Math.floor(diff / 1000);
     if (sec < 60) return 'just now';
@@ -105,10 +105,11 @@ function CopyableText({ value }: { value: string }) {
         }
     }, [value]);
     return (
-        <button
-            type="button"
+        <Button
+            variant="outline"
+            size="sm"
             onClick={handle}
-            className="inline-flex max-w-[260px] items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 font-mono text-[11px] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)]"
+            className="max-w-[260px] gap-1.5 font-mono text-[11px]"
             aria-label={copied ? 'Copied' : 'Copy webhook URL'}
         >
             <span className="truncate">{value}</span>
@@ -117,7 +118,7 @@ function CopyableText({ value }: { value: string }) {
             ) : (
                 <Copy className="h-3 w-3 shrink-0" aria-hidden />
             )}
-        </button>
+        </Button>
     );
 }
 
@@ -126,11 +127,7 @@ function BotAvatar({ bot }: { bot: BotRow }) {
         (bot.name || bot.username || '?').trim().charAt(0).toUpperCase() || '?';
     return (
         <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-            style={{
-                background:
-                    'linear-gradient(135deg, #229ED9 0%, #1A7FA8 100%)',
-            }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#229ED9] to-[#1A7FA8] text-sm font-semibold text-white"
             aria-hidden
         >
             {initial}
@@ -261,7 +258,7 @@ export default function TelegramBotsPage() {
         if (res.success) {
             toast({
                 title: 'Bot is healthy',
-                description: `Latency ${res.latencyMs ?? '—'}ms`,
+                description: `Latency ${res.latencyMs ?? '-'}ms`,
             });
             fetchList();
         } else {
@@ -388,36 +385,30 @@ export default function TelegramBotsPage() {
         <div className="flex flex-col gap-6">
             <TelegramProjectGate />
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background:
-                            'linear-gradient(135deg, #37BBFE 0%, #229ED9 100%)',
-                        boxShadow: '0 10px 28px rgba(34, 158, 217, 0.25)',
-                    }}
-                >
-                    <Bot className="h-6 w-6 text-white" strokeWidth={1.75} aria-hidden />
+            <PageHeader>
+                <div className="flex items-start gap-4">
+                    <div
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#37BBFE] to-[#229ED9] shadow-[0_10px_28px_rgba(34,158,217,0.25)]"
+                        aria-hidden
+                    >
+                        <Bot className="h-6 w-6 text-white" strokeWidth={1.75} aria-hidden />
+                    </div>
+                    <PageHeaderHeading>
+                        <PageTitle>Telegram Bots</PageTitle>
+                        <PageDescription>
+                            Manage Telegram bots. Health, commands, profile, menu button, and
+                            webhook secrets, all in one place.
+                        </PageDescription>
+                    </PageHeaderHeading>
                 </div>
-                <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram Bots
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                        Manage Telegram bots — health, commands, profile, menu button, and
-                        webhook secrets — all in one place.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
+                <PageActions>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={handleExport}
-                        disabled={!projectId || exporting || rows.length === 0}
+                        loading={exporting}
+                        disabled={!projectId || rows.length === 0}
                     >
-                        {exporting ? (
-                            <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                        ) : null}
                         Export CSV
                     </Button>
                     <Link href="/dashboard/telegram/connections">
@@ -425,30 +416,18 @@ export default function TelegramBotsPage() {
                             <Plus className="h-3 w-3" aria-hidden /> Connect a bot
                         </Button>
                     </Link>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {/* KPI cards */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatCard
-                    label="Total bots"
-                    value={total}
-                    icon={<Bot className="h-4 w-4" aria-hidden />}
-                />
-                <StatCard
-                    label="Active"
-                    value={kpis.active}
-                    icon={<CheckCircle2 className="h-4 w-4" aria-hidden />}
-                />
-                <StatCard
-                    label="Errors"
-                    value={kpis.errors}
-                    icon={<AlertTriangle className="h-4 w-4" aria-hidden />}
-                />
+                <StatCard label="Total bots" value={total} icon={Bot} />
+                <StatCard label="Active" value={kpis.active} icon={CheckCircle2} />
+                <StatCard label="Errors" value={kpis.errors} icon={AlertTriangle} />
                 <StatCard
                     label="Avg latency"
-                    value={kpis.avgLatency !== null ? `${kpis.avgLatency} ms` : '—'}
-                    icon={<Activity className="h-4 w-4" aria-hidden />}
+                    value={kpis.avgLatency !== null ? `${kpis.avgLatency} ms` : '-'}
+                    icon={Activity}
                 />
             </div>
 
@@ -539,7 +518,7 @@ export default function TelegramBotsPage() {
                             <Tr>
                                 <Td colSpan={8} className="p-0">
                                     <EmptyState
-                                        icon={<Bot className="h-5 w-5" aria-hidden />}
+                                        icon={Bot}
                                         title={
                                             error
                                                 ? 'Could not load bots'
@@ -581,21 +560,22 @@ export default function TelegramBotsPage() {
                                             />
                                         </Td>
                                         <Td>
-                                            <button
-                                                type="button"
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => setDetailBotId(bot._id)}
-                                                className="flex items-center gap-3 text-left"
+                                                className="h-auto justify-start gap-3 px-1 py-1 text-left"
                                             >
                                                 <BotAvatar bot={bot} />
-                                                <div className="flex flex-col">
+                                                <span className="flex flex-col items-start">
                                                     <span className="text-[13px] font-medium text-[var(--st-text)]">
                                                         {bot.name || bot.username || 'Untitled bot'}
                                                     </span>
                                                     <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                         #{bot.botId}
                                                     </span>
-                                                </div>
-                                            </button>
+                                                </span>
+                                            </Button>
                                         </Td>
                                         <Td>
                                             {bot.username ? (
@@ -610,7 +590,7 @@ export default function TelegramBotsPage() {
                                                 </a>
                                             ) : (
                                                 <span className="text-[12.5px] text-[var(--st-text-secondary)]">
-                                                    —
+                                                    -
                                                 </span>
                                             )}
                                         </Td>
@@ -632,7 +612,7 @@ export default function TelegramBotsPage() {
                                         <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                             {typeof bot.latencyMs === 'number'
                                                 ? `${bot.latencyMs} ms`
-                                                : '—'}
+                                                : '-'}
                                         </Td>
                                         <Td>
                                             <DropdownMenu>
@@ -737,7 +717,7 @@ export default function TelegramBotsPage() {
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             This removes each bot from SabNode and deletes its webhook on
-                            Telegram. The Bot Tokens themselves stay valid — you can
+                            Telegram. The Bot Tokens themselves stay valid, so you can
                             re-connect at any time.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

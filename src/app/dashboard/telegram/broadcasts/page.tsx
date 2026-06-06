@@ -1,6 +1,52 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Label, PageHeader, PageEyebrow, PageHeading, PageTitle, PageDescription, PageActions, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Checkbox,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    EmptyState,
+    Field,
+    Input,
+    Label,
+    PageHeader,
+    PageEyebrow,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    RadioGroup,
+    RadioGroupItem,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Skeleton,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   Calendar as CalendarIcon,
@@ -27,16 +73,16 @@ import {
   } from 'lucide-react';
 
 /**
- * Telegram Broadcasts — multi-tenant broadcast composer + dispatcher.
+ * Telegram Broadcasts - multi-tenant broadcast composer + dispatcher.
  *
  * Mirrors the layout of `/dashboard/telegram/ads` (KPI cards, filter bar,
  * paginated table, bulk select, side drawer composer). The composer is a
- * single drawer with five logical sections — Basics, Message, Inline
- * Keyboard, Schedule, Preview — rather than a wizard route, per the
+ * single drawer with five logical sections (Basics, Message, Inline
+ * Keyboard, Schedule, Preview) rather than a wizard route, per the
  * project rule.
  *
  * Media inputs go through `<SabFilePickerButton>` (per the SabFiles
- * policy — every file lives in SabFiles, no free-text URL paste).
+ * policy, every file lives in SabFiles, no free-text URL paste).
  */
 
 import * as React from 'react';
@@ -90,14 +136,14 @@ const STATUS_OPTIONS: { value: 'all' | BroadcastStatus; label: string }[] = [
 
 const STATUS_VARIANT: Record<
     BroadcastStatus,
-    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'danger'
+    'success' | 'warning' | 'info' | 'secondary' | 'destructive' | 'default'
 > = {
-    draft: 'ghost',
+    draft: 'secondary',
     scheduled: 'info',
     sending: 'warning',
     completed: 'success',
-    failed: 'danger',
-    cancelled: 'secondary',
+    failed: 'destructive',
+    cancelled: 'default',
 };
 
 const AUDIENCE_KINDS = [
@@ -140,7 +186,7 @@ function fmtNumber(n: number | undefined | null): string {
 }
 
 function fmtDateTime(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         const d = new Date(iso);
         return d.toLocaleString();
@@ -150,7 +196,7 @@ function fmtDateTime(iso?: string): string {
 }
 
 function fmtRelative(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString();
     } catch {
@@ -168,7 +214,7 @@ function audienceLabel(a: BroadcastRow['audience']): string {
         case 'all':
             return 'All subscribers';
         case 'segment':
-            return `Segment · ${(a as any)?.segmentId ?? ''}`;
+            return `Segment, ${(a as any)?.segmentId ?? ''}`;
         case 'contactIds': {
             const ids = (a as any)?.ids ?? [];
             return `${Array.isArray(ids) ? ids.length : 0} contact${
@@ -181,7 +227,7 @@ function audienceLabel(a: BroadcastRow['audience']): string {
             if (Array.isArray(f.tags) && f.tags.length) bits.push(`tags:${f.tags.length}`);
             if (f.lang) bits.push(`lang:${f.lang}`);
             if (f.lastSeenAfter) bits.push(`active`);
-            return bits.length ? `Filter · ${bits.join(' · ')}` : 'Filter';
+            return bits.length ? `Filter, ${bits.join(', ')}` : 'Filter';
         }
         default:
             return String(kind);
@@ -514,7 +560,7 @@ export default function TelegramBroadcastsPage() {
         }
 
         // Then, if the user asked for it, fire the dispatch / schedule.
-        // `save` always stops at "draft saved" — the user must explicitly
+        // `save` always stops at "draft saved", the user must explicitly
         // press "send" or "schedule" to leave the draft state.
         if (mode === 'send') {
             const res = await sendBroadcastNowAction(id, projectId);
@@ -769,6 +815,7 @@ export default function TelegramBroadcastsPage() {
 
     // ── Bulk selection ────────────────────────────────────────────
     const allSelected = rows.length > 0 && rows.every((r) => selected.has(r._id));
+    const someSelected = rows.some((r) => selected.has(r._id));
     const toggleAll = (v: boolean) => {
         setSelected((s) => {
             const next = new Set(s);
@@ -806,7 +853,7 @@ export default function TelegramBroadcastsPage() {
     const botName = React.useCallback(
         (botId: string): string => {
             const b = bots.find((x) => x._id === botId);
-            return b ? `@${b.username || b.name}` : '—';
+            return b ? `@${b.username || b.name}` : '-';
         },
         [bots],
     );
@@ -827,9 +874,9 @@ export default function TelegramBroadcastsPage() {
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <PageHeader>
                 <PageHeading>
-                    <PageEyebrow className="text-[var(--st-text)]">Telegram</PageEyebrow>
+                    <PageEyebrow>Telegram</PageEyebrow>
                     <PageTitle className="flex items-center gap-2">
-                        <Megaphone className="text-[var(--st-text)]" />
+                        <Megaphone className="size-5" aria-hidden="true" />
                         Telegram Broadcasts
                     </PageTitle>
                     <PageDescription>
@@ -838,12 +885,8 @@ export default function TelegramBroadcastsPage() {
                     </PageDescription>
                 </PageHeading>
                 <PageActions>
-                    <Button
-                        type="button"
-                        onClick={openNewComposer}
-                        className="bg-[var(--st-text)] text-white"
-                    >
-                        <Plus /> New broadcast
+                    <Button type="button" variant="primary" onClick={openNewComposer} iconLeft={Plus}>
+                        New broadcast
                     </Button>
                 </PageActions>
             </PageHeader>
@@ -852,23 +895,23 @@ export default function TelegramBroadcastsPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     label="Total broadcasts"
-                    value={analyticsLoading ? '—' : fmtNumber(kpis.total)}
-                    icon={<Megaphone />}
+                    value={analyticsLoading ? '-' : fmtNumber(kpis.total)}
+                    icon={Megaphone}
                 />
                 <StatCard
                     label="Scheduled (page)"
                     value={fmtNumber(kpis.scheduled)}
-                    icon={<CalendarIcon />}
+                    icon={CalendarIcon}
                 />
                 <StatCard
                     label="Sending now"
                     value={fmtNumber(kpis.sending)}
-                    icon={<Send />}
+                    icon={Send}
                 />
                 <StatCard
                     label="Avg success rate"
-                    value={analyticsLoading ? '—' : pct(kpis.successRate)}
-                    icon={<Check />}
+                    value={analyticsLoading ? '-' : pct(kpis.successRate)}
+                    icon={Check}
                 />
             </div>
 
@@ -876,11 +919,15 @@ export default function TelegramBroadcastsPage() {
             <Card>
                 <CardBody className="flex flex-col gap-3 p-3 md:flex-row md:items-center md:p-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
+                        <Search
+                            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--st-text-tertiary)]"
+                            aria-hidden="true"
+                        />
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search by name…"
+                            placeholder="Search by name"
+                            aria-label="Search broadcasts by name"
                             className="pl-9"
                         />
                     </div>
@@ -888,7 +935,7 @@ export default function TelegramBroadcastsPage() {
                         value={botFilter}
                         onValueChange={(v) => setBotFilter(v as 'all' | string)}
                     >
-                        <SelectTrigger className="md:w-48">
+                        <SelectTrigger className="md:w-48" aria-label="Filter by bot">
                             <SelectValue placeholder="Bot" />
                         </SelectTrigger>
                         <SelectContent>
@@ -904,7 +951,7 @@ export default function TelegramBroadcastsPage() {
                         value={statusFilter}
                         onValueChange={(v) => setStatusFilter(v as 'all' | BroadcastStatus)}
                     >
-                        <SelectTrigger className="md:w-44">
+                        <SelectTrigger className="md:w-44" aria-label="Filter by status">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -918,10 +965,11 @@ export default function TelegramBroadcastsPage() {
                     {selected.size > 0 ? (
                         <Button
                             type="button"
-                            variant="destructive"
+                            variant="danger"
                             onClick={() => setBulkDeleteOpen(true)}
+                            iconLeft={Trash2}
                         >
-                            <Trash2 /> Delete {selected.size}
+                            Delete {selected.size}
                         </Button>
                     ) : null}
                 </CardBody>
@@ -931,57 +979,63 @@ export default function TelegramBroadcastsPage() {
             <Card>
                 <CardBody className="p-0">
                     {error ? (
-                        <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text)]">
-                            <AlertCircle className="size-4" /> {error}
+                        <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
+                            <AlertCircle className="size-4" aria-hidden="true" /> {error}
                         </div>
                     ) : null}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="border-b text-left text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                <tr>
-                                    <th className="w-10 px-3 py-2">
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th className="w-10">
                                         <Checkbox
                                             checked={allSelected}
-                                            onCheckedChange={(v) => toggleAll(Boolean(v))}
+                                            indeterminate={someSelected && !allSelected}
+                                            onChange={(e) => toggleAll(e.target.checked)}
                                             aria-label="Select all"
                                         />
-                                    </th>
-                                    <th className="px-3 py-2">Name</th>
-                                    <th className="px-3 py-2">Bot</th>
-                                    <th className="px-3 py-2">Audience</th>
-                                    <th className="px-3 py-2">Status</th>
-                                    <th className="px-3 py-2">Scheduled</th>
-                                    <th className="px-3 py-2">Sent / Failed</th>
-                                    <th className="px-3 py-2">Created</th>
-                                    <th className="w-32 px-3 py-2 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                                    </Th>
+                                    <Th>Name</Th>
+                                    <Th>Bot</Th>
+                                    <Th>Audience</Th>
+                                    <Th>Status</Th>
+                                    <Th>Scheduled</Th>
+                                    <Th>Sent / Failed</Th>
+                                    <Th>Created</Th>
+                                    <Th align="right" className="w-32">
+                                        Actions
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {loading ? (
                                     Array.from({ length: 4 }).map((_, i) => (
-                                        <tr key={`s${i}`} className="border-b">
-                                            <td colSpan={9} className="px-3 py-3">
-                                                <Skeleton className="h-6 w-full" />
-                                            </td>
-                                        </tr>
+                                        <Tr key={`s${i}`}>
+                                            <Td colSpan={9}>
+                                                <Skeleton height={24} className="w-full" />
+                                            </Td>
+                                        </Tr>
                                     ))
                                 ) : rows.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={9} className="px-3 py-10">
+                                    <Tr>
+                                        <Td colSpan={9} className="py-10">
                                             <EmptyState
+                                                icon={Megaphone}
                                                 title="No broadcasts yet"
                                                 description="Compose your first broadcast to fan out a message to your subscribers."
                                                 action={
                                                     <Button
                                                         type="button"
+                                                        variant="primary"
                                                         onClick={openNewComposer}
+                                                        iconLeft={Plus}
                                                     >
-                                                        <Plus /> New broadcast
+                                                        New broadcast
                                                     </Button>
                                                 }
                                             />
-                                        </td>
-                                    </tr>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     rows.map((row) => {
                                         const counters = row.counters ?? {};
@@ -990,51 +1044,48 @@ export default function TelegramBroadcastsPage() {
                                         const failed =
                                             counters.failed ?? row.stats?.failed ?? 0;
                                         return (
-                                            <tr
-                                                key={row._id}
-                                                className="border-b hover:bg-zoru-bg-[var(--st-bg-muted)]/40"
-                                            >
-                                                <td className="px-3 py-2">
+                                            <Tr key={row._id}>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(row._id)}
-                                                        onCheckedChange={(v) =>
-                                                            toggleOne(row._id, Boolean(v))
+                                                        onChange={(e) =>
+                                                            toggleOne(row._id, e.target.checked)
                                                         }
-                                                        aria-label="Select row"
+                                                        aria-label={`Select ${row.name || 'broadcast'}`}
                                                     />
-                                                </td>
-                                                <td className="px-3 py-2">
-                                                    <button
+                                                </Td>
+                                                <Td>
+                                                    <Button
                                                         type="button"
-                                                        className="text-left font-medium hover:underline"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="px-0 font-medium hover:underline"
                                                         onClick={() => openDetail(row)}
                                                     >
                                                         {row.name || 'Untitled broadcast'}
-                                                    </button>
-                                                </td>
-                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                                                    </Button>
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {botName(row.botId)}
-                                                </td>
-                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {audienceLabel(row.audience)}
-                                                </td>
-                                                <td className="px-3 py-2">
-                                                    <Badge
-                                                        variant={STATUS_VARIANT[row.status]}
-                                                    >
+                                                </Td>
+                                                <Td>
+                                                    <Badge variant={STATUS_VARIANT[row.status]}>
                                                         {row.status}
                                                     </Badge>
-                                                </td>
-                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {fmtDateTime(row.scheduledAt)}
-                                                </td>
-                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {fmtNumber(sent)} / {fmtNumber(failed)}
-                                                </td>
-                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {fmtDateTime(row.createdAt)}
-                                                </td>
-                                                <td className="px-3 py-2 text-right">
+                                                </Td>
+                                                <Td align="right">
                                                     <div className="flex justify-end gap-1">
                                                         <Button
                                                             type="button"
@@ -1045,19 +1096,17 @@ export default function TelegramBroadcastsPage() {
                                                                     ? openEditComposer(row)
                                                                     : openDetail(row)
                                                             }
-                                                            aria-label="Open"
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Button>
+                                                            aria-label="Open broadcast"
+                                                            iconLeft={Pencil}
+                                                        />
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => doDuplicate(row)}
-                                                            aria-label="Duplicate"
-                                                        >
-                                                            <Copy className="size-4" />
-                                                        </Button>
+                                                            aria-label="Duplicate broadcast"
+                                                            iconLeft={Copy}
+                                                        />
                                                         {(row.status === 'scheduled' ||
                                                             row.status === 'sending') && (
                                                             <Button
@@ -1065,10 +1114,9 @@ export default function TelegramBroadcastsPage() {
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => doCancel(row)}
-                                                                aria-label="Cancel"
-                                                            >
-                                                                <XCircle className="size-4" />
-                                                            </Button>
+                                                                aria-label="Cancel broadcast"
+                                                                iconLeft={XCircle}
+                                                            />
                                                         )}
                                                         {row.status === 'draft' && (
                                                             <Button
@@ -1077,31 +1125,29 @@ export default function TelegramBroadcastsPage() {
                                                                 size="sm"
                                                                 onClick={() => doSendNow(row)}
                                                                 aria-label="Send now"
-                                                            >
-                                                                <Send className="size-4" />
-                                                            </Button>
+                                                                iconLeft={Send}
+                                                            />
                                                         )}
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setDeleteRow(row)}
-                                                            aria-label="Delete"
-                                                        >
-                                                            <Trash2 className="size-4 text-[var(--st-text)]" />
-                                                        </Button>
+                                                            aria-label="Delete broadcast"
+                                                            iconLeft={Trash2}
+                                                        />
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between border-t p-3">
+                    <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3">
                         <span className="text-xs text-[var(--st-text-secondary)]">
                             Page {pageIdx + 1}
                         </span>
@@ -1112,8 +1158,9 @@ export default function TelegramBroadcastsPage() {
                                 size="sm"
                                 onClick={goPrevPage}
                                 disabled={pageIdx === 0}
+                                iconLeft={ChevronLeft}
                             >
-                                <ChevronLeft className="size-4" /> Prev
+                                Prev
                             </Button>
                             <Button
                                 type="button"
@@ -1121,8 +1168,9 @@ export default function TelegramBroadcastsPage() {
                                 size="sm"
                                 onClick={goNextPage}
                                 disabled={!nextCursor}
+                                iconRight={ChevronRight}
                             >
-                                Next <ChevronRight className="size-4" />
+                                Next
                             </Button>
                         </div>
                     </div>
@@ -1166,14 +1214,14 @@ export default function TelegramBroadcastsPage() {
                             counters touched.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex flex-col gap-2 py-2">
-                        <Label htmlFor="test-chat-id">Chat id</Label>
-                        <Input
-                            id="test-chat-id"
-                            value={testChatId}
-                            onChange={(e) => setTestChatId(e.target.value)}
-                            placeholder="e.g. 1234567890"
-                        />
+                    <div className="py-2">
+                        <Field label="Chat id">
+                            <Input
+                                value={testChatId}
+                                onChange={(e) => setTestChatId(e.target.value)}
+                                placeholder="e.g. 1234567890"
+                            />
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button
@@ -1185,10 +1233,11 @@ export default function TelegramBroadcastsPage() {
                         </Button>
                         <Button
                             type="button"
+                            variant="primary"
                             onClick={runTestSend}
-                            disabled={testSending}
+                            loading={testSending}
+                            iconLeft={testSending ? undefined : Send}
                         >
-                            {testSending ? <Loader2 className="animate-spin" /> : <Send />}
                             Send test
                         </Button>
                     </DialogFooter>
@@ -1213,8 +1262,8 @@ export default function TelegramBroadcastsPage() {
                         >
                             Cancel
                         </Button>
-                        <Button type="button" variant="destructive" onClick={doDelete}>
-                            <Trash2 /> Delete
+                        <Button type="button" variant="danger" onClick={doDelete} iconLeft={Trash2}>
+                            Delete
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -1240,8 +1289,8 @@ export default function TelegramBroadcastsPage() {
                         >
                             Cancel
                         </Button>
-                        <Button type="button" variant="destructive" onClick={doBulkDelete}>
-                            <Trash2 /> Delete
+                        <Button type="button" variant="danger" onClick={doBulkDelete} iconLeft={Trash2}>
+                            Delete
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -1255,7 +1304,7 @@ export default function TelegramBroadcastsPage() {
                 deliveries={deliveries}
                 deliveriesLoading={deliveriesLoading}
                 deliveriesCursor={deliveriesCursor}
-                botName={detailRow ? botName(detailRow.botId) : '—'}
+                botName={detailRow ? botName(detailRow.botId) : '-'}
                 projectId={projectId}
                 onLoadMore={() =>
                     detailRow && fetchDeliveries(detailRow._id, deliveriesCursor, false)
@@ -1270,7 +1319,7 @@ export default function TelegramBroadcastsPage() {
 }
 
 // ---------------------------------------------------------------------------
-//  Composer drawer — isolated for readability
+//  Composer drawer - isolated for readability
 // ---------------------------------------------------------------------------
 
 interface ComposerProps {
@@ -1346,35 +1395,33 @@ function Composer(props: ComposerProps) {
 
                 <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-4 md:px-6">
                     {error ? (
-                        <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
-                            <AlertCircle className="size-4" /> {error}
+                        <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-danger)]">
+                            <AlertCircle className="size-4" aria-hidden="true" /> {error}
                         </div>
                     ) : null}
 
                     {/* ── 1. Basics ─────────────────────────────────── */}
                     <Section title="1 · Basics">
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <div className="flex flex-col gap-1.5">
-                                <Label>Name</Label>
+                            <Field label="Name">
                                 <Input
                                     value={composer.name}
                                     onChange={(e) => update('name', e.target.value)}
-                                    placeholder="Weekly drop · subscribers"
+                                    placeholder="Weekly drop, subscribers"
                                 />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <Label>Bot</Label>
+                            </Field>
+                            <Field label="Bot">
                                 <Select
                                     value={composer.botId}
                                     onValueChange={(v) => update('botId', v)}
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pick a bot…" />
+                                    <SelectTrigger aria-label="Bot">
+                                        <SelectValue placeholder="Pick a bot" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {bots.length === 0 ? (
                                             <div className="px-2 py-1.5 text-sm text-[var(--st-text-secondary)]">
-                                                No bots yet — connect one from
+                                                No bots yet, connect one from
                                                 /dashboard/telegram/bots
                                             </div>
                                         ) : (
@@ -1386,60 +1433,46 @@ function Composer(props: ComposerProps) {
                                         )}
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         </div>
 
                         <Separator className="my-2" />
 
                         <Label>Audience</Label>
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                            {AUDIENCE_KINDS.map((k) => (
-                                <button
-                                    key={k.value}
-                                    type="button"
-                                    onClick={() => update('audienceKind', k.value)}
-                                    className={`rounded-md border px-3 py-2 text-left text-sm transition ${
-                                        composer.audienceKind === k.value
-                                            ? 'border-[var(--st-text)] bg-[var(--st-text)]/10'
-                                            : 'border-[var(--st-border)] hover:bg-zoru-bg-[var(--st-bg-muted)]'
-                                    }`}
-                                >
-                                    {k.label}
-                                </button>
-                            ))}
-                        </div>
+                        <SegmentedControl
+                            aria-label="Audience"
+                            value={composer.audienceKind}
+                            onChange={(v) => update('audienceKind', v as AudienceKind)}
+                            items={AUDIENCE_KINDS.map((k) => ({ value: k.value, label: k.label }))}
+                        />
 
                         {composer.audienceKind === 'segment' ? (
-                            <div className="flex flex-col gap-1.5">
-                                <Label>Segment id</Label>
+                            <Field label="Segment id">
                                 <Input
                                     value={composer.segmentId}
                                     onChange={(e) => update('segmentId', e.target.value)}
-                                    placeholder="seg_…"
+                                    placeholder="seg_"
                                 />
-                            </div>
+                            </Field>
                         ) : null}
 
                         {composer.audienceKind === 'contactIds' ? (
-                            <div className="flex flex-col gap-1.5">
-                                <Label>Chat ids</Label>
+                            <Field
+                                label="Chat ids"
+                                help="Comma or whitespace separated. The bot must already have a chat opened with each id."
+                            >
                                 <Textarea
                                     value={composer.contactIds}
                                     onChange={(e) => update('contactIds', e.target.value)}
                                     placeholder="1234567890, 9876543210"
                                     rows={3}
                                 />
-                                <p className="text-xs text-[var(--st-text-secondary)]">
-                                    Comma or whitespace separated. The bot must already
-                                    have a chat opened with each id.
-                                </p>
-                            </div>
+                            </Field>
                         ) : null}
 
                         {composer.audienceKind === 'filter' ? (
                             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                <div className="flex flex-col gap-1.5">
-                                    <Label>Tags</Label>
+                                <Field label="Tags">
                                     <Input
                                         value={composer.filterTags}
                                         onChange={(e) =>
@@ -1447,9 +1480,8 @@ function Composer(props: ComposerProps) {
                                         }
                                         placeholder="vip, beta-tester"
                                     />
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <Label>Language</Label>
+                                </Field>
+                                <Field label="Language">
                                     <Input
                                         value={composer.filterLang}
                                         onChange={(e) =>
@@ -1457,7 +1489,7 @@ function Composer(props: ComposerProps) {
                                         }
                                         placeholder="en"
                                     />
-                                </div>
+                                </Field>
                             </div>
                         ) : null}
                     </Section>
@@ -1467,43 +1499,32 @@ function Composer(props: ComposerProps) {
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-[var(--st-text-secondary)]">Format:</span>
                             <RadioGroup
+                                aria-label="Message format"
+                                orientation="horizontal"
                                 value={composer.parseMode}
                                 onValueChange={(v) =>
                                     update('parseMode', v as ComposerState['parseMode'])
                                 }
-                                className="flex gap-3"
                             >
                                 {(['plain', 'Markdown', 'HTML'] as const).map((m) => (
-                                    <div key={m} className="flex items-center gap-1.5">
-                                        <RadioGroupItem id={`pm-${m}`} value={m} />
-                                        <label
-                                            htmlFor={`pm-${m}`}
-                                            className="text-sm"
-                                        >
-                                            {m}
-                                        </label>
-                                    </div>
+                                    <RadioGroupItem key={m} value={m} label={m} />
                                 ))}
                             </RadioGroup>
                         </div>
                         <Textarea
+                            aria-label="Message text"
                             value={composer.text}
                             onChange={(e) => update('text', e.target.value)}
-                            placeholder="Hello {{first_name}}, …"
+                            placeholder="Hello {{first_name}}, ..."
                             rows={6}
                         />
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="dwpp"
-                                checked={composer.disableWebPagePreview}
-                                onCheckedChange={(v) =>
-                                    update('disableWebPagePreview', Boolean(v))
-                                }
-                            />
-                            <Label htmlFor="dwpp" className="text-sm font-normal">
-                                Disable link previews
-                            </Label>
-                        </div>
+                        <Checkbox
+                            checked={composer.disableWebPagePreview}
+                            onChange={(e) =>
+                                update('disableWebPagePreview', e.target.checked)
+                            }
+                            label="Disable link previews"
+                        />
 
                         <Separator className="my-2" />
 
@@ -1526,7 +1547,7 @@ function Composer(props: ComposerProps) {
                                                     })
                                                 }
                                             >
-                                                <Icon className="size-4" />{' '}
+                                                <Icon className="size-4" aria-hidden="true" />{' '}
                                                 {MEDIA_KIND_LABEL[kind]}
                                             </SabFilePickerButton>
                                         );
@@ -1547,14 +1568,13 @@ function Composer(props: ComposerProps) {
                                     return (
                                         <li
                                             key={`${m.sabFileId}-${idx}`}
-                                            className="flex flex-col gap-2 rounded-md border p-2"
+                                            className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                                         >
                                             <div className="flex items-center justify-between gap-2">
                                                 <div className="flex min-w-0 items-center gap-2">
-                                                    <Icon className="size-4 shrink-0" />
+                                                    <Icon className="size-4 shrink-0" aria-hidden="true" />
                                                     <span className="truncate text-sm">
-                                                        {MEDIA_KIND_LABEL[m.type]} ·{' '}
-                                                        {m.sabFileId}
+                                                        {MEDIA_KIND_LABEL[m.type]}, {m.sabFileId}
                                                     </span>
                                                 </div>
                                                 <div className="flex gap-1">
@@ -1564,30 +1584,28 @@ function Composer(props: ComposerProps) {
                                                         size="sm"
                                                         onClick={() => onMoveMedia(idx, -1)}
                                                         aria-label="Move up"
-                                                    >
-                                                        <ChevronUp className="size-4" />
-                                                    </Button>
+                                                        iconLeft={ChevronUp}
+                                                    />
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => onMoveMedia(idx, 1)}
                                                         aria-label="Move down"
-                                                    >
-                                                        <ChevronDown className="size-4" />
-                                                    </Button>
+                                                        iconLeft={ChevronDown}
+                                                    />
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => onRemoveMedia(idx)}
-                                                        aria-label="Remove"
-                                                    >
-                                                        <X className="size-4 text-[var(--st-text)]" />
-                                                    </Button>
+                                                        aria-label="Remove media"
+                                                        iconLeft={X}
+                                                    />
                                                 </div>
                                             </div>
                                             <Input
+                                                aria-label="Media caption"
                                                 value={m.caption ?? ''}
                                                 onChange={(e) =>
                                                     onSetMediaCaption(idx, e.target.value)
@@ -1612,7 +1630,7 @@ function Composer(props: ComposerProps) {
                                 {composer.inlineKeyboard.map((row, rowIdx) => (
                                     <li
                                         key={`row-${rowIdx}`}
-                                        className="rounded-md border p-2"
+                                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                                     >
                                         <div className="flex items-center justify-between pb-2">
                                             <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
@@ -1626,8 +1644,9 @@ function Composer(props: ComposerProps) {
                                                     onClick={() =>
                                                         onAddKeyboardButton(rowIdx)
                                                     }
+                                                    iconLeft={Plus}
                                                 >
-                                                    <Plus className="size-4" /> Button
+                                                    Button
                                                 </Button>
                                                 <Button
                                                     type="button"
@@ -1637,18 +1656,18 @@ function Composer(props: ComposerProps) {
                                                         onRemoveKeyboardRow(rowIdx)
                                                     }
                                                     aria-label="Remove row"
-                                                >
-                                                    <Trash2 className="size-4 text-[var(--st-text)]" />
-                                                </Button>
+                                                    iconLeft={Trash2}
+                                                />
                                             </div>
                                         </div>
                                         <ul className="flex flex-col gap-2">
                                             {row.map((btn, colIdx) => (
                                                 <li
                                                     key={`btn-${rowIdx}-${colIdx}`}
-                                                    className="grid grid-cols-1 gap-2 rounded-md border p-2 md:grid-cols-[1fr_1fr_1fr_auto]"
+                                                    className="grid grid-cols-1 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 md:grid-cols-[1fr_1fr_1fr_auto]"
                                                 >
                                                     <Input
+                                                        aria-label="Button label"
                                                         value={btn.text}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1660,6 +1679,7 @@ function Composer(props: ComposerProps) {
                                                         placeholder="Button label"
                                                     />
                                                     <Input
+                                                        aria-label="Button URL"
                                                         value={btn.url ?? ''}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1671,9 +1691,10 @@ function Composer(props: ComposerProps) {
                                                                 },
                                                             )
                                                         }
-                                                        placeholder="https://… (optional)"
+                                                        placeholder="https://... (optional)"
                                                     />
                                                     <Input
+                                                        aria-label="Button callback data"
                                                         value={btn.callbackData ?? ''}
                                                         onChange={(e) =>
                                                             onUpdateKeyboardButton(
@@ -1699,9 +1720,8 @@ function Composer(props: ComposerProps) {
                                                             )
                                                         }
                                                         aria-label="Remove button"
-                                                    >
-                                                        <X className="size-4 text-[var(--st-text)]" />
-                                                    </Button>
+                                                        iconLeft={X}
+                                                    />
                                                 </li>
                                             ))}
                                         </ul>
@@ -1713,51 +1733,44 @@ function Composer(props: ComposerProps) {
                             type="button"
                             variant="outline"
                             onClick={onAddKeyboardRow}
+                            iconLeft={Plus}
                         >
-                            <Plus /> Add row
+                            Add row
                         </Button>
                     </Section>
 
                     {/* ── 4. Schedule ───────────────────────────────── */}
                     <Section title="4 · Schedule">
                         <RadioGroup
+                            aria-label="Send timing"
                             value={composer.sendChoice}
                             onValueChange={(v) =>
                                 update('sendChoice', v as 'now' | 'schedule')
                             }
-                            className="flex flex-col gap-2"
                         >
-                            <div className="flex items-center gap-2">
-                                <RadioGroupItem id="send-now" value="now" />
-                                <label htmlFor="send-now" className="text-sm">
-                                    Send now
-                                </label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <RadioGroupItem id="send-sched" value="schedule" />
-                                <label htmlFor="send-sched" className="text-sm">
-                                    Schedule for…
-                                </label>
-                            </div>
+                            <RadioGroupItem value="now" label="Send now" />
+                            <RadioGroupItem value="schedule" label="Schedule for later" />
                         </RadioGroup>
                         {composer.sendChoice === 'schedule' ? (
-                            <Input
-                                type="datetime-local"
-                                value={composer.scheduledLocal}
-                                onChange={(e) =>
-                                    update('scheduledLocal', e.target.value)
-                                }
-                            />
+                            <Field label="Send at">
+                                <Input
+                                    type="datetime-local"
+                                    value={composer.scheduledLocal}
+                                    onChange={(e) =>
+                                        update('scheduledLocal', e.target.value)
+                                    }
+                                />
+                            </Field>
                         ) : null}
                     </Section>
 
                     {/* ── 5. Preview ───────────────────────────────── */}
                     <Section title="5 · Preview">
-                        <div className="rounded-lg border bg-zoru-bg-[var(--st-bg-muted)]/30 p-4">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                             <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                Preview · {composer.parseMode}
+                                Preview, {composer.parseMode}
                             </div>
-                            <pre className="mt-2 whitespace-pre-wrap break-words text-sm">
+                            <pre className="mt-2 whitespace-pre-wrap break-words text-sm text-[var(--st-text)]">
                                 {composer.text || '(empty)'}
                             </pre>
                             {composer.media.length > 0 ? (
@@ -1776,7 +1789,7 @@ function Composer(props: ComposerProps) {
                                             {r.map((b, j) => (
                                                 <span
                                                     key={`pkb-${i}-${j}`}
-                                                    className="rounded-md border bg-white/80 px-2 py-1 text-xs dark:bg-black/40"
+                                                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-xs text-[var(--st-text)]"
                                                 >
                                                     {b.text}
                                                 </span>
@@ -1792,8 +1805,9 @@ function Composer(props: ComposerProps) {
                                 variant="outline"
                                 onClick={onOpenTest}
                                 disabled={!composer.broadcastId}
+                                iconLeft={Send}
                             >
-                                <Send /> Send test
+                                Send test
                             </Button>
                         </div>
                         {!composer.broadcastId ? (
@@ -1804,7 +1818,7 @@ function Composer(props: ComposerProps) {
                     </Section>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-2 border-t p-3">
+                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] p-3">
                     <Button
                         type="button"
                         variant="ghost"
@@ -1817,24 +1831,28 @@ function Composer(props: ComposerProps) {
                         type="button"
                         variant="outline"
                         onClick={onSaveDraft}
-                        disabled={saving}
+                        loading={saving}
                     >
-                        {saving ? <Loader2 className="animate-spin" /> : null}
                         Save draft
                     </Button>
                     {composer.sendChoice === 'schedule' ? (
-                        <Button type="button" onClick={onSchedule} disabled={saving}>
-                            {saving ? <Loader2 className="animate-spin" /> : <CalendarIcon />}
+                        <Button
+                            type="button"
+                            variant="primary"
+                            onClick={onSchedule}
+                            loading={saving}
+                            iconLeft={saving ? undefined : CalendarIcon}
+                        >
                             Save & schedule
                         </Button>
                     ) : (
                         <Button
                             type="button"
+                            variant="primary"
                             onClick={onSendNow}
-                            disabled={saving}
-                            className="bg-[var(--st-text)] text-white"
+                            loading={saving}
+                            iconLeft={saving ? undefined : Send}
                         >
-                            {saving ? <Loader2 className="animate-spin" /> : <Send />}
                             Save & send now
                         </Button>
                     )}
@@ -1846,7 +1864,7 @@ function Composer(props: ComposerProps) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <section className="flex flex-col gap-3 rounded-lg border p-3 md:p-4">
+        <section className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 md:p-4">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {title}
             </h3>
@@ -1929,11 +1947,11 @@ function DetailDrawer(props: DetailDrawerProps) {
             <DrawerContent className="max-h-[92vh]">
                 <DrawerHeader>
                     <DrawerTitle className="flex items-center gap-2">
-                        <Megaphone className="text-[var(--st-text)]" />
+                        <Megaphone className="size-5" aria-hidden="true" />
                         {row.name}
                     </DrawerTitle>
                     <DrawerDescription>
-                        {botName} · created {fmtRelative(row.createdAt)}
+                        {botName}, created {fmtRelative(row.createdAt)}
                     </DrawerDescription>
                 </DrawerHeader>
 
@@ -1966,8 +1984,8 @@ function DetailDrawer(props: DetailDrawerProps) {
                     </div>
 
                     {row.errorSummary ? (
-                        <div className="flex items-start gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
-                            <AlertCircle className="size-4 shrink-0" />
+                        <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-danger)]">
+                            <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
                             <div>
                                 <div className="font-medium">Error</div>
                                 <div className="break-words">
@@ -1987,69 +2005,66 @@ function DetailDrawer(props: DetailDrawerProps) {
                             variant="outline"
                             size="sm"
                             onClick={onExportCsv}
-                            disabled={exporting}
+                            loading={exporting}
+                            iconLeft={exporting ? undefined : Download}
                         >
-                            {exporting ? (
-                                <Loader2 className="size-3.5 animate-spin" />
-                            ) : (
-                                <Download className="size-3.5" />
-                            )}
                             CSV
                         </Button>
                     </div>
 
-                    <div className="overflow-x-auto rounded-md border">
-                        <table className="w-full text-sm">
-                            <thead className="border-b text-left text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                <tr>
-                                    <th className="px-3 py-2">Chat id</th>
-                                    <th className="px-3 py-2">Status</th>
-                                    <th className="px-3 py-2">Error</th>
-                                    <th className="px-3 py-2">Sent at</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th>Chat id</Th>
+                                    <Th>Status</Th>
+                                    <Th>Error</Th>
+                                    <Th>Sent at</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {deliveries.length === 0 ? (
-                                    <tr>
-                                        <td
+                                    <Tr>
+                                        <Td
                                             colSpan={4}
-                                            className="px-3 py-6 text-center text-sm text-[var(--st-text-secondary)]"
+                                            align="center"
+                                            className="py-6 text-sm text-[var(--st-text-secondary)]"
                                         >
                                             {deliveriesLoading
-                                                ? 'Loading…'
+                                                ? 'Loading...'
                                                 : 'No deliveries yet.'}
-                                        </td>
-                                    </tr>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     deliveries.map((d) => (
-                                        <tr key={d._id} className="border-b">
-                                            <td className="px-3 py-2 font-mono text-xs">
+                                        <Tr key={d._id}>
+                                            <Td className="font-mono text-xs">
                                                 {d.chatId}
-                                            </td>
-                                            <td className="px-3 py-2">
+                                            </Td>
+                                            <Td>
                                                 <Badge
                                                     variant={
                                                         d.status === 'sent'
                                                             ? 'success'
                                                             : d.status === 'failed'
-                                                              ? 'danger'
-                                                              : 'ghost'
+                                                              ? 'destructive'
+                                                              : 'secondary'
                                                     }
                                                 >
                                                     {d.status}
                                                 </Badge>
-                                            </td>
-                                            <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-xs text-[var(--st-text-secondary)]">
                                                 {d.errorMessage ?? ''}
-                                            </td>
-                                            <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-xs text-[var(--st-text-secondary)]">
                                                 {fmtDateTime(d.sentAt)}
-                                            </td>
-                                        </tr>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 )}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                     {deliveriesCursor ? (
                         <div className="flex justify-center">
@@ -2058,21 +2073,18 @@ function DetailDrawer(props: DetailDrawerProps) {
                                 variant="outline"
                                 size="sm"
                                 onClick={onLoadMore}
-                                disabled={deliveriesLoading}
+                                loading={deliveriesLoading}
                             >
-                                {deliveriesLoading ? (
-                                    <Loader2 className="animate-spin" />
-                                ) : null}
                                 Load more
                             </Button>
                         </div>
                     ) : null}
                 </div>
 
-                <div className="flex justify-end gap-2 border-t p-3">
+                <div className="flex justify-end gap-2 border-t border-[var(--st-border)] p-3">
                     {(row.status === 'scheduled' || row.status === 'sending') && (
-                        <Button type="button" variant="destructive" onClick={onCancel}>
-                            <XCircle /> Cancel
+                        <Button type="button" variant="danger" onClick={onCancel} iconLeft={XCircle}>
+                            Cancel
                         </Button>
                     )}
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

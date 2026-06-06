@@ -2,25 +2,38 @@
 
 import React, { useState } from "react";
 import {
-  LuFolder,
-  LuFolderOpen,
-  LuSearch,
-  LuPlus,
-  LuChevronRight,
-  LuChevronDown,
-  LuHardDrive,
-  LuActivity,
-  LuFileText,
-  LuClock,
-  LuSettings
-} from "react-icons/lu";
+  Folder,
+  FolderOpen,
+  Search,
+  Plus,
+  ChevronRight,
+  ChevronDown,
+  HardDrive,
+  Activity,
+  Clock,
+  Settings,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  Button,
+  IconButton,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from "@/components/sabcrm/20ui";
 
 type FolderNode = {
   id: string;
@@ -52,8 +65,8 @@ const mockFolders: FolderNode[] = [
         color: "#f59e0b",
         flowsCount: 5,
         lastUpdated: "3 hours ago",
-      }
-    ]
+      },
+    ],
   },
   {
     id: "f2",
@@ -75,8 +88,8 @@ const mockFolders: FolderNode[] = [
             color: "#3b82f6",
             flowsCount: 2,
             lastUpdated: "4 days ago",
-          }
-        ]
+          },
+        ],
       },
       {
         id: "f2-2",
@@ -84,8 +97,8 @@ const mockFolders: FolderNode[] = [
         color: "#3b82f6",
         flowsCount: 4,
         lastUpdated: "5 hours ago",
-      }
-    ]
+      },
+    ],
   },
   {
     id: "f3",
@@ -100,70 +113,71 @@ const mockFolders: FolderNode[] = [
     color: "#8b5cf6",
     flowsCount: 7,
     lastUpdated: "12 mins ago",
-  }
+  },
 ];
 
 export default function FoldersPage() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    "f1": true,
-    "f2": true,
+    f1: true,
+    f2: true,
     "f2-1": false,
   });
 
   const toggleExpand = (id: string) => {
-    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const renderFolderRows = (nodes: FolderNode[], level = 0): React.ReactNode[] => {
     let rows: React.ReactNode[] = [];
-    
-    nodes.forEach(node => {
+
+    nodes.forEach((node) => {
       const isExpanded = expanded[node.id];
       const hasChildren = node.children && node.children.length > 0;
-      
+
       rows.push(
-        <Tr key={node.id} className="group hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+        <Tr key={node.id} className="group">
           <Td className="w-[300px]">
-            <div 
+            <div
               className="flex items-center gap-2"
               style={{ paddingLeft: `${level * 24}px` }}
             >
-              <button 
-                className={cn(
-                  "p-0.5 rounded-md hover:bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]",
-                  !hasChildren && "invisible"
-                )}
+              <IconButton
+                label={isExpanded ? "Collapse folder" : "Expand folder"}
+                icon={isExpanded ? ChevronDown : ChevronRight}
+                size="sm"
                 onClick={() => toggleExpand(node.id)}
-              >
-                {isExpanded ? <LuChevronDown className="h-4 w-4" /> : <LuChevronRight className="h-4 w-4" />}
-              </button>
-              
-              <div 
-                className="flex h-8 w-8 items-center justify-center rounded-md shrink-0"
+                className={cn(!hasChildren && "invisible")}
+              />
+
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] shrink-0"
                 style={{ backgroundColor: `${node.color}1a`, color: node.color }}
+                aria-hidden="true"
               >
-                {isExpanded && hasChildren ? <LuFolderOpen className="h-4 w-4" /> : <LuFolder className="h-4 w-4" />}
+                {isExpanded && hasChildren ? (
+                  <FolderOpen className="h-4 w-4" />
+                ) : (
+                  <Folder className="h-4 w-4" />
+                )}
               </div>
-              <span className="font-medium truncate text-[14px]">
+              <span className="font-medium truncate text-[14px] text-[var(--st-text)]">
                 {node.name}
               </span>
             </div>
           </Td>
           <Td>
             <Badge variant="secondary" className="font-normal text-[12px]">
-              {node.flowsCount} {node.flowsCount === 1 ? 'flow' : 'flows'}
+              {node.flowsCount} {node.flowsCount === 1 ? "flow" : "flows"}
             </Badge>
           </Td>
           <Td className="text-[var(--st-text-secondary)] text-[13px]">
             {node.lastUpdated}
           </Td>
-          <Td className="text-right">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)]">
-              <LuSettings className="h-4 w-4" />
-            </Button>
+          <Td align="right">
+            <IconButton label="Folder settings" icon={Settings} size="sm" />
           </Td>
-        </Tr>
+        </Tr>,
       );
 
       if (isExpanded && hasChildren) {
@@ -175,93 +189,62 @@ export default function FoldersPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6 lg:p-8 max-w-[1400px] mx-auto w-full h-full animate-in fade-in duration-500">
-      
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Folders & Organization</h1>
-          <p className="text-[var(--st-text-secondary)] text-sm mt-1">
+    <div className="flex flex-col gap-8 p-6 lg:p-8 max-w-[1400px] mx-auto w-full h-full">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Folders and Organization</PageTitle>
+          <PageDescription>
             Manage your SabFlow automations with nested folders and tags.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2">
-            <LuFolderOpen className="h-4 w-4" />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={FolderOpen}>
             Expand All
           </Button>
-          <Button variant="default" className="gap-2">
-            <LuPlus className="h-4 w-4" />
+          <Button variant="primary" iconLeft={Plus}>
             New Folder
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Folders</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <LuFolder className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">14</div>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">+2 from last month</p>
-          </CardBody>
-        </Card>
-
-        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Active Flows</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <LuActivity className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">51</div>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Spread across 4 root folders</p>
-          </CardBody>
-        </Card>
-
-        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Storage Used</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <LuHardDrive className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">1.2 GB</div>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Of 10 GB limit</p>
-          </CardBody>
-        </Card>
-
-        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Recent Activity</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <LuClock className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="text-2xl font-bold">12 mins</div>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Last flow update</p>
-          </CardBody>
-        </Card>
+        <StatCard
+          label="Total Folders"
+          value="14"
+          icon={Folder}
+          delta={{ value: "+2 from last month", tone: "up" }}
+        />
+        <StatCard
+          label="Active Flows"
+          value="51"
+          icon={Activity}
+          delta={{ value: "Across 4 root folders", tone: "neutral" }}
+        />
+        <StatCard
+          label="Storage Used"
+          value="1.2 GB"
+          icon={HardDrive}
+          delta={{ value: "Of 10 GB limit", tone: "neutral" }}
+        />
+        <StatCard
+          label="Recent Activity"
+          value="12 mins"
+          icon={Clock}
+          delta={{ value: "Last flow update", tone: "neutral" }}
+        />
       </div>
 
       {/* Main Data Section */}
-      <Card className="flex flex-col shadow-md border-[var(--st-border)]/40">
-        <div className="p-4 border-b border-[var(--st-border)]/40 flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--st-bg-muted)]/20">
-          <div className="relative w-full sm:w-72">
-            <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-            <Input 
-              placeholder="Search folders..." 
+      <Card padding="none" className="flex flex-col">
+        <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--st-bg-muted)]">
+          <div className="w-full sm:w-72">
+            <Input
+              placeholder="Search folders..."
+              aria-label="Search folders"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-[var(--st-bg-secondary)]"
+              iconLeft={Search}
             />
           </div>
           <div className="flex items-center gap-2">
@@ -270,19 +253,17 @@ export default function FoldersPage() {
             </Badge>
           </div>
         </div>
-        
+
         <Table>
           <THead>
-            <Tr className="hover:bg-transparent">
-              <Th className="w-[300px]">Folder Name</Th>
+            <Tr>
+              <Th width={300}>Folder Name</Th>
               <Th>Contents</Th>
               <Th>Last Updated</Th>
-              <Th className="text-right">Actions</Th>
+              <Th align="right">Actions</Th>
             </Tr>
           </THead>
-          <TBody>
-            {renderFolderRows(mockFolders)}
-          </TBody>
+          <TBody>{renderFolderRows(mockFolders)}</TBody>
         </Table>
       </Card>
     </div>

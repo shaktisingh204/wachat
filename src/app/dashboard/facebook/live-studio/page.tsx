@@ -1,6 +1,7 @@
 "use client";
 
 import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DatePicker, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton, type SabFilePick } from "@/components/sabfiles";
 import {
   useActionState,
   useCallback,
@@ -20,11 +21,11 @@ import {
   Circle,
   Clock,
   ExternalLink,
+  FileVideo,
   LoaderCircle,
   PlayCircle,
   Radio,
   StopCircle,
-  Upload,
   Video,
   } from "lucide-react";
 
@@ -37,15 +38,17 @@ import type { FacebookLiveStream,
   WithId } from "@/lib/definitions";
 
 /**
- * /dashboard/facebook/live-studio — Live broadcast launcher, ZoruUI rebuild.
+ * /dashboard/facebook/live-studio - Live broadcast launcher, 20ui rebuild.
  *
  * Same handlers + server actions as before
  * (getScheduledLiveStreams, handleScheduleLiveStream).
  *
  * The original page only schedules a premiere from a pre-recorded video.
  * This rebuild keeps that flow intact and layers on a neutral pre-broadcast
- * checklist (`ZoruAlert`s + completion state) plus start/stop confirm
- * `AlertDialog`s as required by Phase 3.
+ * checklist (20ui Alerts + completion state) plus start/stop confirm
+ * AlertDialogs as required by Phase 3. The video source is SabFiles: the
+ * user picks (or uploads) a video through the SabFiles picker, which hands
+ * back a real File that is submitted under the form's `videoFile` field.
  */
 
 import * as React from "react";
@@ -55,7 +58,7 @@ import { NoProjectState } from "../_components/no-project-state";
 type ScheduleState = { message?: string; error?: string };
 const INITIAL_SCHEDULE_STATE: ScheduleState = {};
 
-/* ── Skeleton ─────────────────────────────────────────────────────── */
+/* -- Skeleton ----------------------------------------------------------- */
 
 function LiveStudioSkeleton() {
   return (
@@ -77,40 +80,42 @@ function LiveStudioSkeleton() {
   );
 }
 
-/* ── Submit button (uses useFormStatus from form action) ──────────── */
+/* -- Submit button (uses useFormStatus from form action) ---------------- */
 
 function ScheduleSubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={disabled || pending} size="lg">
-      {pending ? (
-        <LoaderCircle className="animate-spin" />
-      ) : (
-        <CalendarIcon />
-      )}
+    <Button
+      type="submit"
+      variant="primary"
+      size="lg"
+      disabled={disabled || pending}
+      loading={pending}
+      iconLeft={pending ? undefined : CalendarIcon}
+    >
       Schedule premiere
     </Button>
   );
 }
 
-/* ── Status badge mapping ─────────────────────────────────────────── */
+/* -- Status badge mapping ----------------------------------------------- */
 
 function StatusBadge({ status }: { status: FacebookLiveStream["status"] }) {
   const label = status.replace(/_/g, " ").toLowerCase();
   if (status === "LIVE") {
     return (
-      <Badge variant="success">
-        <Radio /> {label}
+      <Badge variant="success" dot>
+        {label}
       </Badge>
     );
   }
   if (status === "VOD") {
-    return <Badge variant="ghost">{label}</Badge>;
+    return <Badge variant="outline">{label}</Badge>;
   }
   return <Badge variant="secondary">{label}</Badge>;
 }
 
-/* ── Page ─────────────────────────────────────────────────────────── */
+/* -- Page --------------------------------------------------------------- */
 
 export default function LiveStudioPage() {
   const { activeProject, isLoadingProject } = useProject();
@@ -119,6 +124,7 @@ export default function LiveStudioPage() {
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
   const [scheduledTime, setScheduledTime] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPick, setVideoPick] = useState<SabFilePick | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -128,6 +134,9 @@ export default function LiveStudioPage() {
     useState<WithId<FacebookLiveStream> | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
+  // Hidden file input that carries the SabFiles-picked File into the form,
+  // so the server action keeps reading `videoFile` as a File with no change.
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const [state, formAction] = useActionState(
@@ -136,6 +145,25 @@ export default function LiveStudioPage() {
   );
 
   const projectId = activeProject?._id?.toString() ?? null;
+
+  // Push the SabFiles-picked File into the hidden form input's FileList.
+  const setVideo = useCallback((file: File, pick: SabFilePick) => {
+    setVideoFile(file);
+    setVideoPick(pick);
+    const input = videoInputRef.current;
+    if (input) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    }
+  }, []);
+
+  const clearVideo = useCallback(() => {
+    setVideoFile(null);
+    setVideoPick(null);
+    const input = videoInputRef.current;
+    if (input) input.files = new DataTransfer().files;
+  }, []);
 
   const fetchStreams = useCallback(() => {
     if (!projectId) return;
@@ -146,7 +174,7 @@ export default function LiveStudioPage() {
   }, [projectId]);
 
   useEffect(() => {
-    document.title = "Live Studio · Meta Suite · SabNode";
+    document.title = "Live Studio - Meta Suite - SabNode";
   }, []);
 
   useEffect(() => {
@@ -160,7 +188,7 @@ export default function LiveStudioPage() {
       formRef.current?.reset();
       setScheduledDate(undefined);
       setScheduledTime("");
-      setVideoFile(null);
+      clearVideo();
       setTitle("");
       setDescription("");
       setStartConfirmOpen(false);
@@ -173,7 +201,7 @@ export default function LiveStudioPage() {
       });
       setStartConfirmOpen(false);
     }
-  }, [state, toast, fetchStreams]);
+  }, [state, toast, fetchStreams, clearVideo]);
 
   // Pre-broadcast checklist drives the start-stream button.
   const checklist = useMemo(
@@ -226,15 +254,17 @@ export default function LiveStudioPage() {
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Badge variant="secondary">
-            <Video />
+          <Badge tone="neutral">
+            <Video size={13} aria-hidden="true" />
             {streams.length} stream{streams.length === 1 ? "" : "s"}
           </Badge>
           <Button
+            variant="primary"
+            iconLeft={PlayCircle}
             onClick={() => setStartConfirmOpen(true)}
             disabled={!allChecksOk}
           >
-            <PlayCircle /> Start premiere
+            Start premiere
           </Button>
         </PageActions>
       </PageHeader>
@@ -244,11 +274,11 @@ export default function LiveStudioPage() {
           <NoProjectState />
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* ─── Schedule form + checklist (left, 2 cols) ─── */}
+            {/* Schedule form + checklist (left, 2 cols) */}
             <div className="flex flex-col gap-6 lg:col-span-2">
               <PreflightChecklist items={checklist} allOk={allChecksOk} />
 
-              <Card variant="elevated">
+              <Card variant="elevated" padding="none">
                 <div className="flex flex-col gap-1.5 p-6 pb-4">
                   <h2 className="text-base font-semibold tracking-tight text-[var(--st-text)]">
                     Schedule a premiere
@@ -272,45 +302,67 @@ export default function LiveStudioPage() {
                       value={scheduledDate.toISOString().split("T")[0]}
                     />
                   )}
+                  {/* Carries the SabFiles-picked File into the form submission. */}
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    name="videoFile"
+                    accept="video/mp4,video/quicktime"
+                    className="hidden"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
 
                   {state?.error && (
-                    <Alert variant="destructive">
-                      <AlertTriangle />
-                      <AlertTitle>Couldn’t schedule stream</AlertTitle>
+                    <Alert variant="destructive" icon={AlertTriangle}>
+                      <AlertTitle>Could not schedule stream</AlertTitle>
                       <AlertDescription>{state.error}</AlertDescription>
                     </Alert>
                   )}
 
-                  {/* Video uploader */}
+                  {/* Video source (SabFiles) */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="videoFile" required>
-                      Video file
-                    </Label>
-                    <label
-                      htmlFor="videoFile"
-                      className="flex flex-col items-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] focus-within:border-[var(--st-text)]"
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                        <Upload className="h-5 w-5" />
-                      </span>
-                      <span className="text-sm font-medium text-[var(--st-text)]">
-                        {videoFile ? videoFile.name : "Click to pick a video"}
-                      </span>
-                      <span className="text-xs text-[var(--st-text-secondary)]">
-                        MP4 / MOV — up to 50 MB
-                      </span>
-                      <input
-                        id="videoFile"
-                        name="videoFile"
-                        type="file"
-                        accept="video/mp4,video/quicktime"
-                        required
-                        className="sr-only"
-                        onChange={(e) =>
-                          setVideoFile(e.target.files?.[0] ?? null)
-                        }
-                      />
-                    </label>
+                    <Label required>Video file</Label>
+                    {videoPick ? (
+                      <div className="flex items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                            <FileVideo className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-[var(--st-text)]">
+                              {videoPick.name}
+                            </p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">
+                              Ready to schedule
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearVideo}
+                        >
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8 text-center">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                          <FileVideo className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <SabFileToFileButton
+                          accept="video"
+                          onPickFile={setVideo}
+                        >
+                          Choose a video
+                        </SabFileToFileButton>
+                        <span className="text-xs text-[var(--st-text-secondary)]">
+                          MP4 or MOV, up to 50 MB
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -334,7 +386,7 @@ export default function LiveStudioPage() {
                       name="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Tell viewers what to expect…"
+                      placeholder="Tell viewers what to expect..."
                       rows={3}
                     />
                   </div>
@@ -346,6 +398,7 @@ export default function LiveStudioPage() {
                         value={scheduledDate}
                         onChange={setScheduledDate}
                         placeholder="Pick a date"
+                        aria-label="Premiere date"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -370,7 +423,7 @@ export default function LiveStudioPage() {
               </Card>
             </div>
 
-            {/* ─── Active streams panel (right, 1 col) ─── */}
+            {/* Active streams panel (right, 1 col) */}
             <ActiveStreamsPanel
               streams={streams}
               isLoading={isLoading}
@@ -380,7 +433,7 @@ export default function LiveStudioPage() {
         )}
       </div>
 
-      {/* ── Start-stream confirm dialog ─────────────────────────── */}
+      {/* Start-stream confirm dialog */}
       <AlertDialog
         open={startConfirmOpen}
         onOpenChange={setStartConfirmOpen}
@@ -396,25 +449,29 @@ export default function LiveStudioPage() {
                   ? format(scheduledDate, "PPP")
                   : "the chosen date"}
               </strong>{" "}
-              at <strong className="text-[var(--st-text)]">{scheduledTime || "—"}</strong>
-              . You can’t cancel from this dialog after upload starts.
+              at{" "}
+              <strong className="text-[var(--st-text)]">
+                {scheduledTime || "the chosen time"}
+              </strong>
+              . You cannot cancel from this dialog after upload starts.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              intent="primary"
               onClick={() => {
-                // Submit the schedule form — the action handles upload + DB write.
+                // Submit the schedule form. The action handles upload + DB write.
                 formRef.current?.requestSubmit();
               }}
             >
-              <PlayCircle /> Start premiere
+              <PlayCircle size={14} aria-hidden="true" /> Start premiere
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ── Stop-stream confirm dialog ──────────────────────────── */}
+      {/* Stop-stream confirm dialog */}
       <AlertDialog
         open={!!stopConfirmTarget}
         onOpenChange={(open) => !open && setStopConfirmTarget(null)}
@@ -438,9 +495,8 @@ export default function LiveStudioPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Keep broadcasting</AlertDialogCancel>
             <AlertDialogAction
-              destructive
               onClick={() => {
-                // No native "stop" server action — surface a hint via toast
+                // No native "stop" server action - surface a hint via toast
                 // and link out so the user can finish the stream on Facebook.
                 if (stopConfirmTarget) {
                   toast({
@@ -459,7 +515,7 @@ export default function LiveStudioPage() {
                 setStopConfirmTarget(null);
               }}
             >
-              <StopCircle /> End broadcast
+              <StopCircle size={14} aria-hidden="true" /> End broadcast
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -468,7 +524,7 @@ export default function LiveStudioPage() {
   );
 }
 
-/* ── Preflight checklist ──────────────────────────────────────────── */
+/* -- Preflight checklist ------------------------------------------------ */
 
 function PreflightChecklist({
   items,
@@ -478,8 +534,10 @@ function PreflightChecklist({
   allOk: boolean;
 }) {
   return (
-    <Alert variant={allOk ? "success" : "info"}>
-      {allOk ? <CheckCircle2 /> : <AlertTriangle />}
+    <Alert
+      variant={allOk ? "success" : "info"}
+      icon={allOk ? CheckCircle2 : AlertTriangle}
+    >
       <AlertTitle>
         {allOk ? "Ready to go live" : "Pre-broadcast checklist"}
       </AlertTitle>
@@ -491,9 +549,15 @@ function PreflightChecklist({
               className="flex items-center gap-2 text-[13px] text-[var(--st-text)]"
             >
               {item.ok ? (
-                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
+                <CheckCircle2
+                  className="h-3.5 w-3.5 text-[var(--st-status-ok)]"
+                  aria-hidden="true"
+                />
               ) : (
-                <Circle className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
+                <Circle
+                  className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]"
+                  aria-hidden="true"
+                />
               )}
               <span
                 className={cn(item.ok ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]")}
@@ -508,7 +572,7 @@ function PreflightChecklist({
   );
 }
 
-/* ── Active streams panel ─────────────────────────────────────────── */
+/* -- Active streams panel ----------------------------------------------- */
 
 function ActiveStreamsPanel({
   streams,
@@ -525,10 +589,10 @@ function ActiveStreamsPanel({
   return (
     <div className="flex flex-col gap-4">
       {live.length > 0 && (
-        <Card variant="elevated" className="p-5">
+        <Card variant="elevated" padding="none" className="p-5">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)]">
-              <Radio className="h-4 w-4" />
+              <Radio className="h-4 w-4" aria-hidden="true" />
             </span>
             <div>
               <p className="text-[11px] uppercase tracking-wide text-[var(--st-status-ok)]">
@@ -555,10 +619,11 @@ function ActiveStreamsPanel({
                 </div>
                 <Button
                   size="sm"
-                  variant="destructive"
+                  variant="danger"
+                  iconLeft={StopCircle}
                   onClick={() => onStop(stream)}
                 >
-                  <StopCircle /> End
+                  End
                 </Button>
               </li>
             ))}
@@ -566,7 +631,7 @@ function ActiveStreamsPanel({
         </Card>
       )}
 
-      <Card variant="elevated">
+      <Card variant="elevated" padding="none">
         <div className="flex items-center justify-between gap-2 p-5 pb-3">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
@@ -577,14 +642,17 @@ function ActiveStreamsPanel({
             </p>
           </div>
           {isLoading && (
-            <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-tertiary)]" />
+            <LoaderCircle
+              className="h-4 w-4 animate-spin text-[var(--st-text-tertiary)]"
+              aria-hidden="true"
+            />
           )}
         </div>
         <div className="border-t border-[var(--st-border)]">
           {streams.length === 0 ? (
             <EmptyState
-              compact
-              icon={<Clock />}
+              size="sm"
+              icon={Clock}
               title="No streams scheduled"
               description="Schedule your first premiere using the form on the left."
               className="rounded-none border-0"
@@ -609,7 +677,10 @@ function ActiveStreamsPanel({
                         className="inline-flex items-center gap-1 text-[var(--st-text)] hover:underline"
                       >
                         {stream.title}
-                        <ExternalLink className="h-3 w-3 text-[var(--st-text-tertiary)]" />
+                        <ExternalLink
+                          className="h-3 w-3 text-[var(--st-text-tertiary)]"
+                          aria-hidden="true"
+                        />
                       </Link>
                     </Td>
                     <Td className="text-[11.5px] text-[var(--st-text-secondary)]">
@@ -627,8 +698,7 @@ function ActiveStreamsPanel({
       </Card>
 
       {upcoming.length > 0 && live.length === 0 && (
-        <Alert variant="info">
-          <Clock />
+        <Alert variant="info" icon={Clock}>
           <AlertTitle>
             {upcoming.length} upcoming premiere{upcoming.length === 1 ? "" : "s"}
           </AlertTitle>

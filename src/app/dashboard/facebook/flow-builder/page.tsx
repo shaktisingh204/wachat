@@ -1,6 +1,49 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertTitle,
+  Badge,
+  type BadgeTone,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  toast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -28,12 +71,12 @@ import type { FacebookFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 /**
- * /dashboard/facebook/flow-builder — Messenger flow drafts.
+ * /dashboard/facebook/flow-builder - Messenger flow drafts.
  *
  * Lists Facebook Messenger flows (name, status, message count, updatedAt)
  * with a "New flow" dialog that creates an empty draft via
  * `saveFacebookFlow` and routes into the existing SabFlow editor
- * (`/dashboard/sabflow?facebookFlowId=…`) — we don't reinvent the editor.
+ * (`/dashboard/sabflow?facebookFlowId=...`) - we don't reinvent the editor.
  *
  * Server actions are in `@/app/actions/facebook-flow.actions`.
  */
@@ -53,12 +96,12 @@ function safeWhen(iso?: string | Date): string {
   return formatDistanceToNow(d, { addSuffix: true });
 }
 
-function statusVariant(s?: string): 'success' | 'warning' | 'ghost' | 'info' {
-  if (!s) return 'ghost';
+function statusTone(s?: string): BadgeTone {
+  if (!s) return 'neutral';
   const v = s.toLowerCase();
   if (v === 'published' || v === 'live' || v === 'active') return 'success';
   if (v === 'draft') return 'warning';
-  if (v === 'archived') return 'ghost';
+  if (v === 'archived') return 'neutral';
   return 'info';
 }
 
@@ -145,7 +188,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<Workflow />}
+          icon={<Workflow aria-hidden="true" />}
           title="No project selected"
           description="Pick a project to manage its Messenger flows."
         />
@@ -171,29 +214,36 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Flow Builder</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Flow Builder</PageTitle>
+          <PageDescription>
             Messenger flows for the connected Page. Pick a flow to open it in
             the SabFlow editor.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={refresh} disabled={loading}>
-            <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="ghost"
+            onClick={refresh}
+            disabled={loading}
+            iconLeft={RefreshCw}
+          >
             Refresh
           </Button>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button
+            variant="primary"
+            onClick={() => setCreateOpen(true)}
+            iconLeft={Plus}
+          >
             New flow
           </Button>
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle />
+          <AlertCircle aria-hidden="true" />
           <AlertTitle>Could not load flows</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -207,12 +257,12 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
         </div>
       ) : flows.length === 0 ? (
         <EmptyState
-          icon={<Workflow />}
+          icon={<Workflow aria-hidden="true" />}
           title="No flows yet"
           description="Create your first Messenger flow to automate replies and routing."
           action={
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> New flow
+            <Button variant="primary" onClick={() => setCreateOpen(true)} iconLeft={Plus}>
+              New flow
             </Button>
           }
         />
@@ -225,50 +275,56 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             return (
               <li key={id}>
                 <Card className="flex items-center gap-3 p-3">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    block
                     onClick={() => router.push(editorHref(id))}
-                    className="flex flex-1 items-center gap-3 text-left"
+                    className="!h-auto flex-1 !justify-start !px-0 text-left"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                      <Workflow className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-base text-[var(--st-text)]">
-                        {f.name}
-                      </p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
-                        <span>{msgCount} steps</span>
-                        {f.triggerKeywords?.length ? (
-                          <span>
-                            {f.triggerKeywords.length} trigger keyword
-                            {f.triggerKeywords.length === 1 ? '' : 's'}
-                          </span>
-                        ) : null}
-                        {f.updatedAt ? (
-                          <span>Updated {safeWhen(f.updatedAt)}</span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <Badge variant={statusVariant(status)} className="capitalize">
-                      {status.toLowerCase()}
-                    </Badge>
-                  </button>
+                    <span className="flex w-full items-center gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                        <Workflow className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="line-clamp-1 block text-base text-[var(--st-text)]">
+                          {f.name}
+                        </span>
+                        <span className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
+                          <span>{msgCount} steps</span>
+                          {f.triggerKeywords?.length ? (
+                            <span>
+                              {f.triggerKeywords.length} trigger keyword
+                              {f.triggerKeywords.length === 1 ? '' : 's'}
+                            </span>
+                          ) : null}
+                          {f.updatedAt ? (
+                            <span>Updated {safeWhen(f.updatedAt)}</span>
+                          ) : null}
+                        </span>
+                      </span>
+                      <Badge tone={statusTone(status)} className="capitalize">
+                        {status.toLowerCase()}
+                      </Badge>
+                    </span>
+                  </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm" aria-label="Flow actions">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <IconButton
+                        variant="ghost"
+                        size="sm"
+                        icon={MoreHorizontal}
+                        label="Flow actions"
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onSelect={() => router.push(editorHref(id))}>
-                        <ArrowUpRight className="mr-2 h-4 w-4" /> Open in editor
+                        <ArrowUpRight className="mr-2 h-4 w-4" aria-hidden="true" /> Open in editor
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => setConfirmDelete(f)}
                         className="text-[var(--st-danger)]"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete flow
+                        <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" /> Delete flow
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -279,7 +335,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
         </ul>
       )}
 
-      {/* ── New flow dialog ── */}
+      {/* New flow dialog */}
       <Dialog
         open={createOpen}
         onOpenChange={(open) => {
@@ -295,16 +351,14 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
               editor.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-1.5">
-            <Label htmlFor="flow-name">Name</Label>
+          <Field label="Name" id="flow-name">
             <Input
-              id="flow-name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="e.g. New customer welcome"
               autoFocus
             />
-          </div>
+          </Field>
           <DialogFooter>
             <Button
               type="button"
@@ -316,16 +370,18 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
             </Button>
             <Button
               type="button"
+              variant="primary"
               onClick={onCreate}
-              disabled={submitting || !newName.trim()}
+              loading={submitting}
+              disabled={!newName.trim()}
             >
-              {submitting ? 'Creating…' : 'Create flow'}
+              {submitting ? 'Creating...' : 'Create flow'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ── Delete confirmation ── */}
+      {/* Delete confirmation */}
       <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(open) => !open && setConfirmDelete(null)}
@@ -341,7 +397,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Keep flow</AlertDialogCancel>
             <AlertDialogAction onClick={onConfirmDelete} disabled={deleting}>
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

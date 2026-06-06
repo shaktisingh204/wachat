@@ -1,7 +1,7 @@
 /**
  * Version history timeline for a deck.
  *
- * Restore is intentionally not wired up yet — the Rust crate
+ * Restore is intentionally not wired up yet. The Rust crate
  * `sabshow-versions` only stores metadata (the deck-tree blob lives in
  * SabFiles). The TS replay coordinator hasn't landed; until it does the
  * "Restore" button just shows a toast (see `_history-actions.tsx`).
@@ -9,9 +9,16 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { Button } from '@/components/sabcrm/20ui';
-import { Card } from '@/components/sabcrm/20ui';
-import { EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 import {
     getSabshowDeck,
     listSabshowVersions,
@@ -30,16 +37,18 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
     const versions = await listSabshowVersions(deckId);
 
     return (
-        <div className="zoruui mx-auto w-full max-w-3xl space-y-4 p-6">
-            <header className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-xl font-semibold">{deck.title}</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">Version history</p>
-                </div>
-                <Button variant="outline" asChild>
-                    <Link href={`/dashboard/sabshow/${deckId}`}>Back to editor</Link>
-                </Button>
-            </header>
+        <div className="ui20 mx-auto w-full max-w-3xl space-y-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>{deck.title}</PageTitle>
+                    <PageDescription>Version history</PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href={`/dashboard/sabshow/${deckId}`}>
+                        <Button variant="outline">Back to editor</Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
             {versions.length === 0 ? (
                 <EmptyState
@@ -50,11 +59,11 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
                 <ul className="space-y-2">
                     {versions.map((v) => (
                         <li key={v._id}>
-                            <Card className="flex items-center justify-between gap-3 p-3">
+                            <Card className="flex items-center justify-between gap-3" padding="sm">
                                 <div>
-                                    <div className="text-sm font-medium">
+                                    <div className="text-sm font-medium text-[var(--st-text)]">
                                         v{v.version}
-                                        {v.comment ? ` — ${v.comment}` : ''}
+                                        {v.comment ? `, ${v.comment}` : ''}
                                     </div>
                                     <div className="text-xs text-[var(--st-text-secondary)]">
                                         {new Date(v.savedAt).toLocaleString()}
@@ -64,7 +73,7 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
                                     size="sm"
                                     variant="outline"
                                     disabled
-                                    title="Restore is deferred — see sabshow-versions docs"
+                                    title="Restore is deferred, see sabshow-versions docs"
                                 >
                                     Restore (soon)
                                 </Button>

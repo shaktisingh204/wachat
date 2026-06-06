@@ -1,11 +1,26 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge } from '@/components/sabcrm/20ui';
-import { useState, useRef } from 'react';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
+import { useState } from 'react';
 import Papa from 'papaparse';
 
-import { Database, Upload, Lock, Sparkles, Download, Layers, Trash2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Database, Lock, Sparkles, Download, Layers, Trash2 } from 'lucide-react';
 
 const STOP_WORDS = new Set(["a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "is", "are", "was", "were", "it", "this", "that", "by", "from", "how", "what", "where", "when", "why"]);
 
@@ -15,10 +30,10 @@ function extractWords(text: string): string[] {
 
 function vectorBasedClustering(keywords: string[], similarityThreshold = 0.3): Record<string, string[]> {
     if (!keywords.length) return {};
-    
+
     const termFreqs: Record<string, number>[] = [];
     const docFreq: Record<string, number> = {};
-    
+
     keywords.forEach(kw => {
         const words = extractWords(kw);
         const finalWords = words.length > 0 ? words : kw.toLowerCase().split(/[\W_]+/).filter(w => w.length > 0);
@@ -107,7 +122,7 @@ function vectorBasedClustering(keywords: string[], similarityThreshold = 0.3): R
     const result: Record<string, string[]> = {};
     for (const c of clusters) {
         const clusterKeywords = c.indices.map(idx => keywords[idx]);
-        
+
         const center = c.center;
         const topWords = vocab
             .map((w, idx) => ({ word: w, score: center[idx] }))
@@ -115,12 +130,12 @@ function vectorBasedClustering(keywords: string[], similarityThreshold = 0.3): R
             .slice(0, 2)
             .filter(x => x.score > 0)
             .map(x => x.word.charAt(0).toUpperCase() + x.word.slice(1));
-        
+
         let clusterName = "Uncategorized";
         if (topWords.length > 0) {
             clusterName = topWords.join(" ");
         }
-        
+
         let finalName = clusterName;
         let count = 1;
         while (result[finalName]) {
@@ -134,13 +149,12 @@ function vectorBasedClustering(keywords: string[], similarityThreshold = 0.3): R
 }
 
 export function PseoClient({ projectId }: { projectId: string }) {
+    void projectId;
+    const { toast } = useToast();
     const [file, setFile] = useState<File | null>(null);
     const [keywords, setKeywords] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [clusters, setClusters] = useState<Record<string, string[]> | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
-
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const parseFile = (uploaded: File) => {
         Papa.parse(uploaded, {
@@ -148,49 +162,23 @@ export function PseoClient({ projectId }: { projectId: string }) {
             complete: (results) => {
                 const kws = (results.data as unknown[][]).map(row => String(row[0] || '')).filter(Boolean);
                 if (kws.length === 0) {
-                    toast({ title: 'Error', description: 'No valid keywords found in the first column.', variant: 'destructive' });
+                    toast({ title: 'No keywords found', description: 'No valid keywords were found in the first column.', tone: 'danger' });
                     return;
                 }
                 setKeywords(kws);
                 setFile(uploaded);
                 setClusters(null); // reset clusters on new file
-                toast({ title: 'CSV Loaded', description: `Found ${kws.length} keywords.` });
+                toast({ title: 'CSV loaded', description: `Found ${kws.length} keywords.`, tone: 'success' });
             },
             error: (err: unknown) => {
                 const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-                toast({ title: 'Error', description: errorMsg, variant: 'destructive' });
+                toast({ title: 'Could not read file', description: errorMsg, tone: 'danger' });
             }
         });
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const uploaded = e.target.files?.[0];
-        if (!uploaded) return;
-        parseFile(uploaded);
-        // Reset input so the same file can be uploaded again if needed
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const droppedFile = e.dataTransfer.files?.[0];
-        if (droppedFile && droppedFile.type === 'text/csv') {
-            parseFile(droppedFile);
-        } else if (droppedFile) {
-            toast({ title: 'Invalid File', description: 'Please upload a valid CSV file.', variant: 'destructive' });
-        }
+    const handlePickFile = (picked: File) => {
+        parseFile(picked);
     };
 
     const handleClear = () => {
@@ -202,7 +190,7 @@ export function PseoClient({ projectId }: { projectId: string }) {
     const handleCluster = async () => {
         if (!keywords.length) return;
         setLoading(true);
-        
+
         try {
             // First attempt to use the real vector-based semantic clustering API
             const res = await fetch(`/api/v1/seo/ai/keyword-clusters`, {
@@ -212,13 +200,13 @@ export function PseoClient({ projectId }: { projectId: string }) {
                 },
                 body: JSON.stringify({ keywords }),
             });
-            
+
             if (!res.ok) {
                 throw new Error('API unavailable, falling back to local vector clustering.');
             }
-            
+
             const data = await res.json();
-            
+
             let resultClusters: Record<string, string[]> | null = null;
             if (data && typeof data === 'object') {
                 if (data.clusters) {
@@ -230,11 +218,11 @@ export function PseoClient({ projectId }: { projectId: string }) {
 
             if (resultClusters && Object.keys(resultClusters).length > 0) {
                 setClusters(resultClusters);
-                toast({ title: 'Clustering Complete', description: `Generated API vector-based clusters successfully.` });
+                toast({ title: 'Clustering complete', description: 'Generated API vector-based clusters successfully.', tone: 'success' });
                 return;
             }
             throw new Error('Invalid API response, falling back to local vector clustering.');
-            
+
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : 'Unknown error';
             console.warn(msg);
@@ -242,7 +230,7 @@ export function PseoClient({ projectId }: { projectId: string }) {
             await new Promise(r => setTimeout(r, 10)); // Allow UI to render loading state
             const fallbackData = vectorBasedClustering(keywords);
             setClusters(fallbackData);
-            toast({ title: 'Clustering Complete', description: `Grouped keywords (local vector clustering).` });
+            toast({ title: 'Clustering complete', description: 'Grouped keywords (local vector clustering).', tone: 'success' });
         } finally {
             setLoading(false);
         }
@@ -271,20 +259,22 @@ export function PseoClient({ projectId }: { projectId: string }) {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Database className="h-8 w-8 text-[var(--st-text)]" />
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle className="flex items-center gap-3">
+                        <Database className="h-7 w-7 text-[var(--st-text)]" aria-hidden="true" />
                         pSEO Clustering
-                    </h1>
-                    <p className="text-[var(--st-text-secondary)] mt-1">Group thousands of keywords by semantic intent.</p>
-                </div>
+                    </PageTitle>
+                    <PageDescription>Group thousands of keywords by semantic intent.</PageDescription>
+                </PageHeaderHeading>
                 {clusters && (
-                    <Button variant="outline" onClick={handleExport}>
-                        <Download className="h-4 w-4 mr-2" /> Export CSV
-                    </Button>
+                    <PageActions>
+                        <Button variant="outline" iconLeft={Download} onClick={handleExport}>
+                            Export CSV
+                        </Button>
+                    </PageActions>
                 )}
-            </div>
+            </PageHeader>
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="h-[400px] flex flex-col">
@@ -293,41 +283,45 @@ export function PseoClient({ projectId }: { projectId: string }) {
                         <CardDescription>Upload a CSV file (one keyword per row)</CardDescription>
                     </CardHeader>
                     <CardBody className="flex-1 flex flex-col items-center justify-center">
-                        <input
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                        />
                         {!file ? (
-                            <div 
-                                onClick={() => fileInputRef.current?.click()}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                                className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--st-radius)] border-2 border-dashed w-full h-full p-12 text-center transition-colors ${isDragging ? 'border-primary bg-[var(--st-text)]/10' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
-                            >
-                                <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`} />
-                                <h3 className="font-semibold mb-1">Click or drag CSV here</h3>
-                                <p className="text-xs text-[var(--st-text-secondary)]">Up to 10,000 rows (first column used)</p>
+                            <div className="flex w-full flex-col items-center justify-center gap-4 rounded-[var(--st-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center">
+                                <Database className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                                <div className="flex flex-col items-center gap-1">
+                                    <h3 className="font-semibold text-[var(--st-text)]">Choose a CSV from SabFiles</h3>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">Up to 10,000 rows (first column used)</p>
+                                </div>
+                                <SabFileToFileButton
+                                    accept="document"
+                                    variant="default"
+                                    onPickFile={handlePickFile}
+                                    onError={(err: Error) => toast({ title: 'Could not load file', description: err.message, tone: 'danger' })}
+                                >
+                                    Choose CSV file
+                                </SabFileToFileButton>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center w-full h-full border rounded-md bg-[var(--st-bg-muted)]/20 p-6 relative">
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="absolute top-2 right-2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                            <div className="relative flex h-full w-full flex-col items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-2 top-2"
+                                    iconLeft={Trash2}
                                     onClick={handleClear}
                                 >
-                                    <Trash2 className="h-4 w-4" />
+                                    Clear
                                 </Button>
-                                <Database className="mb-4 h-12 w-12 text-[var(--st-text)] opacity-80" />
-                                <h3 className="font-medium text-lg mb-1 truncate max-w-[200px]">{file.name}</h3>
-                                <p className="text-sm text-[var(--st-text-secondary)] mb-6">{keywords.length} keywords loaded</p>
-                                
-                                <Button onClick={handleCluster} disabled={loading} size="lg" className="w-full max-w-[200px]">
-                                    {loading ? <Sparkles className="h-4 w-4 mr-2 animate-spin" /> : <Layers className="h-4 w-4 mr-2" />}
+                                <Database className="mb-4 h-12 w-12 text-[var(--st-text)] opacity-80" aria-hidden="true" />
+                                <h3 className="mb-1 max-w-[200px] truncate text-lg font-medium text-[var(--st-text)]">{file.name}</h3>
+                                <p className="mb-6 text-sm text-[var(--st-text-secondary)]">{keywords.length} keywords loaded</p>
+
+                                <Button
+                                    variant="primary"
+                                    onClick={handleCluster}
+                                    loading={loading}
+                                    size="lg"
+                                    iconLeft={loading ? Sparkles : Layers}
+                                    className="w-full max-w-[200px]"
+                                >
                                     Start Clustering Job
                                 </Button>
                             </div>
@@ -344,24 +338,26 @@ export function PseoClient({ projectId }: { projectId: string }) {
                                 : "Results will appear here."}
                         </CardDescription>
                     </CardHeader>
-                    <CardBody className="flex-1 overflow-y-auto min-h-0">
+                    <CardBody className="flex-1 min-h-0 overflow-y-auto">
                         {!clusters ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center text-[var(--st-text-secondary)] border-2 border-dashed border-transparent bg-[var(--st-bg-muted)]/20 rounded-md p-6">
-                                <Lock className="mb-4 h-8 w-8 text-[var(--st-text-secondary)]/50" />
-                                <p className="text-sm">Vector processing required for clustering.</p>
-                                <p className="text-xs opacity-70 mt-1">Upload a CSV to begin.</p>
+                            <div className="flex h-full items-center justify-center">
+                                <EmptyState
+                                    icon={Lock}
+                                    title="Vector processing required for clustering."
+                                    description="Choose a CSV from SabFiles to begin."
+                                />
                             </div>
                         ) : (
                             <div className="space-y-6 pb-4 pr-2">
                                 {Object.entries(clusters).map(([cluster, kws]) => (
                                     <div key={cluster} className="space-y-2">
-                                        <div className="flex items-center gap-2 sticky top-0 bg-[var(--st-bg-secondary)] py-2 border-b z-10">
-                                            <Badge variant="secondary">{kws.length}</Badge>
-                                            <h3 className="font-semibold text-sm">{cluster}</h3>
+                                        <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-2">
+                                            <Badge tone="accent">{kws.length}</Badge>
+                                            <h3 className="text-sm font-semibold text-[var(--st-text)]">{cluster}</h3>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 pl-2">
                                             {kws.map((kw, i) => (
-                                                <div key={i} className="text-xs p-1.5 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] border border-transparent hover:border-[var(--st-border)] transition-colors">
+                                                <div key={i} className="rounded p-1.5 text-xs text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                                                     {kw}
                                                 </div>
                                             ))}

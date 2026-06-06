@@ -27,7 +27,7 @@ export default async function SabsheetSheetDeepLinkPage({ params }: PageProps) {
   const sheets = await listSabsheetSheets(workbookId);
   const target = sheets.find((s) => s._id === sheetId);
   if (!target) {
-    // Sheet is gone — drop back to the workbook root.
+    // Sheet is gone, drop back to the workbook root.
     redirect(`/dashboard/sabsheet/${workbookId}`);
   }
   const [cells, comments, namedRanges, pivots] = await Promise.all([
@@ -38,7 +38,7 @@ export default async function SabsheetSheetDeepLinkPage({ params }: PageProps) {
   ]);
 
   return (
-    <div className="zoruui flex h-[calc(100vh-3.5rem)] flex-col">
+    <div className="ui20 flex h-[calc(100vh-3.5rem)] flex-col">
       <WorkbookEditor
         workbook={workbook}
         sheets={sheets}

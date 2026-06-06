@@ -1,6 +1,33 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, ScrollArea, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Skeleton, useToast, cn } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  IconButton,
+  Input,
+  ScrollArea,
+  SegmentedControl,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  Skeleton,
+  useToast,
+  cn,
+} from "@/components/sabcrm/20ui";
 import {
   useEffect,
   useState,
@@ -46,15 +73,15 @@ import type {
   } from "@/lib/definitions";
 
 /**
- * /dashboard/facebook/messages — ZoruUI rebuild of FacebookChatClient.
+ * /dashboard/facebook/messages - 20ui rebuild of FacebookChatClient.
  *
  * Three-pane workspace:
- *   1. Conversations list  (rebuilt inline with Zoru primitives)
+ *   1. Conversations list  (rebuilt inline with 20ui primitives)
  *   2. Message thread      (rebuilt inline; reuses sendFacebookMessage
  *                           server action via useActionState)
- *   3. Contact info panel  (Zoru-native, in a Sheet on mobile)
+ *   3. Contact info panel  (20ui-native, in a Sheet on mobile)
  *
- * Same data, same handlers, same server-action calls — visual layer only.
+ * Same data, same handlers, same server-action calls. Visual layer only.
  *
  * Server actions preserved end-to-end:
  *   - getFacebookChatInitialData(projectId)
@@ -173,55 +200,41 @@ const ConversationListPane = React.memo(function ConversationListPane({
             <Skeleton className="h-4 w-24" />
           </div>
         )}
-        <Button
+        <IconButton
+          icon={MessageSquarePlus}
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           onClick={onNewChat}
-          aria-label="New chat"
-        >
-          <MessageSquarePlus />
-        </Button>
+          label="New chat"
+        />
       </div>
 
       {/* Search */}
       <div className="shrink-0 border-b border-[var(--st-border)] p-3">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-          <Input
-            placeholder="Search conversations…"
-            className="pl-8"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <Input
+          iconLeft={Search}
+          placeholder="Search conversations..."
+          aria-label="Search conversations"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {/* All / Unread filter */}
-      <div className="flex shrink-0 items-center gap-1.5 border-b border-[var(--st-border)] px-3 py-2">
-        <button
-          type="button"
-          onClick={() => setFilter("all")}
-          className={cn(
-            "rounded-full px-3 py-1 text-[11px] transition-colors",
-            filter === "all"
-              ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
-              : "bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]",
-          )}
-        >
-          All
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter("unread")}
-          className={cn(
-            "rounded-full px-3 py-1 text-[11px] transition-colors",
-            filter === "unread"
-              ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
-              : "bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]",
-          )}
-        >
-          Unread{unreadCount > 0 && ` (${unreadCount})`}
-        </button>
+      <div className="flex shrink-0 items-center border-b border-[var(--st-border)] px-3 py-2">
+        <SegmentedControl
+          size="sm"
+          aria-label="Filter conversations"
+          value={filter}
+          onChange={(v) => setFilter(v as "all" | "unread")}
+          items={[
+            { value: "all", label: "All" },
+            {
+              value: "unread",
+              label: unreadCount > 0 ? `Unread (${unreadCount})` : "Unread",
+            },
+          ]}
+        />
       </div>
 
       <ScrollArea className="flex-1">
@@ -237,12 +250,14 @@ const ConversationListPane = React.memo(function ConversationListPane({
             const selected = selectedConversationId === convo.id;
             const unread = convo.unread_count || 0;
             return (
-              <button
+              <Button
                 key={convo.id}
-                type="button"
+                variant="ghost"
+                block
                 onClick={() => onSelect(convo)}
                 className={cn(
-                  "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors",
+                  "mx-2 mb-1 !h-auto w-[calc(100%-16px)] !justify-start !border-0 !p-3 text-left",
+                  "[&_.u-btn__label]:w-full [&_.u-btn__label]:items-start [&_.u-btn__label]:gap-3 [&_.u-btn__label]:overflow-visible",
                   selected
                     ? "bg-[var(--st-bg-muted)] shadow-[var(--st-shadow-sm)]"
                     : "hover:bg-[var(--st-bg-secondary)]",
@@ -261,34 +276,39 @@ const ConversationListPane = React.memo(function ConversationListPane({
                   <div className="flex items-start justify-between gap-2">
                     <span
                       className={cn(
-                        "truncate",
-                        unread > 0 ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]",
+                        "truncate font-normal",
+                        unread > 0
+                          ? "text-[var(--st-text)]"
+                          : "text-[var(--st-text-secondary)]",
                       )}
                     >
                       {participant?.name || "Unknown user"}
                     </span>
-                    <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] text-[var(--st-text-tertiary)]">
+                    <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] font-normal text-[var(--st-text-tertiary)]">
                       {format(new Date(convo.updated_time), "p")}
                     </span>
                   </div>
                   <div className="mt-0.5 flex items-center justify-between gap-2">
-                    <span className="block max-w-[180px] truncate text-xs text-[var(--st-text-secondary)]">
-                      {convo.snippet || "—"}
+                    <span className="block max-w-[180px] truncate text-xs font-normal text-[var(--st-text-secondary)]">
+                      {convo.snippet || "No preview"}
                     </span>
                     {unread > 0 && (
-                      <Badge className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]">
+                      <Badge
+                        tone="accent"
+                        className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]"
+                      >
                         {unread}
                       </Badge>
                     )}
                   </div>
                 </div>
-              </button>
+              </Button>
             );
           })
         ) : (
           <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-[var(--st-text-secondary)]">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>No conversations found.</div>
           </div>
@@ -308,14 +328,14 @@ const sendInitialState: { success?: boolean; error?: string } = {
 function MessageInputSubmit() {
   const { pending } = useFormStatus();
   return (
-    <Button
+    <IconButton
       type="submit"
-      size="icon"
+      variant="primary"
       disabled={pending}
-      aria-label="Send message"
-    >
-      {pending ? <LoaderCircle className="animate-spin" /> : <Send />}
-    </Button>
+      label="Send message"
+      icon={pending ? LoaderCircle : Send}
+      className={pending ? "[&_svg]:animate-spin" : undefined}
+    />
   );
 }
 
@@ -344,7 +364,7 @@ function MessageInput({
       toast({
         title: "Error sending message",
         description: state.error,
-        variant: "destructive",
+        tone: "danger",
       });
     }
     if (state.success) {
@@ -363,10 +383,11 @@ function MessageInput({
       <input type="hidden" name="recipientId" value={recipientId} />
       <Input
         name="messageText"
+        aria-label="Message"
         placeholder={
           disabled
             ? "You can no longer reply to this conversation."
-            : "Type a message…"
+            : "Type a message..."
         }
         autoComplete="off"
         className="flex-1"
@@ -421,7 +442,9 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
         <span
           className={cn(
             "mt-1 self-end text-[10.5px]",
-            isOutgoing ? "text-[var(--st-text-inverted)]/70" : "text-[var(--st-text-secondary)]",
+            isOutgoing
+              ? "text-[var(--st-text-inverted)]/70"
+              : "text-[var(--st-text-secondary)]",
           )}
         >
           {format(new Date(message.created_time), "p")}
@@ -465,15 +488,14 @@ function ChatThreadPane({
       {/* Header */}
       <div className="flex h-[73px] shrink-0 items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] p-3">
         <div className="flex min-w-0 items-center gap-3">
-          <Button
+          <IconButton
+            icon={ArrowLeft}
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             className="md:hidden"
             onClick={onBack}
-            aria-label="Back to conversations"
-          >
-            <ArrowLeft />
-          </Button>
+            label="Back to conversations"
+          />
           <Avatar>
             <AvatarImage
               src={`https://graph.facebook.com/${participant?.id}/picture`}
@@ -489,30 +511,27 @@ function ChatThreadPane({
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button
+          <IconButton
+            icon={Phone}
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             disabled
-            aria-label="Voice call"
-          >
-            <Phone />
-          </Button>
-          <Button
+            label="Voice call"
+          />
+          <IconButton
+            icon={Video}
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             disabled
-            aria-label="Video call"
-          >
-            <Video />
-          </Button>
-          <Button
+            label="Video call"
+          />
+          <IconButton
+            icon={Info}
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             onClick={onShowInfo}
-            aria-label="Conversation info"
-          >
-            <Info />
-          </Button>
+            label="Conversation info"
+          />
         </div>
       </div>
 
@@ -521,12 +540,15 @@ function ChatThreadPane({
         <div className="space-y-4 p-4">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
-              <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
+              <LoaderCircle
+                className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]"
+                aria-hidden="true"
+              />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center text-sm text-[var(--st-text-secondary)]">
-              <MessageCircle className="h-6 w-6" />
-              <span>No messages yet — say hello.</span>
+              <MessageCircle className="h-6 w-6" aria-hidden="true" />
+              <span>No messages yet. Say hello.</span>
             </div>
           ) : (
             messages.map((msg) => (
@@ -566,7 +588,7 @@ function ContactInfoPanelBody({
   if (!conversation) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-[var(--st-text-secondary)]">
-        <Info className="h-5 w-5" />
+        <Info className="h-5 w-5" aria-hidden="true" />
         <span>Select a conversation to see participant details.</span>
       </div>
     );
@@ -742,7 +764,7 @@ export function ZoruFacebookChatClient() {
     }
   }, [projectId, fetchInitialData]);
 
-  // Polling — every 5s for the active conversation
+  // Polling - every 5s for the active conversation
   useEffect(() => {
     if (!selectedConversation || !projectId) return;
     const interval = setInterval(() => {
@@ -777,8 +799,7 @@ export function ZoruFacebookChatClient() {
   if (!projectId) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle />
+        <Alert variant="destructive" icon={AlertCircle} className="max-w-md">
           <AlertTitle>No project selected</AlertTitle>
           <AlertDescription>
             Please select a project from the main dashboard to use the Facebook
@@ -803,7 +824,9 @@ export function ZoruFacebookChatClient() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
+            <Button variant="primary" onClick={() => setShowInfoDialog(false)}>
+              OK
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -829,6 +852,7 @@ export function ZoruFacebookChatClient() {
               Dismiss
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
                 setPermissionError(null);
                 router.push("/dashboard/facebook/setup");
@@ -897,7 +921,7 @@ export function ZoruFacebookChatClient() {
           ) : (
             <div className="hidden h-full flex-col items-center justify-center gap-4 p-8 text-center text-[var(--st-text-secondary)] md:flex">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                <MessageSquare className="h-5 w-5" />
+                <MessageSquare className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <h2 className="text-[var(--st-text)]">Select a conversation</h2>
@@ -909,7 +933,7 @@ export function ZoruFacebookChatClient() {
           )}
         </div>
 
-        {/* Contact info — desktop fixed panel */}
+        {/* Contact info - desktop fixed panel */}
         <div className="hidden w-[300px] shrink-0 flex-col border-l border-[var(--st-border)] lg:flex">
           <ContactInfoPanelBody
             conversation={selectedConversation}

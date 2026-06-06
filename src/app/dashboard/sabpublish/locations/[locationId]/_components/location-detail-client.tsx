@@ -2,8 +2,20 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
-import { Badge, PageHeader, Tabs, PageDescription, PageHeading, PageTitle, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProfileFieldDoc } from '@/lib/rust-client/sabpublish-profile-fields';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
@@ -36,7 +48,7 @@ export function SabpublishLocationDetailClient({
 }) {
   const { location } = data;
   return (
-    <div className="zoruui space-y-6">
+    <div className="space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>{location.name}</PageTitle>
@@ -46,15 +58,16 @@ export function SabpublishLocationDetailClient({
               .join(', ') || 'No address yet'}
           </PageDescription>
         </PageHeading>
-        <div className="flex items-center gap-2">
+        <PageActions>
           <Badge variant="outline">{location.status ?? 'draft'}</Badge>
           <Link
             href="/dashboard/sabpublish/locations"
-            className="text-sm underline-offset-2 hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
           >
+            <ArrowLeft size={14} aria-hidden="true" />
             Back to locations
           </Link>
-        </div>
+        </PageActions>
       </PageHeader>
 
       <Tabs defaultValue="profile">

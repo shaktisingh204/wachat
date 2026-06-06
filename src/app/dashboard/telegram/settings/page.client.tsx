@@ -1,7 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, AlertDescription, EmptyState, PageEyebrow, PageHeader, PageHeading, PageTitle, PageDescription, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    AlertDescription,
+    EmptyState,
+    PageEyebrow,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    SegmentedControl,
+    Skeleton,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { Settings, Sparkles, Clock3, AlertCircle, ShieldAlert, UserCog, Globe2, ClipboardList } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';
@@ -14,19 +26,17 @@ import { GdprSection } from './_components/gdpr-section';
 import { AuditSection } from './_components/audit-section';
 import { WEEKDAYS } from './constants';
 
-const ACCENT = '#229ED9';
-
 const SECTIONS = [
-    { id: 'defaults', label: 'Defaults', icon: Sparkles },
-    { id: 'business-hours', label: 'Business Hours', icon: Clock3 },
-    { id: 'notifications', label: 'Notifications', icon: AlertCircle },
-    { id: 'security', label: 'Security', icon: ShieldAlert },
-    { id: 'overrides', label: 'Per-bot Overrides', icon: UserCog },
-    { id: 'gdpr', label: 'GDPR', icon: Globe2 },
-    { id: 'audit', label: 'Audit', icon: ClipboardList },
+    { value: 'defaults', label: 'Defaults', icon: Sparkles },
+    { value: 'business-hours', label: 'Business Hours', icon: Clock3 },
+    { value: 'notifications', label: 'Notifications', icon: AlertCircle },
+    { value: 'security', label: 'Security', icon: ShieldAlert },
+    { value: 'overrides', label: 'Per-bot Overrides', icon: UserCog },
+    { value: 'gdpr', label: 'GDPR', icon: Globe2 },
+    { value: 'audit', label: 'Audit', icon: ClipboardList },
 ] as const;
 
-type SectionId = (typeof SECTIONS)[number]['id'];
+type SectionId = (typeof SECTIONS)[number]['value'];
 
 function makeDefaultSettings(): ProjectSettings {
     return {
@@ -128,16 +138,16 @@ export default function TelegramSettingsPage() {
         try {
             const res = await saveTelegramProjectSettingsAction(projectId, settings);
             if (res.success) {
-                toast({ title: 'Settings saved', variant: 'success' });
+                toast({ title: 'Settings saved', tone: 'success' });
             } else {
                 toast({
                     title: 'Failed to save',
                     description: res.error ?? 'Unknown error',
-                    variant: 'destructive',
+                    tone: 'danger',
                 });
             }
         } catch (e) {
-            toast({ title: 'Failed to save settings', variant: 'destructive' });
+            toast({ title: 'Failed to save settings', tone: 'danger' });
         } finally {
             setSavingSection(null);
         }
@@ -161,7 +171,7 @@ export default function TelegramSettingsPage() {
                 <PageHeading>
                     <PageEyebrow>Telegram</PageEyebrow>
                     <PageTitle className="flex items-center gap-2">
-                        <Settings className="h-5 w-5" style={{ color: ACCENT }} />
+                        <Settings className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
                         Telegram Settings
                     </PageTitle>
                     <PageDescription>
@@ -171,29 +181,12 @@ export default function TelegramSettingsPage() {
                 </PageHeading>
             </PageHeader>
 
-            <div className="flex flex-wrap gap-2">
-                {SECTIONS.map((s) => {
-                    const Icon = s.icon;
-                    const active = section === s.id;
-                    return (
-                        <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => setSection(s.id)}
-                            className={
-                                'inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ' +
-                                (active
-                                    ? 'border-transparent text-white'
-                                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]/70 hover:text-[var(--st-text)]')
-                            }
-                            style={active ? { backgroundColor: ACCENT } : undefined}
-                        >
-                            <Icon className="h-4 w-4" />
-                            {s.label}
-                        </button>
-                    );
-                })}
-            </div>
+            <SegmentedControl<SectionId>
+                aria-label="Settings section"
+                items={SECTIONS}
+                value={section}
+                onChange={setSection}
+            />
 
             {error ? (
                 <Alert variant="destructive">

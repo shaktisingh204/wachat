@@ -1,12 +1,29 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Button,
+    Field,
+    Input,
+    RadioGroup,
+    Radio,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/sabcrm/20ui';
 /**
  * §6.5 Add-widget modal.
  *
  * Two-step picker: choose a widget kind, then bind it to a data
  * source. On confirm, the caller appends the new `DashboardWidget`
- * to the editor's array (no server round-trip — saving the full
+ * to the editor's array (no server round-trip, saving the full
  * layout happens via the editor's "Save layout" button).
  */
 
@@ -19,9 +36,9 @@ import type {
 } from '@/app/actions/crm-dashboards.actions.types';
 
 const WIDGET_KINDS: ReadonlyArray<{ value: WidgetKind; label: string; hint: string }> = [
-    { value: 'metric', label: 'Metric', hint: 'A single big number + delta vs prior period.' },
+    { value: 'metric', label: 'Metric', hint: 'A single big number plus delta vs prior period.' },
     { value: 'line', label: 'Line chart', hint: 'Trend over time, e.g. revenue last 30 days.' },
-    { value: 'bar', label: 'Bar chart', hint: 'Compare buckets — e.g. deals by stage.' },
+    { value: 'bar', label: 'Bar chart', hint: 'Compare buckets, e.g. deals by stage.' },
     { value: 'donut', label: 'Donut', hint: 'Share-of-total breakdown.' },
     { value: 'funnel', label: 'Funnel', hint: 'Stacked horizontal bars (drop-off view).' },
     { value: 'table', label: 'Table', hint: 'First 10 rows of the data source.' },
@@ -36,7 +53,7 @@ const DATA_SOURCE_TYPES: ReadonlyArray<{
     {
         value: 'metric_query',
         label: 'Metric query',
-        hint: 'A pre-baked slug — e.g. crm.leads.count.',
+        hint: 'A pre-baked slug, e.g. crm.leads.count.',
     },
     {
         value: 'report',
@@ -53,7 +70,7 @@ const METRIC_QUERY_SUGGESTIONS = [
 
 /**
  * Generate a client-side widget id. The server resanitizes ids on
- * save (see `sanitizeWidget`) — this just needs to be unique within
+ * save (see `sanitizeWidget`), this just needs to be unique within
  * one editing session.
  */
 function makeClientWidgetId(): string {
@@ -113,7 +130,7 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
             <DialogContent className="max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
-                        {step === 1 ? 'Add a widget — pick a kind' : 'Add a widget — pick data'}
+                        {step === 1 ? 'Add a widget: pick a kind' : 'Add a widget: pick data'}
                     </DialogTitle>
                     <DialogDescription>
                         {step === 1
@@ -123,44 +140,55 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                 </DialogHeader>
 
                 {step === 1 ? (
-                    <div className="grid grid-cols-2 gap-2">
+                    <RadioGroup
+                        aria-label="Widget kind"
+                        value={kind}
+                        onValueChange={(v) => setKind(v as WidgetKind)}
+                        className="grid grid-cols-2 gap-2"
+                    >
                         {WIDGET_KINDS.map((k) => {
                             const selected = k.value === kind;
                             return (
-                                <button
+                                <label
                                     key={k.value}
-                                    type="button"
-                                    onClick={() => setKind(k.value)}
-                                    className={`rounded-md border p-3 text-left transition ${
+                                    className={`flex cursor-pointer items-start gap-2 rounded-[var(--st-radius)] border p-3 text-left transition ${
                                         selected
                                             ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
                                             : 'border-[var(--st-border)] hover:border-[var(--st-text)]/40'
                                     }`}
                                 >
-                                    <div className="text-[13px] font-medium text-[var(--st-text)]">{k.label}</div>
-                                    <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">{k.hint}</div>
-                                </button>
+                                    <Radio value={k.value} size="sm" className="mt-0.5" />
+                                    <span className="min-w-0">
+                                        <span className="block text-[13px] font-medium text-[var(--st-text)]">
+                                            {k.label}
+                                        </span>
+                                        <span className="mt-0.5 block text-[11.5px] text-[var(--st-text-secondary)]">
+                                            {k.hint}
+                                        </span>
+                                    </span>
+                                </label>
                             );
                         })}
-                    </div>
+                    </RadioGroup>
                 ) : (
                     <div className="space-y-3">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="widget-title">Title</Label>
+                        <Field label="Title">
                             <Input
-                                id="widget-title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder={kindMeta?.label}
                             />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="ds-type">Data source</Label>
+                        </Field>
+
+                        <Field
+                            label="Data source"
+                            help={DATA_SOURCE_TYPES.find((d) => d.value === dsType)?.hint}
+                        >
                             <Select
                                 value={dsType}
                                 onValueChange={(v) => setDsType(v as WidgetDataSourceType)}
                             >
-                                <SelectTrigger id="ds-type">
+                                <SelectTrigger aria-label="Data source">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -171,16 +199,17 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-                                {DATA_SOURCE_TYPES.find((d) => d.value === dsType)?.hint}
-                            </p>
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="ds-ref">
-                                {dsType === 'metric_query' ? 'Metric slug' : 'Reference ID'}
-                            </Label>
+                        </Field>
+
+                        <Field
+                            label={dsType === 'metric_query' ? 'Metric slug' : 'Reference ID'}
+                            error={
+                                dsType === 'report'
+                                    ? 'Reports engine not wired yet, widget will render a placeholder.'
+                                    : undefined
+                            }
+                        >
                             <Input
-                                id="ds-ref"
                                 value={dsRef}
                                 onChange={(e) => setDsRef(e.target.value)}
                                 placeholder={
@@ -188,21 +217,23 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                         ? 'e.g. crm.leads.count'
                                         : 'Mongo _id'
                                 }
-                                list={dsType === 'metric_query' ? 'metric-query-suggestions' : undefined}
                             />
-                            {dsType === 'metric_query' ? (
-                                <datalist id="metric-query-suggestions">
-                                    {METRIC_QUERY_SUGGESTIONS.map((m) => (
-                                        <option key={m} value={m} />
-                                    ))}
-                                </datalist>
-                            ) : null}
-                            {dsType === 'report' ? (
-                                <p className="text-[11.5px] text-[var(--st-warn)]">
-                                    Reports engine not wired yet — widget will render a placeholder.
-                                </p>
-                            ) : null}
-                        </div>
+                        </Field>
+
+                        {dsType === 'metric_query' ? (
+                            <div className="flex flex-wrap gap-1.5">
+                                {METRIC_QUERY_SUGGESTIONS.map((m) => (
+                                    <Button
+                                        key={m}
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setDsRef(m)}
+                                    >
+                                        {m}
+                                    </Button>
+                                ))}
+                            </div>
+                        ) : null}
                     </div>
                 )}
 
@@ -212,14 +243,16 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                             <Button variant="outline" onClick={() => onOpenChange(false)}>
                                 Cancel
                             </Button>
-                            <Button onClick={() => setStep(2)}>Next</Button>
+                            <Button variant="primary" onClick={() => setStep(2)}>
+                                Next
+                            </Button>
                         </>
                     ) : (
                         <>
                             <Button variant="outline" onClick={() => setStep(1)}>
                                 Back
                             </Button>
-                            <Button onClick={confirm} disabled={!dsRef.trim()}>
+                            <Button variant="primary" onClick={confirm} disabled={!dsRef.trim()}>
                                 Add widget
                             </Button>
                         </>

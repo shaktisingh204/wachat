@@ -1,14 +1,10 @@
 'use client';
 
 /**
- * SabShow deck editor — three-pane shell:
+ * SabShow deck editor, three-pane shell:
  *
- *   ┌──────────┬─────────────────────────┬────────────┐
- *   │ slides   │  canvas (selected slide)│ properties │
- *   │ sidebar  │  + toolbar              │ panel      │
- *   ├──────────┴─────────────────────────┴────────────┤
- *   │ speaker notes drawer                            │
- *   └─────────────────────────────────────────────────┘
+ *   slides sidebar | canvas (selected slide) + toolbar | properties panel
+ *   speaker notes drawer underneath the canvas.
  *
  * State model:
  *   - `slides` is the authoritative list of slides for the deck.
@@ -25,9 +21,27 @@
  * mounted, so peers see nothing.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    ArrowDown,
+    ArrowUp,
+    Copy,
+    Plus,
+    Trash2,
+} from 'lucide-react';
 
-import { Button, Card, Input, Label, Textarea, Separator, ScrollArea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Label,
+    Separator,
+    ScrollArea,
+    Textarea,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
     addSabshowElement,
@@ -73,6 +87,7 @@ export function DeckEditorShell({
     initialElements,
     initialSlideId,
 }: DeckEditorShellProps) {
+    const router = useRouter();
     const [slides, setSlides] = useState<SabshowSlideDoc[]>(initialSlides);
     const [selectedSlideId, setSelectedSlideId] = useState<string | null>(
         initialSlideId
@@ -82,7 +97,7 @@ export function DeckEditorShell({
     const [title, setTitle] = useState(deck.title);
     const [pending, setPending] = useState(false);
 
-    /* ── transport (mock for now) ─────────────────────────────────── */
+    /* transport (mock for now) */
     const transportRef = useRef<IShowTransport | null>(null);
     useEffect(() => {
         if (!deck._id) return;
@@ -95,7 +110,7 @@ export function DeckEditorShell({
         };
     }, [deck._id]);
 
-    /* ── slide switch reloads elements ────────────────────────────── */
+    /* slide switch reloads elements */
     useEffect(() => {
         if (!selectedSlideId) {
             setElements([]);
@@ -116,13 +131,13 @@ export function DeckEditorShell({
         [elements, selectedElementId]
     );
 
-    /* ── title persist ───────────────────────────────────────────── */
+    /* title persist */
     const persistTitle = useCallback(async () => {
         if (!deck._id || title === deck.title) return;
         await updateSabshowDeck(deck._id, { title });
     }, [deck._id, deck.title, title]);
 
-    /* ── slide actions ────────────────────────────────────────────── */
+    /* slide actions */
     async function handleAddSlide(layoutKind: SabshowSlideLayoutKind = 'content') {
         if (!deck._id) return;
         setPending(true);
@@ -182,7 +197,7 @@ export function DeckEditorShell({
         void updated;
     }
 
-    /* ── element actions ──────────────────────────────────────────── */
+    /* element actions */
     async function handleInsertElement(
         kind: SabshowElementKind,
         configJson: unknown = {}
@@ -234,7 +249,7 @@ export function DeckEditorShell({
         if (selectedElementId === elementId) setSelectedElementId(null);
     }
 
-    /* ── canvas drag/resize ──────────────────────────────────────── */
+    /* canvas drag/resize */
     const canvasRef = useRef<HTMLDivElement | null>(null);
     const dragRef = useRef<{
         mode: DragMode;
@@ -312,7 +327,7 @@ export function DeckEditorShell({
         void handleUpdateElement(el._id, { x: el.x, y: el.y, w: el.w, h: el.h });
     }
 
-    /* ── version save ─────────────────────────────────────────────── */
+    /* version save */
     async function handleSaveVersion() {
         if (!deck._id) return;
         setPending(true);
@@ -323,12 +338,13 @@ export function DeckEditorShell({
         }
     }
 
-    /* ── render ───────────────────────────────────────────────────── */
+    /* render */
     return (
-        <div className="zoruui flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
+        <div className="ui20 flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
             {/* top bar */}
-            <div className="flex items-center gap-3 border-b px-4 py-2">
+            <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-2">
                 <Input
+                    aria-label="Deck title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={persistTitle}
@@ -346,109 +362,127 @@ export function DeckEditorShell({
                     >
                         Save version
                     </Button>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/sabshow/${deck._id}/history`}>
-                            History
-                        </Link>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                            router.push(`/dashboard/sabshow/${deck._id}/history`)
+                        }
+                    >
+                        History
                     </Button>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/sabshow/${deck._id}/publish`}>
-                            Publish
-                        </Link>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                            router.push(`/dashboard/sabshow/${deck._id}/publish`)
+                        }
+                    >
+                        Publish
                     </Button>
-                    <Button size="sm" asChild>
-                        <Link href={`/dashboard/sabshow/${deck._id}/present`}>
-                            Present
-                        </Link>
+                    <Button
+                        size="sm"
+                        onClick={() =>
+                            router.push(`/dashboard/sabshow/${deck._id}/present`)
+                        }
+                    >
+                        Present
                     </Button>
                 </div>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* slide sidebar */}
-                <aside className="flex w-56 flex-col border-r">
+                <aside className="flex w-56 flex-col border-r border-[var(--st-border)]">
                     <div className="flex items-center justify-between gap-2 px-3 py-2">
                         <span className="text-xs font-medium uppercase text-[var(--st-text-secondary)]">
                             Slides
                         </span>
-                        <Button
+                        <IconButton
+                            label="Add slide"
+                            icon={Plus}
                             size="sm"
                             variant="ghost"
                             onClick={() => handleAddSlide('content')}
                             disabled={pending}
-                        >
-                            +
-                        </Button>
+                        />
                     </div>
                     <ScrollArea className="flex-1">
                         <ul className="space-y-1 px-2 pb-3">
-                            {slides.map((slide, idx) => (
-                                <li key={slide._id}>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedSlideId(slide._id ?? null);
-                                            setSelectedElementId(null);
-                                        }}
-                                        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition ${
-                                            selectedSlideId === slide._id
-                                                ? 'bg-[var(--st-bg-muted)]'
-                                                : 'hover:bg-[var(--st-bg-muted)]/60'
-                                        }`}
-                                    >
-                                        <span className="w-5 text-xs text-[var(--st-text-secondary)]">
-                                            {idx + 1}
-                                        </span>
-                                        <span className="line-clamp-1">
-                                            {slide.title ?? slide.layoutKind ?? 'Slide'}
-                                        </span>
-                                    </button>
-                                    {selectedSlideId === slide._id ? (
-                                        <div className="mt-1 flex gap-1 px-2 pb-2">
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() =>
-                                                    slide._id &&
-                                                    handleMoveSlide(slide._id, -1)
-                                                }
-                                            >
-                                                ↑
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() =>
-                                                    slide._id &&
-                                                    handleMoveSlide(slide._id, 1)
-                                                }
-                                            >
-                                                ↓
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() =>
-                                                    slide._id &&
-                                                    handleDuplicateSlide(slide._id)
-                                                }
-                                            >
-                                                Dupe
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() =>
-                                                    slide._id &&
-                                                    handleDeleteSlide(slide._id)
-                                                }
-                                            >
-                                                Del
-                                            </Button>
-                                        </div>
-                                    ) : null}
-                                </li>
-                            ))}
+                            {slides.map((slide, idx) => {
+                                const active = selectedSlideId === slide._id;
+                                return (
+                                    <li key={slide._id}>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            block
+                                            onClick={() => {
+                                                setSelectedSlideId(slide._id ?? null);
+                                                setSelectedElementId(null);
+                                            }}
+                                            className={`justify-start text-left ${
+                                                active
+                                                    ? 'bg-[var(--st-bg-muted)]'
+                                                    : ''
+                                            }`}
+                                        >
+                                            <span className="flex w-full items-center gap-2">
+                                                <span className="w-5 text-xs text-[var(--st-text-secondary)]">
+                                                    {idx + 1}
+                                                </span>
+                                                <span className="line-clamp-1">
+                                                    {slide.title ?? slide.layoutKind ?? 'Slide'}
+                                                </span>
+                                            </span>
+                                        </Button>
+                                        {active ? (
+                                            <div className="mt-1 flex gap-1 px-2 pb-2">
+                                                <IconButton
+                                                    label="Move slide up"
+                                                    icon={ArrowUp}
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() =>
+                                                        slide._id &&
+                                                        handleMoveSlide(slide._id, -1)
+                                                    }
+                                                />
+                                                <IconButton
+                                                    label="Move slide down"
+                                                    icon={ArrowDown}
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() =>
+                                                        slide._id &&
+                                                        handleMoveSlide(slide._id, 1)
+                                                    }
+                                                />
+                                                <IconButton
+                                                    label="Duplicate slide"
+                                                    icon={Copy}
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() =>
+                                                        slide._id &&
+                                                        handleDuplicateSlide(slide._id)
+                                                    }
+                                                />
+                                                <IconButton
+                                                    label="Delete slide"
+                                                    icon={Trash2}
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() =>
+                                                        slide._id &&
+                                                        handleDeleteSlide(slide._id)
+                                                    }
+                                                />
+                                            </div>
+                                        ) : null}
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </ScrollArea>
                 </aside>
@@ -456,13 +490,14 @@ export function DeckEditorShell({
                 {/* canvas + toolbar */}
                 <main className="flex flex-1 flex-col overflow-hidden">
                     {/* toolbar */}
-                    <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2">
+                    <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] px-3 py-2">
                         <Button
                             size="sm"
                             variant="outline"
+                            iconLeft={Plus}
                             onClick={() => handleInsertElement('text')}
                         >
-                            + Text
+                            Text
                         </Button>
                         <SabFilePickerButton
                             accept="image"
@@ -478,16 +513,18 @@ export function DeckEditorShell({
                         <Button
                             size="sm"
                             variant="outline"
+                            iconLeft={Plus}
                             onClick={() => handleInsertElement('shape')}
                         >
-                            + Shape
+                            Shape
                         </Button>
                         <Button
                             size="sm"
                             variant="outline"
+                            iconLeft={Plus}
                             onClick={() => handleInsertElement('chart')}
                         >
-                            + Chart
+                            Chart
                         </Button>
                         <SabFilePickerButton
                             accept="video"
@@ -500,9 +537,10 @@ export function DeckEditorShell({
                         <Button
                             size="sm"
                             variant="outline"
+                            iconLeft={Plus}
                             onClick={() => handleInsertElement('code')}
                         >
-                            + Code
+                            Code
                         </Button>
                         <Separator orientation="vertical" className="mx-2 h-6" />
                         <Button
@@ -549,10 +587,7 @@ export function DeckEditorShell({
                         <div className="mx-auto w-full max-w-[1280px]">
                             <div
                                 ref={canvasRef}
-                                className="relative aspect-video w-full overflow-hidden rounded-lg border bg-white shadow-sm"
-                                style={{
-                                    backgroundColor: '#ffffff',
-                                }}
+                                className="relative aspect-video w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white shadow-sm"
                             >
                                 <CanvasInner
                                     elements={elements}
@@ -589,7 +624,7 @@ export function DeckEditorShell({
                 </main>
 
                 {/* properties panel */}
-                <aside className="w-72 border-l p-3">
+                <aside className="w-72 border-l border-[var(--st-border)] p-3">
                     {selectedElement ? (
                         <PropertiesPanel
                             element={selectedElement}
@@ -627,7 +662,7 @@ export function DeckEditorShell({
     );
 }
 
-/* ─── inner canvas (renders + drag handles) ───────────────────────── */
+/* inner canvas (renders + drag handles) */
 
 interface CanvasInnerProps {
     elements: SabshowElementDoc[];
@@ -671,7 +706,7 @@ function CanvasInner({
                                 transform: el.rotation
                                     ? `rotate(${el.rotation}deg)`
                                     : undefined,
-                                outline: sel ? '2px solid #22c55e' : undefined,
+                                outline: sel ? '2px solid var(--st-accent)' : undefined,
                             }}
                             onMouseDown={(e) => {
                                 e.stopPropagation();
@@ -715,7 +750,8 @@ function ElementRenderer({
                 typeof cfg.value === 'string' ? (cfg.value as string) : 'Text';
             if (editable) {
                 return (
-                    <textarea
+                    <Textarea
+                        aria-label="Text element content"
                         defaultValue={value}
                         onBlur={(e) => onCommitText(e.target.value)}
                         className="h-full w-full resize-none border-0 bg-transparent p-1 text-sm outline-none"
@@ -764,7 +800,7 @@ function ElementRenderer({
     }
 }
 
-/* ─── side panels + notes ─────────────────────────────────────────── */
+/* side panels + notes */
 
 function PropertiesPanel({
     element,
@@ -776,41 +812,51 @@ function PropertiesPanel({
     onDelete: () => void;
 }) {
     return (
-        <Card className="space-y-3 p-3">
+        <Card className="space-y-3" padding="sm">
             <div className="text-sm font-medium">{element.kind}</div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-                <Label>X</Label>
-                <Input
-                    type="number"
-                    value={Math.round(element.x)}
-                    onChange={(e) => onChange({ x: Number(e.target.value) })}
-                />
-                <Label>Y</Label>
-                <Input
-                    type="number"
-                    value={Math.round(element.y)}
-                    onChange={(e) => onChange({ y: Number(e.target.value) })}
-                />
-                <Label>W</Label>
-                <Input
-                    type="number"
-                    value={Math.round(element.w)}
-                    onChange={(e) => onChange({ w: Number(e.target.value) })}
-                />
-                <Label>H</Label>
-                <Input
-                    type="number"
-                    value={Math.round(element.h)}
-                    onChange={(e) => onChange({ h: Number(e.target.value) })}
-                />
-                <Label>Rotation</Label>
-                <Input
-                    type="number"
-                    value={Math.round(element.rotation ?? 0)}
-                    onChange={(e) => onChange({ rotation: Number(e.target.value) })}
-                />
+            <div className="grid grid-cols-2 gap-2">
+                <Field label="X">
+                    <Input
+                        type="number"
+                        inputSize="sm"
+                        value={Math.round(element.x)}
+                        onChange={(e) => onChange({ x: Number(e.target.value) })}
+                    />
+                </Field>
+                <Field label="Y">
+                    <Input
+                        type="number"
+                        inputSize="sm"
+                        value={Math.round(element.y)}
+                        onChange={(e) => onChange({ y: Number(e.target.value) })}
+                    />
+                </Field>
+                <Field label="W">
+                    <Input
+                        type="number"
+                        inputSize="sm"
+                        value={Math.round(element.w)}
+                        onChange={(e) => onChange({ w: Number(e.target.value) })}
+                    />
+                </Field>
+                <Field label="H">
+                    <Input
+                        type="number"
+                        inputSize="sm"
+                        value={Math.round(element.h)}
+                        onChange={(e) => onChange({ h: Number(e.target.value) })}
+                    />
+                </Field>
+                <Field label="Rotation" className="col-span-2">
+                    <Input
+                        type="number"
+                        inputSize="sm"
+                        value={Math.round(element.rotation ?? 0)}
+                        onChange={(e) => onChange({ rotation: Number(e.target.value) })}
+                    />
+                </Field>
             </div>
-            <Button variant="destructive" size="sm" onClick={onDelete}>
+            <Button variant="danger" size="sm" iconLeft={Trash2} onClick={onDelete}>
                 Delete
             </Button>
         </Card>
@@ -826,22 +872,27 @@ function SlidePropertiesPanel({
 }) {
     if (!slide) {
         return (
-            <p className="text-sm text-[var(--st-text-secondary)]">
-                Select a slide or element.
-            </p>
+            <EmptyState
+                title="Nothing selected"
+                description="Select a slide or element to edit its properties."
+            />
         );
     }
     return (
-        <Card className="space-y-3 p-3">
+        <Card className="space-y-3" padding="sm">
             <div className="text-sm font-medium">Slide {slide.position + 1}</div>
-            <Label>Title</Label>
-            <Input
-                defaultValue={slide.title ?? ''}
-                onBlur={(e) => onChange({ title: e.target.value })}
-            />
-            <Label>Layout</Label>
-            <div className="text-xs text-[var(--st-text-secondary)]">
-                {slide.layoutKind ?? 'blank'}
+            <Field label="Title">
+                <Input
+                    inputSize="sm"
+                    defaultValue={slide.title ?? ''}
+                    onBlur={(e) => onChange({ title: e.target.value })}
+                />
+            </Field>
+            <div className="space-y-1">
+                <Label>Layout</Label>
+                <div className="text-xs text-[var(--st-text-secondary)]">
+                    {slide.layoutKind ?? 'blank'}
+                </div>
             </div>
         </Card>
     );
@@ -855,16 +906,17 @@ function NotesDrawer({
     onChange: (notes: string) => void | Promise<void>;
 }) {
     return (
-        <div className="border-t bg-[var(--st-bg-muted)]/40 px-3 py-2">
-            <Label className="mb-1 block text-xs uppercase">Speaker notes</Label>
-            <Textarea
-                key={slide?._id ?? 'none'}
-                rows={3}
-                defaultValue={slide?.notes ?? ''}
-                placeholder={slide ? 'Notes for this slide…' : 'Select a slide'}
-                disabled={!slide}
-                onBlur={(e) => onChange(e.target.value)}
-            />
+        <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
+            <Field label="Speaker notes">
+                <Textarea
+                    key={slide?._id ?? 'none'}
+                    rows={3}
+                    defaultValue={slide?.notes ?? ''}
+                    placeholder={slide ? 'Notes for this slide.' : 'Select a slide'}
+                    disabled={!slide}
+                    onBlur={(e) => onChange(e.target.value)}
+                />
+            </Field>
         </div>
     );
 }

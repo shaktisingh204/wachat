@@ -1,10 +1,31 @@
 'use client';
 
 import React, { useState, Component, ErrorInfo, ReactNode } from 'react';
-import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Input,
+  Card,
+  CardBody,
+  Alert,
+  EmptyState,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiDnsLookup } from '@/lib/seo-tools/api-client';
-import { Copy, Download, AlertCircle } from 'lucide-react';
+import { Copy, Download, Inbox } from 'lucide-react';
+
+const RECORD_TYPES = ['ALL', 'A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME', 'SOA'] as const;
 
 class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
   constructor(props: any) {
@@ -27,7 +48,15 @@ class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode
 
 export default function DnsLookupPageWrapper() {
   return (
-    <ErrorBoundary fallback={<div className="p-4 text-[var(--st-text)]">Something went wrong in the DNS Lookup tool.</div>}>
+    <ErrorBoundary
+      fallback={
+        <div className="p-4">
+          <Alert tone="danger" title="Something went wrong">
+            The DNS Lookup tool hit an unexpected error. Reload the page to try again.
+          </Alert>
+        </div>
+      }
+    >
       <DnsLookupPage />
     </ErrorBoundary>
   );
@@ -134,82 +163,88 @@ function DnsLookupPage() {
 
   return (
     <ToolShell title="DNS Lookup" description="Query DNS records for any hostname.">
-      <div className="flex gap-2">
-        <Input
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
-          placeholder="example.com"
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-        />
-        <select
-          className="border rounded h-9 px-2 bg-[var(--st-bg-secondary)]"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-        >
-          <option>ALL</option>
-          <option>A</option>
-          <option>AAAA</option>
-          <option>MX</option>
-          <option>TXT</option>
-          <option>NS</option>
-          <option>CNAME</option>
-          <option>SOA</option>
-        </select>
-        <Button onClick={run} disabled={loading}>
-          {loading ? 'Looking up…' : 'Lookup'}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex-1">
+          <Input
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="example.com"
+            aria-label="Hostname to look up"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+          />
+        </div>
+        <Select value={type} onValueChange={setType}>
+          <SelectTrigger aria-label="DNS record type" className="sm:w-40">
+            <SelectValue placeholder="Record type" />
+          </SelectTrigger>
+          <SelectContent>
+            {RECORD_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>
+                {t}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="primary" onClick={run} loading={loading}>
+          {loading ? 'Looking up...' : 'Lookup'}
         </Button>
       </div>
 
       {error && (
-        <Card className="border-[var(--st-border)]">
-          <CardBody className="p-4 flex items-center gap-2 text-[var(--st-text)] text-sm">
-            <AlertCircle className="w-4 h-4" />
-            {error}
-          </CardBody>
-        </Card>
+        <Alert tone="danger" title="Lookup failed">
+          {error}
+        </Alert>
       )}
 
       {data && !error && (
         <Card>
-          <CardBody className="p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-              <div className="text-lg font-semibold">Results for: {data.host}</div>
+          <CardBody className="flex flex-col gap-4">
+            <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+              <div className="text-lg font-semibold text-[var(--st-text)]">
+                Results for: {data.host}
+              </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleCopy}>
-                  <Copy className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" iconLeft={Copy} onClick={handleCopy}>
                   Copy
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExportCsv}>
-                  <Download className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" iconLeft={Download} onClick={handleExportCsv}>
                   Export CSV
                 </Button>
               </div>
             </div>
 
             {flattenedData.length === 0 ? (
-              <div className="text-sm text-[var(--st-text-secondary)] p-4 bg-[var(--st-bg-muted)] rounded">
-                No DNS records found for the selected type(s).
-              </div>
+              <EmptyState
+                icon={Inbox}
+                title="No DNS records found"
+                description="No records were returned for the selected type. Try a different record type or hostname."
+              />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left border-collapse">
-                  <thead className="bg-[var(--st-bg-muted)]">
-                    <tr>
-                      <th className="p-2 border font-medium w-24">Type</th>
-                      <th className="p-2 border font-medium">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table density="compact">
+                  <THead>
+                    <Tr>
+                      <Th width={96}>Type</Th>
+                      <Th>Value</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {flattenedData.map((row, idx) => (
-                      <tr key={idx} className="border-b last:border-0 hover:bg-[var(--st-bg-muted)]/50">
-                        <td className="p-2 border font-mono font-semibold text-[var(--st-text)]">{row.type}</td>
-                        <td className="p-2 border font-mono break-all text-xs">
-                          {row.value}
-                        </td>
-                      </tr>
+                      <Tr key={idx}>
+                        <Td>
+                          <Badge tone="neutral" className="font-mono">
+                            {row.type}
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <span className="break-all font-mono text-xs text-[var(--st-text)]">
+                            {row.value}
+                          </span>
+                        </Td>
+                      </Tr>
                     ))}
-                  </tbody>
-                </table>
+                  </TBody>
+                </Table>
               </div>
             )}
           </CardBody>

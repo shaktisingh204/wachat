@@ -3,13 +3,14 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Inbox, PencilLine, Filter, Users } from 'lucide-react';
 
 import { getMailAccount } from '@/app/actions/mailbox.actions';
-import { Button } from '@/components/sabcrm/20ui';
 
 /**
  * Account-scoped shell for `/dashboard/mailbox/[accountId]/*`.
  *
  * Resolves the account once, fails to a 404 when unknown, then renders a
- * sticky local nav (no tab UI — segmented buttons per the ZoruUI policy).
+ * sticky local nav (segmented ghost links per the 20ui policy). Link controls
+ * carry the canonical `u-btn` ghost classes so navigation stays a real anchor
+ * (Button does not support `asChild`), while the styling matches the system.
  */
 export default async function MailboxAccountLayout({
     children,
@@ -33,15 +34,13 @@ export default async function MailboxAccountLayout({
     ];
 
     return (
-        <div className="zoruui flex min-h-full flex-col">
+        <div className="ui20 flex min-h-full flex-col">
             <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-3 backdrop-blur">
                 <div className="flex items-center gap-3">
-                    <Button asChild variant="ghost" size="sm">
-                        <Link href="/dashboard/mailbox">
-                            <ArrowLeft className="mr-1 h-4 w-4" />
-                            Mailbox
-                        </Link>
-                    </Button>
+                    <Link href="/dashboard/mailbox" className="u-btn u-btn--ghost u-btn--sm">
+                        <ArrowLeft size={13} aria-hidden="true" />
+                        <span className="u-btn__label">Mailbox</span>
+                    </Link>
                     <span className="text-sm font-medium text-[var(--st-text)]">
                         {account.displayName ?? email}
                     </span>
@@ -49,12 +48,14 @@ export default async function MailboxAccountLayout({
                 </div>
                 <nav className="flex flex-wrap gap-1">
                     {links.map((l) => (
-                        <Button key={l.href} asChild variant="ghost" size="sm">
-                            <Link href={l.href}>
-                                <l.icon className="mr-1 h-4 w-4" />
-                                {l.label}
-                            </Link>
-                        </Button>
+                        <Link
+                            key={l.href}
+                            href={l.href}
+                            className="u-btn u-btn--ghost u-btn--sm"
+                        >
+                            <l.icon size={13} aria-hidden="true" />
+                            <span className="u-btn__label">{l.label}</span>
+                        </Link>
                     ))}
                 </nav>
             </header>

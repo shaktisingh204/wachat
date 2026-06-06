@@ -1,7 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Button } from '@/components/sabcrm/20ui';
+import { Inbox } from 'lucide-react';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    Button,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { ReportExportButton } from './report-export-button';
 
 interface RunResultsTableProps {
@@ -11,7 +24,7 @@ interface RunResultsTableProps {
 }
 
 function fmtCell(v: unknown): string {
-    if (v === null || v === undefined) return '—';
+    if (v === null || v === undefined) return '-';
     if (typeof v === 'number') {
         return Number.isInteger(v) ? String(v) : v.toFixed(2);
     }
@@ -49,14 +62,14 @@ export function RunResultsTable({ reportName, columns, rows }: RunResultsTablePr
             containerRef.current.scrollTop = 0;
         }
     }, [page]);
-    
+
     const rowHeight = 36;
     const containerHeight = 600;
     const overscan = 10;
-    
+
     const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
     const endIndex = Math.min(visibleRows.length, Math.ceil((scrollTop + containerHeight) / rowHeight) + overscan);
-    
+
     const virtualRows = visibleRows.slice(startIndex, endIndex);
     const paddingTop = startIndex * rowHeight;
     const paddingBottom = (visibleRows.length - endIndex) * rowHeight;
@@ -66,85 +79,84 @@ export function RunResultsTable({ reportName, columns, rows }: RunResultsTablePr
     };
 
     return (
-        <Card className="flex flex-col">
-            <div className="flex items-center justify-between border-b border-[var(--st-border)]/50 p-3">
-                <h3 className="text-[14px] font-semibold">Results ({rows.length} rows)</h3>
+        <Card padding="none" className="flex flex-col">
+            <CardHeader className="flex items-center justify-between gap-2">
+                <CardTitle>Results ({rows.length} rows)</CardTitle>
                 <div className="flex items-center gap-2">
-                    <ReportExportButton 
+                    <ReportExportButton
                         filename={`run-${reportName.toLowerCase().replace(/\s+/g, '-')}`}
                         headers={columns}
                         rows={exportRows}
                     />
                 </div>
-            </div>
-            
-            <div 
+            </CardHeader>
+
+            <div
                 ref={containerRef}
                 onScroll={handleScroll}
-                className="overflow-x-auto overflow-y-auto relative" 
-                style={{ maxHeight: containerHeight }}
+                className="relative max-h-[600px] overflow-x-auto overflow-y-auto"
             >
-                <table className="w-full text-sm relative border-collapse">
-                    <thead className="text-left text-[var(--st-text-secondary)] sticky top-0 bg-[var(--st-bg)] z-10 shadow-[0_1px_0_var(--st-border)]">
-                        <tr>
+                <Table density="compact" hover stickyHeader className="w-full">
+                    <THead>
+                        <Tr>
                             {columns.map((c) => (
-                                <th key={c} className="px-3 py-2 font-medium">
-                                    {c}
-                                </th>
+                                <Th key={c}>{c}</Th>
                             ))}
-                        </tr>
-                    </thead>
-                    <tbody>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {visibleRows.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={columns.length || 1}
-                                    className="px-3 py-6 text-center text-[var(--st-text-secondary)]"
-                                >
-                                    No rows captured.
-                                </td>
-                            </tr>
+                            <Tr>
+                                <Td colSpan={columns.length || 1} className="p-0">
+                                    <EmptyState
+                                        icon={Inbox}
+                                        title="No rows captured"
+                                        description="This run returned no rows. New results will appear here."
+                                        size="sm"
+                                    />
+                                </Td>
+                            </Tr>
                         )}
                         {paddingTop > 0 && (
-                            <tr style={{ height: paddingTop }} aria-hidden="true">
-                                <td colSpan={columns.length} />
-                            </tr>
+                            <Tr style={{ height: paddingTop }} aria-hidden="true">
+                                <Td colSpan={columns.length} />
+                            </Tr>
                         )}
                         {virtualRows.map((row, idx) => (
-                            <tr key={startIndex + idx} style={{ height: rowHeight }} className="border-t border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/50">
+                            <Tr key={startIndex + idx} style={{ height: rowHeight }}>
                                 {row.map((cell, ci) => (
-                                    <td key={ci} className="px-3 py-1 font-mono text-xs whitespace-nowrap">
+                                    <Td key={ci} className="font-mono text-xs whitespace-nowrap">
                                         {fmtCell(cell)}
-                                    </td>
+                                    </Td>
                                 ))}
-                            </tr>
+                            </Tr>
                         ))}
                         {paddingBottom > 0 && (
-                            <tr style={{ height: paddingBottom }} aria-hidden="true">
-                                <td colSpan={columns.length} />
-                            </tr>
+                            <Tr style={{ height: paddingBottom }} aria-hidden="true">
+                                <Td colSpan={columns.length} />
+                            </Tr>
                         )}
-                    </tbody>
-                </table>
+                    </TBody>
+                </Table>
             </div>
 
             {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-[var(--st-border)]/50 p-3">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3">
                     <p className="text-xs text-[var(--st-text-secondary)]">
                         Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, rows.length)} of {rows.length}
                     </p>
                     <div className="flex items-center gap-2">
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setPage(p => Math.max(0, p - 1))}
                             disabled={!hasPrev}
                         >
                             Previous
                         </Button>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                             disabled={!hasNext}
                         >

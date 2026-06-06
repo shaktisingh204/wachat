@@ -1,11 +1,24 @@
 /**
- * Drilldown view — single-chart deep dive. Reads the chart's
+ * Drilldown view - single-chart deep dive. Reads the chart's
  * `drilldownJson` to layer extra filters on top of the saved query.
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import { getChartAction, runChartAction } from '@/app/actions/analytics-bi.actions';
 
 import { ChartPreview } from '../chart-preview';
@@ -34,24 +47,30 @@ export default async function DrilldownPage({
   }));
 
   return (
-    <div className="zoruui flex flex-col gap-4 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+    <div className="ui20 flex flex-col gap-4 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
             <Link
               href={`/dashboard/analytics-workspace/workbooks/${id}`}
               className="hover:underline"
             >
               Workbook
             </Link>
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{chart.name}</h1>
-          <Badge variant="outline">{chart.type}</Badge>
-        </div>
-        <Button asChild variant="ghost">
-          <Link href={`/dashboard/analytics-workspace/workbooks/${id}`}>Back to workbook</Link>
-        </Button>
-      </header>
+          </PageEyebrow>
+          <PageTitle>{chart.name}</PageTitle>
+          <div className="mt-1">
+            <Badge variant="outline">{chart.type}</Badge>
+          </div>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="ghost">
+            <Link href={`/dashboard/analytics-workspace/workbooks/${id}`}>
+              Back to workbook
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <Card>
         <CardHeader>

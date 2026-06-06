@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default function NewBlueprintPage() {
     return (
-        <div className="zoruui p-6">
+        <div className="ui20 p-6">
             <BlueprintEditor mode="create" />
         </div>
     );

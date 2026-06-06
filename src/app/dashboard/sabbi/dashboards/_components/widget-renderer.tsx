@@ -7,22 +7,22 @@
  * server-side by `resolveWidgetData`, render the right visual.
  * Used both inside the read-only detail page and the editor preview.
  *
- * Charts use `recharts` (already an installed dep — see
- * `src/components/zoruui/chart.tsx`). The `funnel` kind uses
- * inline SVG / divs since recharts' FunnelChart is overkill for
- * the basic stacked-bar look this MVP needs.
+ * Charts use `recharts` (already an installed dep). The `funnel`
+ * kind uses inline SVG / divs since recharts' FunnelChart is overkill
+ * for the basic stacked-bar look this MVP needs.
  */
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { LoaderCircle } from 'lucide-react';
+import { AlertCircle, FileBarChart, Inbox } from 'lucide-react';
+import { EmptyState, Spinner, StatCard, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions.types';
 
 const CHART_COLORS = ['#5b8def', '#f0a26b', '#7ec77d', '#d97cc4', '#f0d36b', '#6bccd6'];
 
 const WidgetLoader = () => (
     <div className="flex h-full w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
+        <Spinner size="sm" label="Loading widget" />
     </div>
 );
 
@@ -49,16 +49,22 @@ export interface WidgetRendererProps {
 export function WidgetRenderer({ widget, data }: WidgetRendererProps) {
     if (data.error) {
         return (
-            <div className="flex h-full flex-col items-center justify-center rounded-md border border-dashed border-[var(--st-border)] p-4 text-center">
-                <p className="text-[12.5px] text-[var(--st-danger)]">{data.error}</p>
+            <div className="flex h-full w-full items-center justify-center p-4">
+                <EmptyState
+                    size="sm"
+                    tone="danger"
+                    icon={AlertCircle}
+                    title="Could not load widget"
+                    description={data.error}
+                />
             </div>
         );
     }
 
     if (data.note && (!data.rows || data.rows.length === 0)) {
         return (
-            <div className="flex h-full flex-col items-center justify-center rounded-md border border-dashed border-[var(--st-border)] p-4 text-center">
-                <p className="text-[12.5px] text-[var(--st-text-secondary)]">{data.note}</p>
+            <div className="flex h-full w-full items-center justify-center p-4">
+                <EmptyState size="sm" icon={Inbox} title="No data yet" description={data.note} />
             </div>
         );
     }
@@ -78,8 +84,13 @@ export function WidgetRenderer({ widget, data }: WidgetRendererProps) {
             return <TableWidget widget={widget} data={data} />;
         default:
             return (
-                <div className="flex h-full items-center justify-center text-[12.5px] text-[var(--st-text-secondary)]">
-                    Unsupported widget kind: {String((widget as DashboardWidget).kind)}
+                <div className="flex h-full w-full items-center justify-center p-4">
+                    <EmptyState
+                        size="sm"
+                        icon={FileBarChart}
+                        title="Unsupported widget"
+                        description={`Widget kind "${String((widget as DashboardWidget).kind)}" is not supported.`}
+                    />
                 </div>
             );
     }
@@ -96,29 +107,25 @@ function MetricWidget({ widget, data }: WidgetRendererProps) {
     const delta = row[deltaKey];
     const deltaNum = typeof delta === 'number' ? delta : undefined;
 
+    const deltaProp =
+        deltaNum !== undefined
+            ? {
+                  value: `${deltaNum >= 0 ? '+' : ''}${deltaNum}% vs prior period`,
+                  tone: (deltaNum >= 0 ? 'up' : 'down') as 'up' | 'down',
+              }
+            : undefined;
+
     return (
-        <div className="flex h-full flex-col justify-center px-4 py-2">
-            <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                {row.label || widget.title}
-            </div>
-            <div className="mt-1 text-[28px] font-semibold text-[var(--st-text)]">
-                {value === undefined || value === null ? '—' : String(value)}
-            </div>
-            {deltaNum !== undefined ? (
-                <div
-                    className={`mt-0.5 text-[12px] ${
-                        deltaNum >= 0 ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-danger)]'
-                    }`}
-                >
-                    {deltaNum >= 0 ? '+' : ''}
-                    {deltaNum}% vs prior period
-                </div>
-            ) : null}
+        <div className="flex h-full w-full items-center px-4 py-2">
+            <StatCard
+                className="w-full border-none bg-transparent p-0 shadow-none"
+                label={String(row.label || widget.title)}
+                value={value === undefined || value === null ? '-' : String(value)}
+                delta={deltaProp}
+            />
         </div>
     );
 }
-
-
 
 /* ----- funnel ----------------------------------------------------- */
 
@@ -133,8 +140,8 @@ function FunnelWidget({ widget, data }: WidgetRendererProps) {
     );
     if (rows.length === 0 || max === 0) {
         return (
-            <div className="flex h-full items-center justify-center text-[12.5px] text-[var(--st-text-secondary)]">
-                No funnel data.
+            <div className="flex h-full w-full items-center justify-center p-4">
+                <EmptyState size="sm" icon={FileBarChart} title="No funnel data" />
             </div>
         );
     }
@@ -146,7 +153,7 @@ function FunnelWidget({ widget, data }: WidgetRendererProps) {
                 return (
                     <div key={i} className="flex items-center gap-2">
                         <div className="w-24 shrink-0 truncate text-[11.5px] text-[var(--st-text-secondary)]">
-                            {String(row[nameKey] ?? '—')}
+                            {String(row[nameKey] ?? '-')}
                         </div>
                         <div className="relative h-5 flex-1 overflow-hidden rounded bg-[var(--st-bg-muted)]">
                             <div
@@ -173,8 +180,8 @@ function TableWidget({ data }: WidgetRendererProps) {
     const rows = data.rows.slice(0, 10);
     if (rows.length === 0) {
         return (
-            <div className="flex h-full items-center justify-center text-[12.5px] text-[var(--st-text-secondary)]">
-                No rows.
+            <div className="flex h-full w-full items-center justify-center p-4">
+                <EmptyState size="sm" icon={Inbox} title="No rows" />
             </div>
         );
     }
@@ -183,34 +190,30 @@ function TableWidget({ data }: WidgetRendererProps) {
     ).slice(0, 6);
     return (
         <div className="h-full overflow-auto">
-            <table className="w-full border-collapse text-[12px]">
-                <thead className="sticky top-0 bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                    <tr>
+            <Table density="compact" stickyHeader>
+                <THead>
+                    <Tr>
                         {headers.map((h) => (
-                            <th key={h} className="border-b border-[var(--st-border)] px-3 py-1.5 text-left font-medium">
-                                {h}
-                            </th>
+                            <Th key={h}>{h}</Th>
                         ))}
-                    </tr>
-                </thead>
-                <tbody>
+                    </Tr>
+                </THead>
+                <TBody>
                     {rows.map((row, i) => (
-                        <tr key={i} className="border-b border-[var(--st-border)]/60">
+                        <Tr key={i}>
                             {headers.map((h) => (
-                                <td key={h} className="px-3 py-1.5 text-[var(--st-text)]">
-                                    {formatCell(row[h])}
-                                </td>
+                                <Td key={h}>{formatCell(row[h])}</Td>
                             ))}
-                        </tr>
+                        </Tr>
                     ))}
-                </tbody>
-            </table>
+                </TBody>
+            </Table>
         </div>
     );
 }
 
 function formatCell(value: unknown): string {
-    if (value === null || value === undefined) return '—';
+    if (value === null || value === undefined) return '-';
     if (typeof value === 'object') {
         try {
             return JSON.stringify(value).slice(0, 80);

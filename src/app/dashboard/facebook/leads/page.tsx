@@ -1,6 +1,41 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  toast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +43,6 @@ import {
   useState,
   useTransition } from 'react';
 import {
-  AlertCircle,
   Download,
   Inbox,
   Mail,
@@ -27,7 +61,7 @@ import type { FacebookLead,
   FacebookLeadGenForm } from '@/lib/definitions';
 
 /**
- * /dashboard/facebook/leads — Lead Gen forms and captured leads.
+ * /dashboard/facebook/leads - Lead Gen forms and captured leads.
  *
  * Master/detail layout: left column lists Lead Gen forms (name, leads
  * count, created), right column lists leads for the selected form in a
@@ -162,7 +196,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<Inbox />}
+          icon={Inbox}
           title="No project selected"
           description="Pick a Facebook page / project to see Lead Gen forms and leads."
         />
@@ -188,33 +222,35 @@ export default function FacebookLeadsPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Leads</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Leads</PageTitle>
+          <PageDescription>
             Facebook Lead Gen forms and the leads captured against them.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={refreshForms} disabled={loadingForms}>
-            <RefreshCw
-              className={loadingForms ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'}
-            />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="ghost"
+            iconLeft={RefreshCw}
+            onClick={refreshForms}
+            loading={loadingForms}
+          >
             Refresh
           </Button>
           <Button
+            variant="primary"
+            iconLeft={Download}
             onClick={handleExport}
             disabled={!selectedForm || leads.length === 0}
           >
-            <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle />
           <AlertTitle>Could not load forms</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -234,7 +270,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
               </div>
             ) : forms.length === 0 ? (
               <EmptyState
-                icon={<Inbox />}
+                icon={Inbox}
                 title="No forms"
                 description="No Lead Gen forms found for this Page."
               />
@@ -244,26 +280,24 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                   const isActive = f.id === selectedFormId;
                   return (
                     <li key={f.id}>
-                      <button
-                        type="button"
+                      <Button
+                        variant={isActive ? 'secondary' : 'ghost'}
+                        block
                         onClick={() => setSelectedFormId(f.id)}
-                        className={
-                          'flex w-full flex-col gap-1 rounded-md border px-3 py-2 text-left transition ' +
-                          (isActive
-                            ? 'border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]'
-                            : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]')
-                        }
+                        className="!h-auto !justify-start !px-3 !py-2 text-left"
                       >
-                        <span className="line-clamp-1 text-sm text-[var(--st-text)]">
-                          {f.name}
+                        <span className="flex w-full flex-col gap-1">
+                          <span className="line-clamp-1 text-sm text-[var(--st-text)]">
+                            {f.name}
+                          </span>
+                          <span className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
+                            <Badge variant="secondary">
+                              {f.leads_count ?? 0} leads
+                            </Badge>
+                            <span>{fmtDate(f.created_time)}</span>
+                          </span>
                         </span>
-                        <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
-                          <Badge variant="secondary">
-                            {f.leads_count ?? 0} leads
-                          </Badge>
-                          <span>{fmtDate(f.created_time)}</span>
-                        </div>
-                      </button>
+                      </Button>
                     </li>
                   );
                 })}
@@ -281,7 +315,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
           <CardBody>
             {!selectedForm ? (
               <EmptyState
-                icon={<Inbox />}
+                icon={Inbox}
                 title="Pick a form"
                 description="Select a Lead Gen form on the left to see its leads."
               />
@@ -293,7 +327,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
               </div>
             ) : leads.length === 0 ? (
               <EmptyState
-                icon={<Inbox />}
+                icon={Inbox}
                 title="No leads yet"
                 description="No submissions captured against this form."
               />
@@ -304,15 +338,15 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                     <Th>Name</Th>
                     <Th>Email</Th>
                     <Th>Phone</Th>
-                    <Th className="text-right">Created</Th>
+                    <Th align="right">Created</Th>
                   </Tr>
                 </THead>
                 <TBody>
                   {leads.map((l) => {
-                    const name = pickField(l, ['full_name', 'name']) ?? '—';
-                    const email = pickField(l, ['email']) ?? '—';
+                    const name = pickField(l, ['full_name', 'name']) ?? '-';
+                    const email = pickField(l, ['email']) ?? '-';
                     const phone =
-                      pickField(l, ['phone_number', 'phone']) ?? '—';
+                      pickField(l, ['phone_number', 'phone']) ?? '-';
                     return (
                       <Tr
                         key={l.id}
@@ -321,23 +355,26 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                       >
                         <Td className="font-medium text-[var(--st-text)]">
                           <span className="inline-flex items-center gap-2">
-                            <User className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                            <User
+                              className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                              aria-hidden="true"
+                            />
                             {name}
                           </span>
                         </Td>
                         <Td>
                           <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
-                            <Mail className="h-3.5 w-3.5" />
+                            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
                             {email}
                           </span>
                         </Td>
                         <Td>
                           <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
-                            <Phone className="h-3.5 w-3.5" />
+                            <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                             {phone}
                           </span>
                         </Td>
-                        <Td className="text-right text-xs text-[var(--st-text-secondary)]">
+                        <Td align="right" className="text-xs text-[var(--st-text-secondary)]">
                           {fmtDate(l.created_time)}
                         </Td>
                       </Tr>
@@ -375,13 +412,13 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                 {(selectedLead.field_data ?? []).map((f, idx) => (
                   <li
                     key={`${f.name}-${idx}`}
-                    className="flex flex-col gap-0.5 rounded-md border border-[var(--st-border)] px-3 py-2"
+                    className="flex flex-col gap-0.5 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2"
                   >
                     <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                       {f.name}
                     </span>
                     <span className="break-words text-sm text-[var(--st-text)]">
-                      {(f.values ?? []).join(', ') || '—'}
+                      {(f.values ?? []).join(', ') || '-'}
                     </span>
                   </li>
                 ))}

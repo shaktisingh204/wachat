@@ -5,17 +5,17 @@
  *
  * Renders the SabFlow audit-log table for the current workspace.
  *
- *   • Filterable by action, date range (last 24h / 7d / 30d / all),
+ *   - Filterable by action, date range (last 24h / 7d / 30d / all),
  *     and free-text search across `target` + JSON-stringified metadata.
- *   • Action chips are colour-coded by family:
- *       flow.*       → blue
- *       credential.* → amber
- *       apiKey.*     → violet
- *       env.*        → emerald
- *       folder.*     → pink
- *   • Pagination: "Load more" appends the next 50 rows.
+ *   - Action chips are colour-coded by family (one tone carries one meaning):
+ *       flow.*       -> info
+ *       credential.* -> warning
+ *       apiKey.*     -> accent
+ *       env.*        -> success
+ *       folder.*     -> danger
+ *   - Pagination: "Load more" appends the next 50 rows.
  *
- * Reads from GET /api/sabflow/audit — auth-gated, scoped to the
+ * Reads from GET /api/sabflow/audit - auth-gated, scoped to the
  * caller's workspace.
  */
 
@@ -28,21 +28,47 @@ import {
 } from 'react';
 import Link from 'next/link';
 import {
-  LuArrowRight,
-  LuChevronDown,
-  LuChevronRight,
-  LuFilter,
-  LuHistory,
-  LuLoader,
-  LuRefreshCw,
-  LuSearch,
-  LuTriangleAlert,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  Filter,
+  History,
+  RefreshCw,
+  Search,
+  TriangleAlert,
+} from 'lucide-react';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Spinner,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 
-/* ──────────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------------
    Types & constants
-   ────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 interface AuditRow {
   _id: string;
@@ -79,36 +105,26 @@ const ACTION_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'folder.deleted',      label: 'Folder deleted' },
 ];
 
-const DATE_FILTERS: Array<{ value: DateRange; label: string }> = [
+const DATE_FILTERS: ReadonlyArray<{ value: DateRange; label: string }> = [
   { value: 'all', label: 'All time' },
   { value: '24h', label: 'Last 24h' },
   { value: '7d',  label: 'Last 7d' },
   { value: '30d', label: 'Last 30d' },
 ];
 
-/** Tailwind classes for the family-coloured action chip. */
-function actionChipClasses(action: string): string {
-  if (action.startsWith('flow.')) {
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
-  }
-  if (action.startsWith('credential.')) {
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
-  }
-  if (action.startsWith('apiKey.')) {
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
-  }
-  if (action.startsWith('env.')) {
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
-  }
-  if (action.startsWith('folder.')) {
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
-  }
-  return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
+/** Map an action's family to a Badge tone so colour only ever carries meaning. */
+function actionTone(action: string): BadgeTone {
+  if (action.startsWith('flow.')) return 'info';
+  if (action.startsWith('credential.')) return 'warning';
+  if (action.startsWith('apiKey.')) return 'accent';
+  if (action.startsWith('env.')) return 'success';
+  if (action.startsWith('folder.')) return 'danger';
+  return 'neutral';
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------------
    Component
-   ────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 export function AuditClient() {
   const [entries, setEntries] = useState<AuditRow[]>([]);
@@ -121,7 +137,7 @@ export function AuditClient() {
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-  /* ── data loader (server-side filters: action only) ────────────────────── */
+  /* -- data loader (server-side filters: action only) --------------------- */
 
   const fetchPage = useCallback(
     async (skip: number, append: boolean) => {
@@ -172,7 +188,7 @@ export function AuditClient() {
     void fetchPage(entries.length, true);
   }, [entries.length, fetchPage]);
 
-  /* ── client-side filters (date + search) ───────────────────────────────── */
+  /* -- client-side filters (date + search) -------------------------------- */
 
   const filtered = useMemo(() => {
     const now = Date.now();
@@ -214,133 +230,127 @@ export function AuditClient() {
   }, []);
 
   const canLoadMore = entries.length < total;
+  const isFiltered = Boolean(search || actionFilter !== 'all' || dateRange !== 'all');
 
-  /* ── render ────────────────────────────────────────────────────────────── */
+  /* -- render ------------------------------------------------------------- */
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="ui20 flex flex-col h-full">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuHistory className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div className="flex flex-col leading-tight min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            Audit log
-          </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
-            Who changed what across your SabFlow workspace
-          </p>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <span className="text-[11px] text-[var(--gray-9)] tabular-nums">
+      <PageHeader className="px-4 sm:px-6 shrink-0">
+        <PageHeaderHeading>
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            >
+              <History className="h-4 w-4" strokeWidth={2} />
+            </span>
+            <div className="flex flex-col leading-tight min-w-0">
+              <PageTitle>Audit log</PageTitle>
+              <PageDescription>
+                Who changed what across your SabFlow workspace
+              </PageDescription>
+            </div>
+          </div>
+        </PageHeaderHeading>
+        <PageActions>
+          <span className="text-[11px] text-[var(--st-text-secondary)] tabular-nums">
             {total.toLocaleString()} total
           </span>
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant="secondary"
+            iconLeft={RefreshCw}
+            loading={loading}
             onClick={handleRefresh}
-            disabled={loading}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
           >
-            <LuRefreshCw
-              className={cn('h-3.5 w-3.5', loading && 'animate-spin')}
-            />
             Refresh
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--gray-4)] px-4 sm:px-6 py-2.5 shrink-0">
-        <div className="relative flex items-center w-full sm:w-auto">
-          <LuSearch className="absolute left-2.5 h-3.5 w-3.5 text-[var(--gray-8)]" />
-          <input
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] px-4 sm:px-6 py-2.5 shrink-0">
+        <Field className="w-full sm:w-auto">
+          <Input
+            inputSize="sm"
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search target or metadata…"
-            className="w-full sm:w-[280px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
+            placeholder="Search target or metadata..."
+            aria-label="Search audit entries"
+            iconLeft={Search}
+            className="w-full sm:w-[280px]"
           />
-        </div>
+        </Field>
 
-        <div className="hidden sm:flex items-center gap-1 text-[10.5px] text-[var(--gray-9)] ml-auto">
-          <LuFilter className="h-3 w-3" strokeWidth={2} />
+        <div className="hidden sm:flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)] ml-auto">
+          <Filter className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
           Filter:
         </div>
 
-        <select
-          value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value)}
-          className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-2.5 pr-2.5 text-[12px] font-medium text-[var(--gray-11)] outline-none hover:border-[var(--gray-7)] focus:border-[var(--st-border)]"
-        >
-          {ACTION_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <Select value={actionFilter} onValueChange={setActionFilter}>
+          <SelectTrigger aria-label="Filter by action" className="w-[180px]">
+            <SelectValue placeholder="All actions" />
+          </SelectTrigger>
+          <SelectContent>
+            {ACTION_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <div className="flex items-center gap-0.5 rounded-lg bg-[var(--gray-3)] p-0.5">
-          {DATE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setDateRange(f.value)}
-              className={cn(
-                'rounded-md px-2 py-1 text-[11.5px] font-medium transition-colors',
-                dateRange === f.value
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<DateRange>
+          size="sm"
+          aria-label="Filter by date range"
+          items={DATE_FILTERS}
+          value={dateRange}
+          onChange={setDateRange}
+        />
       </div>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto">
         {loading && entries.length === 0 ? (
-          <div className="flex h-64 items-center justify-center gap-2 text-[var(--gray-9)]">
-            <LuLoader className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Loading audit entries…</span>
+          <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Loading audit entries" />
+            <span className="text-[12px]">Loading audit entries...</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
-            <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+          <div className="m-6">
+            <Alert tone="danger" icon={TriangleAlert} title="Could not load audit log">
+              {error}
+            </Alert>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-              <LuHistory className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <p className="text-[13px] text-[var(--gray-11)] font-medium">
-              {search || actionFilter !== 'all' || dateRange !== 'all'
-                ? 'No entries match'
-                : 'No audit entries yet'}
-            </p>
-            <p className="text-[11.5px] text-[var(--gray-9)]">
-              {search || actionFilter !== 'all' || dateRange !== 'all'
-                ? 'Try a different filter.'
-                : 'Mutating actions on flows, credentials, and keys appear here.'}
-            </p>
+          <div className="flex h-64 items-center justify-center">
+            <EmptyState
+              icon={History}
+              title={isFiltered ? 'No entries match' : 'No audit entries yet'}
+              description={
+                isFiltered
+                  ? 'Try a different filter.'
+                  : 'Mutating actions on flows, credentials, and keys appear here.'
+              }
+            />
           </div>
         ) : (
           <>
-            <table className="w-full text-[12px]">
-              <thead className="border-b border-[var(--gray-4)] text-left">
-                <tr className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)]">
-                  <th className="px-4 sm:px-6 py-2 font-semibold w-[4%]"></th>
-                  <th className="hidden sm:table-cell px-3 py-2 font-semibold">Time</th>
-                  <th className="hidden lg:table-cell px-3 py-2 font-semibold">User</th>
-                  <th className="px-3 py-2 font-semibold">Action</th>
-                  <th className="px-3 py-2 font-semibold">Target</th>
-                  <th className="hidden md:table-cell px-3 py-2 font-semibold">Metadata</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table density="compact">
+              <THead>
+                <Tr>
+                  <Th width="4%" aria-label="Expand" />
+                  <Th className="hidden sm:table-cell">Time</Th>
+                  <Th className="hidden lg:table-cell">User</Th>
+                  <Th>Action</Th>
+                  <Th>Target</Th>
+                  <Th className="hidden md:table-cell">Metadata</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.map((row) => {
                   const isOpen = expanded.has(row._id);
                   const hasMetadata =
@@ -355,29 +365,20 @@ export function AuditClient() {
                     />
                   );
                 })}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
 
             {canLoadMore && (
               <div className="flex justify-center px-4 sm:px-6 py-4">
-                <button
-                  type="button"
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  loading={loadingMore}
+                  iconRight={loadingMore ? undefined : ArrowRight}
                   onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
                 >
-                  {loadingMore ? (
-                    <>
-                      <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                      Loading…
-                    </>
-                  ) : (
-                    <>
-                      Load more
-                      <LuArrowRight className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </button>
+                  {loadingMore ? 'Loading...' : 'Load more'}
+                </Button>
               </div>
             )}
           </>
@@ -387,9 +388,9 @@ export function AuditClient() {
   );
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------------
    Row sub-component
-   ────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 function Row({
   row,
@@ -404,84 +405,69 @@ function Row({
 }): ReactNode {
   return (
     <>
-      <tr className="border-b border-[var(--gray-3)] hover:bg-[var(--gray-2)]">
-        <td className="px-4 sm:px-6 py-2.5">
+      <Tr>
+        <Td>
           {hasMetadata ? (
-            <button
-              type="button"
+            <IconButton
+              size="sm"
+              icon={isOpen ? ChevronDown : ChevronRight}
+              label={isOpen ? 'Collapse metadata' : 'Expand metadata'}
               onClick={onToggle}
-              aria-label={isOpen ? 'Collapse metadata' : 'Expand metadata'}
-              className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]"
-            >
-              {isOpen ? (
-                <LuChevronDown className="h-3.5 w-3.5" />
-              ) : (
-                <LuChevronRight className="h-3.5 w-3.5" />
-              )}
-            </button>
+            />
           ) : (
-            <span className="inline-block h-5 w-5" />
+            <span className="inline-block h-5 w-5" aria-hidden="true" />
           )}
-        </td>
-        <td className="hidden sm:table-cell px-3 py-2.5 text-[var(--gray-10)] tabular-nums">
+        </Td>
+        <Td className="hidden sm:table-cell text-[var(--st-text-secondary)] tabular-nums">
           <span title={row.createdAt}>{formatTime(row.createdAt)}</span>
-        </td>
-        <td className="hidden lg:table-cell px-3 py-2.5 text-[var(--gray-11)]">
+        </Td>
+        <Td className="hidden lg:table-cell">
           <span className="font-mono text-[11px]" title={row.userId}>
             {shortenId(row.userId)}
           </span>
-        </td>
-        <td className="px-3 py-2.5">
-          <span
-            className={cn(
-              'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold tracking-wide',
-              actionChipClasses(row.action),
-            )}
-          >
+        </Td>
+        <Td>
+          <Badge tone={actionTone(row.action)} kind="soft">
             {row.action}
-          </span>
-        </td>
-        <td className="px-3 py-2.5 text-[var(--gray-10)]">
+          </Badge>
+        </Td>
+        <Td className="text-[var(--st-text-secondary)]">
           {row.flowId ? (
             <Link
               href={`/dashboard/sabflow/${row.flowId}`}
-              className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--st-text)] hover:text-[var(--st-text)]"
+              className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--st-accent)] hover:underline"
               title={row.flowId}
             >
               {row.target ?? shortenId(row.flowId)}
-              <LuArrowRight className="h-3 w-3" />
+              <ArrowRight className="h-3 w-3" aria-hidden="true" />
             </Link>
           ) : row.target ? (
             <span className="font-mono text-[11px]" title={row.target}>
               {row.target}
             </span>
           ) : (
-            <span className="text-[var(--gray-8)]">—</span>
+            <span className="text-[var(--st-text-tertiary)]">-</span>
           )}
-        </td>
-        <td className="hidden md:table-cell px-3 py-2.5 text-[var(--gray-10)]">
+        </Td>
+        <Td className="hidden md:table-cell text-[var(--st-text-secondary)]">
           {hasMetadata ? (
-            <button
-              type="button"
-              onClick={onToggle}
-              className="text-[11px] text-[var(--gray-9)] underline-offset-2 hover:text-[var(--gray-12)] hover:underline"
-            >
+            <Button variant="ghost" size="sm" onClick={onToggle}>
               {isOpen ? 'Hide JSON' : 'Show JSON'}
-            </button>
+            </Button>
           ) : (
-            <span className="text-[var(--gray-8)]">—</span>
+            <span className="text-[var(--st-text-tertiary)]">-</span>
           )}
-        </td>
-      </tr>
+        </Td>
+      </Tr>
       {isOpen && hasMetadata && (
-        <tr className="border-b border-[var(--gray-3)] bg-[var(--gray-2)]">
-          <td className="px-4 sm:px-6 py-2" />
-          <td colSpan={5} className="px-3 py-2">
-            <pre className="max-h-[260px] overflow-auto rounded-md border border-[var(--gray-4)] bg-[var(--gray-1)] px-3 py-2 text-[11px] leading-relaxed text-[var(--gray-11)]">
+        <Tr className="bg-[var(--st-bg-secondary)]">
+          <Td />
+          <Td colSpan={5}>
+            <pre className="max-h-[260px] overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[11px] leading-relaxed text-[var(--st-text-secondary)]">
               {JSON.stringify(row.metadata, null, 2)}
             </pre>
             {(row.ipAddress || row.userAgent) && (
-              <div className="mt-1.5 flex flex-wrap gap-3 text-[10.5px] text-[var(--gray-9)]">
+              <div className="mt-1.5 flex flex-wrap gap-3 text-[10.5px] text-[var(--st-text-secondary)]">
                 {row.ipAddress && (
                   <span>
                     IP: <span className="font-mono">{row.ipAddress}</span>
@@ -494,16 +480,16 @@ function Row({
                 )}
               </div>
             )}
-          </td>
-        </tr>
+          </Td>
+        </Tr>
       )}
     </>
   );
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------------
    Formatters
-   ────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -522,7 +508,7 @@ function formatTime(iso: string): string {
 }
 
 function shortenId(id: string): string {
-  if (!id) return '—';
+  if (!id) return '-';
   if (id.length <= 12) return id;
-  return `${id.slice(0, 6)}…${id.slice(-4)}`;
+  return `${id.slice(0, 6)}...${id.slice(-4)}`;
 }

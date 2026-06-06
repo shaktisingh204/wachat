@@ -1,6 +1,32 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Separator,
+  Skeleton,
+  cn,
+  useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -16,6 +42,7 @@ import {
   ChevronRight,
   Circle,
   ExternalLink,
+  Facebook,
   Instagram,
   RefreshCw,
   Settings,
@@ -29,16 +56,16 @@ import type { Project,
 import { useProject } from '@/context/project-context';
 
 /**
- * /dashboard/facebook/setup — Meta Suite onboarding wizard.
+ * /dashboard/facebook/setup - Meta Suite onboarding wizard.
  *
  * Three-step numbered stepper (no tab UI):
- *   1. Connect Meta — OAuth or manual setup
- *   2. Pick a page — choose a project / page to focus on
- *   3. Link assets — verify WhatsApp & Instagram links and finish
+ *   1. Connect Meta - OAuth or manual setup
+ *   2. Pick a page - choose a project / page to focus on
+ *   3. Link assets - verify WhatsApp & Instagram links and finish
  *
  * Same data flow as `all-projects` (reads `getProjects`, OAuths through
- * `/api/auth/meta-suite/login`), zero behavioral changes. Pure zoru
- * tokens — neutral palette only.
+ * `/api/auth/meta-suite/login`), zero behavioral changes. Pure 20ui design
+ * system, neutral palette only.
  */
 
 import * as React from "react";
@@ -46,7 +73,9 @@ import * as React from "react";
 import { ManualSetupDialog } from "../_components/manual-setup-dialog";
 import { FacebookGlyph, WhatsAppGlyph } from "../_components/icons";
 
-/* ── stepper types ───────────────────────────────────────────────── */
+const META_SUITE_LOGIN = "/api/auth/meta-suite/login";
+
+/* -- stepper types ------------------------------------------------------- */
 
 const STEPS = [
   {
@@ -68,7 +97,7 @@ const STEPS = [
 
 type StepKey = (typeof STEPS)[number]["key"];
 
-/* ── skeleton ────────────────────────────────────────────────────── */
+/* -- skeleton ------------------------------------------------------------ */
 
 function SetupSkeleton() {
   return (
@@ -85,7 +114,7 @@ function SetupSkeleton() {
   );
 }
 
-/* ── numbered stepper ────────────────────────────────────────────── */
+/* -- numbered stepper ---------------------------------------------------- */
 
 function StepperHeader({
   current,
@@ -120,7 +149,7 @@ function StepperHeader({
                 )}
               >
                 {isDone ? (
-                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
                 ) : (
                   idx + 1
                 )}
@@ -141,7 +170,7 @@ function StepperHeader({
             </li>
             {idx !== STEPS.length - 1 ? (
               <span className="hidden items-center px-1 text-[var(--st-text-tertiary)] sm:flex">
-                <ChevronRight className="h-3.5 w-3.5" />
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </span>
             ) : null}
           </React.Fragment>
@@ -151,42 +180,46 @@ function StepperHeader({
   );
 }
 
-/* ── step bodies ─────────────────────────────────────────────────── */
+/* -- step bodies --------------------------------------------------------- */
+
+function StepBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
+      <Sparkles className="h-3 w-3" aria-hidden="true" /> {label}
+    </span>
+  );
+}
 
 function ConnectStep({
   appId,
+  onConnect,
   onManualSuccess,
 }: {
   appId: string | undefined;
+  onConnect: () => void;
   onManualSuccess: () => void;
 }) {
   return (
-    <Card className="p-6">
+    <Card padding="lg">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Sparkles className="h-3 w-3" /> Step 1 of 3
-        </span>
-        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
+        <StepBadge label="Step 1 of 3" />
+        <CardTitle className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Connect your Meta account
-        </h2>
+        </CardTitle>
         <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           We&apos;ll redirect you to Meta to authorize SabNode. You can grant access
-          to multiple Pages at once — you&apos;ll pick which one to manage in the
+          to multiple Pages at once, you&apos;ll pick which one to manage in the
           next step.
         </p>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         {appId ? (
-          <Button asChild size="lg">
-            <Link href="/api/auth/meta-suite/login">
-              <FacebookGlyph className="h-4 w-4" /> Connect with Facebook
-              <ArrowRight />
-            </Link>
+          <Button variant="primary" size="lg" iconLeft={Facebook} iconRight={ArrowRight} onClick={onConnect}>
+            Connect with Facebook
           </Button>
         ) : (
-          <Alert variant="warning" className="w-full">
-            <AlertCircle />
+          <Alert tone="warning" icon={AlertCircle} className="w-full">
             <AlertTitle>Facebook App ID missing</AlertTitle>
             <AlertDescription>
               Ask an admin to set <code>NEXT_PUBLIC_FACEBOOK_APP_ID</code>.
@@ -196,8 +229,7 @@ function ConnectStep({
         <ManualSetupDialog onSuccess={onManualSuccess} />
       </div>
 
-      <Alert className="mt-5">
-        <AlertCircle className="h-4 w-4" />
+      <Alert tone="info" icon={AlertCircle} className="mt-5">
         <AlertTitle>Troubleshooting permission errors</AlertTitle>
         <AlertDescription className="space-y-1">
           <p>If you encounter permission errors after returning from Meta:</p>
@@ -255,14 +287,12 @@ function PickPageStep({
   appId: string | undefined;
 }) {
   return (
-    <Card className="p-6">
+    <Card padding="lg">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Sparkles className="h-3 w-3" /> Step 2 of 3
-        </span>
-        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
+        <StepBadge label="Step 2 of 3" />
+        <CardTitle className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Pick a page to focus on
-        </h2>
+        </CardTitle>
         <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           Choose which Facebook Page you want to manage now. You can switch
           between pages anytime from the project switcher.
@@ -271,47 +301,59 @@ function PickPageStep({
 
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         {projects.map((p) => {
-          const active = p._id.toString() === selectedId;
+          const id = p._id.toString();
+          const active = id === selectedId;
           return (
-            <button
-              key={p._id.toString()}
-              type="button"
-              onClick={() => onSelect(p._id.toString())}
+            <Card
+              key={id}
+              variant="interactive"
+              padding="none"
+              role="button"
+              tabIndex={0}
+              aria-pressed={active}
+              onClick={() => onSelect(id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelect(id);
+                }
+              }}
               className={cn(
-                "flex items-start gap-3 rounded-[var(--st-radius-lg)] border p-4 text-left transition-colors focus-visible:outline-none",
+                "flex items-start gap-3 p-4 text-left",
                 active
                   ? "border-[var(--st-text)] bg-[var(--st-bg-secondary)]"
-                  : "border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-secondary)]",
+                  : "hover:bg-[var(--st-bg-secondary)]",
               )}
             >
               <Avatar className="h-10 w-10">
                 <AvatarImage
                   src={`https://graph.facebook.com/${p.facebookPageId}/picture?type=large`}
+                  alt={`${p.name} page photo`}
                 />
                 <AvatarFallback>
-                  <FacebookGlyph className="h-5 w-5" />
+                  <FacebookGlyph className="h-5 w-5" aria-hidden="true" />
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] text-[var(--st-text)]">{p.name}</p>
                 <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
-                  Page ID: {p.facebookPageId || "—"}
+                  Page ID: {p.facebookPageId || "Not set"}
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {p.adAccountId ? (
                     <Badge variant="outline" className="gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
+                      <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" aria-hidden="true" />
                       Ad account
                     </Badge>
                   ) : (
                     <Badge variant="secondary" className="gap-1">
-                      <Circle className="h-2.5 w-2.5" />
+                      <Circle className="h-2.5 w-2.5" aria-hidden="true" />
                       No ad account
                     </Badge>
                   )}
                   {p.wabaId ? (
                     <Badge variant="outline" className="gap-1">
-                      <WhatsAppGlyph className="h-3 w-3" />
+                      <WhatsAppGlyph className="h-3 w-3" aria-hidden="true" />
                       WhatsApp
                     </Badge>
                   ) : null}
@@ -325,20 +367,20 @@ function PickPageStep({
                     : "border border-[var(--st-border)] bg-[var(--st-bg)]",
                 )}
               >
-                {active ? <CheckCircle2 className="h-3 w-3" /> : null}
+                {active ? <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> : null}
               </span>
-            </button>
+            </Card>
           );
         })}
 
         {appId ? (
           <Link
-            href="/api/auth/meta-suite/login"
+            href={META_SUITE_LOGIN}
             onClick={onConnectAnother}
             className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-              <FacebookGlyph className="h-5 w-5" />
+              <FacebookGlyph className="h-5 w-5" aria-hidden="true" />
             </span>
             <p className="text-[12.5px] text-[var(--st-text)]">Connect another page</p>
           </Link>
@@ -356,14 +398,12 @@ function LinkAssetsStep({
   instagramId: string | null;
 }) {
   return (
-    <Card className="p-6">
+    <Card padding="lg">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Sparkles className="h-3 w-3" /> Step 3 of 3
-        </span>
-        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
+        <StepBadge label="Step 3 of 3" />
+        <CardTitle className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Link your other assets
-        </h2>
+        </CardTitle>
         <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           Verify the WhatsApp and Instagram accounts that you&apos;d like to
           manage alongside this Page.
@@ -372,7 +412,7 @@ function LinkAssetsStep({
 
       <div className="mt-5 flex flex-col gap-3">
         <AssetRow
-          icon={<FacebookGlyph className="h-4 w-4" />}
+          icon={<FacebookGlyph className="h-4 w-4" aria-hidden="true" />}
           title="Facebook Page"
           subtitle={project.name}
           status="connected"
@@ -380,7 +420,7 @@ function LinkAssetsStep({
           actionLabel="Open page"
         />
         <AssetRow
-          icon={<WhatsAppGlyph className="h-4 w-4" />}
+          icon={<WhatsAppGlyph className="h-4 w-4" aria-hidden="true" />}
           title="WhatsApp Business"
           subtitle={project.wabaId ? `WABA ID ${project.wabaId}` : "Not linked"}
           status={project.wabaId ? "connected" : "missing"}
@@ -388,15 +428,15 @@ function LinkAssetsStep({
           actionLabel={project.wabaId ? "Open Wachat" : "Connect WhatsApp"}
         />
         <AssetRow
-          icon={<Instagram className="h-4 w-4" />}
+          icon={<Instagram className="h-4 w-4" aria-hidden="true" />}
           title="Instagram"
-          subtitle={instagramId ? `Linked · ${instagramId}` : "No business account linked to this Page"}
+          subtitle={instagramId ? `Linked, ${instagramId}` : "No business account linked to this Page"}
           status={instagramId ? "connected" : "missing"}
           actionHref="/dashboard/facebook/settings"
           actionLabel="Manage links"
         />
         <AssetRow
-          icon={<Settings className="h-4 w-4" />}
+          icon={<Settings className="h-4 w-4" aria-hidden="true" />}
           title="Ad Account"
           subtitle={project.adAccountId || "Not connected"}
           status={project.adAccountId ? "connected" : "missing"}
@@ -423,6 +463,7 @@ function AssetRow({
   actionHref: string;
   actionLabel: string;
 }) {
+  const router = useRouter();
   return (
     <div className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
@@ -439,23 +480,25 @@ function AssetRow({
         className="gap-1"
       >
         {status === "connected" ? (
-          <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
+          <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" aria-hidden="true" />
         ) : (
-          <Circle className="h-2.5 w-2.5" />
+          <Circle className="h-2.5 w-2.5" aria-hidden="true" />
         )}
         {status === "connected" ? "Connected" : "Not linked"}
       </Badge>
-      <Button asChild variant="outline" size="sm">
-        <Link href={actionHref}>
-          {actionLabel}
-          <ExternalLink className="h-3 w-3" />
-        </Link>
+      <Button
+        variant="outline"
+        size="sm"
+        iconRight={ExternalLink}
+        onClick={() => router.push(actionHref)}
+      >
+        {actionLabel}
       </Button>
     </div>
   );
 }
 
-/* ── page ────────────────────────────────────────────────────────── */
+/* -- page ---------------------------------------------------------------- */
 
 export default function FacebookSetupPage() {
   const router = useRouter();
@@ -492,7 +535,7 @@ export default function FacebookSetupPage() {
     if (activeProjectId) setSelectedId(activeProjectId);
   }, [fetchProjects, activeProjectId]);
 
-  // Drive the active step from real state — no behavioral changes.
+  // Drive the active step from real state, no behavioral changes.
   useEffect(() => {
     if (projects.length === 0) {
       setStep("connect");
@@ -524,6 +567,10 @@ export default function FacebookSetupPage() {
       .catch(() => setInstagramId(null))
       .finally(() => setIgChecking(false));
   }, [selectedProject]);
+
+  const startMetaOAuth = useCallback(() => {
+    window.location.href = META_SUITE_LOGIN;
+  }, []);
 
   const handlePickPage = (id: string) => {
     const proj = projects.find((p) => p._id.toString() === id);
@@ -570,40 +617,42 @@ export default function FacebookSetupPage() {
 
       <PageHeader className="mt-5" bordered={false}>
         <PageHeading>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
-            Meta Suite onboarding
-          </p>
+          <PageEyebrow>Meta Suite onboarding</PageEyebrow>
           <PageTitle>Get connected in three steps</PageTitle>
           <PageDescription>
             Connect a Meta account, choose a Page and link your other assets to
             unlock the full Meta Suite.
           </PageDescription>
         </PageHeading>
-        <Button variant="outline" size="sm" onClick={fetchProjects}>
-          <RefreshCw /> Refresh
+        <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={fetchProjects}>
+          Refresh
         </Button>
       </PageHeader>
 
-      {/* ── Stepper ── */}
+      {/* Stepper */}
       <div className="mt-6">
         <StepperHeader current={step} />
       </div>
 
-      {/* ── Step body ── */}
+      {/* Step body */}
       <div className="mt-6">
         {step === "connect" ? (
-          <ConnectStep appId={appId} onManualSuccess={fetchProjects} />
+          <ConnectStep
+            appId={appId}
+            onConnect={startMetaOAuth}
+            onManualSuccess={fetchProjects}
+          />
         ) : null}
 
         {step === "page" ? (
           projects.length === 0 ? (
-            <Card className="p-6">
+            <Card padding="lg">
               <EmptyState
-                icon={<FacebookGlyph />}
+                icon={Facebook}
                 title="No connected pages"
                 description="Connect a Page in step 1 to continue."
                 action={
-                  <Button onClick={() => setStep("connect")}>
+                  <Button variant="primary" onClick={() => setStep("connect")}>
                     Back to step 1
                   </Button>
                 }
@@ -629,7 +678,7 @@ export default function FacebookSetupPage() {
         ) : null}
       </div>
 
-      {/* ── Step nav ── */}
+      {/* Step nav */}
       <div className="mt-6 flex items-center justify-between">
         <Button
           variant="outline"
@@ -645,27 +694,31 @@ export default function FacebookSetupPage() {
 
         {step === "connect" ? (
           <Button
+            variant="primary"
             size="sm"
+            iconRight={ArrowRight}
             disabled={projects.length === 0}
             onClick={() => setStep("page")}
           >
-            Continue <ArrowRight />
+            Continue
           </Button>
         ) : null}
 
         {step === "page" ? (
           <Button
+            variant="primary"
             size="sm"
+            iconRight={ArrowRight}
             disabled={!selectedId}
             onClick={() => setStep("assets")}
           >
-            Continue <ArrowRight />
+            Continue
           </Button>
         ) : null}
 
         {step === "assets" ? (
-          <Button size="sm" onClick={handleFinish}>
-            Finish setup <CheckCircle2 />
+          <Button variant="primary" size="sm" iconRight={CheckCircle2} onClick={handleFinish}>
+            Finish setup
           </Button>
         ) : null}
       </div>

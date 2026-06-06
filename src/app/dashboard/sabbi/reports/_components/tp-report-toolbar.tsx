@@ -2,8 +2,17 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/sabcrm/20ui';
 import { RefreshCw } from 'lucide-react';
+import {
+  Button,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import {
   ReportExportButton,
   type ReportExportButtonProps,
@@ -21,6 +30,10 @@ export interface TpReportToolbarProps {
   exportProps?: ReportExportButtonProps;
 }
 
+// Radix Select forbids an empty-string item value, so an "all" sentinel stands
+// in for "no filter" and is mapped back to an empty query param on apply.
+const ALL = '__all__';
+
 export function TpReportToolbar({
   from,
   to,
@@ -35,6 +48,45 @@ export function TpReportToolbar({
   const pathname = usePathname();
   const sp = useSearchParams();
 
+  const [fromValue, setFromValue] = React.useState(from ?? '');
+  const [toValue, setToValue] = React.useState(to ?? '');
+  const [projectValue, setProjectValue] = React.useState(projectId || ALL);
+  const [ownerValue, setOwnerValue] = React.useState(ownerId || ALL);
+
+  const onApply = React.useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const params = new URLSearchParams(sp.toString());
+      const setOrDelete = (key: string, value: string) => {
+        if (value) params.set(key, value);
+        else params.delete(key);
+      };
+      if (!hideDateRange) {
+        setOrDelete('from', fromValue);
+        setOrDelete('to', toValue);
+      }
+      if (projects.length > 0) {
+        setOrDelete('projectId', projectValue === ALL ? '' : projectValue);
+      }
+      if (owners.length > 0) {
+        setOrDelete('ownerId', ownerValue === ALL ? '' : ownerValue);
+      }
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [
+      sp,
+      hideDateRange,
+      fromValue,
+      toValue,
+      projects.length,
+      projectValue,
+      owners.length,
+      ownerValue,
+      router,
+      pathname,
+    ],
+  );
+
   const onRefresh = React.useCallback(() => {
     router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
     router.refresh();
@@ -42,67 +94,76 @@ export function TpReportToolbar({
 
   return (
     <form
-      method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+      onSubmit={onApply}
+      className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
       {!hideDateRange ? (
         <>
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">From</span>
-            <input
+          <Field label="From">
+            <Input
               type="date"
-              name="from"
-              defaultValue={from}
-              className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+              inputSize="sm"
+              value={fromValue}
+              onChange={(e) => setFromValue(e.target.value)}
             />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">To</span>
-            <input
+          </Field>
+          <Field label="To">
+            <Input
               type="date"
-              name="to"
-              defaultValue={to}
-              className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+              inputSize="sm"
+              value={toValue}
+              onChange={(e) => setToValue(e.target.value)}
             />
-          </label>
+          </Field>
         </>
       ) : null}
 
       {projects.length > 0 ? (
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Project</span>
-          <select
-            name="projectId"
-            defaultValue={projectId ?? ''}
-            className="h-9 min-w-[160px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          >
-            <option value="">All projects</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </label>
+        <Field label="Project">
+          <Select value={projectValue} onValueChange={setProjectValue}>
+            <SelectTrigger aria-label="Project" className="min-w-[160px]">
+              <SelectValue placeholder="All projects" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All projects</SelectItem>
+              {projects.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
       ) : null}
 
       {owners.length > 0 ? (
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Owner</span>
-          <select
-            name="ownerId"
-            defaultValue={ownerId ?? ''}
-            className="h-9 min-w-[140px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          >
-            <option value="">All owners</option>
-            {owners.map((o) => (
-              <option key={o.id} value={o.id}>{o.name}</option>
-            ))}
-          </select>
-        </label>
+        <Field label="Owner">
+          <Select value={ownerValue} onValueChange={setOwnerValue}>
+            <SelectTrigger aria-label="Owner" className="min-w-[140px]">
+              <SelectValue placeholder="All owners" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All owners</SelectItem>
+              {owners.map((o) => (
+                <SelectItem key={o.id} value={o.id}>
+                  {o.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
       ) : null}
 
-      <Button type="submit" size="sm">Apply</Button>
-      <Button type="button" size="sm" variant="outline" onClick={onRefresh}>
-        <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+      <Button type="submit" size="sm" variant="primary">
+        Apply
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        iconLeft={RefreshCw}
+        onClick={onRefresh}
+      >
         Refresh
       </Button>
       {exportProps ? <ReportExportButton {...exportProps} /> : null}

@@ -23,7 +23,19 @@ import {
     sendMailMessage,
 } from '@/app/actions/mailbox.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Field,
+    IconButton,
+    Input,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 interface ChipInputProps {
     id: string;
@@ -47,24 +59,20 @@ function ChipInput({ id, label, values, onChange }: ChipInputProps) {
     };
 
     return (
-        <div className="flex flex-col gap-1.5">
-            <Label htmlFor={id}>{label}</Label>
-            <div className="flex flex-wrap items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
+        <Field label={label} id={id}>
+            <div className="flex flex-wrap items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
                 {values.map((v) => (
-                    <Badge key={v} variant="secondary" className="gap-1">
+                    <Badge key={v} tone="neutral" className="gap-1">
                         {v}
-                        <button
-                            type="button"
-                            aria-label={`Remove ${v}`}
+                        <IconButton
+                            label={`Remove ${v}`}
+                            icon={X}
+                            size="sm"
                             onClick={() => onChange(values.filter((x) => x !== v))}
-                            className="ml-0.5 hover:text-[var(--st-text)]"
-                        >
-                            <X className="h-3 w-3" />
-                        </button>
+                        />
                     </Badge>
                 ))}
-                <input
-                    id={id}
+                <Input
                     value={draft}
                     onChange={(e) => {
                         const val = e.target.value;
@@ -85,11 +93,11 @@ function ChipInput({ id, label, values, onChange }: ChipInputProps) {
                         }
                     }}
                     onBlur={() => draft.trim() && commit(draft)}
-                    className="min-w-[8rem] flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--st-text-secondary)]"
+                    className="min-w-[8rem] flex-1 border-0 bg-transparent px-0 shadow-none focus:ring-0"
                     placeholder="email@example.com"
                 />
             </div>
-        </div>
+        </Field>
     );
 }
 
@@ -164,8 +172,8 @@ export function ComposeClient({
         if (!draftsFolderId) {
             toast({
                 title: 'No drafts folder',
-                description: 'Account has no `drafts` folder yet.',
-                variant: 'destructive',
+                description: 'Account has no drafts folder yet.',
+                tone: 'danger',
             });
             return;
         }
@@ -182,10 +190,10 @@ export function ComposeClient({
         });
         setBusy('idle');
         if (!res.ok) {
-            toast({ title: 'Save failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Save failed', description: res.error, tone: 'danger' });
             return;
         }
-        toast({ title: 'Draft saved' });
+        toast.success('Draft saved');
         if (res.id) setDraftId(res.id);
     };
 
@@ -194,7 +202,7 @@ export function ComposeClient({
             toast({
                 title: 'Add a recipient',
                 description: 'At least one To address is required.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -211,10 +219,10 @@ export function ComposeClient({
         });
         setBusy('idle');
         if (!res.ok) {
-            toast({ title: 'Send failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Send failed', description: res.error, tone: 'danger' });
             return;
         }
-        // Stub transport returns IDs prefixed with `stub-` — surface that.
+        // Stub transport returns IDs prefixed with `stub-`, surface that.
         if (res.messageId.startsWith('stub-')) {
             toast({
                 title: 'Queued (provider pending)',
@@ -230,9 +238,9 @@ export function ComposeClient({
 
     const statusLabel: Record<typeof busy, string> = {
         idle: '',
-        send: 'Sending…',
-        draft: 'Saving…',
-        autosave: 'Autosaving…',
+        send: 'Sending...',
+        draft: 'Saving...',
+        autosave: 'Autosaving...',
     };
 
     return (
@@ -250,100 +258,95 @@ export function ComposeClient({
                 <CardBody className="flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                         <span>From</span>
-                        <Badge variant="secondary">
+                        <Badge tone="neutral">
                             {fromName ? `${fromName} <${fromAddress}>` : fromAddress}
                         </Badge>
                     </div>
                     <ChipInput id="to" label="To" values={to} onChange={setTo} />
                     {!showCc && (
-                        <button
-                            type="button"
-                            className="self-start text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="self-start"
                             onClick={() => setShowCc(true)}
                         >
-                            + Add Cc
-                        </button>
+                            Add Cc
+                        </Button>
                     )}
                     {showCc && <ChipInput id="cc" label="Cc" values={cc} onChange={setCc} />}
                     {!showBcc && (
-                        <button
-                            type="button"
-                            className="self-start text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="self-start"
                             onClick={() => setShowBcc(true)}
                         >
-                            + Add Bcc
-                        </button>
+                            Add Bcc
+                        </Button>
                     )}
                     {showBcc && <ChipInput id="bcc" label="Bcc" values={bcc} onChange={setBcc} />}
 
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="compose-subject">Subject</Label>
+                    <Field label="Subject" id="compose-subject">
                         <Input
-                            id="compose-subject"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
                             placeholder="Subject"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="compose-body">Message</Label>
+                    </Field>
+                    <Field label="Message" id="compose-body">
                         <Textarea
-                            id="compose-body"
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
-                            placeholder="Write your message…"
+                            placeholder="Write your message..."
                             rows={12}
                             className="min-h-[16rem]"
                         />
-                    </div>
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label>Attachments</Label>
+                    <Field label="Attachments">
                         <div className="flex flex-wrap items-center gap-2">
                             {attachments.map((a) => (
-                                <Badge key={a.id} variant="secondary" className="gap-1">
-                                    <Paperclip className="h-3 w-3" />
+                                <Badge key={a.id} tone="neutral" className="gap-1">
+                                    <Paperclip className="h-3 w-3" aria-hidden="true" />
                                     {a.name}
-                                    <button
-                                        type="button"
-                                        aria-label={`Remove ${a.name}`}
+                                    <IconButton
+                                        label={`Remove ${a.name}`}
+                                        icon={X}
+                                        size="sm"
                                         onClick={() =>
                                             setAttachments((prev) =>
                                                 prev.filter((x) => x.id !== a.id),
                                             )
                                         }
-                                        className="ml-0.5 hover:text-[var(--st-text)]"
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </button>
+                                    />
                                 </Badge>
                             ))}
                             <SabFilePickerButton onPick={handleAttach} variant="outline">
-                                <Paperclip className="mr-1 h-4 w-4" />
+                                <Paperclip className="mr-1 h-4 w-4" aria-hidden="true" />
                                 Attach from SabFiles
                             </SabFilePickerButton>
                         </div>
-                    </div>
+                    </Field>
                 </CardBody>
             </Card>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
-                    type="button"
                     variant="outline"
+                    iconLeft={Save}
                     onClick={handleSaveDraft}
                     disabled={busy !== 'idle'}
                 >
-                    <Save className="mr-2 h-4 w-4" />
                     Save draft
                 </Button>
                 <Button
-                    type="button"
+                    variant="primary"
+                    iconLeft={Send}
+                    loading={busy === 'send'}
                     onClick={handleSend}
                     disabled={busy !== 'idle' || to.length === 0}
                 >
-                    <Send className="mr-2 h-4 w-4" />
-                    {busy === 'send' ? 'Sending…' : 'Send'}
+                    {busy === 'send' ? 'Sending...' : 'Send'}
                 </Button>
             </div>
         </div>

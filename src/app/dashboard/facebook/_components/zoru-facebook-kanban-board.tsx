@@ -1,43 +1,71 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, Badge, Button, Card, CardBody, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, ScrollArea, ScrollBar, Skeleton, useToast, cn } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  ScrollArea,
+  ScrollBar,
+  Skeleton,
+  useToast,
+  cn,
+} from "@/components/sabcrm/20ui";
 import {
   useEffect,
   useState,
-  useTransition } from "react";
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   MessageSquare,
   MoreHorizontal,
   Plus,
-  } from "lucide-react";
+} from "lucide-react";
 
 import {
   getFacebookKanbanData,
   handleUpdateFacebookSubscriberStatus,
   saveFacebookKanbanStatuses,
-  } from "@/app/actions/facebook.actions";
+} from "@/app/actions/facebook.actions";
 import type {
   WithId,
   FacebookSubscriber,
   Project,
-  } from "@/lib/definitions";
+} from "@/lib/definitions";
 
 /**
- * /dashboard/facebook/kanban — ZoruUI rebuild of `FacebookKanbanBoard`.
+ * /dashboard/facebook/kanban - 20ui rebuild of `FacebookKanbanBoard`.
  *
  * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx`:
  *   - Conversations grouped by status into columns.
  *   - Each column is a Card, each conversation is a row card.
- *   - No drag-and-drop — status changes happen via per-row dropdown.
+ *   - No drag-and-drop. Status changes happen via per-row dropdown.
  *
  * Server-action wiring preserved:
  *   - getFacebookKanbanData(projectId)
  *   - saveFacebookKanbanStatuses(projectId, names)
  *   - handleUpdateFacebookSubscriberStatus(subscriberId, status)
  *
- * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
+ * TODO: drag-reorder. Re-introduce @dnd-kit/core (DndContext +
  * useDroppable on columns + useDraggable on cards) and call
  * handleUpdateFacebookSubscriberStatus from the drop handler. Until
  * then the dropdown menu is the only path to move a conversation
@@ -51,7 +79,7 @@ type FacebookKanbanColumnData = {
   conversations: WithId<FacebookSubscriber>[];
 };
 
-/* ── skeleton ─────────────────────────────────────────────────────── */
+/* skeleton */
 
 function KanbanPageSkeleton() {
   return (
@@ -65,7 +93,7 @@ function KanbanPageSkeleton() {
   );
 }
 
-/* ── add-list inline form ─────────────────────────────────────────── */
+/* add-list inline form */
 
 function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -83,35 +111,34 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
     return (
       <Button
         variant="outline"
+        iconLeft={Plus}
         className="h-12 w-72 shrink-0"
         onClick={() => setIsAdding(true)}
       >
-        <Plus /> Add another list
+        Add another list
       </Button>
     );
   }
 
   return (
     <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
-      <Input
-        autoFocus
-        placeholder="Enter list title..."
-        value={listName}
-        onChange={(e) => setListName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleAdd();
-          if (e.key === "Escape") setIsAdding(false);
-        }}
-      />
+      <Field label="List title">
+        <Input
+          autoFocus
+          placeholder="Enter list title..."
+          value={listName}
+          onChange={(e) => setListName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAdd();
+            if (e.key === "Escape") setIsAdding(false);
+          }}
+        />
+      </Field>
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={handleAdd}>
+        <Button variant="primary" size="sm" onClick={handleAdd}>
           Add list
         </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setIsAdding(false)}
-        >
+        <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
           Cancel
         </Button>
       </div>
@@ -119,7 +146,7 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
   );
 }
 
-/* ── card ─────────────────────────────────────────────────────────── */
+/* card */
 
 interface KanbanCardProps {
   subscriber: WithId<FacebookSubscriber>;
@@ -146,31 +173,30 @@ function ZoruFacebookKanbanCard({
   };
 
   return (
-    <Card className="p-3" variant="default">
+    <Card padding="sm" variant="outlined">
       <div className="flex items-start gap-2.5">
         <Avatar className="h-8 w-8 shrink-0">
           <AvatarFallback>{initial}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="truncate text-[13px] text-[var(--st-text)] leading-tight">
+            <p className="truncate text-[13px] leading-tight text-[var(--st-text)]">
               {subscriber.name || subscriber.psid}
             </p>
             <div className="flex shrink-0 items-center gap-1">
               {unread > 0 && (
-                <Badge className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
+                <Badge tone="accent" className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
                   {unread}
                 </Badge>
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="Card actions"
-                    className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none"
-                  >
-                    <MoreHorizontal className="h-3.5 w-3.5" />
-                  </button>
+                  <IconButton
+                    label="Card actions"
+                    icon={MoreHorizontal}
+                    variant="ghost"
+                    size="sm"
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel>Move to status</DropdownMenuLabel>
@@ -179,19 +205,20 @@ function ZoruFacebookKanbanCard({
                       key={col}
                       disabled={col === currentColumn}
                       onSelect={() => onMove(id, col)}
+                      className="capitalize"
                     >
                       {col.replace(/_/g, " ")}
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={handleGoToChat}>
-                    <MessageSquare /> Open thread
+                  <DropdownMenuItem iconLeft={MessageSquare} onSelect={handleGoToChat}>
+                    Open thread
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-[var(--st-text-secondary)] font-mono">
+          <p className="mt-0.5 truncate font-mono text-[11px] text-[var(--st-text-secondary)]">
             {subscriber.psid}
           </p>
           <p className="mt-1.5 line-clamp-2 text-[11.5px] text-[var(--st-text-secondary)]">
@@ -203,17 +230,18 @@ function ZoruFacebookKanbanCard({
         <Button
           size="sm"
           variant="outline"
-          className="w-full"
+          iconLeft={MessageSquare}
+          block
           onClick={handleGoToChat}
         >
-          <MessageSquare /> Open thread
+          Open thread
         </Button>
       </div>
     </Card>
   );
 }
 
-/* ── column ───────────────────────────────────────────────────────── */
+/* column */
 
 interface KanbanColumnProps {
   title: string;
@@ -225,29 +253,28 @@ function ZoruFacebookKanbanColumn({ title, count, children }: KanbanColumnProps)
   return (
     <Card
       className={cn(
-        "flex h-full w-80 shrink-0 flex-col gap-0 p-0",
-        // TODO: drag-reorder — wire useDroppable here when DnD returns.
+        "flex h-full w-80 shrink-0 flex-col gap-0",
+        // TODO: drag-reorder. Wire useDroppable here when DnD returns.
       )}
-      variant="soft"
+      padding="none"
+      variant="elevated"
     >
       <CardHeader className="shrink-0 border-b border-[var(--st-border)]">
         <CardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
-          <Badge variant="secondary" className="h-5 px-2 text-[10px]">
+          <Badge tone="neutral" className="h-5 px-2 text-[10px]">
             {count}
           </Badge>
         </CardTitle>
       </CardHeader>
       <ScrollArea className="flex-1">
-        <CardBody className="flex flex-col gap-3 p-3">
-          {children}
-        </CardBody>
+        <CardBody className="flex flex-col gap-3 p-3">{children}</CardBody>
       </ScrollArea>
     </Card>
   );
 }
 
-/* ── main ─────────────────────────────────────────────────────────── */
+/* main */
 
 export function ZoruFacebookKanbanBoard() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -286,14 +313,13 @@ export function ZoruFacebookKanbanBoard() {
         allStatusNames,
       );
       if (!result.success) {
-        toast({
-          title: "Error",
-          description: "Could not save new list.",
-          variant: "destructive",
+        toast.error({
+          title: "Could not save new list",
+          description: "Please try again.",
         });
         fetchData(); // revert on failure
       } else {
-        toast({
+        toast.success({
           title: "List added",
           description: `"${name}" is now on the board.`,
         });
@@ -353,8 +379,7 @@ export function ZoruFacebookKanbanBoard() {
   if (!project) {
     return (
       <div className="p-4">
-        <Alert variant="destructive">
-          <AlertCircle />
+        <Alert tone="danger" icon={AlertCircle}>
           <AlertTitle>No project selected</AlertTitle>
           <AlertDescription>
             Please select a project from the main dashboard page to view the
@@ -378,9 +403,12 @@ export function ZoruFacebookKanbanBoard() {
               count={column.conversations.length}
             >
               {column.conversations.length === 0 ? (
-                <p className="px-1 py-4 text-center text-[11.5px] text-[var(--st-text-tertiary)]">
-                  No conversations.
-                </p>
+                <EmptyState
+                  size="sm"
+                  icon={MessageSquare}
+                  title="No conversations"
+                  description="Move a thread here to get started."
+                />
               ) : (
                 column.conversations.map((subscriber) => (
                   <ZoruFacebookKanbanCard

@@ -1,14 +1,31 @@
 "use client";
 
 import * as React from "react";
-import { Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Badge } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  Badge,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from "@/components/sabcrm/20ui";
 import {
   ChevronRight,
   RotateCcw,
   Search,
   ShieldCheck,
   Trash2,
-  ArrowUpDown,
 } from "lucide-react";
 import type { WebhookDlqRow } from "@/lib/rust-client/telegram-webhooks";
 import { fmtDate, STATUS_VARIANT } from "./utils";
@@ -56,6 +73,11 @@ export function DlqSection(props: {
     }
   }
 
+  function sortDirFor(field: "lastAttemptAt" | "attempts") {
+    if (sortField !== field) return null;
+    return sortAsc ? ("asc" as const) : ("desc" as const);
+  }
+
   return (
     <div className="space-y-3">
       <Card>
@@ -86,8 +108,8 @@ export function DlqSection(props: {
               <SelectItem value="resolved">Resolved</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={props.onApply}>
-            <Search className="mr-2 h-4 w-4" /> Apply
+          <Button onClick={props.onApply} iconLeft={Search}>
+            Apply
           </Button>
         </CardBody>
       </Card>
@@ -95,7 +117,7 @@ export function DlqSection(props: {
         <Skeleton className="h-40 w-full" />
       ) : props.items.length === 0 ? (
         <EmptyState
-          icon={<ShieldCheck className="h-8 w-8" />}
+          icon={ShieldCheck}
           title="The DLQ is empty"
           description="Failed deliveries land here. The worker auto-retries pending items on a schedule."
         />
@@ -103,77 +125,73 @@ export function DlqSection(props: {
         <Card>
           <CardBody className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b bg-[var(--st-bg-muted)]/30 text-xs uppercase text-[var(--st-text-secondary)]">
-                  <tr>
-                    <th
-                      className="px-3 py-2 text-left cursor-pointer hover:bg-[var(--st-bg-muted)]/50"
-                      onClick={() => handleSort("lastAttemptAt")}
+              <Table density="compact">
+                <THead>
+                  <Tr>
+                    <Th
+                      sortable
+                      sortDirection={sortDirFor("lastAttemptAt")}
+                      onSort={() => handleSort("lastAttemptAt")}
                     >
-                      <div className="flex items-center gap-1">
-                        Last attempt <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th
-                      className="px-3 py-2 text-right cursor-pointer hover:bg-[var(--st-bg-muted)]/50"
-                      onClick={() => handleSort("attempts")}
+                      Last attempt
+                    </Th>
+                    <Th
+                      align="right"
+                      sortable
+                      sortDirection={sortDirFor("attempts")}
+                      onSort={() => handleSort("attempts")}
                     >
-                      <div className="flex items-center justify-end gap-1">
-                        Attempts <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                    <th className="px-3 py-2 text-left">Last error</th>
-                    <th className="px-3 py-2 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+                      Attempts
+                    </Th>
+                    <Th>Status</Th>
+                    <Th>Last error</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {sortedItems.map((d) => (
-                    <tr
-                      key={d._id}
-                      className="border-b last:border-0 hover:bg-[var(--st-bg-muted)]/20"
-                    >
-                      <td className="whitespace-nowrap px-3 py-2">
+                    <Tr key={d._id}>
+                      <Td className="whitespace-nowrap">
                         {fmtDate(d.lastAttemptAt)}
-                      </td>
-                      <td className="px-3 py-2 text-right">{d.attempts}</td>
-                      <td className="px-3 py-2">
-                        <Badge variant={STATUS_VARIANT[d.status] ?? "ghost"}>
+                      </Td>
+                      <Td align="right">{d.attempts}</Td>
+                      <Td>
+                        <Badge variant={STATUS_VARIANT[d.status] ?? "secondary"}>
                           {d.status}
                         </Badge>
-                      </td>
-                      <td className="px-3 py-2">
+                      </Td>
+                      <Td>
                         <span className="line-clamp-1 max-w-[40ch] text-xs text-[var(--st-text-secondary)]">
-                          {d.lastError ?? "—"}
+                          {d.lastError ?? "None"}
                         </span>
-                      </td>
-                      <td className="px-3 py-2 text-right">
+                      </Td>
+                      <Td align="right">
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label="Retry delivery"
+                          iconLeft={RotateCcw}
                           onClick={() => props.onRetry(d)}
-                        >
-                          <RotateCcw className="h-3 w-3" />
-                        </Button>
+                        />
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label="Resolve item"
+                          iconLeft={ChevronRight}
                           onClick={() => props.onResolve(d)}
-                        >
-                          <ChevronRight className="h-3 w-3" />
-                        </Button>
+                        />
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label="Delete item"
+                          iconLeft={Trash2}
                           onClick={() => props.onDelete(d)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </td>
-                    </tr>
+                        />
+                      </Td>
+                    </Tr>
                   ))}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
           </CardBody>
         </Card>

@@ -1,8 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui';
-import { Bell, BellRing, Trash2, Check, AlertCircle } from 'lucide-react';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SegmentedControl,
+  Badge,
+  EmptyState,
+  IconButton,
+} from '@/components/sabcrm/20ui';
+import { Bell, BellOff, Trash2, Check, AlertCircle } from 'lucide-react';
 import { saveAlertConfig, deleteAlertConfig, markAlertRead } from './actions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAlertConfigs, getActionableAlerts, type AlertConfig } from './actions';
@@ -10,7 +27,7 @@ import { getAlertConfigs, getActionableAlerts, type AlertConfig } from './action
 export function AlertsDialog({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'config' | 'actionable'>('actionable');
-  
+
   const queryClient = useQueryClient();
 
   const { data: configs = [], refetch: refetchConfigs } = useQuery({
@@ -53,48 +70,61 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="relative">
-          <Bell className="mr-2 h-4 w-4" />
-          Configure Alerts
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-danger)] text-[10px] text-white">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-      </DialogTrigger>
+      <Button variant="outline" iconLeft={Bell} className="relative" onClick={() => setOpen(true)}>
+        Configure Alerts
+        {unreadCount > 0 && (
+          <Badge
+            tone="danger"
+            kind="solid"
+            className="absolute -top-1 -right-1 min-w-[16px] justify-center px-1 text-[10px]"
+          >
+            {unreadCount}
+          </Badge>
+        )}
+      </Button>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Automated Alerts</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-4 border-b border-[var(--st-border)] pb-2 mb-4">
-          <button
-            className={`text-sm font-medium ${tab === 'actionable' ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
-            onClick={() => setTab('actionable')}
-          >
-            Actionable Alerts {unreadCount > 0 && `(${unreadCount})`}
-          </button>
-          <button
-            className={`text-sm font-medium ${tab === 'config' ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
-            onClick={() => setTab('config')}
-          >
-            Configuration
-          </button>
+        <div className="mb-4">
+          <SegmentedControl
+            aria-label="Alerts view"
+            value={tab}
+            onChange={setTab}
+            items={[
+              {
+                value: 'actionable',
+                label: unreadCount > 0 ? `Actionable Alerts (${unreadCount})` : 'Actionable Alerts',
+              },
+              { value: 'config', label: 'Configuration' },
+            ]}
+          />
         </div>
 
         {tab === 'actionable' && (
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             {actionable.length === 0 ? (
-              <div className="text-center text-sm text-[var(--st-text-secondary)] py-8">No recent alerts.</div>
+              <EmptyState
+                icon={BellOff}
+                title="No recent alerts"
+                description="You are all caught up. New alerts will show up here as they fire."
+              />
             ) : (
               actionable.map((alert: { id: string; message: string; status: string; timestamp: string }) => (
-                <div key={alert.id} className="flex flex-col gap-2 p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]">
+                <div
+                  key={alert.id}
+                  className="flex flex-col gap-2 p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]"
+                >
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className={`h-4 w-4 ${alert.status === 'unread' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}`} />
-                      <span className={`text-sm ${alert.status === 'unread' ? 'font-semibold text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
+                      <AlertCircle
+                        aria-hidden="true"
+                        className={`h-4 w-4 ${alert.status === 'unread' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}`}
+                      />
+                      <span
+                        className={`text-sm ${alert.status === 'unread' ? 'font-semibold text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
+                      >
                         {alert.message}
                       </span>
                     </div>
@@ -107,10 +137,9 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-xs"
+                        iconLeft={Check}
                         onClick={() => markReadMutation.mutate(alert.id)}
                       >
-                        <Check className="h-3 w-3 mr-1" />
                         Acknowledge
                       </Button>
                     )}
@@ -126,22 +155,29 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-[var(--st-text)]">Active Rules</h4>
               {configs.length === 0 ? (
-                <div className="text-xs text-[var(--st-text-secondary)]">No rules configured.</div>
+                <EmptyState
+                  icon={Bell}
+                  size="sm"
+                  title="No rules configured"
+                  description="Add a rule below to get notified when brand metrics cross a threshold."
+                />
               ) : (
                 <div className="space-y-2">
                   {configs.map((config: AlertConfig) => (
-                    <div key={config.id} className="flex items-center justify-between p-2 border border-[var(--st-border)] rounded-md">
+                    <div
+                      key={config.id}
+                      className="flex items-center justify-between p-2 border border-[var(--st-border)] rounded-[var(--st-radius)]"
+                    >
                       <div>
-                        <div className="text-sm font-medium">{config.name}</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">{config.name}</div>
                         <div className="text-xs text-[var(--st-text-secondary)] font-mono">{config.condition}</div>
                       </div>
-                      <Button
+                      <IconButton
+                        label={`Delete rule ${config.name}`}
+                        icon={Trash2}
                         variant="ghost"
-                        size="icon"
                         onClick={() => deleteMutation.mutate(config.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
-                      </Button>
+                      />
                     </div>
                   ))}
                 </div>
@@ -150,18 +186,16 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
 
             <div className="space-y-3 pt-4 border-t border-[var(--st-border)]">
               <h4 className="text-sm font-semibold text-[var(--st-text)]">Add New Rule</h4>
-              <div className="space-y-2">
-                <Label>Rule Name</Label>
+              <Field label="Rule Name">
                 <Input
                   placeholder="e.g. Reputation Drop"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label>Condition</Label>
+              </Field>
+              <Field label="Condition">
                 <Select value={newCondition} onValueChange={setNewCondition}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Condition">
                     <SelectValue placeholder="Select condition" />
                   </SelectTrigger>
                   <SelectContent>
@@ -170,9 +204,10 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
                     <SelectItem value="negative_mentions > 10">Negative Mentions &gt; 10 per hour</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
               <Button
-                className="w-full"
+                variant="primary"
+                block
                 disabled={!newName || addMutation.isPending}
                 onClick={() => addMutation.mutate({ name: newName, condition: newCondition, active: true })}
               >

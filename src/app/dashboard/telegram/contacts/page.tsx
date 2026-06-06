@@ -1,26 +1,77 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Contact as ContactIcon,
-  Download,
-  Filter,
-  Loader2,
-  Pencil,
-  Plus,
-  Search,
-  ShieldOff,
-  ShieldCheck,
-  Tag,
-  Trash2,
-  Upload,
-  UserPlus,
-  Users,
-  X,
-  } from 'lucide-react';
+    Avatar,
+    AvatarFallback,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Checkbox,
+    DateRangePicker,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    StatCard,
+    Switch,
+    TBody,
+    THead,
+    Table,
+    Td,
+    Textarea,
+    Th,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertCircle,
+    ChevronLeft,
+    ChevronRight,
+    Contact as ContactIcon,
+    Download,
+    Filter,
+    Pencil,
+    Plus,
+    Search,
+    ShieldOff,
+    ShieldCheck,
+    Tag,
+    Trash2,
+    Upload,
+    UserPlus,
+    Users,
+    X,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -51,13 +102,12 @@ import type {
     SegmentRow,
 } from '@/lib/rust-client/telegram-contacts';
 
-const ACCENT = '#229ED9';
 const PAGE_SIZE = 25;
 
 // -- helpers ---------------------------------------------------------------
 
 function fmtDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleDateString();
     } catch {
@@ -108,7 +158,7 @@ function isoEnd(d: Date): string {
     return c.toISOString();
 }
 function truncate(s: string, n: number): string {
-    return s.length > n ? `${s.slice(0, n - 1)}…` : s;
+    return s.length > n ? `${s.slice(0, n - 1)}...` : s;
 }
 
 // -- form state ------------------------------------------------------------
@@ -184,6 +234,16 @@ function validateEditor(f: EditorForm): string | null {
     return null;
 }
 
+type EditorTab = 'overview' | 'tags' | 'fields' | 'notes' | 'activity';
+
+const EDITOR_TABS: ReadonlyArray<{ value: EditorTab; label: string }> = [
+    { value: 'overview', label: 'Overview' },
+    { value: 'tags', label: 'Tags' },
+    { value: 'fields', label: 'Custom fields' },
+    { value: 'notes', label: 'Notes' },
+    { value: 'activity', label: 'Activity' },
+];
+
 // -- page ------------------------------------------------------------------
 
 export default function TelegramContactsPage() {
@@ -222,11 +282,11 @@ export default function TelegramContactsPage() {
     // Editor drawer
     const [editorOpen, setEditorOpen] = React.useState(false);
     const [editorForm, setEditorForm] = React.useState<EditorForm>(EMPTY_EDITOR);
-    const [editorTab, setEditorTab] = React.useState<'overview' | 'tags' | 'fields' | 'notes' | 'activity'>('overview');
+    const [editorTab, setEditorTab] = React.useState<EditorTab>('overview');
     const [editorErr, setEditorErr] = React.useState<string | null>(null);
     const [editorSaving, setEditorSaving] = React.useState(false);
 
-    // Detail drawer state — we re-use the editor drawer with `viewMode`
+    // Detail drawer state - we re-use the editor drawer with `viewMode`
     const [viewMode, setViewMode] = React.useState<'create' | 'edit' | 'view'>('create');
     // Backing row for the activity tab, when opened from an existing contact.
     const [activeRow, setActiveRow] = React.useState<ContactRow | null>(null);
@@ -486,7 +546,7 @@ export default function TelegramContactsPage() {
             : await upsertTelegramContactAction(body);
         setEditorSaving(false);
         if (res.success) {
-            toast({ title: 'Saved', description: res.message ?? 'Contact saved.' });
+            toast({ title: 'Saved', description: res.message ?? 'Contact saved.', tone: 'success' });
             setEditorOpen(false);
             void reload();
             void reloadAnalytics();
@@ -495,7 +555,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Failed to save contact.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -506,10 +566,10 @@ export default function TelegramContactsPage() {
             blocked,
         });
         if (res.success) {
-            toast({ title: blocked ? 'Blocked' : 'Unblocked', description: displayName(row) });
+            toast({ title: blocked ? 'Blocked' : 'Unblocked', description: displayName(row), tone: 'success' });
             void reload();
         } else {
-            toast({ title: 'Error', description: res.error ?? 'Failed.', variant: 'destructive' });
+            toast({ title: 'Error', description: res.error ?? 'Failed.', tone: 'danger' });
         }
     }
 
@@ -522,11 +582,11 @@ export default function TelegramContactsPage() {
             add: [t],
         });
         if (res.success) {
-            toast({ title: 'Tagged', description: `+${t}` });
+            toast({ title: 'Tagged', description: `+${t}`, tone: 'success' });
             void reload();
             void reloadAnalytics();
         } else {
-            toast({ title: 'Error', description: res.error ?? 'Failed.', variant: 'destructive' });
+            toast({ title: 'Error', description: res.error ?? 'Failed.', tone: 'danger' });
         }
     }
     async function quickRemoveTag(row: ContactRow) {
@@ -542,11 +602,11 @@ export default function TelegramContactsPage() {
             remove: [t],
         });
         if (res.success) {
-            toast({ title: 'Tag removed', description: `-${t}` });
+            toast({ title: 'Tag removed', description: `-${t}`, tone: 'success' });
             void reload();
             void reloadAnalytics();
         } else {
-            toast({ title: 'Error', description: res.error ?? 'Failed.', variant: 'destructive' });
+            toast({ title: 'Error', description: res.error ?? 'Failed.', tone: 'danger' });
         }
     }
     async function quickAssign(row: ContactRow) {
@@ -558,10 +618,10 @@ export default function TelegramContactsPage() {
             assignedAgentId: t.trim() || null,
         });
         if (res.success) {
-            toast({ title: 'Assigned' });
+            toast({ title: 'Assigned', tone: 'success' });
             void reload();
         } else {
-            toast({ title: 'Error', description: res.error ?? 'Failed.', variant: 'destructive' });
+            toast({ title: 'Error', description: res.error ?? 'Failed.', tone: 'danger' });
         }
     }
 
@@ -569,7 +629,7 @@ export default function TelegramContactsPage() {
         if (!deleteRow || !projectId) return;
         const res = await deleteTelegramContactAction(deleteRow._id, projectId);
         if (res.success) {
-            toast({ title: 'Deleted', description: 'Contact removed.' });
+            toast({ title: 'Deleted', description: 'Contact removed.', tone: 'success' });
             setSelected((prev) => {
                 const next = new Set(prev);
                 next.delete(deleteRow._id);
@@ -582,7 +642,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Failed to delete.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -597,6 +657,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Deleted',
                 description: `${res.affected} contact${res.affected === 1 ? '' : 's'} removed.`,
+                tone: 'success',
             });
             setSelected(new Set());
             setBulkDeleteOpen(false);
@@ -606,7 +667,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Bulk delete failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -617,7 +678,7 @@ export default function TelegramContactsPage() {
             .map((s) => s.trim().toLowerCase())
             .filter(Boolean);
         if (!tags.length) {
-            toast({ title: 'No tags', variant: 'destructive' });
+            toast({ title: 'No tags', tone: 'danger' });
             return;
         }
         setBulkTagBusy(true);
@@ -629,7 +690,7 @@ export default function TelegramContactsPage() {
         });
         setBulkTagBusy(false);
         if (res.success) {
-            toast({ title: 'Tags updated', description: `${res.affected} contact(s).` });
+            toast({ title: 'Tags updated', description: `${res.affected} contact(s).`, tone: 'success' });
             setBulkTagOpen(false);
             setBulkTagInput('');
             void reload();
@@ -638,7 +699,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Bulk tag failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -652,7 +713,7 @@ export default function TelegramContactsPage() {
         });
         setBulkAssignBusy(false);
         if (res.success) {
-            toast({ title: 'Assigned', description: `${res.affected} contact(s).` });
+            toast({ title: 'Assigned', description: `${res.affected} contact(s).`, tone: 'success' });
             setBulkAssignOpen(false);
             setBulkAssignAgent('');
             void reload();
@@ -660,7 +721,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Bulk assign failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -668,7 +729,7 @@ export default function TelegramContactsPage() {
     async function runImport() {
         if (!projectId) return;
         if (!importCsv.trim()) {
-            toast({ title: 'Empty CSV', variant: 'destructive' });
+            toast({ title: 'Empty CSV', tone: 'danger' });
             return;
         }
         setImporting(true);
@@ -680,7 +741,7 @@ export default function TelegramContactsPage() {
         });
         setImporting(false);
         if (res.success) {
-            toast({ title: 'Imported', description: res.message ?? 'Done.' });
+            toast({ title: 'Imported', description: res.message ?? 'Done.', tone: 'success' });
             setImportOpen(false);
             setImportCsv('');
             void reload();
@@ -689,7 +750,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Import failed',
                 description: res.error ?? 'Could not parse CSV.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -704,7 +765,7 @@ export default function TelegramContactsPage() {
         if (!csv) {
             toast({
                 title: 'Export failed',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -717,7 +778,7 @@ export default function TelegramContactsPage() {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        toast({ title: 'Exported', description: 'CSV downloaded.' });
+        toast({ title: 'Exported', description: 'CSV downloaded.', tone: 'success' });
     }
 
     async function runSync() {
@@ -729,7 +790,7 @@ export default function TelegramContactsPage() {
         });
         setSyncing(false);
         if (res.success) {
-            toast({ title: 'Synced', description: res.message ?? 'Done.' });
+            toast({ title: 'Synced', description: res.message ?? 'Done.', tone: 'success' });
             setSyncOpen(false);
             void reload();
             void reloadAnalytics();
@@ -737,7 +798,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Sync failed',
                 description: res.error ?? 'Failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -745,7 +806,7 @@ export default function TelegramContactsPage() {
     async function saveSegment() {
         if (!projectId) return;
         if (!segmentName.trim()) {
-            toast({ title: 'Name required', variant: 'destructive' });
+            toast({ title: 'Name required', tone: 'danger' });
             return;
         }
         setSegmentBusy(true);
@@ -757,7 +818,7 @@ export default function TelegramContactsPage() {
         });
         setSegmentBusy(false);
         if (res.success) {
-            toast({ title: 'Segment saved', description: segmentName });
+            toast({ title: 'Segment saved', description: segmentName, tone: 'success' });
             setSegmentOpen(false);
             setSegmentName('');
             setSegmentDesc('');
@@ -766,7 +827,7 @@ export default function TelegramContactsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Could not save segment.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -776,13 +837,13 @@ export default function TelegramContactsPage() {
         if (!window.confirm(`Delete segment "${seg.name}"?`)) return;
         const res = await deleteTelegramContactSegmentAction(seg._id, projectId);
         if (res.success) {
-            toast({ title: 'Segment deleted' });
+            toast({ title: 'Segment deleted', tone: 'success' });
             void reloadSegments();
         } else {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -795,7 +856,7 @@ export default function TelegramContactsPage() {
         setTag(typeof f.tag === 'string' ? f.tag : 'all');
         setHasPhone(f.hasPhone === true);
         setBlockedFilter(f.blocked === true);
-        toast({ title: 'Segment applied', description: seg.name });
+        toast({ title: 'Segment applied', description: seg.name, tone: 'success' });
     }
 
     // -- render ----------------------------------------------------------
@@ -804,100 +865,97 @@ export default function TelegramContactsPage() {
     const topTag = analytics?.topTags?.[0]?.tag ?? '';
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="ui20 flex flex-col gap-6">
+            <TelegramProjectGate />
+
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background: `linear-gradient(135deg, ${ACCENT} 0%, #007DBB 100%)`,
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
-                >
-                    <Users className="h-6 w-6 text-white" strokeWidth={1.75} />
-                </div>
-                <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
-                        Telegram
-                    </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram Contacts
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                        A unified directory of every Telegram user across your bots — enrich with tags, custom
-                        fields, assignees, and segment them for targeted broadcasts.
-                    </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setSyncOpen(true)} disabled={!projectId}>
-                        <ContactIcon className="h-3.5 w-3.5" />
+            <PageHeader>
+                <PageHeaderHeading className="flex items-start gap-4">
+                    <span
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--st-accent)] text-white"
+                        aria-hidden="true"
+                    >
+                        <Users className="h-6 w-6" strokeWidth={1.75} />
+                    </span>
+                    <span className="flex-1">
+                        <PageEyebrow>Telegram</PageEyebrow>
+                        <PageTitle>Telegram Contacts</PageTitle>
+                        <PageDescription>
+                            A unified directory of every Telegram user across your bots. Enrich with tags, custom
+                            fields, assignees, and segment them for targeted broadcasts.
+                        </PageDescription>
+                    </span>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button variant="outline" size="sm" iconLeft={ContactIcon} onClick={() => setSyncOpen(true)} disabled={!projectId}>
                         Sync from chats
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)} disabled={!projectId}>
-                        <Upload className="h-3.5 w-3.5" />
+                    <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => setImportOpen(true)} disabled={!projectId}>
                         Import CSV
                     </Button>
-                    <Button variant="outline" size="sm" onClick={runExport} disabled={!projectId}>
-                        <Download className="h-3.5 w-3.5" />
+                    <Button variant="outline" size="sm" iconLeft={Download} onClick={runExport} disabled={!projectId}>
                         Export
                     </Button>
-                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
-                        <Plus className="h-3.5 w-3.5" />
+                    <Button variant="primary" size="sm" iconLeft={Plus} onClick={openCreate} disabled={!projectId}>
                         New contact
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {!projectId ? (
-                <Card className="p-6">
-                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
-                        <AlertCircle className="h-4 w-4" />
-                        <span className="text-sm">Select a project to view Telegram contacts.</span>
-                    </div>
+                <Card>
+                    <CardBody>
+                        <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                            <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                            <span className="text-sm">Select a project to view Telegram contacts.</span>
+                        </div>
+                    </CardBody>
                 </Card>
             ) : null}
 
             {/* KPI cards */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <KpiCard
-                    label="Total contacts"
-                    value={analytics ? analytics.total.toLocaleString() : '—'}
-                    loading={analyticsLoading}
-                />
-                <KpiCard
-                    label="New in range"
-                    value={analytics ? analytics.newInRange.toLocaleString() : '—'}
-                    loading={analyticsLoading}
-                />
-                <KpiCard
-                    label="Languages"
-                    value={analytics ? `${analytics.languages.length}${topLanguageCode ? ` · ${topLanguageCode}` : ''}` : '—'}
-                    loading={analyticsLoading}
-                />
-                <KpiCard
-                    label="Top tag"
-                    value={topTag ? `#${topTag}` : '—'}
-                    loading={analyticsLoading}
-                />
+                {analyticsLoading ? (
+                    <>
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                    </>
+                ) : (
+                    <>
+                        <StatCard label="Total contacts" value={analytics ? analytics.total.toLocaleString() : '-'} />
+                        <StatCard label="New in range" value={analytics ? analytics.newInRange.toLocaleString() : '-'} />
+                        <StatCard
+                            label="Languages"
+                            value={
+                                analytics
+                                    ? `${analytics.languages.length}${topLanguageCode ? `, ${topLanguageCode}` : ''}`
+                                    : '-'
+                            }
+                        />
+                        <StatCard label="Top tag" value={topTag ? `#${topTag}` : '-'} />
+                    </>
+                )}
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
                 <div className="flex min-w-0 flex-col gap-4">
                     {/* Filter bar */}
-                    <Card className="p-3">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="relative min-w-[220px] flex-1">
-                                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
+                    <Card>
+                        <CardBody className="flex flex-wrap items-center gap-3">
+                            <div className="min-w-[220px] flex-1">
                                 <Input
+                                    iconLeft={Search}
                                     placeholder="Search name, username, phone, notes"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-8"
+                                    aria-label="Search contacts"
                                 />
                             </div>
                             <div className="min-w-[160px]">
                                 <Select value={botId} onValueChange={setBotId}>
-                                    <SelectTrigger>
+                                    <SelectTrigger aria-label="Filter by bot">
                                         <SelectValue placeholder="All bots" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -912,7 +970,7 @@ export default function TelegramContactsPage() {
                             </div>
                             <div className="min-w-[140px]">
                                 <Select value={language} onValueChange={setLanguage}>
-                                    <SelectTrigger>
+                                    <SelectTrigger aria-label="Filter by language">
                                         <SelectValue placeholder="All languages" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -927,7 +985,7 @@ export default function TelegramContactsPage() {
                             </div>
                             <div className="min-w-[140px]">
                                 <Select value={tag} onValueChange={setTag}>
-                                    <SelectTrigger>
+                                    <SelectTrigger aria-label="Filter by tag">
                                         <SelectValue placeholder="All tags" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -946,44 +1004,44 @@ export default function TelegramContactsPage() {
                                     onChange={(r) => setRange({ from: r?.from, to: r?.to })}
                                 />
                             </div>
-                            <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                                <Switch checked={hasPhone} onCheckedChange={setHasPhone} />
-                                Has phone
-                            </label>
-                            <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                                <Switch checked={blockedFilter} onCheckedChange={setBlockedFilter} />
-                                Blocked only
-                            </label>
+                            <Switch
+                                checked={hasPhone}
+                                onCheckedChange={setHasPhone}
+                                label="Has phone"
+                            />
+                            <Switch
+                                checked={blockedFilter}
+                                onCheckedChange={setBlockedFilter}
+                                label="Blocked only"
+                            />
                             <Button
                                 size="sm"
                                 variant="outline"
+                                iconLeft={Filter}
                                 onClick={() => setSegmentOpen(true)}
                                 disabled={!projectId}
                             >
-                                <Filter className="h-3.5 w-3.5" />
                                 Save as segment
                             </Button>
                             {selected.size > 0 ? (
                                 <>
-                                    <Button size="sm" variant="outline" onClick={() => setBulkTagOpen(true)}>
-                                        <Tag className="h-3.5 w-3.5" />
+                                    <Button size="sm" variant="outline" iconLeft={Tag} onClick={() => setBulkTagOpen(true)}>
                                         Tag {selected.size}
                                     </Button>
                                     <Button
                                         size="sm"
                                         variant="outline"
+                                        iconLeft={UserPlus}
                                         onClick={() => setBulkAssignOpen(true)}
                                     >
-                                        <UserPlus className="h-3.5 w-3.5" />
                                         Assign {selected.size}
                                     </Button>
-                                    <Button size="sm" variant="outline" onClick={() => setBulkDeleteOpen(true)}>
-                                        <Trash2 className="h-3.5 w-3.5" />
+                                    <Button size="sm" variant="outline" iconLeft={Trash2} onClick={() => setBulkDeleteOpen(true)}>
                                         Delete {selected.size}
                                     </Button>
                                 </>
                             ) : null}
-                        </div>
+                        </CardBody>
                     </Card>
 
                     {/* Table */}
@@ -996,22 +1054,20 @@ export default function TelegramContactsPage() {
                             </div>
                         ) : data?.error ? (
                             <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
-                                <AlertCircle className="h-4 w-4" />
+                                <AlertCircle className="h-4 w-4" aria-hidden="true" />
                                 {data.error}
                             </div>
                         ) : rows.length === 0 ? (
                             <EmptyState
                                 title="No contacts yet"
                                 description="Sync from your existing private chats, import a CSV, or create one manually."
-                                icon={<Users className="h-5 w-5" />}
+                                icon={Users}
                                 action={
                                     <div className="flex gap-2">
-                                        <Button size="sm" variant="outline" onClick={() => setSyncOpen(true)}>
-                                            <ContactIcon className="h-3.5 w-3.5" />
+                                        <Button size="sm" variant="outline" iconLeft={ContactIcon} onClick={() => setSyncOpen(true)}>
                                             Sync from chats
                                         </Button>
-                                        <Button size="sm" onClick={openCreate}>
-                                            <Plus className="h-3.5 w-3.5" />
+                                        <Button size="sm" variant="primary" iconLeft={Plus} onClick={openCreate}>
                                             New contact
                                         </Button>
                                     </div>
@@ -1019,51 +1075,54 @@ export default function TelegramContactsPage() {
                             />
                         ) : (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                                        <tr>
-                                            <th className="w-10 p-3">
+                                <Table>
+                                    <THead>
+                                        <Tr>
+                                            <Th align="center" width={40}>
                                                 <Checkbox
-                                                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                                                    onCheckedChange={(v) => toggleAll(!!v)}
+                                                    checked={allSelected}
+                                                    indeterminate={!allSelected && someSelected}
+                                                    onChange={(e) => toggleAll(e.target.checked)}
+                                                    aria-label="Select all contacts"
                                                 />
-                                            </th>
-                                            <th className="p-3 font-medium">Name</th>
-                                            <th className="p-3 font-medium">Username</th>
-                                            <th className="p-3 font-medium">Phone</th>
-                                            <th className="p-3 font-medium">Tags</th>
-                                            <th className="p-3 font-medium">Lang</th>
-                                            <th className="p-3 font-medium">Last seen</th>
-                                            <th className="p-3 font-medium">Assigned</th>
-                                            <th className="p-3" />
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                            </Th>
+                                            <Th>Name</Th>
+                                            <Th>Username</Th>
+                                            <Th>Phone</Th>
+                                            <Th>Tags</Th>
+                                            <Th>Lang</Th>
+                                            <Th>Last seen</Th>
+                                            <Th>Assigned</Th>
+                                            <Th align="right">Actions</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {rows.map((row) => {
                                             const checked = selected.has(row._id);
                                             return (
-                                                <tr
+                                                <Tr
                                                     key={row._id}
-                                                    className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40 cursor-pointer"
+                                                    className="cursor-pointer"
                                                     onClick={(e) => {
                                                         if ((e.target as HTMLElement).closest('[data-stop]')) return;
                                                         openView(row);
                                                     }}
                                                 >
-                                                    <td className="p-3" data-stop>
+                                                    <Td align="center" data-stop>
                                                         <Checkbox
                                                             checked={checked}
-                                                            onCheckedChange={(v) =>
+                                                            aria-label={`Select ${displayName(row)}`}
+                                                            onChange={(e) =>
                                                                 setSelected((prev) => {
                                                                     const next = new Set(prev);
-                                                                    if (v) next.add(row._id);
+                                                                    if (e.target.checked) next.add(row._id);
                                                                     else next.delete(row._id);
                                                                     return next;
                                                                 })
                                                             }
                                                         />
-                                                    </td>
-                                                    <td className="p-3">
+                                                    </Td>
+                                                    <Td>
                                                         <div className="flex items-center gap-3">
                                                             <Avatar className="h-8 w-8">
                                                                 <AvatarFallback>{initials(row)}</AvatarFallback>
@@ -1072,21 +1131,21 @@ export default function TelegramContactsPage() {
                                                                 <div className="truncate text-[var(--st-text)]">
                                                                     {displayName(row)}
                                                                 </div>
-                                                                <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-tertiary)]">
+                                                                <div className="flex items-center gap-1.5">
                                                                     {row.blocked ? (
-                                                                        <Badge variant="warning">Blocked</Badge>
+                                                                        <Badge tone="warning">Blocked</Badge>
                                                                     ) : null}
                                                                     {row.isPremium ? (
-                                                                        <Badge variant="info">Premium</Badge>
+                                                                        <Badge tone="info">Premium</Badge>
                                                                     ) : null}
                                                                     {row.isBot ? (
-                                                                        <Badge variant="secondary">Bot</Badge>
+                                                                        <Badge tone="neutral">Bot</Badge>
                                                                     ) : null}
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                    <td className="p-3" data-stop>
+                                                    </Td>
+                                                    <Td data-stop>
                                                         {row.username ? (
                                                             <a
                                                                 href={`https://t.me/${row.username}`}
@@ -1097,16 +1156,16 @@ export default function TelegramContactsPage() {
                                                                 @{row.username}
                                                             </a>
                                                         ) : (
-                                                            <span className="text-[var(--st-text-tertiary)]">—</span>
+                                                            <span className="text-[var(--st-text-tertiary)]">-</span>
                                                         )}
-                                                    </td>
-                                                    <td className="p-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
-                                                        {row.phoneNumber ? truncate(row.phoneNumber, 16) : '—'}
-                                                    </td>
-                                                    <td className="p-3">
+                                                    </Td>
+                                                    <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                                        {row.phoneNumber ? truncate(row.phoneNumber, 16) : '-'}
+                                                    </Td>
+                                                    <Td>
                                                         <div className="flex flex-wrap gap-1">
                                                             {(row.tags ?? []).slice(0, 3).map((t) => (
-                                                                <Badge key={t} variant="secondary">
+                                                                <Badge key={t} tone="neutral">
                                                                     #{t}
                                                                 </Badge>
                                                             ))}
@@ -1116,25 +1175,23 @@ export default function TelegramContactsPage() {
                                                                 </span>
                                                             ) : null}
                                                         </div>
-                                                    </td>
-                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
-                                                        {row.languageCode ?? '—'}
-                                                    </td>
-                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
+                                                        {row.languageCode ?? '-'}
+                                                    </Td>
+                                                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
                                                         {fmtRelative(row.lastInteractionAt)}
-                                                    </td>
-                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
                                                         {row.assignedAgentId
                                                             ? truncate(row.assignedAgentId, 10)
-                                                            : '—'}
-                                                    </td>
-                                                    <td className="p-3" data-stop>
+                                                            : '-'}
+                                                    </Td>
+                                                    <Td align="right" data-stop>
                                                         <div className="flex justify-end">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <Button size="sm" variant="ghost">
-                                                                        <Pencil className="h-3.5 w-3.5" />
-                                                                    </Button>
+                                                                    <IconButton label="Contact actions" icon={Pencil} size="sm" />
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end">
                                                                     <DropdownMenuItem onSelect={() => openView(row)}>
@@ -1157,47 +1214,47 @@ export default function TelegramContactsPage() {
                                                                         <DropdownMenuItem
                                                                             onSelect={() => quickToggleBlocked(row, false)}
                                                                         >
-                                                                            <ShieldCheck className="h-3.5 w-3.5" />
+                                                                            <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                                                                             Unblock
                                                                         </DropdownMenuItem>
                                                                     ) : (
                                                                         <DropdownMenuItem
                                                                             onSelect={() => quickToggleBlocked(row, true)}
                                                                         >
-                                                                            <ShieldOff className="h-3.5 w-3.5" />
+                                                                            <ShieldOff className="h-3.5 w-3.5" aria-hidden="true" />
                                                                             Block
                                                                         </DropdownMenuItem>
                                                                     )}
                                                                     <DropdownMenuItem onSelect={() => setDeleteRow(row)}>
-                                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                                         Delete
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </div>
-                                                    </td>
-                                                </tr>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })}
-                                    </tbody>
-                                </table>
+                                    </TBody>
+                                </Table>
                             </div>
                         )}
 
                         {data && rows.length > 0 ? (
                             <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                                 <span>
-                                    {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
+                                    {(page - 1) * PAGE_SIZE + 1}-{(page - 1) * PAGE_SIZE + rows.length} of{' '}
                                     {data.total}
                                 </span>
                                 <div className="flex items-center gap-1">
                                     <Button
                                         variant="ghost"
                                         size="sm"
+                                        iconLeft={ChevronLeft}
                                         disabled={page <= 1}
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     >
-                                        <ChevronLeft className="h-3.5 w-3.5" />
                                         Prev
                                     </Button>
                                     <span className="px-2">
@@ -1206,11 +1263,11 @@ export default function TelegramContactsPage() {
                                     <Button
                                         variant="ghost"
                                         size="sm"
+                                        iconRight={ChevronRight}
                                         disabled={!data.hasMore}
                                         onClick={() => setPage((p) => p + 1)}
                                     >
                                         Next
-                                        <ChevronRight className="h-3.5 w-3.5" />
                                     </Button>
                                 </div>
                             </div>
@@ -1219,57 +1276,61 @@ export default function TelegramContactsPage() {
                 </div>
 
                 {/* Segments panel */}
-                <Card className="p-3">
-                    <div className="mb-2 flex items-center justify-between">
-                        <h3 className="text-[13.5px] font-medium text-[var(--st-text)]">Segments</h3>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setSegmentOpen(true)}
-                            disabled={!projectId}
-                        >
-                            <Plus className="h-3.5 w-3.5" />
-                            New
-                        </Button>
-                    </div>
-                    {segmentsLoading ? (
-                        <div className="flex flex-col gap-2">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
+                <Card>
+                    <CardBody>
+                        <div className="mb-2 flex items-center justify-between">
+                            <h3 className="text-[13.5px] font-medium text-[var(--st-text)]">Segments</h3>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                iconLeft={Plus}
+                                onClick={() => setSegmentOpen(true)}
+                                disabled={!projectId}
+                            >
+                                New
+                            </Button>
                         </div>
-                    ) : segments.length === 0 ? (
-                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
-                            Save the current filter as a segment to reuse later.
-                        </p>
-                    ) : (
-                        <ul className="flex flex-col gap-1">
-                            {segments.map((seg) => (
-                                <li
-                                    key={seg._id}
-                                    className="group flex items-center justify-between gap-2 rounded-md border border-transparent px-2 py-1.5 hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60"
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() => applySegment(seg)}
-                                        className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
+                        {segmentsLoading ? (
+                            <div className="flex flex-col gap-2">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        ) : segments.length === 0 ? (
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                Save the current filter as a segment to reuse later.
+                            </p>
+                        ) : (
+                            <ul className="flex flex-col gap-1">
+                                {segments.map((seg) => (
+                                    <li
+                                        key={seg._id}
+                                        className="group flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-transparent px-2 py-1.5 hover:border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)]"
                                     >
-                                        <span className="truncate text-[13px] text-[var(--st-text)]">{seg.name}</span>
-                                        <span className="text-[11px] text-[var(--st-text-tertiary)]">
-                                            {seg.memberCount.toLocaleString()} member
-                                            {seg.memberCount === 1 ? '' : 's'}
-                                        </span>
-                                    </button>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => deleteSegment(seg)}
-                                    >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => applySegment(seg)}
+                                            className="min-w-0 flex-1 justify-start text-left"
+                                        >
+                                            <span className="flex min-w-0 flex-col items-start">
+                                                <span className="truncate text-[13px] text-[var(--st-text)]">{seg.name}</span>
+                                                <span className="text-[11px] text-[var(--st-text-tertiary)]">
+                                                    {seg.memberCount.toLocaleString()} member
+                                                    {seg.memberCount === 1 ? '' : 's'}
+                                                </span>
+                                            </span>
+                                        </Button>
+                                        <IconButton
+                                            label={`Delete segment ${seg.name}`}
+                                            icon={Trash2}
+                                            size="sm"
+                                            onClick={() => deleteSegment(seg)}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </CardBody>
                 </Card>
             </div>
 
@@ -1286,36 +1347,20 @@ export default function TelegramContactsPage() {
                         </DrawerTitle>
                         <DrawerDescription>
                             {viewMode === 'create'
-                                ? 'Provide chatId, phone, or username — extras are optional.'
+                                ? 'Provide chatId, phone, or username. Extras are optional.'
                                 : 'Edit profile, tags, custom fields, and notes.'}
                         </DrawerDescription>
                     </DrawerHeader>
 
                     {/* Segmented tabs */}
                     <div className="px-6 pb-2">
-                        <div className="flex flex-wrap gap-1 rounded-md border border-[var(--st-border)] p-1">
-                            {(
-                                [
-                                    { v: 'overview', label: 'Overview' },
-                                    { v: 'tags', label: 'Tags' },
-                                    { v: 'fields', label: 'Custom fields' },
-                                    { v: 'notes', label: 'Notes' },
-                                    { v: 'activity', label: 'Activity' },
-                                ] as const
-                            ).map((t) => (
-                                <button
-                                    key={t.v}
-                                    type="button"
-                                    onClick={() => setEditorTab(t.v)}
-                                    className={`flex-1 rounded-sm px-3 py-1.5 text-[12px] transition-colors ${editorTab === t.v
-                                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
-                                        }`}
-                                >
-                                    {t.label}
-                                </button>
-                            ))}
-                        </div>
+                        <SegmentedControl
+                            aria-label="Contact editor sections"
+                            fullWidth
+                            value={editorTab}
+                            onChange={setEditorTab}
+                            items={EDITOR_TABS}
+                        />
                     </div>
 
                     <div className="grid gap-3 px-6 pb-4">
@@ -1376,7 +1421,7 @@ export default function TelegramContactsPage() {
                                         onChange={(e) =>
                                             setEditorForm((f) => ({ ...f, languageCode: e.target.value }))
                                         }
-                                        placeholder="en, es, fr…"
+                                        placeholder="en, es, fr"
                                     />
                                 </Field>
                                 <Field label="Assigned to (user id)">
@@ -1390,36 +1435,30 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <div className="sm:col-span-2 flex flex-wrap gap-4">
-                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                                        <Switch
-                                            checked={editorForm.blocked}
-                                            onCheckedChange={(v) =>
-                                                setEditorForm((f) => ({ ...f, blocked: v }))
-                                            }
-                                            disabled={viewMode === 'view'}
-                                        />
-                                        Blocked
-                                    </label>
-                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                                        <Switch
-                                            checked={editorForm.isPremium}
-                                            onCheckedChange={(v) =>
-                                                setEditorForm((f) => ({ ...f, isPremium: v }))
-                                            }
-                                            disabled={viewMode === 'view'}
-                                        />
-                                        Premium
-                                    </label>
-                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                                        <Switch
-                                            checked={editorForm.isVerified}
-                                            onCheckedChange={(v) =>
-                                                setEditorForm((f) => ({ ...f, isVerified: v }))
-                                            }
-                                            disabled={viewMode === 'view'}
-                                        />
-                                        Verified
-                                    </label>
+                                    <Switch
+                                        checked={editorForm.blocked}
+                                        onCheckedChange={(v) =>
+                                            setEditorForm((f) => ({ ...f, blocked: v }))
+                                        }
+                                        disabled={viewMode === 'view'}
+                                        label="Blocked"
+                                    />
+                                    <Switch
+                                        checked={editorForm.isPremium}
+                                        onCheckedChange={(v) =>
+                                            setEditorForm((f) => ({ ...f, isPremium: v }))
+                                        }
+                                        disabled={viewMode === 'view'}
+                                        label="Premium"
+                                    />
+                                    <Switch
+                                        checked={editorForm.isVerified}
+                                        onCheckedChange={(v) =>
+                                            setEditorForm((f) => ({ ...f, isVerified: v }))
+                                        }
+                                        disabled={viewMode === 'view'}
+                                        label="Verified"
+                                    />
                                 </div>
                             </div>
                         ) : null}
@@ -1431,17 +1470,15 @@ export default function TelegramContactsPage() {
                                         <span className="text-[12px] text-[var(--st-text-secondary)]">No tags yet.</span>
                                     ) : null}
                                     {editorForm.tags.map((t) => (
-                                        <Badge key={t} variant="secondary" className="gap-1">
+                                        <Badge key={t} tone="neutral" className="gap-1">
                                             #{t}
                                             {viewMode !== 'view' ? (
-                                                <button
-                                                    type="button"
+                                                <IconButton
+                                                    label={`Remove ${t}`}
+                                                    icon={X}
+                                                    size="sm"
                                                     onClick={() => removeTagFromEditor(t)}
-                                                    className="ml-1 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                                                    aria-label={`Remove ${t}`}
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
+                                                />
                                             ) : null}
                                         </Badge>
                                     ))}
@@ -1451,6 +1488,7 @@ export default function TelegramContactsPage() {
                                         <Input
                                             value={editorForm.tagsInput}
                                             placeholder="Add tag and press Enter"
+                                            aria-label="Add tag"
                                             onChange={(e) =>
                                                 setEditorForm((f) => ({ ...f, tagsInput: e.target.value }))
                                             }
@@ -1478,30 +1516,30 @@ export default function TelegramContactsPage() {
                                     <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2">
                                         <Input
                                             placeholder="key"
+                                            aria-label="Field key"
                                             value={cf.key}
                                             readOnly={viewMode === 'view'}
                                             onChange={(e) => setCustomFieldRow(i, 'key', e.target.value)}
                                         />
                                         <Input
                                             placeholder="value"
+                                            aria-label="Field value"
                                             value={cf.value}
                                             readOnly={viewMode === 'view'}
                                             onChange={(e) => setCustomFieldRow(i, 'value', e.target.value)}
                                         />
                                         {viewMode !== 'view' ? (
-                                            <Button
+                                            <IconButton
+                                                label="Remove field"
+                                                icon={Trash2}
                                                 size="sm"
-                                                variant="ghost"
                                                 onClick={() => removeCustomFieldRow(i)}
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </Button>
+                                            />
                                         ) : null}
                                     </div>
                                 ))}
                                 {viewMode !== 'view' ? (
-                                    <Button size="sm" variant="outline" onClick={addCustomFieldRow}>
-                                        <Plus className="h-3.5 w-3.5" />
+                                    <Button size="sm" variant="outline" iconLeft={Plus} onClick={addCustomFieldRow}>
                                         Add field
                                     </Button>
                                 ) : null}
@@ -1517,7 +1555,7 @@ export default function TelegramContactsPage() {
                                     onChange={(e) =>
                                         setEditorForm((f) => ({ ...f, notes: e.target.value }))
                                     }
-                                    placeholder="Background, preferences, internal context…"
+                                    placeholder="Background, preferences, internal context"
                                 />
                             </Field>
                         ) : null}
@@ -1533,13 +1571,13 @@ export default function TelegramContactsPage() {
                                 <p>
                                     Created:{' '}
                                     <span className="text-[var(--st-text)]">
-                                        {activeRow ? fmtDate(activeRow.createdAt) : '—'}
+                                        {activeRow ? fmtDate(activeRow.createdAt) : '-'}
                                     </span>
                                 </p>
                                 <p>
                                     Source:{' '}
                                     <span className="text-[var(--st-text)]">
-                                        {activeRow?.source ?? '—'}
+                                        {activeRow?.source ?? '-'}
                                     </span>
                                 </p>
                                 <p>
@@ -1559,7 +1597,7 @@ export default function TelegramContactsPage() {
                         ) : null}
 
                         {editorErr ? (
-                            <p className="text-[12.5px] text-[var(--st-danger)]">{editorErr}</p>
+                            <p className="text-[12.5px] text-[var(--st-danger)]" role="alert">{editorErr}</p>
                         ) : null}
                     </div>
 
@@ -1568,18 +1606,18 @@ export default function TelegramContactsPage() {
                             {viewMode === 'view' ? 'Close' : 'Cancel'}
                         </Button>
                         {viewMode !== 'view' ? (
-                            <Button size="sm" onClick={saveEditor} disabled={editorSaving}>
-                                {editorSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                            <Button variant="primary" size="sm" onClick={saveEditor} loading={editorSaving}>
                                 Save
                             </Button>
                         ) : (
                             <Button
+                                variant="primary"
                                 size="sm"
+                                iconLeft={Pencil}
                                 onClick={() => {
                                     setViewMode('edit');
                                 }}
                             >
-                                <Pencil className="h-3.5 w-3.5" />
                                 Edit
                             </Button>
                         )}
@@ -1601,7 +1639,7 @@ export default function TelegramContactsPage() {
                     <div className="grid gap-3">
                         <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 font-mono text-[11.5px]">
 {`chatId,firstName,lastName,username,phoneNumber,languageCode,tags,notes
 123456,Ada,Lovelace,ada,+15555550100,en,vip;newsletter,Met at conf 2026`}
                             </pre>
@@ -1610,7 +1648,7 @@ export default function TelegramContactsPage() {
                             value={importMode}
                             onValueChange={(v) => setImportMode(v as 'append' | 'replace')}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Import mode">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1618,20 +1656,21 @@ export default function TelegramContactsPage() {
                                 <SelectItem value="replace">Replace (wipe scope first)</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Textarea
-                            value={importCsv}
-                            onChange={(e) => setImportCsv(e.target.value)}
-                            rows={10}
-                            placeholder="Paste CSV here…"
-                            className="font-mono text-[12px]"
-                        />
+                        <Field label="CSV data">
+                            <Textarea
+                                value={importCsv}
+                                onChange={(e) => setImportCsv(e.target.value)}
+                                rows={10}
+                                placeholder="Paste CSV here"
+                                className="font-mono text-[12px]"
+                            />
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runImport} disabled={importing}>
-                            {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" onClick={runImport} loading={importing}>
                             Import
                         </Button>
                     </DialogFooter>
@@ -1654,8 +1693,7 @@ export default function TelegramContactsPage() {
                         <Button variant="outline" size="sm" onClick={() => setSyncOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runSync} disabled={syncing}>
-                            {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" onClick={runSync} loading={syncing}>
                             Sync now
                         </Button>
                     </DialogFooter>
@@ -1676,7 +1714,7 @@ export default function TelegramContactsPage() {
                         <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
@@ -1698,7 +1736,7 @@ export default function TelegramContactsPage() {
                         >
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmBulkDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmBulkDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
@@ -1719,7 +1757,7 @@ export default function TelegramContactsPage() {
                             value={bulkTagMode}
                             onValueChange={(v) => setBulkTagMode(v as 'add' | 'remove')}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Tag mode">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1727,18 +1765,19 @@ export default function TelegramContactsPage() {
                                 <SelectItem value="remove">Remove tags</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Input
-                            value={bulkTagInput}
-                            onChange={(e) => setBulkTagInput(e.target.value)}
-                            placeholder="vip, newsletter, demo-2026"
-                        />
+                        <Field label="Tags">
+                            <Input
+                                value={bulkTagInput}
+                                onChange={(e) => setBulkTagInput(e.target.value)}
+                                placeholder="vip, newsletter, demo-2026"
+                            />
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setBulkTagOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runBulkTag} disabled={bulkTagBusy}>
-                            {bulkTagBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" onClick={runBulkTag} loading={bulkTagBusy}>
                             Apply
                         </Button>
                     </DialogFooter>
@@ -1754,17 +1793,18 @@ export default function TelegramContactsPage() {
                             Paste a user id, or leave blank to unassign.
                         </DialogDescription>
                     </DialogHeader>
-                    <Input
-                        value={bulkAssignAgent}
-                        onChange={(e) => setBulkAssignAgent(e.target.value)}
-                        placeholder="Mongo user id"
-                    />
+                    <Field label="User id">
+                        <Input
+                            value={bulkAssignAgent}
+                            onChange={(e) => setBulkAssignAgent(e.target.value)}
+                            placeholder="Mongo user id"
+                        />
+                    </Field>
                     <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setBulkAssignOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runBulkAssign} disabled={bulkAssignBusy}>
-                            {bulkAssignBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" onClick={runBulkAssign} loading={bulkAssignBusy}>
                             Apply
                         </Button>
                     </DialogFooter>
@@ -1798,7 +1838,7 @@ export default function TelegramContactsPage() {
                         </Field>
                         <details className="text-[12px] text-[var(--st-text-secondary)]">
                             <summary className="cursor-pointer select-none">Preview filter</summary>
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 font-mono text-[11.5px]">
                                 {JSON.stringify(currentFilter, null, 2)}
                             </pre>
                         </details>
@@ -1807,52 +1847,12 @@ export default function TelegramContactsPage() {
                         <Button variant="outline" size="sm" onClick={() => setSegmentOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={saveSegment} disabled={segmentBusy}>
-                            {segmentBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" onClick={saveSegment} loading={segmentBusy}>
                             Save segment
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
-    );
-}
-
-// -- small components ------------------------------------------------------
-
-function KpiCard({
-    label,
-    value,
-    loading,
-}: {
-    label: string;
-    value: string;
-    loading: boolean;
-}) {
-    return (
-        <Card>
-            <CardBody className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                    {label}
-                </p>
-                {loading ? (
-                    <Skeleton className="h-7 w-24" />
-                ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
-                )}
-            </CardBody>
-        </Card>
-    );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <TelegramProjectGate />
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-        </label>
     );
 }

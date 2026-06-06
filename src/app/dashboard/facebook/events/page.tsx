@@ -1,6 +1,55 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Skeleton,
+  StatCard,
+  Textarea,
+  toast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +57,6 @@ import {
   useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  AlertCircle,
   CalendarDays,
   MapPin,
   MoreHorizontal,
@@ -29,7 +77,7 @@ import {
 import type { FacebookEvent } from '@/lib/definitions';
 
 /**
- * /dashboard/facebook/events — Facebook Page events.
+ * /dashboard/facebook/events - Facebook Page events.
  *
  * Lists upcoming events on the connected Page, exposes a "New event" dialog
  * (name/description/place/start_time), and opens a details Sheet on
@@ -37,7 +85,7 @@ import type { FacebookEvent } from '@/lib/definitions';
  * a confirm-step via AlertDialog.
  *
  * Server actions live in `@/app/actions/facebook.actions`. The rust client
- * may currently return "not implemented" — in that case the page renders
+ * may currently return "not implemented" - in that case the page renders
  * the error inline and remains usable for the create dialog.
  */
 
@@ -143,7 +191,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<CalendarDays />}
+          icon={CalendarDays}
           title="No project selected"
           description="Pick a Facebook page / project to manage its events."
         />
@@ -169,28 +217,30 @@ export default function FacebookEventsPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Events</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+      <PageHeader bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle>Events</PageTitle>
+          <PageDescription>
             Plan and track upcoming events on the connected Facebook Page.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={refresh} disabled={loading}>
-            <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="ghost"
+            onClick={refresh}
+            disabled={loading}
+            iconLeft={RefreshCw}
+          >
             Refresh
           </Button>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="primary" onClick={() => setCreateOpen(true)} iconLeft={Plus}>
             New event
           </Button>
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle />
           <AlertTitle>Could not load events</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -204,12 +254,12 @@ export default function FacebookEventsPage(): React.JSX.Element {
         </div>
       ) : events.length === 0 ? (
         <EmptyState
-          icon={<CalendarDays />}
+          icon={CalendarDays}
           title="No upcoming events"
           description="Create your first event to gather RSVPs from your Page audience."
           action={
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> New event
+            <Button variant="primary" onClick={() => setCreateOpen(true)} iconLeft={Plus}>
+              New event
             </Button>
           }
         />
@@ -217,61 +267,73 @@ export default function FacebookEventsPage(): React.JSX.Element {
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {events.map((ev) => (
             <li key={ev.id}>
-              <Card className="flex h-full flex-col overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => openDetails(ev)}
-                  className="flex flex-1 flex-col text-left"
-                >
-                  <div className="h-32 w-full bg-[var(--st-bg-muted)]">
-                    {ev.cover?.source ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={ev.cover.source}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
+              <Card
+                variant="interactive"
+                padding="none"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open details for ${ev.name}`}
+                onClick={() => openDetails(ev)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openDetails(ev);
+                  }
+                }}
+                className="flex h-full flex-col overflow-hidden"
+              >
+                <div className="h-32 w-full bg-[var(--st-bg-secondary)]">
+                  {ev.cover?.source ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={ev.cover.source}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-4">
+                  <p className="line-clamp-2 text-base text-[var(--st-text)]">{ev.name}</p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
+                    <span className="inline-flex items-center gap-1">
+                      <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                      {safeWhen(ev.start_time)}
+                    </span>
+                    {placeName(ev) ? (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                        {placeName(ev)}
+                      </span>
                     ) : null}
                   </div>
-                  <div className="flex flex-1 flex-col gap-2 p-4">
-                    <p className="line-clamp-2 text-base text-[var(--st-text)]">{ev.name}</p>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
-                      <span className="inline-flex items-center gap-1">
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        {safeWhen(ev.start_time)}
-                      </span>
-                      {placeName(ev) ? (
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {placeName(ev)}
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="mt-auto flex items-center gap-2 pt-2">
-                      <Badge variant="success">
-                        <Users className="h-3 w-3" />
-                        {ev.attending_count ?? 0} attending
-                      </Badge>
-                      {ev.is_online ? <Badge variant="info">Online</Badge> : null}
-                    </div>
+                  <div className="mt-auto flex items-center gap-2 pt-2">
+                    <Badge variant="success">
+                      <Users className="h-3 w-3" aria-hidden="true" />
+                      {ev.attending_count ?? 0} attending
+                    </Badge>
+                    {ev.is_online ? <Badge variant="info">Online</Badge> : null}
                   </div>
-                </button>
+                </div>
                 <div className="flex items-center justify-end border-t border-[var(--st-border)] p-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm" aria-label="Event actions">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <IconButton
+                        label="Event actions"
+                        icon={MoreHorizontal}
+                        size="sm"
+                        onClick={(e) => e.stopPropagation()}
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onSelect={() => openDetails(ev)}>
                         View details
                       </DropdownMenuItem>
                       <DropdownMenuItem
+                        variant="danger"
+                        iconLeft={Trash2}
                         onSelect={() => setConfirmDelete(ev)}
-                        className="text-[var(--st-danger)]"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Cancel event
+                        Cancel event
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -282,7 +344,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
         </ul>
       )}
 
-      {/* ── New event dialog ── */}
+      {/* New event dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
@@ -295,28 +357,19 @@ export default function FacebookEventsPage(): React.JSX.Element {
             action={onCreate}
             className="space-y-3"
           >
-            <div className="space-y-1.5">
-              <Label htmlFor="event-name">Name</Label>
-              <Input id="event-name" name="name" required maxLength={150} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="event-desc">Description</Label>
-              <Textarea id="event-desc" name="description" rows={3} />
-            </div>
+            <Field label="Name" required>
+              <Input name="name" required maxLength={150} />
+            </Field>
+            <Field label="Description">
+              <Textarea name="description" rows={3} />
+            </Field>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="event-place">Place</Label>
-                <Input id="event-place" name="place" placeholder="Venue or city" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="event-start">Starts at</Label>
-                <Input
-                  id="event-start"
-                  name="start_time"
-                  type="datetime-local"
-                  required
-                />
-              </div>
+              <Field label="Place">
+                <Input name="place" placeholder="Venue or city" />
+              </Field>
+              <Field label="Starts at" required>
+                <Input name="start_time" type="datetime-local" required />
+              </Field>
             </div>
             <DialogFooter>
               <Button
@@ -327,15 +380,15 @@ export default function FacebookEventsPage(): React.JSX.Element {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? 'Creating…' : 'Create event'}
+              <Button type="submit" variant="primary" loading={submitting}>
+                {submitting ? 'Creating' : 'Create event'}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* ── Details sheet ── */}
+      {/* Details sheet */}
       <Sheet
         open={!!activeEvent}
         onOpenChange={(open) => !open && setActiveEvent(null)}
@@ -350,7 +403,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
           {activeEvent ? (
             <div className="mt-4 space-y-4 text-sm">
               {activeEvent.cover?.source ? (
-                <div className="h-32 w-full overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
+                <div className="h-32 w-full overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={activeEvent.cover.source}
@@ -366,7 +419,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 <p className="text-[var(--st-text)]">
                   {activeEvent.start_time
                     ? new Date(activeEvent.start_time).toLocaleString()
-                    : '—'}
+                    : '-'}
                 </p>
               </div>
               {placeName(activeEvent) ? (
@@ -388,24 +441,9 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 </div>
               ) : null}
               <div className="grid grid-cols-3 gap-3">
-                <Card className="p-3">
-                  <p className="text-xs text-[var(--st-text-secondary)]">Attending</p>
-                  <p className="text-lg text-[var(--st-text)]">
-                    {activeEvent.attending_count ?? 0}
-                  </p>
-                </Card>
-                <Card className="p-3">
-                  <p className="text-xs text-[var(--st-text-secondary)]">Interested</p>
-                  <p className="text-lg text-[var(--st-text)]">
-                    {activeEvent.interested_count ?? 0}
-                  </p>
-                </Card>
-                <Card className="p-3">
-                  <p className="text-xs text-[var(--st-text-secondary)]">Maybe</p>
-                  <p className="text-lg text-[var(--st-text)]">
-                    {activeEvent.maybe_count ?? 0}
-                  </p>
-                </Card>
+                <StatCard label="Attending" value={activeEvent.attending_count ?? 0} />
+                <StatCard label="Interested" value={activeEvent.interested_count ?? 0} />
+                <StatCard label="Maybe" value={activeEvent.maybe_count ?? 0} />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
@@ -436,11 +474,13 @@ export default function FacebookEventsPage(): React.JSX.Element {
                   variant="outline"
                   size="sm"
                   className="flex-1"
+                  iconLeft={Trash2}
                   onClick={() => setConfirmDelete(activeEvent)}
                 >
-                  <Trash2 className="mr-2 h-4 w-4" /> Cancel event
+                  Cancel event
                 </Button>
                 <Button
+                  variant="primary"
                   size="sm"
                   className="flex-1"
                   onClick={() => setActiveEvent(null)}
@@ -453,7 +493,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
         </SheetContent>
       </Sheet>
 
-      {/* ── Cancel/delete confirmation ── */}
+      {/* Cancel/delete confirmation */}
       <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(open) => !open && setConfirmDelete(null)}
@@ -469,7 +509,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Keep event</AlertDialogCancel>
             <AlertDialogAction onClick={onConfirmDelete} disabled={deleting}>
-              {deleting ? 'Cancelling…' : 'Cancel event'}
+              {deleting ? 'Cancelling' : 'Cancel event'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

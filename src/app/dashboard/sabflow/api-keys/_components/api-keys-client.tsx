@@ -3,32 +3,51 @@
 /**
  * ApiKeysClient
  *
- * Manage SabFlow API keys.  Lists existing keys (prefix · label · created ·
+ * Manage SabFlow API keys. Lists existing keys (prefix, label, created,
  * last used) with per-row revoke, and provides a "Create API key" flow that
  * mints a key and shows the raw value exactly once with a copy-to-clipboard
- * affordance and a strong warning.  Reads/writes via:
+ * affordance and a strong warning. Reads/writes via:
  *
- *   GET    /api/sabflow/api-keys             → { keys: ApiKey[] }
- *   POST   /api/sabflow/api-keys   { label } → { id, rawKey, prefix }
+ *   GET    /api/sabflow/api-keys             -> { keys: ApiKey[] }
+ *   POST   /api/sabflow/api-keys   { label } -> { id, rawKey, prefix }
  *   DELETE /api/sabflow/api-keys/[keyId]
  *
- * Visual language mirrors `executions-list-client.tsx`.
+ * Pure 20ui: PageHeader, Table primitives, Modal, Field/Input, Alert,
+ * EmptyState, Spinner, Button, and toast feedback.
  */
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  LuCheck,
-  LuCopy,
-  LuKey,
-  LuLoader,
-  LuPlus,
-  LuRefreshCw,
-  LuShieldAlert,
-  LuTrash2,
-  LuTriangleAlert,
-  LuX,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Check,
+  Copy,
+  Key,
+  Plus,
+  RefreshCw,
+  ShieldAlert,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Modal,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 type ApiKeyRow = {
   _id: string;
@@ -49,6 +68,8 @@ type MintedKey = {
 };
 
 export function ApiKeysClient() {
+  const { toast } = useToast();
+
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +84,7 @@ export function ApiKeysClient() {
   const [minted, setMinted] = useState<MintedKey | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Revoke state — id currently in-flight, prevents double-clicks.
+  // Revoke state. id currently in-flight, prevents double-clicks.
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -146,7 +167,7 @@ export function ApiKeysClient() {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      // Clipboard can fail on insecure contexts — fall through silently;
+      // Clipboard can fail on insecure contexts. Fall through silently;
       // user can still select + copy manually.
     }
   }, [minted]);
@@ -160,7 +181,7 @@ export function ApiKeysClient() {
   const handleRevoke = useCallback(
     async (row: ApiKeyRow) => {
       const confirmed = window.confirm(
-        `Revoke key ${row.prefix} (“${row.label}”)? This cannot be undone — any code using this key will stop working immediately.`,
+        `Revoke key ${row.prefix} ("${row.label}")? This cannot be undone. Any code using this key will stop working immediately.`,
       );
       if (!confirmed) return;
       setRevokingId(row._id);
@@ -172,377 +193,258 @@ export function ApiKeysClient() {
           const json = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(json.error || `Failed to revoke (${res.status})`);
         }
+        toast.success('API key revoked');
         await load();
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to revoke key');
+        const message = e instanceof Error ? e.message : 'Failed to revoke key';
+        setError(message);
+        toast.error(message);
       } finally {
         setRevokingId(null);
       }
     },
-    [load],
+    [load, toast],
   );
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuKey className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div className="flex flex-col leading-tight min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            API keys
-          </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
-            Personal tokens for the SabFlow API — keep them secret.
-          </p>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <button
-            type="button"
+    <div className="ui20 flex h-full flex-col">
+      <PageHeader>
+        <PageHeaderHeading>
+          <span className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+              <Key className="h-4 w-4" aria-hidden="true" strokeWidth={2} />
+            </span>
+            <PageTitle>API keys</PageTitle>
+          </span>
+          <PageDescription>
+            Personal tokens for the SabFlow API. Keep them secret.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={load}
             disabled={loading}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
+            iconLeft={RefreshCw}
           >
-            <LuRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
             Refresh
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={openCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
+            iconLeft={Plus}
           >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
             Create API key
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto">
         {loading && keys.length === 0 ? (
-          <div className="flex h-64 items-center justify-center gap-2 text-[var(--gray-9)]">
-            <LuLoader className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Loading keys…</span>
+          <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Loading keys" />
+            <span className="text-[12px]">Loading keys...</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
-            <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+          <div className="p-6">
+            <Alert tone="danger" title="Something went wrong">
+              {error}
+            </Alert>
           </div>
         ) : keys.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-              <LuKey className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-[13px] text-[var(--gray-11)] font-medium">
-                No API keys yet
-              </p>
-              <p className="text-[11.5px] text-[var(--gray-9)]">
-                Create a key to authenticate calls to the SabFlow API.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={openCreate}
-              className="mt-1 flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
-            >
-              <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Create your first key
-            </button>
+          <div className="flex h-64 items-center justify-center">
+            <EmptyState
+              icon={Key}
+              title="No API keys yet"
+              description="Create a key to authenticate calls to the SabFlow API."
+              action={
+                <Button variant="primary" size="sm" onClick={openCreate} iconLeft={Plus}>
+                  Create your first key
+                </Button>
+              }
+            />
           </div>
         ) : (
-          <table className="w-full text-[12px]">
-            <thead className="border-b border-[var(--gray-4)] text-left">
-              <tr className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)]">
-                <th className="hidden sm:table-cell px-4 sm:px-6 py-2 font-semibold">Prefix</th>
-                <th className="px-4 sm:px-3 py-2 font-semibold">Label</th>
-                <th className="hidden md:table-cell px-3 py-2 font-semibold">Created</th>
-                <th className="hidden sm:table-cell px-3 py-2 font-semibold">Last used</th>
-                <th className="hidden lg:table-cell px-3 py-2 font-semibold">Requests</th>
-                <th className="hidden lg:table-cell px-3 py-2 font-semibold">Last endpoint</th>
-                <th className="px-3 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table density="compact" hover>
+            <THead>
+              <Tr>
+                <Th className="hidden sm:table-cell">Prefix</Th>
+                <Th>Label</Th>
+                <Th className="hidden md:table-cell">Created</Th>
+                <Th className="hidden sm:table-cell">Last used</Th>
+                <Th className="hidden lg:table-cell" align="right">
+                  Requests
+                </Th>
+                <Th className="hidden lg:table-cell">Last endpoint</Th>
+                <Th align="right">
+                  <span className="sr-only">Actions</span>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {keys.map((row) => (
-                <tr
-                  key={row._id}
-                  className="border-b border-[var(--gray-3)] hover:bg-[var(--gray-2)]"
-                >
-                  <td className="hidden sm:table-cell px-4 sm:px-6 py-2.5">
-                    <code className="rounded-md bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--gray-12)]">
-                      {row.prefix}…
+                <Tr key={row._id}>
+                  <Td className="hidden sm:table-cell">
+                    <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-[var(--st-font-mono)] text-[11.5px] text-[var(--st-text)]">
+                      {row.prefix}...
                     </code>
-                  </td>
-                  <td className="px-4 sm:px-3 py-2.5">
-                    <span className="font-medium text-[var(--gray-12)]">
-                      {row.label || '—'}
+                  </Td>
+                  <Td>
+                    <span className="font-medium text-[var(--st-text)]">
+                      {row.label || '-'}
                     </span>
-                    <code className="ml-2 sm:hidden rounded-md bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[10.5px] text-[var(--gray-11)]">
-                      {row.prefix}…
+                    <code className="ml-2 rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-[var(--st-font-mono)] text-[10.5px] text-[var(--st-text-secondary)] sm:hidden">
+                      {row.prefix}...
                     </code>
-                  </td>
-                  <td className="hidden md:table-cell px-3 py-2.5 text-[var(--gray-10)]">
+                  </Td>
+                  <Td className="hidden text-[var(--st-text-secondary)] md:table-cell">
                     {formatTime(row.createdAt)}
-                  </td>
-                  <td className="hidden sm:table-cell px-3 py-2.5 text-[var(--gray-10)]">
+                  </Td>
+                  <Td className="hidden text-[var(--st-text-secondary)] sm:table-cell">
                     {row.lastUsedAt ? formatTime(row.lastUsedAt) : 'Never'}
-                  </td>
-                  <td className="hidden lg:table-cell px-3 py-2.5 tabular-nums text-[var(--gray-11)]">
+                  </Td>
+                  <Td align="right" className="hidden tabular-nums text-[var(--st-text)] lg:table-cell">
                     {(row.requestCount ?? 0).toLocaleString()}
-                  </td>
-                  <td className="hidden lg:table-cell px-3 py-2.5 text-[var(--gray-10)]">
+                  </Td>
+                  <Td className="hidden text-[var(--st-text-secondary)] lg:table-cell">
                     {row.lastEndpoint ? (
                       <code
                         title={row.lastEndpoint}
-                        className="rounded-md bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--gray-11)]"
+                        className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-[var(--st-font-mono)] text-[11px] text-[var(--st-text-secondary)]"
                       >
                         {truncate(row.lastEndpoint, 32)}
                       </code>
                     ) : (
-                      <span className="text-[var(--gray-9)]">—</span>
+                      <span className="text-[var(--st-text-tertiary)]">-</span>
                     )}
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <button
-                      type="button"
+                  </Td>
+                  <Td align="right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleRevoke(row)}
                       disabled={revokingId === row._id}
-                      className="inline-flex items-center gap-1 rounded-md border border-transparent px-2 py-1 text-[11.5px] font-medium text-[var(--st-text)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50 dark:hover:bg-[var(--st-text)]/40"
+                      loading={revokingId === row._id}
+                      iconLeft={revokingId === row._id ? undefined : Trash2}
                     >
-                      {revokingId === row._id ? (
-                        <LuLoader className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <LuTrash2 className="h-3 w-3" />
-                      )}
                       Revoke
-                    </button>
-                  </td>
-                </tr>
+                    </Button>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         )}
       </div>
 
       {/* Create modal */}
-      {createOpen && (
-        <ModalShell
-          onClose={closeCreate}
-          title="Create API key"
-          subtitle="Generate a personal token for the SabFlow API."
-          icon={<LuKey className="h-4 w-4" strokeWidth={2} />}
-        >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void handleCreate();
-            }}
-            className="flex flex-col gap-4"
+      <Modal
+        open={createOpen}
+        onClose={closeCreate}
+        title="Create API key"
+        description="Generate a personal token for the SabFlow API."
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={closeCreate} disabled={creating}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => void handleCreate()}
+              disabled={creating || !createLabel.trim()}
+              loading={creating}
+              iconLeft={creating ? undefined : Plus}
+            >
+              {creating ? 'Creating...' : 'Create key'}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <Field
+            label="Label"
+            help="Used to identify the key in this list. Max 80 characters."
           >
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="api-key-label"
-                className="text-[11.5px] font-medium text-[var(--gray-11)]"
-              >
-                Label
-              </label>
-              <input
-                id="api-key-label"
-                type="text"
-                autoFocus
-                value={createLabel}
-                onChange={(e) => setCreateLabel(e.target.value)}
-                placeholder="e.g. Production backend"
-                maxLength={80}
-                disabled={creating}
-                className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-2 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] disabled:opacity-50"
-              />
-              <p className="text-[10.5px] text-[var(--gray-9)]">
-                Used to identify the key in this list. Max 80 characters.
-              </p>
-            </div>
+            <Input
+              autoFocus
+              value={createLabel}
+              onChange={(e) => setCreateLabel(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && createLabel.trim() && !creating) {
+                  e.preventDefault();
+                  void handleCreate();
+                }
+              }}
+              placeholder="e.g. Production backend"
+              maxLength={80}
+              disabled={creating}
+            />
+          </Field>
 
-            {createError && (
-              <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
-                <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                <span>{createError}</span>
-              </div>
-            )}
+          {createError ? (
+            <Alert tone="danger">{createError}</Alert>
+          ) : null}
+        </div>
+      </Modal>
 
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={closeCreate}
-                disabled={creating}
-                className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={creating || !createLabel.trim()}
-                className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
-              >
-                {creating ? (
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                )}
-                {creating ? 'Creating…' : 'Create key'}
-              </button>
-            </div>
-          </form>
-        </ModalShell>
-      )}
-
-      {/* Raw key reveal modal — shown exactly once */}
-      {minted && (
-        <ModalShell
-          onClose={dismissMinted}
-          title="Save your API key"
-          subtitle={`Created “${minted.label}”.`}
-          icon={<LuShieldAlert className="h-4 w-4" strokeWidth={2} />}
-          iconClassName="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
-        >
+      {/* Raw key reveal modal. Shown exactly once. */}
+      <Modal
+        open={Boolean(minted)}
+        onClose={dismissMinted}
+        title="Save your API key"
+        description={minted ? `Created "${minted.label}".` : undefined}
+        size="sm"
+        footer={
+          <Button variant="primary" size="sm" onClick={dismissMinted}>
+            I have saved it
+          </Button>
+        }
+      >
+        {minted ? (
           <div className="flex flex-col gap-3">
-            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
-              <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-              <div className="flex flex-col gap-0.5">
-                <span className="font-semibold">
-                  This key will not be shown again.
-                </span>
-                <span>
-                  Copy it now and store it somewhere safe. If you lose it,
-                  you&rsquo;ll need to revoke it and create a new one.
-                </span>
-              </div>
-            </div>
+            <Alert
+              tone="warning"
+              icon={ShieldAlert}
+              title="This key will not be shown again."
+            >
+              Copy it now and store it somewhere safe. If you lose it, you will
+              need to revoke it and create a new one.
+            </Alert>
 
-            <div className="flex items-stretch overflow-hidden rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]">
-              <code className="flex-1 truncate px-3 py-2 font-mono text-[12px] text-[var(--gray-12)]">
+            <div className="flex items-stretch overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <code className="flex-1 truncate px-3 py-2 font-[var(--st-font-mono)] text-[12px] text-[var(--st-text)]">
                 {minted.rawKey}
               </code>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleCopy}
-                className={cn(
-                  'flex items-center gap-1.5 border-l border-[var(--gray-5)] px-3 py-2 text-[11.5px] font-medium transition-colors',
-                  copied
-                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-                    : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-                )}
+                iconLeft={copied ? Check : Copy}
+                className="rounded-none border-l border-[var(--st-border)]"
                 aria-label="Copy API key"
               >
-                {copied ? (
-                  <>
-                    <LuCheck className="h-3.5 w-3.5" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <LuCopy className="h-3.5 w-3.5" />
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-end pt-1">
-              <button
-                type="button"
-                onClick={dismissMinted}
-                className="rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
-              >
-                I&rsquo;ve saved it
-              </button>
+                {copied ? 'Copied' : 'Copy'}
+              </Button>
             </div>
           </div>
-        </ModalShell>
-      )}
+        ) : null}
+      </Modal>
     </div>
   );
 }
 
-/* ───────────────────────────────────────────────────────────── helpers */
-
-type ModalShellProps = {
-  title: string;
-  subtitle?: string;
-  icon: React.ReactNode;
-  iconClassName?: string;
-  onClose: () => void;
-  children: React.ReactNode;
-};
-
-function ModalShell({
-  title,
-  subtitle,
-  icon,
-  iconClassName,
-  onClose,
-  children,
-}: ModalShellProps) {
-  // Close on Escape — top-level effect so it follows hook ordering rules.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 sm:p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="mx-4 w-full max-w-md overflow-hidden rounded-2xl border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-2xl">
-        <div className="flex items-start gap-3 border-b border-[var(--gray-4)] px-5 py-4">
-          <div
-            className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
-              iconClassName ??
-                'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-            )}
-          >
-            {icon}
-          </div>
-          <div className="flex flex-col leading-tight">
-            <h2 className="text-[14px] font-semibold text-[var(--gray-12)]">
-              {title}
-            </h2>
-            {subtitle && (
-              <p className="text-[11.5px] text-[var(--gray-9)]">{subtitle}</p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="ml-auto -mr-1 flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-          >
-            <LuX className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="px-5 py-4">{children}</div>
-      </div>
-    </div>
-  );
-}
+/* helpers */
 
 function truncate(s: string, max: number): string {
   if (s.length <= max) return s;
-  // Keep the tail of the path — it's usually the most identifying part
+  // Keep the tail of the path. It is usually the most identifying part
   // (e.g. ".../flows/abc123/run").
-  return `…${s.slice(-(max - 1))}`;
+  return `...${s.slice(-(max - 1))}`;
 }
 
 function formatTime(iso: string): string {

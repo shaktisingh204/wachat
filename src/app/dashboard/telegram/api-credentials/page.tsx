@@ -1,22 +1,69 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  KeyRound,
-  Loader2,
-  LogIn,
-  LogOut,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  RefreshCw,
-  ShieldCheck,
-  Trash2,
-  } from 'lucide-react';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    Alert,
+    Badge,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    EmptyState,
+    Field,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Skeleton,
+    Switch,
+    Table,
+    TBody,
+    Td,
+    Textarea,
+    THead,
+    Th,
+    Tr,
+    type BadgeTone,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Eye,
+    EyeOff,
+    KeyRound,
+    LogIn,
+    LogOut,
+    MoreHorizontal,
+    Pencil,
+    Plus,
+    RefreshCw,
+    ShieldCheck,
+    Trash2,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -39,8 +86,6 @@ import {
     type CredentialRow,
     type LoginSessionRow,
 } from '@/app/actions/telegram-api-credentials.actions';
-
-const ACCENT = '#229ED9';
 
 // ---------------------------------------------------------------------------
 //  Local validation (mirrors the Rust regexes for fast feedback).
@@ -75,7 +120,7 @@ function validateCreate(f: CreateForm): string | null {
         return 'api_hash must be exactly 32 hex characters.';
     }
     if (!PHONE_RE.test(f.phoneNumber.trim())) {
-        return 'phoneNumber must be E.164 — e.g. +14155552671.';
+        return 'phoneNumber must be E.164, e.g. +14155552671.';
     }
     return null;
 }
@@ -88,7 +133,7 @@ interface EditForm {
 }
 
 function fmtDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return 'Never';
     try {
         return new Date(iso).toLocaleString();
     } catch {
@@ -96,16 +141,13 @@ function fmtDate(iso?: string): string {
     }
 }
 
-const STATUS_VARIANT: Record<
-    string,
-    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'danger'
-> = {
-    unverified: 'ghost',
+const STATUS_TONE: Record<string, BadgeTone> = {
+    unverified: 'neutral',
     verified: 'info',
     login_pending: 'warning',
     login_failed: 'danger',
     active: 'success',
-    revoked: 'secondary',
+    revoked: 'neutral',
 };
 const STATUS_LABEL: Record<string, string> = {
     unverified: 'Unverified',
@@ -129,9 +171,11 @@ function MaskedCell({
 }) {
     const [shown, setShown] = React.useState(false);
     return (
-        <button
-            type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 font-mono text-[11px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+        <Button
+            variant="ghost"
+            size="sm"
+            className="font-mono text-[11px]"
+            iconRight={shown ? EyeOff : Eye}
             onClick={() => {
                 setShown((s) => !s);
                 if (!shown && onReveal) onReveal();
@@ -139,8 +183,7 @@ function MaskedCell({
             aria-label={shown ? 'Hide masked value' : 'Reveal masked value'}
         >
             {shown ? masked : '••••••••••'}
-            {shown ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-        </button>
+        </Button>
     );
 }
 
@@ -228,7 +271,7 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'No project',
                 description: 'Select a project before adding credentials.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -253,6 +296,7 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Credentials saved',
                 description: res.message ?? 'Stored. Run "Verify" to ping Telegram.',
+                tone: 'success',
             });
             setCreateOpen(false);
             setCreateForm(EMPTY_CREATE_FORM);
@@ -267,12 +311,16 @@ export default function TelegramApiCredentialsPage() {
         if (!projectId) return;
         const res = await verifyTelegramApiCredentialAction(row._id, { projectId });
         if (res.success) {
-            toast({ title: 'Verified', description: res.message ?? 'Soft verification passed.' });
+            toast({
+                title: 'Verified',
+                description: res.message ?? 'Soft verification passed.',
+                tone: 'success',
+            });
         } else {
             toast({
                 title: 'Verify failed',
                 description: res.error ?? 'Could not verify credentials.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
         void reload();
@@ -282,12 +330,16 @@ export default function TelegramApiCredentialsPage() {
         if (!projectId) return;
         const res = await logoutTelegramApiCredentialAction(row._id, { projectId });
         if (res.success) {
-            toast({ title: 'Logged out', description: res.message ?? 'Session cleared.' });
+            toast({
+                title: 'Logged out',
+                description: res.message ?? 'Session cleared.',
+                tone: 'success',
+            });
         } else {
             toast({
                 title: 'Logout failed',
                 description: res.error ?? 'Could not log out.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
         void reload();
@@ -313,13 +365,14 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Session opened',
                 description:
-                    'Preview only — no real Telegram code was sent (MTProto worker pending).',
+                    'Preview only. No real Telegram code was sent (MTProto worker pending).',
+                tone: 'info',
             });
         } else {
             toast({
                 title: 'Could not start login',
                 description: res.error ?? 'Failed to start login flow.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -330,7 +383,7 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Code required',
                 description: 'Enter the (placeholder) verification code.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -346,12 +399,13 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Code accepted',
                 description: 'If the account has 2FA, supply the password next.',
+                tone: 'success',
             });
         } else {
             toast({
                 title: 'Code rejected',
                 description: res.error ?? 'Failed to accept code.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -362,7 +416,7 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Password required',
                 description: 'Enter the 2FA password (or any non-empty value to simulate).',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -378,13 +432,14 @@ export default function TelegramApiCredentialsPage() {
             toast({
                 title: 'Logged in (preview)',
                 description: 'Marked active. A real MTProto session is not yet established.',
+                tone: 'success',
             });
             void reload();
         } else {
             toast({
                 title: 'Password rejected',
                 description: res.error ?? 'Failed to submit password.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -401,7 +456,7 @@ export default function TelegramApiCredentialsPage() {
         setDetailRow(row);
         setEditForm({
             label: row.label ?? '',
-            phoneNumber: '', // intentionally empty — show placeholder so user types fresh if rotating
+            phoneNumber: '', // intentionally empty, show placeholder so user types fresh if rotating
             testMode: row.testMode,
             notes: row.notes ?? '',
         });
@@ -439,14 +494,14 @@ export default function TelegramApiCredentialsPage() {
         });
         setEditSaving(false);
         if (res.success) {
-            toast({ title: 'Saved', description: res.message ?? 'Updated.' });
+            toast({ title: 'Saved', description: res.message ?? 'Updated.', tone: 'success' });
             closeDetail();
             void reload();
         } else {
             toast({
                 title: 'Update failed',
                 description: res.error ?? 'Failed to update.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -456,13 +511,17 @@ export default function TelegramApiCredentialsPage() {
         const res = await revokeTelegramApiCredentialAction(revokeRow._id, projectId);
         setRevokeRow(null);
         if (res.success) {
-            toast({ title: 'Revoked', description: res.message ?? 'Credential revoked.' });
+            toast({
+                title: 'Revoked',
+                description: res.message ?? 'Credential revoked.',
+                tone: 'success',
+            });
             void reload();
         } else {
             toast({
                 title: 'Revoke failed',
                 description: res.error ?? 'Failed to revoke.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -472,13 +531,17 @@ export default function TelegramApiCredentialsPage() {
         const res = await deleteTelegramApiCredentialAction(deleteRow._id, projectId);
         setDeleteRow(null);
         if (res.success) {
-            toast({ title: 'Deleted', description: res.message ?? 'Credential removed.' });
+            toast({
+                title: 'Deleted',
+                description: res.message ?? 'Credential removed.',
+                tone: 'success',
+            });
             void reload();
         } else {
             toast({
                 title: 'Delete failed',
                 description: res.error ?? 'Failed to delete.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -489,49 +552,49 @@ export default function TelegramApiCredentialsPage() {
 
     return (
         <div className="flex flex-col gap-6">
+            <TelegramProjectGate />
+
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background: `linear-gradient(135deg, ${ACCENT} 0%, #007DBB 100%)`,
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
-                >
-                    <KeyRound className="h-6 w-6 text-white" strokeWidth={1.75} />
+            <PageHeader>
+                <div className="flex items-start gap-4">
+                    <span
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+                        aria-hidden="true"
+                    >
+                        <KeyRound className="h-6 w-6" strokeWidth={1.75} />
+                    </span>
+                    <PageHeaderHeading>
+                        <PageTitle>Telegram API Credentials (MTProto)</PageTitle>
+                        <PageDescription>
+                            Store the <code className="font-mono text-[12px]">api_id</code>/
+                            <code className="font-mono text-[12px]">api_hash</code> pair from{' '}
+                            <a
+                                href="https://my.telegram.org"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[var(--st-accent)] underline"
+                            >
+                                my.telegram.org
+                            </a>{' '}
+                            for user-level Telegram automation. For standard bot messaging, use
+                            the Bots page instead.
+                        </PageDescription>
+                    </PageHeaderHeading>
                 </div>
-                <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram API Credentials (MTProto)
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                        Store the <code className="font-mono text-[12px]">api_id</code>/
-                        <code className="font-mono text-[12px]">api_hash</code> pair from{' '}
-                        <a
-                            href="https://my.telegram.org"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline"
-                            style={{ color: ACCENT }}
-                        >
-                            my.telegram.org
-                        </a>{' '}
-                        for user-level Telegram automation. For standard bot messaging, use
-                        the Bots page instead.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
+                <PageActions>
                     <Button
                         variant="outline"
                         size="sm"
+                        iconLeft={RefreshCw}
                         onClick={() => void reload()}
-                        disabled={loading}
+                        loading={loading}
                     >
-                        <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
                     <Button
+                        variant="primary"
                         size="sm"
+                        iconLeft={Plus}
                         onClick={() => {
                             setCreateForm(EMPTY_CREATE_FORM);
                             setCreateErr(null);
@@ -539,38 +602,27 @@ export default function TelegramApiCredentialsPage() {
                         }}
                         disabled={!projectId}
                     >
-                        <Plus className="h-3 w-3" />
                         Add credentials
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {/* Preview banner */}
-            <div
-                className="flex items-start gap-3 rounded-2xl border p-4"
-                style={{
-                    borderColor: '#F1C40F66',
-                    background: '#FEF6D7',
-                }}
-            >
-                <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
-                <div className="text-[12.5px] leading-relaxed text-[var(--st-text)]">
-                    <strong>MTProto login flow is in preview.</strong> Credentials are stored
-                    securely; live MTProto sessions are not yet running. Use Bot API on the
-                    Bots page for standard automation.
-                </div>
-            </div>
+            <Alert tone="warning" title="MTProto login flow is in preview." icon={AlertTriangle}>
+                Credentials are stored securely; live MTProto sessions are not yet running. Use
+                Bot API on the Bots page for standard automation.
+            </Alert>
 
             {/* KPI cards */}
             <div className="grid gap-3 md:grid-cols-4">
                 <KpiCard label="Total credentials" value={kpis.total} />
-                <KpiCard label="Verified" value={kpis.verified} accent="success" />
-                <KpiCard label="Active sessions" value={kpis.active} accent="info" />
-                <KpiCard label="Recent failures" value={kpis.failed} accent="danger" />
+                <KpiCard label="Verified" value={kpis.verified} />
+                <KpiCard label="Active sessions" value={kpis.active} />
+                <KpiCard label="Recent failures" value={kpis.failed} />
             </div>
 
             {/* Table */}
-            <Card className="p-0">
+            <Card padding="none">
                 <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
                     <div>
                         <h2 className="text-[14px] text-[var(--st-text)]">Credentials</h2>
@@ -583,7 +635,7 @@ export default function TelegramApiCredentialsPage() {
                 {loading ? (
                     <div className="flex flex-col gap-2 p-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <Skeleton key={i} className="h-12 w-full" />
+                            <Skeleton key={i} height={48} radius={8} />
                         ))}
                     </div>
                 ) : loadError ? (
@@ -593,16 +645,17 @@ export default function TelegramApiCredentialsPage() {
                 ) : rows.length === 0 ? (
                     <div className="p-6">
                         <EmptyState
-                            icon={<KeyRound />}
+                            icon={KeyRound}
                             title="No credentials yet"
                             description="Add an api_id / api_hash pair from my.telegram.org to begin."
                             action={
                                 <Button
+                                    variant="primary"
                                     size="sm"
+                                    iconLeft={Plus}
                                     onClick={() => setCreateOpen(true)}
                                     disabled={!projectId}
                                 >
-                                    <Plus className="h-3 w-3" />
                                     Add credentials
                                 </Button>
                             }
@@ -610,114 +663,118 @@ export default function TelegramApiCredentialsPage() {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-[13px]">
-                            <thead className="bg-[var(--st-bg-muted)] text-[11.5px] uppercase tracking-[0.08em] text-[var(--st-text-secondary)]">
-                                <tr>
-                                    <th className="px-4 py-2 text-left">Label</th>
-                                    <th className="px-4 py-2 text-left">Phone</th>
-                                    <th className="px-4 py-2 text-left">api_id</th>
-                                    <th className="px-4 py-2 text-left">api_hash</th>
-                                    <th className="px-4 py-2 text-left">Status</th>
-                                    <th className="px-4 py-2 text-left">Mode</th>
-                                    <th className="px-4 py-2 text-left">Last verified</th>
-                                    <th className="px-4 py-2 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th>Label</Th>
+                                    <Th>Phone</Th>
+                                    <Th>api_id</Th>
+                                    <Th>api_hash</Th>
+                                    <Th>Status</Th>
+                                    <Th>Mode</Th>
+                                    <Th>Last verified</Th>
+                                    <Th align="right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {rows.map((r) => (
-                                    <tr
-                                        key={r._id}
-                                        className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
-                                    >
-                                        <td className="px-4 py-3">
-                                            <button
-                                                type="button"
+                                    <Tr key={r._id}>
+                                        <Td>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => void openDetail(r)}
-                                                className="text-[var(--st-text)] hover:underline"
                                             >
-                                                {r.label ?? <span className="italic text-[var(--st-text-secondary)]">unnamed</span>}
-                                            </button>
-                                        </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                                {r.label ?? (
+                                                    <span className="italic text-[var(--st-text-secondary)]">
+                                                        unnamed
+                                                    </span>
+                                                )}
+                                            </Button>
+                                        </Td>
+                                        <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                             {r.phoneNumberMasked}
-                                        </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                             {r.apiId}
-                                        </td>
-                                        <td className="px-4 py-3">
+                                        </Td>
+                                        <Td>
                                             <MaskedCell masked={r.apiHashMasked} />
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <Badge
-                                                variant={STATUS_VARIANT[r.status] ?? 'ghost'}
-                                            >
+                                        </Td>
+                                        <Td>
+                                            <Badge tone={STATUS_TONE[r.status] ?? 'neutral'}>
                                                 {STATUS_LABEL[r.status] ?? r.status}
                                             </Badge>
-                                        </td>
-                                        <td className="px-4 py-3">
+                                        </Td>
+                                        <Td>
                                             {r.testMode ? (
-                                                <Badge variant="warning">Test</Badge>
+                                                <Badge tone="warning">Test</Badge>
                                             ) : (
-                                                <Badge variant="ghost">Live</Badge>
+                                                <Badge tone="neutral">Live</Badge>
                                             )}
-                                        </td>
-                                        <td className="px-4 py-3 text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text-secondary)]">
                                             {fmtDate(r.lastVerifiedAt)}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
+                                        </Td>
+                                        <Td align="right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm">
-                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        aria-label="Credential actions"
+                                                    >
+                                                        <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem
+                                                        iconLeft={ShieldCheck}
                                                         onClick={() => void runVerify(r)}
                                                     >
-                                                        <ShieldCheck className="h-3 w-3" />
                                                         Verify
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
+                                                        iconLeft={LogIn}
                                                         onClick={() => void openLogin(r)}
                                                     >
-                                                        <LogIn className="h-3 w-3" />
                                                         Start login
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
+                                                        iconLeft={LogOut}
                                                         onClick={() => void runLogout(r)}
                                                         disabled={r.sessionState === 'none'}
                                                     >
-                                                        <LogOut className="h-3 w-3" />
                                                         Logout
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
+                                                        iconLeft={Pencil}
                                                         onClick={() => void openDetail(r)}
                                                     >
-                                                        <Pencil className="h-3 w-3" />
                                                         Edit
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
+                                                        iconLeft={AlertTriangle}
                                                         onClick={() => setRevokeRow(r)}
                                                         disabled={r.status === 'revoked'}
                                                     >
-                                                        <AlertTriangle className="h-3 w-3" />
                                                         Revoke
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
+                                                        variant="danger"
+                                                        iconLeft={Trash2}
                                                         onClick={() => setDeleteRow(r)}
                                                     >
-                                                        <Trash2 className="h-3 w-3" />
                                                         Delete
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </td>
-                                    </tr>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                 )}
             </Card>
@@ -735,7 +792,7 @@ export default function TelegramApiCredentialsPage() {
                                 rel="noopener noreferrer"
                                 className="underline"
                             >
-                                my.telegram.org → API development tools
+                                my.telegram.org, API development tools
                             </a>
                             .
                         </DrawerDescription>
@@ -751,7 +808,7 @@ export default function TelegramApiCredentialsPage() {
                             />
                         </Field>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <Field label="api_id" hint="Numeric integer.">
+                            <Field label="api_id" help="Numeric integer.">
                                 <Input
                                     inputMode="numeric"
                                     value={createForm.apiId}
@@ -763,7 +820,7 @@ export default function TelegramApiCredentialsPage() {
                             </Field>
                             <Field
                                 label="Phone number"
-                                hint="E.164 — include the country code with `+`."
+                                help="E.164, include the country code with a leading +."
                             >
                                 <Input
                                     value={createForm.phoneNumber}
@@ -777,7 +834,7 @@ export default function TelegramApiCredentialsPage() {
                                 />
                             </Field>
                         </div>
-                        <Field label="api_hash" hint="32 hex characters.">
+                        <Field label="api_hash" help="32 hex characters.">
                             <div className="flex items-center gap-2">
                                 <Input
                                     type={showHash ? 'text' : 'password'}
@@ -788,21 +845,16 @@ export default function TelegramApiCredentialsPage() {
                                     }
                                 />
                                 <Button
-                                    type="button"
                                     variant="outline"
                                     size="sm"
+                                    iconLeft={showHash ? EyeOff : Eye}
                                     onClick={() => setShowHash((s) => !s)}
                                 >
-                                    {showHash ? (
-                                        <EyeOff className="h-3 w-3" />
-                                    ) : (
-                                        <Eye className="h-3 w-3" />
-                                    )}
                                     {showHash ? 'Hide' : 'Show'}
                                 </Button>
                             </div>
                         </Field>
-                        <Field label="Test mode" hint="Route through Telegram's test DC pair.">
+                        <Field label="Test mode" help="Route through Telegram's test DC pair.">
                             <Switch
                                 checked={createForm.testMode}
                                 onCheckedChange={(v) =>
@@ -822,9 +874,7 @@ export default function TelegramApiCredentialsPage() {
                         </Field>
 
                         {createErr ? (
-                            <div className="rounded-md border border-[var(--st-danger)] bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
-                                {createErr}
-                            </div>
+                            <Alert tone="danger">{createErr}</Alert>
                         ) : null}
 
                         <div className="flex justify-end gap-2 pt-2">
@@ -836,8 +886,12 @@ export default function TelegramApiCredentialsPage() {
                             >
                                 Cancel
                             </Button>
-                            <Button size="sm" onClick={submitCreate} disabled={creating}>
-                                {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={submitCreate}
+                                loading={creating}
+                            >
                                 Save credentials
                             </Button>
                         </div>
@@ -854,9 +908,7 @@ export default function TelegramApiCredentialsPage() {
             >
                 <DrawerContent className="max-w-2xl">
                     <DrawerHeader>
-                        <DrawerTitle>
-                            {detailRow?.label ?? 'Credential detail'}
-                        </DrawerTitle>
+                        <DrawerTitle>{detailRow?.label ?? 'Credential detail'}</DrawerTitle>
                         <DrawerDescription>
                             Status, login session walk-through, and audit log.
                         </DrawerDescription>
@@ -869,10 +921,7 @@ export default function TelegramApiCredentialsPage() {
                                     label="Status"
                                     value={STATUS_LABEL[detailRow.status] ?? detailRow.status}
                                 />
-                                <Info
-                                    label="Phone"
-                                    value={detailRow.phoneNumberMasked}
-                                />
+                                <Info label="Phone" value={detailRow.phoneNumberMasked} />
                                 <Info
                                     label="Test mode"
                                     value={detailRow.testMode ? 'Yes' : 'No'}
@@ -881,10 +930,7 @@ export default function TelegramApiCredentialsPage() {
                                     label="Last verified"
                                     value={fmtDate(detailRow.lastVerifiedAt)}
                                 />
-                                <Info
-                                    label="Last used"
-                                    value={fmtDate(detailRow.lastUsedAt)}
-                                />
+                                <Info label="Last used" value={fmtDate(detailRow.lastUsedAt)} />
                             </section>
 
                             <section>
@@ -902,7 +948,7 @@ export default function TelegramApiCredentialsPage() {
                                     </Field>
                                     <Field
                                         label="Phone number"
-                                        hint="Leave blank to keep the existing number."
+                                        help="Leave blank to keep the existing number."
                                     >
                                         <Input
                                             value={editForm.phoneNumber}
@@ -934,13 +980,11 @@ export default function TelegramApiCredentialsPage() {
                                     </Field>
                                     <div className="flex justify-end gap-2">
                                         <Button
+                                            variant="primary"
                                             size="sm"
                                             onClick={saveEdit}
-                                            disabled={editSaving}
+                                            loading={editSaving}
                                         >
-                                            {editSaving ? (
-                                                <Loader2 className="h-3 w-3 animate-spin" />
-                                            ) : null}
                                             Save changes
                                         </Button>
                                     </div>
@@ -960,18 +1004,16 @@ export default function TelegramApiCredentialsPage() {
                                         {sessions.map((s) => (
                                             <li
                                                 key={s._id}
-                                                className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                         {s._id}
                                                     </span>
-                                                    <Badge variant="ghost">
-                                                        {s.status}
-                                                    </Badge>
+                                                    <Badge tone="neutral">{s.status}</Badge>
                                                 </div>
                                                 <div className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
-                                                    Started {fmtDate(s.startedAt)} ·
+                                                    Started {fmtDate(s.startedAt)} .
                                                     {s.placeholder ? ' placeholder' : ' live'}
                                                 </div>
                                             </li>
@@ -993,7 +1035,7 @@ export default function TelegramApiCredentialsPage() {
                                         {auditItems.map((a) => (
                                             <li
                                                 key={a._id}
-                                                className="rounded-md border border-[var(--st-border)] px-3 py-2 text-[12px]"
+                                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-[12px]"
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-mono uppercase tracking-[0.08em] text-[var(--st-text)]">
@@ -1026,11 +1068,10 @@ export default function TelegramApiCredentialsPage() {
                 <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>
-                            MTProto login{' '}
-                            <Badge variant="warning">Preview</Badge>
+                            MTProto login <Badge tone="warning">Preview</Badge>
                         </DialogTitle>
                         <DialogDescription>
-                            This flow currently simulates each step — no MTProto handshake is
+                            This flow currently simulates each step. No MTProto handshake is
                             performed yet.
                         </DialogDescription>
                     </DialogHeader>
@@ -1056,7 +1097,7 @@ export default function TelegramApiCredentialsPage() {
                             </p>
                             <Field
                                 label="Verification code"
-                                hint="Any value works in preview; the real worker will validate."
+                                help="Any value works in preview; the real worker will validate."
                             >
                                 <Input
                                     value={loginCode}
@@ -1074,7 +1115,7 @@ export default function TelegramApiCredentialsPage() {
                             </p>
                             <Field
                                 label="2FA password"
-                                hint="Required if the account has cloud-password enabled. Any value works in preview."
+                                help="Required if the account has cloud-password enabled. Any value works in preview."
                             >
                                 <Input
                                     type="password"
@@ -1086,7 +1127,7 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
                     {loginStep === 'done' ? (
                         <div className="flex flex-col items-center gap-2 py-2">
-                            <CheckCircle2 className="h-8 w-8 text-[var(--st-text)]" />
+                            <CheckCircle2 className="h-8 w-8 text-[var(--st-status-ok)]" aria-hidden="true" />
                             <p className="text-[13px] text-[var(--st-text)]">
                                 Placeholder login complete.
                             </p>
@@ -1101,28 +1142,32 @@ export default function TelegramApiCredentialsPage() {
                             Close
                         </Button>
                         {loginStep === 'start' ? (
-                            <Button size="sm" onClick={loginStart} disabled={loginBusy}>
-                                {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={loginStart}
+                                loading={loginBusy}
+                            >
                                 Open session
                             </Button>
                         ) : null}
                         {loginStep === 'code' ? (
                             <Button
+                                variant="primary"
                                 size="sm"
                                 onClick={loginCodeSubmit}
-                                disabled={loginBusy}
+                                loading={loginBusy}
                             >
-                                {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Submit code
                             </Button>
                         ) : null}
                         {loginStep === 'password' ? (
                             <Button
+                                variant="primary"
                                 size="sm"
                                 onClick={loginPasswordSubmit}
-                                disabled={loginBusy}
+                                loading={loginBusy}
                             >
-                                {loginBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                                 Submit password
                             </Button>
                         ) : null}
@@ -1142,15 +1187,13 @@ export default function TelegramApiCredentialsPage() {
                         <AlertDialogTitle>Revoke credential?</AlertDialogTitle>
                         <AlertDialogDescription>
                             The credential will be marked <code>revoked</code> and any active
-                            session cleared. The record is preserved for audit — use{' '}
+                            session cleared. The record is preserved for audit; use{' '}
                             <strong>Delete</strong> to remove it entirely.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmRevoke}>
-                            Revoke
-                        </AlertDialogAction>
+                        <AlertDialogAction onClick={confirmRevoke}>Revoke</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -1172,9 +1215,7 @@ export default function TelegramApiCredentialsPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>
-                            Delete
-                        </AlertDialogAction>
+                        <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -1185,28 +1226,6 @@ export default function TelegramApiCredentialsPage() {
 // ---------------------------------------------------------------------------
 //  Small helpers
 // ---------------------------------------------------------------------------
-
-function Field({
-    label,
-    hint,
-    children,
-}: {
-    label: string;
-    hint?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-            {hint ? (
-                <span className="text-[11px] text-[var(--st-text-secondary)]">{hint}</span>
-            ) : null}
-        </label>
-    );
-}
 
 function Info({ label, value }: { label: string; value: string }) {
     return (
@@ -1219,30 +1238,15 @@ function Info({ label, value }: { label: string; value: string }) {
     );
 }
 
-function KpiCard({
-    label,
-    value,
-    accent,
-}: {
-    label: string;
-    value: number;
-    accent?: 'success' | 'info' | 'danger';
-}) {
-    const color =
-        accent === 'success'
-            ? 'text-[var(--st-text)]'
-            : accent === 'info'
-              ? 'text-[var(--st-text)]'
-              : accent === 'danger'
-                ? 'text-[var(--st-text)]'
-                : 'text-[var(--st-text)]';
+function KpiCard({ label, value }: { label: string; value: number }) {
     return (
-        <Card className="p-4">
-            <TelegramProjectGate />
+        <Card padding="md">
             <p className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </p>
-            <p className={`mt-1 text-[24px] font-medium leading-none ${color}`}>{value}</p>
+            <p className="mt-1 text-[24px] font-medium leading-none text-[var(--st-text)]">
+                {value}
+            </p>
         </Card>
     );
 }

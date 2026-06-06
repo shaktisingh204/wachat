@@ -1,16 +1,23 @@
 'use client';
 
-import { Badge, Button, Switch, Td, Tr, cn } from '@/components/sabcrm/20ui';
 import {
-  useSortable } from '@dnd-kit/sortable';
+    Badge,
+    Button,
+    IconButton,
+    Switch,
+    Td,
+    Tr,
+    cn,
+} from '@/components/sabcrm/20ui';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
     Copy,
-  GripVertical,
-  Pencil,
-  PlayCircle,
-  Trash2,
-  } from 'lucide-react';
+    GripVertical,
+    Pencil,
+    PlayCircle,
+    Trash2,
+} from 'lucide-react';
 
 /**
  * Sortable row inside the auto-reply rules table. Uses `@dnd-kit` so
@@ -69,24 +76,25 @@ export function RuleTableRow({
             data-rule-id={rule._id}
         >
             <Td className="w-8 pr-0">
-                <button
-                    type="button"
+                <IconButton
+                    label="Drag to reorder"
+                    icon={GripVertical}
+                    variant="ghost"
+                    size="sm"
+                    className="cursor-grab"
                     {...attributes}
                     {...listeners}
-                    aria-label="Drag to reorder"
-                    className="cursor-grab text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                >
-                    <GripVertical className="h-4 w-4" />
-                </button>
+                />
             </Td>
             <Td>
-                <button
-                    type="button"
+                <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onOpenDetail(rule)}
-                    className="text-left font-medium hover:underline"
+                    className="px-0 font-medium hover:underline"
                 >
                     {rule.name}
-                </button>
+                </Button>
                 <div className="text-xs text-[var(--st-text-secondary)]">
                     priority {rule.priority}
                 </div>
@@ -104,12 +112,12 @@ export function RuleTableRow({
                         </span>
                     )}
                     {rule.actions.slice(0, 3).map((a, i) => (
-                        <Badge key={i} variant="secondary">
+                        <Badge key={i} tone="neutral">
                             {actionLabel(a.kind)}
                         </Badge>
                     ))}
                     {rule.actions.length > 3 && (
-                        <Badge variant="ghost">
+                        <Badge tone="neutral" kind="outline">
                             +{rule.actions.length - 3}
                         </Badge>
                     )}
@@ -135,38 +143,34 @@ export function RuleTableRow({
             </Td>
             <Td className="text-right">
                 <div className="flex justify-end gap-1">
-                    <Button
+                    <IconButton
+                        label="Edit"
+                        icon={Pencil}
                         variant="ghost"
-                        size="icon"
-                        title="Edit"
+                        size="sm"
                         onClick={() => onEdit(rule)}
-                    >
-                        <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
+                    />
+                    <IconButton
+                        label="Duplicate"
+                        icon={Copy}
                         variant="ghost"
-                        size="icon"
-                        title="Duplicate"
+                        size="sm"
                         onClick={() => onDuplicate(rule)}
-                    >
-                        <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
+                    />
+                    <IconButton
+                        label="Test"
+                        icon={PlayCircle}
                         variant="ghost"
-                        size="icon"
-                        title="Test"
+                        size="sm"
                         onClick={() => onTest(rule)}
-                    >
-                        <PlayCircle className="h-4 w-4" />
-                    </Button>
-                    <Button
+                    />
+                    <IconButton
+                        label="Delete"
+                        icon={Trash2}
                         variant="ghost"
-                        size="icon"
-                        title="Delete"
+                        size="sm"
                         onClick={() => onDelete(rule)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    />
                 </div>
             </Td>
         </Tr>

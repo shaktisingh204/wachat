@@ -1,11 +1,38 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
 
-import { Button, Card, Badge, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import { listSabvaultAudit } from '@/app/actions/sabvault.actions';
 import type { SabvaultAuditAction } from '@/lib/rust-client/sabvault-audit';
 
 export const dynamic = 'force-dynamic';
+
+type FilterValue = SabvaultAuditAction | undefined;
+
+const ACTION_TONE: Record<string, React.ComponentProps<typeof Badge>['tone']> = {
+    reveal: 'info',
+    copy: 'neutral',
+    share: 'accent',
+    unlock_fail: 'danger',
+};
 
 export default async function SabvaultAuditPage(props: {
     searchParams: Promise<{ action?: string; secretId?: string; page?: string }>;
@@ -20,15 +47,23 @@ export default async function SabvaultAuditPage(props: {
     });
 
     return (
-        <div className="zoruui mx-auto flex max-w-5xl flex-col gap-4 p-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">SabVault audit log</h1>
-                <Link href="/dashboard/sabvault">
-                    <Button variant="outline">Back to vault</Button>
-                </Link>
-            </div>
+        <div className="ui20 mx-auto flex max-w-5xl flex-col gap-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>SabVault</PageEyebrow>
+                    <PageTitle>Audit log</PageTitle>
+                    <PageDescription>
+                        Every reveal, copy, share, and failed unlock recorded across your vault.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href="/dashboard/sabvault">
+                        <Button variant="outline">Back to vault</Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
-            <div className="flex gap-2 text-sm">
+            <div className="flex flex-wrap gap-2">
                 <FilterChip current={sp.action} value={undefined} label="All" />
                 <FilterChip current={sp.action} value="reveal" label="Reveals" />
                 <FilterChip current={sp.action} value="copy" label="Copies" />
@@ -36,38 +71,44 @@ export default async function SabvaultAuditPage(props: {
                 <FilterChip current={sp.action} value="unlock_fail" label="Failed unlocks" />
             </div>
 
-            <Card className="p-0">
+            <Card padding="none">
                 {res.items.length === 0 ? (
                     <div className="p-6">
-                        <EmptyState title="No events" description="Audit events show up here as you use the vault." />
+                        <EmptyState
+                            icon={ShieldCheck}
+                            title="No events"
+                            description="Audit events show up here as you use the vault."
+                        />
                     </div>
                 ) : (
-                    <table className="w-full text-sm">
-                        <thead className="border-b text-left text-xs uppercase text-[var(--st-text-secondary)]">
-                            <tr>
-                                <th className="px-4 py-2">Time</th>
-                                <th className="px-4 py-2">Action</th>
-                                <th className="px-4 py-2">Actor</th>
-                                <th className="px-4 py-2">Secret</th>
-                                <th className="px-4 py-2">IP</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th>Time</Th>
+                                <Th>Action</Th>
+                                <Th>Actor</Th>
+                                <Th>Secret</Th>
+                                <Th>IP</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {res.items.map((e) => (
-                                <tr key={e._id} className="border-b">
-                                    <td className="px-4 py-2 font-mono text-xs">
+                                <Tr key={e._id}>
+                                    <Td className="font-mono text-xs">
                                         {new Date(e.ts).toLocaleString()}
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <Badge>{e.action}</Badge>
-                                    </td>
-                                    <td className="px-4 py-2 font-mono text-xs">{e.actorUserId}</td>
-                                    <td className="px-4 py-2 font-mono text-xs">{e.secretId ?? '—'}</td>
-                                    <td className="px-4 py-2 text-xs">{e.ip ?? '—'}</td>
-                                </tr>
+                                    </Td>
+                                    <Td>
+                                        <Badge tone={ACTION_TONE[e.action] ?? 'neutral'}>
+                                            {e.action}
+                                        </Badge>
+                                    </Td>
+                                    <Td className="font-mono text-xs">{e.actorUserId}</Td>
+                                    <Td className="font-mono text-xs">{e.secretId ?? '-'}</Td>
+                                    <Td className="text-xs">{e.ip ?? '-'}</Td>
+                                </Tr>
                             ))}
-                        </tbody>
-                    </table>
+                        </TBody>
+                    </Table>
                 )}
             </Card>
 
@@ -84,21 +125,24 @@ export default async function SabvaultAuditPage(props: {
     );
 }
 
-function FilterChip({ current, value, label }: { current?: string; value?: string; label: string }) {
+function FilterChip({
+    current,
+    value,
+    label,
+}: {
+    current?: string;
+    value?: FilterValue;
+    label: string;
+}) {
     const active = (current ?? undefined) === value;
     const href = value
         ? `/dashboard/sabvault/audit?action=${value}`
         : '/dashboard/sabvault/audit';
     return (
-        <Link
-            href={href}
-            className={`rounded-md border px-3 py-1 ${
-                active
-                    ? 'bg-[var(--st-bg-secondary)] font-medium'
-                    : 'border-[var(--st-border)]'
-            }`}
-        >
-            {label}
+        <Link href={href}>
+            <Button variant={active ? 'secondary' : 'ghost'} size="sm">
+                {label}
+            </Button>
         </Link>
     );
 }

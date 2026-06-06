@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { flowId } = await params;
   const flow = await getSabFlow(flowId);
   return {
-    title: flow ? `Share "${flow.name}" — SabFlow` : 'Flow not found — SabFlow',
+    title: flow ? `Share "${flow.name}" - SabFlow` : 'Flow not found - SabFlow',
   };
 }
 
@@ -29,14 +29,14 @@ export default async function SharePage({ params }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const shareUrl = `${appUrl}/flow/${flow._id}`;
 
-  // Normalise legacy statuses — only PUBLISHED counts as live.
+  // Normalise legacy statuses - only PUBLISHED counts as live.
   const status: FlowStatus =
     flow.status === 'PUBLISHED' ? 'PUBLISHED'
     : flow.status === 'ARCHIVED' ? 'ARCHIVED'
     : 'DRAFT';
 
   return (
-    <div className={cn('zoruui')}>
+    <div className={cn('ui20')}>
       <SharePanelClient
         flowId={flow._id as string}
         flowName={flow.name}

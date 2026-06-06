@@ -1,7 +1,35 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label, Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Card,
+  PageHeader,
+  PageHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  Field,
+  Input,
+  Textarea,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import {
   BarChart3,
   Bot,
@@ -22,11 +50,11 @@ import {
 } from 'lucide-react';
 
 /**
- * /dashboard/facebook/roadmap — Meta Suite product roadmap (ZoruUI).
+ * /dashboard/facebook/roadmap - Meta Suite product roadmap (20ui).
  *
- * Replaces the legacy redirect-only stub. Renders a status-grouped grid
- * of Card tiles. Status is communicated via Badge using ONLY
- * neutral / success / info / ghost variants (no rainbow accents).
+ * Renders a status-grouped grid of Card tiles. Status is communicated via
+ * Badge using only neutral / success / info / ghost variants (no rainbow
+ * accents), keeping a single accent and a single radius across the page.
  */
 
 type RoadmapStatus = 'shipped' | 'in_progress' | 'planned';
@@ -89,7 +117,7 @@ const BASE_ROADMAP: BaseRoadmapItem[] = [
   {
     title: 'Messenger inbox',
     description:
-      'Read and reply to Messenger conversations with assignment + status.',
+      'Read and reply to Messenger conversations with assignment and status.',
     status: 'shipped',
     area: 'Engagement',
     icon: MessageSquare,
@@ -156,7 +184,7 @@ const BASE_ROADMAP: BaseRoadmapItem[] = [
   {
     title: 'Live broadcast launcher',
     description:
-      'Pre-broadcast checklist + RTMP stream launcher inside SabNode.',
+      'Pre-broadcast checklist plus RTMP stream launcher inside SabNode.',
     status: 'planned',
     area: 'Publishing',
     icon: Rocket,
@@ -254,7 +282,7 @@ export default function FacebookRoadmapPage() {
       {/* Page header */}
       <PageHeader className="mt-4">
         <PageHeading>
-          <PageEyebrow>Meta Suite · What&apos;s next</PageEyebrow>
+          <PageEyebrow>Meta Suite, what&apos;s next</PageEyebrow>
           <PageTitle>Roadmap</PageTitle>
           <PageDescription>
             Public view of what&apos;s shipped, what&apos;s in flight and
@@ -264,9 +292,8 @@ export default function FacebookRoadmapPage() {
         <PageActions>
           <Dialog open={featureRequestOpen} onOpenChange={setFeatureRequestOpen}>
             <DialogTrigger asChild>
-              <Button variant="primary">
-                <Plus className="mr-2 h-4 w-4" />
-                Request Feature
+              <Button variant="primary" iconLeft={Plus}>
+                Request feature
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -274,30 +301,32 @@ export default function FacebookRoadmapPage() {
                 <DialogHeader>
                   <DialogTitle>Request a feature</DialogTitle>
                   <DialogDescription>
-                    Tell us what you'd like to see next in the Meta Suite. We review all requests.
+                    Tell us what you&apos;d like to see next in the Meta Suite. We review all requests.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="title">Feature title</Label>
-                    <Input id="title" placeholder="E.g. Instagram Stories publishing" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="description">Details & use case</Label>
+                  <Field label="Feature title">
+                    <Input
+                      placeholder="E.g. Instagram Stories publishing"
+                      required
+                    />
+                  </Field>
+                  <Field label="Details and use case">
                     <Textarea
-                      id="description"
                       placeholder="How would you use this feature?"
                       required
                       className="min-h-[100px]"
                     />
-                  </div>
+                  </Field>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="ghost" onClick={() => setFeatureRequestOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit request'}
+                  <DialogClose asChild>
+                    <Button type="button" variant="ghost">
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" variant="primary" loading={isSubmitting}>
+                    {isSubmitting ? 'Submitting' : 'Submit request'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -317,7 +346,7 @@ export default function FacebookRoadmapPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
-                  <Icon />
+                  <Icon aria-hidden="true" />
                 </span>
                 <Badge variant={STATUS_BADGE[status]}>
                   {STATUS_LABELS[status]}
@@ -350,7 +379,7 @@ export default function FacebookRoadmapPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <h2 className="flex items-center gap-2 text-[18px] tracking-tight text-[var(--st-text)] leading-none">
-                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     {STATUS_LABELS[status]}
                   </h2>
                   <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
@@ -393,7 +422,7 @@ export default function FacebookRoadmapPage() {
                         <div className="flex flex-col gap-3">
                           <div className="flex items-start justify-between gap-2">
                             <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
-                              <ItemIcon />
+                              <ItemIcon aria-hidden="true" />
                             </span>
                             <Badge variant={STATUS_BADGE[item.status]}>
                               {STATUS_LABELS[item.status]}
@@ -412,27 +441,25 @@ export default function FacebookRoadmapPage() {
                           </div>
                           {item.eta && (
                             <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
-                              <Clock className="h-3 w-3" />
-                              ETA · {item.eta}
+                              <Clock className="h-3 w-3" aria-hidden="true" />
+                              ETA, {item.eta}
                             </p>
                           )}
                         </div>
-                        
+
                         {item.status === 'planned' && (
                           <div className="mt-2 pt-3 border-t border-[var(--st-border)]">
-                            <button
+                            <Button
                               type="button"
+                              size="sm"
+                              variant={item.hasUpvoted ? 'primary' : 'secondary'}
+                              iconLeft={ThumbsUp}
                               onClick={() => handleUpvote(item.id)}
-                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                                item.hasUpvoted
-                                  ? 'bg-[var(--st-accent)] text-white'
-                                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
-                              }`}
+                              aria-pressed={item.hasUpvoted}
+                              aria-label={`Upvote ${item.title}, ${item.upvotes} ${item.upvotes === 1 ? 'vote' : 'votes'}`}
                             >
-                              <ThumbsUp className={`h-3.5 w-3.5 ${item.hasUpvoted ? 'fill-current' : ''}`} />
-                              <span>{item.upvotes}</span>
-                              <span className="sr-only">Upvotes</span>
-                            </button>
+                              {item.upvotes}
+                            </Button>
                           </div>
                         )}
                       </Card>

@@ -2,7 +2,16 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import {
   downloadCsv,
@@ -20,6 +29,9 @@ interface Props {
   exportHeaders: string[];
   exportRows: ExportRow[];
 }
+
+// Radix Select forbids empty string item values, so "Custom" uses a sentinel.
+const CUSTOM_FY = '__custom';
 
 function buildFyOptions() {
   const now = new Date();
@@ -89,8 +101,8 @@ export function ExpenseFilterToolbar({
     pushParams({});
   };
 
-  const onFyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const opt = fyOptions.find((o) => o.label === e.target.value);
+  const onFyChange = (value: string) => {
+    const opt = fyOptions.find((o) => o.label === value);
     if (!opt) return;
     setFromVal(opt.from);
     setToVal(opt.to);
@@ -100,88 +112,74 @@ export function ExpenseFilterToolbar({
   return (
     <form
       onSubmit={onApply}
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          FY
-        </span>
-        <select
-          value={matchedFy?.label ?? ''}
-          onChange={onFyChange}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+      <Field label="FY" className="w-40">
+        <Select
+          value={matchedFy?.label ?? CUSTOM_FY}
+          onValueChange={onFyChange}
         >
-          <option value="">Custom</option>
-          {fyOptions.map((o) => (
-            <option key={o.label} value={o.label}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          <SelectTrigger aria-label="Financial year">
+            <SelectValue placeholder="Custom" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={CUSTOM_FY}>Custom</SelectItem>
+            {fyOptions.map((o) => (
+              <SelectItem key={o.label} value={o.label}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          From
-        </span>
-        <input
+      <Field label="From">
+        <Input
           type="date"
+          inputSize="sm"
           value={fromVal}
           onChange={(e) => setFromVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          To
-        </span>
-        <input
+      <Field label="To">
+        <Input
           type="date"
+          inputSize="sm"
           value={toVal}
           onChange={(e) => setToVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          Category
-        </span>
-        <input
+      <Field label="Category" className="w-32">
+        <Input
           type="text"
+          inputSize="sm"
           value={catVal}
           onChange={(e) => setCatVal(e.target.value)}
           placeholder="Any"
-          className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          Vendor
-        </span>
-        <input
+      <Field label="Vendor" className="w-32">
+        <Input
           type="text"
+          inputSize="sm"
           value={vendorVal}
           onChange={(e) => setVendorVal(e.target.value)}
           placeholder="Any"
-          className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          Type
-        </span>
-        <input
+      <Field label="Type" className="w-28">
+        <Input
           type="text"
+          inputSize="sm"
           value={typeVal}
           onChange={(e) => setTypeVal(e.target.value)}
           placeholder="Any"
-          className="h-9 w-24 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
 
       <Button type="submit" size="sm" disabled={isPending}>
         Apply
@@ -190,17 +188,17 @@ export function ExpenseFilterToolbar({
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={RefreshCcw}
         onClick={() => startTransition(() => router.refresh())}
         disabled={isPending}
-        aria-label="Refresh"
       >
-        <RefreshCcw className="h-3.5 w-3.5" />
         Refresh
       </Button>
       <Button
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={FileDown}
         onClick={() =>
           downloadCsv(
             `expense-report-${dateStamp()}.csv`,
@@ -208,15 +206,14 @@ export function ExpenseFilterToolbar({
             exportRows,
           )
         }
-        aria-label="Export CSV"
       >
-        <FileDown className="h-3.5 w-3.5" />
         CSV
       </Button>
       <Button
         type="button"
         size="sm"
         variant="outline"
+        iconLeft={FileSpreadsheet}
         onClick={() =>
           void downloadXlsx(
             `expense-report-${dateStamp()}.xlsx`,
@@ -225,9 +222,7 @@ export function ExpenseFilterToolbar({
             'Expenses',
           )
         }
-        aria-label="Export XLSX"
       >
-        <FileSpreadsheet className="h-3.5 w-3.5" />
         XLSX
       </Button>
     </form>

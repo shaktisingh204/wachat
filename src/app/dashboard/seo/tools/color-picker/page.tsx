@@ -1,7 +1,17 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Card, CardBody, Input, Label, cn } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  ColorPicker,
+  Field,
+  Input,
+} from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { useToast } from '@/hooks/use-toast';
 
@@ -84,12 +94,10 @@ function extractColors(text: string) {
   const hexes = (text.match(HEX_REGEX) || []).map(s => s.toLowerCase());
   const rgbs = (text.match(RGB_REGEX) || []).map(s => s.toLowerCase());
   const hsls = (text.match(HSL_REGEX) || []).map(s => s.toLowerCase());
-  
+
   const all = [...hexes, ...rgbs, ...hsls];
   return Array.from(new Set(all));
 }
-
-// Removed exportCsv and copyAll to move them inside ColorPickerContent for toast access
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
   constructor(props: { children: React.ReactNode }) {
@@ -103,10 +111,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     if (this.state.hasError) {
       return (
         <ToolShell title="Color Picker" description="An error occurred while loading this tool.">
-          <div className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded">
-            <h2 className="font-semibold">Something went wrong</h2>
-            <p className="mt-2 text-sm">{this.state.error?.message}</p>
-          </div>
+          <Alert tone="danger" title="Something went wrong">
+            {this.state.error?.message}
+          </Alert>
         </ToolShell>
       );
     }
@@ -162,12 +169,12 @@ function ColorPickerContent() {
   const exportCsv = (colors: string[]) => {
     const csv = 'Color\n' + colors.map(c => `"${c}"`).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const dl = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = dl;
     a.download = 'colors.csv';
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(dl);
     toast({ title: 'Exported', description: 'Colors exported to CSV.' });
   };
 
@@ -185,21 +192,23 @@ function ColorPickerContent() {
     <ToolShell title="Color Picker" description="Pick and convert colors. Extract colors from a URL.">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <CardBody className="pt-6">
-            <h3 className="text-lg font-medium mb-4">Manual Picker</h3>
+          <CardHeader>
+            <CardTitle>Manual Picker</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="flex items-center gap-4">
-              <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} className="h-24 w-24 border rounded cursor-pointer p-1" />
+              <ColorPicker value={hex} onChange={setHex} />
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm">{hex}</span>
+                  <span className="font-mono text-sm text-[var(--st-text)]">{hex}</span>
                   <Button size="sm" variant="outline" onClick={() => copyText(hex, 'HEX value')}>Copy</Button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm">{rgbStr}</span>
+                  <span className="font-mono text-sm text-[var(--st-text)]">{rgbStr}</span>
                   <Button size="sm" variant="outline" onClick={() => copyText(rgbStr, 'RGB value')}>Copy</Button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm">{hslStr}</span>
+                  <span className="font-mono text-sm text-[var(--st-text)]">{hslStr}</span>
                   <Button size="sm" variant="outline" onClick={() => copyText(hslStr, 'HSL value')}>Copy</Button>
                 </div>
               </div>
@@ -208,31 +217,32 @@ function ColorPickerContent() {
         </Card>
 
         <Card>
-          <CardBody className="pt-6">
-            <h3 className="text-lg font-medium mb-4">Extract from URL</h3>
+          <CardHeader>
+            <CardTitle>Extract from URL</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Website URL</Label>
+              <Field label="Website URL">
                 <div className="flex gap-2">
-                  <Input 
-                    type="url" 
-                    placeholder="https://example.com" 
-                    value={url} 
+                  <Input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={url}
                     onChange={e => setUrl(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleExtract()}
                   />
-                  <Button onClick={handleExtract} disabled={loading}>
+                  <Button variant="primary" onClick={handleExtract} loading={loading}>
                     {loading ? 'Extracting...' : 'Extract'}
                   </Button>
                 </div>
-              </div>
+              </Field>
 
-              {error && <div className="text-sm text-[var(--st-text)]">{error}</div>}
+              {error && <Alert tone="warning">{error}</Alert>}
 
               {extractedColors.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Found {extractedColors.length} colors</span>
+                    <span className="text-sm font-medium text-[var(--st-text)]">Found {extractedColors.length} colors</span>
                     <div className="space-x-2">
                       <Button size="sm" variant="outline" onClick={() => copyAll(extractedColors)}>Copy All</Button>
                       <Button size="sm" variant="outline" onClick={() => exportCsv(extractedColors)}>Export CSV</Button>
@@ -240,11 +250,13 @@ function ColorPickerContent() {
                   </div>
                   <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
                     {extractedColors.map(c => (
-                      <div 
-                        key={c} 
-                        className="w-8 h-8 rounded border shadow-sm cursor-pointer hover:scale-110 transition-transform" 
-                        style={{ backgroundColor: c }}
+                      <Button
+                        key={c}
+                        variant="ghost"
+                        aria-label={`Use color ${c}`}
                         title={c}
+                        className="h-8 w-8 p-0 rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-sm transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
                         onClick={() => { setHex(anyColorToHex(c)); copyText(c, 'Color'); }}
                       />
                     ))}

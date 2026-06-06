@@ -1,18 +1,41 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
-import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Skeleton, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Alert, AlertDescription } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
   CheckCircle2,
-  Loader2,
   Plug,
   Plus,
-  Search,
-  AlertCircle,
   RefreshCw,
+  Search,
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
@@ -42,58 +65,64 @@ function ProjectCard({
     onSelect: (id: string, name: string) => void;
 }) {
     const id = project._id.toString();
+    const select = () => onSelect(id, project.name);
     return (
         <li>
-            <button
-                type="button"
-                onClick={() => onSelect(id, project.name)}
-                className="w-full text-left"
+            <Card
+                variant="interactive"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open ${project.name}`}
+                onClick={select}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        select();
+                    }
+                }}
+                className="flex cursor-pointer items-center justify-between gap-3 p-4"
             >
-                <Card className="flex items-center justify-between gap-3 p-4 transition-shadow hover:shadow-md">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                            style={{
-                                background: 'var(--st-bg-muted)',
-                            }}
-                        >
-                            <Plug
-                                className="h-4 w-4"
-                                strokeWidth={1.75}
-                                style={{ color: 'var(--st-text)' }}
-                            />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                                <p className="truncate text-[13.5px] text-[var(--st-text)]">
-                                    {project.name}
-                                </p>
-                                {isActive ? (
-                                    <Badge variant="info">Active</Badge>
-                                ) : null}
-                            </div>
-                            <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
-                                {countsLoading
-                                    ? 'Counting bots…'
-                                    : botCount === 0
-                                    ? 'No Telegram bots yet'
-                                    : `${botCount} bot${botCount === 1 ? '' : 's'} connected`}
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-muted)]">
+                        <Plug
+                            className="h-4 w-4 text-[var(--st-text)]"
+                            strokeWidth={1.75}
+                            aria-hidden="true"
+                        />
+                    </div>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <p className="truncate text-[13.5px] text-[var(--st-text)]">
+                                {project.name}
                             </p>
+                            {isActive ? (
+                                <Badge variant="info">Active</Badge>
+                            ) : null}
                         </div>
+                        <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
+                            {countsLoading
+                                ? 'Counting bots...'
+                                : botCount === 0
+                                ? 'No Telegram bots yet'
+                                : `${botCount} bot${botCount === 1 ? '' : 's'} connected`}
+                        </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        {botCount > 0 ? (
-                            <Badge variant="success">
-                                <CheckCircle2 className="h-3 w-3" />
-                                Telegram
-                            </Badge>
-                        ) : (
-                            <Badge variant="ghost">Not set up</Badge>
-                        )}
-                        <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
-                    </div>
-                </Card>
-            </button>
+                </div>
+                <div className="flex items-center gap-2">
+                    {botCount > 0 ? (
+                        <Badge variant="success">
+                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                            Telegram
+                        </Badge>
+                    ) : (
+                        <Badge tone="neutral">Not set up</Badge>
+                    )}
+                    <ArrowRight
+                        className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                    />
+                </div>
+            </Card>
         </li>
     );
 }
@@ -143,36 +172,26 @@ function CreateTelegramProjectDialog({
                     <DialogTitle>New Telegram project</DialogTitle>
                     <DialogDescription>
                         A Telegram project is a workspace for bots, chats,
-                        and broadcasts. It's separate from your WhatsApp
-                        (Wachat) projects — only data and rules created
+                        and broadcasts. It is separate from your WhatsApp
+                        (Wachat) projects. Only data and rules created
                         inside this project apply to its bots.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-3">
-                    <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                            Project name
-                        </span>
-                        <Input
-                            value={createName}
-                            onChange={(e) => setCreateName(e.target.value)}
-                            placeholder="e.g. Support bot — EU"
-                            autoFocus
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !createBusy) {
-                                    e.preventDefault();
-                                    void handleCreate();
-                                }
-                            }}
-                        />
-                    </label>
-                    {createErr ? (
-                        <div className="rounded-md border border-[var(--st-danger)] bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
-                            {createErr}
-                        </div>
-                    ) : null}
-                </div>
+                <Field label="Project name" error={createErr ?? undefined}>
+                    <Input
+                        value={createName}
+                        onChange={(e) => setCreateName(e.target.value)}
+                        placeholder="e.g. Support bot, EU"
+                        autoFocus
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !createBusy) {
+                                e.preventDefault();
+                                void handleCreate();
+                            }
+                        }}
+                    />
+                </Field>
 
                 <DialogFooter>
                     <Button
@@ -185,14 +204,12 @@ function CreateTelegramProjectDialog({
                     </Button>
                     <Button
                         size="sm"
+                        variant="primary"
+                        iconLeft={Plus}
+                        loading={createBusy}
                         onClick={() => void handleCreate()}
                         disabled={createBusy || !createName.trim()}
                     >
-                        {createBusy ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                            <Plus className="h-3 w-3" />
-                        )}
                         Create project
                     </Button>
                 </DialogFooter>
@@ -257,7 +274,8 @@ export default function TelegramProjectPickerPage() {
         await reloadProjects();
         toast({
             title: 'Project created',
-            description: `“${name}” is now your active workspace.`,
+            description: `"${name}" is now your active workspace.`,
+            tone: 'success',
         });
         setCreateOpen(false);
         const explicitNext = searchParams.get('next');
@@ -297,7 +315,7 @@ export default function TelegramProjectPickerPage() {
                     }
                 }),
             );
-            
+
             setCounts(prev => {
                 const map: BotCounts = { ...prev };
                 let hasError = false;
@@ -369,7 +387,7 @@ export default function TelegramProjectPickerPage() {
         return [...result].sort((a: any, b: any) => {
             const nameA = a.name?.toLowerCase() || '';
             const nameB = b.name?.toLowerCase() || '';
-            
+
             if (sortBy === 'name-asc') {
                 return nameA.localeCompare(nameB);
             }
@@ -424,41 +442,30 @@ export default function TelegramProjectPickerPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background:
-                            'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
-                >
-                    <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
+            <PageHeader bordered={false} className="items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#37BBFE] to-[#007DBB] shadow-[0_10px_28px_rgba(0,125,187,0.25)]">
+                    <Plug className="h-6 w-6 text-white" strokeWidth={1.75} aria-hidden="true" />
                 </div>
-                <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
-                        Pick a Telegram workspace
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
+                <PageHeaderHeading>
+                    <PageTitle>Pick a Telegram workspace</PageTitle>
+                    <PageDescription>
                         Telegram bots, chats, and broadcasts belong to a project.
-                        Choose one to start in — projects with a green badge already
+                        Choose one to start in. Projects with a green badge already
                         have at least one bot connected.
-                    </p>
-                </div>
-            </div>
-            
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+
             {countsError && !countsLoading ? (
                 <Alert variant="warning" className="py-3">
-                    <AlertCircle className="h-4 w-4" />
                     <div className="flex items-center justify-between gap-4">
                         <AlertDescription>{countsError}</AlertDescription>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-7 px-2 text-[11px]"
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            iconLeft={RefreshCw}
                             onClick={() => void loadCounts(false)}
                         >
-                            <RefreshCw className="mr-1 h-3 w-3" />
                             Retry
                         </Button>
                     </div>
@@ -467,43 +474,44 @@ export default function TelegramProjectPickerPage() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
-                    <div className="relative w-full sm:max-w-md">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+                    <div className="w-full sm:max-w-md">
                         <Input
+                            iconLeft={Search}
                             value={q}
                             onChange={(e) => {
                                 setQ(e.target.value);
                                 setPage(1);
                             }}
                             placeholder="Search projects by name"
-                            className="pl-9"
+                            aria-label="Search projects by name"
                         />
                     </div>
                     <Select value={sortBy} onValueChange={(val: SortOption) => { setSortBy(val); setPage(1); }}>
-                        <SelectTrigger className="w-[160px]">
+                        <SelectTrigger className="w-[160px]" aria-label="Sort projects">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="name-asc">Name (A-Z)</SelectItem>
                             <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                            <SelectItem value="bots-desc">Bots Connected</SelectItem>
+                            <SelectItem value="bots-desc">Bots connected</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
                 <Button
                     size="sm"
                     variant="outline"
+                    iconLeft={Plus}
                     onClick={() => {
                         setCreateOpen(true);
                     }}
                 >
-                    <Plus className="h-3 w-3" />
                     New Telegram project
                 </Button>
             </div>
 
             {filteredAndSorted.length === 0 ? (
                 <EmptyState
+                    icon={Plug}
                     title={
                         allProjects.length === 0
                             ? 'No projects yet'
@@ -518,11 +526,12 @@ export default function TelegramProjectPickerPage() {
                         allProjects.length === 0 ? (
                             <Button
                                 size="sm"
+                                variant="primary"
+                                iconLeft={Plus}
                                 onClick={() => {
                                     setCreateOpen(true);
                                 }}
                             >
-                                <Plus className="h-3 w-3" />
                                 Create Telegram project
                             </Button>
                         ) : undefined
@@ -546,7 +555,7 @@ export default function TelegramProjectPickerPage() {
             {totalPages > 1 ? (
                 <div className="flex items-center justify-between text-[12px] text-[var(--st-text-secondary)]">
                     <span>
-                        Page {page} of {totalPages} · {filteredAndSorted.length} project
+                        Page {page} of {totalPages} . {filteredAndSorted.length} project
                         {filteredAndSorted.length === 1 ? '' : 's'}
                     </span>
                     <div className="flex items-center gap-2">

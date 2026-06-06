@@ -10,9 +10,9 @@
  *   DELETE /api/sabflow/env-vars?key=KEY
  *
  * Vars are referenced from flow expressions as `$env.KEY`.  Keys must match
- * `/^[A-Z][A-Z0-9_]*$/` — validated client-side before any network call.
+ * `/^[A-Z][A-Z0-9_]*$/`, validated client-side before any network call.
  * Secrets are stored opaquely; the API returns `value: null` for them, and
- * the table masks them as `••••••••`.
+ * the table masks them as bullets.
  */
 
 import {
@@ -23,18 +23,34 @@ import {
   type FormEvent,
 } from 'react';
 import {
-  LuKey,
-  LuLoader,
-  LuLock,
-  LuPencil,
-  LuPlus,
-  LuRefreshCw,
-  LuSearch,
-  LuTrash2,
-  LuTriangleAlert,
-  LuX,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Key,
+  Lock,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+} from 'lucide-react';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  Spinner,
+  Table,
+  TBody,
+  Td,
+  Textarea,
+  THead,
+  Th,
+  Tr,
+  Checkbox,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 type EnvVarRow = {
   _id: string;
@@ -49,6 +65,8 @@ const KEY_HINT =
   'UPPER_SNAKE_CASE: starts with a letter, then letters, digits, or underscores.';
 
 export function EnvVarsClient() {
+  const { toast } = useToast();
+
   const [vars, setVars] = useState<EnvVarRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,10 +132,11 @@ export function EnvVarsClient() {
         }
         return [...prev, saved].sort((a, b) => a.key.localeCompare(b.key));
       });
+      toast.success(`Saved ${saved.key}`);
       closeModal();
       void load();
     },
-    [closeModal, load],
+    [closeModal, load, toast],
   );
 
   const handleDelete = useCallback(async () => {
@@ -134,196 +153,188 @@ export function EnvVarsClient() {
         throw new Error(body.error ?? `Failed to delete (${res.status})`);
       }
       setVars((prev) => prev.filter((v) => v.key !== confirmDelete.key));
+      toast.success(`Deleted ${confirmDelete.key}`);
       setConfirmDelete(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to delete');
+      const message = e instanceof Error ? e.message : 'Failed to delete';
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
-  }, [confirmDelete]);
+  }, [confirmDelete, toast]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="ui20 flex flex-col h-full">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuKey className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div className="flex flex-col leading-tight min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            Environment variables
-          </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
-            Workspace env vars are accessible to every flow as{' '}
-            <code className="rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--gray-11)]">
-              $env.KEY
-            </code>
-          </p>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
-          >
-            <LuRefreshCw
-              className={cn('h-3.5 w-3.5', loading && 'animate-spin')}
-            />
-            Refresh
-          </button>
-          <button
-            type="button"
-            onClick={openCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-2.5 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Add variable
-          </button>
+      <div className="border-b border-[var(--st-border)] px-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-3 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+            <Key className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+          </div>
+          <div className="flex flex-col leading-tight min-w-0">
+            <h1 className="text-[15px] font-semibold text-[var(--st-text)]">
+              Environment variables
+            </h1>
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
+              Workspace env vars are accessible to every flow as{' '}
+              <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-text)]">
+                $env.KEY
+              </code>
+            </p>
+          </div>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={RefreshCw}
+              loading={loading}
+              onClick={load}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={openCreate}
+            >
+              Add variable
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--gray-4)] px-4 sm:px-6 py-2.5 shrink-0">
-        <div className="relative flex items-center w-full sm:w-auto">
-          <LuSearch className="absolute left-2.5 h-3.5 w-3.5 text-[var(--gray-8)]" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by key…"
-            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
-          />
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] px-4 sm:px-6 py-2.5 shrink-0">
+        <div className="w-full sm:w-[260px]">
+          <Field>
+            <Input
+              inputSize="sm"
+              type="text"
+              iconLeft={Search}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by key..."
+              aria-label="Search by key"
+            />
+          </Field>
         </div>
-        <span className="text-[10.5px] text-[var(--gray-9)] ml-auto tabular-nums">
+        <span className="text-[10.5px] text-[var(--st-text-secondary)] ml-auto tabular-nums">
           {filtered.length} of {vars.length}
         </span>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div className="mx-6 mt-4 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <span className="flex-1">{error}</span>
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            className="text-[var(--st-text)] hover:opacity-80 dark:text-[var(--st-text-secondary)]"
-            aria-label="Dismiss error"
-          >
-            <LuX className="h-3.5 w-3.5" />
-          </button>
+        <div className="mx-4 sm:mx-6 mt-4">
+          <Alert tone="danger" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </div>
       )}
 
       {/* List */}
       <div className="flex-1 overflow-y-auto">
         {loading && vars.length === 0 ? (
-          <div className="flex h-64 items-center justify-center gap-2 text-[var(--gray-9)]">
-            <LuLoader className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Loading variables…</span>
+          <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Loading variables" />
+            <span className="text-[12px]">Loading variables...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-              <LuKey className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <p className="text-[13px] text-[var(--gray-11)] font-medium">
-              {search
-                ? 'No variables match'
-                : vars.length === 0
-                  ? 'No environment variables yet'
-                  : 'No variables match'}
-            </p>
-            <p className="text-[11.5px] text-[var(--gray-9)] max-w-xs">
-              {search
-                ? 'Try a different search term.'
-                : 'Add a variable to share configuration across all your flows.'}
-            </p>
-            {!search && vars.length === 0 && (
-              <button
-                type="button"
-                onClick={openCreate}
-                className="mt-2 flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
-              >
-                <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                Add your first variable
-              </button>
-            )}
+          <div className="flex h-64 items-center justify-center">
+            <EmptyState
+              icon={Key}
+              title={
+                search
+                  ? 'No variables match'
+                  : vars.length === 0
+                    ? 'No environment variables yet'
+                    : 'No variables match'
+              }
+              description={
+                search
+                  ? 'Try a different search term.'
+                  : 'Add a variable to share configuration across all your flows.'
+              }
+              action={
+                !search && vars.length === 0 ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    iconLeft={Plus}
+                    onClick={openCreate}
+                  >
+                    Add your first variable
+                  </Button>
+                ) : undefined
+              }
+            />
           </div>
         ) : (
-          <table className="w-full text-[12px]">
-            <thead className="border-b border-[var(--gray-4)] text-left">
-              <tr className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)]">
-                <th className="px-4 sm:px-6 py-2 font-semibold">Key</th>
-                <th className="px-3 py-2 font-semibold">Value</th>
-                <th className="hidden sm:table-cell px-3 py-2 font-semibold">Updated</th>
-                <th className="px-3 py-2 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table density="compact" hover>
+            <THead>
+              <Tr>
+                <Th>Key</Th>
+                <Th>Value</Th>
+                <Th className="hidden sm:table-cell">Updated</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((row) => (
-                <tr
-                  key={row._id}
-                  className="border-b border-[var(--gray-3)] hover:bg-[var(--gray-2)]"
-                >
-                  <td className="px-4 sm:px-6 py-2.5">
+                <Tr key={row._id}>
+                  <Td>
                     <span className="inline-flex items-center gap-1.5">
                       {row.isSecret && (
-                        <LuLock
-                          className="h-3 w-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
+                        <Lock
+                          className="h-3 w-3 text-[var(--st-text-secondary)]"
                           strokeWidth={2.5}
                           aria-label="Secret"
                         />
                       )}
-                      <span className="font-mono font-medium text-[var(--gray-12)]">
+                      <span className="font-mono font-medium text-[var(--st-text)]">
                         {row.key}
                       </span>
                     </span>
-                  </td>
-                  <td className="px-3 py-2.5">
+                  </Td>
+                  <Td>
                     {row.isSecret ? (
-                      <span className="font-mono text-[var(--gray-9)]">
+                      <span className="font-mono text-[var(--st-text-secondary)]">
                         {'•'.repeat(8)}
                       </span>
                     ) : (
                       <span
-                        className="block max-w-[160px] sm:max-w-[420px] truncate font-mono text-[var(--gray-11)]"
+                        className="block max-w-[160px] sm:max-w-[420px] truncate font-mono text-[var(--st-text-secondary)]"
                         title={row.value ?? ''}
                       >
                         {row.value ?? ''}
                       </span>
                     )}
-                  </td>
-                  <td className="hidden sm:table-cell px-3 py-2.5 text-[var(--gray-10)]">
+                  </Td>
+                  <Td className="hidden sm:table-cell text-[var(--st-text-tertiary)]">
                     {formatTime(row.updatedAt)}
-                  </td>
-                  <td className="px-3 py-2.5">
+                  </Td>
+                  <Td align="right">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
+                      <IconButton
+                        label={`Edit ${row.key}`}
+                        icon={Pencil}
+                        size="sm"
                         onClick={() => openEdit(row)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-                        aria-label={`Edit ${row.key}`}
-                        title="Edit"
-                      >
-                        <LuPencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
+                      />
+                      <IconButton
+                        label={`Delete ${row.key}`}
+                        icon={Trash2}
+                        size="sm"
                         onClick={() => setConfirmDelete(row)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-10)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/40 dark:hover:text-[var(--st-text-secondary)]"
-                        aria-label={`Delete ${row.key}`}
-                        title="Delete"
-                      >
-                        <LuTrash2 className="h-3.5 w-3.5" />
-                      </button>
+                      />
                     </div>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         )}
       </div>
 
@@ -347,7 +358,7 @@ export function EnvVarsClient() {
   );
 }
 
-/* ─────────────────────────── modal: create / edit ─────────────────────────── */
+/* --------------------------- modal: create / edit --------------------------- */
 
 interface EnvVarModalProps {
   editing: EnvVarRow | null;
@@ -358,8 +369,8 @@ interface EnvVarModalProps {
 function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
   const isEditing = editing !== null;
   const [key, setKey] = useState(editing?.key ?? '');
-  // For secrets when editing we don't know the value — start empty and treat
-  // empty submission as "no change".  Non-secret values arrive in full.
+  // For secrets when editing we do not know the value, so start empty and treat
+  // empty submission as "no change". Non-secret values arrive in full.
   const [value, setValue] = useState(
     editing && !editing.isSecret ? (editing.value ?? '') : '',
   );
@@ -416,143 +427,98 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="env-var-modal-title"
-      onClick={onClose}
-    >
-      <form
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={submit}
-        className="mx-4 w-full max-w-md rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-2xl"
-      >
-        <div className="flex items-center justify-between border-b border-[var(--gray-4)] px-5 py-3">
-          <h2
-            id="env-var-modal-title"
-            className="text-[14px] font-semibold text-[var(--gray-12)]"
-          >
-            {isEditing ? 'Edit variable' : 'Add variable'}
-          </h2>
-          <button
-            type="button"
+    <Modal
+      open
+      onClose={onClose}
+      size="sm"
+      title={isEditing ? 'Edit variable' : 'Add variable'}
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={submitting}
             onClick={onClose}
-            className="text-[var(--gray-9)] hover:text-[var(--gray-12)]"
-            aria-label="Close"
           >
-            <LuX className="h-4 w-4" />
-          </button>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="env-var-form"
+            variant="primary"
+            size="sm"
+            loading={submitting}
+            disabled={!keyValid}
+          >
+            {isEditing ? 'Save changes' : 'Add variable'}
+          </Button>
         </div>
+      }
+    >
+      <form id="env-var-form" onSubmit={submit} className="flex flex-col gap-4">
+        <Field
+          label="Key"
+          error={keyError ?? undefined}
+          help={keyError ? undefined : KEY_HINT}
+        >
+          <Input
+            inputSize="sm"
+            type="text"
+            autoFocus={!isEditing}
+            disabled={isEditing}
+            spellCheck={false}
+            value={key}
+            onChange={(e) => setKey(e.target.value.toUpperCase())}
+            placeholder="MY_API_KEY"
+            className="font-mono"
+          />
+        </Field>
 
-        <div className="flex flex-col gap-4 px-5 py-4">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="env-var-key"
-              className="text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-10)]"
-            >
-              Key
-            </label>
-            <input
-              id="env-var-key"
-              type="text"
-              autoFocus={!isEditing}
-              disabled={isEditing}
-              spellCheck={false}
-              value={key}
-              onChange={(e) => setKey(e.target.value.toUpperCase())}
-              placeholder="MY_API_KEY"
-              className={cn(
-                'rounded-lg border bg-[var(--gray-2)] px-2.5 py-1.5 font-mono text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none disabled:opacity-60',
-                keyError
-                  ? 'border-[var(--st-border)] focus:border-[var(--st-border)]'
-                  : 'border-[var(--gray-5)] focus:border-[var(--st-border)]',
-              )}
-            />
-            <p
-              className={cn(
-                'text-[11px]',
-                keyError ? 'text-[var(--st-text)]' : 'text-[var(--gray-9)]',
-              )}
-            >
-              {keyError ?? KEY_HINT}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="env-var-value"
-              className="text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-10)]"
-            >
+        <Field
+          label={
+            <span className="inline-flex items-center gap-2">
               Value
               {isEditing && isSecret && (
-                <span className="ml-2 normal-case tracking-normal text-[10.5px] font-normal text-[var(--gray-9)]">
+                <span className="normal-case tracking-normal text-[10.5px] font-normal text-[var(--st-text-secondary)]">
                   (leave blank to keep current secret)
                 </span>
               )}
-            </label>
-            <textarea
-              id="env-var-value"
-              rows={4}
-              spellCheck={false}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={
-                isSecret ? 'sk_live_…' : 'https://example.com/webhook'
-              }
-              className="resize-y rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 font-mono text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
-            />
-          </div>
+            </span>
+          }
+        >
+          <Textarea
+            rows={4}
+            spellCheck={false}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={
+              isSecret ? 'sk_live_...' : 'https://example.com/webhook'
+            }
+            className="font-mono resize-y"
+          />
+        </Field>
 
-          <label
-            htmlFor="env-var-secret"
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <input
-              id="env-var-secret"
-              type="checkbox"
-              checked={isSecret}
-              onChange={(e) => setIsSecret(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-[var(--gray-6)] accent-[var(--st-text)]"
-            />
-            <span className="flex items-center gap-1.5 text-[12.5px] text-[var(--gray-11)]">
-              <LuLock className="h-3 w-3" />
+        <Checkbox
+          size="sm"
+          checked={isSecret}
+          onChange={(e) => setIsSecret(e.target.checked)}
+          label={
+            <span className="inline-flex items-center gap-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
+              <Lock className="h-3 w-3" aria-hidden="true" />
               Treat as secret (value hidden in the UI)
             </span>
-          </label>
+          }
+        />
 
-          {formError && (
-            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-              <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-              <span>{formError}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-end gap-2 border-t border-[var(--gray-4)] px-5 py-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={submitting}
-            className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting || !keyValid}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
-          >
-            {submitting && <LuLoader className="h-3.5 w-3.5 animate-spin" />}
-            {isEditing ? 'Save changes' : 'Add variable'}
-          </button>
-        </div>
+        {formError && (
+          <Alert tone="danger">{formError}</Alert>
+        )}
       </form>
-    </div>
+    </Modal>
   );
 }
 
-/* ─────────────────────────── modal: delete confirm ─────────────────────────── */
+/* --------------------------- modal: delete confirm --------------------------- */
 
 interface DeleteConfirmModalProps {
   envVar: EnvVarRow;
@@ -568,62 +534,49 @@ function DeleteConfirmModal({
   onConfirm,
 }: DeleteConfirmModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="env-var-delete-title"
-      onClick={onCancel}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="mx-4 w-full max-w-sm rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-2xl"
-      >
-        <div className="flex items-start gap-3 px-5 py-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-            <LuTriangleAlert className="h-4 w-4" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <h2
-              id="env-var-delete-title"
-              className="text-[14px] font-semibold text-[var(--gray-12)]"
-            >
-              Delete variable?
-            </h2>
-            <p className="text-[12px] text-[var(--gray-10)]">
-              Flows referencing{' '}
-              <code className="rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[11px] text-[var(--gray-11)]">
-                $env.{envVar.key}
-              </code>{' '}
-              will get an empty string at runtime. This cannot be undone.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-2 border-t border-[var(--gray-4)] px-5 py-3">
-          <button
-            type="button"
-            onClick={onCancel}
+    <Modal
+      open
+      onClose={onCancel}
+      size="sm"
+      title="Delete variable?"
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
             disabled={deleting}
-            className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
+            onClick={onCancel}
           >
             Cancel
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            loading={deleting}
             onClick={onConfirm}
-            disabled={deleting}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
           >
-            {deleting && <LuLoader className="h-3.5 w-3.5 animate-spin" />}
             Delete
-          </button>
+          </Button>
         </div>
+      }
+    >
+      <p className="text-[12px] text-[var(--st-text-secondary)]">
+        Flows referencing{' '}
+        <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[11px] text-[var(--st-text)]">
+          $env.{envVar.key}
+        </code>{' '}
+        will get an empty string at runtime. This cannot be undone.
+      </p>
+      <div className="mt-2">
+        <Badge tone="warning" dot>
+          Destructive action
+        </Badge>
       </div>
-    </div>
+    </Modal>
   );
 }
 
-/* ─────────────────────────── helpers ─────────────────────────── */
+/* --------------------------- helpers --------------------------- */
 
 function formatTime(iso: string): string {
   const d = new Date(iso);

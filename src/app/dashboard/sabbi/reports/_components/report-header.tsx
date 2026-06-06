@@ -3,7 +3,15 @@
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { RefreshCw, Download, ChevronDown } from 'lucide-react';
-import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/sabcrm/20ui';
 
 export interface ReportHeaderProps {
   defaultRangeDays?: number;
@@ -69,42 +77,40 @@ export function ReportHeader({
   }, [setRange]);
 
   return (
-    <div className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          From
-        </span>
-        <input
+    <div className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
+      <Field label="From" className="w-40">
+        <Input
           type="date"
+          inputSize="sm"
           value={from}
           onChange={(e) => setRange(e.target.value, to)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-          To
-        </span>
-        <input
+      </Field>
+      <Field label="To" className="w-40">
+        <Input
           type="date"
+          inputSize="sm"
           value={to}
           onChange={(e) => setRange(from, e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
-      </label>
+      </Field>
       <Button variant="outline" size="sm" onClick={onFy} disabled={isPending}>
         Current FY
       </Button>
-      <Button variant="outline" size="sm" onClick={refresh} disabled={isPending}>
-        <RefreshCw className={`mr-1 h-3.5 w-3.5 ${isPending ? 'animate-spin' : ''}`} />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={refresh}
+        disabled={isPending}
+        iconLeft={RefreshCw}
+        className={isPending ? '[&_svg]:animate-spin' : undefined}
+      >
         Refresh
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Download className="mr-1 h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" iconLeft={Download} iconRight={ChevronDown}>
             Export
-            <ChevronDown className="ml-1 h-3.5 w-3.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

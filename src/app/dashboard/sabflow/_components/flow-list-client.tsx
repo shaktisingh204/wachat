@@ -10,31 +10,67 @@
  * Server actions used: `listSabFlows`, `createSabFlow`, `duplicateSabFlow`,
  * `deleteSabFlow`, `saveSabFlow`. Data shape from `listSabFlows` is the same
  * `FlowItem` consumed by `<FlowCard>`.
+ *
+ * Pure 20ui: all chrome comes from `@/components/sabcrm/20ui` (PageHeader,
+ * StatCard, Input, SegmentedControl, Select, DropdownMenu, Badge, Alert,
+ * EmptyState, Spinner, Modal, Field, Button). No raw control elements, no
+ * inline styles, no legacy design systems.
  */
 
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuPlus,
-  LuSearch,
-  LuLoader,
-  LuWorkflow,
-  LuZap,
-  LuPlay,
-  LuCircle,
-  LuArrowDownUp,
-  LuChevronDown,
-  LuSparkles,
-  LuActivity,
-  LuCoins,
-  LuPencil,
-  LuCopy,
-  LuTrash2,
-  LuEllipsis,
-} from 'react-icons/lu';
+  Plus,
+  Search,
+  Workflow,
+  Zap,
+  Play,
+  ArrowDownUp,
+  Sparkles,
+  Activity,
+  Coins,
+  Pencil,
+  Copy,
+  Trash2,
+  MoreHorizontal,
+  Folder,
+} from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
+import {
+  Button,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  StatCard,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  IconButton,
+  Badge,
+  Alert,
+  EmptyState,
+  Spinner,
+  Modal,
+  Field,
+  useToast,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   createSabFlow,
   deleteSabFlow,
@@ -58,18 +94,18 @@ type Props = {
   initialError: string | null;
 };
 
-/* ── helpers ─────────────────────────────────────────────────────────────── */
+/* helpers */
 
-const STATUS_CHIPS: { id: StatusFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'enabled', label: 'Enabled' },
-  { id: 'disabled', label: 'Disabled' },
-  { id: 'draft', label: 'Draft' },
+const STATUS_CHIPS: { value: StatusFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'enabled', label: 'Enabled' },
+  { value: 'disabled', label: 'Disabled' },
+  { value: 'draft', label: 'Draft' },
 ];
 
 const SORT_OPTIONS: { id: SortKey; label: string }[] = [
   { id: 'updated', label: 'Recently updated' },
-  { id: 'name', label: 'Name (A–Z)' },
+  { id: 'name', label: 'Name (A-Z)' },
   { id: 'created', label: 'Recently created' },
 ];
 
@@ -89,28 +125,27 @@ function compareFlows(a: FlowItem, b: FlowItem, sort: SortKey): number {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 }
 
-/* ── Component ───────────────────────────────────────────────────────────── */
+/* Component */
 
 export function FlowListClient({ initialFlows, initialError }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [flows, setFlows] = useState<FlowItem[]>(initialFlows);
   const [error, setError] = useState<string | null>(initialError);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('updated');
-  const [sortOpen, setSortOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
-  const [actionMenuFor, setActionMenuFor] = useState<string | null>(null);
   const [stats24h, setStats24h] = useState<Stats24h>({ runs: null, credits: null });
   const [refreshing, startRefresh] = useTransition();
-  /** Active folder filter — '' means "all folders". */
+  /** Active folder filter. An empty string means "all folders". */
   const [folderFilter, setFolderFilter] = useState<string>('');
-  /** Active tag chips (AND match — every selected tag must be present). */
+  /** Active tag chips (AND match. Every selected tag must be present). */
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   /** Modal open: edit tags + folder for this flow id. */
   const [metaEditFor, setMetaEditFor] = useState<string | null>(null);
 
-  /* ── reload flows on demand ──────────────────────────────────────────── */
+  /* reload flows on demand */
 
   const reload = useCallback(() => {
     startRefresh(async () => {
@@ -124,7 +159,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
     });
   }, []);
 
-  /* ── stats: 24h runs + credits (graceful fallback) ───────────────────── */
+  /* stats: 24h runs + credits (graceful fallback) */
 
   useEffect(() => {
     let cancelled = false;
@@ -139,7 +174,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
           credits: typeof json.credits === 'number' ? json.credits : null,
         });
       } catch {
-        /* stats endpoint absent — keep placeholders */
+        /* stats endpoint absent, keep placeholders */
       }
     })();
     return () => {
@@ -147,59 +182,63 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
     };
   }, []);
 
-  /* ── handlers ────────────────────────────────────────────────────────── */
+  /* handlers */
 
   const handleNewFlow = useCallback(async () => {
     const res = await createSabFlow('Untitled flow');
     if ('error' in res) {
       setError(res.error as string);
+      toast.error(res.error as string);
       return;
     }
     router.push(`/dashboard/sabflow/flow-builder/${res.id}`);
-  }, [router]);
+  }, [router, toast]);
 
   const handleDuplicate = useCallback(
     async (flowId: string) => {
-      setActionMenuFor(null);
       const res = await duplicateSabFlow(flowId);
       if ('error' in res) {
         setError(res.error as string);
+        toast.error(res.error as string);
       } else {
+        toast.success('Flow duplicated');
         reload();
       }
     },
-    [reload],
+    [reload, toast],
   );
 
   const handleDelete = useCallback(
     async (flowId: string, name: string) => {
-      setActionMenuFor(null);
       if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
       const res = await deleteSabFlow(flowId);
       if ('error' in res) {
         setError(res.error as string);
+        toast.error(res.error as string);
       } else {
         setFlows((prev) => prev.filter((f) => f._id !== flowId));
+        toast.success('Flow deleted');
       }
     },
-    [],
+    [toast],
   );
 
   const handleRename = useCallback(
     async (flowId: string, currentName: string) => {
-      setActionMenuFor(null);
       const next = prompt('Rename flow', currentName);
       if (!next || next.trim() === '' || next === currentName) return;
       const res = await saveSabFlow(flowId, { name: next.trim() });
       if ('error' in res) {
         setError(res.error as string);
+        toast.error(res.error as string);
       } else {
         setFlows((prev) =>
           prev.map((f) => (f._id === flowId ? { ...f, name: next.trim() } : f)),
         );
+        toast.success('Flow renamed');
       }
     },
-    [],
+    [toast],
   );
 
   /** Persist tag / folder edits made from the metadata modal. */
@@ -208,17 +247,19 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       const res = await saveSabFlow(flowId, { tags, folderId });
       if ('error' in res) {
         setError(res.error as string);
+        toast.error(res.error as string);
         return;
       }
       setFlows((prev) =>
         prev.map((f) => (f._id === flowId ? { ...f, tags, folderId } : f)),
       );
       setMetaEditFor(null);
+      toast.success('Metadata saved');
     },
-    [],
+    [toast],
   );
 
-  /* ── derived ─────────────────────────────────────────────────────────── */
+  /* derived */
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -255,7 +296,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [flows]);
 
-  /** Tag → flow count, used for the tag-chip cloud. */
+  /** Tag to flow-count map, used for the tag-chip cloud. */
   const tagCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const f of flows) {
@@ -285,227 +326,186 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
   const currentSortLabel =
     SORT_OPTIONS.find((s) => s.id === sortKey)?.label ?? 'Sort';
 
-  /* ── close popovers on outside click ─────────────────────────────────── */
-
-  useEffect(() => {
-    function onDocClick() {
-      setSortOpen(false);
-      setActionMenuFor(null);
-    }
-    if (sortOpen || actionMenuFor) {
-      document.addEventListener('click', onDocClick);
-      return () => document.removeEventListener('click', onDocClick);
-    }
-  }, [sortOpen, actionMenuFor]);
-
-  /* ── render ──────────────────────────────────────────────────────────── */
+  /* render */
 
   return (
     <>
-      {/* ── Hero strip ────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-[var(--st-text)] mb-1">
-            SabFlow
-          </p>
-          <h1 className="text-2xl font-bold text-white">Flows</h1>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
+      {/* Hero strip */}
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabFlow</PageEyebrow>
+          <PageTitle>Flows</PageTitle>
+          <PageDescription>
             Build, schedule, and monitor automation workflows across your stack.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="secondary"
+            iconLeft={Sparkles}
             onClick={() => setTemplatesOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] text-sm font-medium text-white hover:bg-[var(--st-text)] transition-colors"
           >
-            <LuSparkles className="w-4 h-4" />
             Browse templates
-          </button>
-          <button
-            onClick={handleNewFlow}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] text-sm font-medium hover:bg-white transition-colors"
-          >
-            <LuPlus className="w-4 h-4" />
+          </Button>
+          <Button variant="primary" iconLeft={Plus} onClick={handleNewFlow}>
             New flow
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      {/* ── Stats row ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <StatCard
-          label="Total flows"
-          value={stats.total}
-          icon={<LuWorkflow className="w-3.5 h-3.5" />}
-        />
-        <StatCard
-          label="Active"
-          value={stats.enabled}
-          icon={<LuZap className="w-3.5 h-3.5" />}
-        />
+      {/* Stats row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 mb-6">
+        <StatCard label="Total flows" value={stats.total} icon={Workflow} />
+        <StatCard label="Active" value={stats.enabled} icon={Zap} />
         <StatCard
           label="Runs (24h)"
-          value={stats24h.runs}
-          icon={<LuActivity className="w-3.5 h-3.5" />}
+          value={stats24h.runs === null ? '-' : stats24h.runs}
+          icon={Activity}
         />
         <StatCard
           label="Credits"
-          value={stats24h.credits}
-          icon={<LuCoins className="w-3.5 h-3.5" />}
+          value={stats24h.credits === null ? '-' : stats24h.credits}
+          icon={Coins}
         />
       </div>
 
-      {/* ── Filter bar ─────────────────────────────────────────────────── */}
+      {/* Filter bar */}
       <div className="flex flex-col gap-3 mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
-          <div className="relative">
-            <LuSearch className="w-3.5 h-3.5 text-[var(--st-text)] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
+          <div className="w-64">
+            <Input
+              type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search flows…"
-              className="w-64 bg-[var(--st-text)] border border-[var(--st-border)]/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
+              placeholder="Search flows"
+              iconLeft={Search}
+              aria-label="Search flows"
             />
           </div>
 
           {/* Status chips */}
-          <div className="flex flex-wrap gap-1.5">
-            {STATUS_CHIPS.map((chip) => (
-              <button
-                key={chip.id}
-                onClick={() => setStatusFilter(chip.id)}
-                className={cn(
-                  'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
-                  statusFilter === chip.id
-                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]'
-                    : 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/60 hover:bg-[var(--st-text)]/60',
-                )}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            items={STATUS_CHIPS}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            size="sm"
+            aria-label="Filter by status"
+          />
 
-          {/* Folder dropdown — populated from observed folderId values. */}
+          {/* Folder dropdown, populated from observed folderId values. */}
           {folderOptions.length > 0 && (
-            <select
-              value={folderFilter}
-              onChange={(e) => setFolderFilter(e.target.value)}
-              className="rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-2.5 py-1 text-xs font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
-              aria-label="Filter by folder"
+            <Select
+              value={folderFilter || '__all__'}
+              onValueChange={(v) => setFolderFilter(v === '__all__' ? '' : v)}
             >
-              <option value="">All folders</option>
-              <option value="__root__">No folder</option>
-              {folderOptions.map((folder) => (
-                <option key={folder} value={folder}>
-                  📁 {folder}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger aria-label="Filter by folder" className="min-w-[10rem]">
+                <SelectValue placeholder="All folders" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All folders</SelectItem>
+                <SelectItem value="__root__">No folder</SelectItem>
+                {folderOptions.map((folder) => (
+                  <SelectItem key={folder} value={folder}>
+                    {folder}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </div>
 
         {/* Sort dropdown */}
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSortOpen((v) => !v);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] text-xs font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] transition-colors"
-          >
-            <LuArrowDownUp className="w-3.5 h-3.5" />
-            {currentSortLabel}
-            <LuChevronDown className="w-3 h-3" />
-          </button>
-          {sortOpen && (
-            <div
-              role="menu"
-              onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] shadow-xl py-1"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" iconLeft={ArrowDownUp}>
+              {currentSortLabel}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={sortKey}
+              onValueChange={(v) => setSortKey(v as SortKey)}
             >
               {SORT_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => {
-                    setSortKey(opt.id);
-                    setSortOpen(false);
-                  }}
-                  className={cn(
-                    'flex w-full items-center justify-between px-3 py-1.5 text-xs text-left transition-colors',
-                    sortKey === opt.id
-                      ? 'text-white bg-[var(--st-text)]'
-                      : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]',
-                  )}
-                >
+                <DropdownMenuRadioItem key={opt.id} value={opt.id}>
                   {opt.label}
-                  {sortKey === opt.id && <LuCircle className="w-2 h-2 fill-current" />}
-                </button>
+                </DropdownMenuRadioItem>
               ))}
-            </div>
-          )}
-        </div>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* ── Tag-chip row ───────────────────────────────────────────────── */}
+      {/* Tag-chip row */}
       {tagCounts.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
-          <span className="text-[10.5px] uppercase tracking-wide text-[var(--st-text)] mr-1">
-            Tags:
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)] mr-1">
+            Tags
           </span>
           {tagCounts.map(([tag, count]) => {
             const active = tagFilter.includes(tag);
             return (
-              <button
+              <Button
                 key={tag}
-                type="button"
+                variant={active ? 'primary' : 'ghost'}
+                size="sm"
+                aria-pressed={active}
                 onClick={() => toggleTag(tag)}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors',
-                  active
-                    ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10 text-[var(--st-text-secondary)]'
-                    : 'border-[var(--st-border)]/60 bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/60',
-                )}
               >
-                <span>#{tag}</span>
-                <span className="text-[10px] tabular-nums opacity-70">
-                  {count}
-                </span>
-              </button>
+                #{tag}
+                <span className="ml-1 tabular-nums opacity-70">{count}</span>
+              </Button>
             );
           })}
           {tagFilter.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setTagFilter([])}
-              className="ml-1 rounded-full border border-[var(--st-border)]/60 px-2 py-0.5 text-[10.5px] text-[var(--st-text-secondary)] hover:text-white"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setTagFilter([])}>
               Clear
-            </button>
+            </Button>
           )}
         </div>
       )}
 
-      {/* ── Error ──────────────────────────────────────────────────────── */}
+      {/* Error */}
       {error && (
-        <div className="mb-4 px-3 py-2 rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-xs text-[var(--st-text-secondary)]">
+        <Alert tone="danger" className="mb-4" onClose={() => setError(null)}>
           {error}
-        </div>
+        </Alert>
       )}
 
-      {/* ── Grid / empty ───────────────────────────────────────────────── */}
+      {/* Grid / empty */}
       {refreshing && flows.length === 0 ? (
         <div className="flex items-center justify-center py-24">
-          <LuLoader className="w-6 h-6 text-[var(--st-text)] animate-spin" />
+          <Spinner size="lg" label="Loading flows" />
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          hasFlows={flows.length > 0}
-          query={query}
-          onNewFlow={handleNewFlow}
-          onBrowseTemplates={() => setTemplatesOpen(true)}
+          icon={flows.length > 0 ? Search : Workflow}
+          title={flows.length > 0 ? 'No matching flows' : 'No flows yet'}
+          description={
+            flows.length > 0
+              ? query
+                ? `Nothing matched "${query}".`
+                : 'No flows in this filter.'
+              : 'Create a flow from scratch, or start from a battle-tested template.'
+          }
+          action={
+            flows.length > 0 ? undefined : (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  iconLeft={Sparkles}
+                  onClick={() => setTemplatesOpen(true)}
+                >
+                  Browse templates
+                </Button>
+                <Button variant="primary" iconLeft={Plus} onClick={handleNewFlow}>
+                  New flow
+                </Button>
+              </div>
+            )
+          }
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -513,27 +513,20 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <FlowCardLite
               key={flow._id}
               flow={flow}
-              menuOpen={actionMenuFor === flow._id}
-              onMenuToggle={() =>
-                setActionMenuFor((prev) => (prev === flow._id ? null : flow._id))
-              }
               onOpen={() =>
                 router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)
               }
               onRename={() => handleRename(flow._id, flow.name)}
               onDuplicate={() => handleDuplicate(flow._id)}
               onDelete={() => handleDelete(flow._id, flow.name)}
-              onEditMetadata={() => {
-                setActionMenuFor(null);
-                setMetaEditFor(flow._id);
-              }}
+              onEditMetadata={() => setMetaEditFor(flow._id)}
               onTagClick={toggleTag}
             />
           ))}
         </div>
       )}
 
-      {/* ── Templates sheet ────────────────────────────────────────────── */}
+      {/* Templates sheet */}
       <TemplatesSheet
         open={templatesOpen}
         onClose={() => setTemplatesOpen(false)}
@@ -543,7 +536,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
         }}
       />
 
-      {/* ── Metadata edit modal ────────────────────────────────────────── */}
+      {/* Metadata edit modal */}
       {metaEditFor && (
         <MetadataModal
           flow={flows.find((f) => f._id === metaEditFor)!}
@@ -556,7 +549,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
   );
 }
 
-/* ── Metadata modal ────────────────────────────────────────────────────── */
+/* Metadata modal */
 
 function MetadataModal({
   flow,
@@ -587,160 +580,59 @@ function MetadataModal({
   }, [flow._id, tags, folder, onSave]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
+    <Modal
+      open
+      onClose={onClose}
+      title="Edit metadata"
+      description={flow.name}
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" loading={saving} onClick={commit}>
+            Save
+          </Button>
+        </>
+      }
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div
-        className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--st-border)]/60 bg-[var(--st-text)] p-5 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+      <Field
+        label="Folder"
+        help="Group related flows under a workspace folder."
       >
-        <h3 className="text-sm font-semibold text-white mb-1">
-          Edit metadata
-        </h3>
-        <p className="text-[11.5px] text-[var(--st-text-secondary)] mb-4 truncate">
-          {flow.name}
-        </p>
-
-        <label className="block text-[11px] font-medium text-[var(--st-text-secondary)] mb-1 uppercase tracking-wide">
-          Folder
-        </label>
-        <input
-          type="text"
+        <Input
           list="folder-suggestions"
           value={folder}
           onChange={(e) => setFolder(e.target.value)}
           placeholder="e.g. Onboarding, Internal, Demo"
-          className="w-full mb-4 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-3 py-2 text-xs text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
         />
-        <datalist id="folder-suggestions">
-          {existingFolders.map((f) => (
-            <option key={f} value={f} />
-          ))}
-        </datalist>
+      </Field>
+      <datalist id="folder-suggestions">
+        {existingFolders.map((f) => (
+          <option key={f} value={f} />
+        ))}
+      </datalist>
 
-        <label className="block text-[11px] font-medium text-[var(--st-text-secondary)] mb-1 uppercase tracking-wide">
-          Tags (comma-separated)
-        </label>
-        <input
-          type="text"
+      <Field
+        label="Tags (comma-separated)"
+        help="Lower-case letters, digits, dashes only, separated by commas."
+        className="mt-4"
+      >
+        <Input
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="lead-gen, onboarding, beta"
-          className="w-full rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-3 py-2 text-xs text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
         />
-        <p className="mt-1 text-[10.5px] text-[var(--st-text)]">
-          Lower-case letters, digits, dashes only — separated by commas.
-        </p>
-
-        <div className="mt-5 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-[var(--st-border)]/60 px-3 py-1.5 text-xs text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={commit}
-            disabled={saving}
-            className="rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
-          >
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
-      </div>
-    </div>
+      </Field>
+    </Modal>
   );
 }
 
-/* ── Stat card ───────────────────────────────────────────────────────────── */
-
-function StatCard({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: number | null;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-text)]/50 p-4">
-      <div className="flex items-center gap-1.5 text-[var(--st-text)] text-[10.5px] font-medium uppercase tracking-wider mb-2">
-        {icon}
-        {label}
-      </div>
-      <p className="text-2xl font-semibold text-white tabular-nums">
-        {value === null ? <span className="text-[var(--st-text)]">—</span> : value}
-      </p>
-    </div>
-  );
-}
-
-/* ── Empty state ─────────────────────────────────────────────────────────── */
-
-function EmptyState({
-  hasFlows,
-  query,
-  onNewFlow,
-  onBrowseTemplates,
-}: {
-  hasFlows: boolean;
-  query: string;
-  onNewFlow: () => void;
-  onBrowseTemplates: () => void;
-}) {
-  if (hasFlows) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-12 h-12 rounded-xl bg-[var(--st-text)] flex items-center justify-center mb-4">
-          <LuSearch className="w-5 h-5 text-[var(--st-text-secondary)]" />
-        </div>
-        <p className="text-[var(--st-text-secondary)] font-medium">No matching flows</p>
-        <p className="text-sm text-[var(--st-text)] mt-1">
-          {query ? `Nothing matched "${query}".` : 'No flows in this filter.'}
-        </p>
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-12 h-12 rounded-xl bg-[var(--st-text)] flex items-center justify-center mb-4">
-        <LuWorkflow className="w-5 h-5 text-[var(--st-text-secondary)]" />
-      </div>
-      <p className="text-[var(--st-text-secondary)] font-medium">No flows yet</p>
-      <p className="text-sm text-[var(--st-text)] mt-1 max-w-sm">
-        Create a flow from scratch, or start from a battle-tested template.
-      </p>
-      <div className="flex items-center gap-2 mt-4">
-        <button
-          onClick={onBrowseTemplates}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] text-sm font-medium text-white hover:bg-[var(--st-text)] transition-colors"
-        >
-          <LuSparkles className="w-4 h-4" />
-          Browse templates
-        </button>
-        <button
-          onClick={onNewFlow}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] text-sm font-medium hover:bg-white transition-colors"
-        >
-          <LuPlus className="w-4 h-4" />
-          New flow
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ── Flow card (zinc-style, with menu) ───────────────────────────────────── */
+/* Flow card (with action menu) */
 
 function FlowCardLite({
   flow,
-  menuOpen,
-  onMenuToggle,
   onOpen,
   onRename,
   onDuplicate,
@@ -749,8 +641,6 @@ function FlowCardLite({
   onTagClick,
 }: {
   flow: FlowItem;
-  menuOpen: boolean;
-  onMenuToggle: () => void;
   onOpen: () => void;
   onRename: () => void;
   onDuplicate: () => void;
@@ -759,9 +649,12 @@ function FlowCardLite({
   onTagClick: (tag: string) => void;
 }) {
   const isPublished = flow.status === 'PUBLISHED';
+  const isArchived = flow.status === 'ARCHIVED';
+  const statusTone = isPublished ? 'success' : isArchived ? 'neutral' : 'warning';
+  const statusLabel = isPublished ? 'Enabled' : isArchived ? 'Disabled' : 'Draft';
   const updatedRel = flow.updatedAt
     ? formatDistanceToNow(new Date(flow.updatedAt), { addSuffix: true })
-    : '—';
+    : '-';
 
   return (
     <div
@@ -770,135 +663,83 @@ function FlowCardLite({
       onClick={onOpen}
       onKeyDown={(e) => e.key === 'Enter' && onOpen()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-[var(--st-border)]',
-        'bg-[var(--st-text)]/50 overflow-hidden cursor-pointer',
-        'hover:border-[var(--st-border)] hover:bg-[var(--st-text)] transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40',
+        'group relative flex flex-col rounded-[var(--st-radius)] border border-[var(--st-border)]',
+        'bg-[var(--st-bg-secondary)] overflow-hidden cursor-pointer',
+        'hover:border-[var(--st-accent)] hover:bg-[var(--st-bg-tertiary)] transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
       )}
     >
-      {/* Top strip — status + menu */}
+      {/* Top strip: status + menu */}
       <div className="flex items-center justify-between px-3.5 pt-3">
-        <span
-          className={cn(
-            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
-            isPublished
-              ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
-              : flow.status === 'ARCHIVED'
-                ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
-                : 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30',
-          )}
-        >
-          <LuCircle
-            className={cn(
-              'h-1.5 w-1.5 fill-current',
-              isPublished
-                ? 'text-[var(--st-text-secondary)]'
-                : flow.status === 'ARCHIVED'
-                  ? 'text-[var(--st-text-secondary)]'
-                  : 'text-[var(--st-text-secondary)]',
-            )}
-          />
-          {isPublished ? 'Enabled' : flow.status === 'ARCHIVED' ? 'Disabled' : 'Draft'}
-        </span>
+        <Badge tone={statusTone} dot>
+          {statusLabel}
+        </Badge>
 
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMenuToggle();
-            }}
-            aria-label="Flow actions"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-text-secondary)] hover:text-white p-1 -mr-1 rounded"
-          >
-            <LuEllipsis className="w-4 h-4" />
-          </button>
-          {menuOpen && (
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] shadow-xl py-1"
-            >
-              <MenuItem
-                icon={<LuPencil className="w-3.5 h-3.5" />}
-                label="Edit"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpen();
-                }}
-              />
-              <MenuItem
-                icon={<LuPencil className="w-3.5 h-3.5" />}
-                label="Rename"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRename();
-                }}
-              />
-              <MenuItem
-                icon={<LuCopy className="w-3.5 h-3.5" />}
-                label="Duplicate"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDuplicate();
-                }}
-              />
-              <MenuItem
-                icon={<LuPencil className="w-3.5 h-3.5" />}
-                label="Tags & folder"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEditMetadata();
-                }}
-              />
-              <div className="my-1 h-px bg-[var(--st-text)]" />
-              <MenuItem
-                icon={<LuTrash2 className="w-3.5 h-3.5" />}
-                label="Delete"
-                danger
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              />
-            </div>
-          )}
+        <div
+          className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton label="Flow actions" icon={MoreHorizontal} size="sm" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem iconLeft={Pencil} onSelect={onOpen}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem iconLeft={Pencil} onSelect={onRename}>
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem iconLeft={Copy} onSelect={onDuplicate}>
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem iconLeft={Folder} onSelect={onEditMetadata}>
+                Tags &amp; folder
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="danger" iconLeft={Trash2} onSelect={onDelete}>
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* Body */}
       <div className="px-3.5 py-3 flex flex-col gap-2">
         <p
-          className="truncate text-[14px] font-semibold text-white"
+          className="truncate text-sm font-semibold text-[var(--st-text)]"
           title={flow.name}
         >
           {flow.name}
         </p>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-[var(--st-text)]">
-          <LuZap className="w-3 h-3" />
+        <div className="flex items-center gap-1.5 text-[11px] text-[var(--st-text-secondary)]">
+          <Zap className="w-3 h-3" aria-hidden="true" />
           <span>{flow.groups?.length ?? 0} groups</span>
-          <span className="text-[var(--st-text)]">·</span>
-          <LuPlay className="w-3 h-3" />
-          <span>—</span>
+          <span className="text-[var(--st-text-tertiary)]">·</span>
+          <Play className="w-3 h-3" aria-hidden="true" />
+          <span>-</span>
         </div>
 
-        {/* Tags row — clickable chips also toggle the global tag filter. */}
+        {/* Tags row: clickable chips also toggle the global tag filter. */}
         {flow.tags && flow.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {flow.tags.slice(0, 5).map((tag) => (
-              <button
+              <Button
                 key={tag}
-                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onTagClick(tag);
                 }}
-                className="rounded-full border border-[var(--st-border)]/60 bg-[var(--st-text)]/60 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)] hover:border-[var(--st-border)]/60 hover:text-[var(--st-text-secondary)] transition-colors"
               >
                 #{tag}
-              </button>
+              </Button>
             ))}
             {flow.tags.length > 5 && (
-              <span className="text-[10px] text-[var(--st-text)]">
+              <span className="text-[10px] text-[var(--st-text-tertiary)] self-center">
                 +{flow.tags.length - 5}
               </span>
             )}
@@ -907,46 +748,21 @@ function FlowCardLite({
 
         <div className="flex items-center justify-between mt-1">
           {flow.folderId ? (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border border-[var(--st-border)]/30">
-              📁 {flow.folderId}
-            </span>
+            <Badge tone="info">
+              <Folder className="w-3 h-3 mr-1" aria-hidden="true" />
+              {flow.folderId}
+            </Badge>
           ) : (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--st-text)]/80 text-[var(--st-text-secondary)] border border-[var(--st-border)]/60">
-              Default workspace
-            </span>
+            <Badge tone="neutral">Default workspace</Badge>
           )}
-          <span className="text-[10.5px] text-[var(--st-text)]" title={format(new Date(flow.updatedAt), 'PPpp')}>
+          <span
+            className="text-[10.5px] text-[var(--st-text-tertiary)]"
+            title={format(new Date(flow.updatedAt), 'PPpp')}
+          >
             {updatedRel}
           </span>
         </div>
       </div>
     </div>
-  );
-}
-
-function MenuItem({
-  icon,
-  label,
-  onClick,
-  danger,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: (e: React.MouseEvent) => void;
-  danger?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors',
-        danger
-          ? 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/10'
-          : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]',
-      )}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }

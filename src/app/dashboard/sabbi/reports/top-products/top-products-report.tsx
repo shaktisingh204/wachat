@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { PackageSearch } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -11,7 +12,21 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { Card, Table, TBody, Td, Th, THead, Tr, Button } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Button,
+  Field,
+  Input,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';
@@ -70,12 +85,12 @@ export function TopProductsReport({
   }
   const bestCategory = [...categoryRevMap.entries()].sort(
     (a, b) => b[1] - a[1],
-  )[0]?.[0] ?? '—';
+  )[0]?.[0] ?? '-';
 
   const chartData = rows.slice(0, 10).map((r) => ({
     name:
       r.productName.length > 20
-        ? `${r.productName.slice(0, 18)}…`
+        ? `${r.productName.slice(0, 18)}...`
         : r.productName,
     revenue: Math.round(r.revenue),
     units: r.units,
@@ -136,73 +151,43 @@ export function TopProductsReport({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            From
-          </span>
-          <input
-            type="date"
-            name="from"
-            defaultValue={from}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            To
-          </span>
-          <input
-            type="date"
-            name="to"
-            defaultValue={to}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Category
-          </span>
-          <input
+        <Field label="From">
+          <Input type="date" name="from" defaultValue={from} inputSize="sm" />
+        </Field>
+        <Field label="To">
+          <Input type="date" name="to" defaultValue={to} inputSize="sm" />
+        </Field>
+        <Field label="Category">
+          <Input
             type="text"
             value={categoryInput}
             onChange={(e) => setCategoryInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-32"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Min units
-          </span>
-          <input
+        </Field>
+        <Field label="Min units">
+          <Input
             type="number"
             min={0}
             value={minQtyInput}
             onChange={(e) => setMinQtyInput(e.target.value)}
             placeholder="0"
-            className="h-9 w-24 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-24"
           />
-        </label>
-        <Button type="submit" size="sm" disabled={isPending}>
+        </Field>
+        <Button type="submit" variant="primary" size="sm" disabled={isPending}>
           Apply
         </Button>
         <div className="ml-auto flex gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onCsv}
-          >
+          <Button type="button" size="sm" variant="outline" onClick={onCsv}>
             CSV
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onXlsx}
-          >
+          <Button type="button" size="sm" variant="outline" onClick={onXlsx}>
             XLSX
           </Button>
         </div>
@@ -210,7 +195,7 @@ export function TopProductsReport({
 
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Top product" value={top ? top.productName : '—'} hint={top ? fmtMoney(top.revenue) : undefined} tone="blue" />
+        <StatCard label="Top product" value={top ? top.productName : '-'} hint={top ? fmtMoney(top.revenue) : undefined} tone="blue" />
         <StatCard label="Total revenue" value={fmtMoney(totalRevenue)} tone="green" />
         <StatCard label="Total units sold" value={fmtNumber(totalUnits)} />
         <StatCard label="Best category" value={bestCategory} />
@@ -218,17 +203,18 @@ export function TopProductsReport({
 
       {/* Bar chart */}
       <Card>
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-            Top 10 products by revenue
-          </h2>
-        </div>
+        <CardHeader>
+          <CardTitle>Top 10 products by revenue</CardTitle>
+        </CardHeader>
         {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-            No product sales in this range.
-          </div>
+          <EmptyState
+            icon={PackageSearch}
+            title="No product sales in this range"
+            description="Adjust the date range or filters to see top products."
+            size="sm"
+          />
         ) : (
-          <div style={{ width: '100%', height: 340 }}>
+          <div className="h-[340px] w-full">
             <ResponsiveContainer>
               <BarChart
                 data={chartData}
@@ -237,19 +223,19 @@ export function TopProductsReport({
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
+                  stroke="var(--st-border)"
                 />
                 <XAxis
                   type="number"
                   tickFormatter={(v) => fmtNumber(v)}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--st-text-secondary)"
                   fontSize={11}
                 />
                 <YAxis
                   type="category"
                   dataKey="name"
                   width={150}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--st-text-secondary)"
                   fontSize={11}
                 />
                 <Tooltip
@@ -257,15 +243,16 @@ export function TopProductsReport({
                     name === 'revenue' ? fmtMoney(v) : fmtNumber(v)
                   }
                   contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 8,
+                    background: 'var(--st-bg)',
+                    border: '1px solid var(--st-border)',
+                    borderRadius: 'var(--st-radius)',
                     fontSize: 12,
+                    color: 'var(--st-text)',
                   }}
                 />
                 <Bar
                   dataKey="revenue"
-                  fill="hsl(var(--primary))"
+                  fill="var(--st-accent)"
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>
@@ -276,46 +263,33 @@ export function TopProductsReport({
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                <Th className="w-10 text-[var(--st-text-secondary)]">
-                  #
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Product
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Category
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Units
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Revenue
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Avg price
-                </Th>
+              <Tr>
+                <Th className="w-10">#</Th>
+                <Th>Product</Th>
+                <Th>Category</Th>
+                <Th align="right">Units</Th>
+                <Th align="right">Revenue</Th>
+                <Th align="right">Avg price</Th>
               </Tr>
             </THead>
             <TBody>
               {pageRows.length === 0 ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={6}
-                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    No products sold in this range.
+                <Tr>
+                  <Td colSpan={6}>
+                    <EmptyState
+                      icon={PackageSearch}
+                      title="No products sold in this range"
+                      description="Adjust the date range or filters to see results."
+                      size="sm"
+                    />
                   </Td>
                 </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <Tr
-                    key={`${r.productName}-${start + i}`}
-                    className="border-[var(--st-border)]"
-                  >
+                  <Tr key={`${r.productName}-${start + i}`}>
                     <Td className="text-[var(--st-text-secondary)]">
                       {start + i + 1}
                     </Td>
@@ -328,13 +302,13 @@ export function TopProductsReport({
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.category}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.units)}
                     </Td>
-                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(r.revenue)}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.avgPrice)}
                     </Td>
                   </Tr>

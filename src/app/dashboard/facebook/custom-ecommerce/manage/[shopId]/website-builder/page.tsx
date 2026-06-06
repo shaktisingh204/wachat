@@ -1,12 +1,10 @@
-import { cn } from '@/components/sabcrm/20ui';
-import {
-  notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import {
   getEcommPages,
   getEcommProducts,
   getEcommShopById,
-  } from "@/app/actions/custom-ecommerce.actions";
+} from "@/app/actions/custom-ecommerce.actions";
 import { CartProvider } from "@/context/cart-context";
 import { WebsiteBuilder } from "@/components/zoruui-domain/website-builder/website-builder";
 
@@ -15,13 +13,13 @@ import { WebsiteBuilder } from "@/components/zoruui-domain/website-builder/websi
  *
  * Visual page-builder shell. The parent layout passes through (no chrome)
  * for this route, so the heavy canvas owns the viewport. We render only
- * the data fetch + a thin zoru breadcrumb above the WebsiteBuilder.
+ * the data fetch + the WebsiteBuilder under a 20ui token scope.
  *
- * TODO(meta-zoru phase 7): the existing `WebsiteBuilder` canvas at
+ * TODO(20ui phase): the existing `WebsiteBuilder` canvas at
  * `@/components/zoruui-domain/website-builder` is treated as an opaque
- * internal — the canvas + block library + render runtime are too large
+ * internal. The canvas + block library + render runtime are too large
  * to migrate as part of this phase. A follow-up batch should rebuild
- * the surrounding chrome (toolbar, save bar, sidebar) on top of zoru
+ * the surrounding chrome (toolbar, save bar, sidebar) on top of 20ui
  * primitives. The CartProvider is required by the runtime; we leave it
  * untouched.
  */
@@ -44,7 +42,7 @@ export default async function WebsiteBuilderPage(props: {
 
   return (
     <CartProvider>
-      <div className={cn("zoruui")}>
+      <div className="ui20">
         <WebsiteBuilder
           shop={shop}
           initialPages={pages}

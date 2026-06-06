@@ -1,9 +1,20 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Button, Input, Textarea, Label, Card, CardBody, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Field,
+  Card,
+  CardBody,
+  Alert,
+  SegmentedControl,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { FileText, File as FileIcon, Copy, Loader2, UploadCloud, X } from 'lucide-react';
+import { FileText, File as FileIcon, Copy, UploadCloud, X } from 'lucide-react';
 import md5 from 'md5';
 
 const ALGOS = ['MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'] as const;
@@ -22,11 +33,11 @@ function hexToBytes(hex: string) {
 
 function hmacMd5(keyStr: string, messageData: Uint8Array) {
   const key = new TextEncoder().encode(keyStr);
-  
+
   const blockSize = 64;
   let keyArr = Array.from(key);
   if (keyArr.length > blockSize) {
-    const keyHashStr = md5(key); 
+    const keyHashStr = md5(key);
     keyArr = Array.from(hexToBytes(keyHashStr));
   }
   while (keyArr.length < blockSize) {
@@ -38,19 +49,19 @@ function hmacMd5(keyStr: string, messageData: Uint8Array) {
     oPad[i] = keyArr[i] ^ 0x5c;
     iPad[i] = keyArr[i] ^ 0x36;
   }
-  
+
   const inner = new Uint8Array(iPad.length + messageData.length);
   inner.set(iPad, 0);
   inner.set(messageData, iPad.length);
-  
+
   const innerHashHex = md5(inner);
   const innerHash = hexToBytes(innerHashHex);
-  
+
   const outer = new Uint8Array(oPad.length + innerHash.length);
   outer.set(oPad, 0);
   outer.set(innerHash, oPad.length);
-  
-  return md5(outer); 
+
+  return md5(outer);
 }
 
 const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
@@ -63,19 +74,21 @@ const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
 };
 
 export default function HashGeneratorPage() {
+  const { toast } = useToast();
+
   const [inputMode, setInputMode] = useState<InputMode>('text');
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  
+
   const [opMode, setOpMode] = useState<OpMode>('hash');
   const [hmacKey, setHmacKey] = useState('');
-  
+
   const [algo, setAlgo] = useState<Algo>('SHA-256');
-  
+
   const [hashResult, setHashResult] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +97,7 @@ export default function HashGeneratorPage() {
       setHashResult('');
     }
   };
-  
+
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -110,9 +123,9 @@ export default function HashGeneratorPage() {
       setError('');
       setHashResult('');
       setIsGenerating(true);
-      
+
       let data: Uint8Array;
-      
+
       if (inputMode === 'text') {
         data = new TextEncoder().encode(text);
       } else {
@@ -122,9 +135,9 @@ export default function HashGeneratorPage() {
         const arrayBuffer = await readFileAsArrayBuffer(file);
         data = new Uint8Array(arrayBuffer);
       }
-      
+
       let finalHash = '';
-      
+
       if (algo === 'MD5') {
         if (opMode === 'hmac') {
           if (!hmacKey) throw new Error('HMAC Secret is required.');
@@ -150,10 +163,12 @@ export default function HashGeneratorPage() {
           finalHash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
       }
-      
+
       setHashResult(finalHash);
     } catch (err: any) {
-      setError(err.message || 'An error occurred during hashing.');
+      const message = err.message || 'An error occurred during hashing.';
+      setError(message);
+      toast.error(message);
     } finally {
       setIsGenerating(false);
     }
@@ -162,6 +177,7 @@ export default function HashGeneratorPage() {
   const copyToClipboard = () => {
     if (hashResult) {
       navigator.clipboard.writeText(hashResult);
+      toast.success('Hash copied to clipboard.');
     }
   };
 
@@ -171,95 +187,93 @@ export default function HashGeneratorPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardBody className="p-6 space-y-4">
-              <div className="flex items-center gap-4 border-b pb-4">
-                <Button 
-                  variant={inputMode === 'text' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setInputMode('text')}
-                  className="w-32"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Text Input
-                </Button>
-                <Button 
-                  variant={inputMode === 'file' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setInputMode('file')}
-                  className="w-32"
-                >
-                  <FileIcon className="w-4 h-4 mr-2" />
-                  File Input
-                </Button>
+              <div className="border-b border-[var(--st-border)] pb-4">
+                <SegmentedControl<InputMode>
+                  aria-label="Input source"
+                  value={inputMode}
+                  onChange={setInputMode}
+                  items={[
+                    { value: 'text', label: 'Text Input', icon: FileText },
+                    { value: 'file', label: 'File Input', icon: FileIcon },
+                  ]}
+                />
               </div>
-              
+
               {inputMode === 'text' ? (
-                <div className="space-y-2">
-                  <Label>Input Text</Label>
-                  <Textarea 
-                    value={text} 
-                    onChange={(e) => { setText(e.target.value); setHashResult(''); }} 
-                    placeholder="Type or paste text to hash…" 
+                <Field label="Input Text">
+                  <Textarea
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); setHashResult(''); }}
+                    placeholder="Type or paste text to hash..."
                     className="min-h-[200px]"
                   />
-                </div>
+                </Field>
               ) : (
-                <div className="space-y-2">
-                  <Label>Select File</Label>
+                <Field label="Select File">
                   {!file ? (
-                    <div 
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/50 transition-colors cursor-pointer"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          fileInputRef.current?.click();
+                        }
+                      }}
+                      className="border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-10 flex flex-col items-center justify-center text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer"
                     >
-                      <UploadCloud className="w-10 h-10 mb-4 opacity-50" />
-                      <p className="font-medium mb-1">Click or drag file to this area to upload</p>
-                      <p className="text-sm opacity-75">All file processing is done locally in your browser.</p>
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handleFileChange} 
-                        className="hidden" 
+                      <UploadCloud className="w-10 h-10 mb-4 opacity-50" aria-hidden="true" />
+                      <p className="font-medium mb-1 text-[var(--st-text)]">Click or drag file to this area to upload</p>
+                      <p className="text-sm text-[var(--st-text-tertiary)]">All file processing is done locally in your browser.</p>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        tabIndex={-1}
+                        aria-hidden="true"
                       />
                     </div>
                   ) : (
-                    <div className="border rounded-lg p-4 flex items-center justify-between bg-[var(--st-bg-muted)]/20">
+                    <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] p-4 flex items-center justify-between bg-[var(--st-bg-secondary)]">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <FileIcon className="w-8 h-8 text-[var(--st-text)] flex-shrink-0" />
+                        <FileIcon className="w-8 h-8 text-[var(--st-text)] flex-shrink-0" aria-hidden="true" />
                         <div className="overflow-hidden">
-                          <p className="font-medium truncate">{file.name}</p>
+                          <p className="font-medium truncate text-[var(--st-text)]">{file.name}</p>
                           <p className="text-xs text-[var(--st-text-secondary)]">
                             {(file.size / 1024).toFixed(2)} KB
                           </p>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={clearFile} title="Remove file">
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <IconButton label="Remove file" icon={X} onClick={clearFile} />
                     </div>
                   )}
-                </div>
+                </Field>
               )}
             </CardBody>
           </Card>
 
           {error && (
-            <div className="p-3 text-sm text-[var(--st-text)] bg-[var(--st-text)]/10 rounded-md border border-destructive/20">
+            <Alert tone="danger" title="Hashing failed">
               {error}
-            </div>
+            </Alert>
           )}
 
           {hashResult && (
-            <Card className="border-primary/50 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <Card>
               <CardBody className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-lg font-semibold text-[var(--st-text)]">Result ({algo}{opMode === 'hmac' ? ' HMAC' : ''})</Label>
-                  <Button variant="secondary" size="sm" onClick={copyToClipboard}>
-                    <Copy className="w-4 h-4 mr-2" />
+                  <span className="text-lg font-semibold text-[var(--st-text)]">
+                    Result ({algo}{opMode === 'hmac' ? ' HMAC' : ''})
+                  </span>
+                  <Button variant="secondary" size="sm" iconLeft={Copy} onClick={copyToClipboard}>
                     Copy
                   </Button>
                 </div>
-                <div className="bg-[var(--st-bg-muted)] p-4 rounded-md break-all font-mono text-sm border">
+                <div className="bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] break-all font-mono text-sm border border-[var(--st-border)] text-[var(--st-text)]">
                   {hashResult}
                 </div>
               </CardBody>
@@ -270,71 +284,55 @@ export default function HashGeneratorPage() {
         <div className="space-y-6">
           <Card>
             <CardBody className="p-6 space-y-6">
-              <div className="space-y-2">
-                <Label>Operation Mode</Label>
-                <div className="flex gap-2">
-                  <Button 
-                    variant={opMode === 'hash' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => { setOpMode('hash'); setHashResult(''); }}
-                  >
-                    Standard Hash
-                  </Button>
-                  <Button 
-                    variant={opMode === 'hmac' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => { setOpMode('hmac'); setHashResult(''); }}
-                  >
-                    HMAC
-                  </Button>
-                </div>
-              </div>
+              <Field label="Operation Mode">
+                <SegmentedControl<OpMode>
+                  aria-label="Operation mode"
+                  fullWidth
+                  value={opMode}
+                  onChange={(v) => { setOpMode(v); setHashResult(''); }}
+                  items={[
+                    { value: 'hash', label: 'Standard Hash' },
+                    { value: 'hmac', label: 'HMAC' },
+                  ]}
+                />
+              </Field>
 
               {opMode === 'hmac' && (
-                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <Label>HMAC Secret Key</Label>
-                  <Input 
+                <Field label="HMAC Secret Key">
+                  <Input
                     type="password"
                     value={hmacKey}
                     onChange={(e) => { setHmacKey(e.target.value); setHashResult(''); }}
-                    placeholder="Enter secret key..."
+                    placeholder="Enter secret key"
                   />
-                </div>
+                </Field>
               )}
 
-              <div className="space-y-2">
-                <Label>Algorithm</Label>
+              <Field label="Algorithm">
                 <div className="grid grid-cols-2 gap-2">
                   {ALGOS.map((a) => (
                     <Button
                       key={a}
-                      variant={algo === a ? 'default' : 'outline'}
+                      variant={algo === a ? 'primary' : 'outline'}
                       size="sm"
                       onClick={() => { setAlgo(a); setHashResult(''); }}
-                      className={algo === a ? '' : 'text-[var(--st-text-secondary)]'}
                     >
                       {a}
                     </Button>
                   ))}
                 </div>
-              </div>
+              </Field>
 
-              <div className="pt-4 border-t">
-                <Button 
-                  className="w-full h-12 text-lg" 
+              <div className="pt-4 border-t border-[var(--st-border)]">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  block
+                  loading={isGenerating}
                   onClick={generate}
                   disabled={isGenerating || (inputMode === 'file' && !file)}
                 >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    'Generate Hash'
-                  )}
+                  {isGenerating ? 'Generating' : 'Generate Hash'}
                 </Button>
               </div>
             </CardBody>

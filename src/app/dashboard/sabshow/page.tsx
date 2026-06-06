@@ -1,5 +1,5 @@
 /**
- * SabShow deck list — the landing surface at `/dashboard/sabshow`.
+ * SabShow deck list, the landing surface at `/dashboard/sabshow`.
  *
  * Server-rendered list of every deck the current user owns OR was
  * shared into. The "+ New deck" + "From template" affordances live in
@@ -7,10 +7,17 @@
  */
 import Link from 'next/link';
 
-import { Button } from '@/components/sabcrm/20ui';
-import { Card } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    EmptyState,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+} from '@/components/sabcrm/20ui';
 import { listSabshowDecks } from '@/app/actions/sabshow.actions';
 
 import { NewDeckButton } from './_components/new-deck-button';
@@ -21,16 +28,18 @@ export default async function SabshowIndexPage() {
     const { items: decks } = await listSabshowDecks({ status: 'all', limit: 50 });
 
     return (
-        <div className="zoruui mx-auto w-full max-w-6xl space-y-6 p-6">
-            <header className="flex items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">SabShow</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
-                        Collaborative presentations — slides, themes, comments, publish.
-                    </p>
-                </div>
-                <NewDeckButton />
-            </header>
+        <div className="ui20 mx-auto w-full max-w-6xl space-y-6 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>SabShow</PageTitle>
+                    <PageDescription>
+                        Collaborative presentations. Slides, themes, comments, publish.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <NewDeckButton />
+                </PageActions>
+            </PageHeader>
 
             {decks.length === 0 ? (
                 <EmptyState
@@ -40,20 +49,25 @@ export default async function SabshowIndexPage() {
             ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {decks.map((deck) => (
-                        <Card key={deck._id} className="p-4">
+                        <Card key={deck._id} padding="md">
                             <Link
                                 href={`/dashboard/sabshow/${deck._id}`}
                                 className="block space-y-2"
                             >
                                 <div className="flex items-center justify-between gap-2">
-                                    <div className="text-base font-medium">
+                                    <div className="text-base font-medium text-[var(--st-text)]">
                                         {deck.title}
                                     </div>
                                     {deck.status ? (
                                         <Badge
-                                            variant={
+                                            tone={
                                                 deck.status === 'published'
-                                                    ? 'default'
+                                                    ? 'success'
+                                                    : 'neutral'
+                                            }
+                                            kind={
+                                                deck.status === 'published'
+                                                    ? 'soft'
                                                     : 'outline'
                                             }
                                         >
@@ -69,25 +83,21 @@ export default async function SabshowIndexPage() {
                                 </div>
                             </Link>
                             <div className="mt-3 flex gap-2">
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href={`/dashboard/sabshow/${deck._id}`}>
+                                <Link href={`/dashboard/sabshow/${deck._id}`}>
+                                    <Button variant="outline" size="sm">
                                         Open
-                                    </Link>
-                                </Button>
-                                <Button variant="ghost" size="sm" asChild>
-                                    <Link
-                                        href={`/dashboard/sabshow/${deck._id}/history`}
-                                    >
+                                    </Button>
+                                </Link>
+                                <Link href={`/dashboard/sabshow/${deck._id}/history`}>
+                                    <Button variant="ghost" size="sm">
                                         History
-                                    </Link>
-                                </Button>
-                                <Button variant="ghost" size="sm" asChild>
-                                    <Link
-                                        href={`/dashboard/sabshow/${deck._id}/publish`}
-                                    >
+                                    </Button>
+                                </Link>
+                                <Link href={`/dashboard/sabshow/${deck._id}/publish`}>
+                                    <Button variant="ghost" size="sm">
                                         Publish
-                                    </Link>
-                                </Button>
+                                    </Button>
+                                </Link>
                             </div>
                         </Card>
                     ))}
@@ -96,3 +106,5 @@ export default async function SabshowIndexPage() {
         </div>
     );
 }
+</content>
+</invoke>

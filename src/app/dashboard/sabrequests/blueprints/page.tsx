@@ -1,11 +1,28 @@
 /**
- * `/dashboard/requests/blueprints` — admin view of all blueprints
+ * `/dashboard/requests/blueprints` - admin view of all blueprints
  * (published + draft).
  */
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, Badge } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
+import { FileText } from 'lucide-react';
 import { listBlueprints } from '@/app/actions/sabrequests.actions';
 
 export const dynamic = 'force-dynamic';
@@ -14,51 +31,84 @@ export default async function BlueprintsListPage() {
     const res = await listBlueprints({ limit: 200 });
     const rows = res.data ?? [];
     return (
-        <div className="zoruui flex flex-col gap-6 p-6">
-            <header className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold">Blueprints</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
+        <div className="ui20 flex flex-col gap-6 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Blueprints</PageTitle>
+                    <PageDescription>
                         Templates that drive form-based approval workflows.
-                    </p>
-                </div>
-                <Button asChild>
-                    <Link href="/dashboard/requests/blueprints/new">
-                        New blueprint
-                    </Link>
-                </Button>
-            </header>
-            <Card className="divide-y divide-[var(--st-border)] p-0">
-                {rows.length === 0 ? (
-                    <div className="p-8 text-center text-sm text-[var(--st-text-secondary)]">
-                        No blueprints yet.
-                    </div>
-                ) : (
-                    rows.map((b) => (
-                        <Link
-                            key={b._id}
-                            href={`/dashboard/requests/blueprints/${b._id}`}
-                            className="flex items-center justify-between gap-4 p-4 transition hover:bg-[var(--st-bg-muted)]/40"
-                        >
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-medium">{b.name}</span>
-                                    {b.published ? (
-                                        <Badge variant="success">Published</Badge>
-                                    ) : (
-                                        <Badge variant="secondary">Draft</Badge>
-                                    )}
-                                </div>
-                                <div className="text-xs text-[var(--st-text-secondary)]">
-                                    {b.category ?? '—'} · {b.stages?.length ?? 0}{' '}
-                                    stages
-                                </div>
-                            </div>
-                            <div className="text-right text-xs text-[var(--st-text-secondary)]">
-                                {b.slaMins ? `${b.slaMins} min SLA` : 'no SLA'}
-                            </div>
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button variant="primary">
+                        <Link href="/dashboard/requests/blueprints/new">
+                            New blueprint
                         </Link>
-                    ))
+                    </Button>
+                </PageActions>
+            </PageHeader>
+            <Card padding="none">
+                {rows.length === 0 ? (
+                    <EmptyState
+                        icon={FileText}
+                        title="No blueprints yet"
+                        description="Create your first blueprint to drive form-based approval workflows."
+                        action={
+                            <Button variant="primary">
+                                <Link href="/dashboard/requests/blueprints/new">
+                                    New blueprint
+                                </Link>
+                            </Button>
+                        }
+                    />
+                ) : (
+                    <Table hover>
+                        <THead>
+                            <Tr>
+                                <Th>Name</Th>
+                                <Th>Status</Th>
+                                <Th>Category</Th>
+                                <Th align="right">Stages</Th>
+                                <Th align="right">SLA</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {rows.map((b) => (
+                                <Tr key={b._id}>
+                                    <Td>
+                                        <Link
+                                            href={`/dashboard/requests/blueprints/${b._id}`}
+                                            className="font-medium text-[var(--st-text)] hover:underline"
+                                        >
+                                            {b.name}
+                                        </Link>
+                                    </Td>
+                                    <Td>
+                                        {b.published ? (
+                                            <Badge tone="success">Published</Badge>
+                                        ) : (
+                                            <Badge tone="neutral">Draft</Badge>
+                                        )}
+                                    </Td>
+                                    <Td>
+                                        <span className="text-[var(--st-text-secondary)]">
+                                            {b.category ?? 'Uncategorized'}
+                                        </span>
+                                    </Td>
+                                    <Td align="right">
+                                        <span className="text-[var(--st-text-secondary)]">
+                                            {b.stages?.length ?? 0}
+                                        </span>
+                                    </Td>
+                                    <Td align="right">
+                                        <span className="text-[var(--st-text-secondary)]">
+                                            {b.slaMins ? `${b.slaMins} min` : 'No SLA'}
+                                        </span>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </TBody>
+                    </Table>
                 )}
             </Card>
         </div>

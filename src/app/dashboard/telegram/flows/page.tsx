@@ -1,12 +1,51 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Input,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-  useTransition } from 'react';
+  useTransition,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertCircle,
@@ -20,7 +59,7 @@ import {
   Search,
   Trash2,
   Workflow,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import {
   createTelegramFlow,
@@ -30,14 +69,16 @@ import {
   enableTelegramFlow,
   listTelegramFlows,
   publishTelegramFlow,
-  } from '@/app/actions/telegram-flows.actions';
-import type { FlowRow,
-  FlowStatus } from '@/lib/rust-client/telegram-flows';
+} from '@/app/actions/telegram-flows.actions';
+import type {
+  FlowRow,
+  FlowStatus,
+} from '@/lib/rust-client/telegram-flows';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';
 
 /**
- * /dashboard/telegram/flows — list of Telegram-scoped visual flows.
+ * /dashboard/telegram/flows - list of Telegram-scoped visual flows.
  *
  * Mirrors the SabFlow visual editor concept but scoped to Telegram triggers
  * (incoming_message, command, callback_query, schedule, business_connection).
@@ -45,20 +86,21 @@ import { TelegramProjectGate } from '../_components/telegram-project-gate';
  * `@/app/actions/telegram-flows.actions`.
  */
 
+/** Telegram brand blue, used only as an icon-chip tint via the `accent` prop. */
 const ACCENT = '#229ED9';
 
-/* ── trigger summary helper ────────────────────────────────────────────── */
+/* -- trigger summary helper -------------------------------------------- */
 
 function describeTrigger(t: FlowRow['trigger']): string {
   switch (t?.kind) {
     case 'incoming_message':
-      return t.filter?.value ? `Incoming · ${t.filter.value}` : 'Incoming message';
+      return t.filter?.value ? `Incoming - ${t.filter.value}` : 'Incoming message';
     case 'command':
       return t.command ? `/${t.command}` : 'Command';
     case 'callback_query':
-      return t.dataPrefix ? `Callback · ${t.dataPrefix}` : 'Callback';
+      return t.dataPrefix ? `Callback - ${t.dataPrefix}` : 'Callback';
     case 'schedule':
-      return t.cron ? `Schedule · ${t.cron}` : 'Schedule';
+      return t.cron ? `Schedule - ${t.cron}` : 'Schedule';
     case 'business_connection':
       return 'Business connection';
     default:
@@ -73,9 +115,9 @@ function statusVariant(s: string): 'default' | 'secondary' | 'danger' | 'outline
 }
 
 function relativeTime(iso?: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return '—';
+  if (Number.isNaN(t)) return '-';
   const diff = Date.now() - t;
   const s = Math.floor(diff / 1000);
   if (s < 60) return `${s}s ago`;
@@ -87,7 +129,7 @@ function relativeTime(iso?: string): string {
   return `${d}d ago`;
 }
 
-/* ── page ──────────────────────────────────────────────────────────────── */
+/* -- page -------------------------------------------------------------- */
 
 export default function TelegramFlowsPage() {
   const router = useRouter();
@@ -116,7 +158,7 @@ export default function TelegramFlowsPage() {
         toast({
           title: 'Could not load flows',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -142,7 +184,7 @@ export default function TelegramFlowsPage() {
       toast({
         title: 'No project selected',
         description: 'Pick an active project before creating a flow.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -158,11 +200,11 @@ export default function TelegramFlowsPage() {
         toast({
           title: 'Could not create flow',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
-      toast({ title: 'Draft created', description: 'Opening editor…' });
+      toast({ title: 'Draft created', description: 'Opening editor.', tone: 'success' });
       router.push(`/dashboard/telegram/flows/${res.flowId}`);
     });
   };
@@ -177,23 +219,23 @@ export default function TelegramFlowsPage() {
         toast({
           title: 'Action failed',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
-      toast({ title: successMessage });
+      toast({ title: successMessage, tone: 'success' });
       reload();
     });
   };
 
   return (
     <div className="flex flex-col gap-6 p-6">
-        <TelegramProjectGate />
+      <TelegramProjectGate />
       <PageHeader>
         <PageHeading>
           <PageEyebrow>Telegram</PageEyebrow>
-          <PageTitle style={{ color: ACCENT }} className="flex items-center gap-2">
-            <Workflow className="h-6 w-6" /> Telegram Flows
+          <PageTitle className="flex items-center gap-2">
+            <Workflow className="h-6 w-6" aria-hidden="true" /> Telegram Flows
           </PageTitle>
           <PageDescription>
             Visual flows triggered by Telegram messages, commands, callbacks, and schedules.
@@ -202,8 +244,13 @@ export default function TelegramFlowsPage() {
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button onClick={handleCreate} disabled={isMutating || !activeProjectId}>
-            {isMutating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          <Button
+            variant="primary"
+            onClick={handleCreate}
+            loading={isMutating}
+            iconLeft={Plus}
+            disabled={!activeProjectId}
+          >
             New flow
           </Button>
         </PageActions>
@@ -215,33 +262,33 @@ export default function TelegramFlowsPage() {
         <StatCard
           label="Published"
           value={kpis.published.toLocaleString()}
-          icon={<CheckCircle2 className="h-4 w-4" style={{ color: ACCENT }} />}
+          icon={CheckCircle2}
+          accent={ACCENT}
         />
         <StatCard label="Total runs" value={kpis.runs.toLocaleString()} />
         <StatCard
           label="Error rate"
           value={`${kpis.errorRate}%`}
-          invertDelta
-          icon={<AlertCircle className="h-4 w-4 text-[var(--st-text)]" />}
+          icon={AlertCircle}
         />
       </div>
 
       {/* Filter bar */}
       <Card className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+        <div className="flex-1">
           <Input
-            placeholder="Search flows by name…"
+            iconLeft={Search}
+            placeholder="Search flows by name"
+            aria-label="Search flows by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
           />
         </div>
         <Select
           value={statusFilter || 'all'}
           onValueChange={(v) => setStatusFilter(v === 'all' ? '' : (v as FlowStatus))}
         >
-          <SelectTrigger className="w-full md:w-56">
+          <SelectTrigger className="w-full md:w-56" aria-label="Filter by status">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -257,16 +304,17 @@ export default function TelegramFlowsPage() {
       <Card className="overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center p-10 text-sm text-[var(--st-text-secondary)]">
-            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Loading flows…
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> Loading flows.
           </div>
         ) : flows.length === 0 ? (
           <EmptyState
-            icon={<Workflow className="h-8 w-8" style={{ color: ACCENT }} />}
+            icon={Workflow}
+            tone="info"
             title="No flows yet"
             description="Create your first Telegram flow to automate replies, branching, and external API calls."
             action={
-              <Button onClick={handleCreate} disabled={!activeProjectId}>
-                <Plus className="h-4 w-4" /> New flow
+              <Button variant="primary" onClick={handleCreate} iconLeft={Plus} disabled={!activeProjectId}>
+                New flow
               </Button>
             }
           />
@@ -278,8 +326,8 @@ export default function TelegramFlowsPage() {
                 <Th>Status</Th>
                 <Th>Version</Th>
                 <Th>Trigger</Th>
-                <Th className="text-right">Runs (7d)</Th>
-                <Th className="text-right">Errors (7d)</Th>
+                <Th align="right">Runs (7d)</Th>
+                <Th align="right">Errors (7d)</Th>
                 <Th>Last run</Th>
                 <Th aria-label="Actions" />
               </Tr>
@@ -288,13 +336,14 @@ export default function TelegramFlowsPage() {
               {flows.map((f) => (
                 <Tr key={f._id}>
                   <Td>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => router.push(`/dashboard/telegram/flows/${f._id}`)}
-                      className="text-left font-medium hover:underline"
+                      className="h-auto px-0 font-medium hover:underline"
                     >
                       {f.name || 'Untitled flow'}
-                    </button>
+                    </Button>
                     {f.description ? (
                       <div className="text-xs text-[var(--st-text-secondary)]">{f.description}</div>
                     ) : null}
@@ -311,16 +360,16 @@ export default function TelegramFlowsPage() {
                     ) : null}
                   </Td>
                   <Td className="text-sm">{describeTrigger(f.trigger)}</Td>
-                  <Td className="text-right tabular-nums">{f.runCount}</Td>
-                  <Td className="text-right tabular-nums">{f.errorCount}</Td>
+                  <Td align="right" className="tabular-nums">{f.runCount}</Td>
+                  <Td align="right" className="tabular-nums">{f.errorCount}</Td>
                   <Td className="text-sm text-[var(--st-text-secondary)]">
                     {relativeTime(f.lastRunAt)}
                   </Td>
                   <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="Actions">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" aria-label="Flow actions" className="px-2">
+                          <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -338,7 +387,7 @@ export default function TelegramFlowsPage() {
                           }
                           disabled={!activeProjectId}
                         >
-                          <Copy className="mr-2 h-4 w-4" /> Duplicate
+                          <Copy className="mr-2 h-4 w-4" aria-hidden="true" /> Duplicate
                         </DropdownMenuItem>
                         {f.status === 'published' ? (
                           <DropdownMenuItem
@@ -350,7 +399,7 @@ export default function TelegramFlowsPage() {
                             }
                             disabled={!activeProjectId}
                           >
-                            <Pause className="mr-2 h-4 w-4" /> Disable
+                            <Pause className="mr-2 h-4 w-4" aria-hidden="true" /> Disable
                           </DropdownMenuItem>
                         ) : f.status === 'disabled' ? (
                           <DropdownMenuItem
@@ -362,7 +411,7 @@ export default function TelegramFlowsPage() {
                             }
                             disabled={!activeProjectId}
                           >
-                            <Play className="mr-2 h-4 w-4" /> Enable
+                            <Play className="mr-2 h-4 w-4" aria-hidden="true" /> Enable
                           </DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem
@@ -374,15 +423,15 @@ export default function TelegramFlowsPage() {
                             }
                             disabled={!activeProjectId}
                           >
-                            <Play className="mr-2 h-4 w-4" /> Publish
+                            <Play className="mr-2 h-4 w-4" aria-hidden="true" /> Publish
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-[var(--st-text)] focus:text-[var(--st-text)]"
+                          className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
                           onClick={() => setConfirmDeleteId(f._id)}
                         >
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

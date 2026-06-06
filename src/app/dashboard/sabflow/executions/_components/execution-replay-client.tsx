@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ExecutionReplayClient — n8n-style step-by-step rewind of a past execution.
+ * ExecutionReplayClient - n8n-style step-by-step rewind of a past execution.
  *
  * Layout:
  *   - Header: status badge, flow name, total duration
@@ -9,8 +9,8 @@
  *   - Right pane: selected node's input / output / error
  *
  * Keyboard:
- *   ↑ / ↓ — step through nodes
- *   Esc — back to list
+ *   Up / Down - step through nodes
+ *   Space - toggle playback
  *
  * Reads /api/sabflow/executions/[id] which returns the full
  * `ExecutionHistoryEntry` with the optional `nodes` array.
@@ -19,33 +19,57 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-  LuArrowLeft,
-  LuCircleAlert,
-  LuCircleCheck,
-  LuCircleX,
-  LuClock,
-  LuLoader,
-  LuPlay,
-  LuPause,
-  LuRotateCw,
-  LuRewind,
-  LuFastForward,
-  LuTriangleAlert,
-} from 'react-icons/lu';
+  ArrowLeft,
+  CircleAlert,
+  CircleCheck,
+  CircleX,
+  Clock,
+  Loader,
+  Play,
+  Pause,
+  RotateCw,
+  Rewind,
+  FastForward,
+  TriangleAlert,
+  type LucideIcon,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  IconButton,
+  Spinner,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import type {
   ExecutionHistoryEntry,
   ExecutionHistoryNode,
 } from '@/lib/sabflow/types';
 
-const STATUS_ICON: Record<string, { icon: typeof LuCircleCheck; color: string }> = {
-  success:   { icon: LuCircleCheck,   color: 'text-[var(--st-text)]' },
-  error:     { icon: LuCircleX,       color: 'text-[var(--st-text)]' },
-  running:   { icon: LuLoader,        color: 'text-[var(--st-text)] animate-spin' },
-  waiting:   { icon: LuClock,         color: 'text-[var(--st-text)]' },
-  skipped:   { icon: LuCircleAlert,   color: 'text-[var(--st-text-secondary)]' },
-  cancelled: { icon: LuCircleAlert,   color: 'text-[var(--st-text-secondary)]' },
+const STATUS_ICON: Record<string, { icon: LucideIcon; color: string }> = {
+  success:   { icon: CircleCheck,   color: 'text-[var(--st-status-ok)]' },
+  error:     { icon: CircleX,       color: 'text-[var(--st-danger)]' },
+  running:   { icon: Loader,        color: 'text-[var(--st-accent)] animate-spin' },
+  waiting:   { icon: Clock,         color: 'text-[var(--st-warn)]' },
+  skipped:   { icon: CircleAlert,   color: 'text-[var(--st-text-secondary)]' },
+  cancelled: { icon: CircleAlert,   color: 'text-[var(--st-text-secondary)]' },
+};
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  success: 'success',
+  error: 'danger',
+  running: 'accent',
+  waiting: 'warning',
+  skipped: 'neutral',
+  cancelled: 'neutral',
 };
 
 type ApiResponse = {
@@ -59,7 +83,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
-  /** Block id currently being re-run from — drives the button spinner. */
+  /** Block id currently being re-run from, drives the button spinner. */
   const [rerunningFrom, setRerunningFrom] = useState<string | null>(null);
   const [rerunError, setRerunError] = useState<string | null>(null);
   /** Recording-style playback (Step 31). */
@@ -142,7 +166,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
     return () => window.removeEventListener('keydown', onKey);
   }, [nodes.length]);
 
-  // Step 31 — playback timer.  Auto-advances selectedIdx at `playbackMs`
+  // Step 31 - playback timer.  Auto-advances selectedIdx at `playbackMs`
   // interval; stops at the last step.  Resets to 0 when the user clicks
   // Play after reaching the end.
   useEffect(() => {
@@ -165,7 +189,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
    * When the loaded execution is still `running`, subscribe to the SSE
    * endpoint and merge each incoming snapshot/update into local state so
    * the timeline animates while the run progresses. The route emits
-   * unnamed events whose JSON `data` is `{ type, data }` envelopes —
+   * unnamed events whose JSON `data` is `{ type, data }` envelopes -
    * `snapshot` and `update` both carry the full execution row. On a
    * terminal status (or `timeout` / `error` payload, or hard EventSource
    * failure) we close the stream and refresh once to pick up the final
@@ -190,7 +214,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
       try {
         envelope = JSON.parse(e.data);
       } catch {
-        return; // malformed — ignore
+        return; // malformed - ignore
       }
 
       if ('error' in envelope) {
@@ -253,17 +277,18 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center gap-2 text-[var(--gray-9)]">
-        <LuLoader className="h-4 w-4 animate-spin" />
-        <span className="text-[12px]">Loading execution…</span>
+      <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+        <Spinner size="sm" label="Loading execution" />
+        <span className="text-[12px]">Loading execution.</span>
       </div>
     );
   }
   if (error || !data) {
     return (
-      <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
-        <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-        <span>{error ?? 'Execution not found'}</span>
+      <div className="m-6">
+        <Alert tone="danger" title="Could not load execution">
+          {error ?? 'Execution not found'}
+        </Alert>
       </div>
     );
   }
@@ -274,98 +299,95 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-[var(--gray-4)] px-6 py-3 shrink-0">
-        <Link
-          href="/dashboard/sabflow/executions"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-        >
-          <LuArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
+      <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-6 py-3 shrink-0">
+        <Link href="/dashboard/sabflow/executions" aria-label="Back to executions">
+          <IconButton label="Back to executions" icon={ArrowLeft} size="sm" />
         </Link>
         <div className="flex flex-col leading-tight min-w-0">
           <div className="flex items-center gap-2">
-            <StatusPill status={execution.status} />
-            <span className="text-[13px] font-semibold text-[var(--gray-12)] truncate">
+            <Badge tone={STATUS_TONE[execution.status] ?? 'neutral'} className="uppercase">
+              {execution.status}
+            </Badge>
+            <span className="text-[13px] font-semibold text-[var(--st-text)] truncate">
               {flow?.name ?? execution.flowId}
             </span>
           </div>
-          <p className="text-[10.5px] text-[var(--gray-9)] mt-0.5">
+          <p className="text-[10.5px] text-[var(--st-text-tertiary)] mt-0.5">
             {execution.startedAt && new Date(execution.startedAt).toLocaleString()} ·{' '}
             {formatDuration(execution.executionTimeMs)} ·{' '}
             {execution.nodeCount} {execution.nodeCount === 1 ? 'node' : 'nodes'} ·{' '}
-            session {execution.sessionId ?? '—'}
+            session {execution.sessionId ?? '-'}
           </p>
         </div>
         {flow && (
           <Link
             href={`/dashboard/sabflow/${flow.id}`}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
+            className="ml-auto"
+            aria-label="Open flow"
           >
-            <LuPlay className="h-3 w-3" />
-            Open flow
+            <Button variant="outline" size="sm" iconLeft={Play}>
+              Open flow
+            </Button>
           </Link>
         )}
       </div>
 
       {execution.error && (
-        <div className="mx-6 my-3 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2.5 text-[12px] text-[var(--st-text)]">
-          <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold">Execution failed</p>
-            <p className="mt-0.5">{execution.error}</p>
-          </div>
+        <div className="mx-6 my-3">
+          <Alert tone="danger" title="Execution failed">
+            {execution.error}
+          </Alert>
         </div>
       )}
 
-      {/* Body — timeline + detail */}
+      {/* Body - timeline + detail */}
       {nodes.length === 0 ? (
-        <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-          <p className="text-[12.5px] text-[var(--gray-10)]">
-            No per-node detail recorded for this execution.
-          </p>
-          <p className="text-[11px] text-[var(--gray-9)]">
-            Verbose execution logging may have been disabled when this run finished.
-          </p>
+        <div className="flex h-64 items-center justify-center">
+          <EmptyState
+            icon={TriangleAlert}
+            title="No per-node detail recorded for this execution."
+            description="Verbose execution logging may have been disabled when this run finished."
+          />
         </div>
       ) : (
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Timeline rail */}
-          <div className="w-[280px] shrink-0 overflow-y-auto border-r border-[var(--gray-4)] py-2">
+          <div className="w-[280px] shrink-0 overflow-y-auto border-r border-[var(--st-border)] py-2">
             {nodes.map((node, idx) => {
               const status = STATUS_ICON[node.status] ?? STATUS_ICON.skipped;
               const Icon = status.icon;
               const selected = idx === selectedIdx;
               return (
-                <button
+                <Button
                   key={`${node.blockId}-${idx}`}
-                  type="button"
+                  variant="ghost"
                   onClick={() => setSelectedIdx(idx)}
+                  aria-pressed={selected}
                   className={cn(
-                    'flex w-full items-center gap-2.5 px-4 py-2 text-left transition-colors',
-                    selected
-                      ? 'bg-[var(--st-text)]/10'
-                      : 'hover:bg-[var(--gray-2)]',
+                    '!flex w-full !justify-start items-center gap-2.5 !px-4 !py-2 text-left !rounded-none',
+                    selected && 'bg-[var(--st-accent)]/10',
                   )}
                 >
-                  <Icon className={cn('h-3.5 w-3.5 shrink-0', status.color)} strokeWidth={2} />
-                  <div className="flex flex-1 flex-col min-w-0 leading-tight">
+                  <Icon className={cn('h-3.5 w-3.5 shrink-0', status.color)} strokeWidth={2} aria-hidden="true" />
+                  <span className="flex flex-1 flex-col min-w-0 leading-tight">
                     <span
                       className={cn(
                         'truncate text-[12px] font-medium',
                         selected
-                          ? 'text-[var(--st-text)]'
-                          : 'text-[var(--gray-12)]',
+                          ? 'text-[var(--st-accent)]'
+                          : 'text-[var(--st-text)]',
                       )}
                     >
                       {node.blockType}
                     </span>
-                    <span className="truncate text-[10.5px] text-[var(--gray-9)]">
+                    <span className="truncate text-[10.5px] text-[var(--st-text-tertiary)]">
                       {node.blockId}
                     </span>
-                  </div>
-                  <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--gray-9)]">
+                  </span>
+                  <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
                     {formatDuration(node.durationMs)}
                   </span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -380,13 +402,13 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
                 rerunError={rerunError}
               />
             ) : (
-              <p className="text-[12px] text-[var(--gray-9)]">Select a node from the timeline.</p>
+              <p className="text-[12px] text-[var(--st-text-tertiary)]">Select a node from the timeline.</p>
             )}
           </div>
         </div>
       )}
 
-      {/* Step 31 — recording-style timeline scrubber + transport */}
+      {/* Step 31 - recording-style timeline scrubber + transport */}
       {nodes.length > 0 && (
         <TimelineScrubber
           nodes={nodes}
@@ -431,98 +453,84 @@ function TimelineScrubber({
   onForward: () => void;
   onRateChange: (ms: number) => void;
 }) {
-  // Width each step bar takes — proportional to its duration so a slow step
-  // visibly dominates a fast one.  Min 12px so single-ms steps stay clickable.
+  // Width each step bar takes, proportional to its duration so a slow step
+  // visibly dominates a fast one.  Min 8px so single-ms steps stay clickable.
   const total = nodes.reduce((acc, n) => acc + Math.max(1, n.durationMs ?? 1), 0);
   return (
-    <div className="border-t border-[var(--gray-4)] bg-[var(--gray-1)] px-4 py-3 shrink-0">
+    <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3 shrink-0">
       <div className="flex items-center gap-3">
         {/* Transport controls */}
-        <button
-          type="button"
+        <IconButton
+          label="Rewind to start"
+          icon={Rewind}
+          size="sm"
           onClick={onRewind}
-          title="Rewind to start"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-        >
-          <LuRewind className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
+        />
+        <IconButton
+          label={playing ? 'Pause (Space)' : 'Play (Space)'}
+          icon={playing ? Pause : Play}
+          size="sm"
+          variant={playing ? 'primary' : 'secondary'}
           onClick={onTogglePlay}
-          title={playing ? 'Pause (Space)' : 'Play (Space)'}
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-md',
-            playing
-              ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-              : 'bg-[var(--gray-3)] text-[var(--gray-12)] hover:bg-[var(--gray-4)]',
-          )}
-        >
-          {playing ? <LuPause className="h-3.5 w-3.5" /> : <LuPlay className="h-3.5 w-3.5" />}
-        </button>
-        <button
-          type="button"
+        />
+        <IconButton
+          label="Jump to end"
+          icon={FastForward}
+          size="sm"
           onClick={onForward}
-          title="Jump to end"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-        >
-          <LuFastForward className="h-3.5 w-3.5" />
-        </button>
+        />
 
         {/* Step counter */}
-        <span className="text-[11px] tabular-nums text-[var(--gray-10)] shrink-0 w-[60px]">
+        <span className="text-[11px] tabular-nums text-[var(--st-text-secondary)] shrink-0 w-[60px]">
           {selectedIdx + 1} / {nodes.length}
         </span>
 
         {/* Bars */}
-        <div className="flex-1 flex items-stretch gap-px h-8 rounded-md bg-[var(--gray-3)] overflow-hidden">
+        <div className="flex-1 flex items-stretch gap-px h-8 rounded-[var(--st-radius)] bg-[var(--st-bg-tertiary)] overflow-hidden">
           {nodes.map((node, idx) => {
-            const status = STATUS_ICON[node.status] ?? STATUS_ICON.skipped;
             const colour =
               node.status === 'success'
-                ? 'bg-[var(--st-text)]'
+                ? 'bg-[var(--st-status-ok)]'
                 : node.status === 'error'
-                ? 'bg-[var(--st-text)]'
+                ? 'bg-[var(--st-danger)]'
                 : node.status === 'waiting'
-                ? 'bg-[var(--st-text)]'
-                : 'bg-[var(--st-bg-muted)]';
+                ? 'bg-[var(--st-warn)]'
+                : 'bg-[var(--st-text-tertiary)]';
             const widthPct =
               ((Math.max(1, node.durationMs ?? 1) / total) * 100).toFixed(2);
             const selected = idx === selectedIdx;
             return (
-              <button
+              <Button
                 key={`${node.blockId}-${idx}`}
-                type="button"
+                variant="ghost"
                 onClick={() => onSelect(idx)}
                 title={`${node.blockType} · ${formatDuration(node.durationMs)} · ${node.status}`}
                 style={{ width: `${widthPct}%`, minWidth: 8 }}
                 className={cn(
-                  'h-full transition-opacity',
+                  'h-full !min-w-0 !p-0 !rounded-none transition-opacity',
                   colour,
-                  selected ? 'opacity-100 ring-2 ring-[var(--st-border)] ring-inset' : 'opacity-60 hover:opacity-100',
+                  selected ? 'opacity-100 ring-2 ring-[var(--st-accent)] ring-inset' : 'opacity-60 hover:opacity-100',
                 )}
                 aria-label={`Step ${idx + 1}: ${node.blockType}`}
-              >
-                {/* Visual-only — title attribute carries the detail */}
-                {/* keep the status icon var referenced to avoid TS unused warnings */}
-                <span className="sr-only">{status.color}</span>
-              </button>
+                aria-pressed={selected}
+              />
             );
           })}
         </div>
 
         {/* Speed selector */}
-        <select
-          value={playbackMs}
-          onChange={(e) => onRateChange(Number(e.target.value))}
-          className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[11.5px] text-[var(--gray-11)] focus:outline-none focus:border-[var(--gray-7)]"
-          aria-label="Playback speed"
-        >
-          <option value={1600}>0.5×</option>
-          <option value={800}>1×</option>
-          <option value={400}>2×</option>
-          <option value={200}>4×</option>
-          <option value={100}>8×</option>
-        </select>
+        <Select value={String(playbackMs)} onValueChange={(v) => onRateChange(Number(v))}>
+          <SelectTrigger aria-label="Playback speed" className="w-[88px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1600">0.5x</SelectItem>
+            <SelectItem value="800">1x</SelectItem>
+            <SelectItem value="400">2x</SelectItem>
+            <SelectItem value="200">4x</SelectItem>
+            <SelectItem value="100">8x</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -546,57 +554,47 @@ function NodeDetail({
     <div className="space-y-4">
       {/* Title row */}
       <div className="flex items-center gap-2">
-        <Icon className={cn('h-4 w-4', status.color)} strokeWidth={2} />
-        <span className="text-[14px] font-semibold text-[var(--gray-12)]">
+        <Icon className={cn('h-4 w-4', status.color)} strokeWidth={2} aria-hidden="true" />
+        <span className="text-[14px] font-semibold text-[var(--st-text)]">
           {node.blockType}
         </span>
-        <code className="rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[10.5px] text-[var(--gray-10)]">
+        <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-tertiary)] px-1.5 py-0.5 font-mono text-[10.5px] text-[var(--st-text-secondary)]">
           {node.blockId}
         </code>
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={onRerun}
           disabled={rerunning}
-          title="Re-run the flow from this block — upstream node outputs are pinned from the original run."
-          className={cn(
-            'ml-auto inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium transition-colors',
-            rerunning
-              ? 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] cursor-wait'
-              : 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20',
-          )}
+          loading={rerunning}
+          iconLeft={rerunning ? undefined : RotateCw}
+          title="Re-run the flow from this block. Upstream node outputs are pinned from the original run."
+          className="ml-auto"
         >
-          {rerunning ? (
-            <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />
-          ) : (
-            <LuRotateCw className="h-3 w-3" strokeWidth={2} />
-          )}
-          {rerunning ? 'Re-running…' : 'Re-run from here'}
-        </button>
+          {rerunning ? 'Re-running.' : 'Re-run from here'}
+        </Button>
       </div>
 
       {rerunError && (
-        <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
-          <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-          <span>{rerunError}</span>
-        </div>
+        <Alert tone="danger">{rerunError}</Alert>
       )}
 
       {/* Meta strip */}
-      <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-[var(--gray-10)]">
+      <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-[var(--st-text-secondary)]">
         <span>
-          <span className="text-[var(--gray-9)]">Status:</span>{' '}
-          <span className="font-medium text-[var(--gray-12)]">{node.status}</span>
+          <span className="text-[var(--st-text-tertiary)]">Status:</span>{' '}
+          <span className="font-medium text-[var(--st-text)]">{node.status}</span>
         </span>
         <span>
-          <span className="text-[var(--gray-9)]">Duration:</span>{' '}
-          <span className="font-medium text-[var(--gray-12)] tabular-nums">
+          <span className="text-[var(--st-text-tertiary)]">Duration:</span>{' '}
+          <span className="font-medium text-[var(--st-text)] tabular-nums">
             {formatDuration(node.durationMs)}
           </span>
         </span>
         {node.startedAt && (
           <span>
-            <span className="text-[var(--gray-9)]">Started:</span>{' '}
-            <span className="font-medium text-[var(--gray-12)]">
+            <span className="text-[var(--st-text-tertiary)]">Started:</span>{' '}
+            <span className="font-medium text-[var(--st-text)]">
               {new Date(node.startedAt).toLocaleTimeString()}
             </span>
           </span>
@@ -605,10 +603,7 @@ function NodeDetail({
 
       {/* Error banner */}
       {node.error && (
-        <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] text-[var(--st-text)]">
-          <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-          <span>{node.error}</span>
-        </div>
+        <Alert tone="danger">{node.error}</Alert>
       )}
 
       {/* Input */}
@@ -627,7 +622,7 @@ function NodeDetail({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+      <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {title}
       </div>
       {children}
@@ -638,7 +633,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function JsonBlock({ value }: { value: unknown }) {
   if (value === undefined || value === null) {
     return (
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)]/50 px-3 py-2 text-[11.5px] italic text-[var(--gray-9)]">
+      <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[11.5px] italic text-[var(--st-text-tertiary)]">
         (no data)
       </div>
     );
@@ -650,35 +645,14 @@ function JsonBlock({ value }: { value: unknown }) {
     text = String(value);
   }
   return (
-    <pre className="overflow-x-auto rounded-lg border border-[var(--gray-5)] bg-[var(--st-text)] px-3 py-2 font-mono text-[11.5px] leading-snug text-[var(--st-text-secondary)]">
+    <pre className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-[11.5px] leading-snug text-[var(--st-text)]">
       {text}
     </pre>
   );
 }
 
-function StatusPill({ status }: { status: string }) {
-  const tone =
-    status === 'success'
-      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-      : status === 'error'
-      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-      : status === 'running'
-      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-      : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]';
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
-        tone,
-      )}
-    >
-      {status}
-    </span>
-  );
-}
-
 function formatDuration(ms?: number): string {
-  if (ms == null || ms < 0) return '—';
+  if (ms == null || ms < 0) return '-';
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
   return `${Math.floor(ms / 60_000)}m ${Math.floor((ms % 60_000) / 1000)}s`;

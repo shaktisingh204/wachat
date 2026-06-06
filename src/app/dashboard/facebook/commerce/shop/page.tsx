@@ -1,6 +1,46 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  type BadgeTone,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -9,7 +49,6 @@ import {
 import { format,
   formatDistanceToNow } from 'date-fns';
 import {
-  AlertCircle,
   CheckCircle2,
   MoreHorizontal,
   PackageCheck,
@@ -30,7 +69,7 @@ import {
 import type { FacebookOrder } from '@/lib/definitions';
 
 /**
- * /dashboard/facebook/commerce/shop — Meta Commerce shop overview.
+ * /dashboard/facebook/commerce/shop - Meta Commerce shop overview.
  *
  * Header card surfaces merchant settings (display name, currency, payout
  * email) from `getCommerceMerchantSettings`, followed by a recent orders
@@ -60,27 +99,26 @@ function safeWhen(iso?: string): string {
 }
 
 function safeDate(iso?: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  return format(d, 'PP · p');
+  if (Number.isNaN(d.getTime())) return '-';
+  return format(d, 'PP, p');
 }
 
-function statusVariant(
-  s?: string,
-): 'success' | 'warning' | 'danger' | 'info' | 'ghost' {
-  if (!s) return 'ghost';
+function statusTone(s?: string): BadgeTone {
+  if (!s) return 'neutral';
   const v = s.toLowerCase();
   if (v === 'completed' || v === 'fulfilled' || v === 'shipped') return 'success';
   if (v.includes('pending') || v === 'created' || v === 'processing') return 'warning';
   if (v === 'cancelled' || v === 'canceled') return 'danger';
   if (v === 'refunded') return 'info';
-  return 'ghost';
+  return 'neutral';
 }
 
 export default function CommerceShopPage(): React.JSX.Element {
   const { activeProject } = useProject();
   const projectId = activeProject?._id?.toString() ?? '';
+  const { toast } = useToast();
 
   const [settings, setSettings] = useState<MerchantSettings | null>(null);
   const [orders, setOrders] = useState<FacebookOrder[]>([]);
@@ -167,7 +205,7 @@ export default function CommerceShopPage(): React.JSX.Element {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<Store />}
+          icon={Store}
           title="No project selected"
           description="Pick a project to view its commerce shop."
         />
@@ -199,36 +237,38 @@ export default function CommerceShopPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Shop</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Shop</PageTitle>
+          <PageDescription>
             Merchant settings and recent orders for the connected Meta Commerce
             account.
-          </p>
-        </div>
-        <Button variant="ghost" onClick={refresh} disabled={loading}>
-          <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+          </PageDescription>
+        </PageHeaderHeading>
+        <Button
+          variant="ghost"
+          onClick={refresh}
+          disabled={loading}
+          iconLeft={RefreshCw}
+        >
           Refresh
         </Button>
-      </header>
+      </PageHeader>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle />
-          <AlertTitle>Could not load shop data</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" title="Could not load shop data">
+          {error}
         </Alert>
       )}
 
-      {/* ── Merchant settings card ── */}
+      {/* Merchant settings card */}
       {loading && !settings ? (
-        <Skeleton className="h-28 w-full" />
+        <Skeleton height="7rem" width="100%" />
       ) : (
-        <Card className="p-5">
+        <Card>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-              <Store className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+              <Store className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="flex-1">
               <p className="text-base text-[var(--st-text)]">
@@ -244,14 +284,14 @@ export default function CommerceShopPage(): React.JSX.Element {
               <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Currency
               </p>
-              <p className="text-[var(--st-text)]">{settings?.currency ?? '—'}</p>
+              <p className="text-[var(--st-text)]">{settings?.currency ?? '-'}</p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Payout email
               </p>
               <p className="break-all text-[var(--st-text)]">
-                {settings?.payout_email ?? settings?.email ?? '—'}
+                {settings?.payout_email ?? settings?.email ?? '-'}
               </p>
             </div>
             <div>
@@ -264,7 +304,7 @@ export default function CommerceShopPage(): React.JSX.Element {
         </Card>
       )}
 
-      {/* ── Recent orders ── */}
+      {/* Recent orders */}
       <section className="mt-2">
         <header className="mb-2 flex items-center justify-between">
           <h2 className="text-base text-[var(--st-text)]">Recent orders</h2>
@@ -272,97 +312,103 @@ export default function CommerceShopPage(): React.JSX.Element {
 
         {loading && orders.length === 0 ? (
           <div className="flex flex-col gap-2">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
+            <Skeleton height="3rem" width="100%" />
+            <Skeleton height="3rem" width="100%" />
+            <Skeleton height="3rem" width="100%" />
           </div>
         ) : orders.length === 0 ? (
           <EmptyState
-            icon={<PackageCheck />}
+            icon={PackageCheck}
             title="No recent orders"
             description="When buyers place orders through your Meta Commerce shop, they'll appear here."
           />
         ) : (
-          <Card className="overflow-hidden p-0">
+          <Card padding="none" className="overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-[var(--st-bg-muted)] text-left text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Order ID</th>
-                    <th className="px-4 py-3 font-medium">Customer</th>
-                    <th className="px-4 py-3 font-medium">Total</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Created</th>
-                    <th className="px-4 py-3 font-medium" aria-label="Actions" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--st-border)]">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Order ID</Th>
+                    <Th>Customer</Th>
+                    <Th>Total</Th>
+                    <Th>Status</Th>
+                    <Th>Created</Th>
+                    <Th align="right">
+                      <span className="sr-only">Actions</span>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {orders.map((o) => (
-                    <tr key={o.id}>
-                      <td className="px-4 py-3 font-mono text-xs text-[var(--st-text)]">
+                    <Tr key={o.id}>
+                      <Td className="font-mono text-xs text-[var(--st-text)]">
                         {o.id}
-                      </td>
-                      <td className="px-4 py-3">
+                      </Td>
+                      <Td>
                         <p className="text-[var(--st-text)]">
-                          {o.buyer_details?.name ?? '—'}
+                          {o.buyer_details?.name ?? '-'}
                         </p>
                         <p className="text-xs text-[var(--st-text-secondary)]">
                           {o.buyer_details?.email ?? ''}
                         </p>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {o.estimated_payment_details?.total_amount?.formatted_amount ??
-                          '—'}
-                      </td>
-                      <td className="px-4 py-3">
+                          '-'}
+                      </Td>
+                      <Td>
                         <Badge
-                          variant={statusVariant(o.order_status?.state)}
+                          tone={statusTone(o.order_status?.state)}
                           className="capitalize"
                         >
                           {o.order_status?.state?.replace(/_/g, ' ').toLowerCase() ??
-                            '—'}
+                            '-'}
                         </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
                         <span title={safeDate(o.created)}>{safeWhen(o.created)}</span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
+                      </Td>
+                      <Td align="right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label="Order actions"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                            <IconButton
+                              label="Order actions"
+                              icon={MoreHorizontal}
+                            />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => openAction('fulfill', o)}>
-                              <CheckCircle2 className="mr-2 h-4 w-4" /> Fulfill
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => openAction('refund', o)}>
-                              <Undo2 className="mr-2 h-4 w-4" /> Refund
+                            <DropdownMenuItem
+                              iconLeft={CheckCircle2}
+                              onSelect={() => openAction('fulfill', o)}
+                            >
+                              Fulfill
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onSelect={() => openAction('cancel', o)}
-                              className="text-[var(--st-danger)]"
+                              iconLeft={Undo2}
+                              onSelect={() => openAction('refund', o)}
                             >
-                              <XCircle className="mr-2 h-4 w-4" /> Cancel
+                              Refund
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="danger"
+                              iconLeft={XCircle}
+                              onSelect={() => openAction('cancel', o)}
+                            >
+                              Cancel
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </td>
-                    </tr>
+                      </Td>
+                    </Tr>
                   ))}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
           </Card>
         )}
       </section>
 
-      {/* ── Per-action confirm dialog ── */}
+      {/* Per-action confirm dialog */}
       <AlertDialog
         open={!!pendingAction}
         onOpenChange={(open) => !open && closeAction()}
@@ -385,46 +431,47 @@ export default function CommerceShopPage(): React.JSX.Element {
 
           {pendingAction?.type === 'fulfill' ? (
             <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="ord-carrier">Carrier</Label>
+              <Field label="Carrier">
                 <Input
-                  id="ord-carrier"
                   value={carrier}
                   onChange={(e) => setCarrier(e.target.value)}
-                  placeholder="UPS, FedEx, DHL…"
+                  placeholder="UPS, FedEx, DHL"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ord-tracking">Tracking number</Label>
+              </Field>
+              <Field label="Tracking number">
                 <Input
-                  id="ord-tracking"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder="1Z…"
+                  placeholder="1Z..."
                 />
-              </div>
+              </Field>
             </div>
           ) : (
-            <div className="space-y-1.5">
-              <Label htmlFor="ord-reason">Reason (optional)</Label>
+            <Field label="Reason (optional)">
               <Input
-                id="ord-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={
                   pendingAction?.type === 'cancel'
-                    ? 'Out of stock, customer request, …'
-                    : 'Damaged item, customer request, …'
+                    ? 'Out of stock, customer request'
+                    : 'Damaged item, customer request'
                 }
               />
-            </div>
+            </Field>
           )}
 
           <AlertDialogFooter>
             <AlertDialogCancel disabled={submitting}>Back</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmAction} disabled={submitting}>
+            <AlertDialogAction
+              intent={pendingAction?.type === 'fulfill' ? 'primary' : 'danger'}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmAction();
+              }}
+              disabled={submitting}
+            >
               {submitting
-                ? 'Working…'
+                ? 'Working...'
                 : pendingAction?.type === 'fulfill'
                 ? 'Fulfill order'
                 : pendingAction?.type === 'cancel'

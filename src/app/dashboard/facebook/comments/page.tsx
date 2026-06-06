@@ -1,6 +1,29 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, ScrollArea, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  EmptyState,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  ScrollArea,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -28,7 +51,7 @@ import {
 import type { FacebookPost } from '@/lib/definitions';
 
 /**
- * /dashboard/facebook/comments — Facebook Comments inbox.
+ * /dashboard/facebook/comments - Facebook Comments inbox.
  *
  * Two-pane layout: a left rail of recent Facebook posts for the active
  * project, and a right pane that, once a post is selected, loads the
@@ -53,7 +76,7 @@ function previewText(post: FacebookPost): string {
     ?? (post as { message?: string; story?: string }).story
     ?? '';
   if (!raw) return '(no text)';
-  return raw.length > 80 ? raw.slice(0, 77) + '…' : raw;
+  return raw.length > 80 ? raw.slice(0, 77) + '...' : raw;
 }
 
 function safeDistance(iso?: string): string {
@@ -138,12 +161,12 @@ export default function FacebookCommentsPage(): React.JSX.Element {
         toast({
           title: 'Could not post comment',
           description: res.error ?? 'Unknown error',
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
       setReplyText('');
-      toast({ title: 'Comment posted', description: 'Refreshing thread…' });
+      toast({ title: 'Comment posted', description: 'Refreshing thread...', tone: 'success' });
       loadComments(selectedPostId);
     });
   };
@@ -156,11 +179,11 @@ export default function FacebookCommentsPage(): React.JSX.Element {
         toast({
           title: 'Could not delete',
           description: res.error ?? 'Unknown error',
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
-      toast({ title: 'Comment deleted' });
+      toast({ title: 'Comment deleted', tone: 'success' });
       if (selectedPostId) loadComments(selectedPostId);
     });
   };
@@ -173,11 +196,11 @@ export default function FacebookCommentsPage(): React.JSX.Element {
         toast({
           title: 'Could not like',
           description: res.error ?? 'Unknown error',
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
-      toast({ title: 'Liked' });
+      toast({ title: 'Liked', tone: 'success' });
     });
   };
 
@@ -190,7 +213,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<MessageCircle />}
+          icon={MessageCircle}
           title="No project selected"
           description="Pick a Facebook page / project from the project switcher to see its comments."
         />
@@ -216,29 +239,34 @@ export default function FacebookCommentsPage(): React.JSX.Element {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Comments</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
-            Read and reply to comments on this page&rsquo;s Facebook posts.
-          </p>
-        </div>
-        <Button variant="ghost" onClick={loadPosts} disabled={isLoadingPosts}>
-          <RefreshCw className={isLoadingPosts ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
-          Refresh posts
-        </Button>
-      </header>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Comments</PageTitle>
+          <PageDescription>
+            Read and reply to comments on this page&apos;s Facebook posts.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="ghost"
+            onClick={loadPosts}
+            disabled={isLoadingPosts}
+            iconLeft={RefreshCw}
+          >
+            Refresh posts
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {postsError && (
-        <Alert variant="destructive">
-          <AlertCircle />
+        <Alert tone="danger" icon={AlertCircle}>
           <AlertTitle>Could not load posts</AlertTitle>
           <AlertDescription>{postsError}</AlertDescription>
         </Alert>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
-        <Card className="flex flex-col gap-2 p-3">
+        <Card padding="sm" className="flex flex-col gap-2">
           <p className="px-2 pt-1 text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
             Recent posts
           </p>
@@ -251,10 +279,10 @@ export default function FacebookCommentsPage(): React.JSX.Element {
               </div>
             ) : posts.length === 0 ? (
               <EmptyState
-                compact
-                icon={<MessageCircle />}
+                size="sm"
+                icon={MessageCircle}
                 title="No posts yet"
-                description="Once this page has posts, they&rsquo;ll appear here."
+                description="Once this page has posts, they will appear here."
               />
             ) : (
               <ul className="flex flex-col gap-1">
@@ -262,21 +290,21 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                   const isActive = post.id === selectedPostId;
                   return (
                     <li key={post.id}>
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        block
                         onClick={() => setSelectedPostId(post.id)}
+                        aria-pressed={isActive}
                         className={
-                          'w-full rounded-md px-3 py-2 text-left text-sm transition ' +
-                          (isActive
-                            ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]')
+                          'h-auto justify-start whitespace-normal border-transparent px-3 py-2 text-left [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:flex-col [&_.u-btn__label]:items-start [&_.u-btn__label]:overflow-visible ' +
+                          (isActive ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : '')
                         }
                       >
-                        <div className="line-clamp-2">{previewText(post)}</div>
-                        <div className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
+                        <span className="line-clamp-2 block w-full">{previewText(post)}</span>
+                        <span className="mt-1 block text-[11px] text-[var(--st-text-secondary)]">
                           {safeDistance((post as { created_time?: string }).created_time)}
-                        </div>
-                      </button>
+                        </span>
+                      </Button>
                     </li>
                   );
                 })}
@@ -285,10 +313,10 @@ export default function FacebookCommentsPage(): React.JSX.Element {
           </ScrollArea>
         </Card>
 
-        <Card className="flex flex-col gap-4 p-5">
+        <Card padding="lg" className="flex flex-col gap-4">
           {!selectedPost ? (
             <EmptyState
-              icon={<MessageCircle />}
+              icon={MessageCircle}
               title="Pick a post"
               description="Select a post on the left to see its comments."
             />
@@ -309,28 +337,23 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                     variant="ghost"
                     onClick={() => onLike(selectedPost.id)}
                     disabled={isPosting}
+                    iconLeft={ThumbsUp}
                   >
-                    <ThumbsUp className="mr-2 h-4 w-4" />
                     Like
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => loadComments(selectedPost.id)}
                     disabled={isLoadingComments}
+                    iconLeft={RefreshCw}
                   >
-                    <RefreshCw
-                      className={
-                        isLoadingComments ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'
-                      }
-                    />
                     Refresh
                   </Button>
                 </div>
               </header>
 
               {commentsError && (
-                <Alert variant="destructive">
-                  <AlertCircle />
+                <Alert tone="danger" icon={AlertCircle}>
                   <AlertTitle>Could not load comments</AlertTitle>
                   <AlertDescription>{commentsError}</AlertDescription>
                 </Alert>
@@ -345,16 +368,16 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                   </>
                 ) : comments.length === 0 ? (
                   <EmptyState
-                    icon={<MessageCircle />}
+                    icon={MessageCircle}
                     title="No comments yet"
-                    description="When users comment on this post, they'll show up here."
+                    description="When users comment on this post, they will show up here."
                   />
                 ) : (
                   <ul className="flex flex-col gap-3">
                     {comments.map((c) => (
                       <li
                         key={c.id}
-                        className="flex items-start gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                        className="flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                       >
                         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                           {c.from?.picture?.data?.url ? (
@@ -384,22 +407,20 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
+                          <IconButton
+                            label="Like comment"
+                            icon={ThumbsUp}
                             size="sm"
                             onClick={() => onLike(c.id)}
                             disabled={isPosting}
-                          >
-                            <ThumbsUp className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
+                          />
+                          <IconButton
+                            label="Delete comment"
+                            icon={Trash2}
                             size="sm"
                             onClick={() => onDelete(c.id)}
                             disabled={isPosting}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          />
                         </div>
                       </li>
                     ))}
@@ -411,7 +432,8 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                 <Input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a comment as the page…"
+                  placeholder="Write a comment as the page..."
+                  aria-label="Write a comment as the page"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -419,9 +441,14 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                     }
                   }}
                   disabled={isPosting}
+                  className="flex-1"
                 />
-                <Button onClick={onPostReply} disabled={isPosting || !replyText.trim()}>
-                  <Send className="mr-2 h-4 w-4" />
+                <Button
+                  variant="primary"
+                  onClick={onPostReply}
+                  disabled={isPosting || !replyText.trim()}
+                  iconLeft={Send}
+                >
                   Post
                 </Button>
               </footer>

@@ -1,5 +1,5 @@
 /**
- * `/dashboard/requests/blueprints/[id]` — edit an existing blueprint.
+ * `/dashboard/requests/blueprints/[id]` - edit an existing blueprint.
  */
 import * as React from 'react';
 import { notFound } from 'next/navigation';
@@ -20,7 +20,7 @@ export default async function BlueprintDetailPage({
         notFound();
     }
     return (
-        <div className="zoruui p-6">
+        <div className="p-6">
             <BlueprintEditor mode="edit" initial={res.data} />
         </div>
     );

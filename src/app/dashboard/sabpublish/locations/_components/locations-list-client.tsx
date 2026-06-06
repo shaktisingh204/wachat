@@ -1,9 +1,21 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardBody, EmptyState, PageHeader, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 
 export function SabpublishLocationsListClient({
@@ -11,8 +23,10 @@ export function SabpublishLocationsListClient({
 }: {
   initial: SabpublishLocationDoc[];
 }) {
+  const router = useRouter();
+
   return (
-    <div className="zoruui space-y-6">
+    <div className="space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Locations</PageTitle>
@@ -20,9 +34,14 @@ export function SabpublishLocationsListClient({
             Every physical place you publish about. One row per storefront.
           </PageDescription>
         </PageHeading>
-        <Button asChild>
-          <Link href="/dashboard/sabpublish/locations/new">New location</Link>
-        </Button>
+        <PageActions>
+          <Button
+            variant="primary"
+            onClick={() => router.push('/dashboard/sabpublish/locations/new')}
+          >
+            New location
+          </Button>
+        </PageActions>
       </PageHeader>
 
       {initial.length === 0 ? (

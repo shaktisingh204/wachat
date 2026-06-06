@@ -1,7 +1,18 @@
+'use client';
+
 import * as React from 'react';
-import { Card, Input, Label, Switch, CardBody } from '@/components/sabcrm/20ui';
-import { Loader2, X } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui';
+import { X } from 'lucide-react';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardTitle,
+    Field,
+    IconButton,
+    Input,
+    Switch,
+} from '@/components/sabcrm/20ui';
 
 export interface ChipInputProps {
     label?: string;
@@ -25,26 +36,24 @@ export function ChipInput({ label, values, onChange, placeholder, validate }: Ch
         setDraft('');
     };
     return (
-        <div className="space-y-2">
-            {label ? <Label>{label}</Label> : null}
-            <div className="flex flex-wrap items-center gap-1 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
+        <Field label={label}>
+            <div className="flex flex-wrap items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
                 {values.map((v, i) => (
                     <span
                         key={`${v}-${i}`}
-                        className="inline-flex items-center gap-1 rounded bg-[var(--st-text)]/10 px-2 py-0.5 text-xs"
+                        className="inline-flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-xs text-[var(--st-text)]"
                     >
                         {v}
-                        <button
-                            type="button"
-                            className="text-[var(--st-text)]/60 hover:text-[var(--st-text)]"
+                        <IconButton
+                            size="sm"
+                            label={`Remove ${v}`}
+                            icon={X}
                             onClick={() => onChange(values.filter((_, j) => j !== i))}
-                            aria-label={`Remove ${v}`}
-                        >
-                            <X className="h-3 w-3" />
-                        </button>
+                        />
                     </span>
                 ))}
-                <input
+                <Input
+                    inputSize="sm"
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => {
@@ -57,10 +66,10 @@ export function ChipInput({ label, values, onChange, placeholder, validate }: Ch
                     }}
                     onBlur={add}
                     placeholder={placeholder ?? 'Type and press Enter'}
-                    className="min-w-[8rem] flex-1 bg-transparent py-1 text-sm outline-none"
+                    className="min-w-[8rem] flex-1 border-0 bg-transparent"
                 />
             </div>
-        </div>
+        </Field>
     );
 }
 
@@ -76,14 +85,14 @@ export function SwitchRow({
     description?: string;
 }) {
     return (
-        <div className="flex items-center justify-between gap-3 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
             <div>
-                <div className="font-medium">{label}</div>
+                <div className="font-medium text-[var(--st-text)]">{label}</div>
                 {description ? (
-                    <div className="text-xs text-[var(--st-text)]/60">{description}</div>
+                    <div className="text-xs text-[var(--st-text-secondary)]">{description}</div>
                 ) : null}
             </div>
-            <Switch checked={value} onCheckedChange={onChange} />
+            <Switch checked={value} onCheckedChange={onChange} aria-label={label} />
         </div>
     );
 }
@@ -102,8 +111,7 @@ export function NumberRow({
     max?: number;
 }) {
     return (
-        <div className="space-y-1">
-            <Label>{label}</Label>
+        <Field label={label}>
             <Input
                 type="number"
                 value={value ?? 0}
@@ -111,11 +119,9 @@ export function NumberRow({
                 max={max}
                 onChange={(e) => onChange(Number(e.target.value) || 0)}
             />
-        </div>
+        </Field>
     );
 }
-
-const ACCENT = '#229ED9';
 
 export function SectionCard({
     icon: Icon,
@@ -140,15 +146,15 @@ export function SectionCard({
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <span
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-md"
-                            style={{ backgroundColor: `${ACCENT}1A`, color: ACCENT }}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent)]/10 text-[var(--st-accent)]"
+                            aria-hidden="true"
                         >
                             <Icon className="h-4 w-4" />
                         </span>
                         <div>
-                            <h2 className="text-base font-semibold">{title}</h2>
+                            <CardTitle className="text-base">{title}</CardTitle>
                             {description ? (
-                                <p className="text-sm text-[var(--st-text)]/60">{description}</p>
+                                <CardDescription>{description}</CardDescription>
                             ) : null}
                         </div>
                     </div>
@@ -157,8 +163,7 @@ export function SectionCard({
                 <div>{children}</div>
                 {onSave ? (
                     <div className="flex justify-end pt-2">
-                        <Button onClick={onSave} disabled={saving}>
-                            {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
+                        <Button variant="primary" onClick={onSave} loading={saving}>
                             Save
                         </Button>
                     </div>

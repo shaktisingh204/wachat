@@ -1,9 +1,25 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  StatCard,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
 import type { SabpublishSyncJobDoc } from '@/lib/rust-client/sabpublish-sync-jobs';
@@ -15,11 +31,32 @@ export interface SabpublishOverviewData {
   unrepliedReviewCount: number;
 }
 
+function jobStatusTone(status: string): BadgeTone {
+  switch (status.toLowerCase()) {
+    case 'completed':
+    case 'success':
+    case 'succeeded':
+      return 'success';
+    case 'failed':
+    case 'error':
+      return 'danger';
+    case 'running':
+    case 'in_progress':
+    case 'pending':
+    case 'queued':
+      return 'info';
+    default:
+      return 'neutral';
+  }
+}
+
 export function SabpublishOverviewClient({
   data,
 }: {
   data: SabpublishOverviewData;
 }) {
+  const router = useRouter();
+
   const connectedProviders = data.providers.filter(
     (p) => p.connectionStatus === 'connected',
   ).length;
@@ -28,7 +65,7 @@ export function SabpublishOverviewClient({
   ).length;
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>SabPublish</PageTitle>
@@ -37,9 +74,14 @@ export function SabpublishOverviewClient({
             Bing, Apple Maps and Facebook.
           </PageDescription>
         </PageHeading>
-        <Button asChild>
-          <Link href="/dashboard/sabpublish/locations/new">New location</Link>
-        </Button>
+        <PageActions>
+          <Button
+            variant="primary"
+            onClick={() => router.push('/dashboard/sabpublish/locations/new')}
+          >
+            New location
+          </Button>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -72,23 +114,21 @@ export function SabpublishOverviewClient({
               description="Connect a provider and push your profile to see activity here."
             />
           ) : (
-            <ul className="divide-y">
+            <ul className="divide-y divide-[var(--st-border)]">
               {data.recentJobs.slice(0, 10).map((j) => (
                 <li
                   key={j._id}
                   className="flex items-center justify-between py-3 text-sm"
                 >
                   <div>
-                    <div className="font-medium">
+                    <div className="font-medium text-[var(--st-text)]">
                       {j.providerId} · {j.kind}
                     </div>
                     <div className="text-[var(--st-text-secondary)]">
                       {new Date(j.startedAt).toLocaleString()}
                     </div>
                   </div>
-                  <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-xs">
-                    {j.status}
-                  </span>
+                  <Badge tone={jobStatusTone(j.status)}>{j.status}</Badge>
                 </li>
               ))}
             </ul>

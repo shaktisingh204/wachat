@@ -1,17 +1,35 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn } from '@/components/sabcrm/20ui';
 import {
-  Loader2,
-  RefreshCw,
-  Play,
-  Activity,
-  FileText } from 'lucide-react';
+    Badge,
+    Button,
+    Callout,
+    Card,
+    CardBody,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    EmptyState,
+    Field,
+    Input,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Switch,
+    Textarea,
+    cn,
+} from '@/components/sabcrm/20ui';
+import { RefreshCw, Play, Activity, FileText } from 'lucide-react';
 
 /**
  * Read-only detail drawer for an auto-reply rule with three view
  * "modes": Overview, Test, and Runs. We avoid the `Tabs` primitive
- * per project style — instead, a segmented-button row switches modes.
+ * per project style, instead a SegmentedControl row switches modes.
  */
 
 import * as React from 'react';
@@ -30,6 +48,12 @@ import type {
 import { actionLabel, conditionLabel, triggerSummary } from './rule-helpers';
 
 type Mode = 'overview' | 'test' | 'runs';
+
+const MODE_ITEMS = [
+    { value: 'overview' as const, label: 'Overview', icon: FileText },
+    { value: 'test' as const, label: 'Test', icon: Play },
+    { value: 'runs' as const, label: 'Runs', icon: Activity },
+];
 
 interface Props {
     open: boolean;
@@ -59,41 +83,22 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
                 <DrawerHeader>
                     <DrawerTitle>{rule.name}</DrawerTitle>
                     <DrawerDescription>
-                        {triggerSummary(rule.trigger)} ·{' '}
-                        <Badge
-                            variant={rule.status === 'enabled' ? 'success' : 'ghost'}
-                        >
-                            {rule.status}
-                        </Badge>
+                        <span className="inline-flex items-center gap-2">
+                            {triggerSummary(rule.trigger)}
+                            <Badge tone={rule.status === 'enabled' ? 'success' : 'neutral'}>
+                                {rule.status}
+                            </Badge>
+                        </span>
                     </DrawerDescription>
                 </DrawerHeader>
 
                 <div className="px-6 pb-3">
-                    <div role="tablist" className="inline-flex rounded-md border bg-[var(--st-bg-secondary)] p-0.5">
-                        {(
-                            [
-                                ['overview', 'Overview', FileText],
-                                ['test', 'Test', Play],
-                                ['runs', 'Runs', Activity],
-                            ] as const
-                        ).map(([key, label, Icon]) => (
-                            <button
-                                key={key}
-                                role="tab"
-                                aria-selected={mode === key}
-                                onClick={() => setMode(key)}
-                                className={cn(
-                                    'flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm',
-                                    mode === key
-                                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-                                )}
-                            >
-                                <Icon className="h-3.5 w-3.5" />
-                                {label}
-                            </button>
-                        ))}
-                    </div>
+                    <SegmentedControl
+                        aria-label="Rule detail view"
+                        items={MODE_ITEMS}
+                        value={mode}
+                        onChange={setMode}
+                    />
                 </div>
 
                 <div className="overflow-y-auto px-6 pb-6">
@@ -111,6 +116,11 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
 }
 
 function OverviewPane({ rule }: { rule: RuleRow }) {
+    const hasCooldown =
+        Boolean(rule.cooldown.perChatSeconds) ||
+        Boolean(rule.cooldown.perRuleSeconds) ||
+        Boolean(rule.cooldown.perDayLimit);
+
     return (
         <div className="grid gap-4">
             <Card>
@@ -142,11 +152,11 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             </Card>
 
             <section>
-                <h4 className="mb-2 text-sm font-semibold">Trigger</h4>
+                <h4 className="mb-2 text-sm font-semibold text-[var(--st-text)]">Trigger</h4>
                 <Card>
-                    <CardBody className="p-4 text-sm">
+                    <CardBody className="p-4 text-sm text-[var(--st-text)]">
                         <p>{triggerSummary(rule.trigger)}</p>
-                        <pre className="mt-2 max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-xs">
+                        <pre className="mt-2 max-h-40 overflow-auto rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-xs">
                             {JSON.stringify(rule.trigger, null, 2)}
                         </pre>
                     </CardBody>
@@ -154,16 +164,19 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             </section>
 
             <section>
-                <h4 className="mb-2 text-sm font-semibold">Conditions</h4>
+                <h4 className="mb-2 text-sm font-semibold text-[var(--st-text)]">Conditions</h4>
                 {rule.conditions.length === 0 ? (
                     <p className="text-sm text-[var(--st-text-secondary)]">
-                        No conditions — fires whenever the trigger matches.
+                        No conditions. Fires whenever the trigger matches.
                     </p>
                 ) : (
                     <ul className="space-y-1 text-sm">
                         {rule.conditions.map((c, i) => (
-                            <li key={i} className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2">
-                                <span className="font-medium">
+                            <li
+                                key={i}
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
+                            >
+                                <span className="font-medium text-[var(--st-text)]">
                                     {conditionLabel(c.kind)}
                                 </span>{' '}
                                 <span className="text-xs text-[var(--st-text-secondary)]">
@@ -178,15 +191,20 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             </section>
 
             <section>
-                <h4 className="mb-2 text-sm font-semibold">Actions</h4>
+                <h4 className="mb-2 text-sm font-semibold text-[var(--st-text)]">Actions</h4>
                 {rule.actions.length === 0 ? (
                     <p className="text-sm text-[var(--st-text-secondary)]">No actions.</p>
                 ) : (
                     <ol className="space-y-1 text-sm">
                         {rule.actions.map((a, i) => (
-                            <li key={i} className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2">
-                                <Badge variant="ghost">#{i + 1}</Badge>{' '}
-                                <span className="font-medium">{actionLabel(a.kind)}</span>
+                            <li
+                                key={i}
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
+                            >
+                                <Badge tone="neutral">#{i + 1}</Badge>{' '}
+                                <span className="font-medium text-[var(--st-text)]">
+                                    {actionLabel(a.kind)}
+                                </span>
                             </li>
                         ))}
                     </ol>
@@ -194,8 +212,8 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             </section>
 
             <section>
-                <h4 className="mb-2 text-sm font-semibold">Cooldown</h4>
-                <div className="text-sm">
+                <h4 className="mb-2 text-sm font-semibold text-[var(--st-text)]">Cooldown</h4>
+                <div className="text-sm text-[var(--st-text)]">
                     {rule.cooldown.perChatSeconds && (
                         <p>Per chat: every {rule.cooldown.perChatSeconds}s</p>
                     )}
@@ -205,11 +223,9 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                     {rule.cooldown.perDayLimit && (
                         <p>Per day limit: {rule.cooldown.perDayLimit} fires</p>
                     )}
-                    {!rule.cooldown.perChatSeconds &&
-                        !rule.cooldown.perRuleSeconds &&
-                        !rule.cooldown.perDayLimit && (
-                            <p className="text-[var(--st-text-secondary)]">No cooldown.</p>
-                        )}
+                    {!hasCooldown && (
+                        <p className="text-[var(--st-text-secondary)]">No cooldown.</p>
+                    )}
                 </div>
             </section>
         </div>
@@ -220,7 +236,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-center justify-between gap-4">
             <span className="text-[var(--st-text-secondary)]">{label}</span>
-            <span className="text-right tabular-nums">{value}</span>
+            <span className="text-right tabular-nums text-[var(--st-text)]">{value}</span>
         </div>
     );
 }
@@ -262,8 +278,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
     return (
         <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-2">
-                <div className="sm:col-span-2 space-y-1">
-                    <Label>Simulated text</Label>
+                <Field className="sm:col-span-2" label="Simulated text">
                     <Textarea
                         rows={3}
                         value={msg.text ?? ''}
@@ -272,16 +287,15 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                         }
                         placeholder="hello"
                     />
-                </div>
-                <div className="space-y-1">
-                    <Label>Chat type</Label>
+                </Field>
+                <Field label="Chat type">
                     <Select
                         value={msg.isGroup ? 'group' : 'private'}
                         onValueChange={(v) =>
                             setMsg((m) => ({ ...m, isGroup: v === 'group' }))
                         }
                     >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Chat type">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -289,27 +303,24 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                             <SelectItem value="group">Group</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
-                <div className="space-y-1">
-                    <Label>Sender tag (optional)</Label>
+                </Field>
+                <Field label="Sender tag (optional)">
                     <Input
                         value={msg.senderTag ?? ''}
                         onChange={(e) =>
                             setMsg((m) => ({ ...m, senderTag: e.target.value }))
                         }
                     />
-                </div>
-                <div className="space-y-1">
-                    <Label>Sender role (optional)</Label>
+                </Field>
+                <Field label="Sender role (optional)">
                     <Input
                         value={msg.senderRole ?? ''}
                         onChange={(e) =>
                             setMsg((m) => ({ ...m, senderRole: e.target.value }))
                         }
                     />
-                </div>
-                <div className="space-y-1">
-                    <Label>Language (optional)</Label>
+                </Field>
+                <Field label="Language (optional)">
                     <Input
                         value={msg.languageCode ?? ''}
                         onChange={(e) =>
@@ -317,66 +328,50 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                         }
                         placeholder="en"
                     />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Switch
-                        checked={msg.hasMedia ?? false}
-                        onCheckedChange={(v) =>
-                            setMsg((m) => ({ ...m, hasMedia: v }))
-                        }
-                    />
-                    <span className="text-sm">Message has media</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Switch
-                        checked={msg.isFirstMessage ?? false}
-                        onCheckedChange={(v) =>
-                            setMsg((m) => ({ ...m, isFirstMessage: v }))
-                        }
-                    />
-                    <span className="text-sm">First message from contact</span>
-                </div>
+                </Field>
+                <Switch
+                    checked={msg.hasMedia ?? false}
+                    onCheckedChange={(v) => setMsg((m) => ({ ...m, hasMedia: v }))}
+                    label="Message has media"
+                />
+                <Switch
+                    checked={msg.isFirstMessage ?? false}
+                    onCheckedChange={(v) =>
+                        setMsg((m) => ({ ...m, isFirstMessage: v }))
+                    }
+                    label="First message from contact"
+                />
             </div>
 
             <div>
-                <Button onClick={run} disabled={running}>
-                    {running ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Play className="mr-2 h-4 w-4" />
-                    )}
+                <Button onClick={run} loading={running} iconLeft={Play}>
                     Run test
                 </Button>
             </div>
 
             {err && (
-                <p className="text-sm text-[var(--st-text)]" role="alert">
+                <Callout tone="danger" role="alert">
                     {err}
-                </p>
+                </Callout>
             )}
 
             {matched !== null && (
                 <div className="space-y-3">
-                    <Badge variant={matched ? 'success' : 'ghost'}>
+                    <Badge tone={matched ? 'success' : 'neutral'}>
                         {matched ? 'Rule matched' : 'Rule did not match'}
                     </Badge>
-                    <div className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-3">
-                        <h5 className="mb-2 text-sm font-semibold">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                        <h5 className="mb-2 text-sm font-semibold text-[var(--st-text)]">
                             Evaluation steps
                         </h5>
                         <ol className="space-y-1 text-sm">
                             {steps.map((s, i) => (
-                                <li
-                                    key={i}
-                                    className="flex items-start gap-2"
-                                >
-                                    <Badge
-                                        variant={s.passed ? 'success' : 'danger'}
-                                    >
+                                <li key={i} className="flex items-start gap-2">
+                                    <Badge tone={s.passed ? 'success' : 'danger'}>
                                         {s.stage}
                                     </Badge>
                                     <div>
-                                        <p>{s.label}</p>
+                                        <p className="text-[var(--st-text)]">{s.label}</p>
                                         {s.detail && (
                                             <p className="text-xs text-[var(--st-text-secondary)]">
                                                 {s.detail}
@@ -388,11 +383,11 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                         </ol>
                     </div>
                     {matched && actions.length > 0 && (
-                        <div className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-3">
-                            <h5 className="mb-2 text-sm font-semibold">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                            <h5 className="mb-2 text-sm font-semibold text-[var(--st-text)]">
                                 Actions that would fire
                             </h5>
-                            <ol className="space-y-1 text-sm">
+                            <ol className="space-y-1 text-sm text-[var(--st-text)]">
                                 {actions.map((a, i) => (
                                     <li key={i}>
                                         {i + 1}. {actionLabel(a.kind)}
@@ -456,41 +451,42 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                 >
                     <RefreshCw
                         className={cn('mr-1 h-3.5 w-3.5', loading && 'animate-spin')}
+                        aria-hidden="true"
                     />
                     Refresh
                 </Button>
             </div>
 
             {err && (
-                <p className="text-sm text-[var(--st-text)]" role="alert">
+                <Callout tone="danger" role="alert">
                     {err}
-                </p>
+                </Callout>
             )}
 
             {runs.length === 0 && !loading ? (
-                <p className="text-sm text-[var(--st-text-secondary)]">No fires yet.</p>
+                <EmptyState
+                    icon={Activity}
+                    title="No fires yet"
+                    description="This rule has not fired for any message so far."
+                />
             ) : (
                 <ul className="space-y-1 text-sm">
                     {runs.map((r) => (
                         <li
                             key={r._id}
-                            className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2"
+                            className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="font-medium">
+                                <span className="font-medium text-[var(--st-text)]">
                                     {r.triggerSummary || rule.name}
                                 </span>
-                                <Badge
-                                    variant={
-                                        r.status === 'fired' ? 'success' : 'danger'
-                                    }
-                                >
+                                <Badge tone={r.status === 'fired' ? 'success' : 'danger'}>
                                     {r.status}
                                 </Badge>
                             </div>
                             <div className="mt-1 text-xs text-[var(--st-text-secondary)]">
-                                {new Date(r.firedAt).toLocaleString()} · chat{' '}
-                                {r.chatId ?? '—'} · {r.actionsCount} actions
+                                {new Date(r.firedAt).toLocaleString()} . chat{' '}
+                                {r.chatId ?? '-'} . {r.actionsCount} actions
                             </div>
                         </li>
                     ))}

@@ -12,19 +12,32 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  LuActivity,
-  LuCircleAlert,
-  LuCircleCheck,
-  LuCircleX,
-  LuDatabase,
-  LuLoader,
-  LuMail,
-  LuRefreshCw,
-  LuServer,
-  LuTriangleAlert,
-  LuZap,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Activity,
+  CircleAlert,
+  CircleCheck,
+  CircleX,
+  Database,
+  Mail,
+  RefreshCw,
+  Server,
+  TriangleAlert,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Dot,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  cn,
+} from '@/components/sabcrm/20ui';
 import { getActiveLocale, t } from '@/lib/sabflow/i18n';
 
 const LOCALE = getActiveLocale();
@@ -60,34 +73,34 @@ type HealthResponse = {
 
 type CardStatus = 'ok' | 'degraded' | 'down';
 
-const OVERALL_PILL: Record<HealthOverall, { label: string; cls: string; dot: string }> = {
-  green:  {
+type StatusTone = 'success' | 'warning' | 'danger';
+type OverallTone = 'success' | 'warning' | 'danger';
+
+const OVERALL_PILL: Record<HealthOverall, { label: string; tone: OverallTone }> = {
+  green: {
     label: 'All systems operational',
-    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
-    dot:   'bg-[var(--st-text)]',
+    tone: 'success',
   },
   yellow: {
-    label: 'Degraded — optional services unavailable',
-    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
-    dot:   'bg-[var(--st-text)]',
+    label: 'Degraded, optional services unavailable',
+    tone: 'warning',
   },
   red: {
-    label: 'Outage — critical dependency unreachable',
-    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
-    dot:   'bg-[var(--st-text)]',
+    label: 'Outage, critical dependency unreachable',
+    tone: 'danger',
   },
 };
 
-const STATUS_STYLES: Record<CardStatus, string> = {
-  ok:       'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
-  degraded: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
-  down:     'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
+const STATUS_TONE: Record<CardStatus, StatusTone> = {
+  ok: 'success',
+  degraded: 'warning',
+  down: 'danger',
 };
 
-const STATUS_ICON: Record<CardStatus, typeof LuCircleCheck> = {
-  ok:       LuCircleCheck,
-  degraded: LuCircleAlert,
-  down:     LuCircleX,
+const STATUS_ICON: Record<CardStatus, LucideIcon> = {
+  ok: CircleCheck,
+  degraded: CircleAlert,
+  down: CircleX,
 };
 
 export function HealthClient() {
@@ -134,7 +147,7 @@ export function HealthClient() {
     };
   }, [load]);
 
-  // Keyboard `R` — ignore while typing in an input/textarea so we don't
+  // Keyboard `R` ignores while typing in an input/textarea so we don't
   // hijack typing in any future filter controls.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -161,8 +174,8 @@ export function HealthClient() {
       {
         key:     'mongo',
         title:   'MongoDB',
-        sub:     'Primary datastore — critical',
-        icon:    LuDatabase,
+        sub:     'Primary datastore, critical',
+        icon:    Database,
         status:  mongoStatus,
         latency: data.checks.mongo.latencyMs,
         error:   data.checks.mongo.error,
@@ -170,8 +183,8 @@ export function HealthClient() {
       {
         key:     'redis',
         title:   'Redis',
-        sub:     'Queue + cache — optional',
-        icon:    LuZap,
+        sub:     'Queue + cache, optional',
+        icon:    Zap,
         status:  redisStatus,
         latency: data.checks.redis.latencyMs,
         error:   data.checks.redis.error,
@@ -179,8 +192,8 @@ export function HealthClient() {
       {
         key:     'smtp',
         title:   'SMTP',
-        sub:     'Outbound email — env check only',
-        icon:    LuMail,
+        sub:     'Outbound email, env check only',
+        icon:    Mail,
         status:  smtpStatus,
         latency: undefined,
         error:   data.checks.smtp.error,
@@ -189,7 +202,7 @@ export function HealthClient() {
         key:     'engine',
         title:   'Engine routes',
         sub:     'Co-located in this app',
-        icon:    LuServer,
+        icon:    Server,
         status:  engineStatus,
         latency: undefined,
         error:   undefined,
@@ -203,75 +216,79 @@ export function HealthClient() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuActivity className="h-4 w-4" strokeWidth={2} />
+      <PageHeader className="shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+            aria-hidden="true"
+          >
+            <Activity className="h-4 w-4" strokeWidth={2} />
+          </span>
+          <PageHeaderHeading className="min-w-0">
+            <PageTitle>{t('health.title', LOCALE)}</PageTitle>
+            <PageDescription>
+              SabFlow dependency status, refreshes every 30s
+            </PageDescription>
+          </PageHeaderHeading>
         </div>
-        <div className="flex flex-col leading-tight min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            {t('health.title', LOCALE)}
-          </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
-            SabFlow dependency status — refreshes every 30s
-          </p>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <PageActions>
           {lastFetched && (
-            <span className="text-[11px] text-[var(--gray-9)] tabular-nums">
+            <span className="text-[11px] text-[var(--st-text-secondary)] tabular-nums">
               Updated {formatRelative(lastFetched)}
             </span>
           )}
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => void load()}
             disabled={loading}
             title="Refresh (R)"
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
+            iconLeft={RefreshCw}
+            className={cn(loading && '[&_svg]:animate-spin')}
           >
-            <LuRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
             {t('health.refresh', LOCALE)}
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto">
         {loading && !data ? (
-          <div className="flex h-64 items-center justify-center gap-2 text-[var(--gray-9)]">
-            <LuLoader className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Running health checks…</span>
+          <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Running health checks" />
+            <span className="text-[12px]">Running health checks...</span>
           </div>
         ) : error && !data ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
-            <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+          <div className="m-6">
+            <Alert tone="danger" icon={TriangleAlert} title="Failed to load health">
+              {error}
+            </Alert>
           </div>
         ) : data && overallStyle ? (
           <div className="flex flex-col gap-5 p-4 sm:p-6">
             {/* Overall pill */}
-            <div
-              className={cn(
-                'flex items-center gap-3 rounded-xl border px-4 py-3',
-                overallStyle.cls,
-              )}
+            <Card
+              variant="outlined"
+              padding="md"
+              className="flex items-center gap-3"
             >
-              <span
-                className={cn(
-                  'inline-flex h-3 w-3 rounded-full ring-4 ring-current/10',
-                  overallStyle.dot,
-                )}
-                aria-hidden
+              <Dot
+                tone={overallStyle.tone}
+                pulse
+                aria-hidden="true"
               />
               <div className="flex flex-col leading-tight">
-                <span className="text-[14px] font-semibold uppercase tracking-wide">
+                <span className="text-[14px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   {overall}
                 </span>
-                <span className="text-[12px] opacity-80">{overallStyle.label}</span>
+                <span className="text-[12px] text-[var(--st-text-secondary)]">
+                  {overallStyle.label}
+                </span>
               </div>
-              <span className="ml-auto text-[11px] tabular-nums opacity-70">
+              <span className="ml-auto text-[11px] tabular-nums text-[var(--st-text-tertiary)]">
                 Generated {new Date(data.generatedAt).toLocaleTimeString()}
               </span>
-            </div>
+            </Card>
 
             {/* Cards */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -279,61 +296,63 @@ export function HealthClient() {
                 const Icon = c.icon;
                 const StatusIcon = STATUS_ICON[c.status];
                 return (
-                  <div
+                  <Card
                     key={c.key}
-                    className="flex flex-col gap-3 rounded-xl border border-[var(--gray-4)] bg-[var(--gray-1)] p-4"
+                    variant="outlined"
+                    padding="md"
+                    className="flex flex-col gap-3"
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--gray-3)] text-[var(--gray-11)]">
+                      <span
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      >
                         <Icon className="h-4 w-4" strokeWidth={2} />
-                      </div>
-                      <div className="flex flex-col leading-tight">
-                        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
+                      </span>
+                      <div className="flex flex-col leading-tight min-w-0">
+                        <span className="text-[13px] font-semibold text-[var(--st-text)]">
                           {c.title}
                         </span>
-                        <span className="text-[11px] text-[var(--gray-9)]">
+                        <span className="text-[11px] text-[var(--st-text-secondary)]">
                           {c.sub}
                         </span>
                       </div>
-                      <span
-                        className={cn(
-                          'ml-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
-                          STATUS_STYLES[c.status],
-                        )}
+                      <Badge
+                        tone={STATUS_TONE[c.status]}
+                        className="ml-auto uppercase tracking-wide"
                       >
-                        <StatusIcon className="h-3 w-3" />
+                        <StatusIcon className="h-3 w-3" aria-hidden="true" />
                         {c.status}
-                      </span>
+                      </Badge>
                     </div>
 
-                    <div className="flex items-center gap-3 text-[11.5px] text-[var(--gray-10)] tabular-nums">
+                    <div className="flex items-center gap-3 text-[11.5px] text-[var(--st-text-secondary)] tabular-nums">
                       <span>
                         Latency:{' '}
-                        <span className="text-[var(--gray-12)]">
-                          {typeof c.latency === 'number' ? `${c.latency}ms` : '—'}
+                        <span className="text-[var(--st-text)]">
+                          {typeof c.latency === 'number' ? `${c.latency}ms` : '-'}
                         </span>
                       </span>
                     </div>
 
                     {c.error && (
                       <p
-                        className="rounded-md bg-[var(--st-bg-muted)] px-2 py-1.5 text-[11px] text-[var(--st-text)] break-words dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
+                        className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-[11px] text-[var(--st-text)] break-words"
                         title={c.error}
                       >
                         {c.error}
                       </p>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
 
             {/* Non-blocking re-fetch error */}
             {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-                <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                <span>Last refresh failed: {error}</span>
-              </div>
+              <Alert tone="warning" icon={TriangleAlert}>
+                Last refresh failed: {error}
+              </Alert>
             )}
           </div>
         ) : null}

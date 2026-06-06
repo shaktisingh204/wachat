@@ -1,35 +1,59 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  ChevronRight,
-  CornerUpLeft,
-  Loader2,
-  MessageCircle,
-  MoreVertical,
-  Paperclip,
-  Pin,
-  PinOff,
-  RefreshCw,
-  Search,
-  Send,
-  Smile,
-  Trash2,
-  Users,
-  X,
-  type LucideIcon,
-  } from 'lucide-react';
+    Avatar,
+    AvatarFallback,
+    Badge,
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    EmptyState,
+    IconButton,
+    Input,
+    ScrollArea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Skeleton,
+    Textarea,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    ChevronRight,
+    CornerUpLeft,
+    Loader2,
+    MessageCircle,
+    MoreVertical,
+    Paperclip,
+    Pin,
+    PinOff,
+    RefreshCw,
+    Search,
+    Send,
+    Smile,
+    Trash2,
+    Users,
+    X,
+    type LucideIcon,
+} from 'lucide-react';
 
 /**
- * Telegram Chat — full inbox UI for `/dashboard/telegram/chat`.
+ * Telegram Chat - full inbox UI for `/dashboard/telegram/chat`.
  *
  * WhatsApp-style two-pane layout:
- *   • Left sidebar: bot/type filters, search box, chats list.
- *   • Right pane: header + virtualized message list + composer.
+ *   - Left sidebar: bot/type filters, search box, chats list.
+ *   - Right pane: header + virtualized message list + composer.
  *
  * Live updates come from the Next.js SSE proxy at
  * `/api/telegram/chats/[chatId]/stream`. Media uploads route through
- * the SabFile picker (Library + Upload only — no free-text URL paste,
+ * the SabFile picker (Library + Upload only, no free-text URL paste,
  * per project policy).
  */
 
@@ -61,9 +85,9 @@ import type {
 } from '@/lib/rust-client/telegram-chats';
 import type { BotRow as TelegramBotRow } from '@/lib/rust-client/telegram-bots';
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Constants
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 const TYPE_FILTERS: { value: 'all' | 'private' | 'group' | 'supergroup' | 'channel'; label: string }[] = [
     { value: 'all', label: 'All chats' },
@@ -75,9 +99,9 @@ const TYPE_FILTERS: { value: 'all' | 'private' | 'group' | 'supergroup' | 'chann
 
 const PAGE_SIZE = 50;
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Top-level page
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 export default function Page() {
     const { activeProjectId, activeProjectName } = useProject();
@@ -151,7 +175,7 @@ export default function Page() {
     React.useEffect(() => {
         if (!activeChat) return;
         if (!chats.some((c) => c._id === activeChat._id)) {
-            // keep it — user may still want the open one — but refresh metadata
+            // keep it - user may still want the open one - but refresh metadata
         }
     }, [chats, activeChat]);
 
@@ -159,7 +183,7 @@ export default function Page() {
         return (
             <div className="flex h-[calc(100vh-8rem)] items-center justify-center p-8">
                 <EmptyState
-                    icon={<MessageCircle />}
+                    icon={MessageCircle}
                     title="Pick a project to start chatting"
                     description="Telegram chat threads are scoped to the active project."
                 />
@@ -200,7 +224,7 @@ export default function Page() {
                             toast({
                                 title: 'Telegram',
                                 description: msg,
-                                variant: 'destructive',
+                                tone: 'danger',
                             })
                         }
                     />
@@ -212,9 +236,9 @@ export default function Page() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Sidebar
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 interface ChatSidebarProps {
     bots: TelegramBotRow[];
@@ -298,11 +322,11 @@ function ChatSidebar({
                 </Select>
 
                 <Input
-                    leadingSlot={<Search />}
-                    placeholder="Search chats…"
+                    iconLeft={Search}
+                    placeholder="Search chats..."
                     value={searchTerm}
                     onChange={(e) => onSearch(e.target.value)}
-                    className="h-9"
+                    aria-label="Search chats"
                 />
             </div>
 
@@ -310,17 +334,17 @@ function ChatSidebar({
                 {chatsLoading && chats.length === 0 ? (
                     <div className="flex flex-col gap-2 p-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} height={56} className="w-full" />
                         ))}
                     </div>
                 ) : chatsError ? (
                     <div className="p-4 text-sm text-[var(--st-text)]">{chatsError}</div>
                 ) : chats.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-8 text-center">
-                        <MessageCircle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <MessageCircle className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden="true" />
                         <div className="text-sm text-[var(--st-text-secondary)]">No chats yet</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">
-                            Once users message your bot, they'll show up here.
+                            Once users message your bot, they&apos;ll show up here.
                         </div>
                     </div>
                 ) : (
@@ -384,11 +408,12 @@ function ChatListItem({
     const name = chatDisplayName(chat);
     return (
         <li>
-            <button
-                type="button"
+            <Button
+                variant="ghost"
                 onClick={onClick}
+                aria-pressed={active}
                 className={cn(
-                    'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--st-bg-muted)]',
+                    'h-auto w-full justify-start rounded-none px-3 py-2.5 text-left text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] [&>.u-btn__label]:flex [&>.u-btn__label]:w-full [&>.u-btn__label]:min-w-0 [&>.u-btn__label]:items-center [&>.u-btn__label]:gap-3 [&>.u-btn__label]:overflow-visible',
                     active && 'bg-[var(--st-bg-muted)]',
                 )}
             >
@@ -397,17 +422,17 @@ function ChatListItem({
                         {chatInitial(chat)}
                     </AvatarFallback>
                 </Avatar>
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
+                <span className="block min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
                         <span className="truncate text-sm font-medium text-[var(--st-text)]">
                             {name}
                         </span>
-                        <span className="shrink-0 text-[10px] text-[var(--st-text-secondary)]">
+                        <span className="shrink-0 text-[10px] font-normal text-[var(--st-text-secondary)]">
                             {formatChatTimestamp(chat.lastMessageAt)}
                         </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-xs text-[var(--st-text-secondary)]">
+                    </span>
+                    <span className="mt-0.5 flex items-center justify-between gap-2">
+                        <span className="truncate text-xs font-normal text-[var(--st-text-secondary)]">
                             {chat.lastMessagePreview || (
                                 <span className="italic">No messages yet</span>
                             )}
@@ -417,22 +442,22 @@ function ChatListItem({
                                 {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
                             </Badge>
                         )}
-                    </div>
-                </div>
-            </button>
+                    </span>
+                </span>
+            </Button>
         </li>
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Empty pane
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 function EmptyPane() {
     return (
         <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
-                <MessageCircle className="h-9 w-9 text-[var(--st-text-secondary)]" />
+                <MessageCircle className="h-9 w-9 text-[var(--st-text-secondary)]" aria-hidden="true" />
             </div>
             <div className="text-base font-medium text-[var(--st-text)]">
                 Select a chat to start messaging
@@ -445,9 +470,9 @@ function EmptyPane() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
-//  Chat window — header + messages + composer
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
+//  Chat window - header + messages + composer
+// ----------------------------------------------------------------------
 
 interface ChatWindowProps {
     chat: ChatRow;
@@ -486,7 +511,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
     const scrollRef = React.useRef<HTMLDivElement | null>(null);
     const topSentinelRef = React.useRef<HTMLDivElement | null>(null);
 
-    // ── load initial history ────────────────────────────────────────
+    // -- load initial history --------------------------------------
     const loadHistory = React.useCallback(
         async (cursor?: string) => {
             const isInitial = !cursor;
@@ -563,7 +588,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         wasAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     };
 
-    // ── SSE live stream ─────────────────────────────────────────────
+    // -- SSE live stream -------------------------------------------
     React.useEffect(() => {
         if (!chat._id || !chat.botId) return;
         const url = `/api/telegram/chats/${encodeURIComponent(chat._id)}/stream?projectId=${encodeURIComponent(projectId)}&botId=${encodeURIComponent(chat.botId)}`;
@@ -586,7 +611,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         };
         es.addEventListener('message', onMessage as EventListener);
         es.onerror = () => {
-            // Browser will reconnect automatically — on visibility, we
+            // Browser will reconnect automatically. On visibility, we
             // also refetch to catch any rows the stream missed.
         };
 
@@ -603,7 +628,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         };
     }, [chat._id, chat.botId, projectId, loadHistory]);
 
-    // ── refresh metadata ─────────────────────────────────────────────
+    // -- refresh metadata ------------------------------------------
     const doRefresh = React.useCallback(async () => {
         const res = await refreshChat(chat._id, projectId, chat.botId);
         if (res.error || !res.chat) {
@@ -613,7 +638,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         onChatUpdated(res.chat);
     }, [chat._id, chat.botId, projectId, onChatUpdated, onError]);
 
-    // ── send a typing indicator (debounced) ──────────────────────────
+    // -- send a typing indicator (debounced) -----------------------
     const typingStopRef = React.useRef<number | null>(null);
     React.useEffect(() => {
         if (!draft.trim()) return;
@@ -632,7 +657,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [draft]);
 
-    // ── send text ───────────────────────────────────────────────────
+    // -- send text -------------------------------------------------
     const doSendText = async () => {
         const text = draft.trim();
         if (!text || sending) return;
@@ -650,7 +675,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                 toast({
                     title: 'Send failed',
                     description: res.error || 'Telegram refused the message.',
-                    variant: 'destructive',
+                    tone: 'danger',
                 });
                 return;
             }
@@ -668,7 +693,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         }
     };
 
-    // ── send a SabFile media ─────────────────────────────────────────
+    // -- send a SabFile media --------------------------------------
     const doSendMedia = async (
         pick: SabFilePick,
         kind: 'photo' | 'video' | 'document' | 'audio' | 'voice',
@@ -705,7 +730,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                 toast({
                     title: 'Send failed',
                     description: res.error || 'Telegram refused the file.',
-                    variant: 'destructive',
+                    tone: 'danger',
                 });
                 return;
             }
@@ -722,7 +747,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         }
     };
 
-    // Drag and drop file upload — opens the picker pre-loaded to Upload.
+    // Drag and drop file upload - opens the picker pre-loaded to Upload.
     const [dragOver, setDragOver] = React.useState(false);
     const dropHandlers = {
         onDragOver: (e: React.DragEvent) => {
@@ -737,7 +762,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
             setDragOver(false);
             const f = e.dataTransfer.files?.[0];
             if (!f) return;
-            // Open the picker so the user can confirm — and let SabFiles
+            // Open the picker so the user can confirm, and let SabFiles
             // own the upload pipeline. This guarantees the file ends up
             // in the user's SabFiles library before being sent.
             const mime = f.type || '';
@@ -749,7 +774,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         },
     };
 
-    // ── header actions ──────────────────────────────────────────────
+    // -- header actions --------------------------------------------
     const onForward = async (m: MessageRow) => {
         const toChatId = window.prompt('Forward to chat ID (e.g. @username or numeric):');
         if (!toChatId) return;
@@ -758,11 +783,11 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
             botId: chat.botId,
             toChatId,
         });
-        toast({
-            title: res.success ? 'Forwarded' : 'Forward failed',
-            description: res.error,
-            variant: res.success ? 'default' : 'destructive',
-        });
+        if (res.success) {
+            toast.success({ title: 'Forwarded' });
+        } else {
+            toast.error({ title: 'Forward failed', description: res.error });
+        }
     };
 
     const onPin = async (m: MessageRow) => {
@@ -823,7 +848,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
         <div
             className={cn(
                 'flex h-full flex-col bg-[var(--st-bg)]',
-                dragOver && 'ring-2 ring-inset ring-[var(--st-text)]',
+                dragOver && 'ring-2 ring-inset ring-[var(--st-accent)]',
             )}
             {...dropHandlers}
         >
@@ -832,7 +857,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
             {/* Pinned banner */}
             {chat.pinnedMessageId ? (
                 <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 text-xs text-[var(--st-text-secondary)]">
-                    <Pin className="h-3.5 w-3.5" />
+                    <Pin className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Pinned message #{chat.pinnedMessageId}</span>
                 </div>
             ) : null}
@@ -846,7 +871,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                 <div ref={topSentinelRef} />
                 {loadingMore ? (
                     <div className="flex items-center justify-center py-2 text-xs text-[var(--st-text-secondary)]">
-                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Loading older…
+                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" aria-hidden="true" /> Loading older...
                     </div>
                 ) : null}
 
@@ -855,10 +880,8 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                         {Array.from({ length: 5 }).map((_, i) => (
                             <Skeleton
                                 key={i}
-                                className={cn(
-                                    'h-12',
-                                    i % 2 === 0 ? 'w-2/3' : 'ml-auto w-1/2',
-                                )}
+                                height={48}
+                                className={cn(i % 2 === 0 ? 'w-2/3' : 'ml-auto w-1/2')}
                             />
                         ))}
                     </div>
@@ -868,7 +891,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
-                        Say hello — no messages yet.
+                        Say hello, no messages yet.
                     </div>
                 ) : (
                     <ul className="flex flex-col gap-1.5">
@@ -887,7 +910,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                             />
                         ))}
                         {typingPreview ? (
-                            <li className="text-xs text-[var(--st-text-secondary)]">Bot is sending…</li>
+                            <li className="text-xs text-[var(--st-text-secondary)]">Bot is sending...</li>
                         ) : null}
                     </ul>
                 )}
@@ -922,7 +945,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                 title="Attach a file"
                 onPick={(pick) => {
                     // Honor the user's explicit attach-kind choice first
-                    // (so "voice" → sendVoice). Fall back to mime sniff.
+                    // (so "voice" -> sendVoice). Fall back to mime sniff.
                     let kind: 'photo' | 'video' | 'document' | 'audio' | 'voice' =
                         pickerKindRef.current ?? 'document';
                     pickerKindRef.current = null;
@@ -938,9 +961,9 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Header
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 function ChatHeader({
     chat,
@@ -971,18 +994,14 @@ function ChatHeader({
                 </div>
             </div>
             <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon-sm" onClick={onRefresh}>
-                    <RefreshCw />
-                </Button>
+                <IconButton label="Refresh chat" icon={RefreshCw} variant="ghost" size="sm" onClick={onRefresh} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                            <MoreVertical />
-                        </Button>
+                        <IconButton label="More actions" icon={MoreVertical} variant="ghost" size="sm" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={onRefresh}>
-                            <RefreshCw /> Refresh metadata
+                        <DropdownMenuItem iconLeft={RefreshCw} onClick={onRefresh}>
+                            Refresh metadata
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -1001,9 +1020,9 @@ function ChatHeader({
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Message bubble
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 interface BubbleProps {
     msg: MessageRow;
@@ -1139,7 +1158,7 @@ function MessageBubble({
 }
 
 function BubbleAction({
-    icon: Icon,
+    icon,
     label,
     onClick,
 }: {
@@ -1148,15 +1167,13 @@ function BubbleAction({
     onClick: () => void;
 }) {
     return (
-        <button
-            type="button"
+        <IconButton
+            icon={icon}
+            label={label}
             onClick={onClick}
-            aria-label={label}
-            title={label}
-            className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-        >
-            <Icon className="h-3.5 w-3.5" />
-        </button>
+            variant="ghost"
+            size="sm"
+        />
     );
 }
 
@@ -1194,15 +1211,15 @@ function MediaPreview({ msg, outbound }: { msg: MessageRow; outbound: boolean })
                     : 'border-[var(--st-border)]',
             )}
         >
-            <Paperclip className="h-3.5 w-3.5" />
+            <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{kind} attachment</span>
         </div>
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 //  Composer
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 function Composer({
     draft,
@@ -1252,27 +1269,25 @@ function Composer({
                             {replyTo.text ?? replyTo.caption ?? `[${replyTo.type}]`}
                         </div>
                     </div>
-                    <button
-                        type="button"
+                    <IconButton
+                        label="Cancel reply"
+                        icon={X}
+                        variant="ghost"
+                        size="sm"
                         onClick={onClearReply}
-                        aria-label="Cancel reply"
-                        className="shrink-0 rounded-[var(--st-radius-sm)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
-                    >
-                        <X className="h-3.5 w-3.5" />
-                    </button>
+                    />
                 </div>
             )}
             <div className="flex items-end gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button
+                        <IconButton
+                            label="Attach file"
+                            icon={Paperclip}
                             variant="ghost"
-                            size="icon-sm"
-                            aria-label="Attach file"
+                            size="sm"
                             disabled={sending}
-                        >
-                            <Paperclip />
-                        </Button>
+                        />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => onAttach('photo')}>
@@ -1293,43 +1308,43 @@ function Composer({
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Button
+                <IconButton
+                    label="Insert emoji"
+                    icon={Smile}
                     variant="ghost"
-                    size="icon-sm"
-                    aria-label="Emoji"
+                    size="sm"
                     onClick={() => onDraftChange(`${draft}🙂`)}
                     disabled={sending}
-                >
-                    <Smile />
-                </Button>
+                />
 
-                <textarea
+                <Textarea
                     ref={textareaRef}
                     value={draft}
                     onChange={(e) => onDraftChange(e.target.value)}
                     onKeyDown={onKeyDown}
-                    placeholder="Type a message…"
+                    placeholder="Type a message..."
+                    aria-label="Message"
                     rows={1}
-                    className="flex-1 resize-none rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30"
+                    className="flex-1 resize-none"
                 />
                 <Button
                     type="button"
+                    variant="primary"
                     onClick={onSend}
                     disabled={disabled}
-                    aria-label="Send"
-                    size="icon"
-                >
-                    {sending ? <Loader2 className="animate-spin" /> : <Send />}
-                </Button>
+                    loading={sending}
+                    aria-label="Send message"
+                    iconLeft={Send}
+                />
             </div>
             <div className="mt-1 text-[10px] text-[var(--st-text-secondary)]">
-                Enter to send · Shift+Enter for new line · drag a file anywhere on this pane to attach
+                Enter to send, Shift+Enter for new line, drag a file anywhere on this pane to attach
             </div>
             <Separator className="mt-2 opacity-0" />
-            {/* Hidden tag — surface members icon on group chats but keep
+            {/* Hidden tag - surface members icon on group chats but keep
                 non-essential UI lightweight. */}
             <span className="sr-only">
-                <Users />
+                <Users aria-hidden="true" />
             </span>
         </div>
     );

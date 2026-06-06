@@ -1,6 +1,32 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, EmptyState, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, ScrollArea, StatCard, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Switch, Label } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  EmptyState,
+  PageHeader,
+  PageHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  ScrollArea,
+  StatCard,
+  useToast,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  SegmentedControl,
+  Switch,
+} from "@/components/sabcrm/20ui";
 import {
   AlertCircle,
   Inbox,
@@ -49,6 +75,11 @@ import { ACCENT, fmtDate, fmtNumber } from "./_components/utils";
 
 const SECTIONS = ["subscriptions", "deliveries", "dlq", "analytics"] as const;
 type Section = (typeof SECTIONS)[number];
+
+const SECTION_ITEMS = SECTIONS.map((s) => ({
+  value: s,
+  label: s.charAt(0).toUpperCase() + s.slice(1),
+}));
 
 export default function TelegramWebhooksPage() {
   const { activeProjectId } = useProject();
@@ -442,7 +473,7 @@ export default function TelegramWebhooksPage() {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<Webhook className="h-8 w-8" />}
+          icon={Webhook}
           title="Pick a project"
           description="Telegram webhooks are scoped to a project. Choose one to continue."
         />
@@ -454,9 +485,12 @@ export default function TelegramWebhooksPage() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <PageHeader>
         <PageHeading>
-          <PageEyebrow style={{ color: ACCENT }}>Telegram</PageEyebrow>
+          <PageEyebrow>Telegram</PageEyebrow>
           <PageTitle className="flex items-center gap-2">
-            <Webhook className="h-6 w-6" style={{ color: ACCENT }} />
+            <Webhook
+              className="h-6 w-6 text-[var(--st-accent)]"
+              aria-hidden="true"
+            />
             Telegram Webhooks
           </PageTitle>
           <PageDescription>
@@ -465,30 +499,30 @@ export default function TelegramWebhooksPage() {
           </PageDescription>
         </PageHeading>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={autoRefresh}
-              onCheckedChange={setAutoRefresh}
-              id="auto-refresh"
-            />
-            <Label htmlFor="auto-refresh">Auto-refresh (5s)</Label>
-          </div>
+          <Switch
+            checked={autoRefresh}
+            onCheckedChange={setAutoRefresh}
+            id="auto-refresh"
+            label="Auto-refresh (5s)"
+          />
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
+              iconLeft={RefreshCw}
               onClick={() => {
                 loadSubs();
                 loadAnalytics();
               }}
             >
-              <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+              Refresh
             </Button>
             <Button
               variant="outline"
+              iconLeft={ShieldCheck}
               onClick={() => setConfirmRotateAll(true)}
               disabled={subs.length === 0}
             >
-              <ShieldCheck className="mr-2 h-4 w-4" /> Rotate all secrets
+              Rotate all secrets
             </Button>
           </div>
         </div>
@@ -499,50 +533,42 @@ export default function TelegramWebhooksPage() {
         <StatCard
           label="Deliveries (7 d)"
           value={
-            analyticsLoading ? "…" : fmtNumber(analytics?.totalReceived ?? 0)
+            analyticsLoading ? "..." : fmtNumber(analytics?.totalReceived ?? 0)
           }
-          icon={<Inbox className="h-4 w-4" />}
+          icon={Inbox}
+          accent={ACCENT}
         />
         <StatCard
           label="Failed (7 d)"
           value={
-            analyticsLoading ? "…" : fmtNumber(analytics?.totalFailed ?? 0)
+            analyticsLoading ? "..." : fmtNumber(analytics?.totalFailed ?? 0)
           }
-          icon={<XCircle className="h-4 w-4" />}
+          icon={XCircle}
         />
         <StatCard
           label="DLQ size"
-          value={analyticsLoading ? "…" : fmtNumber(analytics?.dlqCount ?? 0)}
-          icon={<AlertCircle className="h-4 w-4" />}
+          value={analyticsLoading ? "..." : fmtNumber(analytics?.dlqCount ?? 0)}
+          icon={AlertCircle}
         />
         <StatCard
           label="Avg processing ms"
           value={
             analyticsLoading
-              ? "…"
+              ? "..."
               : Math.round(analytics?.avgProcessingMs ?? 0).toString()
           }
-          icon={<Settings2 className="h-4 w-4" />}
+          icon={Settings2}
         />
       </div>
 
       {/* Segmented control */}
-      <div className="flex w-full flex-wrap gap-1 rounded-md border bg-[var(--st-bg-muted)]/30 p-1">
-        {SECTIONS.map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setSection(s)}
-            className={`flex-1 rounded-sm px-3 py-1.5 text-sm font-medium capitalize transition ${
-              section === s
-                ? "bg-[var(--st-bg-secondary)] shadow-sm"
-                : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        items={SECTION_ITEMS}
+        value={section}
+        onChange={(v) => setSection(v as Section)}
+        fullWidth
+        aria-label="Webhook section"
+      />
 
       {section === "subscriptions" && (
         <SubscriptionsSection
@@ -640,14 +666,14 @@ export default function TelegramWebhooksPage() {
           <DrawerHeader>
             <DrawerTitle>Delivery payload</DrawerTitle>
             <DrawerDescription>
-              Update ID {drawerDelivery?.updateId ?? "—"} •{" "}
-              {drawerDelivery?.eventType ?? "—"} •{" "}
+              Update ID {drawerDelivery?.updateId ?? "n/a"} ·{" "}
+              {drawerDelivery?.eventType ?? "n/a"} ·{" "}
               {fmtDate(drawerDelivery?.receivedAt)}
             </DrawerDescription>
           </DrawerHeader>
           <div className="p-4">
-            <ScrollArea className="max-h-[60vh] rounded-md border bg-[var(--st-bg-muted)]/20 p-3">
-              <pre className="text-xs leading-relaxed">
+            <ScrollArea className="max-h-[60vh] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+              <pre className="text-xs leading-relaxed text-[var(--st-text)]">
                 {drawerDelivery
                   ? JSON.stringify(drawerDelivery.payload ?? {}, null, 2)
                   : ""}
@@ -663,9 +689,7 @@ export default function TelegramWebhooksPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Remove Telegram webhook?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Remove Telegram webhook?</AlertDialogTitle>
             <AlertDialogDescription>
               The webhook will be deleted on Telegram and the local subscription
               row removed. Delivery log entries are kept.
@@ -680,15 +704,10 @@ export default function TelegramWebhooksPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={confirmRotateAll}
-        onOpenChange={setConfirmRotateAll}
-      >
+      <AlertDialog open={confirmRotateAll} onOpenChange={setConfirmRotateAll}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Rotate every webhook secret?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Rotate every webhook secret?</AlertDialogTitle>
             <AlertDialogDescription>
               This calls Telegram setWebhook with a fresh secret for every bot
               in this project. Deliveries-in-flight may briefly 401.
@@ -711,7 +730,7 @@ export default function TelegramWebhooksPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete DLQ item?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes the queued payload. Retry won't be
+              This permanently removes the queued payload. Retry won&apos;t be
               possible afterward.
             </AlertDialogDescription>
           </AlertDialogHeader>

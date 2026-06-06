@@ -1,33 +1,25 @@
+'use client';
+
 import * as React from 'react';
-import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui';
 import {
-  Sticker as StickerIcon,
-  Search,
-  SlidersHorizontal,
-  Plus,
-  Image as ImageIcon,
-  Layers,
-  Smile,
-  Trash2,
-  Pencil,
-  ArrowUp,
-  ArrowDown,
-  Replace,
-  X,
-  Loader2,
-  RefreshCw,
-  Archive,
+    Badge,
+    Card,
+    Input,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    EmptyState,
+    Skeleton,
+    cn,
+} from '@/components/sabcrm/20ui';
+import {
+    Sticker as StickerIcon,
+    Search,
 } from 'lucide-react';
-import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { useProject } from '@/context/project-context';
-import { TelegramProjectGate } from '../../_components/telegram-project-gate';
-import type {
-    SetRow,
-    StickerRow,
-    StickerType,
-    StickerInputBody,
-    MaskPositionDto,
-} from '@/lib/rust-client/telegram-stickers';
+import type { SetRow } from '@/lib/rust-client/telegram-stickers';
+
 //  Sets grid
 // ---------------------------------------------------------------------------
 
@@ -82,8 +74,12 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <Search
+                        className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                    />
                     <Input
+                        aria-label="Search sticker packs"
                         placeholder="Search packs..."
                         className="pl-9"
                         value={search}
@@ -92,7 +88,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                 </div>
                 <div className="flex items-center gap-2">
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-[140px]" aria-label="Filter by type">
                             <SelectValue placeholder="Type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -103,7 +99,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                         </SelectContent>
                     </Select>
                     <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger className="w-[160px]">
+                        <SelectTrigger className="w-[160px]" aria-label="Sort packs">
                             <SelectValue placeholder="Sort" />
                         </SelectTrigger>
                         <SelectContent>
@@ -120,19 +116,29 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
 
             {filteredAndSorted.length === 0 ? (
                 <EmptyState
-                    icon={<Search className="h-6 w-6 text-[var(--st-text-secondary)]" />}
+                    icon={Search}
                     title="No matches found"
                     description="Try adjusting your filters or search term."
                 />
             ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredAndSorted.map((s) => (
-                        <button
+                        <Card
                             key={s._id}
-                            type="button"
+                            variant="interactive"
+                            padding="sm"
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Open ${s.title || s.name}`}
                             onClick={() => onOpen(s)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    onOpen(s);
+                                }
+                            }}
                             className={cn(
-                                'group flex flex-col items-stretch gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-left transition-colors hover:border-[var(--st-text)]/40',
+                                'flex cursor-pointer flex-col items-stretch gap-2 text-left',
                                 s.archived && 'opacity-60',
                             )}
                         >
@@ -146,7 +152,10 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                         loading="lazy"
                                     />
                                 ) : (
-                                    <StickerIcon className="h-10 w-10 text-[var(--st-text-secondary)]" />
+                                    <StickerIcon
+                                        className="h-10 w-10 text-[var(--st-text-secondary)]"
+                                        aria-hidden="true"
+                                    />
                                 )}
                             </div>
                             <div className="flex items-center justify-between gap-2">
@@ -158,7 +167,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                         {s.name}
                                     </div>
                                 </div>
-                                <Badge variant="ghost" className="shrink-0 capitalize">
+                                <Badge tone="neutral" className="shrink-0 capitalize">
                                     {s.stickerType.replace('_', ' ')}
                                 </Badge>
                             </div>
@@ -168,11 +177,10 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                 </span>
                                 {s.archived && <span className="text-[var(--st-text)]">Archived</span>}
                             </div>
-                        </button>
+                        </Card>
                     ))}
                 </div>
             )}
         </div>
     );
 }
-

@@ -5,13 +5,14 @@
  *
  * - Full-screen 16:9 canvas reusing the same absolute-positioning
  *   element renderer the editor uses.
- * - Arrow keys (←/→/Space/Esc) advance / exit.
+ * - Arrow keys (left/right/Space/Esc) advance / exit.
  * - "n" toggles speaker / presenter view (current + next + notes).
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MonitorOff, X } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import type { SabshowSlideDoc } from '@/lib/rust-client/sabshow-slides';
 import type { SabshowElementDoc } from '@/lib/rust-client/sabshow-elements';
 
@@ -62,21 +63,37 @@ export function PresentView({
 
     if (!current) {
         return (
-            <div className="zoruui flex h-screen items-center justify-center bg-black text-white">
-                No slides
+            <div className="ui20 flex h-screen items-center justify-center bg-black">
+                <EmptyState
+                    icon={MonitorOff}
+                    title="No slides to present"
+                    description="This deck has no slides yet. Add a slide in the editor, then start present mode again."
+                    action={
+                        <Button variant="primary" onClick={() => router.back()}>
+                            Back to editor
+                        </Button>
+                    }
+                />
             </div>
         );
     }
 
     return (
-        <div className="zoruui flex h-screen w-screen flex-col bg-black text-white">
+        <div className="ui20 flex h-screen w-screen flex-col bg-black text-white">
             <div className="flex items-center justify-between px-4 py-2 text-xs">
                 <span className="font-medium">{deckTitle}</span>
-                <span>
-                    {idx + 1} / {total} · press <kbd>n</kbd> for presenter view ·
-                    <kbd className="ml-1">esc</kbd> to exit
+                <span className="text-white/70">
+                    {idx + 1} / {total}. Press{' '}
+                    <kbd className="rounded-[var(--st-radius)] border border-white/30 px-1.5 py-0.5 font-mono text-[10px]">
+                        n
+                    </kbd>{' '}
+                    for presenter view, or{' '}
+                    <kbd className="rounded-[var(--st-radius)] border border-white/30 px-1.5 py-0.5 font-mono text-[10px]">
+                        esc
+                    </kbd>{' '}
+                    to exit.
                 </span>
-                <Button size="sm" variant="ghost" onClick={() => router.back()}>
+                <Button size="sm" variant="ghost" iconLeft={X} onClick={() => router.back()}>
                     Exit
                 </Button>
             </div>
@@ -124,11 +141,11 @@ function PresenterLayout({
                         scale={0.5}
                     />
                 ) : (
-                    <div className="flex h-1/3 items-center justify-center rounded border border-white/20 text-sm text-white/60">
+                    <div className="flex h-1/3 items-center justify-center rounded-[var(--st-radius)] border border-white/20 text-sm text-white/60">
                         (last slide)
                     </div>
                 )}
-                <div className="flex-1 overflow-auto rounded border border-white/20 p-3 text-sm">
+                <div className="flex-1 overflow-auto rounded-[var(--st-radius)] border border-white/20 p-3 text-sm">
                     <div className="mb-2 text-xs uppercase text-white/60">
                         Speaker notes
                     </div>
@@ -156,12 +173,10 @@ export function SlideCanvas({
     );
     return (
         <div
-            className="relative aspect-video w-full max-w-full overflow-hidden rounded bg-white shadow-2xl"
+            className="relative aspect-video max-h-full w-full max-w-full origin-top-left overflow-hidden rounded-[var(--st-radius)] bg-white shadow-2xl"
             style={{
-                maxHeight: '100%',
                 aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
                 transform: scale !== 1 ? `scale(${scale})` : undefined,
-                transformOrigin: 'top left',
             }}
         >
             {sorted.map((el) => {

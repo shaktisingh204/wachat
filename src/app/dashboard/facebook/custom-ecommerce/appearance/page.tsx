@@ -1,12 +1,34 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState } from "react";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  ColorPicker,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Brush,
-  Save } from "lucide-react";
+import { Brush, Save } from "lucide-react";
 
 /**
  * /dashboard/facebook/custom-ecommerce/appearance
@@ -18,10 +40,8 @@ import { Brush,
  *
  * NOTE: in the legacy app this route was a redirect because per-shop
  * appearance lives at /manage/[shopId]/appearance. We keep both: this
- * page surfaces the *account* default, the per-shop page overrides it.
+ * page surfaces the account default, the per-shop page overrides it.
  */
-
-import * as React from "react";
 
 const NEUTRAL_PRESETS = [
   "#0F0F10",
@@ -52,7 +72,7 @@ export default function CustomEcommerceAppearancePage() {
   const [saveOpen, setSaveOpen] = useState(false);
 
   useEffect(() => {
-    document.title = "Appearance · Custom Shops · SabNode";
+    document.title = "Appearance - Custom Shops - SabNode";
   }, []);
 
   const handlePickPreset = (id: string, color: string) => {
@@ -64,9 +84,9 @@ export default function CustomEcommerceAppearancePage() {
     // TODO: wire to a real "save default theme" server action when one
     // ships. For now we surface the change locally so operators can
     // preview the palette before applying it per-shop.
-    toast({
+    toast.success({
       title: "Default theme saved",
-      description: `New shops will start with the “${themeName}” palette.`,
+      description: `New shops will start with the "${themeName}" palette.`,
     });
     setSaveOpen(false);
   };
@@ -110,98 +130,90 @@ export default function CustomEcommerceAppearancePage() {
           <Button variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
-          <Button onClick={() => setSaveOpen(true)}>
-            <Save /> Save theme
+          <Button variant="primary" iconLeft={Save} onClick={() => setSaveOpen(true)}>
+            Save theme
           </Button>
         </PageActions>
       </PageHeader>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        {/* ── Editor ── */}
-        <Card className="p-5">
+        {/* Editor */}
+        <Card padding="lg">
           <h2 className="text-[15px] tracking-tight text-[var(--st-text)]">
             Palette presets
           </h2>
           <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
-            Neutral-only — choose how dark the primary surface should be.
+            Neutral-only, choose how dark the primary surface should be.
           </p>
 
           <div className="mt-4 grid grid-cols-2 gap-2">
             {PRESET_PALETTES.map((p) => (
-              <button
+              <Button
                 key={p.id}
-                type="button"
+                variant={presetId === p.id ? "secondary" : "ghost"}
                 onClick={() => handlePickPreset(p.id, p.primary)}
-                className={
-                  "flex items-center gap-2 rounded-[var(--st-radius)] border px-3 py-2 text-left text-[13px] transition-colors " +
-                  (presetId === p.id
-                    ? "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                    : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]")
-                }
+                className="justify-start"
+                aria-pressed={presetId === p.id}
               >
                 <span
                   className="h-5 w-5 rounded-full border border-[var(--st-border)]"
                   style={{ backgroundColor: p.primary }}
+                  aria-hidden="true"
                 />
                 {p.label}
-              </button>
+              </Button>
             ))}
           </div>
 
-          <div className="mt-6 flex flex-col gap-1.5">
-            <Label htmlFor="primary-color">Primary color</Label>
-            <ColorPicker
-              value={primary}
-              onChange={(c) => {
-                setPrimary(c);
-                setPresetId("custom");
-              }}
-              presets={NEUTRAL_PRESETS}
-            />
-            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-              Used for primary buttons, links, and selection states inside
-              shop storefronts.
-            </p>
+          <div className="mt-6">
+            <Field
+              label="Primary color"
+              help="Used for primary buttons, links, and selection states inside shop storefronts."
+            >
+              <ColorPicker
+                value={primary}
+                onChange={(c) => {
+                  setPrimary(c);
+                  setPresetId("custom");
+                }}
+                swatches={NEUTRAL_PRESETS}
+              />
+            </Field>
           </div>
 
-          <div className="mt-4 flex flex-col gap-1.5">
-            <Label htmlFor="theme-name">Theme name</Label>
-            <Input
-              id="theme-name"
-              value={themeName}
-              onChange={(e) => setThemeName(e.target.value)}
-              placeholder="e.g. Default"
-            />
+          <div className="mt-4">
+            <Field label="Theme name">
+              <Input
+                value={themeName}
+                onChange={(e) => setThemeName(e.target.value)}
+                placeholder="e.g. Default"
+              />
+            </Field>
           </div>
         </Card>
 
-        {/* ── Preview ── */}
-        <Card className="p-5">
+        {/* Preview */}
+        <Card padding="lg">
           <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
-            <Brush className="h-3.5 w-3.5" />
+            <Brush className="h-3.5 w-3.5" aria-hidden="true" />
             Live preview
           </div>
           <h3 className="mt-2 text-[18px] tracking-tight text-[var(--st-text)]">
             Storefront preview
           </h3>
-          <div
-            className="mt-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-6"
-            style={{
-              backgroundColor: "var(--st-bg)",
-              color: "var(--st-text)",
-            }}
-          >
+          <div className="mt-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
             <div className="flex items-center justify-between">
               <span className="text-[14px] tracking-tight">
                 Acme Storefront
               </span>
-              <button
-                type="button"
-                className="rounded-full px-3 py-1.5 text-[12px] text-white"
+              <Button
+                variant="primary"
+                size="sm"
+                className="rounded-full text-white"
                 style={{ backgroundColor: primary }}
               >
                 Shop now
-              </button>
+              </Button>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
@@ -213,10 +225,7 @@ export default function CustomEcommerceAppearancePage() {
                   <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
                     Sample product {i}
                   </p>
-                  <p
-                    className="mt-1 text-[11px]"
-                    style={{ color: primary }}
-                  >
+                  <p className="mt-1 text-[11px]" style={{ color: primary }}>
                     $24.00
                   </p>
                 </div>
@@ -246,7 +255,9 @@ export default function CustomEcommerceAppearancePage() {
             <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save theme</Button>
+            <Button variant="primary" onClick={handleSave}>
+              Save theme
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

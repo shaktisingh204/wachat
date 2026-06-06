@@ -1,7 +1,18 @@
 'use client';
 
-import { Textarea, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Card } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
+import {
+  Field,
+  Textarea,
+  Button,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Card,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useMemo, useState, useEffect } from 'react';
 import { Copy, Check, Settings2 } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -55,15 +66,15 @@ export default function HtmlToMarkdownPage() {
     try {
       await navigator.clipboard.writeText(md);
       setIsCopied(true);
-      toast({
-        title: "Copied!",
-        description: "Markdown copied to clipboard.",
+      toast.success({
+        title: 'Copied',
+        description: 'Markdown copied to clipboard.',
       });
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      toast({
-        title: "Failed to copy",
-        description: "Please try selecting the text and copying manually.",
+      toast.error({
+        title: 'Failed to copy',
+        description: 'Please try selecting the text and copying manually.',
       });
     }
   };
@@ -73,60 +84,65 @@ export default function HtmlToMarkdownPage() {
   }
 
   return (
-    <ToolShell 
-      title="HTML to Markdown" 
+    <ToolShell
+      title="HTML to Markdown"
       description="Convert HTML to Markdown with GFM support (tables, blockquotes, images)."
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="flex flex-col gap-3">
-          <Label className="text-sm font-medium">HTML Input</Label>
-          <Textarea 
-            value={html} 
-            onChange={(e) => setHtml(e.target.value)} 
-            className="min-h-[400px] font-mono text-sm p-4 resize-y shadow-sm" 
-            placeholder="<h1>Hello World</h1>..." 
+        <Field label="HTML Input">
+          <Textarea
+            value={html}
+            onChange={(e) => setHtml(e.target.value)}
+            className="min-h-[400px] font-mono text-sm p-4 resize-y"
+            placeholder="<h1>Hello World</h1>..."
           />
-        </div>
-        
+        </Field>
+
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">Markdown Output</Label>
-            <Button variant="outline" size="sm" onClick={copyToClipboard} disabled={!md}>
-              {isCopied ? <Check className="w-4 h-4 mr-2 text-[var(--st-text)]" /> : <Copy className="w-4 h-4 mr-2" />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyToClipboard}
+              disabled={!md}
+              iconLeft={isCopied ? Check : Copy}
+              className={isCopied ? 'text-[var(--st-status-ok)]' : undefined}
+            >
               {isCopied ? 'Copied' : 'Copy'}
             </Button>
           </div>
-          <Textarea 
-            readOnly 
-            value={md} 
-            className="min-h-[400px] font-mono text-sm bg-[var(--st-bg-muted)]/30 p-4 resize-y shadow-sm" 
-            placeholder="# Hello World..." 
+          <Textarea
+            readOnly
+            value={md}
+            className="min-h-[400px] font-mono text-sm bg-[var(--st-bg-muted)]/30 p-4 resize-y"
+            placeholder="# Hello World..."
           />
         </div>
       </div>
 
-      <Card className="mt-8 p-6 shadow-sm border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
+      <Card padding="lg" className="mt-8">
         <div className="flex items-center gap-2 mb-6">
-          <Settings2 className="w-5 h-5 text-[var(--st-text)]" />
-          <h3 className="text-lg font-semibold m-0">Conversion Settings</h3>
+          <Settings2 className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+          <h3 className="text-lg font-semibold m-0 text-[var(--st-text)]">Conversion Settings</h3>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Heading Style</Label>
             <Select value={headingStyle} onValueChange={(v: any) => setHeadingStyle(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Heading style"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="atx">ATX (# Heading)</SelectItem>
                 <SelectItem value="setext">Setext (Heading =)</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Code Block Style</Label>
             <Select value={codeBlockStyle} onValueChange={(v: any) => setCodeBlockStyle(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Code block style"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="fenced">Fenced (```)</SelectItem>
                 <SelectItem value="indented">Indented (4 spaces)</SelectItem>
@@ -137,7 +153,7 @@ export default function HtmlToMarkdownPage() {
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Bullet List Marker</Label>
             <Select value={bulletListMarker} onValueChange={(v: any) => setBulletListMarker(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Bullet list marker"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="-">Dash (-)</SelectItem>
                 <SelectItem value="*">Asterisk (*)</SelectItem>
@@ -149,7 +165,7 @@ export default function HtmlToMarkdownPage() {
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Horizontal Rule</Label>
             <Select value={hr} onValueChange={(v: any) => setHr(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Horizontal rule"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="* * *">Asterisks (* * *)</SelectItem>
                 <SelectItem value="- - -">Dashes (- - -)</SelectItem>
@@ -161,7 +177,7 @@ export default function HtmlToMarkdownPage() {
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Strong Delimiter</Label>
             <Select value={strongDelimiter} onValueChange={(v: any) => setStrongDelimiter(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Strong delimiter"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="**">Asterisks (**)</SelectItem>
                 <SelectItem value="__">Underscores (__)</SelectItem>
@@ -172,7 +188,7 @@ export default function HtmlToMarkdownPage() {
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Em Delimiter</Label>
             <Select value={emDelimiter} onValueChange={(v: any) => setEmDelimiter(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Em delimiter"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="_">Underscores (_)</SelectItem>
                 <SelectItem value="*">Asterisks (*)</SelectItem>
@@ -183,7 +199,7 @@ export default function HtmlToMarkdownPage() {
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Link Style</Label>
             <Select value={linkStyle} onValueChange={(v: any) => setLinkStyle(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Link style"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="inlined">Inlined</SelectItem>
                 <SelectItem value="referenced">Referenced</SelectItem>

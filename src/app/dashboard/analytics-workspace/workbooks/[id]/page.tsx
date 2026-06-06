@@ -1,5 +1,5 @@
 /**
- * Workbook editor — chart builder + live preview.
+ * Workbook editor - chart builder + live preview.
  *
  * Server fetches the workbook, its datasets, and the chart list. The
  * client component (`WorkbookEditor`) wires the chart-builder pane.
@@ -7,7 +7,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import {
   getWorkbookAction,
   listChartsAction,
@@ -40,23 +48,25 @@ export default async function WorkbookPage({
   const datasets = 'items' in datasetsRes ? datasetsRes.items : [];
 
   return (
-    <div className="zoruui flex flex-col gap-4 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+    <div className="flex flex-col gap-4 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
             <Link href="/dashboard/analytics-workspace" className="hover:underline">
               Workbooks
             </Link>
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{workbook.name}</h1>
+          </PageEyebrow>
+          <PageTitle>{workbook.name}</PageTitle>
           {workbook.description && (
-            <p className="text-sm text-[var(--st-text-secondary)]">{workbook.description}</p>
+            <PageDescription>{workbook.description}</PageDescription>
           )}
-        </div>
-        <Button asChild variant="ghost">
-          <Link href="/dashboard/analytics-workspace/datasets">Manage datasets</Link>
-        </Button>
-      </header>
+        </PageHeaderHeading>
+        <PageActions>
+          <Link href="/dashboard/analytics-workspace/datasets">
+            <Button variant="ghost">Manage datasets</Button>
+          </Link>
+        </PageActions>
+      </PageHeader>
 
       <WorkbookEditor
         workbookId={id}

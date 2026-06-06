@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Mailbox accounts — client layer.
+ * Mailbox accounts - client layer.
  *
  * - Domain filter selector
  * - "New mailbox" form (localPart, displayName, quota slider, password)
@@ -9,7 +9,6 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Plus, Trash2 } from 'lucide-react';
 
@@ -20,7 +19,29 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
 import type { MailAccountDoc } from '@/lib/rust-client/mail-accounts';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Slider,
+    Switch,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 export interface AccountsClientProps {
     domains: MailDomainDoc[];
@@ -49,6 +70,8 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
 
     const domainOf = (id: string) => domains.find((d) => d._id === id)?.domain ?? '?';
 
+    const quotaLabel = quotaMb >= 1024 ? `${(quotaMb / 1024).toFixed(1)} GB` : `${quotaMb} MB`;
+
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!domainId || !localPart.trim()) return;
@@ -65,13 +88,14 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
             toast({
                 title: 'Could not create mailbox',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
         toast({
             title: 'Mailbox created',
             description: `${localPart}@${domainOf(domainId)} is ready.`,
+            tone: 'success',
         });
         setLocalPart('');
         setDisplayName('');
@@ -87,10 +111,10 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
         });
         setBusyId(null);
         if (!res.ok) {
-            toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Update failed', description: res.error, tone: 'danger' });
             return;
         }
-        toast({ title: suspend ? 'Suspended' : 'Activated' });
+        toast({ title: suspend ? 'Suspended' : 'Activated', tone: 'success' });
         router.refresh();
     };
 
@@ -101,10 +125,10 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
         const res = await deleteMailAccount(acc._id!);
         setBusyId(null);
         if (!res.ok) {
-            toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Delete failed', description: res.error, tone: 'danger' });
             return;
         }
-        toast({ title: 'Mailbox deleted' });
+        toast({ title: 'Mailbox deleted', tone: 'success' });
         router.refresh();
     };
 
@@ -119,10 +143,9 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                 </CardHeader>
                 <CardBody>
                     <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-2">
-                        <div className="flex flex-col gap-1.5">
-                            <Label>Domain</Label>
+                        <Field label="Domain">
                             <Select value={domainId} onValueChange={setDomainId}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Domain">
                                     <SelectValue placeholder="Select domain" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -133,63 +156,55 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="mail-acct-local">Local part</Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    id="mail-acct-local"
-                                    value={localPart}
-                                    onChange={(e) => setLocalPart(e.target.value)}
-                                    placeholder="hello"
-                                    autoComplete="off"
-                                    required
-                                />
-                                <span className="text-sm text-[var(--st-text-secondary)]">
-                                    @{domainOf(domainId)}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="mail-acct-display">Display name</Label>
+                        </Field>
+                        <Field label="Local part">
                             <Input
-                                id="mail-acct-display"
+                                value={localPart}
+                                onChange={(e) => setLocalPart(e.target.value)}
+                                placeholder="hello"
+                                autoComplete="off"
+                                suffix={`@${domainOf(domainId)}`}
+                                required
+                            />
+                        </Field>
+                        <Field label="Display name">
+                            <Input
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Hello Team"
                                 autoComplete="off"
                             />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="mail-acct-password">Password (optional)</Label>
+                        </Field>
+                        <Field label="Password (optional)" help="Auto-generated if left blank.">
                             <Input
-                                id="mail-acct-password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Auto-generated if blank"
                                 autoComplete="new-password"
                             />
-                        </div>
+                        </Field>
                         <div className="flex flex-col gap-1.5 sm:col-span-2">
-                            <Label htmlFor="mail-acct-quota">
-                                Quota: {quotaMb >= 1024 ? `${(quotaMb / 1024).toFixed(1)} GB` : `${quotaMb} MB`}
-                            </Label>
-                            <input
+                            <Label htmlFor="mail-acct-quota">Quota: {quotaLabel}</Label>
+                            <Slider
                                 id="mail-acct-quota"
-                                type="range"
                                 min={256}
                                 max={50 * 1024}
                                 step={256}
                                 value={quotaMb}
-                                onChange={(e) => setQuotaMb(Number(e.target.value))}
-                                className="w-full accent-[var(--st-accent)]"
+                                onValueChange={(v) => setQuotaMb(Number(v))}
+                                ariaLabel={`Quota: ${quotaLabel}`}
                             />
                         </div>
                         <div className="sm:col-span-2">
-                            <Button type="submit" disabled={submitting || !domainId || !localPart.trim()}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                {submitting ? 'Creating…' : 'Create mailbox'}
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                iconLeft={Plus}
+                                loading={submitting}
+                                disabled={submitting || !domainId || !localPart.trim()}
+                            >
+                                {submitting ? 'Creating...' : 'Create mailbox'}
                             </Button>
                         </div>
                     </form>
@@ -197,9 +212,11 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
             </Card>
 
             <div className="flex items-center gap-3">
-                <Label className="text-sm">Filter by domain</Label>
+                <Label htmlFor="mail-filter-domain" className="text-sm">
+                    Filter by domain
+                </Label>
                 <Select value={filterDomain} onValueChange={setFilterDomain}>
-                    <SelectTrigger className="w-64">
+                    <SelectTrigger id="mail-filter-domain" aria-label="Filter by domain" className="w-64">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -215,7 +232,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
 
             {accounts.length === 0 ? (
                 <EmptyState
-                    icon={<Mail className="h-10 w-10" />}
+                    icon={Mail}
                     title="No mailboxes on this domain"
                     description="Create your first mailbox above."
                 />
@@ -231,9 +248,9 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                 <CardBody className="flex flex-wrap items-center justify-between gap-3 p-4">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                                            <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                             <span className="font-medium">{a.displayName ?? email}</span>
-                                            <Badge variant={active ? 'default' : 'secondary'}>
+                                            <Badge tone={active ? 'success' : 'neutral'}>
                                                 {a.status ?? 'active'}
                                             </Badge>
                                         </div>
@@ -245,32 +262,29 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                         ) : null}
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-2">
-                                            <Label htmlFor={`active-${id}`} className="text-xs">
-                                                Active
-                                            </Label>
-                                            <Switch
-                                                id={`active-${id}`}
-                                                checked={active}
-                                                disabled={busy}
-                                                onCheckedChange={(v) => handleToggleStatus(a, !v)}
-                                            />
-                                        </div>
+                                        <Switch
+                                            checked={active}
+                                            disabled={busy}
+                                            onCheckedChange={(v) => handleToggleStatus(a, !v)}
+                                            label="Active"
+                                            aria-label={`Active: ${email}`}
+                                        />
                                         <Separator orientation="vertical" className="h-6" />
-                                        <Button asChild size="sm" variant="outline">
-                                            <Link href={`/dashboard/mailbox/${id}/inbox`}>
-                                                Open inbox
-                                            </Link>
-                                        </Button>
                                         <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="icon"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => router.push(`/dashboard/mailbox/${id}/inbox`)}
+                                        >
+                                            Open inbox
+                                        </Button>
+                                        <IconButton
+                                            label={`Delete ${email}`}
+                                            icon={Trash2}
+                                            variant="danger"
+                                            size="sm"
                                             disabled={busy}
                                             onClick={() => handleDelete(a)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        />
                                     </div>
                                 </CardBody>
                             </Card>

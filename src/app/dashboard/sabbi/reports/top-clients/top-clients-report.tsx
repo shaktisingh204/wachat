@@ -11,7 +11,22 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { Card, Table, TBody, Td, Th, THead, Tr, Button } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Button,
+  Field,
+  Input,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';
@@ -52,6 +67,8 @@ export function TopClientsReport({
   const sp = useSearchParams();
 
   const [isPending, startTransition] = React.useTransition();
+  const [fromInput, setFromInput] = React.useState(from || '');
+  const [toInput, setToInput] = React.useState(to || '');
   const [minRevInput, setMinRevInput] = React.useState(String(minRevenue || ''));
   const [industryInput, setIndustryInput] = React.useState(industry || '');
 
@@ -63,7 +80,7 @@ export function TopClientsReport({
   const chartData = rows.slice(0, 10).map((r) => ({
     name:
       r.clientName.length > 18
-        ? `${r.clientName.slice(0, 16)}…`
+        ? `${r.clientName.slice(0, 16)}...`
         : r.clientName,
     revenue: Math.round(r.revenue),
   }));
@@ -101,8 +118,10 @@ export function TopClientsReport({
   const pushFilters = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams(sp?.toString() ?? '');
-    if (from) params.set('from', from);
-    if (to) params.set('to', to);
+    if (fromInput) params.set('from', fromInput);
+    else params.delete('from');
+    if (toInput) params.set('to', toInput);
+    else params.delete('to');
     if (minRevInput) params.set('minRevenue', minRevInput);
     else params.delete('minRevenue');
     if (industryInput) params.set('industry', industryInput);
@@ -120,73 +139,55 @@ export function TopClientsReport({
       {/* Date range + filters */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            From
-          </span>
-          <input
+        <Field label="From">
+          <Input
             type="date"
             name="from"
-            defaultValue={from}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            value={fromInput}
+            onChange={(e) => setFromInput(e.target.value)}
+            inputSize="sm"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            To
-          </span>
-          <input
+        </Field>
+        <Field label="To">
+          <Input
             type="date"
             name="to"
-            defaultValue={to}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            value={toInput}
+            onChange={(e) => setToInput(e.target.value)}
+            inputSize="sm"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Min revenue
-          </span>
-          <input
+        </Field>
+        <Field label="Min revenue">
+          <Input
             type="number"
             min={0}
             value={minRevInput}
             onChange={(e) => setMinRevInput(e.target.value)}
             placeholder="0"
-            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-28"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Industry
-          </span>
-          <input
+        </Field>
+        <Field label="Industry">
+          <Input
             type="text"
             value={industryInput}
             onChange={(e) => setIndustryInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-32"
           />
-        </label>
-        <Button type="submit" size="sm" disabled={isPending}>
+        </Field>
+        <Button type="submit" variant="primary" size="sm" loading={isPending}>
           Apply
         </Button>
         <div className="ml-auto flex gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onCsv}
-          >
+          <Button type="button" size="sm" variant="outline" onClick={onCsv}>
             CSV
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onXlsx}
-          >
+          <Button type="button" size="sm" variant="outline" onClick={onXlsx}>
             XLSX
           </Button>
         </div>
@@ -202,7 +203,7 @@ export function TopClientsReport({
         />
         <StatCard
           label="Top client"
-          value={top ? top.clientName : '—'}
+          value={top ? top.clientName : '-'}
           hint={top ? fmtMoney(top.revenue) : undefined}
           tone="blue"
         />
@@ -211,105 +212,89 @@ export function TopClientsReport({
 
       {/* Bar chart: top 10 by revenue */}
       <Card>
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-            Top 10 clients by revenue
-          </h2>
-        </div>
-        {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-            No revenue in this range.
-          </div>
-        ) : (
-          <div style={{ width: '100%', height: 320 }}>
-            <ResponsiveContainer>
-              <BarChart
-                data={chartData}
-                layout="vertical"
-                margin={{ left: 24, right: 16, top: 8, bottom: 8 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
-                />
-                <XAxis
-                  type="number"
-                  tickFormatter={(v) => fmtNumber(v)}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={140}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                />
-                <Tooltip
-                  formatter={(v: number) => fmtMoney(v)}
-                  contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Bar
-                  dataKey="revenue"
-                  fill="hsl(var(--primary))"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        <CardHeader>
+          <CardTitle>Top 10 clients by revenue</CardTitle>
+        </CardHeader>
+        <CardBody>
+          {chartData.length === 0 ? (
+            <EmptyState
+              title="No revenue in this range"
+              description="Adjust the date range or filters to see client revenue."
+            />
+          ) : (
+            <div className="h-80 w-full">
+              <ResponsiveContainer>
+                <BarChart
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ left: 24, right: 16, top: 8, bottom: 8 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--st-border)"
+                  />
+                  <XAxis
+                    type="number"
+                    tickFormatter={(v) => fmtNumber(v)}
+                    stroke="var(--st-text-secondary)"
+                    fontSize={11}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={140}
+                    stroke="var(--st-text-secondary)"
+                    fontSize={11}
+                  />
+                  <Tooltip
+                    formatter={(v: number) => fmtMoney(v)}
+                    contentStyle={{
+                      background: 'var(--st-bg-secondary)',
+                      border: '1px solid var(--st-border)',
+                      borderRadius: 'var(--st-radius)',
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar
+                    dataKey="revenue"
+                    fill="var(--st-accent)"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardBody>
       </Card>
 
       {/* Data table */}
-      <Card>
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                <Th className="w-10 text-[var(--st-text-secondary)]">
-                  #
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Client
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Industry
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Orders
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Revenue
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Avg order
-                </Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">
-                  Last order
-                </Th>
+              <Tr>
+                <Th width={40}>#</Th>
+                <Th>Client</Th>
+                <Th>Industry</Th>
+                <Th align="right">Orders</Th>
+                <Th align="right">Revenue</Th>
+                <Th align="right">Avg order</Th>
+                <Th align="right">Last order</Th>
               </Tr>
             </THead>
             <TBody>
               {pageRows.length === 0 ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={7}
-                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    No clients in this range.
+                <Tr>
+                  <Td colSpan={7} align="center">
+                    <EmptyState
+                      title="No clients in this range"
+                      description="Try widening the date range or lowering the minimum revenue."
+                    />
                   </Td>
                 </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <Tr
-                    key={`${r.clientId || 'none'}-${start + i}`}
-                    className="border-[var(--st-border)]"
-                  >
+                  <Tr key={`${r.clientId || 'none'}-${start + i}`}>
                     <Td className="text-[var(--st-text-secondary)]">
                       {start + i + 1}
                     </Td>
@@ -326,17 +311,23 @@ export function TopClientsReport({
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.industry}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.invoices)}
                     </Td>
-                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    <Td
+                      align="right"
+                      className="text-[13px] font-medium text-[var(--st-text)]"
+                    >
                       {fmtMoney(r.revenue)}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.avgOrderValue)}
                     </Td>
-                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
-                      {r.lastOrderDate || '—'}
+                    <Td
+                      align="right"
+                      className="text-[13px] text-[var(--st-text-secondary)]"
+                    >
+                      {r.lastOrderDate || '-'}
                     </Td>
                   </Tr>
                 ))

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui';
+import { Alert, Badge, Button, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
   RefreshCw,
   RotateCw,
   Save,
+  Terminal,
   Trash2,
   Unlink,
   X,
@@ -126,11 +127,7 @@ export function BotDetailDrawer({
                 <SheetHeader className="border-b border-[var(--st-border)] p-6">
                     <div className="flex items-center gap-3">
                         <div
-                            className="flex h-10 w-10 items-center justify-center rounded-xl text-base font-semibold text-white"
-                            style={{
-                                background:
-                                    'linear-gradient(135deg, #229ED9 0%, #1A7FA8 100%)',
-                            }}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#229ED9] to-[#1A7FA8] text-base font-semibold text-white"
                             aria-hidden
                         >
                             {(bot?.name || bot?.username || '?')
@@ -153,7 +150,7 @@ export function BotDetailDrawer({
                                         <ExternalLink className="h-3 w-3" aria-hidden />
                                     </a>
                                 ) : loading ? (
-                                    'Loading…'
+                                    'Loading...'
                                 ) : (
                                     <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         Bot details unavailable
@@ -169,20 +166,16 @@ export function BotDetailDrawer({
                         {SECTIONS.map((s) => {
                             const active = section === s.id;
                             return (
-                                <button
+                                <Button
                                     key={s.id}
                                     type="button"
+                                    variant={active ? 'primary' : 'outline'}
+                                    size="sm"
                                     onClick={() => setSection(s.id)}
-                                    className={
-                                        'rounded-full px-3 py-1 text-[12px] transition ' +
-                                        (active
-                                            ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
-                                            : 'border border-[var(--st-border)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)]')
-                                    }
                                     aria-current={active ? 'page' : undefined}
                                 >
                                     {s.label}
-                                </button>
+                                </Button>
                             );
                         })}
                     </nav>
@@ -196,26 +189,25 @@ export function BotDetailDrawer({
                             <Skeleton className="h-32 w-full" />
                         </div>
                     ) : !bot ? (
-                        <div className="flex flex-col items-start gap-3 rounded-lg border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-4 text-[12.5px] text-[var(--st-danger)]">
-                            <div className="flex items-start gap-2">
-                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                                <div className="flex flex-col gap-1">
-                                    <p className="font-medium">Could not load bot</p>
-                                    <p className="text-[12px]">
-                                        {loadError ??
-                                            'The Telegram backend did not return a bot for this id.'}
-                                    </p>
-                                </div>
+                        <Alert
+                            tone="danger"
+                            title="Could not load bot"
+                        >
+                            <p>
+                                {loadError ??
+                                    'The Telegram backend did not return a bot for this id.'}
+                            </p>
+                            <div className="mt-3">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    iconLeft={RefreshCw}
+                                    onClick={reload}
+                                >
+                                    Retry
+                                </Button>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={reload}
-                            >
-                                <RefreshCw className="h-3 w-3" aria-hidden />
-                                Retry
-                            </Button>
-                        </div>
+                        </Alert>
                     ) : section === 'overview' ? (
                         <OverviewPanel bot={bot} onRefresh={mutated} toast={toast} />
                     ) : section === 'commands' ? (
@@ -298,7 +290,7 @@ function OverviewPanel({
         if (res.success) {
             toast({
                 title: 'Bot is healthy',
-                description: `Latency ${res.latencyMs ?? '—'}ms`,
+                description: `Latency ${res.latencyMs ?? '-'}ms`,
             });
             onRefresh();
         } else {
@@ -318,12 +310,11 @@ function OverviewPanel({
                     size="sm"
                     onClick={refreshInfo}
                     disabled={busy !== null}
+                    iconLeft={busy === 'info' ? undefined : RefreshCw}
                 >
                     {busy === 'info' ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <RefreshCw className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Refresh from Telegram
                 </Button>
                 <Button
@@ -331,29 +322,28 @@ function OverviewPanel({
                     size="sm"
                     onClick={runHealth}
                     disabled={busy !== null}
+                    iconLeft={busy === 'health' ? undefined : Heart}
                 >
                     {busy === 'health' ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <Heart className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Health check
                 </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Status" value={<StatusInline status={bot.status} />} />
-                <Field label="Telegram ID" value={bot.botId.toString()} />
-                <Field label="Username" value={bot.username ? `@${bot.username}` : '—'} />
-                <Field
+                <InfoTile label="Status" value={<StatusInline status={bot.status} />} />
+                <InfoTile label="Telegram ID" value={bot.botId.toString()} />
+                <InfoTile label="Username" value={bot.username ? `@${bot.username}` : '-'} />
+                <InfoTile
                     label="Latency"
-                    value={typeof bot.latencyMs === 'number' ? `${bot.latencyMs} ms` : '—'}
+                    value={typeof bot.latencyMs === 'number' ? `${bot.latencyMs} ms` : '-'}
                 />
-                <Field
+                <InfoTile
                     label="Last seen"
-                    value={bot.lastSeenAt ? new Date(bot.lastSeenAt).toLocaleString() : '—'}
+                    value={bot.lastSeenAt ? new Date(bot.lastSeenAt).toLocaleString() : '-'}
                 />
-                <Field
+                <InfoTile
                     label="Connected"
                     value={new Date(bot.createdAt).toLocaleString()}
                 />
@@ -395,18 +385,18 @@ function StatusInline({ status }: { status: BotRow['status'] }) {
         );
     if (status === 'error')
         return (
-            <Badge variant="danger">
+            <Badge variant="destructive">
                 <AlertTriangle className="h-3 w-3" aria-hidden /> Error
             </Badge>
         );
     return (
-        <Badge variant="ghost">
+        <Badge variant="secondary">
             <Unlink className="h-3 w-3" aria-hidden /> Disconnected
         </Badge>
     );
 }
 
-function Field({
+function InfoTile({
     label,
     value,
 }: {
@@ -414,7 +404,7 @@ function Field({
     value: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-col gap-0.5 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+        <div className="flex flex-col gap-0.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
             <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                 {label}
             </span>
@@ -425,7 +415,7 @@ function Field({
 
 function Capability({ label, on }: { label: string; on: boolean }) {
     return (
-        <Badge variant={on ? 'success' : 'ghost'}>
+        <Badge variant={on ? 'success' : 'secondary'}>
             {on ? (
                 <CheckCircle2 className="h-3 w-3" aria-hidden />
             ) : (
@@ -487,10 +477,10 @@ function CommandsPanel({
     function validate(): string | null {
         for (const c of commands) {
             if (!/^[a-z0-9_]{1,32}$/.test(c.command)) {
-                return 'Each command must be 1–32 chars (lowercase letters, digits, underscore).';
+                return 'Each command must be 1-32 chars (lowercase letters, digits, underscore).';
             }
             if (!c.description.trim() || c.description.length > 256) {
-                return 'Descriptions must be 1–256 chars.';
+                return 'Descriptions must be 1-256 chars.';
             }
         }
         return null;
@@ -554,16 +544,17 @@ function CommandsPanel({
             ) : (
                 <>
                     {commands.length === 0 ? (
-                        <p className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
-                            No commands configured. Add one below — Telegram users will see
-                            them in the chat menu.
-                        </p>
+                        <EmptyState
+                            icon={Terminal}
+                            title="No commands configured"
+                            description="Add one below. Telegram users will see them in the chat menu."
+                        />
                     ) : (
                         <div className="flex flex-col gap-2">
                             {commands.map((c, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] p-3"
+                                    className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
                                 >
                                     <div className="flex flex-col gap-1">
                                         <Label className="text-[10.5px] uppercase tracking-[0.1em]">
@@ -580,6 +571,7 @@ function CommandsPanel({
                                             }
                                             placeholder="start"
                                             className="w-40"
+                                            aria-label="Command name"
                                         />
                                     </div>
                                     <div className="flex flex-1 flex-col gap-1">
@@ -592,24 +584,24 @@ function CommandsPanel({
                                                 update(idx, { description: e.target.value })
                                             }
                                             placeholder="Start the bot"
+                                            aria-label="Command description"
                                         />
                                     </div>
                                     <Button
                                         variant="ghost"
-                                        size="icon"
+                                        size="sm"
                                         onClick={() => remove(idx)}
                                         aria-label="Remove command"
-                                    >
-                                        <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                                    </Button>
+                                        iconLeft={Trash2}
+                                    />
                                 </div>
                             ))}
                         </div>
                     )}
 
                     <div className="flex items-center justify-between gap-2">
-                        <Button variant="outline" size="sm" onClick={add}>
-                            <Plus className="h-3 w-3" aria-hidden /> Add command
+                        <Button variant="outline" size="sm" onClick={add} iconLeft={Plus}>
+                            Add command
                         </Button>
                         <div className="flex gap-2">
                             <Button
@@ -624,15 +616,15 @@ function CommandsPanel({
                                 Clear all
                             </Button>
                             <Button
+                                variant="primary"
                                 size="sm"
                                 onClick={save}
                                 disabled={saving || clearing}
+                                iconLeft={saving ? undefined : Save}
                             >
                                 {saving ? (
                                     <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                                ) : (
-                                    <Save className="h-3 w-3" aria-hidden />
-                                )}
+                                ) : null}
                                 Push to Telegram
                             </Button>
                         </div>
@@ -644,7 +636,7 @@ function CommandsPanel({
 }
 
 // =========================================================================
-//  Profile panel — name / description / short description per language
+//  Profile panel - name / description / short description per language
 // =========================================================================
 
 function ProfilePanel({
@@ -741,9 +733,10 @@ function ProfilePanel({
                     }
                     placeholder="leave empty for default"
                     className="max-w-[160px]"
+                    aria-label="Language code"
                 />
                 <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-                    Two-letter ISO 639-1 code (e.g. <code>en</code>, <code>es</code>) — leave
+                    Two-letter ISO 639-1 code (e.g. <code>en</code>, <code>es</code>). Leave
                     blank to set the default profile.
                 </p>
             </div>
@@ -752,24 +745,25 @@ function ProfilePanel({
 
             <div className="flex flex-col gap-1.5">
                 <Label className="text-[10.5px] uppercase tracking-[0.1em]">
-                    Name (1–64 chars)
+                    Name (1-64 chars)
                 </Label>
                 <div className="flex gap-2">
                     <Input
                         value={name}
                         onChange={(e) => setName(e.target.value.slice(0, 64))}
                         placeholder="My Bot"
+                        aria-label="Bot name"
                     />
                     <Button
+                        variant="primary"
                         size="sm"
                         onClick={saveName}
                         disabled={busy !== null}
+                        iconLeft={busy === 'name' ? undefined : Save}
                     >
                         {busy === 'name' ? (
                             <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                        ) : (
-                            <Save className="h-3 w-3" aria-hidden />
-                        )}
+                        ) : null}
                         Save
                     </Button>
                 </div>
@@ -777,25 +771,26 @@ function ProfilePanel({
 
             <div className="flex flex-col gap-1.5">
                 <Label className="text-[10.5px] uppercase tracking-[0.1em]">
-                    Description (0–512 chars)
+                    Description (0-512 chars)
                 </Label>
                 <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value.slice(0, 512))}
                     rows={4}
-                    placeholder="Shown on the bot’s profile page."
+                    placeholder="Shown on the bot's profile page."
+                    aria-label="Bot description"
                 />
                 <div className="flex justify-end">
                     <Button
+                        variant="primary"
                         size="sm"
                         onClick={saveDescription}
                         disabled={busy !== null}
+                        iconLeft={busy === 'desc' ? undefined : Save}
                     >
                         {busy === 'desc' ? (
                             <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                        ) : (
-                            <Save className="h-3 w-3" aria-hidden />
-                        )}
+                        ) : null}
                         Save description
                     </Button>
                 </div>
@@ -803,25 +798,26 @@ function ProfilePanel({
 
             <div className="flex flex-col gap-1.5">
                 <Label className="text-[10.5px] uppercase tracking-[0.1em]">
-                    Short description (0–120 chars)
+                    Short description (0-120 chars)
                 </Label>
                 <Textarea
                     value={shortDescription}
                     onChange={(e) => setShortDescription(e.target.value.slice(0, 120))}
                     rows={2}
-                    placeholder="Shown on the bot’s share preview card."
+                    placeholder="Shown on the bot's share preview card."
+                    aria-label="Bot short description"
                 />
                 <div className="flex justify-end">
                     <Button
+                        variant="primary"
                         size="sm"
                         onClick={saveShort}
                         disabled={busy !== null}
+                        iconLeft={busy === 'short' ? undefined : Save}
                     >
                         {busy === 'short' ? (
                             <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                        ) : (
-                            <Save className="h-3 w-3" aria-hidden />
-                        )}
+                        ) : null}
                         Save short description
                     </Button>
                 </div>
@@ -921,7 +917,7 @@ function MenuButtonPanel({
                     Menu type
                 </Label>
                 <Select value={type} onValueChange={(v) => setType(v as MenuType)}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Menu type">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -942,6 +938,7 @@ function MenuButtonPanel({
                             value={text}
                             onChange={(e) => setText(e.target.value.slice(0, 64))}
                             placeholder="Open app"
+                            aria-label="Menu button text"
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -953,13 +950,14 @@ function MenuButtonPanel({
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="https://example.com/mini-app"
                             inputMode="url"
+                            aria-label="Web app URL"
                         />
                     </div>
                 </>
             ) : null}
 
             <Separator />
-            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                 <p className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                     Preview
                 </p>
@@ -978,12 +976,16 @@ function MenuButtonPanel({
             </div>
 
             <div className="flex justify-end">
-                <Button size="sm" onClick={save} disabled={saving}>
+                <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={save}
+                    disabled={saving}
+                    iconLeft={saving ? undefined : Save}
+                >
                     {saving ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <Save className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Save menu button
                 </Button>
             </div>
@@ -1067,22 +1069,22 @@ function WebhookPanel({
                 <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                     Webhook URL
                 </span>
-                <code className="block truncate rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 font-mono text-[12px] text-[var(--st-text)]">
+                <code className="block truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-[12px] text-[var(--st-text)]">
                     {bot.webhookUrl ?? 'Not registered'}
                 </code>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field
+                <InfoTile
                     label="Pending updates"
-                    value={info?.pendingUpdateCount?.toString() ?? '—'}
+                    value={info?.pendingUpdateCount?.toString() ?? '-'}
                 />
-                <Field
+                <InfoTile
                     label="Max connections"
-                    value={info?.maxConnections?.toString() ?? '—'}
+                    value={info?.maxConnections?.toString() ?? '-'}
                 />
-                <Field label="IP address" value={info?.ipAddress ?? '—'} />
-                <Field
+                <InfoTile label="IP address" value={info?.ipAddress ?? '-'} />
+                <InfoTile
                     label="Custom cert"
                     value={info?.hasCustomCertificate ? 'Yes' : 'No'}
                 />
@@ -1095,7 +1097,7 @@ function WebhookPanel({
                     </span>
                     <div className="mt-1 flex flex-wrap gap-1">
                         {info.allowedUpdates.map((u) => (
-                            <Badge key={u} variant="ghost">
+                            <Badge key={u} variant="secondary">
                                 {u}
                             </Badge>
                         ))}
@@ -1104,15 +1106,14 @@ function WebhookPanel({
             ) : null}
 
             {info?.lastErrorMessage ? (
-                <div className="rounded-lg border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-3 text-[12.5px] text-[var(--st-danger)]">
-                    <p className="font-medium">Last error</p>
-                    <p className="mt-1">{info.lastErrorMessage}</p>
+                <Alert tone="danger" title="Last error">
+                    <p>{info.lastErrorMessage}</p>
                     {info.lastErrorDate ? (
                         <p className="mt-1 text-[11.5px]">
                             {new Date(info.lastErrorDate).toLocaleString()}
                         </p>
                     ) : null}
-                </div>
+                </Alert>
             ) : null}
 
             <div className="flex flex-wrap gap-2">
@@ -1121,12 +1122,11 @@ function WebhookPanel({
                     size="sm"
                     onClick={refresh}
                     disabled={busy !== null}
+                    iconLeft={busy === 'refresh' ? undefined : RefreshCw}
                 >
                     {busy === 'refresh' ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <RefreshCw className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Refresh
                 </Button>
                 <Button
@@ -1134,25 +1134,23 @@ function WebhookPanel({
                     size="sm"
                     onClick={rotate}
                     disabled={busy !== null}
+                    iconLeft={busy === 'rotate' ? undefined : RotateCw}
                 >
                     {busy === 'rotate' ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <RotateCw className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Rotate secret
                 </Button>
                 <Button
-                    variant="destructive"
+                    variant="danger"
                     size="sm"
                     onClick={disconnect}
                     disabled={busy !== null}
+                    iconLeft={busy === 'disconnect' ? undefined : Unlink}
                 >
                     {busy === 'disconnect' ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <Unlink className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Disconnect bot
                 </Button>
             </div>
@@ -1270,7 +1268,7 @@ function AdminRightsPanel({
                     value={forChannels ? 'channel' : 'group'}
                     onValueChange={(v) => setForChannels(v === 'channel')}
                 >
-                    <SelectTrigger className="max-w-[200px]">
+                    <SelectTrigger className="max-w-[200px]" aria-label="Scope">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1285,9 +1283,9 @@ function AdminRightsPanel({
             ) : (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {fields.map((f) => (
-                        <label
+                        <div
                             key={f.key as string}
-                            className="flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
                         >
                             <span className="text-[12.5px] text-[var(--st-text)]">
                                 {f.label}
@@ -1297,18 +1295,22 @@ function AdminRightsPanel({
                                 onCheckedChange={(v) => toggle(f.key, v)}
                                 aria-label={f.label}
                             />
-                        </label>
+                        </div>
                     ))}
                 </div>
             )}
 
             <div className="flex justify-end">
-                <Button size="sm" onClick={save} disabled={saving}>
+                <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={save}
+                    disabled={saving}
+                    iconLeft={saving ? undefined : Save}
+                >
                     {saving ? (
                         <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                    ) : (
-                        <Save className="h-3 w-3" aria-hidden />
-                    )}
+                    ) : null}
                     Save default rights
                 </Button>
             </div>

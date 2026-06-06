@@ -1,9 +1,30 @@
 /**
- * Datasets list — connect-source / upload-CSV entry point.
+ * Datasets list. Connect-source / upload-CSV entry point.
  */
 import Link from 'next/link';
+import { Database } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import { listDatasetsAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewDatasetPanel } from './_components/new-dataset-panel';
@@ -20,23 +41,23 @@ export default async function DatasetsPage() {
   }
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Datasets</h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Datasets</PageTitle>
+          <PageDescription>
             Bring tabular data from SabFiles, system collections, or a REST URL.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost">
-            <Link href="/dashboard/analytics-workspace/datasets/joins">Joins</Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link href="/dashboard/analytics-workspace">Workbooks</Link>
-          </Button>
-        </div>
-      </header>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Link href="/dashboard/analytics-workspace/datasets/joins">
+            <Button variant="ghost">Joins</Button>
+          </Link>
+          <Link href="/dashboard/analytics-workspace">
+            <Button variant="ghost">Workbooks</Button>
+          </Link>
+        </PageActions>
+      </PageHeader>
 
       <NewDatasetPanel />
 
@@ -49,34 +70,38 @@ export default async function DatasetsPage() {
         </CardHeader>
         <CardBody>
           {items.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No datasets yet.</p>
+            <EmptyState
+              icon={Database}
+              title="No datasets yet"
+              description="Connect a CSV, system collection, or REST endpoint above to get started."
+            />
           ) : (
             <Table>
               <THead>
-                <tr>
-                  <th className="text-left">Name</th>
-                  <th className="text-left">Source</th>
-                  <th className="text-right">Rows</th>
-                  <th className="text-left">Last refresh</th>
-                </tr>
+                <Tr>
+                  <Th align="left">Name</Th>
+                  <Th align="left">Source</Th>
+                  <Th align="right">Rows</Th>
+                  <Th align="left">Last refresh</Th>
+                </Tr>
               </THead>
               <TBody>
                 {items.map((d) => (
-                  <tr key={d._id} className="border-t border-[var(--st-border)]">
-                    <td className="py-2">
+                  <Tr key={d._id}>
+                    <Td>
                       <Link
                         href={`/dashboard/analytics-workspace/datasets/${d._id}`}
                         className="text-[var(--st-text)] hover:underline"
                       >
                         {d.name}
                       </Link>
-                    </td>
-                    <td className="py-2">
+                    </Td>
+                    <Td>
                       <Badge variant="outline">{d.source}</Badge>
-                    </td>
-                    <td className="py-2 text-right">{d.rowCount ?? '—'}</td>
-                    <td className="py-2 text-[var(--st-text-secondary)]">{d.lastRefreshAt ?? '—'}</td>
-                  </tr>
+                    </Td>
+                    <Td align="right">{d.rowCount ?? '-'}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">{d.lastRefreshAt ?? '-'}</Td>
+                  </Tr>
                 ))}
               </TBody>
             </Table>

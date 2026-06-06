@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -30,11 +30,11 @@ import type { Project,
   WithId } from "@/lib/definitions";
 
 /**
- * /dashboard/facebook/all-projects — connected Facebook Pages.
+ * /dashboard/facebook/all-projects - connected Facebook Pages.
  *
- * Rebuilt on ZoruUI primitives. Same `getProjects` server action, same
- * "Connect Page" OAuth entry, same manual-setup flow — visual layer is
- * pure zoru, neutral palette.
+ * Rebuilt on 20ui primitives. Same `getProjects` server action, same
+ * "Connect Page" OAuth entry, same manual-setup flow - visual layer is
+ * pure 20ui, neutral palette.
  */
 
 import * as React from "react";
@@ -42,7 +42,9 @@ import * as React from "react";
 import { ManualSetupDialog } from "../_components/manual-setup-dialog";
 import { FacebookGlyph } from "../_components/icons";
 
-/* ── feature catalog (neutral palette) ───────────────────────────── */
+const META_SUITE_LOGIN = "/api/auth/meta-suite/login";
+
+/* feature catalog (neutral palette) */
 
 const FEATURES = [
   {
@@ -77,7 +79,7 @@ const FEATURES = [
   },
 ];
 
-/* ── skeleton ────────────────────────────────────────────────────── */
+/* skeleton */
 
 function PageSkeleton() {
   return (
@@ -103,7 +105,7 @@ function PageSkeleton() {
   );
 }
 
-/* ── connected page card ─────────────────────────────────────────── */
+/* connected page card */
 
 function ConnectedPageCard({ project }: { project: WithId<Project> }) {
   const router = useRouter();
@@ -118,6 +120,12 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     router.push("/dashboard/facebook");
   };
 
+  const quickLinks = [
+    { label: "Messages", href: "/dashboard/facebook/messages" },
+    { label: "Posts", href: "/dashboard/facebook/posts" },
+    { label: "Commerce", href: "/dashboard/facebook/commerce/products" },
+  ];
+
   return (
     <Card className="flex flex-col p-0">
       <div className="flex flex-1 flex-col gap-4 p-5">
@@ -126,6 +134,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
             <Avatar className="h-12 w-12">
               <AvatarImage
                 src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=large`}
+                alt={`${project.name} page picture`}
               />
               <AvatarFallback>
                 <FacebookGlyph className="h-5 w-5" />
@@ -133,7 +142,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
             </Avatar>
             <span
               className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-status-ok)] text-[var(--st-text-inverted)]"
-              aria-hidden
+              aria-hidden="true"
             >
               <CheckCircle2 className="h-2.5 w-2.5" />
             </span>
@@ -141,32 +150,26 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] text-[var(--st-text)]">{project.name}</p>
             <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
-              ID: {project.facebookPageId || "—"}
+              ID: {project.facebookPageId || "n/a"}
             </p>
           </div>
           <Badge variant="outline">Live</Badge>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: "Messages", href: "/dashboard/facebook/messages" },
-            { label: "Posts", href: "/dashboard/facebook/posts" },
-            {
-              label: "Commerce",
-              href: "/dashboard/facebook/commerce/products",
-            },
-          ].map((link) => (
-            <button
+          {quickLinks.map((link) => (
+            <Button
               key={link.label}
-              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto w-full justify-center px-2 py-1.5 text-[11px]"
               onClick={() => {
                 setActive();
                 router.push(link.href);
               }}
-              className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-[11px] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)]"
             >
               {link.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -178,26 +181,33 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-[11.5px] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
         >
-          <ExternalLink className="h-3 w-3" /> Facebook
+          <ExternalLink className="h-3 w-3" aria-hidden="true" /> Facebook
         </a>
         <div className="flex-1" />
         <Button
           size="sm"
           variant="outline"
           onClick={handleManage}
+          iconLeft={Settings}
           className="h-7 text-[11px]"
         >
-          <Settings /> Manage
+          Manage
         </Button>
-        <Button size="sm" onClick={handleManage} className="h-7 text-[11px]">
-          Open <ArrowRight />
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={handleManage}
+          iconRight={ArrowRight}
+          className="h-7 text-[11px]"
+        >
+          Open
         </Button>
       </div>
     </Card>
   );
 }
 
-/* ── empty state ─────────────────────────────────────────────────── */
+/* empty state */
 
 function ConnectEmptyState({
   appId,
@@ -206,6 +216,8 @@ function ConnectEmptyState({
   appId: string | undefined;
   onSuccess: () => void;
 }) {
+  const router = useRouter();
+
   return (
     <Card className="px-6 py-12 md:px-12">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
@@ -214,7 +226,7 @@ function ConnectEmptyState({
         </div>
 
         <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Sparkles className="h-3 w-3" /> Meta Business Suite
+          <Sparkles className="h-3 w-3" aria-hidden="true" /> Meta Business Suite
         </span>
 
         <h2 className="mt-4 text-[26px] tracking-tight text-[var(--st-text)] leading-tight">
@@ -222,17 +234,19 @@ function ConnectEmptyState({
         </h2>
         <p className="mt-2 max-w-xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           Connect your Facebook Page to manage Messenger conversations,
-          schedule posts, run broadcasts, sync your catalog and track analytics
-          — all in one place.
+          schedule posts, run broadcasts, sync your catalog and track analytics,
+          all in one place.
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           {appId ? (
-            <Button asChild>
-              <Link href="/api/auth/meta-suite/login">
-                <FacebookGlyph className="h-4 w-4" /> Connect Facebook Page
-                <ArrowRight />
-              </Link>
+            <Button
+              variant="primary"
+              iconLeft={FacebookGlyph}
+              iconRight={ArrowRight}
+              onClick={() => router.push(META_SUITE_LOGIN)}
+            >
+              Connect Facebook Page
             </Button>
           ) : (
             <p className="text-[12.5px] text-[var(--st-danger)]">
@@ -253,7 +267,7 @@ function ConnectEmptyState({
                 className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
-                  <f.icon />
+                  <f.icon aria-hidden="true" />
                 </span>
                 <p className="text-[12.5px] text-[var(--st-text)]">{f.label}</p>
                 <p className="text-[11px] text-[var(--st-text-secondary)] leading-snug">
@@ -268,9 +282,10 @@ function ConnectEmptyState({
   );
 }
 
-/* ── page ────────────────────────────────────────────────────────── */
+/* page */
 
 export default function AllFacebookPagesPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, startLoading] = useTransition();
 
@@ -304,12 +319,14 @@ export default function AllFacebookPagesPage() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">SabNode</Link>
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/facebook">
-              Meta Suite
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard/facebook">Meta Suite</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -331,25 +348,28 @@ export default function AllFacebookPagesPage() {
           </PageDescription>
         </PageHeading>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchData}>
-            <RefreshCw /> Refresh
+          <Button variant="outline" size="sm" onClick={fetchData} iconLeft={RefreshCw}>
+            Refresh
           </Button>
           <ManualSetupDialog onSuccess={fetchData} />
           {appId ? (
-            <Button asChild size="sm">
-              <Link href="/api/auth/meta-suite/login">
-                <FacebookGlyph className="h-4 w-4" /> Connect page
-              </Link>
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={FacebookGlyph}
+              onClick={() => router.push(META_SUITE_LOGIN)}
+            >
+              Connect page
             </Button>
           ) : null}
         </div>
       </PageHeader>
 
-      {/* ── stats row ── */}
+      {/* stats row */}
       {projects.length > 0 ? (
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[12px] text-[var(--st-text)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]" aria-hidden="true" />
             {projects.length} page{projects.length !== 1 ? "s" : ""} connected
           </span>
           {FEATURES.slice(0, 3).map((f) => (
@@ -357,18 +377,18 @@ export default function AllFacebookPagesPage() {
               key={f.label}
               className="inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[11.5px] text-[var(--st-text-secondary)]"
             >
-              <f.icon className="h-3 w-3" /> {f.label}
+              <f.icon className="h-3 w-3" aria-hidden="true" /> {f.label}
             </span>
           ))}
         </div>
       ) : null}
 
-      {/* ── grid or empty state ── */}
+      {/* grid or empty state */}
       {projects.length > 0 ? (
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)] inline-flex items-center gap-2">
-              <Users className="h-3 w-3" /> Connected pages
+              <Users className="h-3 w-3" aria-hidden="true" /> Connected pages
             </p>
             <span className="text-[11.5px] text-[var(--st-text-secondary)]">
               {projects.length} page{projects.length !== 1 ? "s" : ""}
@@ -385,7 +405,7 @@ export default function AllFacebookPagesPage() {
 
             {appId ? (
               <Link
-                href="/api/auth/meta-suite/login"
+                href={META_SUITE_LOGIN}
                 className={cn(
                   "group flex flex-col items-center justify-center gap-3 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]",
                 )}
@@ -401,7 +421,7 @@ export default function AllFacebookPagesPage() {
                     Add more Facebook Pages to your account
                   </p>
                 </div>
-                <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-tertiary)] transition-colors group-hover:text-[var(--st-text)]" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-tertiary)] transition-colors group-hover:text-[var(--st-text)]" aria-hidden="true" />
               </Link>
             ) : null}
           </div>
@@ -417,7 +437,7 @@ export default function AllFacebookPagesPage() {
                   className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-3.5">
-                    <f.icon />
+                    <f.icon aria-hidden="true" />
                   </span>
                   <p className="text-[12px] text-[var(--st-text)]">{f.label}</p>
                 </div>

@@ -1,31 +1,47 @@
 'use client';
 
 /**
- * ImportClient — single-page n8n + Typebot JSON importer.
+ * ImportClient - single-page n8n + Typebot JSON importer.
  *
  * Two ways to provide the workflow:
- *   1. Drag-and-drop a .json file onto the drop zone
+ *   1. Pick a .json file from SabFiles (library or fresh upload)
  *   2. Paste raw JSON into the text area
  *
  * Format auto-detection by inspecting top-level keys:
- *   - `{ nodes, connections }` → n8n
- *   - `{ groups, events }` or `{ groups }` → Typebot
+ *   - `{ nodes, connections }` -> n8n
+ *   - `{ groups, events }` or `{ groups }` -> Typebot
  *
- * On success: redirect to the new flow's editor.  On failure: surface the
- * error inline so the user can edit the JSON and retry.
+ * On success: surface a summary + an "Open flow" action.  On failure: surface
+ * the error inline so the user can edit the JSON and retry.
  */
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuArrowRight,
-  LuCircleCheck,
-  LuFileJson,
-  LuLoader,
-  LuTriangleAlert,
-  LuUpload,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  ArrowRight,
+  CheckCircle2,
+  FileJson,
+  Loader,
+  Upload,
+} from 'lucide-react';
+
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Field,
+  Textarea,
+  Alert,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 type Detection = 'n8n' | 'typebot' | 'unknown';
 
@@ -50,6 +66,7 @@ type ImportResponse = {
 
 export function ImportClient() {
   const router = useRouter();
+  const { toast } = useToast();
   const [raw, setRaw] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,38 +74,27 @@ export function ImportClient() {
     format: 'n8n' | 'typebot';
     response: ImportResponse;
   } | null>(null);
-  const [dragging, setDragging] = useState(false);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-      setError(`"${file.name}" doesn’t look like a JSON file.`);
-      return;
-    }
-    try {
-      const text = await file.text();
-      setRaw(text);
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to read file');
-    }
-  }, []);
-
-  const onDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setDragging(false);
-      const file = e.dataTransfer.files?.[0];
-      if (file) void handleFile(file);
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+        const msg = `"${file.name}" does not look like a JSON file.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      try {
+        const text = await file.text();
+        setRaw(text);
+        setError(null);
+        toast.success(`Loaded ${file.name}`);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to read file';
+        setError(msg);
+        toast.error(msg);
+      }
     },
-    [handleFile],
-  );
-
-  const onFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) void handleFile(file);
-    },
-    [handleFile],
+    [toast],
   );
 
   const submit = useCallback(async () => {
@@ -133,15 +139,19 @@ export function ImportClient() {
           ('error' in json && json.error) ||
           `Import failed (${res.status})`;
         setError(msg);
+        toast.error(msg);
         return;
       }
       setSuccess({ format, response: json as ImportResponse });
+      toast.success('Workflow imported');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Network error');
+      const msg = e instanceof Error ? e.message : 'Network error';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
-  }, [raw]);
+  }, [raw, toast]);
 
   const openFlow = useCallback(() => {
     if (success) router.push(`/dashboard/sabflow/flow-builder/${success.response.flowId}`);
@@ -149,158 +159,149 @@ export function ImportClient() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-          <LuUpload className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div className="flex flex-col leading-tight min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            Import flow
-          </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Import flow</PageTitle>
+          <PageDescription>
             Bring an n8n workflow or a Typebot export into SabFlow.
-          </p>
-        </div>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-3xl">
-        {/* Drop zone */}
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={onDrop}
-          className={cn(
-            'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors',
-            dragging
-              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 dark:bg-[var(--st-text)]/20'
-              : 'border-[var(--gray-5)] bg-[var(--gray-2)]',
-          )}
-        >
-          <LuFileJson className="h-7 w-7 text-[var(--gray-8)]" strokeWidth={1.5} />
-          <p className="text-[13px] font-medium text-[var(--gray-11)]">
-            Drop a <code>workflow.json</code> here, or
-          </p>
-          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)]">
-            <LuUpload className="h-3.5 w-3.5" />
-            Choose file
-            <input
-              type="file"
-              accept="application/json,.json"
-              className="hidden"
-              onChange={onFileInput}
-            />
-          </label>
-          <p className="mt-1 text-[10.5px] text-[var(--gray-9)]">
-            Format detected automatically — n8n (nodes + connections) or Typebot (groups).
-          </p>
-        </div>
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-3xl w-full">
+        {/* File picker */}
+        <Card padding="lg">
+          <div className="flex flex-col items-center justify-center gap-3 text-center">
+            <span
+              className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            >
+              <FileJson className="h-6 w-6" strokeWidth={1.5} />
+            </span>
+            <p className="text-sm font-medium text-[var(--st-text)]">
+              Pick a <code>workflow.json</code> from SabFiles
+            </p>
+            <SabFileToFileButton
+              accept="all"
+              variant="outline"
+              title="Pick a workflow.json"
+              onPickFile={(file) => handleFile(file)}
+              onError={(err) => {
+                setError(err.message);
+                toast.error(err.message);
+              }}
+            >
+              <Upload className="h-4 w-4" aria-hidden="true" />
+              Choose file
+            </SabFileToFileButton>
+            <p className="text-xs text-[var(--st-text-tertiary)]">
+              Format detected automatically. n8n (nodes + connections) or Typebot (groups).
+            </p>
+          </div>
+        </Card>
 
         {/* Paste area */}
-        <div className="mt-4">
-          <label className="block text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)] mb-1.5">
-            Or paste JSON
-          </label>
-          <textarea
-            value={raw}
-            onChange={(e) => setRaw(e.target.value)}
-            placeholder='{"nodes": [...], "connections": {...}}  or  {"groups": [...]}'
-            spellCheck={false}
-            rows={10}
-            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 font-mono text-[11.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] resize-y"
-          />
-          <p className="mt-1 text-[10.5px] text-[var(--gray-9)] tabular-nums">
-            {raw.length.toLocaleString()} chars
-          </p>
-        </div>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Or paste JSON</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <Field help={`${raw.length.toLocaleString()} chars`}>
+              <Textarea
+                value={raw}
+                onChange={(e) => setRaw(e.target.value)}
+                placeholder={'{"nodes": [...], "connections": {...}}  or  {"groups": [...]}'}
+                spellCheck={false}
+                rows={10}
+                className="font-mono text-xs resize-y"
+              />
+            </Field>
 
-        {/* Submit */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={submit}
-            disabled={busy || !raw.trim()}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-semibold text-white transition-colors',
-              busy || !raw.trim()
-                ? 'bg-[var(--gray-6)] cursor-not-allowed'
-                : 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
-            )}
-          >
-            {busy ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <LuArrowRight className="h-3.5 w-3.5" />
-            )}
-            {busy ? 'Importing…' : 'Import'}
-          </button>
-          {raw.trim() && !busy && !success && (
-            <span className="text-[11.5px] text-[var(--gray-9)]">
-              We’ll auto-detect n8n vs Typebot from the JSON.
-            </span>
-          )}
-        </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button
+                variant="primary"
+                onClick={submit}
+                disabled={busy || !raw.trim()}
+                loading={busy}
+                iconLeft={busy ? Loader : ArrowRight}
+              >
+                {busy ? 'Importing' : 'Import'}
+              </Button>
+              {raw.trim() && !busy && !success && (
+                <span className="text-xs text-[var(--st-text-secondary)]">
+                  We auto-detect n8n vs Typebot from the JSON.
+                </span>
+              )}
+            </div>
+          </CardBody>
+        </Card>
 
         {/* Error */}
         {error && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] text-[var(--st-text)]">
-            <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
+          <Alert tone="danger" title="Import error" className="mt-4">
+            {error}
+          </Alert>
         )}
 
         {/* Success */}
         {success && (
-          <div className="mt-4 flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30">
-            <div className="flex items-center gap-2">
-              <LuCircleCheck className="h-4 w-4 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
-              <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+          <Card className="mt-4">
+            <CardHeader className="flex flex-wrap items-center gap-2">
+              <CheckCircle2
+                className="h-4 w-4 text-[var(--st-status-ok)]"
+                aria-hidden="true"
+              />
+              <CardTitle>
                 Imported from {success.format === 'n8n' ? 'workflow JSON' : 'Typebot'}
-              </span>
-            </div>
-            <ul className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] ml-6 list-disc space-y-0.5">
-              <li>
-                Name:{' '}
-                <strong className="font-semibold">
-                  {success.response.name ?? '(unnamed)'}
-                </strong>
-              </li>
-              {success.response.blocks !== undefined && (
+              </CardTitle>
+              <Badge tone="success" kind="soft">
+                {success.format === 'n8n' ? 'n8n' : 'Typebot'}
+              </Badge>
+            </CardHeader>
+            <CardBody>
+              <ul className="ml-5 list-disc space-y-1 text-xs text-[var(--st-text-secondary)]">
                 <li>
-                  Blocks imported:{' '}
-                  <strong>{success.response.blocks}</strong>
+                  Name:{' '}
+                  <strong className="font-semibold text-[var(--st-text)]">
+                    {success.response.name ?? '(unnamed)'}
+                  </strong>
                 </li>
-              )}
-              {success.response.triggers !== undefined && success.response.triggers > 0 && (
-                <li>
-                  Triggers:{' '}
-                  <strong>{success.response.triggers}</strong>
-                </li>
-              )}
-              {(success.response.stubbed?.length ?? 0) > 0 && (
-                <li>
-                  <strong>{success.response.stubbed!.length}</strong> node(s)
-                  fell back to stubs — visit the editor to remap them.
-                </li>
-              )}
-              {(success.response.warnings?.length ?? 0) > 0 && (
-                <li>
-                  <strong>{success.response.warnings!.length}</strong>{' '}
-                  warning(s) — see the editor.
-                </li>
-              )}
-            </ul>
-            <button
-              type="button"
-              onClick={openFlow}
-              className="mt-1 self-start inline-flex items-center gap-1.5 rounded-md bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
-            >
-              Open flow
-              <LuArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
+                {success.response.blocks !== undefined && (
+                  <li>
+                    Blocks imported:{' '}
+                    <strong className="text-[var(--st-text)]">{success.response.blocks}</strong>
+                  </li>
+                )}
+                {success.response.triggers !== undefined && success.response.triggers > 0 && (
+                  <li>
+                    Triggers:{' '}
+                    <strong className="text-[var(--st-text)]">{success.response.triggers}</strong>
+                  </li>
+                )}
+                {(success.response.stubbed?.length ?? 0) > 0 && (
+                  <li>
+                    <strong className="text-[var(--st-text)]">
+                      {success.response.stubbed!.length}
+                    </strong>{' '}
+                    node(s) fell back to stubs. Visit the editor to remap them.
+                  </li>
+                )}
+                {(success.response.warnings?.length ?? 0) > 0 && (
+                  <li>
+                    <strong className="text-[var(--st-text)]">
+                      {success.response.warnings!.length}
+                    </strong>{' '}
+                    warning(s). See the editor.
+                  </li>
+                )}
+              </ul>
+              <div className="mt-3">
+                <Button variant="primary" onClick={openFlow} iconRight={ArrowRight}>
+                  Open flow
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
         )}
       </div>
     </div>

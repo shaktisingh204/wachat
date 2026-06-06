@@ -1,12 +1,24 @@
 'use client';
 
-import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  Input,
+  Field,
+  Button,
+  IconButton,
+  Alert,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { useState } from 'react';
-import { Copy, Check, Wand2, Loader2, Download, AlertCircle } from 'lucide-react';
+import { Copy, Check, Wand2, Download } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 import { generateAdCopyAction } from './actions';
-import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 
 function CopyText({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -22,16 +34,15 @@ function CopyText({ text }: { text: string }) {
   };
 
   return (
-    <div className="flex items-center justify-between text-sm border-t border-[var(--st-border)] py-2 text-[var(--st-text)] group">
+    <div className="flex items-center justify-between gap-4 text-sm border-t border-[var(--st-border)] py-2 text-[var(--st-text)] group">
       <span className="pr-4">{text}</span>
-      <button 
+      <IconButton
+        label={copied ? 'Copied' : 'Copy to clipboard'}
+        icon={copied ? Check : Copy}
+        size="sm"
         onClick={handleCopy}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-[var(--st-border)]/50 rounded-md shrink-0 focus:opacity-100"
-        title="Copy to clipboard"
-        aria-label="Copy to clipboard"
-      >
-        {copied ? <Check className="w-4 h-4 text-[var(--st-text)]" /> : <Copy className="w-4 h-4 text-[var(--st-text)]/60" />}
-      </button>
+        className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+      />
     </div>
   );
 }
@@ -118,49 +129,66 @@ export default function AdCopyGeneratorPage() {
     }
   };
 
+  const hasResults = results.headlines.length > 0 || results.descriptions.length > 0;
+
   return (
     <ToolShell title="Ad Copy Generator" description="Generate AI-powered headlines and descriptions for a PPC ad.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-        <div className="space-y-1"><Label>Product / service</Label><Input value={product} onChange={(e) => setProduct(e.target.value)} /></div>
-        <div className="space-y-1"><Label>Target audience</Label><Input value={audience} onChange={(e) => setAudience(e.target.value)} /></div>
-        <div className="space-y-1"><Label>Target keyword</Label><Input value={keyword} onChange={(e) => setKeyword(e.target.value)} /></div>
-        <div className="space-y-1"><Label>Tone</Label>
-          <select className="border border-[var(--st-border)] rounded-[var(--st-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
-            <option value="friendly">Friendly</option>
-            <option value="urgent">Urgent</option>
-            <option value="formal">Formal</option>
-            <option value="creative">Creative</option>
-            <option value="humorous">Humorous</option>
-          </select>
+        <Field label="Product / service">
+          <Input value={product} onChange={(e) => setProduct(e.target.value)} />
+        </Field>
+        <Field label="Target audience">
+          <Input value={audience} onChange={(e) => setAudience(e.target.value)} />
+        </Field>
+        <Field label="Target keyword">
+          <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+        </Field>
+        <Field label="Tone">
+          <Select value={tone} onValueChange={setTone}>
+            <SelectTrigger aria-label="Tone">
+              <SelectValue placeholder="Pick a tone" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="friendly">Friendly</SelectItem>
+              <SelectItem value="urgent">Urgent</SelectItem>
+              <SelectItem value="formal">Formal</SelectItem>
+              <SelectItem value="creative">Creative</SelectItem>
+              <SelectItem value="humorous">Humorous</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <div className="md:col-span-2">
+          <Field label="Reference URL (optional context)">
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/product" />
+          </Field>
         </div>
-        <div className="space-y-1 md:col-span-2"><Label>Reference URL (optional context)</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/product" /></div>
       </div>
-      
+
       {error && (
-        <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Notice</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+        <Alert tone="danger" title="Notice" className="mb-4">
+          {error}
         </Alert>
       )}
 
-      <Button 
-        onClick={handleGenerate} 
+      <Button
+        variant="primary"
+        onClick={handleGenerate}
+        loading={isLoading}
         disabled={isLoading || !product || !audience || !keyword}
+        iconLeft={isLoading ? undefined : Wand2}
         className="mb-6 w-full md:w-auto"
       >
-        {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
         Generate Ad Copy
       </Button>
 
-      {(results.headlines.length > 0 || results.descriptions.length > 0) && (
+      {hasResults && (
         <Card className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <CardBody className="p-4 space-y-4">
+          <CardBody className="space-y-4">
             <div className="flex justify-end gap-2 mb-2">
-                <Button variant="outline" size="sm" onClick={copyAll}><Copy className="w-4 h-4 mr-2" /> Copy All</Button>
-                <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-2" /> Export CSV</Button>
+                <Button variant="outline" size="sm" onClick={copyAll} iconLeft={Copy}>Copy All</Button>
+                <Button variant="outline" size="sm" onClick={exportCSV} iconLeft={Download}>Export CSV</Button>
             </div>
-            
+
             {results.headlines.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[var(--st-text)] mb-2">Headlines</div>
@@ -171,7 +199,7 @@ export default function AdCopyGeneratorPage() {
                 </div>
               </div>
             )}
-            
+
             {results.descriptions.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[var(--st-text)] mb-2 mt-4">Descriptions</div>

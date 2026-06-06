@@ -1,6 +1,22 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Input,
+  Card,
+  CardBody,
+  Badge,
+  Table,
+  TBody,
+  Tr,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import React, { useState } from 'react';
 import { ArrowRightIcon, AlertCircle } from 'lucide-react';
 
@@ -14,6 +30,15 @@ const USER_AGENTS = [
   { label: 'Bingbot', value: 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' },
   { label: 'Custom...', value: 'custom' },
 ];
+
+/** Map an HTTP status code to a meaningful Badge tone (color carries meaning). */
+function statusTone(status: number): BadgeTone {
+  if (status >= 200 && status < 300) return 'success';
+  if (status >= 300 && status < 400) return 'info';
+  if (status >= 400 && status < 500) return 'warning';
+  if (status >= 500) return 'danger';
+  return 'neutral';
+}
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: string, onReset?: () => void}, {hasError: boolean, error?: Error}> {
   constructor(props: any) {
@@ -29,12 +54,12 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: 
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-[var(--st-border)] mt-4">
-          <CardBody className="p-4 flex flex-col items-center justify-center space-y-4">
-            <AlertCircle className="w-8 h-8 text-[var(--st-text)]" />
-            <div className="text-[var(--st-text)] font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
-            <p className="text-sm text-[var(--st-text)] text-center max-w-md break-all">{this.state.error?.message}</p>
-            <Button onClick={() => {
+        <Card className="mt-4">
+          <CardBody className="flex flex-col items-center justify-center gap-4 py-2">
+            <AlertCircle className="h-8 w-8 text-[var(--st-danger)]" aria-hidden="true" />
+            <div className="text-center font-semibold text-[var(--st-text)]">{this.props.title || 'Something went wrong rendering the results.'}</div>
+            <p className="max-w-md break-all text-center text-sm text-[var(--st-text-secondary)]">{this.state.error?.message}</p>
+            <Button variant="primary" onClick={() => {
               this.setState({ hasError: false });
               this.props.onReset?.();
             }}>Try again</Button>
@@ -58,7 +83,7 @@ export default function HttpHeadersPage() {
   const [method, setMethod] = useState('GET');
   const [userAgentType, setUserAgentType] = useState('default');
   const [customUserAgent, setCustomUserAgent] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState('');
@@ -89,17 +114,18 @@ export default function HttpHeadersPage() {
   return (
     <ToolShell title="HTTP Headers Checker" description="View HTTP response headers for any URL, check redirect chains, and verify server responses.">
       <div className="flex flex-col gap-4">
-        <div className="flex gap-2 items-center flex-wrap">
-          <Input 
-            className="flex-1 min-w-[200px]" 
-            value={url} 
-            onChange={(e) => setUrl(e.target.value)} 
-            placeholder="https://example.com" 
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            className="min-w-[200px] flex-1"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            aria-label="URL to check"
             onKeyDown={(e) => e.key === 'Enter' && run()}
           />
-          
+
           <Select value={method} onValueChange={setMethod}>
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-[100px]" aria-label="HTTP method">
               <SelectValue placeholder="Method" />
             </SelectTrigger>
             <SelectContent>
@@ -110,7 +136,7 @@ export default function HttpHeadersPage() {
           </Select>
 
           <Select value={userAgentType} onValueChange={setUserAgentType}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px]" aria-label="User-Agent">
               <SelectValue placeholder="User-Agent" />
             </SelectTrigger>
             <SelectContent>
@@ -120,52 +146,47 @@ export default function HttpHeadersPage() {
             </SelectContent>
           </Select>
 
-          <Button onClick={run} disabled={loading}>
-            {loading ? 'Checking…' : 'Check'}
+          <Button variant="primary" onClick={run} loading={loading}>
+            {loading ? 'Checking' : 'Check'}
           </Button>
         </div>
 
         {userAgentType === 'custom' && (
-          <Input 
-            value={customUserAgent} 
-            onChange={(e) => setCustomUserAgent(e.target.value)} 
-            placeholder="Enter custom User-Agent string..." 
+          <Input
+            value={customUserAgent}
+            onChange={(e) => setCustomUserAgent(e.target.value)}
+            placeholder="Enter custom User-Agent string..."
+            aria-label="Custom User-Agent string"
           />
         )}
       </div>
 
       {(error || data) && (
-        <ErrorBoundary 
-          title={error ? "HTTP Request Failed" : "Something went wrong rendering the results!"} 
+        <ErrorBoundary
+          title={error ? "HTTP Request Failed" : "Something went wrong rendering the results."}
           onReset={() => { setError(''); setData(null); }}
         >
           {error && <FetchErrorThrower error={error} />}
           {data && (
             <div className="mt-4 flex flex-col gap-4">
-            
+
             {data.redirectChain && data.redirectChain.length > 1 && (
               <Card>
-                <CardBody className="p-4">
-                  <h3 className="font-semibold mb-3">Redirect Trace</h3>
+                <CardBody>
+                  <h3 className="mb-3 font-semibold text-[var(--st-text)]">Redirect Trace</h3>
                   <div className="flex flex-col gap-3">
                     {data.redirectChain.map((step: any, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 text-sm">
-                        <div className="flex flex-col items-center gap-1 min-w-[50px] mt-0.5">
-                          <span className={cn("px-2 py-0.5 rounded text-xs font-semibold", 
-                            step.status >= 300 && step.status < 400 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
-                            step.status >= 200 && step.status < 300 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
-                            "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                          )}>
-                            {step.status}
-                          </span>
+                        <div className="mt-0.5 flex min-w-[50px] flex-col items-center gap-1">
+                          <Badge tone={statusTone(step.status)}>{step.status}</Badge>
                           {idx < data.redirectChain.length - 1 && (
-                            <ArrowRightIcon className="w-4 h-4 text-[var(--st-text-secondary)] rotate-90" />
+                            <ArrowRightIcon className="h-4 w-4 rotate-90 text-[var(--st-text-secondary)]" aria-hidden="true" />
                           )}
                         </div>
                         <div className="flex flex-col break-all pt-0.5">
-                          <span className="font-mono text-[var(--st-text)] font-medium">{step.url}</span>
+                          <span className="font-mono font-medium text-[var(--st-text)]">{step.url}</span>
                           {step.location && (
-                            <span className="text-[var(--st-text)] text-xs mt-1">↳ {step.location}</span>
+                            <span className="mt-1 text-xs text-[var(--st-text-secondary)]">&#8627; {step.location}</span>
                           )}
                         </div>
                       </div>
@@ -176,30 +197,24 @@ export default function HttpHeadersPage() {
             )}
 
             <Card>
-              <CardBody className="p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="font-semibold">Final Status:</span> 
-                  <span className={cn("px-2 py-0.5 rounded text-sm font-semibold", 
-                    data.status >= 200 && data.status < 300 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
-                    data.status >= 400 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
-                    "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                  )}>
-                    {data.status}
-                  </span>
+              <CardBody>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="font-semibold text-[var(--st-text)]">Final Status:</span>
+                  <Badge tone={statusTone(data.status)}>{data.status}</Badge>
                 </div>
-                
-                <h3 className="font-semibold mb-3">Response Headers</h3>
+
+                <h3 className="mb-3 font-semibold text-[var(--st-text)]">Response Headers</h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <tbody>
+                  <Table density="compact" className="w-full text-left text-xs">
+                    <TBody>
                       {Object.entries(data.headers || {}).map(([k, v]) => (
-                        <tr key={k} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50 transition-colors">
-                          <td className="py-2 pr-4 font-mono w-48 sm:w-60 align-top text-[var(--st-text)]">{k}</td>
-                          <td className="py-2 break-all font-mono text-[var(--st-text)]">{String(v)}</td>
-                        </tr>
+                        <Tr key={k}>
+                          <Td className="w-48 pr-4 align-top font-mono text-[var(--st-text-secondary)] sm:w-60">{k}</Td>
+                          <Td className="break-all font-mono text-[var(--st-text)]">{String(v)}</Td>
+                        </Tr>
                       ))}
-                    </tbody>
-                  </table>
+                    </TBody>
+                  </Table>
                 </div>
               </CardBody>
             </Card>

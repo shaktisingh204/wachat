@@ -1,31 +1,77 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, ChartContainer, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Download,
-  Loader2,
-  Megaphone,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-  Upload,
-  Link as LinkIcon,
-  AlertCircle,
-  } from 'lucide-react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    ChartContainer,
+    Checkbox,
+    DateRangePicker,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    Textarea,
+    THead,
+    Th,
+    Tr,
+    type BadgeTone,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    ChevronLeft,
+    ChevronRight,
+    Copy,
+    Download,
+    Megaphone,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+    Upload,
+    Link as LinkIcon,
+} from 'lucide-react';
 import {
     Bar,
-  CartesianGrid,
-  ComposedChart,
-  Legend,
-  Line,
-  Tooltip as RechartsTooltip,
-  XAxis,
-  YAxis,
-  } from 'recharts';
+    CartesianGrid,
+    ComposedChart,
+    Legend,
+    Line,
+    Tooltip as RechartsTooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 import * as React from 'react';
 
@@ -60,10 +106,10 @@ const STATUS_OPTIONS = [
 
 type StatusFilter = (typeof STATUS_OPTIONS)[number]['value'];
 
-const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'ghost' | 'info' | 'secondary'> = {
+const STATUS_TONE: Record<string, BadgeTone> = {
     active: 'success',
     paused: 'warning',
-    draft: 'ghost',
+    draft: 'neutral',
     completed: 'info',
 };
 
@@ -267,7 +313,7 @@ export default function TelegramAdsPage() {
         });
         setSavingEditor(false);
         if (res.success) {
-            toast({ title: 'Saved', description: res.message ?? 'Campaign saved.' });
+            toast({ title: 'Saved', description: res.message ?? 'Campaign saved.', tone: 'success' });
             setEditorOpen(false);
             void reload();
             void reloadAnalytics();
@@ -276,7 +322,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Failed to save campaign.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -285,7 +331,7 @@ export default function TelegramAdsPage() {
         if (!deleteRow || !projectId) return;
         const res = await deleteTelegramAdAction(deleteRow._id, projectId);
         if (res.success) {
-            toast({ title: 'Deleted', description: 'Campaign removed.' });
+            toast({ title: 'Deleted', description: 'Campaign removed.', tone: 'success' });
             setSelected((prev) => {
                 const next = new Set(prev);
                 next.delete(deleteRow._id);
@@ -298,7 +344,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Failed to delete.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -311,6 +357,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Deleted',
                 description: `${res.deleted} campaign${res.deleted === 1 ? '' : 's'} removed.`,
+                tone: 'success',
             });
             setSelected(new Set());
             setBulkDeleteOpen(false);
@@ -320,7 +367,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Error',
                 description: res.error ?? 'Bulk delete failed.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -328,7 +375,7 @@ export default function TelegramAdsPage() {
     async function runImport() {
         if (!projectId) return;
         if (!importCsv.trim()) {
-            toast({ title: 'Empty CSV', description: 'Paste CSV content first.', variant: 'destructive' });
+            toast({ title: 'Empty CSV', description: 'Paste CSV content first.', tone: 'danger' });
             return;
         }
         setImporting(true);
@@ -339,7 +386,7 @@ export default function TelegramAdsPage() {
         });
         setImporting(false);
         if (res.success) {
-            toast({ title: 'Imported', description: res.message ?? 'Done.' });
+            toast({ title: 'Imported', description: res.message ?? 'Done.', tone: 'success' });
             setImportOpen(false);
             setImportCsv('');
             void reload();
@@ -348,7 +395,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Import failed',
                 description: res.error ?? 'Could not parse CSV.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -360,7 +407,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'Export failed',
                 description: 'Could not generate CSV.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -373,7 +420,7 @@ export default function TelegramAdsPage() {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        toast({ title: 'Exported', description: 'CSV downloaded.' });
+        toast({ title: 'Exported', description: 'CSV downloaded.', tone: 'success' });
     }
 
     async function openUtm(row: CampaignRow) {
@@ -397,7 +444,7 @@ export default function TelegramAdsPage() {
             toast({
                 title: 'UTM failed',
                 description: res.error ?? 'Could not build link.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -431,145 +478,156 @@ export default function TelegramAdsPage() {
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background: `linear-gradient(135deg, ${ACCENT} 0%, #007DBB 100%)`,
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
-                >
-                    <Megaphone className="h-6 w-6 text-white" strokeWidth={1.75} />
+            <PageHeader>
+                <div className="flex items-start gap-4">
+                    <span
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-gradient-to-br from-[#229ED9] to-[#007DBB] shadow-lg"
+                        aria-hidden="true"
+                    >
+                        <Megaphone className="h-6 w-6 text-white" strokeWidth={1.75} />
+                    </span>
+                    <PageHeaderHeading>
+                        <PageEyebrow>Telegram</PageEyebrow>
+                        <PageTitle>Telegram Ads</PageTitle>
+                        <PageDescription>
+                            Track campaigns from ads.telegram.org in your own database. Record budgets,
+                            impressions, clicks, generate UTM links, and import/export performance via CSV.
+                        </PageDescription>
+                    </PageHeaderHeading>
                 </div>
-                <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
-                        Telegram
-                    </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram Ads
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                        Track campaigns from ads.telegram.org in your own database — record budgets,
-                        impressions, clicks, generate UTM links, and import/export performance via CSV.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-                        <Upload className="h-3.5 w-3.5" />
+                <PageActions>
+                    <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => setImportOpen(true)}>
                         Import CSV
                     </Button>
-                    <Button variant="outline" size="sm" onClick={runExport}>
-                        <Download className="h-3.5 w-3.5" />
+                    <Button variant="outline" size="sm" iconLeft={Download} onClick={runExport}>
                         Export CSV
                     </Button>
-                    <Button size="sm" onClick={openCreate} disabled={!projectId}>
-                        <Plus className="h-3.5 w-3.5" />
+                    <Button variant="primary" size="sm" iconLeft={Plus} onClick={openCreate} disabled={!projectId}>
                         New campaign
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
-            {!projectId ? (
-                <Card className="p-6">
-                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
-                        <AlertCircle className="h-4 w-4" />
-                        <span className="text-sm">Select a project to view Telegram ad campaigns.</span>
-                    </div>
-                </Card>
-            ) : null}
+            <TelegramProjectGate explainer="Pick a Telegram project to view ad campaigns. Budgets, impressions, clicks, and UTM links are all scoped to a project." />
 
             {/* KPI cards */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <KpiCard
+                <StatCard
                     label="Total spend"
-                    value={analytics ? fmtCurrencyCents(analytics.totalSpendCents) : '—'}
-                    loading={analyticsLoading}
+                    value={
+                        analyticsLoading ? (
+                            <Skeleton className="h-7 w-24" />
+                        ) : analytics ? (
+                            fmtCurrencyCents(analytics.totalSpendCents)
+                        ) : (
+                            '-'
+                        )
+                    }
                 />
-                <KpiCard
+                <StatCard
                     label="Impressions"
-                    value={analytics ? fmtNumber(analytics.totalImpressions) : '—'}
-                    loading={analyticsLoading}
+                    value={
+                        analyticsLoading ? (
+                            <Skeleton className="h-7 w-24" />
+                        ) : analytics ? (
+                            fmtNumber(analytics.totalImpressions)
+                        ) : (
+                            '-'
+                        )
+                    }
                 />
-                <KpiCard
+                <StatCard
                     label="Clicks"
-                    value={analytics ? fmtNumber(analytics.totalClicks) : '—'}
-                    loading={analyticsLoading}
+                    value={
+                        analyticsLoading ? (
+                            <Skeleton className="h-7 w-24" />
+                        ) : analytics ? (
+                            fmtNumber(analytics.totalClicks)
+                        ) : (
+                            '-'
+                        )
+                    }
                 />
-                <KpiCard
+                <StatCard
                     label="CTR"
-                    value={analytics ? `${analytics.ctr.toFixed(2)}%` : '—'}
-                    loading={analyticsLoading}
+                    value={
+                        analyticsLoading ? (
+                            <Skeleton className="h-7 w-24" />
+                        ) : analytics ? (
+                            `${analytics.ctr.toFixed(2)}%`
+                        ) : (
+                            '-'
+                        )
+                    }
                 />
             </div>
 
             {/* Chart */}
-            <Card className="p-4">
-                <div className="mb-2 flex items-center justify-between gap-3">
-                    <div>
-                        <h2 className="text-[14px] text-[var(--st-text)]">Performance over time</h2>
-                        <p className="text-[12px] text-[var(--st-text-secondary)]">
-                            Impressions / clicks (bars) and spend (line)
-                        </p>
-                    </div>
-                </div>
-                {analyticsLoading ? (
-                    <Skeleton className="h-[280px] w-full" />
-                ) : analytics && analytics.byDay.length > 0 ? (
-                    <ChartContainer height={280}>
-                        <ComposedChart data={analytics.byDay} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
-                            <CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
-                            <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                            <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
-                            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
-                            <RechartsTooltip />
-                            <Legend wrapperStyle={{ fontSize: 12 }} />
-                            <Bar
-                                yAxisId="left"
-                                dataKey="impressions"
-                                name="Impressions"
-                                fill={ACCENT}
-                                fillOpacity={0.4}
-                            />
-                            <Bar
-                                yAxisId="left"
-                                dataKey="clicks"
-                                name="Clicks"
-                                fill={ACCENT}
-                                fillOpacity={0.85}
-                            />
-                            <Line
-                                yAxisId="right"
-                                type="monotone"
-                                dataKey="spendCents"
-                                name="Spend (¢)"
-                                stroke="var(--st-text)"
-                                strokeWidth={1.5}
-                                dot={false}
-                            />
-                        </ComposedChart>
-                    </ChartContainer>
-                ) : (
-                    <div className="flex h-[200px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
-                        No data in the selected range.
-                    </div>
-                )}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Performance over time</CardTitle>
+                    <CardDescription>Impressions / clicks (bars) and spend (line)</CardDescription>
+                </CardHeader>
+                <CardBody>
+                    {analyticsLoading ? (
+                        <Skeleton className="h-[280px] w-full" />
+                    ) : analytics && analytics.byDay.length > 0 ? (
+                        <ChartContainer height={280}>
+                            <ComposedChart data={analytics.byDay} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
+                                <CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
+                                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                                <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
+                                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
+                                <RechartsTooltip />
+                                <Legend wrapperStyle={{ fontSize: 12 }} />
+                                <Bar
+                                    yAxisId="left"
+                                    dataKey="impressions"
+                                    name="Impressions"
+                                    fill={ACCENT}
+                                    fillOpacity={0.4}
+                                />
+                                <Bar
+                                    yAxisId="left"
+                                    dataKey="clicks"
+                                    name="Clicks"
+                                    fill={ACCENT}
+                                    fillOpacity={0.85}
+                                />
+                                <Line
+                                    yAxisId="right"
+                                    type="monotone"
+                                    dataKey="spendCents"
+                                    name="Spend (cents)"
+                                    stroke="var(--st-text)"
+                                    strokeWidth={1.5}
+                                    dot={false}
+                                />
+                            </ComposedChart>
+                        </ChartContainer>
+                    ) : (
+                        <div className="flex h-[200px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
+                            No data in the selected range.
+                        </div>
+                    )}
+                </CardBody>
             </Card>
 
             {/* Filter bar */}
-            <Card className="p-3">
+            <Card padding="sm">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
                         <Input
+                            iconLeft={Search}
                             placeholder="Search name, notes, platform ID"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8"
+                            aria-label="Search campaigns"
                         />
                     </div>
                     <div className="min-w-[150px]">
                         <Select value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by status">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -588,8 +646,7 @@ export default function TelegramAdsPage() {
                         />
                     </div>
                     {selected.size > 0 ? (
-                        <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(true)}>
-                            <Trash2 className="h-3.5 w-3.5" />
+                        <Button variant="outline" size="sm" iconLeft={Trash2} onClick={() => setBulkDeleteOpen(true)}>
                             Delete {selected.size}
                         </Button>
                     ) : null}
@@ -597,7 +654,7 @@ export default function TelegramAdsPage() {
             </Card>
 
             {/* Table */}
-            <Card className="overflow-hidden">
+            <Card padding="none">
                 {loading ? (
                     <div className="flex flex-col gap-2 p-4">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -605,143 +662,137 @@ export default function TelegramAdsPage() {
                         ))}
                     </div>
                 ) : error ? (
-                    <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
-                        <AlertCircle className="h-4 w-4" />
-                        {error}
-                    </div>
+                    <EmptyState
+                        tone="danger"
+                        icon={Megaphone}
+                        title="Could not load campaigns"
+                        description={error}
+                    />
                 ) : rows.length === 0 ? (
                     <EmptyState
                         title="No campaigns yet"
                         description="Track Telegram Ads campaigns by adding them here or importing a CSV from ads.telegram.org."
-                        icon={<Megaphone className="h-5 w-5" />}
+                        icon={Megaphone}
                         action={
-                            <Button size="sm" onClick={openCreate} disabled={!projectId}>
-                                <Plus className="h-3.5 w-3.5" />
+                            <Button variant="primary" size="sm" iconLeft={Plus} onClick={openCreate} disabled={!projectId}>
                                 New campaign
                             </Button>
                         }
                     />
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                                <tr>
-                                    <th className="w-10 p-3">
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th width={40}>
                                         <Checkbox
-                                            checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                                            onCheckedChange={(v) => toggleAll(!!v)}
+                                            checked={allSelected}
+                                            indeterminate={someSelected && !allSelected}
+                                            onChange={(e) => toggleAll(e.target.checked)}
+                                            aria-label="Select all campaigns"
                                         />
-                                    </th>
-                                    <th className="p-3 font-medium">Name</th>
-                                    <th className="p-3 font-medium">Status</th>
-                                    <th className="p-3 font-medium">Platform ID</th>
-                                    <th className="p-3 font-medium text-right">Budget</th>
-                                    <th className="p-3 font-medium text-right">Impressions</th>
-                                    <th className="p-3 font-medium text-right">Clicks</th>
-                                    <th className="p-3 font-medium text-right">CTR</th>
-                                    <th className="p-3 font-medium">Updated</th>
-                                    <th className="p-3" />
-                                </tr>
-                            </thead>
-                            <tbody>
+                                    </Th>
+                                    <Th>Name</Th>
+                                    <Th>Status</Th>
+                                    <Th>Platform ID</Th>
+                                    <Th align="right">Budget</Th>
+                                    <Th align="right">Impressions</Th>
+                                    <Th align="right">Clicks</Th>
+                                    <Th align="right">CTR</Th>
+                                    <Th>Updated</Th>
+                                    <Th align="right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {rows.map((row) => {
                                     const ctr = pctCtr(row.impressions, row.clicks);
                                     const checked = selected.has(row._id);
                                     return (
-                                        <tr
-                                            key={row._id}
-                                            className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40"
-                                        >
-                                            <td className="p-3">
+                                        <Tr key={row._id} className="group" selected={checked}>
+                                            <Td>
                                                 <Checkbox
                                                     checked={checked}
-                                                    onCheckedChange={(v) =>
+                                                    onChange={(e) =>
                                                         setSelected((prev) => {
                                                             const next = new Set(prev);
-                                                            if (v) next.add(row._id);
+                                                            if (e.target.checked) next.add(row._id);
                                                             else next.delete(row._id);
                                                             return next;
                                                         })
                                                     }
+                                                    aria-label={`Select ${row.name}`}
                                                 />
-                                            </td>
-                                            <td className="p-3 text-[var(--st-text)]">
-                                                <div className="font-medium">{row.name}</div>
+                                            </Td>
+                                            <Td>
+                                                <div className="font-medium text-[var(--st-text)]">{row.name}</div>
                                                 {row.landingUrl ? (
-                                                    <div className="truncate text-[12px] text-[var(--st-text-secondary)] max-w-[260px]">
+                                                    <div className="max-w-[260px] truncate text-[12px] text-[var(--st-text-secondary)]">
                                                         {row.landingUrl}
                                                     </div>
                                                 ) : null}
-                                            </td>
-                                            <td className="p-3">
-                                                <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
+                                            </Td>
+                                            <Td>
+                                                <Badge tone={STATUS_TONE[row.status] ?? 'neutral'}>
                                                     {row.status}
                                                 </Badge>
-                                            </td>
-                                            <td className="p-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
-                                                {row.platformId || '—'}
-                                            </td>
-                                            <td className="p-3 text-right">
-                                                {fmtCurrencyCents(row.budgetCents)}
-                                            </td>
-                                            <td className="p-3 text-right">
-                                                {fmtNumber(row.impressions)}
-                                            </td>
-                                            <td className="p-3 text-right">{fmtNumber(row.clicks)}</td>
-                                            <td className="p-3 text-right">{ctr.toFixed(2)}%</td>
-                                            <td className="p-3 text-[var(--st-text-secondary)]">
-                                                {fmtDate(row.updatedAt)}
-                                            </td>
-                                            <td className="p-3">
+                                            </Td>
+                                            <Td>
+                                                <span className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                                    {row.platformId || '-'}
+                                                </span>
+                                            </Td>
+                                            <Td align="right">{fmtCurrencyCents(row.budgetCents)}</Td>
+                                            <Td align="right">{fmtNumber(row.impressions)}</Td>
+                                            <Td align="right">{fmtNumber(row.clicks)}</Td>
+                                            <Td align="right">{ctr.toFixed(2)}%</Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)]">
+                                                    {fmtDate(row.updatedAt)}
+                                                </span>
+                                            </Td>
+                                            <Td align="right">
                                                 <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <Button
+                                                    <IconButton
+                                                        label="UTM link"
+                                                        icon={LinkIcon}
                                                         size="sm"
-                                                        variant="ghost"
                                                         onClick={() => openUtm(row)}
-                                                        title="UTM link"
-                                                    >
-                                                        <LinkIcon className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
+                                                    />
+                                                    <IconButton
+                                                        label="Edit campaign"
+                                                        icon={Pencil}
                                                         size="sm"
-                                                        variant="ghost"
                                                         onClick={() => openEdit(row)}
-                                                        title="Edit"
-                                                    >
-                                                        <Pencil className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
+                                                    />
+                                                    <IconButton
+                                                        label="Delete campaign"
+                                                        icon={Trash2}
                                                         size="sm"
-                                                        variant="ghost"
                                                         onClick={() => setDeleteRow(row)}
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </Button>
+                                                    />
                                                 </div>
-                                            </td>
-                                        </tr>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                 )}
 
                 {data && rows.length > 0 ? (
                     <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                         <span>
-                            {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
-                            {data.total}
+                            {(page - 1) * PAGE_SIZE + 1}-{(page - 1) * PAGE_SIZE + rows.length} of {data.total}
                         </span>
                         <div className="flex items-center gap-1">
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                iconLeft={ChevronLeft}
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                             >
-                                <ChevronLeft className="h-3.5 w-3.5" />
                                 Prev
                             </Button>
                             <span className="px-2">
@@ -750,11 +801,11 @@ export default function TelegramAdsPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                iconRight={ChevronRight}
                                 disabled={!data.hasMore}
                                 onClick={() => setPage((p) => p + 1)}
                             >
                                 Next
-                                <ChevronRight className="h-3.5 w-3.5" />
                             </Button>
                         </div>
                     </div>
@@ -856,7 +907,7 @@ export default function TelegramAdsPage() {
                                     onChange={(e) =>
                                         setEditorForm((f) => ({ ...f, notes: e.target.value }))
                                     }
-                                    placeholder="Audience, targeting context, learnings…"
+                                    placeholder="Audience, targeting context, learnings."
                                 />
                             </Field>
                         </div>
@@ -870,8 +921,7 @@ export default function TelegramAdsPage() {
                         <Button variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={saveEditor} disabled={savingEditor}>
-                            {savingEditor ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" loading={savingEditor} onClick={saveEditor}>
                             Save
                         </Button>
                     </div>
@@ -894,12 +944,12 @@ export default function TelegramAdsPage() {
                     <div className="grid gap-3">
                         <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
 {`name,impressions,clicks,budget_cents,status,platform_id,landing_url
 Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             </pre>
                         </div>
-                        <div>
+                        <Field label="Import mode">
                             <Select
                                 value={importMode}
                                 onValueChange={(v) => setImportMode(v as 'append' | 'replace_stats')}
@@ -909,26 +959,25 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="append">Append (add to counts)</SelectItem>
-                                    <SelectItem value="replace_stats">
-                                        Replace stats
-                                    </SelectItem>
+                                    <SelectItem value="replace_stats">Replace stats</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <Textarea
-                            value={importCsv}
-                            onChange={(e) => setImportCsv(e.target.value)}
-                            rows={10}
-                            placeholder="Paste CSV here…"
-                            className="font-mono text-[12px]"
-                        />
+                        </Field>
+                        <Field label="CSV content">
+                            <Textarea
+                                value={importCsv}
+                                onChange={(e) => setImportCsv(e.target.value)}
+                                rows={10}
+                                placeholder="Paste CSV here."
+                                className="font-mono text-[12px]"
+                            />
+                        </Field>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={runImport} disabled={importing}>
-                            {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                        <Button variant="primary" size="sm" loading={importing} onClick={runImport}>
                             Import
                         </Button>
                     </DialogFooter>
@@ -946,19 +995,19 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                     </DialogHeader>
                     {!utmRow?.landingUrl ? (
                         <p className="text-[13px] text-[var(--st-danger)]">
-                            This campaign has no landing URL — add one to generate a UTM link.
+                            This campaign has no landing URL. Add one to generate a UTM link.
                         </p>
                     ) : utmLoading ? (
                         <Skeleton className="h-12 w-full" />
                     ) : utmResult ? (
                         <div className="space-y-3">
-                            <code className="block break-all rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
+                            <code className="block break-all rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
                                 {utmResult.shortUrl}
                             </code>
                             {utmResult.longUrl !== utmResult.shortUrl ? (
                                 <details className="text-[12px] text-[var(--st-text-secondary)]">
                                     <summary className="cursor-pointer select-none">Long URL</summary>
-                                    <code className="mt-1 block break-all rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
+                                    <code className="mt-1 block break-all rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
                                         {utmResult.longUrl}
                                     </code>
                                 </details>
@@ -969,8 +1018,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         <Button variant="outline" size="sm" onClick={() => setUtmOpen(false)}>
                             Close
                         </Button>
-                        <Button size="sm" onClick={copyUtm} disabled={!utmResult}>
-                            <Copy className="h-3.5 w-3.5" />
+                        <Button variant="primary" size="sm" iconLeft={Copy} onClick={copyUtm} disabled={!utmResult}>
                             {utmCopy ? 'Copied' : 'Copy'}
                         </Button>
                     </DialogFooter>
@@ -990,7 +1038,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
@@ -1008,55 +1056,12 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmBulkDelete}>
+                        <Button variant="danger" size="sm" onClick={confirmBulkDelete}>
                             Delete
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
-    );
-}
-
-function KpiCard({
-    label,
-    value,
-    loading,
-}: {
-    label: string;
-    value: string;
-    loading: boolean;
-}) {
-    return (
-        <Card>
-            <CardBody className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                    {label}
-                </p>
-                {loading ? (
-                    <Skeleton className="h-7 w-24" />
-                ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
-                )}
-            </CardBody>
-        </Card>
-    );
-}
-
-function Field({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <TelegramProjectGate />
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-        </label>
     );
 }

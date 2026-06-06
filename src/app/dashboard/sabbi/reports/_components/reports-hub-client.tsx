@@ -34,7 +34,17 @@ import {
     ScrollText,
 } from 'lucide-react';
 
-import { Card, Input, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    Input,
+    Badge,
+    Button,
+    IconButton,
+    EmptyState,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/sabcrm/20ui';
 
 /**
  * Server → client boundary is serialization-only: icons are passed as
@@ -138,7 +148,7 @@ export function ReportsHubClient({
     });
 
     const [favorites, setFavorites] = React.useState<string[]>([]);
-    
+
     React.useEffect(() => {
         try {
             const stored = localStorage.getItem('crm_favorite_reports');
@@ -150,7 +160,7 @@ export function ReportsHubClient({
         e.preventDefault();
         e.stopPropagation();
         setFavorites((prev) => {
-            const next = prev.includes(href) ? prev.filter(x => x !== href) : [...prev, href];
+            const next = prev.includes(href) ? prev.filter((x) => x !== href) : [...prev, href];
             try { localStorage.setItem('crm_favorite_reports', JSON.stringify(next)); } catch {}
             return next;
         });
@@ -160,7 +170,7 @@ export function ReportsHubClient({
 
     const displayCategories = React.useMemo(() => {
         let cats = [...categories];
-        
+
         if (favorites.length > 0) {
             const favItems: ReportLink[] = [];
             for (const c of categories) {
@@ -171,7 +181,7 @@ export function ReportsHubClient({
             if (favItems.length > 0) {
                 cats = [
                     { id: 'favorites', title: 'Favorites', iconName: 'Star', items: favItems, lastRefreshAt: null, runs: 0 },
-                    ...cats
+                    ...cats,
                 ];
             }
         }
@@ -208,7 +218,7 @@ export function ReportsHubClient({
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search reports..."
-                        leadingSlot={<Search aria-hidden="true" />}
+                        iconLeft={Search}
                         aria-label="Search reports"
                     />
                 </div>
@@ -234,7 +244,7 @@ export function ReportsHubClient({
                 {displayCategories.map((cat) => {
                     const Icon = resolveIcon(cat.iconName);
                     return (
-                        <Card key={cat.id} className="p-4">
+                        <Card key={cat.id} padding="md">
                             <div className="flex items-start justify-between gap-2">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
@@ -258,10 +268,13 @@ export function ReportsHubClient({
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 flex flex-col gap-4">
                     {filteredCategories.length === 0 ? (
-                        <Card className="flex min-h-[160px] items-center justify-center p-6">
-                            <p className="text-[13px] text-[var(--st-text-secondary)]">
-                                No reports match your search.
-                            </p>
+                        <Card padding="lg" className="flex min-h-[160px] items-center justify-center">
+                            <EmptyState
+                                icon={Search}
+                                title="No reports match your search"
+                                description="Try a different keyword or clear the filter."
+                                size="sm"
+                            />
                         </Card>
                     ) : null}
                     {filteredCategories.map((cat) => {
@@ -271,33 +284,31 @@ export function ReportsHubClient({
                             <section key={cat.id}>
                                 <Collapsible open={open} onOpenChange={() => toggleCategory(cat.id)}>
                                     <div className="flex items-center justify-between">
-                                        <CollapsibleTrigger asChild>
-                                            <button
-                                                type="button"
-                                                className="group flex items-center gap-2 text-left"
-                                                aria-label={`Toggle ${cat.title}`}
-                                            >
-                                                <Icon
-                                                    className="h-4 w-4 text-[var(--st-text-secondary)]"
-                                                    strokeWidth={1.75}
-                                                    aria-hidden="true"
-                                                />
-                                                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
-                                                    {cat.title}
-                                                </h2>
-                                                <span className="text-[11.5px] text-[var(--st-text-tertiary)]">
-                                                    {cat.items.length}
-                                                </span>
-                                                <ChevronDown
-                                                    className={
-                                                        open
-                                                            ? 'h-3.5 w-3.5 text-[var(--st-text-secondary)] transition-transform'
-                                                            : 'h-3.5 w-3.5 -rotate-90 text-[var(--st-text-secondary)] transition-transform'
-                                                    }
-                                                    strokeWidth={1.75}
-                                                    aria-hidden="true"
-                                                />
-                                            </button>
+                                        <CollapsibleTrigger
+                                            hideChevron
+                                            className="group flex items-center gap-2 text-left"
+                                            aria-label={`Toggle ${cat.title}`}
+                                        >
+                                            <Icon
+                                                className="h-4 w-4 text-[var(--st-text-secondary)]"
+                                                strokeWidth={1.75}
+                                                aria-hidden="true"
+                                            />
+                                            <span className="text-[15px] font-semibold text-[var(--st-text)]">
+                                                {cat.title}
+                                            </span>
+                                            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">
+                                                {cat.items.length}
+                                            </span>
+                                            <ChevronDown
+                                                className={
+                                                    open
+                                                        ? 'h-3.5 w-3.5 text-[var(--st-text-secondary)] transition-transform'
+                                                        : 'h-3.5 w-3.5 -rotate-90 text-[var(--st-text-secondary)] transition-transform'
+                                                }
+                                                strokeWidth={1.75}
+                                                aria-hidden="true"
+                                            />
                                         </CollapsibleTrigger>
                                         <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                             Last run {fmtRel(cat.lastRefreshAt)}
@@ -314,15 +325,15 @@ export function ReportsHubClient({
                                                         href={href}
                                                         className="relative group flex h-full flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-sm transition-shadow hover:shadow-[var(--st-shadow-md)]"
                                                     >
-                                                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button 
-                                                                type="button" 
+                                                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <IconButton
+                                                                icon={Star}
+                                                                size="sm"
+                                                                variant="ghost"
                                                                 onClick={(e) => toggleFavorite(e, href)}
-                                                                className={`text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors ${isFav ? 'text-[var(--st-text)] opacity-100' : ''}`}
-                                                                aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                                                            >
-                                                                <Star className="h-4 w-4" fill={isFav ? "currentColor" : "none"} />
-                                                            </button>
+                                                                label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                                                                className={isFav ? 'opacity-100' : undefined}
+                                                            />
                                                         </div>
                                                         <div className="flex items-start gap-3">
                                                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
@@ -353,14 +364,17 @@ export function ReportsHubClient({
                 </div>
 
                 <aside className="flex flex-col gap-4">
-                    <Card className="p-5">
+                    <Card padding="lg">
                         <div className="mb-3 flex items-center justify-between gap-2">
                             <h2 className="text-[14px] font-medium text-[var(--st-text)]">Recently viewed</h2>
                         </div>
                         {recentRuns.length === 0 ? (
-                            <p className="py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
-                                No report runs yet. Run any report to see history here.
-                            </p>
+                            <EmptyState
+                                icon={Clock4}
+                                title="No report runs yet"
+                                description="Run any report to see its history here."
+                                size="sm"
+                            />
                         ) : (
                             <ul className="divide-y divide-[var(--st-border)]">
                                 {recentRuns.map((run) => (
@@ -375,7 +389,7 @@ export function ReportsHubClient({
                                                         {run.name}
                                                     </div>
                                                     <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
-                                                        {run.rowCount} rows · {fmtRel(run.startedAt)}
+                                                        {run.rowCount} rows, {fmtRel(run.startedAt)}
                                                     </div>
                                                 </div>
                                                 <Badge
@@ -417,7 +431,7 @@ function CategoryChip({
     return (
         <Button
             type="button"
-            variant={active ? 'default' : 'outline'}
+            variant={active ? 'primary' : 'outline'}
             size="sm"
             onClick={onClick}
         >

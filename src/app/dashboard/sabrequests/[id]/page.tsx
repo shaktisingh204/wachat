@@ -1,5 +1,5 @@
 /**
- * `/dashboard/requests/[id]` — single-request detail.
+ * `/dashboard/requests/[id]` - single-request detail.
  *
  * Shows the submitted form data, the timeline of stage actions, the
  * current approver, and (when the caller is the current approver)
@@ -32,7 +32,7 @@ export default async function RequestDetailPage({
         getBlueprintById(reqRes.data.blueprintId),
     ]);
     return (
-        <div className="zoruui p-6">
+        <div className="ui20 p-6">
             <RequestDetail
                 request={reqRes.data}
                 blueprint={bpRes.data ?? null}

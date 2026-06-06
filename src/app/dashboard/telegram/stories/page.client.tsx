@@ -1,29 +1,59 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Checkbox, DatePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  BookOpen,
-  Clapperboard,
-  Download,
-  Image as ImageIcon,
-  Loader2,
-  Pencil,
-  Plus,
-  Search,
-  Send,
-  Trash2,
-  Video as VideoIcon,
-  X,
-  XCircle,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  MoreVertical,
-  } from 'lucide-react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    StatCard,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertCircle,
+    ArrowDown,
+    ArrowUp,
+    BookOpen,
+    Clapperboard,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    Plus,
+    Search,
+    Send,
+    Sparkles,
+    Trash2,
+    XCircle,
+} from 'lucide-react';
 
 /**
- * Telegram Stories — Bot API 7.0+ stories on channels (with
+ * Telegram Stories - Bot API 7.0+ stories on channels (with
  * `can_post_stories` admin rights) and on business accounts (via
  * `business_connection_id`).
  *
@@ -76,8 +106,6 @@ import { StoryDetail } from './_components/story-detail';
 import { AreaEditor, AreaDraft } from './_components/area-editor';
 import { StoryEditorDrawer, FormState, EMPTY_FORM, combineDateTime, makeAreaKey, parseUserIds } from './_components/story-editor-drawer';
 
-const ACCENT = '#229ED9';
-const ACCENT_DARK = '#1d8ec0';
 const PAGE_SIZE = 12;
 
 const STATUS_OPTIONS: { value: StoryStatus | 'all'; label: string }[] = [
@@ -664,60 +692,54 @@ function TelegramStoriesContent() {
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background: `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_DARK} 100%)`,
-                        boxShadow: '0 10px 28px rgba(34, 158, 217, 0.28)',
-                    }}
-                >
-                    <Clapperboard
-                        className="h-6 w-6 text-white"
-                        strokeWidth={1.75}
-                    />
+            <PageHeader>
+                <div className="flex items-start gap-4">
+                    <span
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent)] text-white"
+                        aria-hidden="true"
+                    >
+                        <Clapperboard className="h-6 w-6" strokeWidth={1.75} />
+                    </span>
+                    <PageHeaderHeading>
+                        <PageEyebrow>Telegram</PageEyebrow>
+                        <PageTitle>Telegram Stories</PageTitle>
+                        <PageDescription>
+                            Compose, schedule, and post 24-hour stories. On
+                            channels where your bot has{' '}
+                            <code>can_post_stories</code>, or on business
+                            accounts via a saved business connection.
+                        </PageDescription>
+                    </PageHeaderHeading>
                 </div>
-                <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
-                        Telegram
-                    </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
-                        Telegram Stories
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                        Compose, schedule, and post 24-hour stories — on channels
-                        where your bot has <code>can_post_stories</code>, or on
-                        business accounts via a saved business connection.
-                    </p>
-                </div>
-                <div className="flex gap-2">
+                <PageActions>
                     <Button
                         variant="outline"
                         size="sm"
+                        iconLeft={BookOpen}
                         onClick={() => setBcOpen(true)}
                     >
-                        <BookOpen className="h-3.5 w-3.5" />
                         Business connections
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
+                        iconLeft={Download}
                         onClick={runExport}
                         disabled={!projectId}
                     >
-                        <Download className="h-3.5 w-3.5" />
                         Export CSV
                     </Button>
                     <Button
                         size="sm"
+                        variant="primary"
+                        iconLeft={Plus}
                         onClick={openCreate}
                         disabled={!projectId || bots.length === 0}
                     >
-                        <Plus className="h-3.5 w-3.5" />
                         New story
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {/* Project ID empty state handled by TelegramProjectGate */}
 
@@ -725,30 +747,26 @@ function TelegramStoriesContent() {
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <KpiCard
                     label="Total stories"
-                    value={analytics ? data.total.toLocaleString() : '—'}
+                    value={analytics ? data.total.toLocaleString() : '-'}
                     loading={analyticsLoading}
                 />
                 <KpiCard
                     label="Scheduled"
                     value={
-                        analytics
-                            ? analytics.scheduled.toLocaleString()
-                            : '—'
+                        analytics ? analytics.scheduled.toLocaleString() : '-'
                     }
                     loading={analyticsLoading}
                 />
                 <KpiCard
                     label="Posted today"
                     value={
-                        analytics
-                            ? analytics.postedToday.toLocaleString()
-                            : '—'
+                        analytics ? analytics.postedToday.toLocaleString() : '-'
                     }
                     loading={analyticsLoading}
                 />
                 <KpiCard
                     label="Active now"
-                    value={analytics ? analytics.active.toLocaleString() : '—'}
+                    value={analytics ? analytics.active.toLocaleString() : '-'}
                     loading={analyticsLoading}
                 />
             </div>
@@ -756,13 +774,13 @@ function TelegramStoriesContent() {
             {/* Filter bar */}
             <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative min-w-[220px] flex-1">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
+                    <div className="min-w-[220px] flex-1">
                         <Input
+                            iconLeft={Search}
                             placeholder="Search captions or errors"
+                            aria-label="Search stories"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8"
                         />
                     </div>
                     <div className="min-w-[160px]">
@@ -827,18 +845,40 @@ function TelegramStoriesContent() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="min-w-[150px] flex items-center gap-1 border border-[var(--st-border)] rounded-md px-2 h-9 bg-[var(--st-bg-secondary)]">
-                        <select 
-                            className="bg-transparent text-sm focus:outline-none flex-1" 
-                            value={sortField} 
-                            onChange={(e) => setSortField(e.target.value as 'createdAt' | 'activePeriodSeconds')}
+                    <div className="flex min-w-[180px] items-center gap-1">
+                        <Select
+                            value={sortField}
+                            onValueChange={(v) =>
+                                setSortField(
+                                    v as 'createdAt' | 'activePeriodSeconds',
+                                )
+                            }
                         >
-                            <option value="createdAt">Created Date</option>
-                            <option value="activePeriodSeconds">Duration</option>
-                        </select>
-                        <Button variant="ghost" size="icon-sm" className="h-6 w-6" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>
-                            {sortDir === 'asc' ? '↑' : '↓'}
-                        </Button>
+                            <SelectTrigger aria-label="Sort by">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="createdAt">
+                                    Created date
+                                </SelectItem>
+                                <SelectItem value="activePeriodSeconds">
+                                    Duration
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <IconButton
+                            variant="ghost"
+                            size="sm"
+                            icon={sortDir === 'asc' ? ArrowUp : ArrowDown}
+                            label={
+                                sortDir === 'asc'
+                                    ? 'Sorted ascending, switch to descending'
+                                    : 'Sorted descending, switch to ascending'
+                            }
+                            onClick={() =>
+                                setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+                            }
+                        />
                     </div>
                 </div>
             </Card>
@@ -859,7 +899,7 @@ function TelegramStoriesContent() {
             ) : error ? (
                 <Card className="p-6 text-sm text-[var(--st-danger)]">
                     <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle className="h-4 w-4" aria-hidden="true" />
                         {error}
                     </div>
                 </Card>
@@ -868,14 +908,15 @@ function TelegramStoriesContent() {
                     <EmptyState
                         title="No stories yet"
                         description="Compose a story to post on a channel where your bot is an admin with can_post_stories, or via a registered business connection."
-                        icon={<Clapperboard className="h-5 w-5" />}
+                        icon={<Clapperboard className="h-5 w-5" aria-hidden="true" />}
                         action={
                             <Button
                                 size="sm"
+                                variant="primary"
+                                iconLeft={Plus}
                                 onClick={openCreate}
                                 disabled={!projectId || bots.length === 0}
                             >
-                                <Plus className="h-3.5 w-3.5" />
                                 New story
                             </Button>
                         }
@@ -901,7 +942,7 @@ function TelegramStoriesContent() {
                     {data.total > PAGE_SIZE ? (
                         <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                             <span>
-                                {(page - 1) * PAGE_SIZE + 1}–
+                                {(page - 1) * PAGE_SIZE + 1}-
                                 {(page - 1) * PAGE_SIZE + rows.length} of{' '}
                                 {data.total}
                             </span>
@@ -909,12 +950,12 @@ function TelegramStoriesContent() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
+                                    iconLeft={ChevronLeft}
                                     disabled={page <= 1}
                                     onClick={() =>
                                         setPage((p) => Math.max(1, p - 1))
                                     }
                                 >
-                                    <ChevronLeft className="h-3.5 w-3.5" />
                                     Prev
                                 </Button>
                                 <span className="px-2">
@@ -923,11 +964,11 @@ function TelegramStoriesContent() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
+                                    iconRight={ChevronRight}
                                     disabled={!data.hasMore}
                                     onClick={() => setPage((p) => p + 1)}
                                 >
                                     Next
-                                    <ChevronRight className="h-3.5 w-3.5" />
                                 </Button>
                             </div>
                         </div>
@@ -989,9 +1030,10 @@ function TelegramStoriesContent() {
                         <div className="mb-3 flex justify-end">
                             <Button
                                 size="sm"
+                                variant="primary"
+                                iconLeft={Plus}
                                 onClick={() => setBcAddOpen(true)}
                             >
-                                <Plus className="h-3.5 w-3.5" />
                                 Add connection
                             </Button>
                         </div>
@@ -999,19 +1041,31 @@ function TelegramStoriesContent() {
                             <EmptyState
                                 title="No connections yet"
                                 description="Paste the business_connection_id Telegram delivered to your webhook."
-                                icon={<BookOpen className="h-5 w-5" />}
+                                icon={<BookOpen className="h-5 w-5" aria-hidden="true" />}
                             />
                         ) : (
                             <ul className="flex flex-col gap-2">
                                 {businessConnections.map((c) => (
                                     <li
                                         key={c._id}
-                                        className={`flex items-center justify-between rounded-md border p-3 ${
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-pressed={selectedBcId === c._id}
+                                        className={`flex items-center justify-between rounded-[var(--st-radius)] border p-3 ${
                                             selectedBcId === c._id
                                                 ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
                                                 : 'border-[var(--st-border)]'
                                         }`}
                                         onClick={() => setSelectedBcId(c._id)}
+                                        onKeyDown={(e) => {
+                                            if (
+                                                e.key === 'Enter' ||
+                                                e.key === ' '
+                                            ) {
+                                                e.preventDefault();
+                                                setSelectedBcId(c._id);
+                                            }
+                                        }}
                                     >
                                         <div>
                                             <p className="font-mono text-[13px] text-[var(--st-text)]">
@@ -1026,27 +1080,29 @@ function TelegramStoriesContent() {
                                                 {c.isEnabled ? ' · enabled' : ' · disabled'}
                                             </p>
                                         </div>
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-2">
                                             {selectedBcId === c._id &&
                                             starBalance ? (
                                                 <Badge variant="info">
-                                                    <Sparkles className="h-3 w-3" />
+                                                    <Sparkles
+                                                        className="h-3 w-3"
+                                                        aria-hidden="true"
+                                                    />
                                                     {starBalance.amount} stars
                                                 </Badge>
                                             ) : null}
-                                            <Button
+                                            <IconButton
                                                 variant="ghost"
-                                                size="icon-sm"
+                                                size="sm"
+                                                icon={Trash2}
+                                                label="Remove connection"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     void deleteBusinessConnection(
                                                         c._id,
                                                     );
                                                 }}
-                                                aria-label="Remove"
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </Button>
+                                            />
                                         </div>
                                     </li>
                                 ))}
@@ -1107,6 +1163,8 @@ function TelegramStoriesContent() {
                         </Button>
                         <Button
                             size="sm"
+                            variant="primary"
+                            loading={bcSaving}
                             onClick={saveBusinessConnection}
                             disabled={
                                 bcSaving ||
@@ -1114,9 +1172,6 @@ function TelegramStoriesContent() {
                                 !bcAddConnectionId.trim()
                             }
                         >
-                            {bcSaving ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : null}
                             Save
                         </Button>
                     </DialogFooter>
@@ -1152,11 +1207,12 @@ function TelegramStoriesContent() {
                         </Button>
                         <Button
                             size="sm"
+                            variant="primary"
+                            iconLeft={Send}
                             onClick={() =>
                                 postRow && void confirmPostNow(postRow)
                             }
                         >
-                            <Send className="h-3.5 w-3.5" />
                             Post now
                         </Button>
                     </DialogFooter>
@@ -1172,8 +1228,8 @@ function TelegramStoriesContent() {
                     <DialogHeader>
                         <DialogTitle>Delete local record?</DialogTitle>
                         <DialogDescription>
-                            The Telegram story (if any) stays where it is —
-                            this only removes the SabNode record.
+                            The Telegram story (if any) stays where it is. This
+                            only removes the SabNode record.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -1184,8 +1240,12 @@ function TelegramStoriesContent() {
                         >
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={confirmDeleteLocal}>
-                            <Trash2 className="h-3.5 w-3.5" />
+                        <Button
+                            size="sm"
+                            variant="danger"
+                            iconLeft={Trash2}
+                            onClick={confirmDeleteLocal}
+                        >
                             Delete record
                         </Button>
                     </DialogFooter>
@@ -1201,8 +1261,8 @@ function TelegramStoriesContent() {
                     <DialogHeader>
                         <DialogTitle>Remove story from Telegram?</DialogTitle>
                         <DialogDescription>
-                            This calls <code>deleteStory</code>. Cannot be
-                            undone — viewers will no longer see the story.
+                            This calls <code>deleteStory</code>. It cannot be
+                            undone, and viewers will no longer see the story.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -1215,9 +1275,10 @@ function TelegramStoriesContent() {
                         </Button>
                         <Button
                             size="sm"
+                            variant="danger"
+                            iconLeft={XCircle}
                             onClick={confirmDeleteOnTelegram}
                         >
-                            <XCircle className="h-3.5 w-3.5" />
                             Delete on Telegram
                         </Button>
                     </DialogFooter>
@@ -1231,49 +1292,6 @@ function TelegramStoriesContent() {
 //  Subcomponents
 // ---------------------------------------------------------------------------
 
-function Section({
-    title,
-    description,
-    children,
-}: {
-    title: string;
-    description?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <section className="flex flex-col gap-3">
-            <div>
-                <h3 className="text-[14px] font-medium text-[var(--st-text)]">
-                    {title}
-                </h3>
-                {description ? (
-                    <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
-                        {description}
-                    </p>
-                ) : null}
-            </div>
-            <div>{children}</div>
-        </section>
-    );
-}
-
-function Field({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                {label}
-            </span>
-            {children}
-        </label>
-    );
-}
-
 function KpiCard({
     label,
     value,
@@ -1283,20 +1301,17 @@ function KpiCard({
     value: string;
     loading: boolean;
 }) {
-    return (
-        <Card>
-            <CardBody className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
-                    {label}
-                </p>
-                {loading ? (
-                    <Skeleton className="h-7 w-24" />
-                ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
-                        {value}
+    if (loading) {
+        return (
+            <Card>
+                <CardBody className="flex flex-col gap-2 pt-5">
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                        {label}
                     </p>
-                )}
-            </CardBody>
-        </Card>
-    );
+                    <Skeleton className="h-7 w-24" />
+                </CardBody>
+            </Card>
+        );
+    }
+    return <StatCard label={label} value={value} />;
 }

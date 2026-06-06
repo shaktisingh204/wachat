@@ -3,7 +3,19 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, Input, Label, PageHeader, Textarea, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import { createSabpublishLocation } from '@/app/actions/sabpublish.actions';
 
 export default function NewSabpublishLocationPage() {
@@ -44,7 +56,7 @@ export default function NewSabpublishLocationPage() {
   }
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>New location</PageTitle>
@@ -57,48 +69,41 @@ export default function NewSabpublishLocationPage() {
       <Card>
         <CardBody className="p-6">
           <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
-            <div className="sm:col-span-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input id="name" name="name" required />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="addressLine1">Street address</Label>
-              <Input id="addressLine1" name="addressLine1" />
-            </div>
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" />
-            </div>
-            <div>
-              <Label htmlFor="region">State / region</Label>
-              <Input id="region" name="region" />
-            </div>
-            <div>
-              <Label htmlFor="postalCode">Postal code</Label>
-              <Input id="postalCode" name="postalCode" />
-            </div>
-            <div>
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" name="country" />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" />
-            </div>
-            <div>
-              <Label htmlFor="websiteUrl">Website</Label>
-              <Input id="websiteUrl" name="websiteUrl" type="url" />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="categories">Categories (comma-separated)</Label>
-              <Textarea id="categories" name="categories" rows={2} />
-            </div>
+            <Field className="sm:col-span-2" label="Name" required>
+              <Input name="name" required />
+            </Field>
+            <Field className="sm:col-span-2" label="Street address">
+              <Input name="addressLine1" />
+            </Field>
+            <Field label="City">
+              <Input name="city" />
+            </Field>
+            <Field label="State / region">
+              <Input name="region" />
+            </Field>
+            <Field label="Postal code">
+              <Input name="postalCode" />
+            </Field>
+            <Field label="Country">
+              <Input name="country" />
+            </Field>
+            <Field label="Phone">
+              <Input name="phone" />
+            </Field>
+            <Field label="Website">
+              <Input name="websiteUrl" type="url" />
+            </Field>
+            <Field className="sm:col-span-2" label="Categories (comma-separated)">
+              <Textarea name="categories" rows={2} />
+            </Field>
             {error ? (
-              <p className="sm:col-span-2 text-sm text-[var(--st-text)]">{error}</p>
+              <Alert className="sm:col-span-2" tone="danger" title="Could not save">
+                {error}
+              </Alert>
             ) : null}
             <div className="sm:col-span-2 flex gap-2">
-              <Button type="submit" disabled={pending}>
-                {pending ? 'Creating…' : 'Create location'}
+              <Button type="submit" variant="primary" loading={pending}>
+                {pending ? 'Creating...' : 'Create location'}
               </Button>
               <Button
                 type="button"

@@ -2,8 +2,36 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { X } from 'lucide-react';
 
-import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Checkbox, Label, EmptyState, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  IconButton,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Checkbox,
+  Badge,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import { listBugs, saveCurrentFilter, deleteSavedFilter } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc } from '@/lib/rust-client/bug-tracker-bugs';
@@ -61,18 +89,18 @@ export function BugListClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-[var(--st-text)]">Bugs</h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
-            Internal developer bug tracker — {bugs.length} result
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Bugs</PageTitle>
+          <PageDescription>
+            Internal developer bug tracker. {bugs.length} result
             {bugs.length === 1 ? '' : 's'}
             {hasMore ? '+' : ''}
-          </p>
-        </div>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <Card className="flex flex-col gap-4 p-4">
+      <Card className="flex flex-col gap-4">
         <BugFilters
           value={filters}
           onChange={setFilters}
@@ -103,9 +131,9 @@ export function BugListClient({
       </Card>
 
       {error ? (
-        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
+        <Alert tone="danger" title="Could not load bugs">
           {error}
-        </Card>
+        </Alert>
       ) : null}
 
       <BugListTable bugs={bugs} loading={loading} />
@@ -130,23 +158,18 @@ function SavedFilterChip({
   onDelete: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs">
-      <button
-        type="button"
-        className="text-[var(--st-text)] hover:underline"
-        onClick={onApply}
-      >
+    <span className="inline-flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] pl-1 pr-0.5">
+      <Button variant="ghost" size="sm" onClick={onApply}>
         {filter.name}
         {filter.isShared ? ' · shared' : ''}
-      </button>
-      <button
-        type="button"
-        aria-label={`Remove saved filter ${filter.name}`}
-        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+      </Button>
+      <IconButton
+        label={`Remove saved filter ${filter.name}`}
+        icon={X}
+        variant="ghost"
+        size="sm"
         onClick={onDelete}
-      >
-        ×
-      </button>
+      />
     </span>
   );
 }
@@ -154,7 +177,7 @@ function SavedFilterChip({
 function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
   if (loading && bugs.length === 0) {
     return (
-      <Card className="p-6 text-sm text-[var(--st-text-secondary)]">Loading bugs…</Card>
+      <Card className="text-sm text-[var(--st-text-secondary)]">Loading bugs...</Card>
     );
   }
   if (bugs.length === 0) {
@@ -166,7 +189,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
     );
   }
   return (
-    <Card className="overflow-hidden">
+    <Card padding="none" className="overflow-hidden">
       <Table>
         <THead>
           <Tr>
@@ -190,12 +213,9 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
                 {b.labels && b.labels.length > 0 ? (
                   <div className="mt-1 flex flex-wrap gap-1">
                     {b.labels.map((l) => (
-                      <span
-                        key={l}
-                        className="rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]"
-                      >
+                      <Badge key={l} tone="neutral" kind="soft">
                         {l}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 ) : null}
@@ -212,7 +232,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
               <Td className="text-xs text-[var(--st-text-secondary)]">
                 {b.createdAt
                   ? new Date(b.createdAt).toLocaleDateString()
-                  : '—'}
+                  : '-'}
               </Td>
             </Tr>
           ))}
@@ -226,7 +246,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
  * Modal used to save the current filter set under a name.
  *
  * Kept as a top-level component (not nested inside the list client) per
- * the "no inline components" rule — but we mount it from the list client.
+ * the "no inline components" rule, but we mount it from the list client.
  */
 export function SaveFilterDialog({
   open,
@@ -242,7 +262,7 @@ export function SaveFilterDialog({
   const [name, setName] = React.useState('');
   const [shared, setShared] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
-  const toast = useToast();
+  const { toast } = useToast();
 
   async function save() {
     if (!name.trim()) return;
@@ -254,7 +274,7 @@ export function SaveFilterDialog({
     });
     setBusy(false);
     if (res.error) {
-      toast?.error?.(res.error);
+      toast.error(res.error);
       return;
     }
     if (res.filter) onSaved(res.filter);
@@ -274,29 +294,25 @@ export function SaveFilterDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 py-2">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="bug-filter-name">Name</Label>
+          <Field label="Name">
             <Input
-              id="bug-filter-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. P1 open across mobile"
             />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={shared}
-              onCheckedChange={(v) => setShared(Boolean(v))}
-            />
-            Share with everyone in my tenant
-          </label>
+          </Field>
+          <Checkbox
+            checked={shared}
+            onChange={(e) => setShared(e.target.checked)}
+            label="Share with everyone in my tenant"
+          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={save} disabled={busy || !name.trim()}>
-            {busy ? 'Saving…' : 'Save'}
+          <Button variant="primary" onClick={save} disabled={busy || !name.trim()}>
+            {busy ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>

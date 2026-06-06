@@ -1,14 +1,14 @@
 'use client';
 
 /**
- * OverdueTasksClient — full client wrapper for the Overdue Tasks report.
+ * OverdueTasksClient - full client wrapper for the Overdue Tasks report.
  *
  * Responsibilities:
- *  - Filter bar (project, assignee, priority, days-overdue range) — URL-driven GET form
+ *  - Filter bar (priority, days-overdue range), URL-driven GET form
  *  - KPI cards
  *  - Bar chart: overdue count by assignee (top 10)
  *  - Table: task rows with EntityRowLink, priority badge, days-overdue column
- *  - Bulk reassign / bulk extend due date (placeholder UI — triggers alert)
+ *  - Bulk reassign / bulk extend due date (placeholder UI, triggers toast)
  *  - Export CSV / XLSX
  */
 
@@ -22,20 +22,51 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Download, FileSpreadsheet, UserCheck, CalendarClock, AlertTriangle } from 'lucide-react';
+import {
+  Download,
+  FileSpreadsheet,
+  UserCheck,
+  CalendarClock,
+  AlertTriangle,
+  CheckCircle2,
+} from 'lucide-react';
 import { bulkEscalatePriority, bulkReassignTasks } from '../../_components/local-actions';
-import { toast } from 'sonner';
 
-import { Button, Card, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  Badge,
+  Checkbox,
+  Field,
+  Input,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 import type { OverdueTaskDetailRow, OverdueTasksDeepResult } from '@/app/actions/worksuite/reports.actions.types';
 
-const PRIORITY_VARIANT: Record<string, 'danger' | 'warning' | 'secondary'> = {
+const PRIORITY_TONE: Record<string, BadgeTone> = {
   High: 'danger',
   Medium: 'warning',
-  Low: 'secondary',
+  Low: 'neutral',
 };
 
 interface Props {
@@ -48,7 +79,9 @@ interface Props {
 }
 
 export function OverdueTasksClient({ data, filters }: Props) {
+  const { toast } = useToast();
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [priority, setPriority] = React.useState<string>(filters.priority ?? '');
 
   const toggleRow = (id: string) => {
     setSelected((prev) => {
@@ -112,7 +145,7 @@ export function OverdueTasksClient({ data, filters }: Props) {
     'Task': r.title,
     'Project': r.projectName,
     'Assignee': r.assignedTo,
-    'Due Date': r.dueDate ? r.dueDate.slice(0, 10) : '—',
+    'Due Date': r.dueDate ? r.dueDate.slice(0, 10) : '-',
     'Days Overdue': r.daysOverdue,
     'Priority': r.priority,
     'Status': r.status,
@@ -128,9 +161,10 @@ export function OverdueTasksClient({ data, filters }: Props) {
     void downloadXlsx(`overdue-tasks-${dateStamp()}.xlsx`, exportHeaders, exportRows, 'Overdue Tasks');
   };
 
+  // recharts library object props (not JSX style); use 20ui tokens.
   const tooltipStyle = {
-    backgroundColor: 'hsl(var(--card))',
-    border: '1px solid hsl(var(--border))',
+    backgroundColor: 'var(--st-bg-secondary)',
+    border: '1px solid var(--st-border)',
     borderRadius: 8,
     fontSize: 12,
   };
@@ -140,44 +174,48 @@ export function OverdueTasksClient({ data, filters }: Props) {
       {/* Filter bar */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Priority</span>
-          <select
-            name="priority"
-            defaultValue={filters.priority ?? ''}
-            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
-          >
-            <option value="">All</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Min days overdue</span>
-          <input
+        {/* Carry the Select value into the GET form. */}
+        <input type="hidden" name="priority" value={priority} />
+        <Field label="Priority">
+          <Select value={priority} onValueChange={setPriority}>
+            <SelectTrigger aria-label="Priority" className="w-32">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All</SelectItem>
+              <SelectItem value="High">High</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="Low">Low</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="Min days overdue">
+          <Input
             type="number"
             name="minDays"
             defaultValue={filters.minDays ?? ''}
             min="0"
             placeholder="0"
-            className="h-9 w-24 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-24"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Max days overdue</span>
-          <input
+        </Field>
+        <Field label="Max days overdue">
+          <Input
             type="number"
             name="maxDays"
             defaultValue={filters.maxDays ?? ''}
             min="0"
             placeholder="any"
-            className="h-9 w-24 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+            inputSize="sm"
+            className="w-24"
           />
-        </label>
-        <Button type="submit" size="sm">Apply</Button>
+        </Field>
+        <Button type="submit" variant="primary" size="sm">
+          Apply
+        </Button>
       </form>
 
       {/* KPIs */}
@@ -187,19 +225,25 @@ export function OverdueTasksClient({ data, filters }: Props) {
         <StatCard label="Overdue this week" value={String(data.kpis.overdueThisWeek)} tone="amber" hint="due within last 7 days" />
         <StatCard
           label="Avg days overdue"
-          value={data.kpis.avgOverdueDays > 0 ? `${data.kpis.avgOverdueDays}d` : '—'}
+          value={data.kpis.avgOverdueDays > 0 ? `${data.kpis.avgOverdueDays}d` : '-'}
           tone={data.kpis.avgOverdueDays > 14 ? 'red' : 'amber'}
         />
       </div>
 
       {/* Chart */}
-      <Card className="p-6">
+      <Card padding="lg">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Overdue by assignee</h2>
           <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Top 10 assignees by overdue task count.</p>
         </div>
         {data.byAssignee.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No overdue tasks.</div>
+          <EmptyState
+            icon={CheckCircle2}
+            tone="success"
+            title="No overdue tasks"
+            description="Every task is on schedule. New overdue items will appear here."
+            size="sm"
+          />
         ) : (
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -208,11 +252,11 @@ export function OverdueTasksClient({ data, filters }: Props) {
                 layout="vertical"
                 margin={{ top: 8, right: 24, left: 8, bottom: 8 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                 <YAxis type="category" dataKey="assignee" tick={{ fontSize: 11 }} width={120} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="count" name="Overdue tasks" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" name="Overdue tasks" fill="var(--st-danger)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -228,33 +272,29 @@ export function OverdueTasksClient({ data, filters }: Props) {
           <div className="flex gap-2">
             {selected.size > 0 && (
               <>
-                <Button size="sm" variant="outline" onClick={handleBulkReassign}>
-                  <UserCheck className="mr-1.5 h-3.5 w-3.5" />
+                <Button size="sm" variant="outline" iconLeft={UserCheck} onClick={handleBulkReassign}>
                   Reassign
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleBulkExtend}>
-                  <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
+                <Button size="sm" variant="outline" iconLeft={CalendarClock} onClick={handleBulkExtend}>
                   Extend due
                 </Button>
-                <Button size="sm" variant="destructive" onClick={handleEscalatePriority}>
-                  <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+                <Button size="sm" variant="danger" iconLeft={AlertTriangle} onClick={handleEscalatePriority}>
                   Escalate Priority
                 </Button>
               </>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Download className="mr-1.5 h-3.5 w-3.5" />
+                <Button variant="outline" size="sm" iconLeft={Download}>
                   Export
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleCsv}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={handleCsv}>
+                  CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleXlsx}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
+                <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={handleXlsx}>
+                  XLSX
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -263,48 +303,47 @@ export function OverdueTasksClient({ data, filters }: Props) {
       )}
 
       {/* Table */}
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                <Th className="w-10">
-                  <input
-                    type="checkbox"
+              <Tr>
+                <Th width={40}>
+                  <Checkbox
                     aria-label="Select all"
                     checked={selected.size === data.rows.length && data.rows.length > 0}
                     onChange={toggleAll}
-                    className="h-4 w-4 rounded border-[var(--st-border)]"
                   />
                 </Th>
-                <Th className="text-[var(--st-text-secondary)]">Task</Th>
-                <Th className="text-[var(--st-text-secondary)]">Project</Th>
-                <Th className="text-[var(--st-text-secondary)]">Assignee</Th>
-                <Th className="text-[var(--st-text-secondary)]">Due date</Th>
-                <Th className="text-right text-[var(--st-text-secondary)]">Days overdue</Th>
-                <Th className="text-[var(--st-text-secondary)]">Priority</Th>
+                <Th>Task</Th>
+                <Th>Project</Th>
+                <Th>Assignee</Th>
+                <Th>Due date</Th>
+                <Th align="right">Days overdue</Th>
+                <Th>Priority</Th>
               </Tr>
             </THead>
             <TBody>
               {data.rows.length === 0 ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    No overdue tasks — nice work!
+                <Tr>
+                  <Td colSpan={7}>
+                    <EmptyState
+                      icon={CheckCircle2}
+                      tone="success"
+                      title="No overdue tasks"
+                      description="Nice work. Every task is on schedule."
+                      size="sm"
+                    />
                   </Td>
                 </Tr>
               ) : (
                 data.rows.map((r: OverdueTaskDetailRow) => (
-                  <Tr key={r._id} className="border-[var(--st-border)]">
+                  <Tr key={r._id} selected={selected.has(r._id)}>
                     <Td>
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         aria-label={`Select ${r.title}`}
                         checked={selected.has(r._id)}
                         onChange={() => toggleRow(r._id)}
-                        className="h-4 w-4 rounded border-[var(--st-border)]"
                       />
                     </Td>
                     <Td>
@@ -317,13 +356,13 @@ export function OverdueTasksClient({ data, filters }: Props) {
                     <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</Td>
                     <Td className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</Td>
                     <Td className="text-[13px] text-[var(--st-text)]">
-                      {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
+                      {r.dueDate ? r.dueDate.slice(0, 10) : '-'}
                     </Td>
-                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    <Td align="right" className="text-[13px] font-medium text-[var(--st-text)]">
                       {r.daysOverdue}d
                     </Td>
                     <Td>
-                      <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
+                      <Badge tone={PRIORITY_TONE[r.priority] ?? 'neutral'}>
                         {r.priority}
                       </Badge>
                     </Td>

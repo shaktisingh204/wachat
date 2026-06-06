@@ -3,8 +3,31 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, KeyRound, ShieldCheck } from 'lucide-react';
 
-import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Field,
+    Input,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    Badge,
+    Alert,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
     revokeSabvaultShare,
     shareSabvaultSecret,
@@ -24,6 +47,7 @@ export function ShareDialogClient({
     initialShares: SabvaultShareDoc[];
 }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [granteeType, setGranteeType] = React.useState<SabvaultGranteeType>('user');
     const [granteeId, setGranteeId] = React.useState('');
     const [permission, setPermission] = React.useState<SabvaultSharePermission>('read');
@@ -44,12 +68,16 @@ export function ShareDialogClient({
             });
             if (out.error) {
                 setError(out.error);
+                toast.error(out.error);
                 return;
             }
             setGranteeId('');
+            toast.success('Access granted');
             router.refresh();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Share failed');
+            const message = err instanceof Error ? err.message : 'Share failed';
+            setError(message);
+            toast.error(message);
         } finally {
             setBusy(false);
         }
@@ -58,91 +86,132 @@ export function ShareDialogClient({
     async function onRevoke(shareId?: string) {
         if (!shareId) return;
         const out = await revokeSabvaultShare(shareId);
-        if (out.error) setError(out.error);
-        else router.refresh();
+        if (out.error) {
+            setError(out.error);
+            toast.error(out.error);
+        } else {
+            toast.success('Access revoked');
+            router.refresh();
+        }
     }
 
     return (
-        <div className="zoruui mx-auto flex max-w-2xl flex-col gap-4 p-6">
-            <Link href={`/dashboard/sabvault/${secret._id}`} className="text-sm text-[var(--st-text-secondary)]">
-                ← Back to secret
+        <div className="ui20 mx-auto flex max-w-2xl flex-col gap-4 p-6">
+            <Link
+                href={`/dashboard/sabvault/${secret._id}`}
+                className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+            >
+                <ArrowLeft size={14} aria-hidden="true" />
+                Back to secret
             </Link>
-            <Card className="p-5">
-                <h1 className="mb-1 text-lg font-semibold">Share {secret.name}</h1>
-                <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
-                    Grant a teammate or team access. The grantee unlocks with their own master key.
-                </p>
-                <form className="flex flex-col gap-3" onSubmit={onSubmit}>
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="flex flex-col gap-1.5">
-                            <Label>Grantee</Label>
-                            <Select value={granteeType} onValueChange={(v) => setGranteeType(v as SabvaultGranteeType)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Type" />
+
+            <PageHeader bordered={false} compact>
+                <PageHeaderHeading>
+                    <PageTitle>Share {secret.name}</PageTitle>
+                    <PageDescription>
+                        Grant a teammate or team access. The grantee unlocks with their own master key.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>New grant</CardTitle>
+                    <CardDescription>
+                        Pick who gets access and what they can do with this secret.
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
+                    <form className="flex flex-col gap-3" onSubmit={onSubmit}>
+                        <div className="grid grid-cols-3 gap-3">
+                            <Field label="Grantee">
+                                <Select
+                                    value={granteeType}
+                                    onValueChange={(v) => setGranteeType(v as SabvaultGranteeType)}
+                                >
+                                    <SelectTrigger aria-label="Grantee type">
+                                        <SelectValue placeholder="Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="team">Team</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                            <Field label="User/Team ID" className="col-span-2" required>
+                                <Input
+                                    required
+                                    value={granteeId}
+                                    onChange={(e) => setGranteeId(e.target.value)}
+                                    placeholder="ObjectId"
+                                    iconLeft={KeyRound}
+                                />
+                            </Field>
+                        </div>
+                        <Field label="Permission">
+                            <Select
+                                value={permission}
+                                onValueChange={(v) => setPermission(v as SabvaultSharePermission)}
+                            >
+                                <SelectTrigger aria-label="Permission level">
+                                    <SelectValue placeholder="Permission" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="team">Team</SelectItem>
+                                    <SelectItem value="read">Read (reveal/copy)</SelectItem>
+                                    <SelectItem value="use">Use (auto-fill only)</SelectItem>
+                                    <SelectItem value="edit">Edit</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="col-span-2 flex flex-col gap-1.5">
-                            <Label htmlFor="sv-grantee-id">User/Team ID</Label>
-                            <Input
-                                id="sv-grantee-id"
-                                required
-                                value={granteeId}
-                                onChange={(e) => setGranteeId(e.target.value)}
-                                placeholder="ObjectId"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Permission</Label>
-                        <Select value={permission} onValueChange={(v) => setPermission(v as SabvaultSharePermission)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Permission" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="read">Read (reveal/copy)</SelectItem>
-                                <SelectItem value="use">Use (auto-fill only)</SelectItem>
-                                <SelectItem value="edit">Edit</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    {error ? <div className="text-sm text-[var(--st-danger)]">{error}</div> : null}
-                    <Button type="submit" disabled={busy}>
-                        {busy ? 'Granting…' : 'Grant access'}
-                    </Button>
-                </form>
+                        </Field>
+                        {error ? (
+                            <Alert tone="danger" title="Could not share secret">
+                                {error}
+                            </Alert>
+                        ) : null}
+                        <Button type="submit" variant="primary" loading={busy} disabled={busy}>
+                            {busy ? 'Granting...' : 'Grant access'}
+                        </Button>
+                    </form>
+                </CardBody>
             </Card>
 
-            <Card className="p-5">
-                <h2 className="mb-3 text-sm font-semibold">Active grants</h2>
-                {initialShares.length === 0 ? (
-                    <div className="text-sm text-[var(--st-text-secondary)]">No active shares.</div>
-                ) : (
-                    <ul className="divide-y">
-                        {initialShares.map((s) => (
-                            <li key={s._id} className="flex items-center justify-between py-2">
-                                <div>
-                                    <div className="text-sm font-medium">
-                                        {s.granteeType}: <span className="font-mono">{s.granteeId}</span>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Active grants</CardTitle>
+                    <CardDescription>
+                        Everyone who currently has access to this secret.
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
+                    {initialShares.length === 0 ? (
+                        <EmptyState
+                            icon={ShieldCheck}
+                            title="No active shares"
+                            description="This secret is private. Grant access above to share it with a teammate or team."
+                        />
+                    ) : (
+                        <ul className="flex flex-col divide-y divide-[var(--st-border)]">
+                            {initialShares.map((s) => (
+                                <li key={s._id} className="flex items-center justify-between py-2.5">
+                                    <div className="flex flex-col gap-0.5">
+                                        <div className="text-sm font-medium text-[var(--st-text)]">
+                                            {s.granteeType}: <span className="font-mono">{s.granteeId}</span>
+                                        </div>
+                                        <div className="text-xs text-[var(--st-text-secondary)]">
+                                            Granted {new Date(s.grantedAt).toLocaleString()}
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-[var(--st-text-secondary)]">
-                                        Granted {new Date(s.grantedAt).toLocaleString()}
+                                    <div className="flex items-center gap-2">
+                                        <Badge tone="accent">{s.permission}</Badge>
+                                        <Button variant="outline" size="sm" onClick={() => onRevoke(s._id)}>
+                                            Revoke
+                                        </Button>
                                     </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge>{s.permission}</Badge>
-                                    <Button variant="outline" size="sm" onClick={() => onRevoke(s._id)}>
-                                        Revoke
-                                    </Button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </CardBody>
             </Card>
         </div>
     );

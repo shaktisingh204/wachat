@@ -1,6 +1,13 @@
 'use client';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+} from '@/components/sabcrm/20ui';
 import { ExternalLink, Send, Power, Copy, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import type { MiniAppRow } from '@/lib/rust-client/telegram-mini-apps';
 
@@ -24,33 +31,32 @@ export function RowActionsMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label={`Actions for ${app.name}`}
-          className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-zoru-bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
+        <IconButton
+          icon={MoreHorizontal}
+          label={`Actions for ${app.name}`}
+          variant="ghost"
+          size="sm"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onOpen}>
-          <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Open detail
+        <DropdownMenuItem iconLeft={ExternalLink} onClick={onOpen}>
+          Open detail
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onSend}>
-          <Send className="mr-1.5 h-3.5 w-3.5" /> Send to chat
+        <DropdownMenuItem iconLeft={Send} onClick={onSend}>
+          Send to chat
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onSetMenuButton}>
-          <Power className="mr-1.5 h-3.5 w-3.5" /> Set as menu button
+        <DropdownMenuItem iconLeft={Power} onClick={onSetMenuButton}>
+          Set as menu button
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onCopyLink}>
-          <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy direct link
+        <DropdownMenuItem iconLeft={Copy} onClick={onCopyLink}>
+          Copy direct link
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onEdit}>
-          <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
+        <DropdownMenuItem iconLeft={Pencil} onClick={onEdit}>
+          Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onDelete} className="text-[var(--st-text)]">
-          <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
+        <DropdownMenuItem variant="danger" iconLeft={Trash2} onClick={onDelete}>
+          Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

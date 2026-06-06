@@ -1,12 +1,13 @@
 "use client";
 
-import { cn, useToast, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import * as React from "react";
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-  useTransition } from "react";
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -30,20 +31,60 @@ import {
   ToggleRight,
   Workflow,
   Zap,
-  } from "lucide-react";
+} from "lucide-react";
 
-/**
- * /dashboard/sabflow/flow-builder — flow list page.
- *
- * Full ZoruUI rewrite. Same server actions (`listSabFlows`, `createSabFlow`,
- * `deleteSabFlow`, `duplicateSabFlow`, `saveSabFlow`,
- * `getTodaySubmissionCounts`) and same `<FlowCard>` grid as before — only the
- * surrounding chrome (header, stats, toolbar, dialogs, list view) was rebuilt
- * on zoru primitives. No clay, no `@/components/ui/*`, no `@/hooks/use-toast`,
- * no `react-icons/lu`, no rainbow palette.
- */
-
-import * as React from "react";
+import {
+  cn,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
 
 import {
   createSabFlow,
@@ -60,7 +101,16 @@ import { FlowImportExport } from "@/components/sabflow/FlowImportExport";
 import { FlowTemplates } from "@/components/sabflow/FlowTemplates";
 import { RecentActivityFeed } from "@/components/sabflow/RecentActivityFeed";
 
-/* ── Component ─────────────────────────────────────────────────────────── */
+/**
+ * /dashboard/sabflow/flow-builder - flow list page.
+ *
+ * Pure 20ui rewrite. Same server actions (listSabFlows, createSabFlow,
+ * deleteSabFlow, duplicateSabFlow, saveSabFlow, getTodaySubmissionCounts) and
+ * the same shared FlowCard grid; the surrounding chrome (header, stats, toolbar,
+ * dialogs, list view) is built on 20ui primitives and tokens only.
+ */
+
+/* Component */
 
 type ViewMode = "grid" | "list";
 
@@ -83,7 +133,7 @@ export default function SabFlowListPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, startDeleting] = useTransition();
 
-  /* ── Data fetching ─────────────────────────────────────────────────── */
+  /* Data fetching */
 
   const fetchFlows = useCallback(() => {
     startTransition(async () => {
@@ -96,11 +146,7 @@ export default function SabFlowListPage() {
           getTodaySubmissionCounts(ids).then(setTodayCounts).catch(() => {});
         }
       } else if (data && "error" in data) {
-        toast({
-          title: "Error",
-          description: data.error as string,
-          variant: "destructive",
-        });
+        toast.error({ title: "Error", description: data.error as string });
       }
     });
   }, [toast]);
@@ -110,17 +156,13 @@ export default function SabFlowListPage() {
     fetchFlows();
   }, [fetchFlows, router]);
 
-  /* ── Handlers ──────────────────────────────────────────────────────── */
+  /* Handlers */
 
   const handleCreate = () => {
     startCreating(async () => {
       const result = await createSabFlow(newName.trim() || "Untitled flow");
       if ("error" in result) {
-        toast({
-          title: "Error",
-          description: result.error as string,
-          variant: "destructive",
-        });
+        toast.error({ title: "Error", description: result.error as string });
         return;
       }
       setShowCreate(false);
@@ -136,13 +178,9 @@ export default function SabFlowListPage() {
       const result = await deleteSabFlow(id);
       setDeleteTarget(null);
       if ("error" in result) {
-        toast({
-          title: "Error",
-          description: result.error as string,
-          variant: "destructive",
-        });
+        toast.error({ title: "Error", description: result.error as string });
       } else {
-        toast({ title: "Deleted", description: `"${name}" was deleted.` });
+        toast.success({ title: "Deleted", description: `"${name}" was deleted.` });
         fetchFlows();
       }
     });
@@ -151,57 +189,57 @@ export default function SabFlowListPage() {
   const handleDuplicate = async (flowId: string) => {
     const result = await duplicateSabFlow(flowId);
     if ("error" in result) {
-      toast({
-        title: "Error",
-        description: result.error as string,
-        variant: "destructive",
-      });
+      toast.error({ title: "Error", description: result.error as string });
     } else {
-      toast({ title: "Duplicated", description: "Flow was duplicated." });
+      toast.success({ title: "Duplicated", description: "Flow was duplicated." });
       fetchFlows();
     }
   };
 
   const handleToggleActive = async (flow: FlowItem) => {
-    const isPublished = flow.status === 'PUBLISHED';
-    const result = isPublished ? await deactivateSabFlow(flow._id) : await activateSabFlow(flow._id);
-    if ('error' in result) {
-      toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+    const isPublished = flow.status === "PUBLISHED";
+    const result = isPublished
+      ? await deactivateSabFlow(flow._id)
+      : await activateSabFlow(flow._id);
+    if ("error" in result) {
+      toast.error({ title: "Error", description: result.error as string });
     } else {
-      setFlows((prev) => prev.map((f) =>
-        f._id === flow._id ? { ...f, status: isPublished ? 'DRAFT' : 'PUBLISHED' } : f
-      ));
+      setFlows((prev) =>
+        prev.map((f) =>
+          f._id === flow._id ? { ...f, status: isPublished ? "DRAFT" : "PUBLISHED" } : f,
+        ),
+      );
     }
   };
 
   const handleRunNow = async (flowId: string) => {
     try {
-      const r = await fetch(`/api/sabflow/${flowId}/trigger`, { method: 'POST' });
-      const j = await r.json() as { executionId?: string; error?: string };
+      const r = await fetch(`/api/sabflow/${flowId}/trigger`, { method: "POST" });
+      const j = (await r.json()) as { executionId?: string; error?: string };
       if (j.error) throw new Error(j.error);
-      toast({ title: 'Execution queued', description: `Run ${j.executionId?.slice(-8)} started.` });
+      toast.success({
+        title: "Execution queued",
+        description: `Run ${j.executionId?.slice(-8)} started.`,
+      });
       router.push(`/dashboard/sabflow/logs?flowId=${flowId}`);
     } catch (e) {
-      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Failed to trigger', variant: 'destructive' });
+      toast.error({
+        title: "Error",
+        description: e instanceof Error ? e.message : "Failed to trigger",
+      });
     }
   };
 
   const handleRename = async (flowId: string, name: string) => {
     const result = await saveSabFlow(flowId, { name });
     if ("error" in result) {
-      toast({
-        title: "Error",
-        description: result.error as string,
-        variant: "destructive",
-      });
+      toast.error({ title: "Error", description: result.error as string });
     } else {
-      setFlows((prev) =>
-        prev.map((f) => (f._id === flowId ? { ...f, name } : f)),
-      );
+      setFlows((prev) => prev.map((f) => (f._id === flowId ? { ...f, name } : f)));
     }
   };
 
-  /* ── Derived data ──────────────────────────────────────────────────── */
+  /* Derived data */
 
   const filtered = useMemo(() => {
     if (!query.trim()) return flows;
@@ -219,7 +257,7 @@ export default function SabFlowListPage() {
     [flows],
   );
 
-  /* ── Render ────────────────────────────────────────────────────────── */
+  /* Render */
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
@@ -244,55 +282,34 @@ export default function SabFlowListPage() {
       <PageHeader>
         <PageHeading>
           <PageTitle>SabFlow</PageTitle>
-          <PageDescription>
-            Build visual conversational flows.
-          </PageDescription>
+          <PageDescription>Build visual conversational flows.</PageDescription>
         </PageHeading>
         <PageActions>
           <FlowImportExport />
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus />
+          <Button variant="primary" iconLeft={Plus} onClick={() => setShowCreate(true)}>
             New Flow
           </Button>
         </PageActions>
       </PageHeader>
 
-      {/* ── Stats cards ─────────────────────────────────────────────── */}
+      {/* Stats cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard
-          label="Total"
-          value={stats.total}
-          icon={<Workflow />}
-        />
-        <StatCard
-          label="Published"
-          value={stats.published}
-          icon={<Zap />}
-        />
-        <StatCard
-          label="Drafts"
-          value={stats.draft}
-          icon={<CirclePause />}
-        />
-        <StatCard
-          label="Groups"
-          value={stats.groups}
-          icon={<GitBranch />}
-        />
+        <StatCard label="Total" value={stats.total} icon={Workflow} />
+        <StatCard label="Published" value={stats.published} icon={Zap} />
+        <StatCard label="Drafts" value={stats.draft} icon={CirclePause} />
+        <StatCard label="Groups" value={stats.groups} icon={GitBranch} />
       </div>
 
-      {/* ── Recent activity / today's flows ─────────────────────────── */}
+      {/* Recent activity / today's flows */}
       {flows.length > 0 && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-1">
             <RecentActivityFeed />
           </div>
-          <Card className="overflow-hidden lg:col-span-2 p-0">
+          <Card padding="none" className="overflow-hidden lg:col-span-2">
             <CardHeader className="flex flex-row items-center gap-2.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-3">
-              <Zap className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <CardTitle className="text-[13px]">
-                Today&apos;s activity
-              </CardTitle>
+              <Zap className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              <CardTitle className="text-[13px]">Today&apos;s activity</CardTitle>
             </CardHeader>
             <CardBody className="px-4 py-3">
               {flows.length === 0 ? (
@@ -315,17 +332,18 @@ export default function SabFlowListPage() {
                           key={flow._id}
                           className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--st-bg-secondary)]"
                         >
-                          <button
-                            type="button"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() =>
                               router.push(
                                 `/dashboard/sabflow/flow-builder/${flow._id}`,
                               )
                             }
-                            className="flex-1 truncate text-left text-[12.5px] font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-text)]"
+                            className="min-w-0 flex-1 justify-start truncate text-left"
                           >
                             {flow.name}
-                          </button>
+                          </Button>
                           <Badge
                             variant={count > 0 ? "secondary" : "outline"}
                             className="tabular-nums"
@@ -342,11 +360,11 @@ export default function SabFlowListPage() {
         </div>
       )}
 
-      {/* ── Templates section ───────────────────────────────────────── */}
+      {/* Templates section */}
       {flows.length === 0 && !isPending ? (
-        <Card className="border-dashed bg-[var(--st-bg-secondary)]/40 p-6">
+        <Card padding="lg" className="border-dashed bg-[var(--st-bg-secondary)]/40">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <Sparkles className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="text-[13px] font-semibold text-[var(--st-text)]">
               Get started quickly
             </span>
@@ -357,7 +375,7 @@ export default function SabFlowListPage() {
         <FlowTemplates onFlowCreated={fetchFlows} />
       ) : null}
 
-      {/* ── My Flows section ────────────────────────────────────────── */}
+      {/* My Flows section */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="mr-auto text-[15px] font-semibold text-[var(--st-text)]">
@@ -366,43 +384,47 @@ export default function SabFlowListPage() {
 
           <Input
             type="text"
-            placeholder="Search flows…"
+            placeholder="Search flows"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leadingSlot={<Search />}
+            iconLeft={Search}
+            aria-label="Search flows"
             className="w-48 sm:w-64"
           />
 
           <Button
             variant="outline"
             size="sm"
+            iconLeft={RefreshCw}
             onClick={fetchFlows}
             disabled={isPending}
+            className={cn(isPending && "[&_svg]:animate-spin")}
           >
-            <RefreshCw className={cn(isPending && "animate-spin")} />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
 
-          {/* View toggle — segmented buttons (no tabs) */}
-          <div className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="icon-sm"
+          {/* View toggle: segmented icon buttons */}
+          <div
+            role="group"
+            aria-label="View mode"
+            className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5"
+          >
+            <IconButton
+              icon={LayoutGrid}
+              label="Grid view"
+              size="sm"
+              variant={viewMode === "grid" ? "primary" : "ghost"}
               onClick={() => setViewMode("grid")}
-              aria-label="Grid view"
               aria-pressed={viewMode === "grid"}
-            >
-              <LayoutGrid />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="icon-sm"
+            />
+            <IconButton
+              icon={List}
+              label="List view"
+              size="sm"
+              variant={viewMode === "list" ? "primary" : "ghost"}
               onClick={() => setViewMode("list")}
-              aria-label="List view"
               aria-pressed={viewMode === "list"}
-            >
-              <List />
-            </Button>
+            />
           </div>
         </div>
 
@@ -411,32 +433,32 @@ export default function SabFlowListPage() {
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <Card key={i} className="overflow-hidden p-0">
-                  <Skeleton className="h-[130px] w-full rounded-none" />
+                <Card key={i} padding="none" className="overflow-hidden">
+                  <Skeleton height={130} width="100%" radius={0} />
                   <div className="flex flex-col gap-2 p-3">
-                    <Skeleton className="h-3 w-3/4" />
-                    <Skeleton className="h-2.5 w-1/2" />
+                    <Skeleton height={12} width="75%" />
+                    <Skeleton height={10} width="50%" />
                   </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="overflow-hidden p-0">
+            <Card padding="none" className="overflow-hidden">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
                   className="flex items-center gap-4 border-b border-[var(--st-border)] px-4 py-4 last:border-0"
                 >
-                  <Skeleton className="h-3 w-44" />
-                  <Skeleton className="h-3 w-16" />
-                  <Skeleton className="ml-auto h-6 w-6 rounded-full" />
+                  <Skeleton height={12} width={176} />
+                  <Skeleton height={12} width={64} />
+                  <Skeleton circle width={24} className="ml-auto" />
                 </div>
               ))}
             </Card>
           )
         ) : filtered.length === 0 ? (
           <EmptyState
-            icon={<Workflow />}
+            icon={Workflow}
             title={query ? "No matching flows" : "No flows yet"}
             description={
               query
@@ -445,45 +467,38 @@ export default function SabFlowListPage() {
             }
             action={
               !query ? (
-                <Button size="sm" onClick={() => setShowCreate(true)}>
-                  <Plus />
+                <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setShowCreate(true)}>
                   Create your first flow
                 </Button>
               ) : undefined
             }
           />
         ) : viewMode === "grid" ? (
-          /* ── Grid view (shared FlowCard) ─────────────────────────── */
+          /* Grid view (shared FlowCard) */
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map((flow) => (
               <FlowCard
                 key={flow._id}
                 flow={flow}
-                onDelete={(f) =>
-                  setDeleteTarget({ id: f._id, name: f.name })
-                }
+                onDelete={(f) => setDeleteTarget({ id: f._id, name: f.name })}
                 onDuplicate={handleDuplicate}
                 onRename={handleRename}
               />
             ))}
           </div>
         ) : (
-          /* ── List view ───────────────────────────────────────────── */
-          <Card className="overflow-hidden p-0">
+          /* List view */
+          <Card padding="none" className="overflow-hidden">
             <Table>
               <THead>
                 <Tr>
                   <Th>Name</Th>
                   <Th>Status</Th>
                   <Th>Groups</Th>
-                  <Th className="hidden sm:table-cell">
-                    Created
-                  </Th>
+                  <Th className="hidden sm:table-cell">Created</Th>
                   <Th>Updated</Th>
-                  <Th className="hidden md:table-cell">
-                    Today
-                  </Th>
-                  <Th className="text-right">Actions</Th>
+                  <Th className="hidden md:table-cell">Today</Th>
+                  <Th align="right">Actions</Th>
                 </Tr>
               </THead>
               <TBody>
@@ -493,16 +508,18 @@ export default function SabFlowListPage() {
                   return (
                     <Tr key={flow._id} className="group">
                       <Td>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() =>
                             router.push(
                               `/dashboard/sabflow/flow-builder/${flow._id}`,
                             )
                           }
-                          className="text-left font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-text)]"
+                          className="justify-start text-left font-medium"
                         >
                           {flow.name}
-                        </button>
+                        </Button>
                       </Td>
 
                       <Td>
@@ -518,16 +535,13 @@ export default function SabFlowListPage() {
                       <Td className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:table-cell">
                         {flow.createdAt
                           ? format(new Date(flow.createdAt), "MMM d, yyyy")
-                          : "—"}
+                          : "-"}
                       </Td>
 
                       <Td className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {flow.updatedAt
-                          ? format(
-                              new Date(flow.updatedAt),
-                              "MMM d, yyyy · HH:mm",
-                            )
-                          : "—"}
+                          ? format(new Date(flow.updatedAt), "MMM d, yyyy, HH:mm")
+                          : "-"}
                       </Td>
 
                       <Td className="hidden md:table-cell">
@@ -537,60 +551,64 @@ export default function SabFlowListPage() {
                           </Badge>
                         ) : (
                           <span className="text-[11px] text-[var(--st-text-secondary)]">
-                            —
+                            -
                           </span>
                         )}
                       </Td>
 
-                      <Td className="text-right">
+                      <Td align="right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
+                            <IconButton
+                              icon={MoreHorizontal}
+                              label="Flow actions"
+                              size="sm"
                               variant="ghost"
-                              size="icon-sm"
-                              aria-label="Flow actions"
-                            >
-                              <MoreHorizontal />
-                            </Button>
+                            />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-44">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
+                              iconLeft={Pencil}
                               onClick={() =>
                                 router.push(
                                   `/dashboard/sabflow/flow-builder/${flow._id}`,
                                 )
                               }
                             >
-                              <Pencil />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              iconLeft={BarChart3}
                               onClick={() =>
                                 router.push(
                                   `/dashboard/sabflow/logs?flowId=${flow._id}`,
                                 )
                               }
                             >
-                              <BarChart3 />
                               Results
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleRunNow(flow._id)}>
-                              <Play />
+                            <DropdownMenuItem
+                              iconLeft={Play}
+                              onClick={() => handleRunNow(flow._id)}
+                            >
                               Run now
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleActive(flow)}>
-                              {flow.status === 'PUBLISHED' ? <ToggleRight /> : <ToggleLeft />}
-                              {flow.status === 'PUBLISHED' ? 'Deactivate' : 'Activate'}
+                            <DropdownMenuItem
+                              iconLeft={isPublished ? ToggleRight : ToggleLeft}
+                              onClick={() => handleToggleActive(flow)}
+                            >
+                              {isPublished ? "Deactivate" : "Activate"}
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              iconLeft={Copy}
                               onClick={() => handleDuplicate(flow._id)}
                             >
-                              <Copy />
                               Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              iconLeft={Download}
                               onClick={() => {
                                 const a = document.createElement("a");
                                 a.href = `/api/sabflow/export/${flow._id}`;
@@ -600,19 +618,16 @@ export default function SabFlowListPage() {
                                 document.body.removeChild(a);
                               }}
                             >
-                              <Download />
                               Export
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
+                              variant="danger"
+                              iconLeft={Trash2}
                               onClick={() =>
-                                setDeleteTarget({
-                                  id: flow._id,
-                                  name: flow.name,
-                                })
+                                setDeleteTarget({ id: flow._id, name: flow.name })
                               }
                             >
-                              <Trash2 />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -627,7 +642,7 @@ export default function SabFlowListPage() {
         )}
       </div>
 
-      {/* ── Create flow dialog ────────────────────────────────────────── */}
+      {/* Create flow dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -638,7 +653,8 @@ export default function SabFlowListPage() {
           </DialogHeader>
           <div className="py-2">
             <Input
-              placeholder="Flow name…"
+              placeholder="Flow name"
+              aria-label="Flow name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
@@ -649,11 +665,11 @@ export default function SabFlowListPage() {
             <Button variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={creating}>
+            <Button variant="primary" onClick={handleCreate} disabled={creating}>
               {creating ? (
                 <>
-                  <Loader2 className="animate-spin" />
-                  Creating…
+                  <Loader2 className="animate-spin" aria-hidden="true" />
+                  Creating
                 </>
               ) : (
                 "Create"
@@ -663,7 +679,7 @@ export default function SabFlowListPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ── Delete confirm dialog ─────────────────────────────────────── */}
+      {/* Delete confirm dialog */}
       <AlertDialog
         open={!!deleteTarget}
         onOpenChange={(open) => {
@@ -681,18 +697,16 @@ export default function SabFlowListPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              destructive
+              intent="danger"
               disabled={isDeleting}
               onClick={handleDeleteConfirm}
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="animate-spin" />
-                  Deleting…
+                  <Loader2 className="animate-spin" aria-hidden="true" />
+                  Deleting
                 </>
               ) : (
                 "Delete"

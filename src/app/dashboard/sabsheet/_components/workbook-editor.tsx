@@ -3,10 +3,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  TBody,
+  THead,
+  Table,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Td,
+  Textarea,
+  Th,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
   addSabsheetComment,
@@ -33,7 +51,7 @@ import {
 
 // --- Grid sizing -----------------------------------------------------------
 // Until we wire a virtualization library (`react-window` or
-// `@tanstack/react-virtual`), we render a hard-capped <table>. TODO:
+// `@tanstack/react-virtual`), we render a hard-capped grid. TODO:
 // virtualize so larger sheets are usable.
 const VIEW_ROWS = 100;
 const VIEW_COLS = 26;
@@ -87,11 +105,12 @@ interface Props {
 
 export function WorkbookEditor(props: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [activeSheetId, setActiveSheetId] = useState<string | null>(props.activeSheetId);
   const [cells, setCells] = useState<SabsheetCellDoc[]>(props.initialCells);
   const [comments, setComments] = useState<SabsheetCommentDoc[]>(props.initialComments);
   const [namedRanges, setNamedRanges] = useState<SabsheetNamedRangeDoc[]>(props.initialNamedRanges);
-  const [pivots, setPivots] = useState<SabsheetPivotTableDoc[]>(props.initialPivots);
+  const [pivots] = useState<SabsheetPivotTableDoc[]>(props.initialPivots);
   const [selection, setSelection] = useState<{ row: number; col: number }>({ row: 0, col: 0 });
   const [editing, setEditing] = useState<{ row: number; col: number; value: string } | null>(null);
   const [formulaInput, setFormulaInput] = useState('');
@@ -108,7 +127,7 @@ export function WorkbookEditor(props: Props) {
     t.connect(props.workbook._id);
     const offEdits = t.subscribeCellEdits((e) => {
       if (e.sheetId !== activeSheetId) return;
-      // Optimistic local refetch — re-run server action.
+      // Optimistic local refetch. Re-run server action.
       startTransition(() => router.refresh());
     });
     const offPresence = t.subscribePresence((e) => {
@@ -171,9 +190,10 @@ export function WorkbookEditor(props: Props) {
         });
       } catch (e) {
         console.error('setSabsheetCell failed', e);
+        toast.error('Could not save the cell. Please try again.');
       }
     },
-    [activeSheetId, props.workbook._id],
+    [activeSheetId, props.workbook._id, toast],
   );
 
   const onAddSheet = useCallback(async () => {
@@ -188,18 +208,20 @@ export function WorkbookEditor(props: Props) {
 
   const onRecompute = useCallback(async () => {
     await recomputeSabsheetFormulas(props.workbook._id);
+    toast.success('Formulas recomputed.');
     router.refresh();
-  }, [props.workbook._id, router]);
+  }, [props.workbook._id, router, toast]);
 
   const onSaveVersion = useCallback(async () => {
     const comment = window.prompt('Version comment (optional)') ?? undefined;
     await saveSabsheetVersion(props.workbook._id, comment);
+    toast.success('Version saved.');
     router.refresh();
-  }, [props.workbook._id, router]);
+  }, [props.workbook._id, router, toast]);
 
   // ---- Render -----------------------------------------------------------
   return (
-    <div className="flex h-full flex-col">
+    <div className="ui20 flex h-full flex-col">
       {/* Toolbar */}
       <Toolbar
         workbookTitle={props.workbook.title}
@@ -216,7 +238,7 @@ export function WorkbookEditor(props: Props) {
         onCommit={() => commitEdit(selection.row, selection.col, formulaInput)}
         onEvaluate={async () => {
           const res = await evaluateSabsheetFormula(props.workbook._id, formulaInput);
-          window.alert(`= ${res.display}`);
+          toast({ title: 'Formula result', description: `= ${res.display}`, tone: 'info' });
         }}
       />
 
@@ -246,27 +268,23 @@ export function WorkbookEditor(props: Props) {
           />
 
           {/* Sheet tabs */}
-          <div className="flex items-center gap-1 border-t bg-[var(--st-bg-muted)]/40 px-2 py-1">
+          <div className="flex items-center gap-1 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1">
             {props.sheets.map((s) => (
               <Link
                 key={s._id}
                 href={`/dashboard/sabsheet/${props.workbook._id}/sheets/${s._id}`}
-                className={`rounded px-3 py-1 text-xs ${
+                className={`rounded-[var(--st-radius)] px-3 py-1 text-xs ${
                   s._id === activeSheetId
-                    ? 'bg-[var(--st-bg-secondary)] font-medium shadow-sm'
-                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]/60'
+                    ? 'bg-[var(--st-bg)] font-medium shadow-sm text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)]'
                 }`}
               >
                 {s.name}
               </Link>
             ))}
-            <button
-              type="button"
-              onClick={onAddSheet}
-              className="rounded px-2 py-1 text-xs text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]/60"
-            >
-              + Add sheet
-            </button>
+            <Button variant="ghost" size="sm" iconLeft={Plus} onClick={onAddSheet}>
+              Add sheet
+            </Button>
           </div>
         </div>
 
@@ -301,28 +319,29 @@ function Toolbar({
   onRecompute: () => void;
   onSaveVersion: () => void;
 }) {
+  const router = useRouter();
   return (
-    <div className="flex items-center gap-2 border-b bg-[var(--st-bg-secondary)] px-3 py-2">
+    <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
       <Link href="/dashboard/sabsheet" className="text-sm text-[var(--st-text-secondary)] hover:underline">
         SabSheet
       </Link>
       <span className="text-sm text-[var(--st-text-secondary)]">/</span>
-      <span className="text-sm font-medium">{workbookTitle}</span>
+      <span className="text-sm font-medium text-[var(--st-text)]">{workbookTitle}</span>
       <div className="ml-auto flex items-center gap-1">
         {/* TODO: implement number-format, font, bg/color, borders, freeze in a follow-up. */}
-        <Button variant="ghost" size="sm" disabled title="TODO: bold formatting">
+        <Button variant="ghost" size="sm" disabled title="Bold formatting (coming soon)">
           B
         </Button>
-        <Button variant="ghost" size="sm" disabled title="TODO: italic formatting">
+        <Button variant="ghost" size="sm" disabled title="Italic formatting (coming soon)">
           I
         </Button>
-        <Button variant="ghost" size="sm" disabled title="TODO: number format">
+        <Button variant="ghost" size="sm" disabled title="Number format (coming soon)">
           123
         </Button>
-        <Button variant="ghost" size="sm" disabled title="TODO: borders">
-          ▦
+        <Button variant="ghost" size="sm" disabled title="Borders (coming soon)">
+          Borders
         </Button>
-        <Button variant="ghost" size="sm" disabled title="TODO: freeze panes">
+        <Button variant="ghost" size="sm" disabled title="Freeze panes (coming soon)">
           Freeze
         </Button>
         <Button variant="outline" size="sm" onClick={onRecompute}>
@@ -331,8 +350,12 @@ function Toolbar({
         <Button variant="outline" size="sm" onClick={onSaveVersion}>
           Save version
         </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/sabsheet/${workbookId}/history`}>History</Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(`/dashboard/sabsheet/${workbookId}/history`)}
+        >
+          History
         </Button>
       </div>
     </div>
@@ -353,20 +376,21 @@ function FormulaBar({
   onEvaluate: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b bg-[var(--st-bg-secondary)] px-3 py-1">
-      <div className="w-16 rounded border bg-[var(--st-bg-muted)]/40 px-2 py-1 text-center font-mono text-xs">
+    <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1">
+      <div className="w-16 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-center font-mono text-xs text-[var(--st-text)]">
         {addr}
       </div>
       <span className="font-mono text-sm text-[var(--st-text-secondary)]">fx</span>
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit();
-        }}
-        className="flex-1"
-        placeholder="Enter a value or =FORMULA(…)"
-      />
+      <Field className="flex-1" label="Formula or value">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') onCommit();
+          }}
+          placeholder="Enter a value or =FORMULA(...)"
+        />
+      </Field>
       <Button variant="ghost" size="sm" onClick={onEvaluate}>
         Evaluate
       </Button>
@@ -397,29 +421,31 @@ function GridSurface({
 }) {
   return (
     <div className="min-h-0 flex-1 overflow-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead className="sticky top-0 z-10 bg-[var(--st-bg-muted)]/60">
-          <tr>
-            <th className="w-10 border bg-[var(--st-bg-muted)]/80 px-1 text-xs text-[var(--st-text-secondary)]" />
+      <Table density="compact" hover={false} stickyHeader className="w-full text-sm">
+        <THead>
+          <Tr>
+            <Th className="w-10 text-xs text-[var(--st-text-secondary)]" aria-label="Row numbers" />
             {Array.from({ length: VIEW_COLS }).map((_, c) => (
-              <th
+              <Th
                 key={c}
-                className="min-w-[88px] border bg-[var(--st-bg-muted)]/80 px-2 py-1 text-xs font-medium text-[var(--st-text-secondary)]"
+                align="center"
+                className="min-w-[88px] text-xs font-medium text-[var(--st-text-secondary)]"
               >
                 {colLabel(c)}
-              </th>
+              </Th>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </Tr>
+        </THead>
+        <TBody>
           {Array.from({ length: VIEW_ROWS }).map((_, row) => (
-            <tr key={row}>
-              <th
+            <Tr key={row}>
+              <Th
                 scope="row"
-                className="border bg-[var(--st-bg-muted)]/60 px-1 text-center text-xs text-[var(--st-text-secondary)]"
+                align="center"
+                className="bg-[var(--st-bg-secondary)] text-xs text-[var(--st-text-secondary)]"
               >
                 {row + 1}
-              </th>
+              </Th>
               {Array.from({ length: VIEW_COLS }).map((_, col) => {
                 const c = cells.get(cellKey(row, col));
                 const isSel = row === selection.row && col === selection.col;
@@ -429,17 +455,19 @@ function GridSurface({
                   (p) => p.selection.row === row && p.selection.col === col,
                 );
                 return (
-                  <td
+                  <Td
                     key={col}
                     onClick={() => onSelect(row, col)}
                     onDoubleClick={() => onStartEdit(row, col)}
-                    className={`relative cursor-cell border px-2 py-1 align-top text-xs ${
-                      isSel ? 'outline outline-2 outline-primary' : ''
+                    className={`relative cursor-cell align-top text-xs ${
+                      isSel ? 'outline outline-2 outline-[var(--st-accent)]' : ''
                     }`}
                   >
                     {isEditing ? (
-                      <input
+                      <Input
+                        inputSize="sm"
                         autoFocus
+                        aria-label={`Edit cell ${a1(row, col)}`}
                         value={editing!.value}
                         onChange={(e) => onEditingChange(e.target.value)}
                         onBlur={onCommit}
@@ -451,7 +479,7 @@ function GridSurface({
                             onCancelEdit();
                           }
                         }}
-                        className="w-full bg-[var(--st-bg-secondary)] outline-none"
+                        className="w-full"
                       />
                     ) : (
                       <span>{displayValue(c)}</span>
@@ -464,13 +492,13 @@ function GridSurface({
                         style={{ backgroundColor: p.color ?? colorFromUserId(p.userId) }}
                       />
                     ))}
-                  </td>
+                  </Td>
                 );
               })}
-            </tr>
+            </Tr>
           ))}
-        </tbody>
-      </table>
+        </TBody>
+      </Table>
     </div>
   );
 }
@@ -498,7 +526,7 @@ function SidePanels({
   const [rangeName, setRangeName] = useState('');
 
   return (
-    <aside className="w-72 shrink-0 border-l bg-[var(--st-bg-muted)]/20">
+    <aside className="w-72 shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       <Tabs defaultValue="comments" className="flex h-full flex-col">
         <TabsList className="m-2">
           <TabsTrigger value="comments">Comments</TabsTrigger>
@@ -507,17 +535,18 @@ function SidePanels({
         </TabsList>
 
         <TabsContent value="comments" className="min-h-0 flex-1 space-y-3 overflow-auto p-3">
-          <div className="space-y-2 rounded-md border bg-[var(--st-bg-secondary)] p-2 text-xs">
+          <Card padding="sm" className="space-y-2 text-xs">
             <div className="text-[var(--st-text-secondary)]">
               On {a1(selection.row, selection.col)}
             </div>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment…"
-              className="w-full rounded border bg-[var(--st-bg-secondary)] p-2 text-xs"
-              rows={2}
-            />
+            <Field label="New comment">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                rows={2}
+              />
+            </Field>
             <Button
               size="sm"
               disabled={!newComment.trim() || !activeSheetId}
@@ -533,8 +562,7 @@ function SidePanels({
                   body,
                 });
                 setNewComment('');
-                // Best-effort optimistic insert — server has authoritative
-                // copy.
+                // Best-effort optimistic insert. Server has authoritative copy.
                 onCommentsChange([
                   ...comments,
                   {
@@ -553,45 +581,53 @@ function SidePanels({
             >
               Add comment
             </Button>
-          </div>
+          </Card>
           <ul className="space-y-2">
             {comments.map((c) => (
-              <li key={c._id} className="rounded-md border bg-[var(--st-bg-secondary)] p-2 text-xs">
-                <div className="font-mono text-[10px] text-[var(--st-text-secondary)]">
-                  {a1(c.row, c.col)} · {c.resolved ? 'resolved' : 'open'}
-                </div>
-                <div className="mt-1">{c.body}</div>
-                {!c.resolved ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="mt-1 h-7 text-xs"
-                    onClick={async () => {
-                      await resolveSabsheetComment(c._id);
-                      onCommentsChange(
-                        comments.map((x) =>
-                          x._id === c._id ? { ...x, resolved: true } : x,
-                        ),
-                      );
-                    }}
-                  >
-                    Resolve
-                  </Button>
-                ) : null}
+              <li key={c._id}>
+                <Card padding="sm" className="text-xs">
+                  <div className="flex items-center gap-2 font-mono text-[10px] text-[var(--st-text-secondary)]">
+                    <span>{a1(c.row, c.col)}</span>
+                    <Badge tone={c.resolved ? 'success' : 'warning'} kind="soft">
+                      {c.resolved ? 'resolved' : 'open'}
+                    </Badge>
+                  </div>
+                  <div className="mt-1 text-[var(--st-text)]">{c.body}</div>
+                  {!c.resolved ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="mt-1"
+                      onClick={async () => {
+                        await resolveSabsheetComment(c._id);
+                        onCommentsChange(
+                          comments.map((x) =>
+                            x._id === c._id ? { ...x, resolved: true } : x,
+                          ),
+                        );
+                      }}
+                    >
+                      Resolve
+                    </Button>
+                  ) : null}
+                </Card>
               </li>
             ))}
           </ul>
         </TabsContent>
 
         <TabsContent value="named" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
-          <div className="space-y-2 rounded-md border bg-[var(--st-bg-secondary)] p-2 text-xs">
-            <Input
-              value={rangeName}
-              onChange={(e) => setRangeName(e.target.value)}
-              placeholder="MY_RANGE"
-            />
+          <Card padding="sm" className="space-y-2 text-xs">
+            <Field label="Range name">
+              <Input
+                value={rangeName}
+                onChange={(e) => setRangeName(e.target.value)}
+                placeholder="MY_RANGE"
+              />
+            </Field>
             <Button
               size="sm"
+              iconLeft={Plus}
               disabled={!rangeName.trim() || !activeSheetId}
               onClick={async () => {
                 if (!activeSheetId) return;
@@ -621,19 +657,18 @@ function SidePanels({
                 setRangeName('');
               }}
             >
-              + Add range
+              Add range
             </Button>
-          </div>
+          </Card>
           <ul className="space-y-1">
             {namedRanges.map((r) => (
-              <li
-                key={r._id}
-                className="rounded-md border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
-              >
-                <div className="font-medium">{r.name}</div>
-                <div className="text-[10px] text-[var(--st-text-secondary)]">
-                  {a1(r.startRow, r.startCol)}:{a1(r.endRow, r.endCol)}
-                </div>
+              <li key={r._id}>
+                <Card padding="sm" className="text-xs">
+                  <div className="font-medium text-[var(--st-text)]">{r.name}</div>
+                  <div className="text-[10px] text-[var(--st-text-secondary)]">
+                    {a1(r.startRow, r.startCol)}:{a1(r.endRow, r.endCol)}
+                  </div>
+                </Card>
               </li>
             ))}
           </ul>
@@ -642,23 +677,24 @@ function SidePanels({
         <TabsContent value="pivots" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
           {/* TODO: pivot table builder UI. The Rust crate stores the config
               JSON; rendering / aggregation is a follow-up. */}
-          <ul className="space-y-1">
-            {pivots.length === 0 ? (
-              <li className="rounded-md border bg-[var(--st-bg-secondary)] p-3 text-xs text-[var(--st-text-secondary)]">
-                No pivots yet. Builder UI is a follow-up.
-              </li>
-            ) : (
-              pivots.map((p) => (
-                <li
-                  key={p._id}
-                  className="rounded-md border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
-                >
-                  <div className="font-medium">{p.name}</div>
-                  <div className="text-[10px] text-[var(--st-text-secondary)]">{p.sourceRange}</div>
+          {pivots.length === 0 ? (
+            <EmptyState
+              size="sm"
+              title="No pivots yet"
+              description="The pivot table builder is a follow-up."
+            />
+          ) : (
+            <ul className="space-y-1">
+              {pivots.map((p) => (
+                <li key={p._id}>
+                  <Card padding="sm" className="text-xs">
+                    <div className="font-medium text-[var(--st-text)]">{p.name}</div>
+                    <div className="text-[10px] text-[var(--st-text-secondary)]">{p.sourceRange}</div>
+                  </Card>
                 </li>
-              ))
-            )}
-          </ul>
+              ))}
+            </ul>
+          )}
         </TabsContent>
       </Tabs>
     </aside>

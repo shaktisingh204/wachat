@@ -16,7 +16,16 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 
@@ -124,12 +133,11 @@ export function FyReportToolbar({
   return (
     <form
       onSubmit={onApply}
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">FY</span>
+      <Field label="FY" className="gap-1">
         <Select value={matchedFy?.anchor ?? ''} onValueChange={onFyChange}>
-          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+          <SelectTrigger aria-label="Financial year" className="h-9 w-[140px] text-[13px]">
             <SelectValue placeholder="Custom range" />
           </SelectTrigger>
           <SelectContent>
@@ -140,41 +148,45 @@ export function FyReportToolbar({
             ))}
           </SelectContent>
         </Select>
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">From</span>
-        <input
+      <Field label="From" className="gap-1">
+        <Input
           type="date"
+          inputSize="sm"
           value={fromVal}
           onChange={(e) => setFromVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+          className="h-9 w-[150px] text-[13px]"
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">To</span>
-        <input
+      <Field label="To" className="gap-1">
+        <Input
           type="date"
+          inputSize="sm"
           value={toVal}
           onChange={(e) => setToVal(e.target.value)}
-          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
+          className="h-9 w-[150px] text-[13px]"
         />
-      </label>
+      </Field>
 
       <Button type="submit" size="sm" disabled={isPending}>
         Apply
       </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onRefresh} disabled={isPending} aria-label="Refresh">
-        <RefreshCcw className="h-3.5 w-3.5" />
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        iconLeft={RefreshCcw}
+        onClick={onRefresh}
+        disabled={isPending}
+      >
         Refresh
       </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onCsv} aria-label="Export CSV">
-        <FileDown className="h-3.5 w-3.5" />
+      <Button type="button" size="sm" variant="outline" iconLeft={FileDown} onClick={onCsv}>
         CSV
       </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onXlsx} aria-label="Export XLSX">
-        <FileSpreadsheet className="h-3.5 w-3.5" />
+      <Button type="button" size="sm" variant="outline" iconLeft={FileSpreadsheet} onClick={onXlsx}>
         XLSX
       </Button>
     </form>

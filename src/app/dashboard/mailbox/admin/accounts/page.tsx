@@ -1,5 +1,5 @@
 /**
- * Hosted Mail — mailbox account admin.
+ * Hosted Mail - mailbox account admin.
  *
  * Server component shell: fetches domains + accounts via the actions
  * layer, then renders the interactive list/form in the client child.
@@ -12,7 +12,15 @@ import {
     listMailAccounts,
     listMailDomains,
 } from '@/app/actions/mailbox.actions';
-import { Button, EmptyState, PageHeader } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    EmptyState,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+} from '@/components/sabcrm/20ui';
 
 import { AccountsClient } from './accounts-client';
 
@@ -25,26 +33,27 @@ export default async function MailboxAccountsAdminPage() {
     ]);
 
     return (
-        <div className="zoruui mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
-            <PageHeader
-                title="Mailbox accounts"
-                description="Create individual mailboxes against your verified domains."
-                actions={
-                    <Button asChild variant="outline">
-                        <Link href="/dashboard/mailbox">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                        </Link>
+        <div className="ui20 mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
+            <PageHeader>
+                <PageHeading>
+                    <PageTitle>Mailbox accounts</PageTitle>
+                    <PageDescription>
+                        Create individual mailboxes against your verified domains.
+                    </PageDescription>
+                </PageHeading>
+                <PageActions>
+                    <Button variant="outline" iconLeft={ArrowLeft}>
+                        <Link href="/dashboard/mailbox">Back</Link>
                     </Button>
-                }
-            />
+                </PageActions>
+            </PageHeader>
 
             {domains.length === 0 ? (
                 <EmptyState
                     title="Add a domain first"
                     description="Mailboxes are scoped to a domain you own."
                     action={
-                        <Button asChild>
+                        <Button variant="primary">
                             <Link href="/dashboard/mailbox/admin/domains">
                                 Add domain
                             </Link>

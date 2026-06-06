@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Ticket Report — client wrapper.
+ * Ticket Report - client wrapper.
  *
  * Renders the chart (recharts), the data table with `EntityRowLink`s,
  * pagination, bulk-row selection with export selected, and full
@@ -27,7 +27,31 @@ import {
 } from 'recharts';
 import { Download, FileSpreadsheet, AlertTriangle, AlertCircle, Star } from 'lucide-react';
 
-import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Checkbox,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    Tooltip,
+    TooltipProvider,
+    TooltipTrigger,
+    TooltipContent,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
@@ -43,27 +67,27 @@ import type {
 } from '@/lib/worksuite/report-types';
 
 const PIE_COLORS = [
-    'hsl(var(--primary))',
-    'hsl(var(--chart-2, 142 71% 45%))',
-    'hsl(var(--chart-3, 38 92% 50%))',
-    'hsl(var(--chart-4, 0 84% 60%))',
-    'hsl(var(--chart-5, 217 91% 60%))',
-    'hsl(var(--muted-foreground))',
+    'var(--st-accent)',
+    'var(--st-status-ok)',
+    'var(--st-warn)',
+    'var(--st-danger)',
+    'var(--st-accent-hover)',
+    'var(--st-text-secondary)',
 ];
 
-const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'secondary' | 'danger'> = {
+const STATUS_TONE: Record<string, BadgeTone> = {
     resolved: 'success',
     closed: 'success',
     open: 'warning',
-    pending: 'secondary',
-    on_hold: 'secondary',
+    pending: 'neutral',
+    on_hold: 'neutral',
 };
 
-const PRIORITY_VARIANT: Record<string, 'danger' | 'warning' | 'secondary'> = {
+const PRIORITY_TONE: Record<string, BadgeTone> = {
     urgent: 'danger',
     high: 'danger',
     medium: 'warning',
-    low: 'secondary',
+    low: 'neutral',
 };
 
 export interface TicketReportClientProps {
@@ -81,21 +105,21 @@ function getCsatForTicket(id: string, status: string): number | null {
         hash = id.charCodeAt(i) + ((hash << 5) - hash);
     }
     const score = (Math.abs(hash) % 5) + 1;
-    return score < 3 ? score + 2 : score; 
+    return score < 3 ? score + 2 : score;
 }
 
 function getCsatComment(score: number): string {
-    if (score === 5) return "Excellent service, very fast!";
-    if (score === 4) return "Good experience overall.";
-    if (score === 3) return "Okay, but could be better.";
-    return "Not satisfied.";
+    if (score === 5) return 'Excellent service, very fast!';
+    if (score === 4) return 'Good experience overall.';
+    if (score === 3) return 'Okay, but could be better.';
+    return 'Not satisfied.';
 }
 
 function getSlaWarning(createdAt: string, priority: string, status: string, resolvedAt?: string): 'breached' | 'warning' | 'ok' {
     const start = new Date(createdAt).getTime();
     const end = resolvedAt ? new Date(resolvedAt).getTime() : Date.now();
     const elapsedMinutes = (end - start) / 60000;
-    
+
     let limit = 48 * 60; // low
     if (priority === 'urgent') limit = 1 * 60;
     else if (priority === 'high') limit = 4 * 60;
@@ -140,7 +164,7 @@ const EXPORT_HEADERS = [
     'Resolved At',
     'Resolution (min)',
     'CSAT',
-    'SLA Status'
+    'SLA Status',
 ];
 
 export function TicketReportClient({
@@ -224,124 +248,124 @@ export function TicketReportClient({
             {/* Charts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
-                    <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-                            Tickets opened vs closed
-                        </h2>
-                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    <CardHeader>
+                        <CardTitle>Tickets opened vs closed</CardTitle>
+                        <CardDescription>
                             Daily volume across the selected range.
-                        </p>
-                    </div>
-                    <div className="h-[280px] w-full">
-                        {metrics.byDay.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
-                                No ticket activity in range.
-                            </div>
-                        ) : (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={metrics.byDay}
-                                    margin={{ top: 8, right: 12, bottom: 8, left: 0 }}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke="hsl(var(--border))"
-                                    />
-                                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                    <RechartsTooltip />
-                                    <Legend />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="opened"
-                                        stroke="hsl(var(--primary))"
-                                        strokeWidth={2}
-                                        dot={false}
-                                        name="Opened"
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="closed"
-                                        stroke="hsl(142 71% 45%)"
-                                        strokeWidth={2}
-                                        dot={false}
-                                        name="Closed"
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        )}
-                    </div>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="h-[280px] w-full">
+                            {metrics.byDay.length === 0 ? (
+                                <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
+                                    No ticket activity in range.
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart
+                                        data={metrics.byDay}
+                                        margin={{ top: 8, right: 12, bottom: 8, left: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="var(--st-border)"
+                                        />
+                                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                                        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                        <RechartsTooltip />
+                                        <Legend />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="opened"
+                                            stroke="var(--st-accent)"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            name="Opened"
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="closed"
+                                            stroke="var(--st-status-ok)"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            name="Closed"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
+                        </div>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-                            By priority
-                        </h2>
-                    </div>
-                    <div className="h-[280px] w-full">
-                        {priorityData.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
-                                No data.
-                            </div>
-                        ) : (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={priorityData}
-                                        dataKey="value"
-                                        nameKey="name"
-                                        innerRadius={48}
-                                        outerRadius={84}
-                                        paddingAngle={2}
-                                    >
-                                        {priorityData.map((_, i) => (
-                                            <Cell
-                                                key={i}
-                                                fill={PIE_COLORS[i % PIE_COLORS.length]}
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        )}
-                    </div>
+                    <CardHeader>
+                        <CardTitle>By priority</CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="h-[280px] w-full">
+                            {priorityData.length === 0 ? (
+                                <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
+                                    No data.
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={priorityData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            innerRadius={48}
+                                            outerRadius={84}
+                                            paddingAngle={2}
+                                        >
+                                            {priorityData.map((_, i) => (
+                                                <Cell
+                                                    key={i}
+                                                    fill={PIE_COLORS[i % PIE_COLORS.length]}
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <RechartsTooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                        </div>
+                    </CardBody>
                 </Card>
             </div>
 
             <Card className="mt-4">
-                <div className="mb-3">
-                    <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-                        By category
-                    </h2>
-                </div>
-                <div className="h-[260px] w-full">
-                    {categoryData.length === 0 ? (
-                        <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
-                            No category data.
-                        </div>
-                    ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={categoryData}>
-                                <CartesianGrid
-                                    strokeDasharray="3 3"
-                                    stroke="hsl(var(--border))"
-                                />
-                                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                <RechartsTooltip />
-                                <Bar
-                                    dataKey="value"
-                                    fill="hsl(var(--primary))"
-                                    name="Tickets"
-                                    radius={[4, 4, 0, 0]}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
+                <CardHeader>
+                    <CardTitle>By category</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <div className="h-[260px] w-full">
+                        {categoryData.length === 0 ? (
+                            <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
+                                No category data.
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={categoryData}>
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                        stroke="var(--st-border)"
+                                    />
+                                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                    <RechartsTooltip />
+                                    <Bar
+                                        dataKey="value"
+                                        fill="var(--st-accent)"
+                                        name="Tickets"
+                                        radius={[4, 4, 0, 0]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
+                    </div>
+                </CardBody>
             </Card>
 
             {/* Table toolbar */}
@@ -356,17 +380,16 @@ export function TicketReportClient({
                     {selected.size > 0 && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                    <Download className="mr-1.5 h-3.5 w-3.5" />
+                                <Button variant="outline" size="sm" iconLeft={Download}>
                                     Export selected ({selected.size})
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleExportSelected('csv')}>
-                                    <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                                <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={() => handleExportSelected('csv')}>
+                                    CSV
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleExportSelected('xlsx')}>
-                                    <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
+                                <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={() => handleExportSelected('xlsx')}>
+                                    XLSX
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -375,17 +398,16 @@ export function TicketReportClient({
                     {/* Export all (current page) */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                                <Download className="mr-1.5 h-3.5 w-3.5" />
+                            <Button variant="outline" size="sm" iconLeft={Download}>
                                 Export all
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleExportAll('csv')}>
-                                <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                            <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={() => handleExportAll('csv')}>
+                                CSV
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleExportAll('xlsx')}>
-                                <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
+                            <DropdownMenuItem iconLeft={FileSpreadsheet} onClick={() => handleExportAll('xlsx')}>
+                                XLSX
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -394,173 +416,149 @@ export function TicketReportClient({
 
             {/* Table */}
             <Card className="mt-4">
-                <div className="mb-3">
-                    <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-                        Tickets
-                    </h2>
-                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
+                <CardHeader>
+                    <CardTitle>Tickets</CardTitle>
+                    <CardDescription>
                         Select rows to export a subset. Click a subject to open the ticket. Shows SLA status and CSAT.
-                    </p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
-                    <Table>
-                        <THead>
-                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                                <Th className="w-10">
-                                    <input
-                                        type="checkbox"
-                                        aria-label="Select all"
-                                        checked={
-                                            rows.length > 0 &&
-                                            selected.size === rows.length
-                                        }
-                                        onChange={toggleAll}
-                                        className="h-4 w-4 rounded border-[var(--st-border)]"
-                                    />
-                                </Th>
-                                <Th className="text-[var(--st-text-secondary)]">
-                                    Subject
-                                </Th>
-                                <Th className="text-[var(--st-text-secondary)]">
-                                    Status
-                                </Th>
-                                <Th className="text-[var(--st-text-secondary)]">
-                                    Priority
-                                </Th>
-                                <Th className="text-[var(--st-text-secondary)]">
-                                    Channel
-                                </Th>
-                                <Th className="text-[var(--st-text-secondary)]">
-                                    Agent
-                                </Th>
-                                <Th className="text-center text-[var(--st-text-secondary)]">
-                                    CSAT
-                                </Th>
-                                <Th className="text-right text-[var(--st-text-secondary)]">
-                                    Resolution
-                                </Th>
-                            </Tr>
-                        </THead>
-                        <TBody>
-                            {rows.length === 0 ? (
-                                <Tr className="border-[var(--st-border)]">
-                                    <Td
-                                        colSpan={8}
-                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
-                                    >
-                                        No tickets in range.
-                                    </Td>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
+                    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <Table>
+                            <THead>
+                                <Tr>
+                                    <Th className="w-10">
+                                        <Checkbox
+                                            aria-label="Select all"
+                                            checked={
+                                                rows.length > 0 &&
+                                                selected.size === rows.length
+                                            }
+                                            onChange={toggleAll}
+                                        />
+                                    </Th>
+                                    <Th>Subject</Th>
+                                    <Th>Status</Th>
+                                    <Th>Priority</Th>
+                                    <Th>Channel</Th>
+                                    <Th>Agent</Th>
+                                    <Th align="center">CSAT</Th>
+                                    <Th align="right">Resolution</Th>
                                 </Tr>
-                            ) : (
-                                rows.map((r) => {
-                                    const slaStatus = getSlaWarning(r.createdAt, r.priority, r.status, r.resolvedAt);
-                                    const csatScore = getCsatForTicket(r.id, r.status);
-                                    return (
-                                        <Tr
-                                            key={r.id}
-                                            className="border-[var(--st-border)]"
+                            </THead>
+                            <TBody>
+                                {rows.length === 0 ? (
+                                    <Tr>
+                                        <Td
+                                            colSpan={8}
+                                            className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                         >
-                                            <Td>
-                                                <input
-                                                    type="checkbox"
-                                                    aria-label={`Select ${r.subject}`}
-                                                    checked={selected.has(r.id)}
-                                                    onChange={() => toggleRow(r.id)}
-                                                    className="h-4 w-4 rounded border-[var(--st-border)]"
-                                                />
-                                            </Td>
-                                            <Td className="text-[13px] text-[var(--st-text)]">
-                                                <div className="flex items-center gap-2">
-                                                    <EntityRowLink
-                                                        href={`/dashboard/sabdesk/${r.id}`}
-                                                        label={r.subject}
-                                                        subtitle={r.category}
+                                            No tickets in range.
+                                        </Td>
+                                    </Tr>
+                                ) : (
+                                    rows.map((r) => {
+                                        const slaStatus = getSlaWarning(r.createdAt, r.priority, r.status, r.resolvedAt);
+                                        const csatScore = getCsatForTicket(r.id, r.status);
+                                        return (
+                                            <Tr key={r.id} selected={selected.has(r.id)}>
+                                                <Td>
+                                                    <Checkbox
+                                                        aria-label={`Select ${r.subject}`}
+                                                        checked={selected.has(r.id)}
+                                                        onChange={() => toggleRow(r.id)}
                                                     />
-                                                    {slaStatus === 'breached' && (
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
+                                                    <div className="flex items-center gap-2">
+                                                        <EntityRowLink
+                                                            href={`/dashboard/sabdesk/${r.id}`}
+                                                            label={r.subject}
+                                                            subtitle={r.category}
+                                                        />
+                                                        {slaStatus === 'breached' && (
+                                                            <Tooltip>
+                                                                <TooltipTrigger>
+                                                                    <AlertCircle className="h-4 w-4 text-[var(--st-danger)]" aria-hidden="true" />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    SLA Breached
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        )}
+                                                        {slaStatus === 'warning' && (
+                                                            <Tooltip>
+                                                                <TooltipTrigger>
+                                                                    <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" aria-hidden="true" />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    SLA Warning (Approaching limit)
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        )}
+                                                    </div>
+                                                </Td>
+                                                <Td>
+                                                    <Badge tone={STATUS_TONE[r.status] ?? 'neutral'}>
+                                                        {r.status}
+                                                    </Badge>
+                                                </Td>
+                                                <Td>
+                                                    <Badge tone={PRIORITY_TONE[r.priority] ?? 'neutral'}>
+                                                        {r.priority}
+                                                    </Badge>
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
+                                                    {r.channel}
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
+                                                    {r.agent}
+                                                </Td>
+                                                <Td align="center">
+                                                    {csatScore ? (
                                                         <Tooltip>
-                                                            <TooltipTrigger>
-                                                                <AlertCircle className="h-4 w-4 text-[var(--st-text)]" />
+                                                            <TooltipTrigger className="flex items-center justify-center gap-1">
+                                                                <Star className="h-3.5 w-3.5 fill-[var(--st-warn)] text-[var(--st-warn)]" aria-hidden="true" />
+                                                                <span className="text-[13px] font-medium">{csatScore}</span>
                                                             </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                SLA Breached
+                                                            <TooltipContent className="flex flex-col gap-1 p-3">
+                                                                <div className="flex items-center gap-1">
+                                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                                        <Star
+                                                                            key={i}
+                                                                            aria-hidden="true"
+                                                                            className={`h-4 w-4 ${i < csatScore ? 'fill-[var(--st-warn)] text-[var(--st-warn)]' : 'fill-[var(--st-text-tertiary)] text-[var(--st-text-tertiary)]'}`}
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                                <span className="text-[12px] text-[var(--st-text-secondary)] mt-1">
+                                                                    {getCsatComment(csatScore)}
+                                                                </span>
                                                             </TooltipContent>
                                                         </Tooltip>
+                                                    ) : (
+                                                        <span className="text-[13px] text-[var(--st-text-secondary)]">-</span>
                                                     )}
-                                                    {slaStatus === 'warning' && (
-                                                        <Tooltip>
-                                                            <TooltipTrigger>
-                                                                <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                SLA Warning (Approaching limit)
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    )}
-                                                </div>
-                                            </Td>
-                                            <Td>
-                                                <Badge
-                                                    variant={STATUS_VARIANT[r.status] ?? 'secondary'}
-                                                >
-                                                    {r.status}
-                                                </Badge>
-                                            </Td>
-                                            <Td>
-                                                <Badge
-                                                    variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}
-                                                >
-                                                    {r.priority}
-                                                </Badge>
-                                            </Td>
-                                            <Td className="text-[13px] text-[var(--st-text)]">
-                                                {r.channel}
-                                            </Td>
-                                            <Td className="text-[13px] text-[var(--st-text)]">
-                                                {r.agent}
-                                            </Td>
-                                            <Td className="text-center">
-                                                {csatScore ? (
-                                                    <Tooltip>
-                                                        <TooltipTrigger className="flex items-center justify-center gap-1">
-                                                            <Star className="h-3.5 w-3.5 fill-[var(--st-text)] text-[var(--st-text)]" />
-                                                            <span className="text-[13px] font-medium">{csatScore}</span>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent className="flex flex-col gap-1 p-3">
-                                                            <div className="flex items-center gap-1">
-                                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                                    <Star
-                                                                        key={i}
-                                                                        className={`h-4 w-4 ${i < csatScore ? 'fill-[var(--st-text)] text-[var(--st-text)]' : 'fill-muted text-muted'}`}
-                                                                    />
-                                                                ))}
-                                                            </div>
-                                                            <span className="text-[12px] text-[var(--st-text-secondary)] mt-1">
-                                                                "{getCsatComment(csatScore)}"
-                                                            </span>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                ) : (
-                                                    <span className="text-[13px] text-[var(--st-text-secondary)]">—</span>
-                                                )}
-                                            </Td>
-                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
-                                                {r.resolutionMinutes != null
-                                                    ? fmtMinutes(r.resolutionMinutes)
-                                                    : '—'}
-                                            </Td>
-                                        </Tr>
-                                    );
-                                })
-                            )}
-                        </TBody>
-                    </Table>
-                </div>
-                <PaginationBar
-                    page={page}
-                    limit={limit}
-                    total={total}
-                    hasMore={hasMore}
-                />
+                                                </Td>
+                                                <Td align="right" className="text-[13px] text-[var(--st-text)]">
+                                                    {r.resolutionMinutes != null
+                                                        ? fmtMinutes(r.resolutionMinutes)
+                                                        : '-'}
+                                                </Td>
+                                            </Tr>
+                                        );
+                                    })
+                                )}
+                            </TBody>
+                        </Table>
+                    </div>
+                    <PaginationBar
+                        page={page}
+                        limit={limit}
+                        total={total}
+                        hasMore={hasMore}
+                    />
+                </CardBody>
             </Card>
         </TooltipProvider>
     );

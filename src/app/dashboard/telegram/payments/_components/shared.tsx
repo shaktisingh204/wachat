@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Field as Field20, Input, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, SegmentedControl, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   CreditCard,
   Plus,
@@ -36,11 +36,11 @@ import {
   } from '@/components/sabfiles';
 
 /**
- * Telegram Payments dashboard — multi-tenant, project-scoped.
+ * Telegram Payments dashboard - multi-tenant, project-scoped.
  *
- * Surface (segmented views, per zoruui no-tab-UI directive):
+ * Surface (segmented views, per 20ui no-tab-UI directive):
  *   - Payments   list + analytics chart + filters + CSV export + refund
- *   - Invoices   sent invoices & invoice links from this project
+ *   - Invoices   sent invoices and invoice links from this project
  *   - Templates  reusable invoice payloads (CRUD via drawer)
  *   - Providers  saved provider tokens (CRUD + token-validity test)
  *
@@ -88,7 +88,7 @@ import type {
 const ACCENT = '#229ED9';
 
 const CURRENCY_OPTIONS = [
-    { code: 'XTR', label: 'XTR — Telegram Stars' },
+    { code: 'XTR', label: 'XTR - Telegram Stars' },
     { code: 'USD', label: 'USD' },
     { code: 'EUR', label: 'EUR' },
     { code: 'GBP', label: 'GBP' },
@@ -130,9 +130,9 @@ export function fmtCurrency(amountSmallestUnit: number, currency: string): strin
 
 
 export function fmtDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return '-';
     return d.toISOString().replace('T', ' ').substring(0, 16) + ' UTC';
 }
 
@@ -146,15 +146,15 @@ export function startOfNDaysAgo(n: number): Date {
 
 
 export function StatusBadge({ status }: { status: string }) {
-    const tone: 'success' | 'warning' | 'danger' | 'secondary' =
+    const tone: 'success' | 'warning' | 'danger' | 'neutral' =
         status === 'succeeded'
             ? 'success'
             : status === 'refunded'
               ? 'warning'
               : status === 'failed'
                 ? 'danger'
-                : 'secondary';
-    return <Badge variant={tone}>{status || '—'}</Badge>;
+                : 'neutral';
+    return <Badge tone={tone}>{status || '-'}</Badge>;
 }
 
 
@@ -166,35 +166,18 @@ export function ViewSwitcher({
     onChange: (v: View) => void;
 }) {
     return (
-        <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-            {VIEWS.map((v) => (
-                <button
-                    key={v.key}
-                    type="button"
-                    onClick={() => onChange(v.key)}
-                    className={cn(
-                        'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
-                        view === v.key
-                            ? 'bg-[var(--st-text)] text-white shadow-sm'
-                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]',
-                    )}
-                    aria-pressed={view === v.key}
-                >
-                    {v.label}
-                </button>
-            ))}
-        </div>
+        <SegmentedControl<View>
+            aria-label="Switch payments view"
+            value={view}
+            onChange={onChange}
+            items={VIEWS.map((v) => ({ value: v.key, label: v.label }))}
+        />
     );
 }
 
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-        <div className="flex flex-col gap-1">
-            <Label className="text-xs">{label}</Label>
-            {children}
-        </div>
-    );
+    return <Field20 label={label}>{children}</Field20>;
 }
 
 
@@ -208,11 +191,9 @@ export function ToggleRow({
     onChange: (v: boolean) => void;
 }) {
     return (
-        <label className="flex items-center justify-between gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]">
             <span>{label}</span>
-            <Switch checked={value} onCheckedChange={onChange} />
-        </label>
+            <Switch checked={value} onCheckedChange={onChange} aria-label={label} />
+        </div>
     );
 }
-
-

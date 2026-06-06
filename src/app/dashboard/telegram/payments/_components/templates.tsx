@@ -1,48 +1,58 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  CreditCard,
-  Plus,
-  RefreshCw,
-  Trash2,
-  Pencil,
-  Send,
-  Link2,
-  Search,
-  Download,
-  DollarSign,
-  CheckCircle2,
-  Clock3,
-  Undo2,
-  TestTube,
-  Eye,
-  Loader2,
-  } from 'lucide-react';
-import {
-    Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  } from 'recharts';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    IconButton,
+    Input,
+    Label,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, Trash2, Pencil, Send, Link2 } from 'lucide-react';
 
-import { useProject } from '@/context/project-context';
-import { TelegramProjectGate } from '../_components/telegram-project-gate';
-import {
-    SabFileUrlInput,
-  } from '@/components/sabfiles';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 /**
- * Telegram Payments dashboard — multi-tenant, project-scoped.
+ * Telegram Payments dashboard. Multi-tenant, project-scoped.
  *
- * Surface (segmented views, per zoruui no-tab-UI directive):
- *   - Payments   list + analytics chart + filters + CSV export + refund
- *   - Invoices   sent invoices & invoice links from this project
+ * Surface (segmented views, per no-tab-UI directive):
+ *   - Payments   list, analytics chart, filters, CSV export, refund
+ *   - Invoices   sent invoices and invoice links from this project
  *   - Templates  reusable invoice payloads (CRUD via drawer)
- *   - Providers  saved provider tokens (CRUD + token-validity test)
+ *   - Providers  saved provider tokens (CRUD plus token-validity test)
  *
  * Data flows through the server actions in
  * `@/app/actions/telegram-payments.actions.ts`, which proxy to the
@@ -53,26 +63,11 @@ import * as React from 'react';
 
 import {
     createPaymentInvoiceLinkAction,
-    createPaymentProviderAction,
     createPaymentTemplateAction,
-    deletePaymentProviderAction,
     deletePaymentTemplateAction,
-    getPaymentAction,
-    listPaymentInvoicesAction,
-    listPaymentProvidersAction,
-    listPaymentTemplatesAction,
-    listPaymentsAction,
-    listProjectBotsForPaymentsAction,
-    paymentAnalyticsAction,
-    refundPaymentAction,
     sendPaymentInvoiceAction,
-    testPaymentProviderAction,
-    updatePaymentProviderAction,
     updatePaymentTemplateAction,
-    type AnalyticsResp,
     type BotOption,
-    type InvoiceRow,
-    type PaymentRow,
     type ProviderRow,
     type TemplateRow,
 } from '@/app/actions/telegram-payments.actions';
@@ -81,14 +76,14 @@ import type {
     UpsertTemplateBody,
 } from '@/lib/rust-client/telegram-payments';
 
-// ---------------------------------------------------------------------------
-//  Constants & helpers
-// ---------------------------------------------------------------------------
+import { fmtCurrency, Field, ToggleRow } from './shared';
 
-const ACCENT = '#229ED9';
+// ---------------------------------------------------------------------------
+//  Constants
+// ---------------------------------------------------------------------------
 
 const CURRENCY_OPTIONS = [
-    { code: 'XTR', label: 'XTR — Telegram Stars' },
+    { code: 'XTR', label: 'XTR, Telegram Stars' },
     { code: 'USD', label: 'USD' },
     { code: 'EUR', label: 'EUR' },
     { code: 'GBP', label: 'GBP' },
@@ -97,24 +92,10 @@ const CURRENCY_OPTIONS = [
     { code: 'CAD', label: 'CAD' },
 ];
 
-type View = 'payments' | 'invoices' | 'templates' | 'providers';
-
-const VIEWS: Array<{ key: View; label: string }> = [
-    { key: 'payments', label: 'Payments' },
-    { key: 'invoices', label: 'Invoices' },
-    { key: 'templates', label: 'Templates' },
-    { key: 'providers', label: 'Providers' },
+const SEND_MODES = [
+    { value: 'send' as const, label: 'Send to chat', icon: Send },
+    { value: 'link' as const, label: 'Invoice link', icon: Link2 },
 ];
-
-const STATUS_OPTIONS = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'succeeded', label: 'Succeeded' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'refunded', label: 'Refunded' },
-    { value: 'failed', label: 'Failed' },
-];
-
-import { fmtCurrency, fmtDate, startOfNDaysAgo, StatusBadge, ViewSwitcher, Field, ToggleRow } from './shared';
 
 export function TemplatesSection({
     projectId,
@@ -146,9 +127,10 @@ export function TemplatesSection({
             <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium">Invoice templates</h2>
                 <Button
+                    variant="primary"
+                    iconLeft={Plus}
                     onClick={() => setDrawer({ open: true, editing: null })}
                 >
-                    <Plus className="h-4 w-4" />
                     New template
                 </Button>
             </div>
@@ -187,32 +169,31 @@ export function TemplatesSection({
                                         {fmtCurrency(total, t.currency)}
                                     </Td>
                                     <Td className="text-right">
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
-                                            onClick={() => setSendDialog(t)}
-                                            aria-label="Send invoice"
-                                        >
-                                            <Send className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
-                                            onClick={() =>
-                                                setDrawer({ open: true, editing: t })
-                                            }
-                                            aria-label="Edit"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon-sm"
-                                            variant="ghost"
-                                            onClick={() => setDeleteTarget(t)}
-                                            aria-label="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        <div className="flex items-center justify-end gap-1">
+                                            <IconButton
+                                                size="sm"
+                                                variant="ghost"
+                                                icon={Send}
+                                                label="Send invoice"
+                                                onClick={() => setSendDialog(t)}
+                                            />
+                                            <IconButton
+                                                size="sm"
+                                                variant="ghost"
+                                                icon={Pencil}
+                                                label="Edit template"
+                                                onClick={() =>
+                                                    setDrawer({ open: true, editing: t })
+                                                }
+                                            />
+                                            <IconButton
+                                                size="sm"
+                                                variant="ghost"
+                                                icon={Trash2}
+                                                label="Delete template"
+                                                onClick={() => setDeleteTarget(t)}
+                                            />
+                                        </div>
                                     </Td>
                                 </Tr>
                             );
@@ -470,16 +451,16 @@ export function TemplateDrawer({
                     </Field>
 
                     {/* Prices */}
-                    <div className="rounded-md border border-[var(--st-border)] p-3">
+                    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
                         <div className="mb-2 flex items-center justify-between">
                             <Label>Price lines</Label>
                             <Button
                                 type="button"
                                 size="sm"
                                 variant="outline"
+                                iconLeft={Plus}
                                 onClick={addPrice}
                             >
-                                <Plus className="h-3.5 w-3.5" />
                                 Add line
                             </Button>
                         </div>
@@ -509,15 +490,14 @@ export function TemplateDrawer({
                                         }
                                         className="w-40"
                                     />
-                                    <Button
+                                    <IconButton
                                         type="button"
-                                        size="icon-sm"
+                                        size="sm"
                                         variant="ghost"
+                                        icon={Trash2}
+                                        label="Remove line"
                                         onClick={() => removePrice(i)}
-                                        aria-label="Remove line"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -545,8 +525,12 @@ export function TemplateDrawer({
                     <Button variant="outline" onClick={onClose} disabled={saving}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={saving}>
-                        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    <Button
+                        variant="primary"
+                        onClick={handleSave}
+                        loading={saving}
+                        disabled={saving}
+                    >
                         {editing ? 'Save changes' : 'Create template'}
                     </Button>
                 </SheetFooter>
@@ -621,37 +605,19 @@ export function SendInvoiceDialog({
         <Dialog open onOpenChange={(v) => !v && onClose()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Send / link invoice</DialogTitle>
+                    <DialogTitle>Send or link invoice</DialogTitle>
                     <DialogDescription>
                         Template <strong>{template.name}</strong>. Either send it
                         directly to a chat, or get a shareable invoice link.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-                    {(['send', 'link'] as const).map((m) => (
-                        <button
-                            key={m}
-                            type="button"
-                            onClick={() => setMode(m)}
-                            className={cn(
-                                'h-7 flex-1 rounded-full text-xs',
-                                mode === m
-                                    ? 'bg-[var(--st-text)] text-white'
-                                    : 'text-[var(--st-text-secondary)]',
-                            )}
-                        >
-                            {m === 'send' ? (
-                                <>
-                                    <Send className="mr-1 inline h-3 w-3" /> Send to chat
-                                </>
-                            ) : (
-                                <>
-                                    <Link2 className="mr-1 inline h-3 w-3" /> Invoice link
-                                </>
-                            )}
-                        </button>
-                    ))}
-                </div>
+                <SegmentedControl
+                    fullWidth
+                    aria-label="Delivery mode"
+                    items={SEND_MODES}
+                    value={mode}
+                    onChange={setMode}
+                />
                 <div className="flex flex-col gap-3">
                     <Field label="Bot">
                         <Select
@@ -674,20 +640,20 @@ export function SendInvoiceDialog({
                     {mode === 'send' ? (
                         <Field label="Chat ID">
                             <Input
-                                placeholder="-100… or numeric user id"
+                                placeholder="-100 prefix or numeric user id"
                                 value={chatId}
                                 onChange={(e) => setChatId(e.target.value)}
                             />
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2 text-xs">
+                        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2 text-xs">
                             <div className="mb-1 text-[var(--st-text-secondary)]">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="break-all underline"
+                                className="break-all text-[var(--st-accent)] underline"
                             >
                                 {linkResult}
                             </a>
@@ -700,15 +666,20 @@ export function SendInvoiceDialog({
                     </Button>
                     {mode === 'send' ? (
                         <Button
+                            variant="primary"
                             onClick={doSend}
+                            loading={busy}
                             disabled={busy || !botId || !chatId.trim()}
                         >
-                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                             Send invoice
                         </Button>
                     ) : (
-                        <Button onClick={doLink} disabled={busy}>
-                            {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        <Button
+                            variant="primary"
+                            onClick={doLink}
+                            loading={busy}
+                            disabled={busy}
+                        >
                             Create link
                         </Button>
                     )}
@@ -717,5 +688,3 @@ export function SendInvoiceDialog({
         </Dialog>
     );
 }
-
-
