@@ -24,13 +24,18 @@ PER-SHARD LOOP (orchestrator): Workflow({scriptPath: shard_NN.js}) [bg, auto-cap
   -> if HARD>0: node gen-fixpass.js <hard.json> <tag> -> run fix_<tag>.js -> re-validate (<=2 passes)
   -> git add -A && commit.
 COMMIT GATE = check-imports.js == 0 (only build-breaking class). HARD residuals driven to 0; SOFT accepted.
+WEEKLY-LIMIT LESSON (2026-06-07): a 180-file shard hit the Anthropic WEEKLY usage limit ~38 files in
+  (resets Jun 8 10:30 IST). User upgraded plan + re-logged in. MITIGATION: commit after every shard;
+  ALWAYS regenerate shards from LIVE dirty state (node plan-shards.js --write) before relaunch so completed
+  files are not reprocessed. check-imports stayed 0 through the partial -> partials are always safe to commit.
 STATUS:
-  - PILOT (old shard 0, 60 files) DONE + COMMITTED (723cc923c). 0 hard residuals.
-  - Re-measured corrected scope: 722 HARD files / 93 modules remaining (after zoruui-domain + template fixes).
-  - Regenerated /tmp/mod20ui/shards: shard_00..03 = 180/180/180/182 (dashboard -> app -> components;
-    sabflow 153 + zoruui-domain 52 land in shards 02-03). manifest.json holds the ordered list + ranges.
-  - shard_00 (180) LAUNCHED run wf_c4dcb214-c43. NEXT on completion: validate+fixpass+commit, then 01,02,03,
-    then INCLUDE_SOFT inline-style sweep, then FINALE.
+  - PILOT (60 files) DONE+COMMITTED 723cc923c. shard-1 partial 43 files DONE+COMMITTED be2a38d58.
+  - Live HARD-only remaining: 679 files / 78 modules. Regenerated shards 00..03 = 170/170/170/169
+    (order: sabbugs/seo/sabdesk dashboard -> app -> components; zoruui-domain + sabflow last).
+  - shard_00 (170) LAUNCHED run wf_01b81d84-667. LOOP per completion: check-imports==0 -> validate-files
+    --shard 0 -> gen-fixpass if HARD>0 -> commit -> REGEN shards from live state -> launch next.
+  - After all HARD shards: INCLUDE_SOFT inline-style sweep, then FINALE (5 layouts -> 20ui HomeShell,
+    file-manager -> @/components/sabfiles, delete legacy/ + legacy-public.ts + zoru-legacy.css).
 FINALE after all shards: rebuild the 5 dashboard layouts on 20ui HomeShell, file-manager -> @/components/sabfiles,
   delete src/components/sabcrm/20ui/legacy/ + legacy-public.ts + zoru-legacy.css (+ drop .zoruui).
 ## =========================================================================
