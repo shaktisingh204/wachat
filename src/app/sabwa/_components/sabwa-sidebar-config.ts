@@ -1,4 +1,4 @@
-import { type ZoruSidebarGroup } from '@/components/sabcrm/20ui/zoru';
+import { type SidebarGroup } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   BarChart3,
@@ -39,7 +39,7 @@ import {
  *
  * Drives the per-section nav inside the SabWa shell (mirrors the
  * wachat pattern). All hrefs live under `/sabwa/*`. Returned shape
- * matches `ZoruSidebarGroup` so the SabWa layout can pass it straight
+ * matches `SidebarGroup` so the SabWa layout can pass it straight
  * to `<ZoruHomeShell sidebarGroups={…} />`.
  */
 import * as React from "react";
@@ -59,14 +59,14 @@ const SESSION_GATED_GROUPS = new Set<string>([
 export function buildSabwaSidebarGroups(
   pathname: string | null,
   hasActiveSession: boolean = true,
-): ZoruSidebarGroup[] {
+): SidebarGroup[] {
   const isActive = (href: string, exact = false) => {
     if (!pathname) return false;
     if (exact) return pathname === href;
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const groups: ZoruSidebarGroup[] = [
+  const groups: SidebarGroup[] = [
     {
       id: "setup",
       label: "Get started",

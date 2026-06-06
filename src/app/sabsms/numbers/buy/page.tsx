@@ -7,36 +7,7 @@ import {
   ShoppingCart, Info, CheckCircle2, ChevronDown, 
   SlidersHorizontal, MapPin
 } from "lucide-react";
-import {
-  Button,
-  Input,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-  Badge,
-  Checkbox,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Input, Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter, Badge, Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { toast } from "sonner";
 import { searchNumbers, getRecommendedNumbers, checkoutNumbers, PhoneNumber } from "./actions";
 
@@ -315,39 +286,39 @@ export default function BuyNumbersPage() {
         </CardHeader>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20 hover:bg-[var(--st-bg-muted)]/50 dark:hover:bg-[var(--st-text)]/20">
-                <TableHead className="w-[50px]">
+            <THead>
+              <Tr className="bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20 hover:bg-[var(--st-bg-muted)]/50 dark:hover:bg-[var(--st-text)]/20">
+                <Th className="w-[50px]">
                   <Checkbox 
                     checked={selectedNumbers.size === results.length && results.length > 0}
                     onCheckedChange={selectAll}
                   />
-                </TableHead>
-                <TableHead>Number</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Region</TableHead>
-                <TableHead>Capabilities</TableHead>
-                <TableHead className="text-right">Price (Monthly)</TableHead>
-                <TableHead className="w-[100px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </Th>
+                <Th>Number</Th>
+                <Th>Type</Th>
+                <Th>Region</Th>
+                <Th>Capabilities</Th>
+                <Th className="text-right">Price (Monthly)</Th>
+                <Th className="w-[100px]"></Th>
+              </Tr>
+            </THead>
+            <TBody>
               {results.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center h-32 text-[var(--st-text)]">
+                <Tr>
+                  <Td colSpan={7} className="text-center h-32 text-[var(--st-text)]">
                     {isSearching ? "Searching..." : "No numbers found matching your criteria."}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : (
                 results.map((item) => (
-                  <TableRow key={item.id} className="group">
-                    <TableCell>
+                  <Tr key={item.id} className="group">
+                    <Td>
                       <Checkbox 
                         checked={selectedNumbers.has(item.id)}
                         onCheckedChange={() => toggleNumberSelection(item.id)}
                       />
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="font-medium text-[var(--st-text)] dark:text-white flex items-center gap-2">
                         {item.friendlyName}
                       </div>
@@ -355,19 +326,19 @@ export default function BuyNumbersPage() {
                         <Globe className="h-3 w-3" />
                         {item.country}
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="secondary" className="font-normal text-xs">
                         {item.type}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <MapPin className="h-3.5 w-3.5" />
                         {item.region}
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex gap-2">
                         {item.capabilities.voice && (
                           <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] p-1.5 rounded-md" title="Voice">
@@ -385,16 +356,16 @@ export default function BuyNumbersPage() {
                           </div>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="font-medium">${item.monthlyPrice.toFixed(2)}</div>
                       {item.setupFee > 0 && (
                         <div className="text-xs text-[var(--st-text)]">
                           +${item.setupFee.toFixed(2)} setup
                         </div>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <Button 
                         variant={selectedNumbers.has(item.id) ? "secondary" : "default"} 
                         size="sm" 
@@ -403,11 +374,11 @@ export default function BuyNumbersPage() {
                       >
                         {selectedNumbers.has(item.id) ? "Selected" : "Add"}
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

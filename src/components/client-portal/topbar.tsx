@@ -2,7 +2,7 @@
 
 /**
  * Client Portal top bar — tenant brand on the left, user dropdown on
- * the right. Uses the shared ZoruUserDropdown so the menu looks
+ * the right. Uses the shared UserDropdown so the menu looks
  * identical to the dashboard surface.
  */
 
@@ -10,7 +10,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { LogOut, UserCircle } from 'lucide-react';
 
-import { ZoruUserDropdown } from '@/components/sabcrm/20ui/zoru/user-dropdown';
+import { UserDropdown } from '@/components/sabcrm/20ui/compat';
 
 export interface ClientPortalTopbarProps {
     brandName: string;
@@ -45,7 +45,7 @@ export function ClientPortalTopbar({ brandName, brandLogo, user }: ClientPortalT
                 )}
                 <span className="text-sm font-medium text-[var(--st-text)]">{brandName}</span>
             </a>
-            <ZoruUserDropdown
+            <UserDropdown
                 name={user.name || 'Account'}
                 email={user.email || undefined}
                 avatarUrl={user.avatar ?? undefined}

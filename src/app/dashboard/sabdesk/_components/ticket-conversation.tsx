@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  Label,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Send, Bot } from "lucide-react";
 
@@ -96,7 +89,7 @@ export function TicketConversation({
   children,
 }: TicketConversationProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [body, setBody] = React.useState("");
   const [kind, setKind] = React.useState<NoteKind>("public");
   const [pending, startTransition] = React.useTransition();

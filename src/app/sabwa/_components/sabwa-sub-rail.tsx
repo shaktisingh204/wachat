@@ -57,16 +57,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import {
-  Button,
-  ScrollArea,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-  cn,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, ScrollArea, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, cn } from '@/components/sabcrm/20ui/compat';
 
 type NavItem = {
   href: string;
@@ -293,7 +284,7 @@ export function SabWaSubRail() {
       {/* Mobile: hamburger trigger fixed in the top-left, opens a Sheet */}
       <div className="fixed left-2 top-2 z-40 md:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <ZoruSheetTrigger asChild>
+          <SheetTrigger asChild>
             <Button
               variant="outline"
               size="icon"
@@ -302,14 +293,14 @@ export function SabWaSubRail() {
             >
               <Menu className="h-4 w-4" />
             </Button>
-          </ZoruSheetTrigger>
-          <ZoruSheetContent
+          </SheetTrigger>
+          <SheetContent
             side="left"
             className="w-[88vw] max-w-[18rem] p-0 sm:max-w-[20rem]"
           >
-            <ZoruSheetHeader className="sr-only">
-              <ZoruSheetTitle>SabWa navigation</ZoruSheetTitle>
-            </ZoruSheetHeader>
+            <SheetHeader className="sr-only">
+              <SheetTitle>SabWa navigation</SheetTitle>
+            </SheetHeader>
             <div className="flex h-full flex-col">
               <RailBrand collapsed={false} />
               <NavBody
@@ -318,7 +309,7 @@ export function SabWaSubRail() {
                 onNavigate={() => setMobileOpen(false)}
               />
             </div>
-          </ZoruSheetContent>
+          </SheetContent>
         </Sheet>
       </div>
 

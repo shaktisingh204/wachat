@@ -1,18 +1,6 @@
 import Link from "next/link";
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTopContact } from "../aggregations";
@@ -30,12 +18,12 @@ export function TopContactsTile({
 }: TopContactsTileProps) {
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Top contacts by engagement</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Top contacts by engagement</CardTitle>
+          <CardDescription>
             Contacts who replied to your messages, most replies first.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -50,35 +38,35 @@ export function TopContactsTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="p-0">
+      </CardHeader>
+      <CardBody className="p-0">
         {rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No inbound traffic yet.
           </p>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Contact</ZoruTableHead>
-                <ZoruTableHead className="text-right">Replies</ZoruTableHead>
-                <ZoruTableHead className="text-right">Clicks</ZoruTableHead>
-                <ZoruTableHead>Last seen</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Contact</Th>
+                <Th className="text-right">Replies</Th>
+                <Th className="text-right">Clicks</Th>
+                <Th>Last seen</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.slice(0, 50).map((r) => (
-                <ZoruTableRow key={r.contact}>
-                  <ZoruTableCell className="font-mono text-xs">
+                <Tr key={r.contact}>
+                  <Td className="font-mono text-xs">
                     {r.contact}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.replies.toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.clicks.toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">
                     {r.lastSeen
                       ? new Date(r.lastSeen).toLocaleString(undefined, {
                           month: "short",
@@ -87,13 +75,13 @@ export function TopContactsTile({
                           minute: "2-digit",
                         })
                       : "—"}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

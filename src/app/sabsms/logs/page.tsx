@@ -2,32 +2,7 @@ import Link from "next/link";
 import { ObjectId } from "mongodb";
 import { FileSearch, Inbox, Eye } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -198,26 +173,26 @@ export default async function SabsmsLogsPage({
   return (
     <div className="space-y-6 p-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Message logs</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Message logs</PageTitle>
+          <PageDescription>
             Every outbound and inbound message written by the engine.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button asChild>
             <Link href="/sabsms/send">New send</Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card>
-        <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
-            <ZoruCardTitle>Recent activity</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle>Recent activity</CardTitle>
+            <CardDescription>
               Newest first. Click a row to copy the message id.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
             {FILTERS.map((f) => {
@@ -236,8 +211,8 @@ export default async function SabsmsLogsPage({
               );
             })}
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        </CardHeader>
+        <CardBody className="p-0">
           {rows.length === 0 ? (
             <div className="p-10">
               <EmptyState
@@ -257,76 +232,76 @@ export default async function SabsmsLogsPage({
             </div>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[110px]">Status</ZoruTableHead>
-                  <ZoruTableHead className="w-[80px]">Dir</ZoruTableHead>
-                  <ZoruTableHead className="w-[170px]">To</ZoruTableHead>
-                  <ZoruTableHead>Body</ZoruTableHead>
-                  <ZoruTableHead className="w-[90px]">Provider</ZoruTableHead>
-                  <ZoruTableHead className="w-[60px] text-right">Seg</ZoruTableHead>
-                  <ZoruTableHead className="w-[80px] text-right">Cost</ZoruTableHead>
-                  <ZoruTableHead className="w-[150px]">When</ZoruTableHead>
-                  <ZoruTableHead className="w-[50px]"></ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th className="w-[110px]">Status</Th>
+                  <Th className="w-[80px]">Dir</Th>
+                  <Th className="w-[170px]">To</Th>
+                  <Th>Body</Th>
+                  <Th className="w-[90px]">Provider</Th>
+                  <Th className="w-[60px] text-right">Seg</Th>
+                  <Th className="w-[80px] text-right">Cost</Th>
+                  <Th className="w-[150px]">When</Th>
+                  <Th className="w-[50px]"></Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {rows.map((r) => (
-                  <ZoruTableRow key={r.id}>
-                    <ZoruTableCell>{statusBadge(r.status)}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs uppercase text-[var(--st-text)]">
+                  <Tr key={r.id}>
+                    <Td>{statusBadge(r.status)}</Td>
+                    <Td className="text-xs uppercase text-[var(--st-text)]">
                       {r.direction === "outbound" ? "→ out" : "← in"}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs">
+                    </Td>
+                    <Td className="font-mono text-xs">
                       {r.direction === "outbound" ? r.to : r.from}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[420px] truncate text-sm text-[var(--st-text)]">
+                    </Td>
+                    <Td className="max-w-[420px] truncate text-sm text-[var(--st-text)]">
                       {r.body}
                       {r.error && (
                         <span className="ml-2 text-xs text-[var(--st-text)]">
                           ({r.error})
                         </span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs">
+                    </Td>
+                    <Td className="text-xs">
                       {r.provider}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {r.segments ?? "—"}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {formatCost(r.cost, r.currency)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text)]">
                       {formatTimestamp(
                         r.deliveredAt || r.sentAt || r.queuedAt,
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Dialog>
-                        <ZoruDialogTrigger asChild>
+                        <DialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             <Eye className="h-4 w-4" />
                           </Button>
-                        </ZoruDialogTrigger>
-                        <ZoruDialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-                          <ZoruDialogHeader>
-                            <ZoruDialogTitle>Message Payload</ZoruDialogTitle>
-                          </ZoruDialogHeader>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+                          <DialogHeader>
+                            <DialogTitle>Message Payload</DialogTitle>
+                          </DialogHeader>
                           <div className="flex-1 overflow-auto bg-[var(--st-text)] p-4 rounded-md mt-4">
                             <pre className="text-xs text-white font-mono">
                               {r.rawJson}
                             </pre>
                           </div>
-                        </ZoruDialogContent>
+                        </DialogContent>
                       </Dialog>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {(hasPrev || hasNext) && (

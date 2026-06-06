@@ -1,23 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Badge,
-  Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Button,
-  useZoruToast
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Badge, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import type { App, AppPricing } from "@/lib/marketplace";
@@ -50,7 +34,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [submittingRating, setSubmittingRating] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const handleInstall = async () => {
@@ -99,10 +83,10 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <button className="group focus:outline-none text-left h-full w-full">
           <Card interactive className="h-full flex flex-col">
-            <ZoruCardHeader>
+            <CardHeader>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   {app.manifest.iconUrl ? (
@@ -118,9 +102,9 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                     </div>
                   )}
                   <div className="flex flex-col">
-                    <ZoruCardTitle className="text-base">
+                    <CardTitle className="text-base">
                       {app.manifest.name}
-                    </ZoruCardTitle>
+                    </CardTitle>
                     <span className="text-xs text-[var(--st-text-secondary)]">
                       by {app.manifest.publisher.name}
                     </span>
@@ -128,16 +112,16 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                 </div>
                 <PriceBadge pricing={app.manifest.pricing} />
               </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex flex-col gap-3 flex-grow">
+            </CardHeader>
+            <CardBody className="flex flex-col gap-3 flex-grow">
               {app.manifest.description ? (
-                <ZoruCardDescription className="line-clamp-3">
+                <CardDescription className="line-clamp-3">
                   {app.manifest.description}
-                </ZoruCardDescription>
+                </CardDescription>
               ) : (
-                <ZoruCardDescription className="italic text-[var(--st-text-secondary)]">
+                <CardDescription className="italic text-[var(--st-text-secondary)]">
                   No description provided.
-                </ZoruCardDescription>
+                </CardDescription>
               )}
               <div className="flex flex-wrap gap-1.5 mt-auto">
                 {app.manifest.categories.slice(0, 3).map((cat) => (
@@ -162,13 +146,13 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                   </div>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </button>
-      </ZoruDialogTrigger>
+      </DialogTrigger>
       
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
           <div className="flex items-center gap-4 mb-4">
             {app.manifest.iconUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -183,7 +167,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               </div>
             )}
             <div>
-              <ZoruDialogTitle className="text-xl mb-1">{app.manifest.name}</ZoruDialogTitle>
+              <DialogTitle className="text-xl mb-1">{app.manifest.name}</DialogTitle>
               <div className="flex items-center gap-3 text-sm text-[var(--st-text-secondary)]">
                 <span>by {app.manifest.publisher.name}</span>
                 {app.averageRating !== null && app.averageRating !== undefined && (
@@ -196,10 +180,10 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               </div>
             </div>
           </div>
-          <ZoruDialogDescription className="text-base text-[var(--st-text)] whitespace-pre-wrap mt-2">
+          <DialogDescription className="text-base text-[var(--st-text)] whitespace-pre-wrap mt-2">
             {app.manifest.description || "No description provided."}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         
         <div className="py-4 space-y-4">
           <div>
@@ -254,7 +238,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
           </div>
         </div>
         
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={installing}>
             Close
           </Button>
@@ -267,8 +251,8 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               Installed
             </Button>
           )}
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

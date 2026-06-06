@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -61,7 +54,7 @@ export function KbArticleForm({
   articleId,
 }: KbArticleFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const editing = mode === "edit";
   const action = editing ? updateKbArticle : saveKbArticle;
   const [state, formAction] = useActionState(action, initialState);

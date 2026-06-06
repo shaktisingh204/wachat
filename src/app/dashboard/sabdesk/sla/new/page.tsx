@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { Save, LoaderCircle } from "lucide-react";
@@ -40,7 +33,7 @@ function SubmitButton() {
 export default function NewSlaPage() {
   const [state, formAction] = useActionState(saveSla, initialState);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.message) {

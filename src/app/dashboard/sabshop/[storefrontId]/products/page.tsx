@@ -4,35 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Plus, Search, MoreHorizontal, Filter } from "lucide-react";
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Button,
-  Input,
-  Card,
-  CardContent,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Badge,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/sabcrm/20ui/zoru";
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardContent, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 
 const MOCK_PRODUCTS = [
   {
@@ -110,13 +82,13 @@ export default function ProductsPage() {
   return (
     <div className="flex-1 space-y-6 p-8 w-full max-w-7xl mx-auto">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Products</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Products</PageTitle>
+          <PageDescription>
             Manage your product inventory, pricing, and variants.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" className="mr-2">
             Export
           </Button>
@@ -126,7 +98,7 @@ export default function ProductsPage() {
               Add Product
             </Button>
           </Link>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card>
@@ -159,47 +131,47 @@ export default function ProductsPage() {
           
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Inventory</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr>
+                  <Th className="w-[80px]">Image</Th>
+                  <Th>Product</Th>
+                  <Th>Status</Th>
+                  <Th>Inventory</Th>
+                  <Th>Type</Th>
+                  <Th className="text-right">Price</Th>
+                  <Th className="w-[50px]"></Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredProducts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
+                  <Tr>
+                    <Td colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
                       No products found.
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filteredProducts.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
+                    <Tr key={product.id}>
+                      <Td>
                         <img 
                           src={product.image} 
                           alt={product.title}
                           className="w-12 h-12 rounded-md object-cover border border-[var(--st-border)]"
                         />
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="font-medium text-[var(--st-text)]">{product.title}</div>
                         <div className="text-xs text-[var(--st-text-tertiary)]">{product.id}</div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(product.status)}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>{getStatusBadge(product.status)}</Td>
+                      <Td>
                         <span className={product.inventory === 0 ? "text-[var(--st-danger)] font-medium" : "text-[var(--st-text)]"}>
                           {product.inventory} in stock
                         </span>
-                      </TableCell>
-                      <TableCell className="text-[var(--st-text-secondary)]">{product.type}</TableCell>
-                      <TableCell className="text-right font-medium">{product.price}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">{product.type}</Td>
+                      <Td className="text-right font-medium">{product.price}</Td>
+                      <Td>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -214,11 +186,11 @@ export default function ProductsPage() {
                             <DropdownMenuItem className="text-[var(--st-danger)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           </div>
         </CardContent>

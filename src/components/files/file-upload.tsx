@@ -24,15 +24,7 @@ import {
   VideoIcon,
 } from "lucide-react";
 
-import {
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { useFileUpload, formatBytes, type FileMetadata } from "./use-file-upload";
 
 // ---------- Demo initial files (safe to remove) ----------
@@ -451,17 +443,17 @@ export default function FileUpload() {
           {view === "list" ? (
             <div className="bg-[var(--st-bg-secondary)] overflow-hidden rounded-md shadow-sm">
               <Table>
-                <ZoruTableHeader className="text-xs">
-                  <ZoruTableRow className="bg-[var(--st-bg-muted)]/50">
-                    <ZoruTableHead className="h-9 w-10 py-2">
+                <THead className="text-xs">
+                  <Tr className="bg-[var(--st-bg-muted)]/50">
+                    <Th className="h-9 w-10 py-2">
                       <span className="sr-only">Select</span>
-                    </ZoruTableHead>
-                    <ZoruTableHead className="h-9 py-2">Name</ZoruTableHead>
-                    <ZoruTableHead className="h-9 py-2">Type</ZoruTableHead>
-                    <ZoruTableHead className="h-9 py-2">Size</ZoruTableHead>
-                    <ZoruTableHead className="h-9 w-0 py-2 text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
+                    </Th>
+                    <Th className="h-9 py-2">Name</Th>
+                    <Th className="h-9 py-2">Type</Th>
+                    <Th className="h-9 py-2">Size</Th>
+                    <Th className="h-9 w-0 py-2 text-right">Actions</Th>
+                  </Tr>
+                </THead>
                 <TableBody className="text-[13px]">
                   {filtered.map((entry: UploadEntry) => {
                     const name = getName(entry);
@@ -472,7 +464,7 @@ export default function FileUpload() {
                     const percentOfMax = Math.min(100, Math.round((size / maxSize) * 100));
 
                     return (
-                      <ZoruTableRow key={entry.id} data-selected={isSelected || undefined}>
+                      <Tr key={entry.id} data-selected={isSelected || undefined}>
                         <TableCell className="py-2">
                           <input
                             type="checkbox"
@@ -547,7 +539,7 @@ export default function FileUpload() {
                             <Trash2Icon className="size-4" />
                           </Button>
                         </TableCell>
-                      </ZoruTableRow>
+                      </Tr>
                     );
                   })}
                 </TableBody>

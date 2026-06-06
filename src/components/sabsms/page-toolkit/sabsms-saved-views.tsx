@@ -3,23 +3,7 @@
 import * as React from "react";
 import { Bookmark, BookmarkPlus, Pin, PinOff, Trash2 } from "lucide-react";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Label,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label } from '@/components/sabcrm/20ui/compat';
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 
@@ -121,7 +105,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
   return (
     <>
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
             <Bookmark className="mr-1.5 h-3.5 w-3.5" />
             Views
@@ -131,10 +115,10 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
               </span>
             )}
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end" className="w-64">
-          <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
-          <ZoruDropdownMenuSeparator />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-64">
+          <DropdownMenuLabel>Saved views</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           {views.length === 0 && (
             <div className="px-2 py-1.5 text-xs text-[var(--st-text)]">
               No views saved yet.
@@ -149,7 +133,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
               onRemove={remove}
             />
           ))}
-          {pinned.length > 0 && rest.length > 0 && <ZoruDropdownMenuSeparator />}
+          {pinned.length > 0 && rest.length > 0 && <DropdownMenuSeparator />}
           {rest.map((v) => (
             <ViewRow
               key={v.id}
@@ -159,21 +143,21 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
               onRemove={remove}
             />
           ))}
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuItem onSelect={() => setSaveOpen(true)}>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setSaveOpen(true)}>
             <BookmarkPlus className="mr-2 h-4 w-4" /> Save current view…
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Save current view</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save current view</DialogTitle>
+            <DialogDescription>
               Captures every filter, sort, and date range in the URL.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="sabsms-view-name">Name</Label>
             <Input
@@ -184,15 +168,15 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
             <Button onClick={saveCurrent} disabled={!name.trim()}>
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

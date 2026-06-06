@@ -1,22 +1,9 @@
 "use client";
 
 import React from "react";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent, 
-  CardDescription 
-} from "@/components/sabcrm/20ui/zoru/card";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
-import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
-  TableCell 
-} from "@/components/sabcrm/20ui/zoru/table";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
 import { DollarSign, UserCheck, BarChart3, TrendingUp } from "lucide-react";
 
 export default function CohortsPage() {
@@ -120,22 +107,22 @@ export default function CohortsPage() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table className="min-w-[800px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[150px]">Cohort</TableHead>
-                <TableHead className="w-[100px] text-right">Users</TableHead>
+            <THead>
+              <Tr>
+                <Th className="w-[150px]">Cohort</Th>
+                <Th className="w-[100px] text-right">Users</Th>
                 {months.map((_, i) => (
-                  <TableHead key={i} className="text-center w-[80px]">Month {i}</TableHead>
+                  <Th key={i} className="text-center w-[80px]">Month {i}</Th>
                 ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+              </Tr>
+            </THead>
+            <TBody>
               {cohortData.map((row, i) => (
-                <TableRow key={i}>
-                  <TableCell className="font-medium">{row.month}</TableCell>
-                  <TableCell className="text-right font-medium">{row.users.toLocaleString()}</TableCell>
+                <Tr key={i}>
+                  <Td className="font-medium">{row.month}</Td>
+                  <Td className="text-right font-medium">{row.users.toLocaleString()}</Td>
                   {row.retention.map((val, j) => (
-                    <TableCell key={j} className="p-1 text-center">
+                    <Td key={j} className="p-1 text-center">
                       {val !== null ? (
                         <div className={`w-full h-10 flex items-center justify-center rounded-sm text-sm ${getCellColor(val)}`}>
                           {val}%
@@ -145,11 +132,11 @@ export default function CohortsPage() {
                           -
                         </div>
                       )}
-                    </TableCell>
+                    </Td>
                   ))}
-                </TableRow>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

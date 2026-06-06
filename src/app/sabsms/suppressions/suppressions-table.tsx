@@ -37,30 +37,7 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import {
   type AuditTrailEntry,
@@ -584,10 +561,10 @@ export function SuppressionsTable({
 
       {/* Add block dialog */}
       <Dialog open={addBlockOpen} onOpenChange={setAddBlockOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add manual block</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add manual block</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <Label>Phone number</Label>
@@ -615,15 +592,15 @@ export function SuppressionsTable({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setAddBlockOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleAddBlock} disabled={!addPhone.trim() || !!busy}>
               {busy ?? "Add"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Import dialog — SabFiles picker only (no external URLs). */}
@@ -642,13 +619,13 @@ export function SuppressionsTable({
         open={!!editingRow}
         onOpenChange={(o) => !o && setEditingRow(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit reason</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit reason</DialogTitle>
+            <DialogDescription>
               Reason is shown on audit reports and the row hover preview.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={editingReason}
             onChange={(e) => setEditingReason(e.target.value)}
@@ -669,37 +646,37 @@ export function SuppressionsTable({
               ))}
             </div>
           )}
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setEditingRow(null)}>
               Cancel
             </Button>
             <Button onClick={handleSaveReason} disabled={!!busy}>
               {busy ?? "Save"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Tag editor */}
       <Dialog open={!!tagRow} onOpenChange={(o) => !o && setTagRow(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Set tag</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set tag</DialogTitle>
+          </DialogHeader>
           <Input
             value={tagValue}
             onChange={(e) => setTagValue(e.target.value)}
             placeholder="e.g. high-risk"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTagRow(null)}>
               Cancel
             </Button>
             <Button onClick={handleSaveTag} disabled={!!busy}>
               {busy ?? "Save"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Per-row unsuppress */}
@@ -707,20 +684,20 @@ export function SuppressionsTable({
         open={!!unsupRow}
         onOpenChange={(o) => !o && setUnsupRow(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Unsuppress entry</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unsuppress entry</DialogTitle>
+            <DialogDescription>
               Audit-trailed — written to the consent log as `opt_in_restart`.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={unsupReason}
             onChange={(e) => setUnsupReason(e.target.value)}
             placeholder="Why are you unsuppressing this entry?"
             rows={3}
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setUnsupRow(null)}>
               Cancel
             </Button>
@@ -731,28 +708,28 @@ export function SuppressionsTable({
             >
               {busy ?? "Unsuppress"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Bulk unsuppress */}
       <Dialog open={bulkUnsupOpen} onOpenChange={setBulkUnsupOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               Bulk unsuppress {selectedIds.length} entries
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Reason is required and written to every entry's audit log.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={bulkUnsupReason}
             onChange={(e) => setBulkUnsupReason(e.target.value)}
             placeholder="Why are you unsuppressing this batch?"
             rows={3}
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setBulkUnsupOpen(false)}
@@ -766,8 +743,8 @@ export function SuppressionsTable({
             >
               {busy ?? "Confirm unsuppress"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Audit drawer */}
@@ -810,27 +787,27 @@ export function SuppressionsTable({
 
       {/* Campaign overlap dialog */}
       <Dialog open={overlapOpen} onOpenChange={setOverlapOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Suppression overlap by campaign</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suppression overlap by campaign</DialogTitle>
+            <DialogDescription>
               How many recipients in a past campaign are currently suppressed.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Select
             value={overlapCampaignId}
             onValueChange={setOverlapCampaignId}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Pick a campaign" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Pick a campaign" />
+            </SelectTrigger>
+            <SelectContent>
               {campaigns.map((c) => (
-                <ZoruSelectItem key={c.id} value={c.id}>
+                <SelectItem key={c.id} value={c.id}>
                   {c.name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           {overlapResult && (
             <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
@@ -841,41 +818,41 @@ export function SuppressionsTable({
               </p>
             </div>
           )}
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setOverlapOpen(false)}>
               Close
             </Button>
             <Button onClick={runOverlap} disabled={!overlapCampaignId || !!busy}>
               {busy ?? "Compute"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Auto-rules editor */}
       <Dialog open={autoRulesOpen} onOpenChange={setAutoRulesOpen}>
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Auto-suppress rules</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Auto-suppress rules</DialogTitle>
+            <DialogDescription>
               Engine auto-blocks a phone once a rule fires.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <AutoRulesEditor initial={autoRules} refresh={refresh} />
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* Reason taxonomy editor */}
       <Dialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Reason taxonomy</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reason taxonomy</DialogTitle>
+            <DialogDescription>
               Reuse a single, sanctioned list of reasons across the team.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <TaxonomyEditor initial={reasonTaxonomy} refresh={refresh} />
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );
@@ -960,10 +937,10 @@ function AutoRulesEditor({
         </ul>
       )}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-sm">Add a new rule</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid grid-cols-2 gap-2 text-sm">
+        <CardHeader>
+          <CardTitle className="text-sm">Add a new rule</CardTitle>
+        </CardHeader>
+        <CardBody className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <Label>Metric</Label>
             <Select
@@ -972,16 +949,16 @@ function AutoRulesEditor({
                 setDraft({ ...draft, metric: v as AutoSuppressRule["metric"] })
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="failure_count">Failures</ZoruSelectItem>
-                <ZoruSelectItem value="complaint_count">
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="failure_count">Failures</SelectItem>
+                <SelectItem value="complaint_count">
                   Complaints
-                </ZoruSelectItem>
-                <ZoruSelectItem value="stop_count">STOP replies</ZoruSelectItem>
-              </ZoruSelectContent>
+                </SelectItem>
+                <SelectItem value="stop_count">STOP replies</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -1009,7 +986,7 @@ function AutoRulesEditor({
               Add rule
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

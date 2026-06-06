@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/sabcrm/20ui/zoru/card";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { useZoruToast } from "@/components/sabcrm/20ui/zoru/use-zoru-toast";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
 import { CrmAttendanceDoc } from '@/lib/rust-client/crm-attendance';
 
@@ -17,7 +17,7 @@ export default function AttendanceClient({
 }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

@@ -32,6 +32,23 @@ export {
   ZoruRadioGroupItem,
   zoruButtonVariants,
   zoruButtonVariants as buttonVariants,
+  // Legacy-only components (no clean 20ui equivalent yet) — bridged so consumers
+  // can be redirected /zoru -> compat. Wave 2 absorbs these into 20ui proper.
+  ZoruFileUploadCard,
+  ZoruFilesPage,
+  ZoruFileInput,
+  ZoruAccordion03,
+  ZoruAccordion03Item,
+  ZoruAccordion03Trigger,
+  ZoruAccordion03Content,
+  zoruToast,
+  ZoruStatisticsCard1,
+  ZoruAppSidebar,
+  ZoruBouncyToggle,
+  ZoruHeader,
+  ZoruLimelightNav,
+  ZoruStarIcon,
+  ZoruHomeShell,
 } from '@/components/sabcrm/20ui/zoru';
 // Type-only bridges (must be `export type` so the bundler erases them rather than
 // hunting for a runtime value — see the value-vs-type gotcha in this file's history).
@@ -41,7 +58,17 @@ export type {
   ZoruToastActionElement,
   ZoruToastProps,
   ZoruChartTooltipProps,
+  ZoruFileEntity,
+  ZoruFileUploadItem,
+  ZoruActionSearchAction,
+  ZoruStatisticsCard1Item,
+  ZoruToastInput,
 } from '@/components/sabcrm/20ui/zoru';
+// Shell + file-card bridges (some live only on /zoru subpaths). Wave 2 absorbs into 20ui.
+export { ZoruShell, ZoruFileCardCollections } from '@/components/sabcrm/20ui/zoru';
+export type { ZoruFileCardItem } from '@/components/sabcrm/20ui/zoru';
+export { ZORU_APPS } from '@/components/sabcrm/20ui/zoru/shell/zoru-apps';
+export { applyTheme, useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/zoru/shell/app-theme';
 
 export {
   Accordion as ZoruAccordion,

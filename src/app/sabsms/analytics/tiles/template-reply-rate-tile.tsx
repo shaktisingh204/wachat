@@ -1,18 +1,6 @@
 import Link from "next/link";
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTemplateReplyRow } from "../aggregations";
@@ -34,12 +22,12 @@ export function TemplateReplyRateTile({
 }: TemplateReplyRateTileProps) {
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Reply-rate by template</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Reply-rate by template</CardTitle>
+          <CardDescription>
             How often each template drives a reply.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -54,43 +42,43 @@ export function TemplateReplyRateTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="p-0">
+      </CardHeader>
+      <CardBody className="p-0">
         {rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No template sends in this window.
           </p>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Template</ZoruTableHead>
-                <ZoruTableHead className="text-right">Sent</ZoruTableHead>
-                <ZoruTableHead className="text-right">Replies</ZoruTableHead>
-                <ZoruTableHead className="text-right">Rate</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Template</Th>
+                <Th className="text-right">Sent</Th>
+                <Th className="text-right">Replies</Th>
+                <Th className="text-right">Rate</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.slice(0, 50).map((r) => (
-                <ZoruTableRow key={r.templateId}>
-                  <ZoruTableCell className="font-mono text-xs">
+                <Tr key={r.templateId}>
+                  <Td className="font-mono text-xs">
                     {r.templateId}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.sent.toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.replies.toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.rate}%
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

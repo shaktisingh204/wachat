@@ -5,15 +5,15 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowMo
 import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fmtDate, formatUTC } from "@/lib/utils";
 import { Search, Filter, Play, CheckCircle2, Clock, AlertCircle, MoreHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Activity, Zap, MousePointer2, Calendar, Eye, Trash2, XCircle } from "lucide-react";
-import { Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from "@/components/sabcrm/20ui/zoru/table";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Card, ZoruCardContent } from "@/components/sabcrm/20ui/zoru/card";
-import { Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from "@/components/sabcrm/20ui/zoru/select";
-import { Checkbox } from "@/components/sabcrm/20ui/zoru/checkbox";
-import { DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuLabel } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import { Avatar, ZoruAvatarFallback } from "@/components/sabcrm/20ui/zoru/avatar";
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Checkbox } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 
 type ExecutionTriggerMode = "webhook" | "schedule" | "manual" | "app_event";
 type ExecutionStatus = "completed" | "running" | "failed" | "canceled";
@@ -208,32 +208,32 @@ function ExecutionsPage() {
           const id = row.original.id || row.original._id;
           return (
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0 border-none shadow-none text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                   <span className="sr-only">Open menu</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuItem onClick={() => navigator.clipboard.writeText(id)}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(id)}>
                   Copy Execution ID
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuItem>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
                   <Eye className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" />
                   View Details
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
                   <RefreshCw className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" />
                   Replay Execution
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuItem className="text-[var(--st-danger)]">
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-[var(--st-danger)]">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Record
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           );
         },
@@ -295,7 +295,7 @@ function ExecutionsPage() {
           {/* Quick Stats Banner */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <ZoruCardContent className="p-4 flex items-center justify-between">
+              <CardBody className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Executions</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">{executions.length}</p>
@@ -303,10 +303,10 @@ function ExecutionsPage() {
                 <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
                   <Activity className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <ZoruCardContent className="p-4 flex items-center justify-between">
+              <CardBody className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Success Rate</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-status-ok)]">
@@ -318,10 +318,10 @@ function ExecutionsPage() {
                 <div className="h-10 w-10 rounded-full bg-[var(--st-status-ok)]/10 flex items-center justify-center border border-[var(--st-status-ok)]/20">
                   <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <ZoruCardContent className="p-4 flex items-center justify-between">
+              <CardBody className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Failed</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-danger)]">
@@ -331,10 +331,10 @@ function ExecutionsPage() {
                 <div className="h-10 w-10 rounded-full bg-[var(--st-danger)]/10 flex items-center justify-center border border-[var(--st-danger)]/20">
                   <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <ZoruCardContent className="p-4 flex items-center justify-between">
+              <CardBody className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Duration</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">
@@ -346,7 +346,7 @@ function ExecutionsPage() {
                 <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
                   <Clock className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>
@@ -376,18 +376,18 @@ function ExecutionsPage() {
                   else table.getColumn("status")?.setFilterValue([val]);
                 }}
               >
-                <ZoruSelectTrigger className="w-[160px] h-10 border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]/50">
+                <SelectTrigger className="w-[160px] h-10 border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]/50">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4" />
-                    <span><ZoruSelectValue placeholder="Status" /></span>
+                    <span><SelectValue placeholder="Status" /></span>
                   </div>
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All Statuses</ZoruSelectItem>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   {statuses.map(s => (
-                    <ZoruSelectItem key={s} value={s} className="capitalize">{s}</ZoruSelectItem>
+                    <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
 
             </div>
@@ -396,59 +396,59 @@ function ExecutionsPage() {
           {/* Table Container */}
           <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)] overflow-hidden">
             <Table className="border-0 shadow-none">
-              <ZoruTableHeader className="bg-[var(--st-bg-secondary)]/60 border-b border-[var(--st-border)]">
+              <THead className="bg-[var(--st-bg-secondary)]/60 border-b border-[var(--st-border)]">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <ZoruTableRow key={headerGroup.id} className="hover:bg-transparent border-0">
+                  <Tr key={headerGroup.id} className="hover:bg-transparent border-0">
                     {headerGroup.headers.map((header) => {
                       return (
-                        <ZoruTableHead key={header.id} className="h-12 px-4 whitespace-nowrap text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider bg-transparent">
+                        <Th key={header.id} className="h-12 px-4 whitespace-nowrap text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider bg-transparent">
                           {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
                                 header.getContext()
                               )}
-                        </ZoruTableHead>
+                        </Th>
                       );
                     })}
-                  </ZoruTableRow>
+                  </Tr>
                 ))}
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              </THead>
+              <TBody>
                 {isLoading ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={columns.length} className="h-32 text-center">
+                  <Tr>
+                    <Td colSpan={columns.length} className="h-32 text-center">
                       <div className="flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
                         <RefreshCw className="h-8 w-8 mb-2 animate-spin opacity-50" />
                         <p>Loading executions...</p>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
-                    <ZoruTableRow
+                    <Tr
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                       className="group hover:bg-[var(--st-bg-secondary)]/50 transition-colors duration-150"
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <ZoruTableCell key={cell.id} className="py-3 px-4">
+                        <Td key={cell.id} className="py-3 px-4">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </ZoruTableCell>
+                        </Td>
                       ))}
-                    </ZoruTableRow>
+                    </Tr>
                   ))
                 ) : (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={columns.length} className="h-32 text-center">
+                  <Tr>
+                    <Td colSpan={columns.length} className="h-32 text-center">
                       <div className="flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
                         <Activity className="h-8 w-8 mb-2 opacity-20" />
                         <p>No executions found.</p>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
 
@@ -467,16 +467,16 @@ function ExecutionsPage() {
                     table.setPageSize(Number(value));
                   }}
                 >
-                  <ZoruSelectTrigger className="h-8 w-[70px]">
-                    <ZoruSelectValue placeholder={table.getState().pagination.pageSize} />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent side="top">
+                  <SelectTrigger className="h-8 w-[70px]">
+                    <SelectValue placeholder={table.getState().pagination.pageSize} />
+                  </SelectTrigger>
+                  <SelectContent side="top">
                     {[10, 15, 20, 30, 40, 50].map((pageSize) => (
-                      <ZoruSelectItem key={pageSize} value={`${pageSize}`}>
+                      <SelectItem key={pageSize} value={`${pageSize}`}>
                         {pageSize}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex w-[100px] items-center justify-center text-sm font-medium text-[var(--st-text-secondary)]">

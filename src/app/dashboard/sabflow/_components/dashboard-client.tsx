@@ -11,38 +11,15 @@ import {
   Play,
   RefreshCcw
 } from "lucide-react";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
-import { 
-  PageHeader, 
-  ZoruPageHeading, 
-  ZoruPageTitle, 
-  ZoruPageDescription, 
-  ZoruPageActions 
-} from "@/components/sabcrm/20ui/zoru/page-header";
-import { 
-  Card, 
-  ZoruCardHeader, 
-  ZoruCardTitle, 
-  ZoruCardDescription, 
-  ZoruCardContent 
-} from "@/components/sabcrm/20ui/zoru/card";
-import { 
-  ZoruChart, 
-  ZoruChartContainer, 
-  ZoruChartTooltip 
-} from "@/components/sabcrm/20ui/zoru/chart";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableBody, 
-  ZoruTableCell 
-} from "@/components/sabcrm/20ui/zoru/table";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { ZoruDateRangePicker } from "@/components/sabcrm/20ui/zoru/date-picker";
+import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { DateRangePicker } from '@/components/sabcrm/20ui/compat';
 import type { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { getSabflowDashboardData, retryExecution } from "../actions";
@@ -112,15 +89,15 @@ export function DashboardClient({ initialData }: { initialData: any }) {
   return (
     <div className="flex flex-col gap-8 p-6 md:p-8">
       <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Overview</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Overview</PageTitle>
+          <PageDescription>
             Monitor your Sabflow executions, active workflows, and system health.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <div className="flex gap-2 mr-4 min-w-[280px]">
-             <ZoruDateRangePicker 
+             <DateRangePicker 
                 value={dateRange}
                 onChange={setDateRange}
              />
@@ -137,7 +114,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
               New Flow
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -165,14 +142,14 @@ export function DashboardClient({ initialData }: { initialData: any }) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Execution Volume</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Execution Volume</CardTitle>
+            <CardDescription>
               Success vs failed executions over time.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={300}>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={300}>
               <ZoruChart.AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
@@ -197,7 +174,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                   tickLine={false} 
                   tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Area 
                   type="monotone" 
                   dataKey="success" 
@@ -215,65 +192,65 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                   strokeWidth={2}
                 />
               </ZoruChart.AreaChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Recent Activity</ZoruCardTitle>
-            <ZoruCardDescription>Latest flow executions.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0 sm:p-0">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest flow executions.</CardDescription>
+          </CardHeader>
+          <CardBody className="p-0 sm:p-0">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Flow</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Action</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Time</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Flow</Th>
+                  <Th>Status</Th>
+                  <Th>Action</Th>
+                  <Th className="text-right">Time</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {recentActivity.map((activity: any) => (
-                  <ZoruTableRow key={activity.id}>
-                    <ZoruTableCell className="font-medium">
+                  <Tr key={activity.id}>
+                    <Td className="font-medium">
                       {activity.flow}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge 
                         tone={activity.status === "success" || activity.status === "completed" ? "green" : (activity.status === "failed" || activity.status === "error" ? "red" : "gray")}
                       >
                         {activity.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {(activity.status === "failed" || activity.status === "error") && (
                          <Button variant="ghost" size="sm" onClick={() => handleRetry(activity.id)}>
                             Retry
                          </Button>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">
+                    </Td>
+                    <Td className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">
                       {activity.time}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
                 {recentActivity.length === 0 && (
-                  <ZoruTableRow>
-                     <ZoruTableCell colSpan={4} className="text-center text-[var(--st-text-secondary)] py-4">
+                  <Tr>
+                     <Td colSpan={4} className="text-center text-[var(--st-text-secondary)] py-4">
                         No recent activity.
-                     </ZoruTableCell>
-                  </ZoruTableRow>
+                     </Td>
+                  </Tr>
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
             <div className="p-4 pt-2 border-t border-[var(--st-border)] mt-2 flex justify-center">
               <Button variant="ghost" size="sm" className="w-full text-[var(--st-text-secondary)]">
                 View All Activity
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

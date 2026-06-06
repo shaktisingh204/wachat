@@ -25,36 +25,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  Input,
-  Label,
-  ZoruRadioCard,
-  RadioGroup,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 
 import type { SabsmsNumberType, SabsmsProviderId } from "@/lib/sabsms/types";
 
@@ -172,7 +143,7 @@ export function ProvisionWizard({
   complianceReady,
 }: ProvisionWizardProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, setState] = React.useState<WizardState>(initialState);
   const [available, setAvailable] = React.useState<AvailableNumber[]>([]);
   const [searchPending, startSearch] = useTransition();
@@ -365,14 +336,14 @@ export function ProvisionWizard({
     <div className="space-y-6">
       {/* Step 1 — Provider */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Provider</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Provider</CardTitle>
+          <CardDescription>
             Phase 1 ships with Twilio only. Other carriers light up in
             Phase 7.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="space-y-4">
             <RadioGroup
               value={state.provider}
@@ -380,7 +351,7 @@ export function ProvisionWizard({
               className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
             >
               {providers.map((p) => (
-                <ZoruRadioCard
+                <RadioCard
                   key={p.id}
                   value={p.id}
                   label={
@@ -406,19 +377,19 @@ export function ProvisionWizard({
               {providers.find(p => p.id === getRecommendedProvider(state.country).provider)?.label})
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Step 2 — Country + Type + Capabilities + Pattern */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Region and shape</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Region and shape</CardTitle>
+          <CardDescription>
             Country drives the cost band and the compliance check.
             Capabilities filter the search.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-5">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-5">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
@@ -426,16 +397,16 @@ export function ProvisionWizard({
                 value={state.country}
                 onValueChange={(v) => patch({ country: v })}
               >
-                <ZoruSelectTrigger id="country">
-                  <ZoruSelectValue placeholder="Country" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="country">
+                  <SelectValue placeholder="Country" />
+                </SelectTrigger>
+                <SelectContent>
                   {COUNTRIES.map((c) => (
-                    <ZoruSelectItem key={c.value} value={c.value}>
+                    <SelectItem key={c.value} value={c.value}>
                       {c.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -459,7 +430,7 @@ export function ProvisionWizard({
             className="grid gap-3 md:grid-cols-2 lg:grid-cols-4"
           >
             {TYPE_OPTIONS.map((t) => (
-              <ZoruRadioCard
+              <RadioCard
                 key={t.value}
                 value={t.value}
                 label={t.label}
@@ -499,7 +470,7 @@ export function ProvisionWizard({
               </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Compliance pre-check */}
@@ -510,13 +481,13 @@ export function ProvisionWizard({
           ) : (
             <ShieldCheck aria-hidden />
           )}
-          <ZoruAlertTitle>
+          <AlertTitle>
             {compliance.key === "10dlc"
               ? "10DLC brand and campaign"
               : "Indian DLT registration"}{" "}
             {complianceMissing ? "missing" : "ready"}
-          </ZoruAlertTitle>
-          <ZoruAlertDescription>
+          </AlertTitle>
+          <AlertDescription>
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 {complianceMissing
@@ -534,20 +505,20 @@ export function ProvisionWizard({
                 </Button>
               )}
             </div>
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {/* Step 3 — Search results */}
       <Card>
-        <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
-            <ZoruCardTitle>Available numbers</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle>Available numbers</CardTitle>
+            <CardDescription>
               Phase 1 mock — the engine doesn{`’`}t expose
               /v1/numbers/search yet. Results are deterministic per
               country + pattern.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -564,8 +535,8 @@ export function ProvisionWizard({
               <span className="ml-2">Search</span>
             </Button>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {available.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-[var(--st-text)]">
               <Phone className="h-6 w-6 text-[var(--st-text-secondary)]" />
@@ -650,19 +621,19 @@ export function ProvisionWizard({
               </div>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Step 4 — Assignment + webhook + footer + test call */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Assignment and defaults</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Assignment and defaults</CardTitle>
+          <CardDescription>
             Optional — these can be edited later from the number{`’`}s
             detail page.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="campaign">Assign to campaign</Label>
@@ -670,17 +641,17 @@ export function ProvisionWizard({
                 value={state.campaignId}
                 onValueChange={(v) => patch({ campaignId: v })}
               >
-                <ZoruSelectTrigger id="campaign">
-                  <ZoruSelectValue placeholder="No campaign" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">No campaign</ZoruSelectItem>
+                <SelectTrigger id="campaign">
+                  <SelectValue placeholder="No campaign" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No campaign</SelectItem>
                   {campaigns.map((c) => (
-                    <ZoruSelectItem key={c.id} value={c.id}>
+                    <SelectItem key={c.id} value={c.id}>
                       {c.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -689,16 +660,16 @@ export function ProvisionWizard({
                 value={state.poolId}
                 onValueChange={(v) => patch({ poolId: v })}
               >
-                <ZoruSelectTrigger id="pool">
-                  <ZoruSelectValue placeholder="Pool" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="pool">
+                  <SelectValue placeholder="Pool" />
+                </SelectTrigger>
+                <SelectContent>
                   {pools.map((p) => (
-                    <ZoruSelectItem key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={p.id}>
                       {p.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>
@@ -751,63 +722,63 @@ export function ProvisionWizard({
               </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Step 5 — Attestation */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Compliance attestation</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Compliance attestation</CardTitle>
+          <CardDescription>
             Required — what is this number going to be used for?
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="usecase">Primary use case</Label>
             <Select
               value={state.useCase}
               onValueChange={(v) => patch({ useCase: v })}
             >
-              <ZoruSelectTrigger id="usecase">
-                <ZoruSelectValue placeholder="Pick a use case" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="usecase">
+                <SelectValue placeholder="Pick a use case" />
+              </SelectTrigger>
+              <SelectContent>
                 {USE_CASES.map((u) => (
-                  <ZoruSelectItem key={u.value} value={u.value}>
+                  <SelectItem key={u.value} value={u.value}>
                     {u.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
 
           {costCap && (
             <Alert variant="destructive">
               <AlertTriangle aria-hidden />
-              <ZoruAlertTitle>Cost cap warning</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Cost cap warning</AlertTitle>
+              <AlertDescription>
                 Estimated monthly cost{" "}
                 <span className="font-mono">
                   ${(monthlyCostEstimate / 100).toFixed(2)}
                 </span>{" "}
                 exceeds the $100 cap. Use Save as draft and ask an admin
                 to review.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
           )}
 
           <Alert variant="info">
             <CheckCircle2 aria-hidden />
-            <ZoruAlertTitle>Audit log</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Audit log</AlertTitle>
+            <AlertDescription>
               Every provision (and every test call) writes an entry to{" "}
               <code className="rounded bg-[var(--st-bg-muted)] px-1">sabsms_audit_log</code>{" "}
               with the workspace, provider, country, type, attested use
               case and the numbers touched.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Sticky action bar */}

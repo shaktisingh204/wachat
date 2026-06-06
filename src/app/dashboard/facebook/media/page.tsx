@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  ZoruFilesPage,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-  type ZoruFileEntity,
-} from '@/components/sabcrm/20ui/zoru';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, ZoruFilesPage, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -98,7 +72,7 @@ function PageSkeleton() {
 }
 
 export default function MediaPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [photos, setPhotos] = useState<any[]>([]);
   const [albums, setAlbums] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
@@ -260,58 +234,58 @@ export default function MediaPage() {
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Media</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Media</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Page header */}
       <PageHeader className="mt-4">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite · Library</ZoruPageEyebrow>
-          <ZoruPageTitle>Media</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite · Library</PageEyebrow>
+          <PageTitle>Media</PageTitle>
+          <PageDescription>
             Photos, albums, videos and playlists from your connected
             Facebook Page. Switch the asset kind from the dropdown.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 {React.createElement(KIND_ICONS[kind])}
                 {KIND_LABELS[kind]} · {counts[kind]}
                 <ChevronDown className="opacity-60" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-56">
-              <ZoruDropdownMenuLabel>Asset kind</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuRadioGroup
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Asset kind</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
                 value={kind}
                 onValueChange={(v) => setKind(v as MediaKind)}
               >
                 {(Object.keys(KIND_LABELS) as MediaKind[]).map((k) => (
-                  <ZoruDropdownMenuRadioItem key={k} value={k}>
+                  <DropdownMenuRadioItem key={k} value={k}>
                     {KIND_LABELS[k]} ({counts[k]})
-                  </ZoruDropdownMenuRadioItem>
+                  </DropdownMenuRadioItem>
                 ))}
-              </ZoruDropdownMenuRadioGroup>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
           </DropdownMenu>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Body */}

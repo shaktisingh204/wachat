@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { cn, useZoruToast } from "@/components/sabcrm/20ui/zoru";
+import { cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Button,
   IconButton,
@@ -142,7 +142,7 @@ export function ActivityComposer({
   onSubmitted,
   className,
 }: ActivityComposerProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const memberList = React.useMemo(() => members ?? [], [members]);
 

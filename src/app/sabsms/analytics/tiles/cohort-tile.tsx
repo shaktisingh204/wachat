@@ -1,12 +1,6 @@
 import Link from "next/link";
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCohortCell } from "../aggregations";
@@ -41,12 +35,12 @@ export function CohortTile({
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Cohort retention</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Cohort retention</CardTitle>
+          <CardDescription>
             Weekly cohorts × weeks-since-first-send. Darker = more retained.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -61,8 +55,8 @@ export function CohortTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {rows.size === 0 ? (
           <p className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
             Not enough data to compute cohorts.
@@ -96,7 +90,7 @@ export function CohortTile({
             ))}
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

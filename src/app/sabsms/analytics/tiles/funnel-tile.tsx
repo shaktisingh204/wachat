@@ -1,12 +1,6 @@
 import Link from "next/link";
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsFunnelStep } from "../aggregations";
@@ -26,13 +20,13 @@ export function FunnelTile({
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Funnel</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Funnel</CardTitle>
+          <CardDescription>
             Sent → Delivered → Clicked → Replied, with drop-off between
             each step.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -47,8 +41,8 @@ export function FunnelTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         <ol className="space-y-2">
           {steps.map((s) => {
             const widthPct = top > 0 ? Math.max(2, (s.value / top) * 100) : 0;
@@ -73,7 +67,7 @@ export function FunnelTile({
             );
           })}
         </ol>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

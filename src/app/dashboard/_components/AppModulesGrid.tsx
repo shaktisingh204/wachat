@@ -22,15 +22,7 @@ import {
   MoreHorizontal,
   Settings
 } from "lucide-react";
-import { 
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuCheckboxItem
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui/compat';
 import { ModuleTile } from "./shared";
 import { compact, curr } from "./utils";
 import {
@@ -303,24 +295,24 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
         </div>
         <div className="flex items-center gap-1.5">
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" aria-label="Customize Layout">
                 <Settings className="opacity-60" /> Layout
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-56">
-              <ZoruDropdownMenuLabel>Customize Apps</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Customize Apps</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {defaultModules.map((m) => (
-                <ZoruDropdownMenuCheckboxItem
+                <DropdownMenuCheckboxItem
                   key={m.id}
                   checked={visibleModules[m.id] !== false}
                   onCheckedChange={() => toggleModule(m.id)}
                 >
                   {m.name}
-                </ZoruDropdownMenuCheckboxItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
 
           <Button

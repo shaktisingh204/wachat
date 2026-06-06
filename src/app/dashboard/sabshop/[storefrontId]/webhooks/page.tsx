@@ -1,33 +1,13 @@
 "use client";
 
 import React from "react";
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from "@/components/sabcrm/20ui/zoru/page-header";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/sabcrm/20ui/zoru/table";
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Webhook,
@@ -41,7 +21,7 @@ import {
   ShieldCheck,
   Zap
 } from "lucide-react";
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from "@/components/sabcrm/20ui/zoru/card";
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 
 const mockWebhooks = [
   {
@@ -84,14 +64,14 @@ export default function WebhooksPage() {
   return (
     <div className="flex flex-col gap-8 pb-12 w-full">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Developer Tools</ZoruPageEyebrow>
-          <ZoruPageTitle>Webhooks</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Developer Tools</PageEyebrow>
+          <PageTitle>Webhooks</PageTitle>
+          <PageDescription>
             Subscribe to store events and receive real-time HTTP payloads to your external services and custom apps.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline">
             <TerminalSquare className="mr-2 h-4 w-4" />
             View Documentation
@@ -100,7 +80,7 @@ export default function WebhooksPage() {
             <Plus className="mr-2 h-4 w-4" />
             Add Endpoint
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 px-1">
@@ -139,19 +119,19 @@ export default function WebhooksPage() {
         <Card className="border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm overflow-hidden">
           <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
-                  <TableHead className="w-[300px]">Endpoint</TableHead>
-                  <TableHead>Topics</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Secret</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
+                  <Th className="w-[300px]">Endpoint</Th>
+                  <Th>Topics</Th>
+                  <Th>Status</Th>
+                  <Th className="hidden lg:table-cell">Secret</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {mockWebhooks.map((webhook) => (
-                  <TableRow key={webhook.id} className="group">
-                    <TableCell>
+                  <Tr key={webhook.id} className="group">
+                    <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                           <Link className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
@@ -169,8 +149,8 @@ export default function WebhooksPage() {
                           )}
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-wrap gap-1.5 max-w-[250px]">
                         {webhook.topics.map((topic, i) => (
                           i < 2 ? (
@@ -185,8 +165,8 @@ export default function WebhooksPage() {
                           </Badge>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-3">
                         <Switch checked={webhook.status === 'active'} />
                         {webhook.status === 'active' ? (
@@ -195,14 +175,14 @@ export default function WebhooksPage() {
                           <Badge variant="danger" className="text-[10px] uppercase tracking-wider py-0 rounded-full h-5 px-2">Failing</Badge>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
+                    </Td>
+                    <Td className="hidden lg:table-cell">
                       <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] px-2 py-1 rounded w-fit">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         {webhook.secretPrefix}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
@@ -225,10 +205,10 @@ export default function WebhooksPage() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           </div>
         </Card>
@@ -245,38 +225,38 @@ export default function WebhooksPage() {
 
         <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
-                <TableHead>Topic</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Time</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
+                <Th>Topic</Th>
+                <Th>Status</Th>
+                <Th className="hidden md:table-cell">Time</Th>
+                <Th className="text-right">Action</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mockLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="font-mono text-xs text-[var(--st-text)]">
+                <Tr key={log.id}>
+                  <Td className="font-mono text-xs text-[var(--st-text)]">
                     {log.topic}
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     {log.status === 200 ? (
                       <Badge variant="success" className="font-mono text-[10px] py-0">{log.status} OK</Badge>
                     ) : (
                       <Badge variant="danger" className="font-mono text-[10px] py-0">{log.status} ERR</Badge>
                     )}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">
                     {log.time}
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <Button variant="ghost" size="sm" className="h-7 text-xs">
                       View Payload
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </div>
       </div>

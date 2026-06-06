@@ -24,34 +24,7 @@ import {
   StopCircle,
 } from "lucide-react";
 
-import {
-  ZORU_CHART_PALETTE,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Progress,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsDataTable,
@@ -139,17 +112,17 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
   if (!detail) {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Campaign not found</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Campaign not found</CardTitle>
+          <CardDescription>
             It may have been archived or moved to a different workspace.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <Button variant="outline" asChild>
             <Link href="/sabsms/campaigns">Back to campaigns</Link>
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -276,7 +249,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
     <div className="space-y-4">
       {/* Header card with live status bar + primary actions */}
       <Card>
-        <ZoruCardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <CardBody className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Badge variant={statusVariant(detail.status)}>
@@ -430,7 +403,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               Re-send failures CSV
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {shareUrl && (
@@ -443,19 +416,19 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
 
       {/* Timeline chart — per-minute send velocity */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Send velocity</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Send velocity</CardTitle>
+          <CardDescription>
             Per-minute sent / delivered / failed counts (max 200 buckets).
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {bundle.timeline.length === 0 ? (
             <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No send events yet.
             </p>
           ) : (
-            <ZoruChartContainer height={240}>
+            <ChartContainer height={240}>
               <ZoruChart.LineChart
                 data={bundle.timeline}
                 margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -471,7 +444,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   axisLine={false}
                 />
                 <ZoruChart.YAxis fontSize={10} tickLine={false} axisLine={false} />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -500,22 +473,22 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   name="Failed"
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Two-up: funnel + provider breakdown */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Funnel</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Funnel</CardTitle>
+            <CardDescription>
               Queued → sent → delivered → clicked → converted.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.BarChart
                 data={bundle.funnel}
                 layout="vertical"
@@ -534,31 +507,31 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Bar
                   dataKey="count"
                   fill={ZORU_CHART_PALETTE[0]}
                   radius={[0, 4, 4, 0]}
                 />
               </ZoruChart.BarChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Providers</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Providers</CardTitle>
+            <CardDescription>
               Volume split by carrier provider.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {bundle.providers.length === 0 ? (
               <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
-              <ZoruChartContainer height={220}>
+              <ChartContainer height={220}>
                 <ZoruChart.BarChart
                   data={bundle.providers}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -578,33 +551,33 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                   <ZoruChart.Bar
                     dataKey="count"
                     fill={ZORU_CHART_PALETTE[1]}
                     radius={[2, 2, 0, 0]}
                   />
                 </ZoruChart.BarChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Three-up: countries + sender rotation pie + cost/margin */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>By country</ZoruCardTitle>
-            <ZoruCardDescription>Top destinations.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>By country</CardTitle>
+            <CardDescription>Top destinations.</CardDescription>
+          </CardHeader>
+          <CardBody>
             {bundle.countries.length === 0 ? (
               <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
-              <ZoruChartContainer height={200}>
+              <ChartContainer height={200}>
                 <ZoruChart.BarChart
                   data={bundle.countries}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -624,32 +597,32 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                   <ZoruChart.Bar
                     dataKey="count"
                     fill={ZORU_CHART_PALETTE[2]}
                     radius={[2, 2, 0, 0]}
                   />
                 </ZoruChart.BarChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Sender rotation</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Sender rotation</CardTitle>
+            <CardDescription>
               Share of sends by originating number.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {bundle.senderRotation.length === 0 ? (
               <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
-              <ZoruChartContainer height={200}>
+              <ChartContainer height={200}>
                 <ZoruChart.PieChart>
                   <ZoruChart.Pie
                     data={bundle.senderRotation}
@@ -667,21 +640,21 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                       />
                     ))}
                   </ZoruChart.Pie>
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                 </ZoruChart.PieChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Cost & margin</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Cost & margin</CardTitle>
+            <CardDescription>
               Wholesale cost vs customer-facing price.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="text-[var(--st-text-secondary)]">Cost</div>
               <div className="text-right font-medium">
@@ -700,26 +673,26 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 {bundle.costMargin.marginPct}%
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Reply + opt-out timelines */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Reply timeline</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Reply timeline</CardTitle>
+            <CardDescription>
               Inbound messages associated with this campaign.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {bundle.replies.length === 0 ? (
               <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No replies yet.
               </p>
             ) : (
-              <ZoruChartContainer height={160}>
+              <ChartContainer height={160}>
                 <ZoruChart.AreaChart
                   data={bundle.replies}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
@@ -740,33 +713,33 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     axisLine={false}
                     allowDecimals={false}
                   />
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                   <ZoruChart.Area
                     dataKey="count"
                     fill={ZORU_CHART_PALETTE[1]}
                     stroke={ZORU_CHART_PALETTE[0]}
                   />
                 </ZoruChart.AreaChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Opt-out timeline</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Opt-out timeline</CardTitle>
+            <CardDescription>
               Workspace-wide opt-out events (per-campaign filter ships
               in Phase 11 once consentLog carries campaignId).
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {bundle.optOuts.length === 0 ? (
               <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No opt-outs yet.
               </p>
             ) : (
-              <ZoruChartContainer height={160}>
+              <ChartContainer height={160}>
                 <ZoruChart.AreaChart
                   data={bundle.optOuts}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
@@ -787,29 +760,29 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     axisLine={false}
                     allowDecimals={false}
                   />
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                   <ZoruChart.Area
                     dataKey="count"
                     fill={ZORU_CHART_PALETTE[3]}
                     stroke={ZORU_CHART_PALETTE[3]}
                   />
                 </ZoruChart.AreaChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Click heatmap + A/B comparison */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Click heatmap</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Click heatmap</CardTitle>
+            <CardDescription>
               Per short-link clicks + unique contacts.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             {bundle.clickHeat.length === 0 ? (
               <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No clicks tracked yet. Wrap a URL with the SabSMS link
@@ -817,95 +790,95 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Short link</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Clicks</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Unique</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                  <Tr>
+                    <Th>Short link</Th>
+                    <Th className="text-right">Clicks</Th>
+                    <Th className="text-right">Unique</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {bundle.clickHeat.map((c) => (
-                    <ZoruTableRow key={c.url}>
-                      <ZoruTableCell className="font-mono text-xs">
+                    <Tr key={c.url}>
+                      <Td className="font-mono text-xs">
                         {c.url}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {c.clicks.toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {c.uniqueContacts.toLocaleString()}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>A/B variant comparison</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>A/B variant comparison</CardTitle>
+            <CardDescription>
               Per-variant sent / delivered counts.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             {bundle.ab.variants.length === 0 ? (
               <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 Single-variant campaign — no A/B split.
               </p>
             ) : (
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Variant</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Sent</ZoruTableHead>
-                    <ZoruTableHead className="text-right">
+                <THead>
+                  <Tr>
+                    <Th>Variant</Th>
+                    <Th className="text-right">Sent</Th>
+                    <Th className="text-right">
                       Delivered
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right">Clicked</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Replied</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-right">Clicked</Th>
+                    <Th className="text-right">Replied</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {bundle.ab.variants.map((v) => (
-                    <ZoruTableRow key={v.label}>
-                      <ZoruTableCell className="text-xs">
+                    <Tr key={v.label}>
+                      <Td className="text-xs">
                         {v.label}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {v.sent.toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {v.delivered.toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {v.clicked.toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {v.replied.toLocaleString()}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Per-recipient drill-down table */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recipients</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Recipients</CardTitle>
+          <CardDescription>
             Most recent 200 recipients. Open one in logs for the full
             DLR timeline.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <SabsmsDataTable
             rows={bundle.recipients}
             columns={recipientColumns}
@@ -915,61 +888,61 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             emptyTitle="No messages yet"
             emptyDescription="The first send will populate this table within a few seconds."
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Webhook fire log */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Webhook fires</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Webhook fires</CardTitle>
+          <CardDescription>
             Outbound webhook deliveries that referenced this campaign.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="p-0">
           {bundle.webhookFires.length === 0 ? (
             <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No webhook deliveries yet for this campaign.
             </p>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Event</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Attempts</ZoruTableHead>
-                  <ZoruTableHead>Created</ZoruTableHead>
-                  <ZoruTableHead>Delivered</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Event</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Attempts</Th>
+                  <Th>Created</Th>
+                  <Th>Delivered</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {bundle.webhookFires.map((w) => (
-                  <ZoruTableRow key={w.id}>
-                    <ZoruTableCell className="text-xs">{w.event}</ZoruTableCell>
-                    <ZoruTableCell>
+                  <Tr key={w.id}>
+                    <Td className="text-xs">{w.event}</Td>
+                    <Td>
                       <Badge variant={statusVariant(w.status)}>
                         {w.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {w.attempts}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
                       {w.createdAt
                         ? new Date(w.createdAt).toLocaleString()
                         : "—"}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
                       {w.deliveredAt
                         ? new Date(w.deliveredAt).toLocaleString()
                         : "—"}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Schedule edit dialog */}
@@ -977,13 +950,13 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
         open={scheduleDialog !== null}
         onOpenChange={(open) => !open && setScheduleDialog(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit schedule</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit schedule</DialogTitle>
+            <DialogDescription>
               Available while the campaign is draft / scheduled / paused.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="sabsms-sched">Send at (ISO-8601)</Label>
             <Input
@@ -994,7 +967,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setScheduleDialog(null)}>
               Cancel
             </Button>
@@ -1015,8 +988,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Per-recipient detail drawer */}

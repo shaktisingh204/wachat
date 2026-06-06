@@ -3,25 +3,7 @@
 import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Badge,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   BookOpen,
   Github,
@@ -46,7 +28,7 @@ type ViewMode = "snippets" | "explorer";
 export default function SdkReferencePage() {
   const [lang, setLang] = useState<Language>("typescript");
   const [viewMode, setViewMode] = useState<ViewMode>("snippets");
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);

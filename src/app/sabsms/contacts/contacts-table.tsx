@@ -28,26 +28,7 @@ import {
 } from "lucide-react";
 
 import { SabFilePicker } from "@/components/sabfiles";
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -656,13 +637,13 @@ export function ContactsTable({
         open={tagEditor.open}
         onOpenChange={(o) => setTagEditor((prev) => ({ ...prev, open: o }))}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit tags</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit tags</DialogTitle>
+            <DialogDescription>
               Comma-separated. Maximum 63 characters per tag.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input
             value={tagEditor.draft}
             onChange={(e) =>
@@ -670,7 +651,7 @@ export function ContactsTable({
             }
             placeholder="vip, india-tier-1"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() =>
@@ -680,8 +661,8 @@ export function ContactsTable({
               Cancel
             </Button>
             <Button onClick={commitTagEditor}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Phone editor */}
@@ -691,13 +672,13 @@ export function ContactsTable({
           setPhoneEditor((prev) => ({ ...prev, open: o }))
         }
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit phone format</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit phone format</DialogTitle>
+            <DialogDescription>
               Phones must be E.164 (start with `+`, country code, then number).
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Label htmlFor="phone-input">Phone</Label>
           <Input
             id="phone-input"
@@ -707,7 +688,7 @@ export function ContactsTable({
             }
             placeholder="+14155551212"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setPhoneEditor({ open: false, draft: "" })}
@@ -715,8 +696,8 @@ export function ContactsTable({
               Cancel
             </Button>
             <Button onClick={commitPhoneEditor}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Audit drawer */}
@@ -765,31 +746,31 @@ export function ContactsTable({
       />
 
       {/* Bulk delete confirmation */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={deleteConfirm.open}
         onOpenChange={(o) =>
           setDeleteConfirm((prev) => ({ ...prev, open: o }))
         }
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {deleteConfirm.ids.length} contact
               {deleteConfirm.ids.length === 1 ? "" : "s"}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               The contact rows will be removed but a suppression record will
               be retained so future imports stay opt-out compliant.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={confirmBulkDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBulkDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

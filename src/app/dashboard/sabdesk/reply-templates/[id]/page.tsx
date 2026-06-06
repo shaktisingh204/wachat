@@ -1,4 +1,4 @@
-import { Badge, Button, Card } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
 import { notFound, redirect } from "next/navigation";
 import { Pencil } from "lucide-react";
 

@@ -15,18 +15,11 @@ import {
   TrendingUp,
   Percent
 } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
 
 const mockTiers = [
   {

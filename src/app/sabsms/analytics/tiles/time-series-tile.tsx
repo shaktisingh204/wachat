@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 
-import {
-  ZORU_CHART_PALETTE,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTimeSeriesPoint } from "../aggregations";
@@ -30,12 +20,12 @@ export function TimeSeriesTile({
 }: TimeSeriesTileProps) {
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Volume over time</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Volume over time</CardTitle>
+          <CardDescription>
             Sent / delivered / failed counts per day.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -50,14 +40,14 @@ export function TimeSeriesTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {data.length === 0 ? (
           <p className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
             No traffic in this window.
           </p>
         ) : (
-          <ZoruChartContainer height={260}>
+          <ChartContainer height={260}>
             <ZoruChart.LineChart
               data={data}
               margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -77,7 +67,7 @@ export function TimeSeriesTile({
                 tickLine={false}
                 axisLine={false}
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Tooltip content={<ChartTooltip />} />
               <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
               <ZoruChart.Line
                 type="monotone"
@@ -106,9 +96,9 @@ export function TimeSeriesTile({
                 name="Failed"
               />
             </ZoruChart.LineChart>
-          </ZoruChartContainer>
+          </ChartContainer>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

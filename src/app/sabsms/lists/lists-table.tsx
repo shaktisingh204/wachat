@@ -41,24 +41,7 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  StatCard,
-  Textarea,
-  zoruSonnerToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {
@@ -540,13 +523,13 @@ function CreateListDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Create list</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create list</DialogTitle>
+          <DialogDescription>
             Lists can be static (manual contacts) or dynamic (filtered automatically).
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -621,21 +604,21 @@ function CreateListDialog({
           </div>
           {error && (
             <Alert variant="destructive">
-              <ZoruAlertTitle>Could not create list</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Could not create list</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={busy || !name.trim()}>
             {busy ? "Creating…" : "Create list"}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -711,15 +694,15 @@ function AddContactsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
             Add contacts to {list?.name ?? "list"}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Paste phone numbers (one per line) or import a CSV via SabFiles.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-3">
           <div className="space-y-1.5">
@@ -758,13 +741,13 @@ function AddContactsDialog({
 
           {error && (
             <Alert variant="destructive">
-              <ZoruAlertTitle>Could not add contacts</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Could not add contacts</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -774,8 +757,8 @@ function AddContactsDialog({
           >
             {busy ? "Adding…" : `Add ${parsed.valid.length}`}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -814,22 +797,22 @@ function TagDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Tag {list?.name}</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Tag {list?.name}</DialogTitle>
+        </DialogHeader>
         <Input
           value={tagsRaw}
           onChange={(e) => setTagsRaw(e.target.value)}
           placeholder="vip, q1-promo"
         />
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleSave}>Save</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -866,13 +849,13 @@ function ShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Share {list?.name}</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share {list?.name}</DialogTitle>
+          <DialogDescription>
             Generate a read-only link to share list membership.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         {url ? (
           <div className="space-y-2">
             <Input value={url} readOnly />
@@ -889,12 +872,12 @@ function ShareDialog({
             Generate share link
           </Button>
         )}
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -942,13 +925,13 @@ function CompareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Compare two lists</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Compare two lists</DialogTitle>
+          <DialogDescription>
             See how much two lists overlap.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-3">
           <div className="space-y-1.5">
@@ -999,15 +982,15 @@ function CompareDialog({
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
           <Button onClick={handleRun} disabled={!a || !b || a === b || busy}>
             {busy ? "Comparing…" : "Compare"}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -1233,13 +1216,13 @@ function EditListDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Edit list</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit list</DialogTitle>
+          <DialogDescription>
             {locked ? "This list is locked. Unlock it to make changes." : "Update configuration or filters."}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -1323,13 +1306,13 @@ function EditListDialog({
           </div>
           {error && (
             <Alert variant="destructive">
-              <ZoruAlertTitle>Could not update list</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Could not update list</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
@@ -1338,8 +1321,8 @@ function EditListDialog({
               {busy ? "Saving…" : "Save changes"}
             </Button>
           )}
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

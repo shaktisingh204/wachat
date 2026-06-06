@@ -17,7 +17,7 @@ import {
     type AppearancePrefs,
 } from '@/app/actions/account.actions';
 import { useT } from '@/lib/i18n/client';
-import { applyTheme } from '@/components/sabcrm/20ui/zoru/shell/app-theme';
+import { applyTheme } from '@/components/sabcrm/20ui/compat';
 
 type Appearance = AppearancePrefs;
 

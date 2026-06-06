@@ -1,40 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-  ZoruFileUploadCard,
-  type ZoruFileUploadItem,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Input,
-} from '@/components/sabcrm/20ui/zoru';
+import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, useToast, ZoruFileUploadCard, type ZoruFileUploadItem, RadioGroup, ZoruRadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -287,32 +253,32 @@ export default function ReelsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Reels</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Reels</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Reels</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Reels</PageTitle>
+          <PageDescription>
             Browse Reels published from this Page and upload new clips.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Badge variant="secondary">
             <Film />
             {reels.length} reel{reels.length === 1 ? "" : "s"}
@@ -323,7 +289,7 @@ export default function ReelsPage() {
           >
             <Upload /> Upload Reel
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6 flex flex-col gap-6">
@@ -399,7 +365,7 @@ function UploadReelDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
@@ -530,19 +496,19 @@ function UploadReelDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Upload reel</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Upload reel</DialogTitle>
+          <DialogDescription>
             Pick a vertical video and add an optional caption. You can publish
             it now, schedule it, or save it as a draft.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handlePublish} className="flex flex-col gap-4">
           {formError && (
             <Alert variant="destructive">
-              <ZoruAlertDescription>{formError}</ZoruAlertDescription>
+              <AlertDescription>{formError}</AlertDescription>
             </Alert>
           )}
 
@@ -616,7 +582,7 @@ function UploadReelDialog({
             </div>
           )}
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -639,9 +605,9 @@ function UploadReelDialog({
                 </>
               )}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

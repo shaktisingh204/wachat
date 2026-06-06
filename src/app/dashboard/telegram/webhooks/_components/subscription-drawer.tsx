@@ -1,23 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import type { WebhookSubscriptionRow } from "@/lib/rust-client/telegram-webhooks";
 import { TELEGRAM_ALLOWED_UPDATES } from "@/lib/rust-client/telegram-webhooks-shared";
@@ -96,34 +80,34 @@ export function SubscriptionDrawer({
   }
 
   return (
-    <ZoruDrawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <ZoruDrawerContent>
-        <ZoruDrawerHeader>
-          <ZoruDrawerTitle>
+    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>
             {editing?._id
               ? "Edit webhook subscription"
               : "New webhook subscription"}
-          </ZoruDrawerTitle>
-          <ZoruDrawerDescription>
+          </DrawerTitle>
+          <DrawerDescription>
             Calls Telegram setWebhook with these settings and persists them
             locally.
-          </ZoruDrawerDescription>
-        </ZoruDrawerHeader>
+          </DrawerDescription>
+        </DrawerHeader>
         <div className="flex flex-col gap-4 p-4">
           {!editing?._id && (
             <div>
               <Label>Bot</Label>
               <Select value={botId} onValueChange={setBotId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pick a bot…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a bot…" />
+                </SelectTrigger>
+                <SelectContent>
                   {subs.map((s) => (
-                    <ZoruSelectItem key={s.botId} value={s.botId}>
+                    <SelectItem key={s.botId} value={s.botId}>
                       @{s.botUsername ?? s.botId.slice(0, 8)}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
               {subs.length === 0 && (
                 <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
@@ -214,7 +198,7 @@ export function SubscriptionDrawer({
             Save
           </Button>
         </div>
-      </ZoruDrawerContent>
-    </ZoruDrawer>
+      </DrawerContent>
+    </Drawer>
   );
 }

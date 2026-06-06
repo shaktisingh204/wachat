@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 
-import {
-  ZORU_CHART_PALETTE,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCountryBar } from "../aggregations";
@@ -30,12 +20,12 @@ export function CountryBarTile({
 }: CountryBarTileProps) {
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>Top countries</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Top countries</CardTitle>
+          <CardDescription>
             Outbound volume by ISO country.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -50,14 +40,14 @@ export function CountryBarTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {rows.length === 0 ? (
           <p className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
             No traffic in this window.
           </p>
         ) : (
-          <ZoruChartContainer height={Math.max(180, rows.length * 20)}>
+          <ChartContainer height={Math.max(180, rows.length * 20)}>
             <ZoruChart.BarChart
               data={rows.slice(0, 20)}
               layout="vertical"
@@ -81,16 +71,16 @@ export function CountryBarTile({
                 axisLine={false}
                 width={50}
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Tooltip content={<ChartTooltip />} />
               <ZoruChart.Bar
                 dataKey="sent"
                 fill={ZORU_CHART_PALETTE[0]}
                 radius={[2, 2, 2, 2]}
               />
             </ZoruChart.BarChart>
-          </ZoruChartContainer>
+          </ChartContainer>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

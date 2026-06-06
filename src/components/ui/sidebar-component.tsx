@@ -73,7 +73,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Dock, DockIcon, type DockAccent } from "@/components/ui/dock";
 import { useTabsOptional } from "@/components/tabs";
 import { cn } from "@/lib/utils";
-import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from "@/components/sabcrm/20ui/zoru";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui/compat';
 import { ChevronRight } from "lucide-react";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";
@@ -650,11 +650,11 @@ function MenuRow({
 
   if (item.subItems) {
     return (
-      <ZoruCollapsible open={open} onOpenChange={setOpen} className="w-full">
-        <ZoruCollapsibleTrigger asChild>
+      <Collapsible open={open} onOpenChange={setOpen} className="w-full">
+        <CollapsibleTrigger asChild>
           <button className="block w-full outline-none">{inner}</button>
-        </ZoruCollapsibleTrigger>
-        <ZoruCollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
+        </CollapsibleTrigger>
+        <CollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
           <div className="flex flex-col gap-0.5 w-full pl-6 pt-1">
             {item.subItems.map(sub => {
               const isSubActive = !!(sub.href && pathname && (sub.exact ? pathname === sub.href : pathname.startsWith(sub.href)));
@@ -670,8 +670,8 @@ function MenuRow({
               );
             })}
           </div>
-        </ZoruCollapsibleContent>
-      </ZoruCollapsible>
+        </CollapsibleContent>
+      </Collapsible>
     );
   }
 

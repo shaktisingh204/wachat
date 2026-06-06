@@ -23,14 +23,7 @@
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 export interface ComingSoonProps {
   /** Page title (e.g. "Inbox", "Bulk sender"). */
@@ -75,19 +68,19 @@ export function ComingSoon({
 
       {features && features.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>{featuresTitle}</ZoruCardTitle>
+          <CardHeader>
+            <CardTitle>{featuresTitle}</CardTitle>
             {featuresDescription ? (
-              <ZoruCardDescription>{featuresDescription}</ZoruCardDescription>
+              <CardDescription>{featuresDescription}</CardDescription>
             ) : null}
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <ul className="list-disc space-y-2 pl-5 text-sm text-[var(--st-text)]">
               {features.map((feature, i) => (
                 <li key={i}>{feature}</li>
               ))}
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </div>

@@ -1,32 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  EmptyState,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ScrollArea,
-  StatCard,
-  useZoruToast,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Switch,
-  Label,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, EmptyState, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, ScrollArea, StatCard, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Inbox,
@@ -78,7 +52,7 @@ type Section = (typeof SECTIONS)[number];
 
 export default function TelegramWebhooksPage() {
   const { activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [section, setSection] = React.useState<Section>("subscriptions");
   const [autoRefresh, setAutoRefresh] = React.useState(false);
 
@@ -479,17 +453,17 @@ export default function TelegramWebhooksPage() {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageEyebrow style={{ color: ACCENT }}>Telegram</ZoruPageEyebrow>
-          <ZoruPageTitle className="flex items-center gap-2">
+        <PageHeading>
+          <PageEyebrow style={{ color: ACCENT }}>Telegram</PageEyebrow>
+          <PageTitle className="flex items-center gap-2">
             <Webhook className="h-6 w-6" style={{ color: ACCENT }} />
             Telegram Webhooks
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Subscriptions, delivery log, dead-letter queue, and replay for every
             bot in this project.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Switch
@@ -658,19 +632,19 @@ export default function TelegramWebhooksPage() {
         }
       />
 
-      <ZoruDrawer
+      <Drawer
         open={drawerDelivery !== null}
         onOpenChange={(o) => !o && setDrawerDelivery(null)}
       >
-        <ZoruDrawerContent>
-          <ZoruDrawerHeader>
-            <ZoruDrawerTitle>Delivery payload</ZoruDrawerTitle>
-            <ZoruDrawerDescription>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Delivery payload</DrawerTitle>
+            <DrawerDescription>
               Update ID {drawerDelivery?.updateId ?? "—"} •{" "}
               {drawerDelivery?.eventType ?? "—"} •{" "}
               {fmtDate(drawerDelivery?.receivedAt)}
-            </ZoruDrawerDescription>
-          </ZoruDrawerHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           <div className="p-4">
             <ScrollArea className="max-h-[60vh] rounded-md border bg-[var(--st-bg-muted)]/20 p-3">
               <pre className="text-xs leading-relaxed">
@@ -680,75 +654,75 @@ export default function TelegramWebhooksPage() {
               </pre>
             </ScrollArea>
           </div>
-        </ZoruDrawerContent>
-      </ZoruDrawer>
+        </DrawerContent>
+      </Drawer>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmDelete !== null}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Remove Telegram webhook?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               The webhook will be deleted on Telegram and the local subscription
               row removed. Delivery log entries are kept.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteSub}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteSub}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmRotateAll}
         onOpenChange={setConfirmRotateAll}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Rotate every webhook secret?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               This calls Telegram setWebhook with a fresh secret for every bot
               in this project. Deliveries-in-flight may briefly 401.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleRotateAll}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRotateAll}>
               Rotate all
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmDlqDelete !== null}
         onOpenChange={(o) => !o && setConfirmDlqDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete DLQ item?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete DLQ item?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the queued payload. Retry won't be
               possible afterward.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDlqDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDlqDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

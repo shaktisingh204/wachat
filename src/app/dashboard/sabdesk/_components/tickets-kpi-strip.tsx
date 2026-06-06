@@ -1,6 +1,6 @@
 "use client";
 
-import { StatCard } from "@/components/sabcrm/20ui/zoru";
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   CheckCircle2,

@@ -1,27 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { ChevronDown, ListChecks, UserPlus, X } from "lucide-react";
 
 /**
@@ -98,7 +77,7 @@ export interface TicketsFiltersRowProps {
 export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
   return (
     <Card>
-      <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-4 lg:grid-cols-8">
+      <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-4 lg:grid-cols-8">
         <FilterField label="Status">
           <EnumFilterField
             enumName="ticketStatus"
@@ -167,7 +146,7 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
         </FilterField>
 
         <FilterField label="Created">
-          <ZoruDateRangePicker
+          <DateRangePicker
             value={props.dateRange}
             onChange={(r) => props.onDateRangeChange(r)}
           />
@@ -180,7 +159,7 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
             </Button>
           </div>
         ) : null}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -231,38 +210,38 @@ export function TicketsBulkBar({
       <Badge variant="info">{count} selected</Badge>
 
       <Select onValueChange={onStatus}>
-        <ZoruSelectTrigger className="h-8 w-[150px]">
-          <ZoruSelectValue placeholder="Set status…" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-8 w-[150px]">
+          <SelectValue placeholder="Set status…" />
+        </SelectTrigger>
+        <SelectContent>
           {STATUS_OPTIONS.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select onValueChange={onPriority}>
-        <ZoruSelectTrigger className="h-8 w-[150px]">
-          <ZoruSelectValue placeholder="Set priority…" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-8 w-[150px]">
+          <SelectValue placeholder="Set priority…" />
+        </SelectTrigger>
+        <SelectContent>
           {PRIORITY_OPTIONS.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Popover open={assignOpen} onOpenChange={setAssignOpen}>
-        <ZoruPopoverTrigger asChild>
+        <PopoverTrigger asChild>
           <Button size="sm" variant="outline">
             <UserPlus className="h-3.5 w-3.5" /> Assign…
           </Button>
-        </ZoruPopoverTrigger>
-        <ZoruPopoverContent align="start" className="w-72 space-y-2">
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-72 space-y-2">
           <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             Assign to user
           </p>
@@ -286,7 +265,7 @@ export function TicketsBulkBar({
           >
             Unassign
           </button>
-        </ZoruPopoverContent>
+        </PopoverContent>
       </Popover>
 
       <Button size="sm" variant="outline" onClick={onMerge}>
@@ -428,17 +407,17 @@ export function TicketsViewsMenu({
     TICKETS_VIEW_PRESETS[0];
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <ListChecks className="h-3.5 w-3.5" /> {active.label}
           <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
         </Button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align="start" className="w-64">
-        <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
-        <ZoruDropdownMenuSeparator />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-64">
+        <DropdownMenuLabel>Saved views</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {TICKETS_VIEW_PRESETS.map((preset) => (
-          <ZoruDropdownMenuItem
+          <DropdownMenuItem
             key={preset.id}
             onClick={() => onSelect(preset.id)}
           >
@@ -450,9 +429,9 @@ export function TicketsViewsMenu({
                 </span>
               ) : null}
             </div>
-          </ZoruDropdownMenuItem>
+          </DropdownMenuItem>
         ))}
-      </ZoruDropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }

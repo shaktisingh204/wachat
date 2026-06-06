@@ -18,17 +18,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,

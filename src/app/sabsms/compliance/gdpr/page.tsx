@@ -21,25 +21,7 @@ import {
   type SabsmsColumn,
 } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 import { SabsmsFilterBar } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Badge,
-  Switch,
-  Label,
-  Input,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  StatCard,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Switch, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard, Separator } from '@/components/sabcrm/20ui/compat';
 
 type RequestType = "SAR" | "Erasure" | "Rectification";
 
@@ -254,13 +236,13 @@ export default function GDPRPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 space-y-6">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Data Subject Requests (DSR)</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Data Subject Requests (DSR)</CardTitle>
+              <CardDescription>
                 Subject Access Requests (SAR), Rectification, and Erasure Inbox
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <SabsmsFilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
@@ -336,20 +318,20 @@ export default function GDPRPage() {
                 pageSize={5}
                 total={filteredRequests.length}
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <ZoruCardTitle>Auto-Redaction Rules</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle>Auto-Redaction Rules</CardTitle>
+                <CardDescription>
                   Real-time PII detection and redaction across SMS payloads.
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
               <Button variant="outline" size="sm">Add Rule</Button>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            </CardHeader>
+            <CardBody>
               <div className="mb-4">
                 <Input
                   placeholder="Search rules..."
@@ -394,17 +376,17 @@ export default function GDPRPage() {
                 pageSize={5}
                 total={filteredRedactions.length}
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
         <div className="space-y-6">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Data Processing</ZoruCardTitle>
-              <ZoruCardDescription>Legal agreements and templates</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Data Processing</CardTitle>
+              <CardDescription>Legal agreements and templates</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-[var(--st-text)]">DPIA Template</span>
                 <Button variant="outline" size="sm" className="h-8">
@@ -425,24 +407,24 @@ export default function GDPRPage() {
                 <span className="text-sm font-medium text-[var(--st-text)]">SCCs Config</span>
                 <Button variant="ghost" size="sm" className="h-8">Configure</Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Settings & Policies</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-5">
+            <CardHeader>
+              <CardTitle>Settings & Policies</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-5">
               <div className="space-y-2">
                 <Label>Privacy Officer Assignment</Label>
                 <Select defaultValue="alice">
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Select Officer" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="alice">Alice (DPO)</ZoruSelectItem>
-                    <ZoruSelectItem value="bob">Bob (Legal)</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Officer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alice">Alice (DPO)</SelectItem>
+                    <SelectItem value="bob">Bob (Legal)</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
@@ -496,7 +478,7 @@ export default function GDPRPage() {
                   <AlertTriangle className="h-3 w-3 mr-2" /> Breach Notification Protocol
                 </Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

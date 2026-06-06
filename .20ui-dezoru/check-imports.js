@@ -33,6 +33,7 @@ function exportsOf(file, seen = new Set()) {
   const res = { names: new Set(), wildcard: false };
   let src;
   try { src = fs.readFileSync(file, 'utf8'); } catch { return res; }
+  src = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''); // strip comments so block-splitting is clean
 
   for (const m of src.matchAll(/export\s*\*\s*from\s*['"]([^'"]+)['"]/g)) {
     const f = resolveFile(m[1], file);
@@ -66,7 +67,8 @@ const files = cp.execSync(`git grep -l "@/components/sabcrm/20ui" -- 'src/**/*.t
 const missing = {};
 for (const f of files) {
   if (f.includes('sabcrm/20ui/')) continue; // skip DS internals
-  const src = fs.readFileSync(f, 'utf8');
+  let src = fs.readFileSync(f, 'utf8');
+  src = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
   for (const m of src.matchAll(/import\s*(?:type\s*)?\{([^}]*?)\}\s*from\s*['"](@\/components\/sabcrm\/20ui(?:\/compat|\/zoru)?)['"]/sg)) {
     const mod = m[2];
     let set;

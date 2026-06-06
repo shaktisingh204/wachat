@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  ZoruFileUploadCard,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/zoru';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, ZoruFileUploadCard, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { useCallback, useState } from 'react';
 import {
   CheckCircle2,
@@ -60,7 +31,7 @@ type FlowPreview = {
 };
 
 export default function SabFlowImportPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [fileSelected, setFileSelected] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [previewData, setPreviewData] = useState<FlowPreview | null>(null);
@@ -144,33 +115,33 @@ export default function SabFlowImportPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabflow">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabflow">
               SabFlow
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Import Flow</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Import Flow</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>SabFlow Engine</ZoruPageEyebrow>
-          <ZoruPageTitle>Import Automation Flow</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>SabFlow Engine</PageEyebrow>
+          <PageTitle>Import Automation Flow</PageTitle>
+          <PageDescription>
             Upload a JSON payload of your SabFlow configuration to safely
             validate, preview, and import it into your workspace.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" size="sm" disabled={!previewData}>
             <RefreshCw className="mr-2 h-4 w-4" /> Re-validate
           </Button>
@@ -186,19 +157,19 @@ export default function SabFlowImportPage() {
           >
             <ServerCog className="mr-2 h-4 w-4" /> Import Configuration
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1 space-y-6">
           <Card className="p-0 border-[var(--st-border)]/50 shadow-sm bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg)]">
-            <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/30">
-              <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+            <CardHeader className="pb-3 border-b border-[var(--st-border)]/30">
+              <CardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
                 <FileJson className="h-5 w-5 text-[var(--st-accent)]" />
                 Upload Configuration
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-4 pt-5">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="p-4 pt-5">
               <ZoruFileUploadCard
                 accept=".json,application/json"
                 multiple={false}
@@ -213,15 +184,15 @@ export default function SabFlowImportPage() {
                   to prevent logical loops and missing connections.
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {previewData && (
             <Card className="p-0 border-[var(--st-border)]/50 shadow-sm">
-              <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/30">
-                <ZoruCardTitle className="text-base">Overview</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="p-4">
+              <CardHeader className="pb-3 border-b border-[var(--st-border)]/30">
+                <CardTitle className="text-base">Overview</CardTitle>
+              </CardHeader>
+              <CardBody className="p-4">
                 <dl className="space-y-4 text-sm">
                   <div>
                     <dt className="text-[var(--st-text-secondary)]">Flow Name</dt>
@@ -252,7 +223,7 @@ export default function SabFlowImportPage() {
                     </div>
                   </div>
                 </dl>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>
@@ -306,54 +277,54 @@ export default function SabFlowImportPage() {
               </div>
 
               <Card className="p-0 shadow-sm border-[var(--st-border)]/50">
-                <ZoruCardHeader className="border-b border-[var(--st-border)]/30 bg-[var(--st-bg)]/50">
-                  <ZoruCardTitle className="flex items-center justify-between gap-2 text-base">
+                <CardHeader className="border-b border-[var(--st-border)]/30 bg-[var(--st-bg)]/50">
+                  <CardTitle className="flex items-center justify-between gap-2 text-base">
                     <span>Validation Preview Table</span>
                     {invalidNodesCount > 0 && (
                       <Badge variant="destructive">
                         {invalidNodesCount} Errors Found
                       </Badge>
                     )}
-                  </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                  </CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                   <div className="overflow-x-auto">
                     <Table>
-                      <ZoruTableHeader>
-                        <ZoruTableRow className="bg-[var(--st-bg)]/30">
-                          <ZoruTableHead className="w-[120px]">
+                      <THead>
+                        <Tr className="bg-[var(--st-bg)]/30">
+                          <Th className="w-[120px]">
                             Node ID
-                          </ZoruTableHead>
-                          <ZoruTableHead className="w-[100px]">
+                          </Th>
+                          <Th className="w-[100px]">
                             Type
-                          </ZoruTableHead>
-                          <ZoruTableHead>Label</ZoruTableHead>
-                          <ZoruTableHead className="w-[100px]">
+                          </Th>
+                          <Th>Label</Th>
+                          <Th className="w-[100px]">
                             Status
-                          </ZoruTableHead>
-                          <ZoruTableHead className="w-[250px]">
+                          </Th>
+                          <Th className="w-[250px]">
                             Message
-                          </ZoruTableHead>
-                        </ZoruTableRow>
-                      </ZoruTableHeader>
-                      <ZoruTableBody>
+                          </Th>
+                        </Tr>
+                      </THead>
+                      <TBody>
                         {previewData?.nodes.map((node) => (
-                          <ZoruTableRow key={node.id}>
-                            <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
+                          <Tr key={node.id}>
+                            <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
                               {node.id}
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                               <Badge
                                 variant="outline"
                                 className="uppercase text-[10px]"
                               >
                                 {node.type}
                               </Badge>
-                            </ZoruTableCell>
-                            <ZoruTableCell className="font-medium">
+                            </Td>
+                            <Td className="font-medium">
                               {node.label}
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                               {node.status === 'valid' && (
                                 <Badge
                                   variant="secondary"
@@ -378,16 +349,16 @@ export default function SabFlowImportPage() {
                                   Invalid
                                 </Badge>
                               )}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+                            </Td>
+                            <Td className="text-sm text-[var(--st-text-secondary)]">
                               {node.message}
-                            </ZoruTableCell>
-                          </ZoruTableRow>
+                            </Td>
+                          </Tr>
                         ))}
-                      </ZoruTableBody>
+                      </TBody>
                     </Table>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
           )}

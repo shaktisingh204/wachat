@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, useZoruToast } from "@/components/sabcrm/20ui/zoru";
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useDebouncedCallback } from "use-debounce";
 import { Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";
@@ -73,7 +73,7 @@ export function TicketsListClient({
   initialTickets,
   initialError,
 }: TicketsListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { t } = useT();
 
   const [tickets, setTickets] = React.useState<CrmTicketDoc[]>(initialTickets);

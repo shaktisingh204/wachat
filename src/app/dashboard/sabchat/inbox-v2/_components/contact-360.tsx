@@ -1,4 +1,4 @@
-import { Badge, Button, Separator } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Separator } from '@/components/sabcrm/20ui/compat';
 import { SabChatConversation } from "@/lib/rust-client/sabchat";
 
 export function Contact360({ selected }: { selected: SabChatConversation | undefined }) {

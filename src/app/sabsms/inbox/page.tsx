@@ -12,7 +12,7 @@ import {
 } from "./actions";
 import type { InboxFilters } from "./types";
 
-import { Card, ZoruCardTitle, ZoruCardDescription } from "@/components/sabcrm/20ui/zoru";
+import { Card, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 import { InboxLayout } from "./inbox-layout";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +42,10 @@ export default async function SabsmsInboxPage({
     return (
       <div className="flex h-[calc(100vh-100px)] items-center justify-center">
         <Card className="max-w-md w-full p-8 shadow-[var(--st-shadow-lg)] border-[var(--st-border)]">
-          <ZoruCardTitle className="text-center text-3xl font-bold tracking-tight">Inbox</ZoruCardTitle>
-          <ZoruCardDescription className="text-center mt-2 text-lg">
+          <CardTitle className="text-center text-3xl font-bold tracking-tight">Inbox</CardTitle>
+          <CardDescription className="text-center mt-2 text-lg">
             Sign in to view your SabSMS conversations.
-          </ZoruCardDescription>
+          </CardDescription>
         </Card>
       </div>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label, Switch, Textarea } from "@/components/sabcrm/20ui/zoru";
+import { Button, Input, Label, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 
 /**

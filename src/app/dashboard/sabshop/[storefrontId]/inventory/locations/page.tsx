@@ -2,15 +2,15 @@
 
 import React from "react";
 import { Plus, MapPin, Building2, HardDrive, Settings, Search, MoreHorizontal } from "lucide-react";
-import { PageHeader } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/sabcrm/20ui/zoru/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/sabcrm/20ui/zoru/table";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
-import { Progress } from "@/components/sabcrm/20ui/zoru/progress";
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { Progress } from '@/components/sabcrm/20ui/compat';
 
 const mockLocations = [
   {
@@ -131,33 +131,33 @@ export default function LocationsPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Location Details</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Capacity / Utilization</TableHead>
-                <TableHead>Manager</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Location Details</Th>
+                <Th>Type</Th>
+                <Th>Capacity / Utilization</Th>
+                <Th>Manager</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mockLocations.map((location) => {
                 const utilPercentage = Math.round((location.used / location.capacity) * 100);
                 return (
-                  <TableRow key={location.id}>
-                    <TableCell>
+                  <Tr key={location.id}>
+                    <Td>
                       <div className="flex flex-col space-y-1">
                         <span className="font-medium">{location.name}</span>
                         <span className="text-xs text-muted-foreground">{location.address}</span>
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="secondary" className="font-normal">
                         {location.type}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col space-y-2 w-[150px]">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground">
@@ -167,9 +167,9 @@ export default function LocationsPage() {
                         </div>
                         <Progress value={utilPercentage} className="h-2" />
                       </div>
-                    </TableCell>
-                    <TableCell>{location.manager}</TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>{location.manager}</Td>
+                    <Td>
                       <Badge 
                         variant={
                           location.status === "Active" ? "default" :
@@ -178,8 +178,8 @@ export default function LocationsPage() {
                       >
                         {location.status}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -195,11 +195,11 @@ export default function LocationsPage() {
                           <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
         <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">

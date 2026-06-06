@@ -1,14 +1,4 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { notFound, redirect } from "next/navigation";
 import { Pencil } from "lucide-react";
 
@@ -124,54 +114,54 @@ export default async function CustomFormDetailPage({
         ) : (
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">
                     #
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Name
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Label
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Type
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Required
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Options
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {fields.map((f, idx) => (
-                  <ZoruTableRow
+                  <Tr
                     key={`${f.name}-${idx}`}
                     className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                    <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                       {idx + 1}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-[var(--st-text)]">
+                    </Td>
+                    <Td className="font-mono text-[var(--st-text)]">
                       {f.name}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {f.label || "—"}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {f.type || "text"}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {f.required ? (
                         <Badge variant="warning">Required</Badge>
                       ) : (
                         <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[260px]">
+                    </Td>
+                    <Td className="max-w-[260px]">
                       {Array.isArray(f.options) && f.options.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {f.options.map((o, i) => (
@@ -183,10 +173,10 @@ export default async function CustomFormDetailPage({
                       ) : (
                         <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         )}

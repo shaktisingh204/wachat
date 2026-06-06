@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Label, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, DatePicker, ZoruDateRangePicker } from "@/components/sabcrm/20ui/zoru";
+import { Label, Card, CardHeader, CardTitle, CardBody, DatePicker, DateRangePicker } from '@/components/sabcrm/20ui/compat';
 
 export function Field({
   label,
@@ -24,12 +24,12 @@ export function DemoDatePicker() {
   const [date, setDate] = React.useState<Date | undefined>();
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Date picker</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Date picker</CardTitle>
+      </CardHeader>
+      <CardBody>
         <DatePicker value={date} onChange={setDate} />
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -40,28 +40,17 @@ export function DemoDateRange() {
   >();
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Date range picker</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
-        <ZoruDateRangePicker value={range} onChange={setRange} numberOfMonths={1} />
-      </ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Date range picker</CardTitle>
+      </CardHeader>
+      <CardBody>
+        <DateRangePicker value={range} onChange={setRange} numberOfMonths={1} />
+      </CardBody>
     </Card>
   );
 }
 
-import {
-  Button,
-  ZoruKbd,
-  zoruToast,
-  ZoruCommandDialog,
-  ZoruCommandInput,
-  ZoruCommandList,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandItem,
-  ZoruCommandShortcut
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Kbd, zoruToast, CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
 import { Search, Check, Inbox, Settings, User } from "lucide-react";
 
 export function CommandAndToastDemo() {
@@ -70,7 +59,7 @@ export function CommandAndToastDemo() {
     <div className="flex flex-wrap items-center gap-3">
       <Button variant="outline" onClick={() => setOpen(true)}>
         <Search /> Open command palette
-        <ZoruKbd>⌘K</ZoruKbd>
+        <Kbd>⌘K</Kbd>
       </Button>
       <Button
         onClick={() =>
@@ -95,28 +84,28 @@ export function CommandAndToastDemo() {
         Toast (destructive)
       </Button>
 
-      <ZoruCommandDialog open={open} onOpenChange={setOpen}>
-        <ZoruCommandInput placeholder="Type a command or search…" />
-        <ZoruCommandList>
-          <ZoruCommandEmpty>No results found.</ZoruCommandEmpty>
-          <ZoruCommandGroup heading="Quick actions">
-            <ZoruCommandItem>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Type a command or search…" />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Quick actions">
+            <CommandItem>
               <Inbox />
               Open inbox
-              <ZoruCommandShortcut>⌘I</ZoruCommandShortcut>
-            </ZoruCommandItem>
-            <ZoruCommandItem>
+              <CommandShortcut>⌘I</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
               <Settings />
               Open settings
-              <ZoruCommandShortcut>⌘,</ZoruCommandShortcut>
-            </ZoruCommandItem>
-            <ZoruCommandItem>
+              <CommandShortcut>⌘,</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
               <User />
               Switch workspace
-            </ZoruCommandItem>
-          </ZoruCommandGroup>
-        </ZoruCommandList>
-      </ZoruCommandDialog>
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }

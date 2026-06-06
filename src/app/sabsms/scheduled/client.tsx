@@ -23,11 +23,7 @@ import {
   SabsmsRefreshButton,
 } from "@/components/sabsms/page-toolkit";
 
-import {
-  Button, Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle,
-  Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription, ZoruDialogFooter,
-  Input, Label
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Badge, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
 
 import {
   loadScheduledSends,
@@ -252,7 +248,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
     >
       {nextSend && (
         <Card className="mb-6 bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 flex items-center justify-between">
+          <CardBody className="p-4 flex items-center justify-between">
             <div className="flex items-center">
               <Clock className="w-5 h-5 text-[var(--st-text)] mr-3" />
               <div>
@@ -266,7 +262,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
               <div className="text-2xl font-bold text-[var(--st-text)] tabular-nums">{getCountdownString(new Date(nextSend.sendAt))}</div>
               <div className="text-xs text-[var(--st-text)] uppercase tracking-wider">Countdown</div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -275,12 +271,12 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
         <div className="flex-1">
           {viewType === "calendar" ? (
             <Card>
-              <ZoruCardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Button variant="outline" size="sm" onClick={() => setMonthCursor(subMonths(monthCursor, 1))}>
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  <ZoruCardTitle>{format(monthCursor, "MMMM yyyy")}</ZoruCardTitle>
+                  <CardTitle>{format(monthCursor, "MMMM yyyy")}</CardTitle>
                   <Button variant="outline" size="sm" onClick={() => setMonthCursor(addMonths(monthCursor, 1))}>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -296,8 +292,8 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                     </button>
                   ))}
                 </div>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              </CardHeader>
+              <CardBody>
                 <div className="grid grid-cols-7 gap-px bg-[var(--st-bg-muted)] border border-[var(--st-border)]">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
                     <div key={d} className="bg-[var(--st-bg-muted)] p-2 text-xs font-medium text-[var(--st-text)] text-center">{d}</div>
@@ -345,11 +341,11 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                     );
                   })}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : (
             <Card>
-              <ZoruCardContent className="p-0">
+              <CardBody className="p-0">
                 <SabsmsDataTable
                   rows={sends}
                   rowKey={r => r.id}
@@ -370,7 +366,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                     { id: "status", header: "Status", render: r => <Badge>{r.status}</Badge> }
                   ]}
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>
@@ -378,13 +374,13 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
         {/* Sidebar tray for unscheduled */}
         <div className="w-72 space-y-4 hidden lg:block">
           <Card>
-            <ZoruCardHeader className="pb-3">
-              <ZoruCardTitle className="text-sm flex items-center justify-between">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center justify-between">
                 <span>Unscheduled Tray</span>
                 <Badge variant="secondary">{unscheduled.length}</Badge>
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
               <p className="text-xs text-[var(--st-text)] mb-3">Drag drafts onto the calendar to schedule them.</p>
               <div className="space-y-2">
                 {unscheduled.map(u => (
@@ -407,7 +403,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                   </div>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -504,34 +500,34 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
 
       {/* Shift Dialog */}
       <Dialog open={shiftDialogOpen} onOpenChange={setShiftDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Bulk Reschedule</ZoruDialogTitle>
-            <ZoruDialogDescription>Shift all currently visible sends forward or backward.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk Reschedule</DialogTitle>
+            <DialogDescription>Shift all currently visible sends forward or backward.</DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <Label>Shift by (minutes)</Label>
             <Input type="number" value={shiftMins} onChange={e => setShiftMins(parseInt(e.target.value))} className="mt-2" />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShiftDialogOpen(false)}>Cancel</Button>
             <Button onClick={doBulkShift}>Apply Shift</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
       
       {/* iCal Subscribe Dialog */}
       <Dialog open={icalDialogOpen} onOpenChange={setIcalDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Subscribe to Calendar</ZoruDialogTitle>
-            <ZoruDialogDescription>Add this URL to Google Calendar, Outlook, or Apple Calendar.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Subscribe to Calendar</DialogTitle>
+            <DialogDescription>Add this URL to Google Calendar, Outlook, or Apple Calendar.</DialogDescription>
+          </DialogHeader>
           <div className="py-4 flex gap-2">
             <Input readOnly value={icalUrl} />
             <Button variant="secondary" onClick={() => navigator.clipboard.writeText(icalUrl)}>Copy</Button>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </SabsmsPageShell>
   );

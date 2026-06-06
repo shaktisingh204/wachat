@@ -28,29 +28,7 @@ import {
   Activity
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsPageShell,
@@ -218,7 +196,7 @@ export default function FunnelAnalyticsPage() {
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="hover:border-[var(--st-border-strong)] transition-colors">
-          <ZoruCardContent className="p-5">
+          <CardBody className="p-5">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Overall Conversion</p>
@@ -234,11 +212,11 @@ export default function FunnelAnalyticsPage() {
               </span>
               <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="hover:border-[var(--st-border-strong)] transition-colors">
-          <ZoruCardContent className="p-5">
+          <CardBody className="p-5">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Drop-off</p>
@@ -254,11 +232,11 @@ export default function FunnelAnalyticsPage() {
               </span>
               <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="hover:border-[var(--st-border-strong)] transition-colors">
-          <ZoruCardContent className="p-5">
+          <CardBody className="p-5">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Time to Convert</p>
@@ -271,11 +249,11 @@ export default function FunnelAnalyticsPage() {
             <div className="mt-4 flex items-center text-sm">
               <span className="text-[var(--st-text-secondary)]">Across 4 steps</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="hover:border-[var(--st-border-strong)] transition-colors">
-          <ZoruCardContent className="p-5">
+          <CardBody className="p-5">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Attributed Value</p>
@@ -291,7 +269,7 @@ export default function FunnelAnalyticsPage() {
               </span>
               <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -299,12 +277,12 @@ export default function FunnelAnalyticsPage() {
         
         {/* Main Funnel Visualization */}
         <Card className="xl:col-span-2 flex flex-col shadow-sm">
-          <ZoruCardHeader className="flex flex-row items-center justify-between pb-6 border-b border-[var(--st-border)]/50">
+          <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-[var(--st-border)]/50">
             <div>
-              <ZoruCardTitle className="text-lg">Funnel Conversion Flow</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle className="text-lg">Funnel Conversion Flow</CardTitle>
+              <CardDescription>
                 Visualizing user progression and drop-offs through defined steps.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 bg-[var(--st-bg-muted)] p-1 rounded-lg w-48">
@@ -333,11 +311,11 @@ export default function FunnelAnalyticsPage() {
                 <BarChart2 className="size-4 text-[var(--st-text-secondary)]" />
               </Button>
             </div>
-          </ZoruCardHeader>
+          </CardHeader>
 
-          <ZoruCardContent className="p-6 flex-1 flex flex-col">
+          <CardBody className="p-6 flex-1 flex flex-col">
             <div className="h-[320px] w-full mb-8 relative">
-              <ZoruChartContainer height="100%">
+              <ChartContainer height="100%">
                 <ZoruChart.ComposedChart
                   data={funnelChartData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
@@ -366,7 +344,7 @@ export default function FunnelAnalyticsPage() {
                     tickFormatter={(value) => `${value}%`}
                   />
                   <ZoruChart.Tooltip 
-                    content={<ZoruChartTooltip />}
+                    content={<ChartTooltip />}
                     cursor={{ fill: 'var(--st-bg-muted)', opacity: 0.4 }}
                   />
                   <ZoruChart.Bar 
@@ -395,21 +373,21 @@ export default function FunnelAnalyticsPage() {
                     name="Conversion Rate"
                   />
                 </ZoruChart.ComposedChart>
-              </ZoruChartContainer>
+              </ChartContainer>
             </div>
 
             <div className="mt-auto">
               <Table>
-                <ZoruTableHeader className="bg-[var(--st-bg-secondary)]/50">
-                  <ZoruTableRow>
-                    <ZoruTableHead className="w-12 text-center"></ZoruTableHead>
-                    <ZoruTableHead>Step Name</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Users</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Drop-off</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Conv. Value</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead className="bg-[var(--st-bg-secondary)]/50">
+                  <Tr>
+                    <Th className="w-12 text-center"></Th>
+                    <Th>Step Name</Th>
+                    <Th className="text-right">Users</Th>
+                    <Th className="text-right">Drop-off</Th>
+                    <Th className="text-right">Conv. Value</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {steps.map((step, index) => {
                     const dropoff = getDropoff(index);
                     const isVariant = activeVariant === "variant";
@@ -418,8 +396,8 @@ export default function FunnelAnalyticsPage() {
                     const dropoffDisplay = index === 0 ? "—" : `${isVariant ? Math.max(0, dropoff - 2) : dropoff}%`;
 
                     return (
-                      <ZoruTableRow key={step.id} className="group hover:bg-[var(--st-bg-secondary)]/30 transition-colors">
-                        <ZoruTableCell className="flex items-center justify-center gap-1 py-3">
+                      <Tr key={step.id} className="group hover:bg-[var(--st-bg-secondary)]/30 transition-colors">
+                        <Td className="flex items-center justify-center gap-1 py-3">
                           <div className="flex flex-col -space-y-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button 
                               disabled={index === 0} 
@@ -437,19 +415,19 @@ export default function FunnelAnalyticsPage() {
                             </button>
                           </div>
                           <GripVertical className="size-4 text-[var(--st-bg-muted)]" />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium py-3">
+                        </Td>
+                        <Td className="font-medium py-3">
                           {step.name}
                           {index > 0 && (
                             <div className="mt-1 text-xs font-normal text-[var(--st-text-secondary)]">
                               {getConversionRate(index)}% from start • avg {step.time}
                             </div>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right tabular-nums py-3 font-medium">
+                        </Td>
+                        <Td className="text-right tabular-nums py-3 font-medium">
                           {stepCount.toLocaleString()}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right py-3">
+                        </Td>
+                        <Td className="text-right py-3">
                           {index > 0 ? (
                             <div className="flex justify-end items-center gap-2">
                               <div className="w-16 h-1.5 bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
@@ -465,14 +443,14 @@ export default function FunnelAnalyticsPage() {
                           ) : (
                             <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-sm tabular-nums text-[var(--st-text)] py-3">
+                        </Td>
+                        <Td className="text-right font-mono text-sm tabular-nums text-[var(--st-text)] py-3">
                           {stepValue > 0 ? `$${stepValue.toLocaleString()}` : "—"}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
 
               <div className="mt-4 flex gap-2">
@@ -484,7 +462,7 @@ export default function FunnelAnalyticsPage() {
                 </Button>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Side Panels - Analytics & Cohorts */}
@@ -492,15 +470,15 @@ export default function FunnelAnalyticsPage() {
           
           {/* Conversion Trend */}
           <Card className="shadow-sm">
-            <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-base flex justify-between items-center">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex justify-between items-center">
                 <span>Conversion Trend</span>
                 <Badge variant="secondary" className="font-normal text-xs bg-[var(--st-bg-muted)]">Last 7d</Badge>
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="h-[120px] w-full mt-2">
-                <ZoruChartContainer height="100%">
+                <ChartContainer height="100%">
                   <ZoruChart.AreaChart data={FUNNEL_TREND_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
@@ -508,7 +486,7 @@ export default function FunnelAnalyticsPage() {
                         <stop offset="95%" stopColor="var(--st-accent)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} />
                     <ZoruChart.Area 
                       type="monotone" 
                       dataKey="conversion" 
@@ -518,13 +496,13 @@ export default function FunnelAnalyticsPage() {
                       fill="url(#colorConv)" 
                     />
                   </ZoruChart.AreaChart>
-                </ZoruChartContainer>
+                </ChartContainer>
               </div>
               <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-[var(--st-text-secondary)]">Avg. Conversion</span>
                 <span className="font-semibold">6.64%</span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Test Lift Estimate */}
@@ -533,12 +511,12 @@ export default function FunnelAnalyticsPage() {
               <div className="absolute -right-4 -top-4 opacity-10">
                 <Activity className="size-24 text-[var(--st-text)]" />
               </div>
-              <ZoruCardHeader className="pb-2 relative z-10">
-                <ZoruCardTitle className="text-base flex items-center gap-2 text-[var(--st-text)]">
+              <CardHeader className="pb-2 relative z-10">
+                <CardTitle className="text-base flex items-center gap-2 text-[var(--st-text)]">
                   <BarChart className="size-4" /> Experiment Results
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="relative z-10">
+                </CardTitle>
+              </CardHeader>
+              <CardBody className="relative z-10">
                 <div className="text-3xl font-bold text-[var(--st-text)] tracking-tight">+14.5%</div>
                 <p className="text-sm text-[var(--st-text)]/80 mt-2 leading-relaxed">
                   Variant B is outperforming Control with a <strong>98% statistical significance</strong>.
@@ -547,15 +525,15 @@ export default function FunnelAnalyticsPage() {
                 <Button size="sm" className="w-full mt-4 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">
                   Rollout to 100%
                 </Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : (
             <Card className="shadow-sm">
-              <ZoruCardHeader className="pb-2">
-                <ZoruCardTitle className="text-base">Channel Performance</ZoruCardTitle>
-                <ZoruCardDescription>Attribution across messaging channels</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Channel Performance</CardTitle>
+                <CardDescription>Attribution across messaging channels</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <div className="space-y-5 mt-2">
                   {[
                     { name: 'SMS', value: 4.2, color: 'bg-[var(--st-text)]' },
@@ -576,32 +554,32 @@ export default function FunnelAnalyticsPage() {
                     </div>
                   ))}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
           {/* Segments / Cohorts Drill */}
           <Card className="shadow-sm flex-1">
-            <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/30">
-              <ZoruCardTitle className="text-base flex justify-between items-center">
+            <CardHeader className="pb-3 border-b border-[var(--st-border)]/30">
+              <CardTitle className="text-base flex justify-between items-center">
                 <span>Top Cohorts</span>
                 <Link href="#" className="text-xs text-[var(--st-text)] hover:underline">View All</Link>
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-0">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="p-0">
               <Table>
-                <ZoruTableBody>
+                <TBody>
                   {[
                     { name: "Active (30d)", rate: "12.1%", trend: "up", val: "+1.2%" },
                     { name: "New Users", rate: "8.4%", trend: "up", val: "+0.8%" },
                     { name: "Dormant", rate: "3.2%", trend: "down", val: "-0.4%" },
                     { name: "Churn Risk", rate: "2.1%", trend: "down", val: "-1.1%", alert: true },
                   ].map((cohort, i) => (
-                    <ZoruTableRow key={i} className="border-b-0 hover:bg-[var(--st-bg-secondary)]/50 transition-colors">
-                      <ZoruTableCell className="py-3 px-5 text-sm font-medium">
+                    <Tr key={i} className="border-b-0 hover:bg-[var(--st-bg-secondary)]/50 transition-colors">
+                      <Td className="py-3 px-5 text-sm font-medium">
                         {cohort.name}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="py-3 px-5 text-right">
+                      </Td>
+                      <Td className="py-3 px-5 text-right">
                         <div className="flex flex-col items-end">
                           <span className={`font-semibold ${cohort.alert ? 'text-[var(--st-text)]' : ''}`}>{cohort.rate}</span>
                           <span className={`text-[10px] flex items-center gap-0.5 ${cohort.trend === 'up' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
@@ -609,12 +587,12 @@ export default function FunnelAnalyticsPage() {
                             {cohort.val}
                           </span>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
         </div>

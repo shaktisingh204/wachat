@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 
-import {
-  ZORU_CHART_PALETTE,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCostPoint } from "../aggregations";
@@ -39,10 +29,10 @@ export function CostVsRevenueTile({
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>{title}</ZoruCardTitle>
-          <ZoruCardDescription>{description}</ZoruCardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -57,15 +47,15 @@ export function CostVsRevenueTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {data.length === 0 ? (
           <p className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
             No cost data captured yet — provider price/cost fields are
             populated by the engine after a real send.
           </p>
         ) : (
-          <ZoruChartContainer height={260}>
+          <ChartContainer height={260}>
             {variant === "margin" ? (
               <ZoruChart.BarChart
                 data={data}
@@ -86,7 +76,7 @@ export function CostVsRevenueTile({
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
                 <ZoruChart.Bar
                   dataKey="cost"
@@ -121,7 +111,7 @@ export function CostVsRevenueTile({
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -141,9 +131,9 @@ export function CostVsRevenueTile({
                 />
               </ZoruChart.LineChart>
             )}
-          </ZoruChartContainer>
+          </ChartContainer>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

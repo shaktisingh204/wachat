@@ -10,23 +10,7 @@ import {
   type SabsmsFacet,
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruFeatureGrid,
-  ZoruFeatureCard,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, FeatureGrid, FeatureCard, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Textarea } from '@/components/sabcrm/20ui/compat';
 import { Sparkles, Copy, Plus, Activity, AlertTriangle, Workflow, Settings, FileCode2, Code, Download, Upload } from "lucide-react";
 import { MOCK_BLOCKS, MOCK_TEMPLATES, type SabflowBlock, type SabflowTemplate } from "./mock-data";
 
@@ -299,13 +283,13 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
         />
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Suggested Flows</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Suggested Flows</CardTitle>
+            <CardDescription>
               Ready-made templates combining these blocks for common use cases.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {MOCK_TEMPLATES.map(tpl => (
                 <div 
@@ -321,7 +305,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -413,11 +397,11 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       </SabsmsDetailDrawer>
 
       <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{selectedTemplate?.name}</ZoruDialogTitle>
-            <ZoruDialogDescription>{selectedTemplate?.description}</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedTemplate?.name}</DialogTitle>
+            <DialogDescription>{selectedTemplate?.description}</DialogDescription>
+          </DialogHeader>
           {selectedTemplate && (
             <div className="space-y-4">
               <div>
@@ -439,17 +423,17 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
               </div>
             </div>
           )}
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       <Dialog open={isFlowBuilderOpen} onOpenChange={setIsFlowBuilderOpen}>
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Block Configuration Static Analyzer</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Block Configuration Static Analyzer</DialogTitle>
+            <DialogDescription>
               Test your flow configuration logic for infinite loops before deploying.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <Textarea
               value={flowJson}
@@ -475,7 +459,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
               </div>
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </SabsmsPageShell>
   );

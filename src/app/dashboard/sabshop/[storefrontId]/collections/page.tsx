@@ -4,30 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Plus, Search, MoreHorizontal, LayoutGrid } from "lucide-react";
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Button,
-  Input,
-  Card,
-  CardContent,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Badge,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/sabcrm/20ui/zoru";
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardContent, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 
 const MOCK_COLLECTIONS = [
   {
@@ -100,13 +77,13 @@ export default function CollectionsPage() {
   return (
     <div className="flex-1 space-y-6 p-8 w-full max-w-7xl mx-auto">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Collections</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Collections</PageTitle>
+          <PageDescription>
             Group your products into collections to make it easier for customers to find them by category.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" className="mr-2">
             Import
           </Button>
@@ -116,7 +93,7 @@ export default function CollectionsPage() {
               Create Collection
             </Button>
           </Link>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card>
@@ -140,49 +117,49 @@ export default function CollectionsPage() {
           
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr>
+                  <Th className="w-[80px]">Image</Th>
+                  <Th>Title</Th>
+                  <Th>Products</Th>
+                  <Th>Type</Th>
+                  <Th>Status</Th>
+                  <Th>Last Updated</Th>
+                  <Th className="w-[50px]"></Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredCollections.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
+                  <Tr>
+                    <Td colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
                       No collections found.
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filteredCollections.map((collection) => (
-                    <TableRow key={collection.id}>
-                      <TableCell>
+                    <Tr key={collection.id}>
+                      <Td>
                         <img 
                           src={collection.image} 
                           alt={collection.title}
                           className="w-12 h-12 rounded-md object-cover border border-[var(--st-border)]"
                         />
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="font-medium text-[var(--st-text)]">{collection.title}</div>
                         <div className="text-xs text-[var(--st-text-tertiary)]">{collection.id}</div>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <span className="text-[var(--st-text)]">{collection.productCount}</span>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="secondary" className="font-normal text-[11px]">
                           {collection.type}
                         </Badge>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(collection.status)}</TableCell>
-                      <TableCell className="text-[var(--st-text-secondary)] text-sm">{collection.updatedAt}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>{getStatusBadge(collection.status)}</Td>
+                      <Td className="text-[var(--st-text-secondary)] text-sm">{collection.updatedAt}</Td>
+                      <Td>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -197,11 +174,11 @@ export default function CollectionsPage() {
                             <DropdownMenuItem className="text-[var(--st-danger)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           </div>
         </CardContent>

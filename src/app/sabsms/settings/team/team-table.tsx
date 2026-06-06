@@ -14,23 +14,7 @@ import {
 } from "lucide-react";
 
 import { SabFilePicker } from "@/components/sabfiles";
-import {
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -443,11 +427,11 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
 
       {/* Invite dialog */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Invite Member</ZoruDialogTitle>
-            <ZoruDialogDescription>Send an email invitation to join the workspace.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite Member</DialogTitle>
+            <DialogDescription>Send an email invitation to join the workspace.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Email address</Label>
@@ -468,20 +452,20 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
             <Button onClick={handleInvite} disabled={busy !== null || !inviteDraft.email}>Send Invite</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Role Editor */}
       <Dialog open={roleEditor.open} onOpenChange={(o) => setRoleEditor((p) => ({ ...p, open: o }))}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit Role</ZoruDialogTitle>
-            <ZoruDialogDescription>Change the role for {roleEditor.member?.email}. Note: custom roles are configured via the CRM RBAC screen.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Role</DialogTitle>
+            <DialogDescription>Change the role for {roleEditor.member?.email}. Note: custom roles are configured via the CRM RBAC screen.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-1">
             <Label>Role</Label>
             <Select value={roleEditor.role} onValueChange={(v) => setRoleEditor((p) => ({ ...p, role: v as Role }))}>
@@ -497,20 +481,20 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setRoleEditor({ open: false, role: "agent" })}>Cancel</Button>
             <Button onClick={handleUpdateRole} disabled={busy !== null}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Bulk Role Editor */}
       <Dialog open={bulkRoleEditor.open} onOpenChange={(o) => setBulkRoleEditor((p) => ({ ...p, open: o }))}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Re-assign Roles</ZoruDialogTitle>
-            <ZoruDialogDescription>Change the role for {selectedIds.length} members.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Re-assign Roles</DialogTitle>
+            <DialogDescription>Change the role for {selectedIds.length} members.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-1">
             <Label>Role</Label>
             <Select value={bulkRoleEditor.role} onValueChange={(v) => setBulkRoleEditor((p) => ({ ...p, role: v as Role }))}>
@@ -525,20 +509,20 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setBulkRoleEditor({ open: false, role: "agent" })}>Cancel</Button>
             <Button onClick={handleBulkRole} disabled={busy !== null}>Save {selectedIds.length}</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Caps Editor */}
       <Dialog open={capsEditor.open} onOpenChange={(o) => setCapsEditor((p) => ({ ...p, open: o }))}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit Limits</ZoruDialogTitle>
-            <ZoruDialogDescription>Override global rate limits and daily send caps for {capsEditor.member?.email}.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Limits</DialogTitle>
+            <DialogDescription>Override global rate limits and daily send caps for {capsEditor.member?.email}.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Rate Limit Override (req/sec)</Label>
@@ -549,20 +533,20 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               <Input type="number" value={capsEditor.dailyCap} onChange={(e) => setCapsEditor((p) => ({ ...p, dailyCap: e.target.value }))} placeholder="Leave blank for no limit" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setCapsEditor({ open: false, rateLimit: "", dailyCap: "" })}>Cancel</Button>
             <Button onClick={handleUpdateCaps} disabled={busy !== null}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Data Access Editor */}
       <Dialog open={dataAccessEditor.open} onOpenChange={(o) => setDataAccessEditor((p) => ({ ...p, open: o }))}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Granular Data Access</ZoruDialogTitle>
-            <ZoruDialogDescription>Restrict {dataAccessEditor.member?.email}&apos;s access to specific campaigns or data by tags/IDs.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Granular Data Access</DialogTitle>
+            <DialogDescription>Restrict {dataAccessEditor.member?.email}&apos;s access to specific campaigns or data by tags/IDs.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Allowed Campaigns (Comma separated IDs)</Label>
@@ -573,11 +557,11 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               <Input type="text" value={dataAccessEditor.allowedTags} onChange={(e) => setDataAccessEditor((p) => ({ ...p, allowedTags: e.target.value }))} placeholder="e.g. VIP, EU-Region (Leave blank for all)" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDataAccessEditor({ open: false, allowedCampaigns: "", allowedTags: "" })}>Cancel</Button>
             <Button onClick={handleUpdateDataAccess} disabled={busy !== null}>Save Restrictions</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Audit drawer */}

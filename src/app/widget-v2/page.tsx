@@ -1,22 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardFooter,
-  Input,
-  Label,
-  Textarea,
-  ScrollArea,
-  Badge,
-} from "@/components/sabcrm/20ui/zoru";
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardHeader, CardTitle, CardFooter, Input, Label, Textarea, ScrollArea, Badge } from '@/components/sabcrm/20ui/compat';
 import { 
   MessageSquare, 
   X, 
@@ -126,7 +111,7 @@ export default function SabChatWidgetPage() {
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Avatar className="h-8 w-8 border border-white/20">
-                  <ZoruAvatarFallback className="bg-white/10 text-white">S</ZoruAvatarFallback>
+                  <AvatarFallback className="bg-white/10 text-white">S</AvatarFallback>
                 </Avatar>
                 <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[var(--st-accent)] bg-[var(--st-text)]"></div>
               </div>
@@ -332,7 +317,7 @@ export default function SabChatWidgetPage() {
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-[var(--st-accent)]/20 rounded-full animate-ping"></div>
                       <Avatar className="h-24 w-24 border-4 border-[var(--st-border)] relative z-10">
-                        <ZoruAvatarFallback className="bg-[var(--st-text)] text-3xl">S</ZoruAvatarFallback>
+                        <AvatarFallback className="bg-[var(--st-text)] text-3xl">S</AvatarFallback>
                       </Avatar>
                     </div>
                   )}

@@ -1,32 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Textarea,
-  Button,
-  Label,
-  Badge,
-  ScrollArea,
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  ZoruResizablePanelGroup as ResizablePanelGroup,
-  ZoruResizablePanel as ResizablePanel,
-  ZoruResizableHandle as ResizableHandle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Input, Textarea, Button, Label, Badge, ScrollArea, Alert, AlertDescription, AlertTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/sabcrm/20ui/compat';
 import { 
   MessageSquare, 
   Save, 

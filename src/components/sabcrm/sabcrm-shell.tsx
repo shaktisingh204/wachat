@@ -21,8 +21,8 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { icons as lucideIcons, Database, Plus } from "lucide-react";
 
-import { ZoruHomeShell } from "@/components/sabcrm/20ui/zoru";
-import type { ZoruSidebarGroup, ZoruSidebarLeaf } from "@/components/sabcrm/20ui/zoru";
+import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
+import type { SidebarGroup, SidebarLeaf } from '@/components/sabcrm/20ui/compat';
 import { listObjectsAction } from "@/app/actions/sabcrm.actions";
 import type { ObjectMetadata } from "@/lib/sabcrm/types";
 import { SabcrmCommand } from "./sabcrm-command";
@@ -71,10 +71,10 @@ function resolveObjectIcon(name: string | undefined): React.ReactNode {
 function buildSabcrmSidebarGroups(
   objects: ObjectMetadata[],
   pathname: string | null,
-): ZoruSidebarGroup[] {
+): SidebarGroup[] {
   const path = pathname ?? "";
 
-  const objectLeaves: ZoruSidebarLeaf[] = objects.map((obj) => {
+  const objectLeaves: SidebarLeaf[] = objects.map((obj) => {
     const href = `${CRM_BASE_PATH}/${obj.slug}`;
     return {
       id: `object-${obj.slug}`,
@@ -85,7 +85,7 @@ function buildSabcrmSidebarGroups(
     };
   });
 
-  const groups: ZoruSidebarGroup[] = [
+  const groups: SidebarGroup[] = [
     {
       id: "workspace",
       label: "Workspace",

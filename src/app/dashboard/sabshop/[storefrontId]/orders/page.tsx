@@ -1,24 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Badge,
-  Button,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Badge, Button, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { Filter, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -91,53 +74,53 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
             
             <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
               <Table>
-                <TableHeader className="bg-[var(--st-bg-secondary)]">
-                  <TableRow>
-                    <TableHead className="w-[100px]">Order</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Fulfillment</TableHead>
-                    <TableHead>Payment</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="w-[80px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead className="bg-[var(--st-bg-secondary)]">
+                  <Tr>
+                    <Th className="w-[100px]">Order</Th>
+                    <Th>Date</Th>
+                    <Th>Customer</Th>
+                    <Th>Fulfillment</Th>
+                    <Th>Payment</Th>
+                    <Th className="text-right">Total</Th>
+                    <Th className="w-[80px]"></Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filteredOrders.length > 0 ? (
                     filteredOrders.map((order) => (
-                      <TableRow 
+                      <Tr 
                         key={order.id} 
                         className="hover:bg-[var(--st-bg-muted)] cursor-pointer transition-colors" 
                         onClick={() => router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)}
                       >
-                        <TableCell className="font-medium text-[var(--st-accent)]">{order.id}</TableCell>
-                        <TableCell className="text-[var(--st-text-secondary)]">{order.date}</TableCell>
-                        <TableCell className="font-medium">{order.customer}</TableCell>
-                        <TableCell>
+                        <Td className="font-medium text-[var(--st-accent)]">{order.id}</Td>
+                        <Td className="text-[var(--st-text-secondary)]">{order.date}</Td>
+                        <Td className="font-medium">{order.customer}</Td>
+                        <Td>
                           <Badge variant={getStatusBadgeVariant(order.status) as any}>{order.status}</Badge>
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <Badge variant={getPaymentBadgeVariant(order.payment) as any}>{order.payment}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">{order.total}</TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td className="text-right font-medium">{order.total}</Td>
+                        <Td>
                           <Button variant="ghost" size="icon" className="hover:bg-[var(--st-bg-secondary)]" onClick={(e) => { 
                             e.stopPropagation(); 
                             router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)
                           }}>
                             <Eye className="w-4 h-4 text-[var(--st-text-secondary)]" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     ))
                   ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
+                    <Tr>
+                      <Td colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
                         No orders found.
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   )}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </Tabs>

@@ -8,21 +8,7 @@ import {
   SabsmsSavedViews,
   SabsmsRefreshButton,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-  Badge,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  StatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter, Badge, Tabs, TabsContent, TabsList, TabsTrigger, StatCard } from '@/components/sabcrm/20ui/compat';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/sabcrm/20ui/compat';
 
 import {

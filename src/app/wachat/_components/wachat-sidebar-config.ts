@@ -1,4 +1,4 @@
-import { type ZoruSidebarGroup } from '@/components/sabcrm/20ui/zoru';
+import { type SidebarGroup } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   BarChart,
@@ -36,14 +36,14 @@ import {
  * Drives the per-section nav inside the wachat shell. All hrefs live
  * under `/wachat/*`.
  *
- * Returned shape matches `ZoruSidebarGroup` so the wachat layout can
+ * Returned shape matches `SidebarGroup` so the wachat layout can
  * pass it straight to `<ZoruHomeShell sidebarGroups={…} />`.
  */
 import * as React from "react";
 
 export function buildWachatSidebarGroups(
   pathname: string | null,
-): ZoruSidebarGroup[] {
+): SidebarGroup[] {
   const isActive = (href: string, exact = false) => {
     if (!pathname) return false;
     if (exact) return pathname === href;

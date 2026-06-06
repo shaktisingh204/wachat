@@ -14,13 +14,7 @@
 import * as React from "react";
 import { CheckCircle2, Clock3, MailWarning, Tag, UserCheck } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Checkbox,
-  ScrollArea,
-  cn,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Checkbox, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsBulkActionsBar,
   SabsmsEmpty,

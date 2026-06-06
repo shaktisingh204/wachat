@@ -3,28 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Badge,
-  Progress,
-  Switch,
-  Label,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-  ZoruStatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Progress, Switch, Label, Avatar, AvatarImage, AvatarFallback, Table, THead, TBody, Tr, Th, Td, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   Shield,
@@ -56,22 +35,22 @@ export default function ComplianceDashboardPage() {
     >
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ZoruStatCard
+        <StatCard
           title="EU Consent Coverage"
           value="89%"
           description="+2% from last month"
         />
-        <ZoruStatCard
+        <StatCard
           title="CASL Consent Coverage"
           value="92%"
           description="Stable"
         />
-        <ZoruStatCard
+        <StatCard
           title="TRAI Adherence"
           value="99.9%"
           description="Within SLA"
         />
-        <ZoruStatCard
+        <StatCard
           title="Suppression Coverage"
           value="98.5%"
           description="+0.5% from last month"
@@ -80,11 +59,11 @@ export default function ComplianceDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Regional Registry Status</ZoruCardTitle>
-            <ZoruCardDescription>10DLC and DLT registrations</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+          <CardHeader>
+            <CardTitle>Regional Registry Status</CardTitle>
+            <CardDescription>10DLC and DLT registrations</CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="flex justify-between items-center p-3 border rounded-md bg-white">
               <div>
                 <p className="font-medium text-[var(--st-text)]">US 10DLC</p>
@@ -107,15 +86,15 @@ export default function ComplianceDashboardPage() {
                 Compliant
               </Badge>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Operational Risk</ZoruCardTitle>
-            <ZoruCardDescription>Violations & Backlogs</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+          <CardHeader>
+            <CardTitle>Operational Risk</CardTitle>
+            <CardDescription>Violations & Backlogs</CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="flex justify-between items-center p-3 border rounded-md bg-[var(--st-bg-muted)]/50">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-[var(--st-text)]" />
@@ -130,16 +109,16 @@ export default function ComplianceDashboardPage() {
               </div>
               <span className="text-lg font-bold text-[var(--st-text)]">5 Pending</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Keyword & Policy</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-5">
+          <CardHeader>
+            <CardTitle>Keyword & Policy</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-5">
             <div>
               <p className="text-sm font-medium text-[var(--st-text)] mb-1.5">
                 STOP / HELP Config
@@ -162,14 +141,14 @@ export default function ComplianceDashboardPage() {
               <Label htmlFor="auto-reply" className="text-sm font-medium text-[var(--st-text)]">Auto-reply STOP config</Label>
               <Switch id="auto-reply" defaultChecked />
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Consent Freshness</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Consent Freshness</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-5">
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
@@ -193,18 +172,18 @@ export default function ComplianceDashboardPage() {
                 <Progress value={15} className="h-2 bg-[var(--st-bg-muted)]" />
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Governance</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-5">
+          <CardHeader>
+            <CardTitle>Governance</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-5">
             <div className="flex items-center gap-3 border p-3 rounded-md bg-white">
               <Avatar>
-                <ZoruAvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-                <ZoruAvatarFallback>AL</ZoruAvatarFallback>
+                <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
+                <AvatarFallback>AL</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-medium text-[var(--st-text)]">Compliance Officer</p>
@@ -224,44 +203,44 @@ export default function ComplianceDashboardPage() {
                 </Badge>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Recent Rejected Templates</ZoruCardTitle>
-            <ZoruCardDescription>Flagged by carrier filters</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Recent Rejected Templates</CardTitle>
+            <CardDescription>Flagged by carrier filters</CardDescription>
+          </CardHeader>
+          <CardBody>
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Template</ZoruTableHead>
-                  <ZoruTableHead>Reason</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                <ZoruTableRow>
-                  <ZoruTableCell className="font-medium text-sm">Crypto Promo A</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-[var(--st-text)]">SHAFT Violation</ZoruTableCell>
-                </ZoruTableRow>
-                <ZoruTableRow>
-                  <ZoruTableCell className="font-medium text-sm">Loan Offer Update</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-[var(--st-text)]">High Risk Category</ZoruTableCell>
-                </ZoruTableRow>
-              </ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Template</Th>
+                  <Th>Reason</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td className="font-medium text-sm">Crypto Promo A</Td>
+                  <Td className="text-sm text-[var(--st-text)]">SHAFT Violation</Td>
+                </Tr>
+                <Tr>
+                  <Td className="font-medium text-sm">Loan Offer Update</Td>
+                  <Td className="text-sm text-[var(--st-text)]">High Risk Category</Td>
+                </Tr>
+              </TBody>
             </Table>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Recent Unsubscribes (24h)</ZoruCardTitle>
-            <ZoruCardDescription>Timeline of STOP events</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Recent Unsubscribes (24h)</CardTitle>
+            <CardDescription>Timeline of STOP events</CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-4 mt-2">
               <div className="flex gap-4">
                 <div className="w-16 text-xs text-[var(--st-text)] text-right pt-1">
@@ -284,17 +263,17 @@ export default function ComplianceDashboardPage() {
                 </div>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Per-Country Quiet Hours</ZoruCardTitle>
-            <ZoruCardDescription>Active time restrictions</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Per-Country Quiet Hours</CardTitle>
+            <CardDescription>Active time restrictions</CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="flex items-center gap-4 bg-[var(--st-bg-muted)] p-4 rounded-md border border-[var(--st-border)]">
               <div className="bg-white p-2 rounded-full shadow-sm border border-[var(--st-border)]">
                 <Map className="h-5 w-5 text-[var(--st-text)]" />
@@ -306,14 +285,14 @@ export default function ComplianceDashboardPage() {
                 </p>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Attestations & Resources</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-5">
+          <CardHeader>
+            <CardTitle>Attestations & Resources</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-5">
             <div className="flex justify-between items-center text-sm border-b border-[var(--st-border)] pb-3">
               <span className="font-medium text-[var(--st-text)]">Required Attestation Matrix</span>
               <Button variant="ghost" size="sm" className="h-8">
@@ -332,7 +311,7 @@ export default function ComplianceDashboardPage() {
                 View Phase 8 Plan
               </Link>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </SabsmsPageShell>

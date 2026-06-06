@@ -1,15 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  Label,
-  Skeleton,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, EmptyState, Label, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Copy,
@@ -48,9 +40,9 @@ export function SubscriptionsSection({
       <div className="space-y-3">
         {[0, 1, 2].map((i) => (
           <Card key={i}>
-            <ZoruCardContent className="space-y-2 p-4">
+            <CardBody className="space-y-2 p-4">
               <Skeleton className="h-16 w-full" />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ))}
       </div>
@@ -59,12 +51,12 @@ export function SubscriptionsSection({
   if (error) {
     return (
       <Card>
-        <ZoruCardContent className="p-6">
+        <CardBody className="p-6">
           <div className="flex items-center gap-2 text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4" />
             {error}
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -114,7 +106,7 @@ function SubscriptionRow({
   const [showSecret, setShowSecret] = React.useState(false);
   return (
     <Card>
-      <ZoruCardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-start md:justify-between">
+      <CardBody className="flex flex-col gap-4 p-4 md:flex-row md:items-start md:justify-between">
         <div className="flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="info">
@@ -195,7 +187,7 @@ function SubscriptionRow({
             <Trash2 className="mr-1 h-3 w-3" /> Delete
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

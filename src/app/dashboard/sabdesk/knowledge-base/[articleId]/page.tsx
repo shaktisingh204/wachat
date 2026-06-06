@@ -1,10 +1,4 @@
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 
@@ -146,10 +140,10 @@ export default async function KbArticleDetailPage({
 
         <aside className="flex flex-col gap-4">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Article details</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3 text-[13px]">
+            <CardHeader>
+              <CardTitle>Article details</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3 text-[13px]">
               <div>
                 <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Slug
@@ -212,7 +206,7 @@ export default async function KbArticleDetailPage({
                   {fmtDate(article.updatedAt)}
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <KbHelpfulWidget

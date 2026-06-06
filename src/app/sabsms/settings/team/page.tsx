@@ -4,7 +4,7 @@ import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { TeamTable } from "./team-table";
 import { loadTeamMembers } from "./actions";
 import { RbacMatrixClient } from "./rbac-matrix-client";
-import { StatCard } from "@/components/sabcrm/20ui/zoru";
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { Users, ShieldCheck, MailWarning, Activity } from "lucide-react";
 import { fmtQty } from "@/lib/utils";
 

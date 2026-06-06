@@ -2,26 +2,7 @@
 
 import * as React from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Input,
-  Label,
-  Switch,
-  Badge,
-  Separator,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Switch, Badge, Separator, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ProviderConfigPage({ params }: { params: { id: string } }) {
@@ -72,13 +53,13 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
         <div className="md:col-span-8 space-y-6">
           {/* 1 & 8: Credentials & Sender-ID Whitelist */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Credentials & Identity</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Credentials & Identity</CardTitle>
+              <CardDescription>
                 1. Provider-specific credential form & 8. Sender-id whitelist
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="grid gap-2">
                 <Label>Account SID / Username</Label>
                 <Input defaultValue="AC1234567890abcdef" />
@@ -149,16 +130,16 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
                 </div>
                 <Input placeholder="SABSMS, ALERT, OTP" className="max-w-[200px]" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* 2, 3, 4, 5: Webhooks & Testing */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Webhooks & Testing</ZoruCardTitle>
-              <ZoruCardDescription>Verify connectivity and validate signatures.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Webhooks & Testing</CardTitle>
+              <CardDescription>Verify connectivity and validate signatures.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Webhook Signature Secret</Label>
@@ -174,16 +155,16 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
                 <Button variant="secondary" className="w-full">3. Test Inbound Echo</Button>
                 <Button variant="secondary" className="w-full">4. Test DLR Echo</Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* 7, 13, 14, 15, 16, 17: Capacity & Flow Control */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Capacity & Flow Control</ZoruCardTitle>
-              <ZoruCardDescription>Engine-side rate limits and concurrency.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Capacity & Flow Control</CardTitle>
+              <CardDescription>Engine-side rate limits and concurrency.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>7. Rate Limit (Req/s)</Label>
@@ -213,15 +194,15 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
                   <Input defaultValue="Exponential (Max 3)" />
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* 9, 10, 12: Cost & Capabilities */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Provider Capabilities</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Provider Capabilities</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>10. Lookup API (HLR)</Label>
@@ -245,16 +226,16 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
                   <Badge variant="secondary">RCS (Not Configured)</Badge>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* 6. Pricing Table */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>6. Per-Country Pricing</ZoruCardTitle>
-              <ZoruCardDescription>Read-only sync from provider API.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>6. Per-Country Pricing</CardTitle>
+              <CardDescription>Read-only sync from provider API.</CardDescription>
+            </CardHeader>
+            <CardBody>
               <div className="border rounded-md p-4 text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)]">
                 <div className="flex justify-between font-medium border-b pb-2 mb-2">
                   <span>Country</span>
@@ -273,30 +254,30 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
                   <span>$0.0022 (DLT)</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
         <div className="md:col-span-4 space-y-6">
           {/* 11. Default Sender */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Routing Defaults</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Routing Defaults</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Label>11. Default Sender</Label>
                 <Input defaultValue="+1234567890" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* 18, 19, 20: Status & Engine info */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Engine Status & Logs</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+              <CardTitle>Engine Status & Logs</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="space-y-1">
                 <Label className="text-xs text-[var(--st-text)]">18. SDK Version</Label>
                 <div className="font-mono text-sm">sabsms-engine/1.4.2 (Rust)</div>
@@ -308,7 +289,7 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <Button variant="ghost" className="w-full text-[var(--st-text)]">
                 20. View Audit Trail
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

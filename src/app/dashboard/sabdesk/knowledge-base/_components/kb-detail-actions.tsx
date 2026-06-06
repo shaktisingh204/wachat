@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, useZoruToast } from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -39,7 +39,7 @@ interface KbDetailActionsProps {
 
 export function KbDetailActions({ articleId, article }: KbDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const status = String(article.status ?? "").toLowerCase();
@@ -197,7 +197,7 @@ export function KbHelpfulWidget({
   helpfulNo,
 }: KbHelpfulWidgetProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [voted, setVoted] = React.useState<"yes" | "no" | null>(null);
   const [pending, startTransition] = React.useTransition();
 

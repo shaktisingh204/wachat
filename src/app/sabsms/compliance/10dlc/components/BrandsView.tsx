@@ -1,34 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Button,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Input,
-  Label,
-  Badge,
-  ZoruStatCard,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-  ZoruAccordion03,
-  ZoruAccordion03Item,
-  ZoruAccordion03Trigger,
-  ZoruAccordion03Content,
-  RadioGroup,
-  ZoruRadioCard,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, RadioGroup, RadioCard, Separator } from '@/components/sabcrm/20ui/compat';
 import { SabsmsDataTable } from "@/components/sabsms/page-toolkit";
 import {
   Building2,
@@ -61,19 +34,19 @@ export function BrandsView() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
       <div className="grid gap-6 md:grid-cols-3">
-        <ZoruStatCard
+        <StatCard
           label="Overall Trust Score"
           value="95 / 100"
           delta={5}
           period="Excellent standing based on recent vetting"
           className="bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)]/30 dark:to-[var(--st-text)]/10 border-[var(--st-border)]/50"
         />
-        <ZoruStatCard
+        <StatCard
           label="Registered Brands"
           value="12 Active"
           period="Across 4 different verticals"
         />
-        <ZoruStatCard
+        <StatCard
           label="Vetting Upgrades"
           value="3 Eligible"
           period="Upgrade for higher throughput"
@@ -93,7 +66,7 @@ export function BrandsView() {
               </div>
             </div>
             <form onSubmit={handleSubmit}>
-              <ZoruCardContent className="p-0">
+              <CardBody className="p-0">
                 <ZoruAccordion03 type="single" defaultValue="step-1" collapsible className="p-4 sm:p-6">
                   <ZoruAccordion03Item value="step-1">
                     <ZoruAccordion03Trigger>1. Entity Profile & Legal Information</ZoruAccordion03Trigger>
@@ -101,10 +74,10 @@ export function BrandsView() {
                       <div className="grid gap-4 mt-2">
                         <Label>Entity Type</Label>
                         <RadioGroup defaultValue="private" name="entityType" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <ZoruRadioCard value="private" label="Private Company" description="LLC, Inc, Corp" icon={<Briefcase className="h-4 w-4" />} />
-                          <ZoruRadioCard value="public" label="Public Company" description="Traded on exchange" icon={<Globe className="h-4 w-4" />} />
-                          <ZoruRadioCard value="nonprofit" label="Non-Profit (501c3)" description="Registered charity" icon={<ShieldCheck className="h-4 w-4" />} />
-                          <ZoruRadioCard value="gov" label="Government" description="Local or Federal" icon={<Building2 className="h-4 w-4" />} />
+                          <RadioCard value="private" label="Private Company" description="LLC, Inc, Corp" icon={<Briefcase className="h-4 w-4" />} />
+                          <RadioCard value="public" label="Public Company" description="Traded on exchange" icon={<Globe className="h-4 w-4" />} />
+                          <RadioCard value="nonprofit" label="Non-Profit (501c3)" description="Registered charity" icon={<ShieldCheck className="h-4 w-4" />} />
+                          <RadioCard value="gov" label="Government" description="Local or Federal" icon={<Building2 className="h-4 w-4" />} />
                         </RadioGroup>
                       </div>
                       <div className="grid sm:grid-cols-2 gap-5">
@@ -123,15 +96,15 @@ export function BrandsView() {
                         <div className="space-y-2">
                           <Label>Vertical / Industry</Label>
                           <Select name="vertical" defaultValue="tech">
-                            <ZoruSelectTrigger>
-                              <ZoruSelectValue placeholder="Select vertical" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                              <ZoruSelectItem value="tech">Technology & Software</ZoruSelectItem>
-                              <ZoruSelectItem value="retail">Retail & Ecommerce</ZoruSelectItem>
-                              <ZoruSelectItem value="finance">Financial Services</ZoruSelectItem>
-                              <ZoruSelectItem value="healthcare">Healthcare</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select vertical" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="tech">Technology & Software</SelectItem>
+                              <SelectItem value="retail">Retail & Ecommerce</SelectItem>
+                              <SelectItem value="finance">Financial Services</SelectItem>
+                              <SelectItem value="healthcare">Healthcare</SelectItem>
+                            </SelectContent>
                           </Select>
                         </div>
                       </div>
@@ -162,14 +135,14 @@ export function BrandsView() {
                       <div className="space-y-2">
                         <Label>Country</Label>
                         <Select name="country" defaultValue="us">
-                          <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Select country" />
-                          </ZoruSelectTrigger>
-                          <ZoruSelectContent>
-                            <ZoruSelectItem value="us">United States</ZoruSelectItem>
-                            <ZoruSelectItem value="ca">Canada</ZoruSelectItem>
-                            <ZoruSelectItem value="uk">United Kingdom</ZoruSelectItem>
-                          </ZoruSelectContent>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="us">United States</SelectItem>
+                            <SelectItem value="ca">Canada</SelectItem>
+                            <SelectItem value="uk">United Kingdom</SelectItem>
+                          </SelectContent>
                         </Select>
                       </div>
                     </ZoruAccordion03Content>
@@ -204,7 +177,7 @@ export function BrandsView() {
                     </ZoruAccordion03Content>
                   </ZoruAccordion03Item>
                 </ZoruAccordion03>
-              </ZoruCardContent>
+              </CardBody>
               <div className="p-4 sm:p-6 bg-[var(--st-bg-secondary)] border-t flex flex-col sm:flex-row justify-end gap-3">
                 <Button type="button" variant="outline" className="w-full sm:w-auto">Save Draft</Button>
                 <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
@@ -217,12 +190,12 @@ export function BrandsView() {
 
         <div className="space-y-6">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-base flex items-center gap-2">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" /> TCR Verification Status
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[var(--st-text-secondary)]">EIN Verification</span>
@@ -242,39 +215,39 @@ export function BrandsView() {
               <Button variant="outline" className="w-full mt-4">
                 <Zap className="mr-2 h-4 w-4 text-[var(--st-text)]" /> Apply for Enhanced Vetting
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-base">Quick Help</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle className="text-base">Quick Help</CardTitle>
+            </CardHeader>
+            <CardBody>
               <Accordion type="single" collapsible className="w-full">
-                <ZoruAccordionItem value="item-1">
-                  <ZoruAccordionTrigger className="text-xs py-3 text-left">Why is EIN required?</ZoruAccordionTrigger>
-                  <ZoruAccordionContent className="text-xs">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger className="text-xs py-3 text-left">Why is EIN required?</AccordionTrigger>
+                  <AccordionContent className="text-xs">
                     The Campaign Registry uses the Employer Identification Number to verify the legal existence of the business with the IRS.
-                  </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                <ZoruAccordionItem value="item-2">
-                  <ZoruAccordionTrigger className="text-xs py-3 text-left">What if I don't have a website?</ZoruAccordionTrigger>
-                  <ZoruAccordionContent className="text-xs">
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger className="text-xs py-3 text-left">What if I don't have a website?</AccordionTrigger>
+                  <AccordionContent className="text-xs">
                     You must provide a valid social media presence or other online footprint if a website is not available, otherwise vetting may be rejected.
-                  </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Number ↔ Campaign Assignment Matrix</ZoruCardTitle>
-          <ZoruCardDescription>Manage your inventory of 10DLC numbers and their active campaign associations.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="overflow-x-auto">
+        <CardHeader>
+          <CardTitle>Number ↔ Campaign Assignment Matrix</CardTitle>
+          <CardDescription>Manage your inventory of 10DLC numbers and their active campaign associations.</CardDescription>
+        </CardHeader>
+        <CardBody className="overflow-x-auto">
           <SabsmsDataTable
             rowKey={(r) => r.number}
             columns={[
@@ -293,7 +266,7 @@ export function BrandsView() {
               { number: "+1 555 123 4567", campaign: "Customer Support", throughput: "4,000", status: "Pending Verification" },
             ]}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

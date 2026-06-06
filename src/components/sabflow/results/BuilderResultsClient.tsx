@@ -1,17 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { ZoruDataTable } from "@/components/sabcrm/20ui/zoru";
-import { ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE, ZoruChart } from "@/components/sabcrm/20ui/zoru/chart";
+import { DataTable } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, ZoruChart } from '@/components/sabcrm/20ui/compat';
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Badge } from '@/components/sabcrm/20ui/compat';
 
 const { BarChart, CartesianGrid, XAxis, YAxis, Bar, Tooltip } = ZoruChart;
 
 export function BuilderResultsChart({ data }: { data: { date: string; total: number; completed: number }[] }) {
   return (
-    <ZoruChartContainer config={{}} className="h-72 w-full">
+    <ChartContainer config={{}} className="h-72 w-full">
       <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
         <XAxis 
@@ -32,11 +32,11 @@ export function BuilderResultsChart({ data }: { data: { date: string; total: num
           axisLine={false} 
           tickFormatter={(val) => `${val}`}
         />
-        <Tooltip content={<ZoruChartTooltip />} />
+        <Tooltip content={<ChartTooltip />} />
         <Bar dataKey="total" name="Total Sessions" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
         <Bar dataKey="completed" name="Completed" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
       </BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }
 
@@ -76,5 +76,5 @@ export function BuilderResultsTable({ data }: { data: any[] }) {
     },
   ], []);
 
-  return <ZoruDataTable columns={columns} data={data} pageSize={10} />;
+  return <DataTable columns={columns} data={data} pageSize={10} />;
 }

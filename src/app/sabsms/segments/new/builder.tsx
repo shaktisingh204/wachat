@@ -15,27 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -325,14 +305,14 @@ export function SegmentBuilder({
         )}
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Details</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Details</CardTitle>
+            <CardDescription>
               Name, description and category. Marketing segments must include a
               consent gate.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <Label htmlFor="seg-name">Name</Label>
@@ -354,16 +334,16 @@ export function SegmentBuilder({
                     })
                   }
                 >
-                  <ZoruSelectTrigger id="seg-category">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="marketing">Marketing</ZoruSelectItem>
-                    <ZoruSelectItem value="transactional">Transactional</ZoruSelectItem>
-                    <ZoruSelectItem value="otp">OTP</ZoruSelectItem>
-                    <ZoruSelectItem value="alert">Alert</ZoruSelectItem>
-                    <ZoruSelectItem value="service">Service</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="seg-category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="transactional">Transactional</SelectItem>
+                    <SelectItem value="otp">OTP</SelectItem>
+                    <SelectItem value="alert">Alert</SelectItem>
+                    <SelectItem value="service">Service</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -446,15 +426,15 @@ export function SegmentBuilder({
                 placeholder="comma-separated"
               />
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <ZoruCardTitle>Predicate</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle>Predicate</CardTitle>
+                <CardDescription>
                   Combine rules with AND / OR groups.
                   {leafCount > 0 && (
                     <Badge variant="secondary" className="ml-2 text-[10px]">
@@ -469,7 +449,7 @@ export function SegmentBuilder({
                       {consentOk ? "Consent gate OK" : "Consent gate missing"}
                     </Badge>
                   )}
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
               {matchedCount !== null && (
                 <Badge variant="outline" className="text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]">
@@ -478,42 +458,42 @@ export function SegmentBuilder({
                 </Badge>
               )}
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <PredicateCanvas
               predicate={draft.predicate}
               onChange={(p) => patchDraft({ predicate: p })}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>SQL-style preview</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>SQL-style preview</CardTitle>
+            <CardDescription>
               Read-only translation of the predicate AST.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <pre className="overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs">
               <code>{`SELECT * FROM contacts WHERE\n  ${sql}`}</code>
             </pre>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {draft.category === "marketing" && (
           <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[var(--st-text)]">
+            <CardHeader>
+              <CardTitle className="text-[var(--st-text)]">
                 Marketing attestation
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 Required for marketing segments. By checking this box you
                 confirm every contact in this segment has given consent to
                 receive promotional messages.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
               <label className="flex items-start gap-2 text-sm">
                 <Checkbox
                   checked={draft.attestation}
@@ -526,7 +506,7 @@ export function SegmentBuilder({
                   marketing messages.
                 </span>
               </label>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
@@ -575,17 +555,17 @@ export function SegmentBuilder({
       {/* ─── Right column: live preview, import, test ──────────────── */}
       <aside className="space-y-4">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Live preview</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Live preview</CardTitle>
+            <CardDescription>
               {previewBusy
                 ? "Evaluating…"
                 : matchedCount !== null
                   ? `Matches ${matchedCount.toLocaleString()} of ${scannedCount?.toLocaleString() ?? "?"} contacts.`
                   : "Add a rule to see matches."}
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {sample.length === 0 ? (
               <p className="text-xs text-[var(--st-text)]">
                 No matching contacts yet.
@@ -605,50 +585,50 @@ export function SegmentBuilder({
                 ))}
               </ul>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Import predicate</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Import predicate</CardTitle>
+            <CardDescription>
               Copy the rule tree from an existing segment.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-2">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-2">
             {importableSegments.length === 0 ? (
               <p className="text-xs text-[var(--st-text)]">
                 No saved segments to import from yet.
               </p>
             ) : (
               <Select onValueChange={(v) => handleImport(v)}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pick a segment…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a segment…" />
+                </SelectTrigger>
+                <SelectContent>
                   {importableSegments.map((s) => (
-                    <ZoruSelectItem key={s.id} value={s.id}>
+                    <SelectItem key={s.id} value={s.id}>
                       {s.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             )}
             <p className="text-[11px] text-[var(--st-text)]">
               <Import className="mr-1 inline h-3 w-3" />
               Imports replace the current predicate.
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Test against a phone</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Test against a phone</CardTitle>
+            <CardDescription>
               Check whether a specific number matches the predicate.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-2">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-2">
             <div className="flex gap-2">
               <Input
                 value={testPhone}
@@ -681,18 +661,18 @@ export function SegmentBuilder({
                 )}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {forecast && (
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Forecast</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Forecast</CardTitle>
+              <CardDescription>
                 Estimated cost to send 1 SMS to every member.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-sm">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Size</span>
                 <span className="tabular-nums">{forecast.size.toLocaleString()}</span>
@@ -713,22 +693,22 @@ export function SegmentBuilder({
                   })}
                 </span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
         {shareToken && (
           <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[var(--st-text)] text-sm">
+            <CardHeader>
+              <CardTitle className="text-[var(--st-text)] text-sm">
                 Share link
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
               <code className="block break-all rounded bg-white px-2 py-1 text-[11px]">
                 /sabsms/segments/share/{shareToken}
               </code>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       </aside>

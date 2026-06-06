@@ -3,19 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  ZoruKbd,
-  Label,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Kbd, Label, Separator } from '@/components/sabcrm/20ui/compat';
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -290,7 +278,7 @@ export function CampaignWizard({
       )}
 
       <Card>
-        <ZoruCardContent className="pt-6">
+        <CardBody className="pt-6">
           {stepId === "template" && (
             <StepTemplate
               draft={draft}
@@ -335,18 +323,18 @@ export function CampaignWizard({
               onJump={goTo}
             />
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Test send</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Test send</CardTitle>
+          <CardDescription>
             Push one interpolated message to a real recipient or your sandbox
             number before launching the full audience.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 space-y-1">
               <Label htmlFor="test-to">Recipient (E.164)</Label>
@@ -366,7 +354,7 @@ export function CampaignWizard({
               {busy === "test" ? "Sending…" : "Send test"}
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Separator />
@@ -390,10 +378,10 @@ export function CampaignWizard({
             Next
           </Button>
           <span className="text-xs text-[var(--st-text)]">
-            <ZoruKbd>⌘</ZoruKbd>
-            <ZoruKbd>←</ZoruKbd> /
-            <ZoruKbd>⌘</ZoruKbd>
-            <ZoruKbd>→</ZoruKbd> to navigate
+            <Kbd>⌘</Kbd>
+            <Kbd>←</Kbd> /
+            <Kbd>⌘</Kbd>
+            <Kbd>→</Kbd> to navigate
           </span>
           <SabsmsKbdHint
             shortcuts={[

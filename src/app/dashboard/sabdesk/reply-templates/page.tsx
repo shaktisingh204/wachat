@@ -18,27 +18,7 @@ import {
   Download,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from "@/components/crm/entity-list-shell";
 import { EntityRowLink } from "@/components/crm/entity-row-link";
@@ -102,12 +82,12 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
           key={t.label}
           className={t.wide ? "col-span-2 sm:col-span-1" : ""}
         >
-          <ZoruCardHeader className="pb-1 pt-4">
-            <ZoruCardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
+          <CardHeader className="pb-1 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
               {t.label}
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="pb-4">
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="pb-4">
             {loading ? (
               <div className="h-6 w-16 animate-pulse rounded bg-[var(--st-bg-muted)]" />
             ) : (
@@ -115,7 +95,7 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
                 {t.value}
               </p>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>
@@ -370,28 +350,28 @@ export default function TicketReplyTemplatesPage() {
             className="w-56"
           />
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <ZoruSelectTrigger className="w-44">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {CATEGORY_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <ZoruSelectTrigger className="w-36">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       }
@@ -432,9 +412,9 @@ export default function TicketReplyTemplatesPage() {
       <Card>
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10">
                   <Checkbox
                     checked={
                       allChecked || (someChecked ? "indeterminate" : false)
@@ -442,102 +422,102 @@ export default function TicketReplyTemplatesPage() {
                     onCheckedChange={toggleAll}
                     aria-label="Select all visible"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Name
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Category
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Preview
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)] text-right">
                   Used
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Status
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loading ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading templates…
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : loadError ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text)]"
                   >
                     {loadError}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     <MessageSquareText className="mx-auto mb-2 h-6 w-6 text-[var(--st-text-secondary)]/50" />
                     No templates match your filters.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((t) => (
-                  <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell>
+                  <Tr key={t._id} className="border-[var(--st-border)]">
+                    <Td>
                       <Checkbox
                         checked={selected.has(t._id)}
                         onCheckedChange={() => toggleOne(t._id)}
                         aria-label={`Select ${t.name}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`${BASE}/${t._id}`}
                         label={t.name}
                         subtitle={t.shortcut ? t.shortcut : undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {t.category ? (
                         <Badge variant="secondary">{t.category}</Badge>
                       ) : (
                         <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="max-w-[280px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
                       {(t.body ?? "").slice(0, 50)}
                       {(t.body ?? "").length > 50 ? "…" : ""}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right tabular-nums text-[var(--st-text)]">
                       {t.usageCount}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <StatusPill
                         label={t.isActive ? "Active" : "Inactive"}
                         tone={t.isActive ? "green" : "neutral"}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`${BASE}/${t._id}/edit`}>Edit</Link>
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

@@ -2,21 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Progress,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsDetailDrawer,
   SabsmsExportMenu,
@@ -150,9 +136,9 @@ export function QuickSendProgressDashboard({
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+      <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="space-y-1">
-          <ZoruCardTitle>Run progress</ZoruCardTitle>
+          <CardTitle>Run progress</CardTitle>
           <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text)]">
             <code className="rounded bg-[var(--st-bg-muted)] px-2 py-0.5">{runId}</code>
             {run && (
@@ -173,8 +159,8 @@ export function QuickSendProgressDashboard({
             Close
           </Button>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      </CardHeader>
+      <CardBody className="space-y-4">
         {error && (
           <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
             {error}
@@ -238,29 +224,29 @@ export function QuickSendProgressDashboard({
 
         <div className="overflow-hidden rounded border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-16">Line</ZoruTableHead>
-                <ZoruTableHead>Phone</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Detail</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="w-16">Line</Th>
+                <Th>Phone</Th>
+                <Th>Status</Th>
+                <Th>Detail</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {(run?.results ?? []).slice(-50).reverse().map((r, idx) => (
-                <ZoruTableRow key={`${r.sourceLine}-${r.phone}-${idx}`}>
-                  <ZoruTableCell className="font-mono text-xs">
+                <Tr key={`${r.sourceLine}-${r.phone}-${idx}`}>
+                  <Td className="font-mono text-xs">
                     {r.sourceLine}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-xs">
+                  </Td>
+                  <Td className="font-mono text-xs">
                     {r.phone}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant={statusBadgeVariant(r.status)}>
                       {r.status}
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="max-w-[320px] truncate text-xs text-[var(--st-text)]">
+                  </Td>
+                  <Td className="max-w-[320px] truncate text-xs text-[var(--st-text)]">
                     {r.status === "failed" ? (
                       <button
                         type="button"
@@ -272,20 +258,20 @@ export function QuickSendProgressDashboard({
                     ) : (
                       r.messageId ?? ""
                     )}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
               {!run?.results.length && (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={4}
                     className="py-8 text-center text-sm text-[var(--st-text)]"
                   >
                     Waiting for the first row to land…
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
 
@@ -326,7 +312,7 @@ export function QuickSendProgressDashboard({
             </div>
           )}
         </SabsmsDetailDrawer>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

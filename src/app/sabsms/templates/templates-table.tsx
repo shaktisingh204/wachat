@@ -46,24 +46,7 @@ import {
   type SabsmsRowAction,
 } from "@/components/sabsms/page-toolkit";
 import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfiles";
-import {
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   duplicateTemplate,
@@ -131,7 +114,7 @@ const SORT_OPTIONS = [
 
 export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCount, page, limit, availableTags = [] }: TemplatesTableProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const urlState = useSabsmsUrlState();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -336,18 +319,18 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       id: "preview",
       header: "Preview",
       render: (row) => (
-        <ZoruTooltipProvider>
+        <TooltipProvider>
           <Tooltip>
-            <ZoruTooltipTrigger asChild>
+            <TooltipTrigger asChild>
               <span className="line-clamp-1 max-w-[320px] cursor-help text-xs text-[var(--st-text)]">
                 {row.bodyPreview || <em className="text-[var(--st-text-secondary)]">empty</em>}
               </span>
-            </ZoruTooltipTrigger>
-            <ZoruTooltipContent className="max-w-sm whitespace-pre-wrap text-left">
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm whitespace-pre-wrap text-left">
               {row.bodyPreview || "(empty)"}
-            </ZoruTooltipContent>
+            </TooltipContent>
           </Tooltip>
-        </ZoruTooltipProvider>
+        </TooltipProvider>
       ),
     },
     {
@@ -377,20 +360,20 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       header: "Vars",
       align: "right",
       render: (row) => (
-        <ZoruTooltipProvider>
+        <TooltipProvider>
           <Tooltip>
-            <ZoruTooltipTrigger asChild>
+            <TooltipTrigger asChild>
               <span className="cursor-help font-mono text-xs">
                 {row.variables.length}
               </span>
-            </ZoruTooltipTrigger>
-            <ZoruTooltipContent>
+            </TooltipTrigger>
+            <TooltipContent>
               {row.variables.length === 0
                 ? "No variables declared"
                 : row.variables.map((v) => `{{${v}}}`).join(", ")}
-            </ZoruTooltipContent>
+            </TooltipContent>
           </Tooltip>
-        </ZoruTooltipProvider>
+        </TooltipProvider>
       ),
       width: "70px",
     },
@@ -625,15 +608,15 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
         open={tagsEditorId !== null}
         onOpenChange={(open) => !open && setTagsEditorId(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               Edit tags{tagsEditorRow ? ` · ${tagsEditorRow.name}` : ""}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Comma-separated. Up to 16 tags, each under 64 chars.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="tags-input">Tags</Label>
             <Input
@@ -643,32 +626,32 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
               placeholder="onboarding, otp, india"
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTagsEditorId(null)}>
               Cancel
             </Button>
             <Button onClick={saveTags}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Import dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Import templates</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import templates</DialogTitle>
+            <DialogDescription>
               Paste a SabSMS bundle, or a single WhatsApp template JSON.
               Imports are created as drafts.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={importJson}
             onChange={(e) => setImportJson(e.target.value)}
             placeholder={`{\n  "templates": [\n    { "name": "Welcome", "category": "transactional", "bodies": [{ "locale": "en", "body": "Hi {{name}}!" }] }\n  ]\n}`}
             className="min-h-[220px] font-mono text-xs"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
             </Button>
@@ -678,8 +661,8 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
             >
               {importBusy ? "Importing…" : "Import"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Convert-to-drip suggestion */}
@@ -687,20 +670,20 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
         open={convertId !== null}
         onOpenChange={(open) => !open && setConvertId(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Convert template to drip</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Convert template to drip</DialogTitle>
+            <DialogDescription>
               Start a drip campaign using this template as its first step.
               You can add follow-up steps, conditions, and delays in the
               drip builder.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <p className="text-sm text-[var(--st-text)]">
             We will pre-fill the drip builder with the template content; you can
             edit before saving.
           </p>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setConvertId(null)}>
               Cancel
             </Button>
@@ -709,8 +692,8 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
                 Open drip builder
               </Link>
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -3,15 +3,7 @@
 import * as React from "react";
 import { MoreHorizontal, Sparkles } from "lucide-react";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
@@ -68,7 +60,7 @@ export function TileActions({
   return (
     <>
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
@@ -77,17 +69,17 @@ export function TileActions({
           >
             <MoreHorizontal className="h-3.5 w-3.5" />
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
-          <ZoruDropdownMenuLabel>{metric}</ZoruDropdownMenuLabel>
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuItem onSelect={runAiExplain}>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>{metric}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={runAiExplain}>
             <Sparkles className="mr-2 h-3.5 w-3.5" /> Why is this metric down?
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={runPdfExport}>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={runPdfExport}>
             Export tile as PDF
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <SabsmsDetailDrawer

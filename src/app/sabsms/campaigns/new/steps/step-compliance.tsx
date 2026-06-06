@@ -2,26 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import type {
   ABVariant,
@@ -105,14 +86,14 @@ export function StepCompliance({
   return (
     <div className="space-y-5">
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Variable preview</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Variable preview</CardTitle>
+          <CardDescription>
             Renders the template body with sample values — exactly what one
             recipient will see.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           {templateVariables.length === 0 ? (
             <p className="text-xs text-[var(--st-text)]">
               No <code>{`{{var}}`}</code> tokens detected on this template.
@@ -135,18 +116,18 @@ export function StepCompliance({
           <pre className="whitespace-pre-wrap rounded bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
             {previewed || "Pick a template back in Step 1 to preview here."}
           </pre>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">A/B split</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">A/B split</CardTitle>
+          <CardDescription>
             Test up to 5 variants. The engine declares a winner on your metric
             after the sample window.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm text-[var(--st-text)]">Enable A/B split</span>
             <Switch
@@ -166,16 +147,16 @@ export function StepCompliance({
                       setAb({ winnerMetric: v as ABWinnerMetric })
                     }
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="ctr">CTR</ZoruSelectItem>
-                      <ZoruSelectItem value="reply">Reply</ZoruSelectItem>
-                      <ZoruSelectItem value="conversion">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ctr">CTR</SelectItem>
+                      <SelectItem value="reply">Reply</SelectItem>
+                      <SelectItem value="conversion">
                         Conversion
-                      </ZoruSelectItem>
-                    </ZoruSelectContent>
+                      </SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
@@ -253,17 +234,17 @@ export function StepCompliance({
               </div>
             </>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Frequency cap</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Frequency cap</CardTitle>
+          <CardDescription>
             Stop hammering the same contact across overlapping campaigns.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm text-[var(--st-text)]">Enable frequency cap</span>
             <Switch
@@ -294,26 +275,26 @@ export function StepCompliance({
                     setFc({ period: v as FrequencyCapPeriod })
                   }
                 >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="day">Day</ZoruSelectItem>
-                    <ZoruSelectItem value="week">Week</ZoruSelectItem>
-                    <ZoruSelectItem value="month">Month</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Day</SelectItem>
+                    <SelectItem value="week">Week</SelectItem>
+                    <SelectItem value="month">Month</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Smart toggles</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+        <CardHeader>
+          <CardTitle className="text-base">Smart toggles</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm text-[var(--st-text)]">
               Smart suppression
@@ -342,34 +323,34 @@ export function StepCompliance({
               }
             />
           </label>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Cost estimate</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Cost estimate</CardTitle>
+          <CardDescription>
             Rough estimate — the engine computes the authoritative cost at
             send time.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <div className="space-y-1">
             <Label>Currency</Label>
             <Select
               value={draft.costCurrency}
               onValueChange={(v) => onChange({ costCurrency: v })}
             >
-              <ZoruSelectTrigger className="w-32">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {CURRENCIES.map((c) => (
-                  <ZoruSelectItem key={c} value={c}>
+                  <SelectItem key={c} value={c}>
                     {c}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-3 gap-2 text-sm">
@@ -392,17 +373,17 @@ export function StepCompliance({
               </div>
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Compliance</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Compliance</CardTitle>
+          <CardDescription>
             Required for marketing campaigns under TCPA / GDPR / DLT / 10DLC.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <label className="flex items-start gap-3">
             <Checkbox
               checked={draft.complianceAttested}
@@ -426,7 +407,7 @@ export function StepCompliance({
             Your attestation, along with workspace + user + timestamp, is
             written to the audit log when you launch.
           </p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

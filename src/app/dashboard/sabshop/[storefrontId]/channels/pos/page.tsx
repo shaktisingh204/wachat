@@ -1,28 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Label } from "@/components/sabcrm/20ui/zoru/label";
-import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/sabcrm/20ui/zoru/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/sabcrm/20ui/zoru/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { 
   Store, 
   MonitorSmartphone, 
@@ -83,34 +69,34 @@ export default function POSPage() {
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead>Terminal</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead className="bg-muted/50">
+                  <Tr>
+                    <Th>Terminal</Th>
+                    <Th>Location</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {terminals.map((t) => (
-                    <TableRow key={t.id}>
-                      <TableCell>
+                    <Tr key={t.id}>
+                      <Td>
                         <div className="font-medium">{t.name}</div>
                         <div className="text-xs text-muted-foreground font-mono">{t.id}</div>
-                      </TableCell>
-                      <TableCell>{t.location}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>{t.location}</Td>
+                      <Td>
                         <Badge variant={t.status === "Online" ? "default" : "secondary"} className={t.status === "Online" ? "bg-green-500 hover:bg-green-600" : ""}>
                           {t.status}
                         </Badge>
                         <div className="text-[10px] text-muted-foreground mt-1">Sync: {t.lastSync}</div>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button variant="ghost" size="icon" className="h-8 w-8"><Settings className="h-4 w-4" /></Button>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </CardContent>
@@ -167,35 +153,35 @@ export default function POSPage() {
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead>Staff Member</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Assigned Terminal</TableHead>
-                    <TableHead>PIN</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead className="bg-muted/50">
+                  <Tr>
+                    <Th>Staff Member</Th>
+                    <Th>Role</Th>
+                    <Th>Assigned Terminal</Th>
+                    <Th>PIN</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {staff.map((s, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{s.name}</TableCell>
-                      <TableCell>
+                    <Tr key={i}>
+                      <Td className="font-medium">{s.name}</Td>
+                      <Td>
                         <Badge variant="outline">{s.role}</Badge>
-                      </TableCell>
-                      <TableCell>{s.terminal}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>{s.terminal}</Td>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <span className="font-mono bg-muted px-2 py-1 rounded text-sm">{s.pin}</span>
                           <Button variant="ghost" size="sm" className="h-6 text-xs">Reset</Button>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </CardContent>

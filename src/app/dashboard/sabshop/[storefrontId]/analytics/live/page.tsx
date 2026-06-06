@@ -2,17 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Users, ShoppingCart, Globe, Activity, ArrowUpRight, ArrowDownRight, MapPin } from "lucide-react";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent, 
-  CardDescription,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Progress } from "@/components/sabcrm/20ui/zoru/progress";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
+import { Progress } from '@/components/sabcrm/20ui/compat';
 
 export default function LiveAnalyticsPage() {
   const [activeVisitors, setActiveVisitors] = useState(142);

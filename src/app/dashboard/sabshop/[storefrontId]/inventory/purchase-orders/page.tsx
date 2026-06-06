@@ -2,14 +2,14 @@
 
 import React from "react";
 import { Plus, Search, FileText, PackageCheck, Clock, AlertCircle, MoreHorizontal } from "lucide-react";
-import { PageHeader } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/sabcrm/20ui/zoru/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/sabcrm/20ui/zoru/table";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 
 const mockPurchaseOrders = [
   {
@@ -137,31 +137,31 @@ export default function PurchaseOrdersPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>PO Number</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Order Date</TableHead>
-                <TableHead>Expected Date</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>PO Number</Th>
+                <Th>Supplier</Th>
+                <Th>Order Date</Th>
+                <Th>Expected Date</Th>
+                <Th>Total Amount</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mockPurchaseOrders.map((po) => (
-                <TableRow key={po.id}>
-                  <TableCell className="font-medium">{po.id}</TableCell>
-                  <TableCell>{po.supplier}</TableCell>
-                  <TableCell className="text-muted-foreground">{po.orderDate}</TableCell>
-                  <TableCell className="text-muted-foreground">{po.expectedDate}</TableCell>
-                  <TableCell>{formatCurrency(po.totalAmount)}</TableCell>
-                  <TableCell>
+                <Tr key={po.id}>
+                  <Td className="font-medium">{po.id}</Td>
+                  <Td>{po.supplier}</Td>
+                  <Td className="text-muted-foreground">{po.orderDate}</Td>
+                  <Td className="text-muted-foreground">{po.expectedDate}</Td>
+                  <Td>{formatCurrency(po.totalAmount)}</Td>
+                  <Td>
                     <Badge variant={getStatusBadgeVariant(po.status)} className={po.status === 'Draft' ? 'opacity-50' : ''}>
                       {po.status}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -178,10 +178,10 @@ export default function PurchaseOrdersPage() {
                         <DropdownMenuItem className="text-destructive">Cancel PO</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
         <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">

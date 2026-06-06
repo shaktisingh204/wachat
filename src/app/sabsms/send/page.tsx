@@ -1,14 +1,4 @@
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsSendComposer } from "./composer";
 
@@ -18,29 +8,29 @@ export default function SabsmsSendPage() {
   return (
     <div className="space-y-6 p-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Send a message</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Send a message</PageTitle>
+          <PageDescription>
             Push a one-off message through the SabSMS engine. The engine
             handles E.164 normalisation, suppression check, segment
             counting, credit reservation, and Twilio dispatch — then polls
             DLR back to this page.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Composer</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Composer</CardTitle>
+          <CardDescription>
             Sender resolves from the workspace default (Phase 1: from the
             engine&rsquo;s <code>SABSMS_TWILIO_DEFAULT_FROM</code> env).
             Workspace-scoped provider accounts ship in Phase 1.5.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <SabsmsSendComposer />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

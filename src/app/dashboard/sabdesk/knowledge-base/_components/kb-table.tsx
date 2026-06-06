@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { formatDistanceToNow } from "date-fns";
 import {
   BookOpen,
@@ -83,9 +68,9 @@ export function KbTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-            <ZoruTableHead className="w-[36px]">
+        <THead>
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            <Th className="w-[36px]">
               <Checkbox
                 aria-label="Select all articles"
                 checked={
@@ -93,36 +78,36 @@ export function KbTable({
                 }
                 onCheckedChange={(c) => onToggleAll(c === true)}
               />
-            </ZoruTableHead>
-            <ZoruTableHead>Title</ZoruTableHead>
-            <ZoruTableHead>Category</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Visibility</ZoruTableHead>
-            <ZoruTableHead>Tags</ZoruTableHead>
-            <ZoruTableHead className="text-right">Views</ZoruTableHead>
-            <ZoruTableHead className="text-right">Helpful %</ZoruTableHead>
-            <ZoruTableHead>Updated</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th>Title</Th>
+            <Th>Category</Th>
+            <Th>Status</Th>
+            <Th>Visibility</Th>
+            <Th>Tags</Th>
+            <Th className="text-right">Views</Th>
+            <Th className="text-right">Helpful %</Th>
+            <Th>Updated</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                <ZoruTableCell colSpan={10}>
+              <Tr key={i} className="border-[var(--st-border)]">
+                <Td colSpan={10}>
                   <Skeleton className="h-10 w-full" />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))
           ) : articles.length === 0 ? (
-            <ZoruTableRow className="border-[var(--st-border)]">
-              <ZoruTableCell
+            <Tr className="border-[var(--st-border)]">
+              <Td
                 colSpan={10}
                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 No articles match the current filters.
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ) : (
             articles.map((a) => {
               const id = String(a._id);
@@ -130,21 +115,21 @@ export function KbTable({
               const visibility = String(a.visibility ?? "").toLowerCase();
               const tags = Array.isArray(a.tags) ? a.tags : [];
               return (
-                <ZoruTableRow
+                <Tr
                   key={id}
                   className={[
                     "border-[var(--st-border)] transition-colors",
                     isSel ? "bg-[var(--st-bg-muted)]/70" : "",
                   ].join(" ")}
                 >
-                  <ZoruTableCell>
+                  <Td>
                     <Checkbox
                       aria-label={`Select article ${a.title || id}`}
                       checked={isSel}
                       onCheckedChange={() => onToggleOne(id)}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center gap-2">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <BookOpen className="h-3.5 w-3.5" />
@@ -165,8 +150,8 @@ export function KbTable({
                         }
                       />
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {a.category ? (
                       <EntityPickerChip
                         entity="category"
@@ -176,8 +161,8 @@ export function KbTable({
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {a.status ? (
                       <StatusPill
                         label={a.status}
@@ -186,8 +171,8 @@ export function KbTable({
                     ) : (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {visibility ? (
                       <Badge
                         variant={VISIBILITY_VARIANTS[visibility] ?? "ghost"}
@@ -197,8 +182,8 @@ export function KbTable({
                     ) : (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {tags.length === 0 ? (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     ) : (
@@ -215,17 +200,17 @@ export function KbTable({
                         ) : null}
                       </div>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                     <span className="inline-flex items-center gap-1">
                       <Eye className="h-3 w-3" />
                       {a.viewCount ?? 0}
                     </span>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                     {helpfulPct(a)}
-                  </ZoruTableCell>
-                  <ZoruTableCell
+                  </Td>
+                  <Td
                     className="text-[12.5px] text-[var(--st-text-secondary)]"
                     title={
                       a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ""
@@ -236,10 +221,10 @@ export function KbTable({
                           addSuffix: true,
                         })
                       : "—"}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <button
                           type="button"
                           aria-label={`Actions for ${a.title || id}`}
@@ -247,40 +232,40 @@ export function KbTable({
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/sabdesk/knowledge-base/${id}`}
                           >
                             <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
                             View
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/sabdesk/knowledge-base/${id}/edit`}
                           >
                             <Edit className="mr-1.5 h-3.5 w-3.5" />
                             Edit
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           onClick={() => onDelete(id)}
                           className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

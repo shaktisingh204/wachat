@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Label,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 
@@ -58,7 +44,7 @@ export function TicketDetailClient({
   children,
 }: TicketDetailClientProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [mode, setMode] = React.useState<"reply" | "forward" | "note">("note");
   const [mergeOpen, setMergeOpen] = React.useState(false);
   const [mergeTargetId, setMergeTargetId] = React.useState<string>("");
@@ -115,7 +101,7 @@ export function TicketDetailClient({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
                 className="inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
@@ -132,14 +118,14 @@ export function TicketDetailClient({
                 )}
                 <ChevronDown className="h-3 w-3 text-[var(--st-text-secondary)]" />
               </button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="start">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
               {STATUS_OPTIONS.map((s) => (
-                <ZoruDropdownMenuItem key={s} onClick={() => changeStatus(s)}>
+                <DropdownMenuItem key={s} onClick={() => changeStatus(s)}>
                   {s.replace(/_/g, " ")}
-                </ZoruDropdownMenuItem>
+                </DropdownMenuItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
           <TicketSlaBadge ticketId={id} dueBy={ticket.dueBy} status={status} />
         </div>
@@ -162,14 +148,14 @@ export function TicketDetailClient({
           if (!o) setMergeTargetId("");
         }}
       >
-        <ZoruDialogContent className="sm:max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Merge into another ticket?</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Merge into another ticket?</DialogTitle>
+            <DialogDescription>
               Pick the canonical ticket. This ticket will be closed and parented
               to it.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-1.5">
             <Label>Target ticket</Label>
             <EntityFormField
@@ -180,7 +166,7 @@ export function TicketDetailClient({
               onChange={(next) => setMergeTargetId(next ?? "")}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="ghost"
               onClick={() => setMergeOpen(false)}
@@ -191,8 +177,8 @@ export function TicketDetailClient({
             <Button onClick={confirmMerge} disabled={pending || !mergeTargetId}>
               Merge
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

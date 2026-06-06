@@ -4,22 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Mail, Share2 } from "lucide-react";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsExportMenu,
@@ -190,16 +175,16 @@ export function AnalyticsToolbar({
           value={preset}
           onValueChange={(v) => url.setOne("preset", v)}
         >
-          <ZoruSelectTrigger className="h-8 w-[140px]">
-            <ZoruSelectValue placeholder="Range" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 w-[140px]">
+            <SelectValue placeholder="Range" />
+          </SelectTrigger>
+          <SelectContent>
             {PRESETS.map((p) => (
-              <ZoruSelectItem key={p.value} value={p.value}>
+              <SelectItem key={p.value} value={p.value}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Label className="ml-2 text-xs text-[var(--st-text-secondary)]">
@@ -209,16 +194,16 @@ export function AnalyticsToolbar({
           value={compareTo}
           onValueChange={(v) => url.setOne("compareTo", v)}
         >
-          <ZoruSelectTrigger className="h-8 w-[170px]">
-            <ZoruSelectValue placeholder="Compare" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 w-[170px]">
+            <SelectValue placeholder="Compare" />
+          </SelectTrigger>
+          <SelectContent>
             {COMPARE_OPTIONS.map((p) => (
-              <ZoruSelectItem key={p.value} value={p.value}>
+              <SelectItem key={p.value} value={p.value}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Label className="ml-2 text-xs text-[var(--st-text-secondary)]">
@@ -228,16 +213,16 @@ export function AnalyticsToolbar({
           value={groupBy}
           onValueChange={(v) => url.setOne("groupBy", v)}
         >
-          <ZoruSelectTrigger className="h-8 w-[140px]">
-            <ZoruSelectValue placeholder="Group by" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 w-[140px]">
+            <SelectValue placeholder="Group by" />
+          </SelectTrigger>
+          <SelectContent>
             {GROUP_BY_OPTIONS.map((p) => (
-              <ZoruSelectItem key={p.value} value={p.value}>
+              <SelectItem key={p.value} value={p.value}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <div className="ml-auto flex items-center gap-2">
@@ -255,14 +240,14 @@ export function AnalyticsToolbar({
       </div>
 
       <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Schedule email report</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Schedule email report</DialogTitle>
+            <DialogDescription>
               The report mirrors the current filters. Each recipient gets a
               link back to this dashboard.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label>Frequency</Label>
@@ -272,14 +257,14 @@ export function AnalyticsToolbar({
                   setFrequency(v as "daily" | "weekly" | "monthly")
                 }
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                  <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                  <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
@@ -291,7 +276,7 @@ export function AnalyticsToolbar({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="ghost"
               onClick={() => setScheduleOpen(false)}
@@ -303,24 +288,24 @@ export function AnalyticsToolbar({
               <Calendar className="mr-1.5 h-3.5 w-3.5" />
               {scheduleBusy ? "Saving…" : "Schedule"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Public share link</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Public share link</DialogTitle>
+            <DialogDescription>
               Read-only — anyone with the link can view this dashboard. The
               token is workspace-scoped.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input readOnly value={shareUrl ?? ""} />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button onClick={() => setShareOpen(false)}>Done</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

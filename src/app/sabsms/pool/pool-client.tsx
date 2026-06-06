@@ -17,7 +17,7 @@ import {
   rowsToCsv
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button, Switch, Label, Input, Select, ZoruSelectContent as SelectContent, ZoruSelectItem as SelectItem, ZoruSelectTrigger as SelectTrigger, ZoruSelectValue as SelectValue } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Switch, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 export interface PoolRow {
   id: string;

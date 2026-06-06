@@ -13,25 +13,11 @@ import {
   Search,
   Activity
 } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell
-} from "@/components/sabcrm/20ui/zoru/table";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
 
 const mockSegments = [
   {
@@ -163,44 +149,44 @@ export default function CustomerSegmentsPage() {
         </CardHeader>
         <CardContent className="p-0">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Segment Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Rules</TableHead>
-                <TableHead>Customers</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Segment Name</Th>
+                <Th>Description</Th>
+                <Th>Rules</Th>
+                <Th>Customers</Th>
+                <Th>Status</Th>
+                <Th>Last Updated</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredSegments.length > 0 ? (
                 filteredSegments.map((segment) => (
-                  <TableRow key={segment.id}>
-                    <TableCell className="font-medium text-[var(--st-text)]">
+                  <Tr key={segment.id}>
+                    <Td className="font-medium text-[var(--st-text)]">
                       {segment.name}
-                    </TableCell>
-                    <TableCell className="text-[var(--st-text-tertiary)]">
+                    </Td>
+                    <Td className="text-[var(--st-text-tertiary)]">
                       {segment.description}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="outline" className="bg-[var(--st-bg-secondary)] font-mono">
                         {segment.rules} Rules
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       {segment.customerCount.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={segment.status === "Active" ? "default" : "secondary"} className={segment.status === "Active" ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20" : ""}>
                         {segment.status}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-[var(--st-text-tertiary)]">
+                    </Td>
+                    <Td className="text-[var(--st-text-tertiary)]">
                       {segment.lastUpdated}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <PenTool className="w-4 h-4 text-[var(--st-text-tertiary)]" />
@@ -212,17 +198,17 @@ export default function CustomerSegmentsPage() {
                           <MoreHorizontal className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
+                <Tr>
+                  <Td colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
                     No segments found matching "{search}"
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

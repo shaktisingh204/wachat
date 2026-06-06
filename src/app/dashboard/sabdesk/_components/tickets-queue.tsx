@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Card } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from "lucide-react";
 
 /**

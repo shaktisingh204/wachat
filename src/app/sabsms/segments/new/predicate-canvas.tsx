@@ -3,16 +3,7 @@
 import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import {
   FIELD_LABELS,
@@ -170,13 +161,13 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             }
           }}
         >
-          <ZoruSelectTrigger className="w-[100px] h-8 bg-white font-medium">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="and">All of</ZoruSelectItem>
-            <ZoruSelectItem value="or">Any of</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="w-[100px] h-8 bg-white font-medium">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="and">All of</SelectItem>
+            <SelectItem value="or">Any of</SelectItem>
+          </SelectContent>
         </Select>
         <span className="text-xs text-[var(--st-text)] font-medium">
           {node.op === "and"
@@ -282,32 +273,32 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
         value={node.field}
         onValueChange={(v) => changeField(v as SegmentField)}
       >
-        <ZoruSelectTrigger className="w-[180px]">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {FIELDS.map((f) => (
-            <ZoruSelectItem key={f} value={f}>
+            <SelectItem key={f} value={f}>
               {FIELD_LABELS[f]}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select
         value={node.op}
         onValueChange={(v) => changeOp(v as SegmentOperator)}
       >
-        <ZoruSelectTrigger className="w-[140px]">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-[140px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {OPERATORS_BY_FIELD[node.field].map((o) => (
-            <ZoruSelectItem key={o} value={o}>
+            <SelectItem key={o} value={o}>
               {OPERATOR_LABELS[o]}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <ValueEditor node={node} onChange={onChange} />
@@ -356,13 +347,13 @@ function ValueEditor({
         value={node.value === true || node.value === "true" ? "true" : "false"}
         onValueChange={(v) => onChange({ ...node, value: v === "true" })}
       >
-        <ZoruSelectTrigger className="w-[120px]">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="false">No</ZoruSelectItem>
-          <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-        </ZoruSelectContent>
+        <SelectTrigger className="w-[120px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="false">No</SelectItem>
+          <SelectItem value="true">Yes</SelectItem>
+        </SelectContent>
       </Select>
     );
   }

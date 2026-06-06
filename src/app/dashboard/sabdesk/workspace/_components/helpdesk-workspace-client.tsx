@@ -30,30 +30,9 @@ import {
   User,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
-import { EmptyState } from "@/components/sabcrm/20ui/zoru/empty-state";
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru/dropdown-menu";
+import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";
@@ -157,7 +136,7 @@ function slaState(
 /* ─── Component ───────────────────────────────────────────────── */
 
 export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [tickets, setTickets] = React.useState<CrmTicketDoc[]>(
@@ -281,18 +260,18 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <ZoruSelectTrigger className="h-8 text-[13px]">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="open">Open</ZoruSelectItem>
-              <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-              <ZoruSelectItem value="on_hold">On hold</ZoruSelectItem>
-              <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
-              <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-              <ZoruSelectItem value="reopened">Reopened</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="h-8 text-[13px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="on_hold">On hold</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+              <SelectItem value="reopened">Reopened</SelectItem>
+            </SelectContent>
           </Select>
         </div>
 
@@ -412,7 +391,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                       key={String(n._id ?? i)}
                       className={n.isInternal ? "border-[var(--st-border)]/30" : ""}
                     >
-                      <ZoruCardContent className="space-y-1 p-3 text-[13px]">
+                      <CardBody className="space-y-1 p-3 text-[13px]">
                         <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           {n.isInternal ? (
                             <Badge variant="warning">Internal</Badge>
@@ -426,7 +405,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         <p className="whitespace-pre-wrap text-[var(--st-text)]">
                           {String(n.body ?? "")}
                         </p>
-                      </ZoruCardContent>
+                      </CardBody>
                     </Card>
                   ))
                 ) : (
@@ -456,12 +435,12 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 </Button>
                 <div className="ml-auto">
                   <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                       <Button size="sm" variant="outline">
                         Templates <ChevronDown className="ml-1 h-3 w-3" />
                       </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
                       align="end"
                       className="max-h-[300px] overflow-y-auto"
                     >
@@ -477,7 +456,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         </div>
                       ) : (
                         props.templates.items.map((tpl) => (
-                          <ZoruDropdownMenuItem
+                          <DropdownMenuItem
                             key={tpl._id}
                             onSelect={() => applyTemplate(tpl)}
                           >
@@ -491,10 +470,10 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                                 </span>
                               ) : null}
                             </div>
-                          </ZoruDropdownMenuItem>
+                          </DropdownMenuItem>
                         ))
                       )}
-                    </ZoruDropdownMenuContent>
+                    </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </div>
@@ -547,21 +526,21 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                       value={selected.status ?? "open"}
                       onValueChange={handleStatus}
                     >
-                      <ZoruSelectTrigger className="mt-1 h-8 text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                        <ZoruSelectItem value="on_hold">On hold</ZoruSelectItem>
-                        <ZoruSelectItem value="resolved">
+                      <SelectTrigger className="mt-1 h-8 text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="on_hold">On hold</SelectItem>
+                        <SelectItem value="resolved">
                           Resolved
-                        </ZoruSelectItem>
-                        <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                        <ZoruSelectItem value="reopened">
+                        </SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="reopened">
                           Reopened
-                        </ZoruSelectItem>
-                      </ZoruSelectContent>
+                        </SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div>
@@ -572,15 +551,15 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                       value={selected.priority ?? "medium"}
                       onValueChange={handlePriority}
                     >
-                      <ZoruSelectTrigger className="mt-1 h-8 text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                        <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                        <ZoruSelectItem value="high">High</ZoruSelectItem>
-                        <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="mt-1 h-8 text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div>

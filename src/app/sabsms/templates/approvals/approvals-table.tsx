@@ -41,26 +41,7 @@ import {
   type SabsmsColumn,
   type SabsmsRowAction,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   approveTemplate,
@@ -157,7 +138,7 @@ export function ApprovalsTable({
   perCategoryAvg,
 }: ApprovalsTableProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [decisionFor, setDecisionFor] = React.useState<
@@ -760,32 +741,32 @@ export function ApprovalsTable({
         open={decisionFor !== null}
         onOpenChange={(open) => !open && setDecisionFor(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               {decisionFor?.kind === "approved" ? "Approve" : "Reject"} ·{" "}
               {decisionFor?.name}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Reviewer notes are required and are saved into the decision
               trail.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             {decisionFor?.kind === "rejected" && (
               <div className="space-y-2">
                 <Label>Reason</Label>
                 <Select value={reasonCode} onValueChange={setReasonCode}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Pick a reason" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pick a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {reasons.map((r) => (
-                      <ZoruSelectItem key={r.code} value={r.code}>
+                      <SelectItem key={r.code} value={r.code}>
                         {r.label}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             )}
@@ -804,7 +785,7 @@ export function ApprovalsTable({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDecisionFor(null)}
@@ -820,8 +801,8 @@ export function ApprovalsTable({
             >
               {decisionFor?.kind === "approved" ? "Approve" : "Reject"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Diff drawer */}
@@ -902,31 +883,31 @@ export function ApprovalsTable({
         open={bulkCategory !== null}
         onOpenChange={(open) => !open && setBulkCategory(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               Bulk approve every submitted "{bulkCategory}" template
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Applies the same reviewer notes to every submission in the
               category.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={bulkNotes}
             onChange={(e) => setBulkNotes(e.target.value)}
             placeholder="Notes applied to every approval…"
             className="min-h-[100px]"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setBulkCategory(null)}>
               Cancel
             </Button>
             <Button onClick={bulkApprove} disabled={!bulkNotes.trim()}>
               Approve all
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Bulk action dialog */}
@@ -940,15 +921,15 @@ export function ApprovalsTable({
           }
         }}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               Bulk {bulkAction} {selectedIds.length} templates
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Applies the same reviewer notes to all selected templates.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           
           <div className="space-y-4 py-2">
             <div className="space-y-1">
@@ -965,22 +946,22 @@ export function ApprovalsTable({
               <div className="space-y-1">
                 <Label>Reason code</Label>
                 <Select value={bulkReasonCode} onValueChange={setBulkReasonCode}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Select a reason..." />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason..." />
+                  </SelectTrigger>
+                  <SelectContent>
                     {reasons.map((r) => (
-                      <ZoruSelectItem key={r.code} value={r.code}>
+                      <SelectItem key={r.code} value={r.code}>
                         {r.label}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             )}
           </div>
           
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setBulkAction(null)}>
               Cancel
             </Button>
@@ -991,20 +972,20 @@ export function ApprovalsTable({
             >
               {bulkAction === "approve" ? "Approve all" : "Reject all"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Rotation config */}
       <Dialog open={rotationOpen} onOpenChange={setRotationOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Reviewer rotation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reviewer rotation</DialogTitle>
+            <DialogDescription>
               Saved locally for now. When a real reviewers collection
               lands, this list will sync to Mongo.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             {rotation.reviewers.map((r) => (
               <div
@@ -1030,22 +1011,22 @@ export function ApprovalsTable({
               <Button onClick={addReviewer}>Add</Button>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button onClick={() => setRotationOpen(false)}>Done</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Taxonomy editor */}
       <Dialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Reject reasons taxonomy</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject reasons taxonomy</DialogTitle>
+            <DialogDescription>
               Reasons appear in the reject dialog and feed the decision
               log export.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             {reasons.map((r) => (
               <div
@@ -1074,10 +1055,10 @@ export function ApprovalsTable({
               <Button onClick={addReason}>Add</Button>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button onClick={() => setTaxonomyOpen(false)}>Done</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,20 +1,6 @@
 import Link from "next/link";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableCell,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { SabsmsDashboardWidgets, type MetricData } from "./_components/sabsms-dashboard-widgets";
@@ -81,27 +67,27 @@ export default async function SabsmsOverviewPage() {
 
       <div className="grid gap-6 xl:grid-cols-3 mt-6">
         <Card className="shadow-sm flex flex-col xl:col-span-3">
-          <ZoruCardHeader className="pb-4 border-b border-[var(--st-border)]">
-            <ZoruCardTitle className="text-lg">Active Campaigns</ZoruCardTitle>
-            <ZoruCardDescription>Currently running or scheduled.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0 flex-1">
+          <CardHeader className="pb-4 border-b border-[var(--st-border)]">
+            <CardTitle className="text-lg">Active Campaigns</CardTitle>
+            <CardDescription>Currently running or scheduled.</CardDescription>
+          </CardHeader>
+          <CardBody className="p-0 flex-1">
             <div className="w-full overflow-hidden">
               <Table className="border-0 shadow-none rounded-none w-full">
-                <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)]">
-                  <ZoruTableRow className="border-none hover:bg-transparent">
-                    <ZoruTableHead className="h-9">Campaign</ZoruTableHead>
-                    <ZoruTableHead className="h-9">Status</ZoruTableHead>
-                    <ZoruTableHead className="h-9 text-right">Sent / Target</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)]">
+                  <Tr className="border-none hover:bg-transparent">
+                    <Th className="h-9">Campaign</Th>
+                    <Th className="h-9">Status</Th>
+                    <Th className="h-9 text-right">Sent / Target</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {mockActiveCampaigns.map((camp) => (
-                    <ZoruTableRow key={camp.id} className="group">
-                      <ZoruTableCell className="font-medium text-[var(--st-text)] text-sm">
+                    <Tr key={camp.id} className="group">
+                      <Td className="font-medium text-[var(--st-text)] text-sm">
                         {camp.name}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge 
                           variant={camp.status === "Sending" ? "default" : "secondary"} 
                           className={`text-xs px-2 py-0.5 border-0 ${
@@ -110,16 +96,16 @@ export default async function SabsmsOverviewPage() {
                         >
                           {camp.status}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-sm text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)] transition-colors">
+                      </Td>
+                      <Td className="text-right text-sm text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)] transition-colors">
                         {camp.sent.toLocaleString()} / {camp.target.toLocaleString()}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
           <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
             <Button variant="ghost" className="w-full text-xs font-medium" asChild>
               <Link href="/sabsms/campaigns">View all campaigns →</Link>

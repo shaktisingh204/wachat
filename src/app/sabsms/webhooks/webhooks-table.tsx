@@ -26,23 +26,7 @@ import {
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfiles";
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   toggleWebhook,
@@ -72,7 +56,7 @@ const EVENT_OPTIONS = [
 
 export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [detailId, setDetailId] = React.useState<string | null>(null);
@@ -254,7 +238,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         ) : (
           initialRows.map((row) => (
             <Card key={row.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <ZoruCardContent className="p-5 flex flex-col xl:flex-row xl:items-center gap-6">
+              <CardBody className="p-5 flex flex-col xl:flex-row xl:items-center gap-6">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-3">
                     <Badge variant={row.isActive ? "default" : "secondary"}>
@@ -320,7 +304,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                     {row.isActive ? "Disable" : "Enable"}
                   </Button>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))
         )}
@@ -456,28 +440,28 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
       </SabsmsDetailDrawer>
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Import Webhook Config</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import Webhook Config</DialogTitle>
+            <DialogDescription>
               Paste JSON containing endpoint definitions to import.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             value={importJson}
             onChange={(e) => setImportJson(e.target.value)}
             placeholder='[{"url": "https://...", "events": ["message.delivered"]}]'
             className="min-h-[200px] font-mono text-xs"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleImportFromText} disabled={!importJson.trim()}>
               Import
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

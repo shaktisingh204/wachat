@@ -4,25 +4,12 @@ import React, { useMemo, useState, useEffect, useRef, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table";
 import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer, LuCircle } from "react-icons/lu";
 
-import { DataTable } from "@/components/sabcrm/20ui/zoru/data-table";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import {
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru/select";
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from "@/components/sabcrm/20ui/zoru/page-header";
-import { Card } from "@/components/sabcrm/20ui/zoru/card";
+import { DataTable } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -235,17 +222,17 @@ export default function SystemLogsPage() {
     <div className="min-h-screen bg-[var(--st-bg)] p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
         <PageHeader className="mb-8">
-          <ZoruPageHeading>
-            <ZoruPageEyebrow className="flex items-center gap-1.5 text-[var(--st-text)]">
+          <PageHeading>
+            <PageEyebrow className="flex items-center gap-1.5 text-[var(--st-text)]">
               <LuActivity className="w-3.5 h-3.5" />
               Observability
-            </ZoruPageEyebrow>
-            <ZoruPageTitle>System Logs</ZoruPageTitle>
-            <ZoruPageDescription>
+            </PageEyebrow>
+            <PageTitle>System Logs</PageTitle>
+            <PageDescription>
               Monitor heavy system-level logs and activities across all infrastructure nodes. High-throughput event tracking for SabFlow execution engines and services.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-          <ZoruPageActions>
+            </PageDescription>
+          </PageHeading>
+          <PageActions>
             <Button variant="outline" onClick={fetchLogs} disabled={loading || liveTail}>
               <LuRefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
               Refresh
@@ -261,7 +248,7 @@ export default function SystemLogsPage() {
               )}
               {liveTail ? "Stop Tail" : "Live Tail"}
             </Button>
-          </ZoruPageActions>
+          </PageActions>
         </PageHeader>
 
         {/* Count summary — shows real fetched total and how many pass current filters */}
@@ -294,31 +281,31 @@ export default function SystemLogsPage() {
             toolbar={
               <div className="flex items-center gap-3">
                 <Select value={severityFilter} onValueChange={setSeverityFilter}>
-                  <ZoruSelectTrigger className="w-[140px]">
-                    <ZoruSelectValue placeholder="Severity" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All Severities</ZoruSelectItem>
-                    <ZoruSelectItem value="info">Info</ZoruSelectItem>
-                    <ZoruSelectItem value="warning">Warning</ZoruSelectItem>
-                    <ZoruSelectItem value="error">Error</ZoruSelectItem>
-                    <ZoruSelectItem value="debug">Debug</ZoruSelectItem>
-                    <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Severity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Severities</SelectItem>
+                    <SelectItem value="info">Info</SelectItem>
+                    <SelectItem value="warning">Warning</SelectItem>
+                    <SelectItem value="error">Error</SelectItem>
+                    <SelectItem value="debug">Debug</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
                 </Select>
 
                 <Select value={nodeFilter} onValueChange={setNodeFilter}>
-                  <ZoruSelectTrigger className="w-[160px]">
-                    <ZoruSelectValue placeholder="Node" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All Nodes</ZoruSelectItem>
-                    <ZoruSelectItem value="api-server">API Server</ZoruSelectItem>
-                    <ZoruSelectItem value="auth-service">Auth Service</ZoruSelectItem>
-                    <ZoruSelectItem value="webhook-listener">Webhook Listener</ZoruSelectItem>
-                    <ZoruSelectItem value="db-worker">DB Worker</ZoruSelectItem>
-                    <ZoruSelectItem value="sabflow-engine">SabFlow Engine</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Node" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Nodes</SelectItem>
+                    <SelectItem value="api-server">API Server</SelectItem>
+                    <SelectItem value="auth-service">Auth Service</SelectItem>
+                    <SelectItem value="webhook-listener">Webhook Listener</SelectItem>
+                    <SelectItem value="db-worker">DB Worker</SelectItem>
+                    <SelectItem value="sabflow-engine">SabFlow Engine</SelectItem>
+                  </SelectContent>
                 </Select>
 
                 <div className="w-px h-6 bg-[var(--st-border)] mx-1" />

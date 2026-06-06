@@ -1,42 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruIconPicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -112,7 +76,7 @@ function TicketGroupDialog({
 }) {
   const isEditing = !!initialData;
   const [state, formAction] = useActionState(saveTicketGroup, saveInitialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [isActive, setIsActive] = React.useState<boolean>(
     initialData?.isActive ?? true,
@@ -171,7 +135,7 @@ function TicketGroupDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg">
         <form action={formAction}>
           {isEditing ? (
             <input type="hidden" name="_id" value={String(initialData!._id)} />
@@ -195,11 +159,11 @@ function TicketGroupDialog({
             <input type="hidden" name="status" value={status} />
           ) : null}
 
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {isEditing ? "Edit" : "Create new"} ticket group
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -232,19 +196,19 @@ function TicketGroupDialog({
                   setParentGroupId(v === "__none__" ? "" : v)
                 }
               >
-                <ZoruSelectTrigger id="parentGroupId">
-                  <ZoruSelectValue placeholder="No parent" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">
+                <SelectTrigger id="parentGroupId">
+                  <SelectValue placeholder="No parent" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">
                     — No parent —
-                  </ZoruSelectItem>
+                  </SelectItem>
                   {filteredParentOptions.map((g) => (
-                    <ZoruSelectItem key={g._id} value={g._id}>
+                    <SelectItem key={g._id} value={g._id}>
                       {g.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -274,11 +238,11 @@ function TicketGroupDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Color</Label>
-                <ZoruColorPicker value={color} onChange={setColor} />
+                <ColorPicker value={color} onChange={setColor} />
               </div>
               <div className="space-y-2">
                 <Label>Icon</Label>
-                <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
+                <IconPicker value={icon} onChange={setIcon} color={color} />
               </div>
             </div>
 
@@ -303,19 +267,19 @@ function TicketGroupDialog({
                   value={status}
                   onValueChange={(v) => setStatus(v as CrmTicketGroupStatus)}
                 >
-                  <ZoruSelectTrigger id="statusSelect">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="statusSelect">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             ) : null}
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -324,9 +288,9 @@ function TicketGroupDialog({
               Cancel
             </Button>
             <SubmitButton isEditing={isEditing} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -375,7 +339,7 @@ export default function TicketGroupsPage() {
   const [deletePending, startDeleteTransition] = React.useTransition();
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkDeleting, startBulkDelete] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const refresh = React.useCallback(async () => {
     setIsLoading(true);
@@ -527,14 +491,14 @@ export default function TicketGroupsPage() {
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <ZoruSelectTrigger className="h-9 w-[160px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
             </Select>
           }
           bulkBar={
@@ -625,9 +589,9 @@ export default function TicketGroupsPage() {
 
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox
                         checked={
                           filtered.length > 0 &&
@@ -646,63 +610,63 @@ export default function TicketGroupsPage() {
                         }
                         aria-label="Select all"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Name
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Parent Group
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Default Assignee
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Default SLA
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Color
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">
                       Tickets
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Status
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">
                       Actions
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {isLoading ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell colSpan={9} className="h-24 text-center">
+                    <Tr className="border-[var(--st-border)]">
+                      <Td colSpan={9} className="h-24 text-center">
                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : filtered.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={9}
                         className="h-24 text-center text-[var(--st-text-secondary)]"
                       >
                         No ticket groups match this filter.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     filtered.map((g) => {
                       const parent = g.parentGroupId
                         ? byId.get(g.parentGroupId)
                         : null;
                       return (
-                        <ZoruTableRow
+                        <Tr
                           key={String(g._id)}
                           className={cn(
                             "border-[var(--st-border)]",
                             selected.has(String(g._id)) && "bg-[var(--st-bg-secondary)]",
                           )}
                         >
-                          <ZoruTableCell>
+                          <Td>
                             <Checkbox
                               checked={selected.has(String(g._id))}
                               onCheckedChange={() =>
@@ -716,8 +680,8 @@ export default function TicketGroupsPage() {
                               }
                               aria-label={`Select ${g.name}`}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                          </Td>
+                          <Td className="font-medium text-[var(--st-text)]">
                             <div className="flex flex-col">
                               <span>{g.name}</span>
                               {g.description ? (
@@ -726,8 +690,8 @@ export default function TicketGroupsPage() {
                                 </span>
                               ) : null}
                             </div>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {parent ? (
                               parent.name
                             ) : g.parentGroupId ? (
@@ -740,8 +704,8 @@ export default function TicketGroupsPage() {
                             ) : (
                               <span className="text-[var(--st-text-secondary)]">—</span>
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             {g.defaultAssigneeId ? (
                               <span
                                 className="font-mono text-xs text-[var(--st-text)]"
@@ -752,8 +716,8 @@ export default function TicketGroupsPage() {
                             ) : (
                               <span className="text-[var(--st-text-secondary)]">—</span>
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             {g.defaultSlaId ? (
                               <span
                                 className="font-mono text-xs text-[var(--st-text)]"
@@ -764,20 +728,20 @@ export default function TicketGroupsPage() {
                             ) : (
                               <span className="text-[var(--st-text-secondary)]">—</span>
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <ColorSwatch color={g.color} />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-right font-mono text-[var(--st-text)]">
                             {g.ticketsCount ?? 0}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <StatusPill
                               label={g.status}
                               tone={STATUS_TONE[g.status] ?? "neutral"}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right">
+                          </Td>
+                          <Td className="text-right">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -794,42 +758,42 @@ export default function TicketGroupsPage() {
                             >
                               <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                             </Button>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </div>
         </EntityListShell>
       </div>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!pendingDelete}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete ticket group?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete ticket group?</AlertDialogTitle>
+            <AlertDialogDescription>
               Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect{" "}
               {pendingDelete?.ticketsCount ?? 0} ticket(s) currently in this
               group. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleDelete}
               disabled={deletePending}
             >
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

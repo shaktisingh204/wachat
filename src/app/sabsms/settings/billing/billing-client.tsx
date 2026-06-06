@@ -2,46 +2,8 @@
 
 import React, { useState } from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  Button,
-  Badge,
-  Input,
-  Label,
-  Switch,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Table,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableCell,
-  Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Progress,
-  ZoruStatCard,
-  ZoruDataTable,
-} from "@/components/sabcrm/20ui/zoru";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Badge, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, Tr, Th, TBody, Td, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Progress, StatCard, DataTable } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import {
   CreditCard,
   Download,
@@ -64,7 +26,7 @@ import {
   ShieldAlert,
   MoreHorizontal
 } from "lucide-react";
-import { cn } from "@/components/sabcrm/20ui/zoru/lib/cn";
+import { cn } from '@/components/sabcrm/20ui/compat';
 import { fmtDate, fmtINR } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -150,28 +112,28 @@ class BillingErrorBoundary extends React.Component<{ children: React.ReactNode }
           ]}
         >
           <Card className="mt-6 border-[var(--st-danger)]/50 bg-[var(--st-danger)]/5">
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[var(--st-danger)] flex items-center gap-2">
+            <CardHeader>
+              <CardTitle className="text-[var(--st-danger)] flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
                 Payment Service Unavailable
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 We're currently unable to connect to our payment provider.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <p className="text-sm text-[var(--st-text)]">
                 Error details: {this.state.error?.message || "Unknown network error"}
               </p>
               <p className="text-sm text-[var(--st-text-secondary)]">
                 Your existing credits and messaging capabilities remain unaffected. Please try again later for billing updates.
               </p>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
               <Button variant="outline" onClick={() => this.setState({ hasError: false, error: null })}>
                 Retry Connection
               </Button>
-            </ZoruCardFooter>
+            </CardFooter>
           </Card>
         </SabsmsPageShell>
       );
@@ -289,28 +251,28 @@ function BillingSettingsPageContent() {
             <div>
               <h2 className="mb-3 text-lg font-semibold text-[var(--st-text)]">Credit Balances</h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <ZoruStatCard 
+                <StatCard 
                   label="Domestic SMS" 
                   value="12,450" 
                   delta={-5.2} 
                   period="vs last month" 
                   icon={<MessageSquare />} 
                 />
-                <ZoruStatCard 
+                <StatCard 
                   label="International" 
                   value="4,200" 
                   delta={12.5} 
                   period="vs last month" 
                   icon={<Globe />} 
                 />
-                <ZoruStatCard 
+                <StatCard 
                   label="MMS / Media" 
                   value="850" 
                   delta={2.1} 
                   period="vs last month" 
                   icon={<ImageIcon />} 
                 />
-                <ZoruStatCard 
+                <StatCard 
                   label="Number Lookups" 
                   value="5,000" 
                   delta={0} 
@@ -322,14 +284,14 @@ function BillingSettingsPageContent() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <Card className="col-span-1 md:col-span-2">
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Activity className="h-5 w-5 text-[var(--st-text)]" />
                     Detailed Usage & Allowances
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Current billing cycle credit consumption against limits</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                  </CardTitle>
+                  <CardDescription>Current billing cycle credit consumption against limits</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
                       <span className="font-medium text-[var(--st-text)]">US Domestic SMS</span>
@@ -358,19 +320,19 @@ function BillingSettingsPageContent() {
                     </div>
                     <Progress value={50} indicatorClassName="bg-[var(--st-status-ok)]" />
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <div className="col-span-1 space-y-6">
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-[var(--st-text-secondary)]" />
                       Burn-Rate Forecast
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>Estimated run-time for current credits</ZoruCardDescription>
-                  </ZoruCardHeader>
-                  <ZoruCardContent>
+                    </CardTitle>
+                    <CardDescription>Estimated run-time for current credits</CardDescription>
+                  </CardHeader>
+                  <CardBody>
                     <div className="text-3xl font-bold text-[var(--st-text)]">14 Days</div>
                     <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Based on an average usage of 1,200 credits/day.</p>
                     <div className="mt-4">
@@ -380,18 +342,18 @@ function BillingSettingsPageContent() {
                       </div>
                       <Progress value={75} />
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
 
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                       <Zap className="h-5 w-5 text-[var(--st-warn)]" />
                       Active Features
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>Current routing capabilities</ZoruCardDescription>
-                  </ZoruCardHeader>
-                  <ZoruCardContent className="space-y-4">
+                    </CardTitle>
+                    <CardDescription>Current routing capabilities</CardDescription>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-[var(--st-text)]">MMS Routing</span>
                       <Badge variant="success">Enabled</Badge>
@@ -404,7 +366,7 @@ function BillingSettingsPageContent() {
                       <span className="text-sm font-medium text-[var(--st-text)]">Alpha Sender ID</span>
                       <Badge variant="outline" className="text-[var(--st-text-secondary)] border-[var(--st-border)]">Pending Review</Badge>
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               </div>
             </div>
@@ -465,11 +427,11 @@ function BillingSettingsPageContent() {
           <TabsContent value="invoices" className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <Card className="col-span-1">
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Payment Method</ZoruCardTitle>
-                  <ZoruCardDescription>Managed via SabNode global billing</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex items-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                <CardHeader>
+                  <CardTitle>Payment Method</CardTitle>
+                  <CardDescription>Managed via SabNode global billing</CardDescription>
+                </CardHeader>
+                <CardBody className="flex items-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--st-bg-muted)]">
                     <CreditCardIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                   </div>
@@ -478,39 +440,39 @@ function BillingSettingsPageContent() {
                     <p className="text-xs text-[var(--st-text-secondary)]">Expires 12/2028</p>
                   </div>
                   <Badge className="ml-auto" variant="info">Default</Badge>
-                </ZoruCardContent>
-                <ZoruCardFooter className="pt-4">
+                </CardBody>
+                <CardFooter className="pt-4">
                   <Button variant="outline" className="w-full">Update in SabNode</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               <Card className="col-span-1 md:col-span-2">
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Current Period Unbilled</ZoruCardTitle>
-                  <ZoruCardDescription>Accrued usage outside of prepaid credits</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                  <CardTitle>Current Period Unbilled</CardTitle>
+                  <CardDescription>Accrued usage outside of prepaid credits</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="text-4xl font-bold text-[var(--st-text)]">$14.50</div>
                   <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
                     Will be aggregated and charged at the end of the month alongside your platform subscription.
                   </p>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Billing History</ZoruCardTitle>
-                <ZoruCardDescription>Past invoices, subscription charges, and top-ups</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
-                <ZoruDataTable 
+              <CardHeader>
+                <CardTitle>Billing History</CardTitle>
+                <CardDescription>Past invoices, subscription charges, and top-ups</CardDescription>
+              </CardHeader>
+              <CardBody>
+                <DataTable 
                   columns={billingColumns} 
                   data={billingHistoryData} 
                   filterColumn="description"
                   filterPlaceholder="Search invoices..."
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </TabsContent>
 
@@ -518,14 +480,14 @@ function BillingSettingsPageContent() {
           <TabsContent value="caps" className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <RefreshCw className="h-5 w-5 text-[var(--st-text)]" />
                     Auto Top-Up Settings
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Automatically purchase credits when running low</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                  </CardTitle>
+                  <CardDescription>Automatically purchase credits when running low</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] p-4 shadow-[var(--st-shadow-sm)]">
                     <div>
                       <h4 className="font-medium text-[var(--st-text)]">Enable Auto Top-Up</h4>
@@ -551,32 +513,32 @@ function BillingSettingsPageContent() {
                     <div className="space-y-2">
                       <Label>Purchase credits</Label>
                       <Select defaultValue="5000">
-                        <ZoruSelectTrigger>
-                          <ZoruSelectValue placeholder="Select amount" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="1000">1,000 credits ($10)</ZoruSelectItem>
-                          <ZoruSelectItem value="5000">5,000 credits ($45)</ZoruSelectItem>
-                          <ZoruSelectItem value="10000">10,000 credits ($80)</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select amount" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1000">1,000 credits ($10)</SelectItem>
+                          <SelectItem value="5000">5,000 credits ($45)</SelectItem>
+                          <SelectItem value="10000">10,000 credits ($80)</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button>Save Preferences</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <ShieldAlert className="h-5 w-5 text-[var(--st-warn)]" />
                     Spend Caps
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Limit maximum monthly expenditure</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                  </CardTitle>
+                  <CardDescription>Limit maximum monthly expenditure</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Monthly hard cap ($)</Label>
                     <div className="flex items-center gap-2">
@@ -585,47 +547,47 @@ function BillingSettingsPageContent() {
                     </div>
                     <p className="text-xs text-[var(--st-text-secondary)]">SabSMS will suspend sending if this threshold is reached.</p>
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button variant="outline">Update Cap</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Localization & Taxes</ZoruCardTitle>
-                  <ZoruCardDescription>Set your billing locale and VAT/GST info</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Localization & Taxes</CardTitle>
+                  <CardDescription>Set your billing locale and VAT/GST info</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Display Currency</Label>
                     <Select defaultValue="usd">
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Currency" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="usd">USD ($)</ZoruSelectItem>
-                        <ZoruSelectItem value="eur">EUR (€)</ZoruSelectItem>
-                        <ZoruSelectItem value="gbp">GBP (£)</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="usd">USD ($)</SelectItem>
+                        <SelectItem value="eur">EUR (€)</SelectItem>
+                        <SelectItem value="gbp">GBP (£)</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>VAT / GST Number</Label>
                     <Input placeholder="e.g. GB123456789" defaultValue="US987654321" />
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button variant="outline">Save Localization</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Compliance & Documentation</ZoruCardTitle>
-                  <ZoruCardDescription>Manage region compliance and tax forms</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Compliance & Documentation</CardTitle>
+                  <CardDescription>Manage region compliance and tax forms</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="flex items-start gap-3 rounded border border-[var(--st-border)] p-3">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 text-[var(--st-status-ok)]" />
                     <div>
@@ -642,7 +604,7 @@ function BillingSettingsPageContent() {
                       </div>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
           </TabsContent>
@@ -651,14 +613,14 @@ function BillingSettingsPageContent() {
           <TabsContent value="cost-allocation" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Building className="h-5 w-5 text-[var(--st-text)]" />
                     Spend by Department
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Current billing cycle allocation</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  </CardTitle>
+                  <CardDescription>Current billing cycle allocation</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="space-y-6">
                     <div>
                       <div className="flex justify-between mb-2 text-sm">
@@ -689,53 +651,53 @@ function BillingSettingsPageContent() {
                       <Progress value={10} indicatorClassName="bg-[var(--st-status-ok)]" />
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Activity className="h-5 w-5 text-[var(--st-text-secondary)]" />
                     Spend by Campaign
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Top campaigns this month</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  </CardTitle>
+                  <CardDescription>Top campaigns this month</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <Table>
-                    <ZoruTableHeader>
-                      <ZoruTableRow>
-                        <ZoruTableHead>Campaign</ZoruTableHead>
-                        <ZoruTableHead>Tag</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Spend</ZoruTableHead>
-                      </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
-                      <ZoruTableRow>
-                        <ZoruTableCell>Summer Sale Promo</ZoruTableCell>
-                        <ZoruTableCell><Badge variant="outline">Marketing</Badge></ZoruTableCell>
-                        <ZoruTableCell className="text-right font-medium">$250.00</ZoruTableCell>
-                      </ZoruTableRow>
-                      <ZoruTableRow>
-                        <ZoruTableCell>Weekly Newsletter</ZoruTableCell>
-                        <ZoruTableCell><Badge variant="outline">Marketing</Badge></ZoruTableCell>
-                        <ZoruTableCell className="text-right font-medium">$150.00</ZoruTableCell>
-                      </ZoruTableRow>
-                      <ZoruTableRow>
-                        <ZoruTableCell>Server Outage Alerts</ZoruTableCell>
-                        <ZoruTableCell><Badge variant="outline">Engineering</Badge></ZoruTableCell>
-                        <ZoruTableCell className="text-right font-medium">$75.00</ZoruTableCell>
-                      </ZoruTableRow>
-                      <ZoruTableRow>
-                        <ZoruTableCell>Customer Onboarding</ZoruTableCell>
-                        <ZoruTableCell><Badge variant="outline">Support</Badge></ZoruTableCell>
-                        <ZoruTableCell className="text-right font-medium">$200.00</ZoruTableCell>
-                      </ZoruTableRow>
-                    </ZoruTableBody>
+                    <THead>
+                      <Tr>
+                        <Th>Campaign</Th>
+                        <Th>Tag</Th>
+                        <Th className="text-right">Spend</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
+                      <Tr>
+                        <Td>Summer Sale Promo</Td>
+                        <Td><Badge variant="outline">Marketing</Badge></Td>
+                        <Td className="text-right font-medium">$250.00</Td>
+                      </Tr>
+                      <Tr>
+                        <Td>Weekly Newsletter</Td>
+                        <Td><Badge variant="outline">Marketing</Badge></Td>
+                        <Td className="text-right font-medium">$150.00</Td>
+                      </Tr>
+                      <Tr>
+                        <Td>Server Outage Alerts</Td>
+                        <Td><Badge variant="outline">Engineering</Badge></Td>
+                        <Td className="text-right font-medium">$75.00</Td>
+                      </Tr>
+                      <Tr>
+                        <Td>Customer Onboarding</Td>
+                        <Td><Badge variant="outline">Support</Badge></Td>
+                        <Td className="text-right font-medium">$200.00</Td>
+                      </Tr>
+                    </TBody>
                   </Table>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button variant="ghost" className="w-full text-xs text-[var(--st-text-secondary)]">View All Campaigns</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
             </div>
           </TabsContent>
@@ -744,13 +706,13 @@ function BillingSettingsPageContent() {
           <TabsContent value="admin" className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Card className="border-[var(--st-text)]/20 bg-[var(--st-text)]/5">
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2 text-[var(--st-text)]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-[var(--st-text)]">
                     <Lock className="h-4 w-4" /> Admin: Margin Report
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Internal visibility of platform margins</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  </CardTitle>
+                  <CardDescription>Internal visibility of platform margins</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-[var(--st-text-secondary)]">Total Carrier Costs (MTD)</span>
@@ -767,18 +729,18 @@ function BillingSettingsPageContent() {
                       </div>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Globe className="h-5 w-5 text-[var(--st-text)]" />
                     Route Costs
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Base SMS costs per region</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  </CardTitle>
+                  <CardDescription>Base SMS costs per region</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="space-y-3">
                     <div className="flex justify-between border-b border-[var(--st-border)] pb-2 text-sm">
                       <span>United States (US)</span>
@@ -793,49 +755,49 @@ function BillingSettingsPageContent() {
                       <span className="font-mono">$0.0085</span>
                     </div>
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button variant="ghost" className="w-full text-xs">View All Rates</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <ZoruCardTitle>Billing Audit Log</ZoruCardTitle>
-                  <ZoruCardDescription>History of financial changes across the workspace</ZoruCardDescription>
+                  <CardTitle>Billing Audit Log</CardTitle>
+                  <CardDescription>History of financial changes across the workspace</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="h-4 w-4" /> Export CSV
                 </Button>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              </CardHeader>
+              <CardBody>
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Timestamp</ZoruTableHead>
-                      <ZoruTableHead>User</ZoruTableHead>
-                      <ZoruTableHead>Action</ZoruTableHead>
-                      <ZoruTableHead>Details</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    <ZoruTableRow>
-                      <ZoruTableCell>May 22, 14:30</ZoruTableCell>
-                      <ZoruTableCell>Alice Smith</ZoruTableCell>
-                      <ZoruTableCell>Spend Cap Updated</ZoruTableCell>
-                      <ZoruTableCell>Changed from $300 to $500</ZoruTableCell>
-                    </ZoruTableRow>
-                    <ZoruTableRow>
-                      <ZoruTableCell>May 21, 09:15</ZoruTableCell>
-                      <ZoruTableCell>System</ZoruTableCell>
-                      <ZoruTableCell>Auto Top-Up</ZoruTableCell>
-                      <ZoruTableCell>Threshold reached. 5,000 credits added.</ZoruTableCell>
-                    </ZoruTableRow>
-                  </ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Timestamp</Th>
+                      <Th>User</Th>
+                      <Th>Action</Th>
+                      <Th>Details</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    <Tr>
+                      <Td>May 22, 14:30</Td>
+                      <Td>Alice Smith</Td>
+                      <Td>Spend Cap Updated</Td>
+                      <Td>Changed from $300 to $500</Td>
+                    </Tr>
+                    <Tr>
+                      <Td>May 21, 09:15</Td>
+                      <Td>System</Td>
+                      <Td>Auto Top-Up</Td>
+                      <Td>Threshold reached. 5,000 credits added.</Td>
+                    </Tr>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </TabsContent>
         </Tabs>
@@ -843,23 +805,23 @@ function BillingSettingsPageContent() {
 
       {/* Feature 5: Top-up Modal */}
       <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Top Up Balance</ZoruDialogTitle>
-            <ZoruDialogDescription>Add prepaid credits to your account immediately.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Top Up Balance</DialogTitle>
+            <DialogDescription>Add prepaid credits to your account immediately.</DialogDescription>
+          </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
               <Label>Select Package</Label>
               <Select value={topUpAmount} onValueChange={setTopUpAmount}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="100">1,000 Credits ($10.00)</ZoruSelectItem>
-                  <ZoruSelectItem value="500">5,000 Credits ($45.00)</ZoruSelectItem>
-                  <ZoruSelectItem value="1000">10,000 Credits ($80.00)</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="100">1,000 Credits ($10.00)</SelectItem>
+                  <SelectItem value="500">5,000 Credits ($45.00)</SelectItem>
+                  <SelectItem value="1000">10,000 Credits ($80.00)</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
@@ -877,20 +839,20 @@ function BillingSettingsPageContent() {
               This will charge your default payment method (Visa ending in 4242).
             </p>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTopUpOpen(false)}>Cancel</Button>
             <Button onClick={() => setTopUpOpen(false)}>Confirm Purchase</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Feature 10: Refund Request Dialog */}
       <Dialog open={refundOpen} onOpenChange={setRefundOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Request Refund</ZoruDialogTitle>
-            <ZoruDialogDescription>Submit a refund request for invoice #INV-4029.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Refund</DialogTitle>
+            <DialogDescription>Submit a refund request for invoice #INV-4029.</DialogDescription>
+          </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="rounded border border-[var(--st-warn)]/20 bg-[var(--st-warn)]/10 p-3 text-sm text-[var(--st-warn)]">
               <AlertTriangle className="mb-1 h-4 w-4 inline mr-1" />
@@ -899,71 +861,71 @@ function BillingSettingsPageContent() {
             <div className="space-y-2">
               <Label>Reason for Refund</Label>
               <Select defaultValue="accidental">
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="accidental">Accidental Purchase</ZoruSelectItem>
-                  <ZoruSelectItem value="failure">High Message Failure Rate</ZoruSelectItem>
-                  <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="accidental">Accidental Purchase</SelectItem>
+                  <SelectItem value="failure">High Message Failure Rate</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setRefundOpen(false)}>Cancel</Button>
             <Button variant="destructive" onClick={() => setRefundOpen(false)}>Submit Request</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Feature 11: Per-line-item breakdown Dialog */}
       <Dialog open={lineItemOpen} onOpenChange={setLineItemOpen}>
-        <ZoruDialogContent className="sm:max-w-[600px]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Invoice Details</ZoruDialogTitle>
-            <ZoruDialogDescription>Line item breakdown for May 01, 2026</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Invoice Details</DialogTitle>
+            <DialogDescription>Line item breakdown for May 01, 2026</DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Service</ZoruTableHead>
-                  <ZoruTableHead>Quantity</ZoruTableHead>
-                  <ZoruTableHead>Unit Price</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                <ZoruTableRow>
-                  <ZoruTableCell>US Domestic SMS</ZoruTableCell>
-                  <ZoruTableCell>5,000</ZoruTableCell>
-                  <ZoruTableCell>$0.0079</ZoruTableCell>
-                  <ZoruTableCell className="text-right">$39.50</ZoruTableCell>
-                </ZoruTableRow>
-                <ZoruTableRow>
-                  <ZoruTableCell>UK International SMS</ZoruTableCell>
-                  <ZoruTableCell>1,000</ZoruTableCell>
-                  <ZoruTableCell>$0.0350</ZoruTableCell>
-                  <ZoruTableCell className="text-right">$35.00</ZoruTableCell>
-                </ZoruTableRow>
-                <ZoruTableRow>
-                  <ZoruTableCell>Network Lookups</ZoruTableCell>
-                  <ZoruTableCell>900</ZoruTableCell>
-                  <ZoruTableCell>$0.0050</ZoruTableCell>
-                  <ZoruTableCell className="text-right">$4.50</ZoruTableCell>
-                </ZoruTableRow>
-              </ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Service</Th>
+                  <Th>Quantity</Th>
+                  <Th>Unit Price</Th>
+                  <Th className="text-right">Total</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td>US Domestic SMS</Td>
+                  <Td>5,000</Td>
+                  <Td>$0.0079</Td>
+                  <Td className="text-right">$39.50</Td>
+                </Tr>
+                <Tr>
+                  <Td>UK International SMS</Td>
+                  <Td>1,000</Td>
+                  <Td>$0.0350</Td>
+                  <Td className="text-right">$35.00</Td>
+                </Tr>
+                <Tr>
+                  <Td>Network Lookups</Td>
+                  <Td>900</Td>
+                  <Td>$0.0050</Td>
+                  <Td className="text-right">$4.50</Td>
+                </Tr>
+              </TBody>
             </Table>
             <div className="mt-4 flex justify-between border-t border-[var(--st-border)] pt-2 font-bold text-[var(--st-text)]">
               <span>Total Invoice Amount</span>
               <span>$79.00</span>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button onClick={() => setLineItemOpen(false)}>Close</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

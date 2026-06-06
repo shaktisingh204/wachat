@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { useDebouncedCallback } from "use-debounce";
 import { ChevronDown, LayoutList, ListChecks, Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";
@@ -55,7 +46,7 @@ const VIEW_PRESETS: { id: string; label: string; description?: string }[] = [
 ];
 
 export function KbListClient() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [articles, setArticles] = React.useState<KbArticleDoc[]>([]);
   const [loading, startTransition] = React.useTransition();
@@ -355,17 +346,17 @@ export function KbListClient() {
         viewSwitcher={
           <div className="flex items-center gap-2">
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <ListChecks className="h-3.5 w-3.5" /> {activePreset.label}
                   <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="start" className="w-64">
-                <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuSeparator />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel>Saved views</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {VIEW_PRESETS.map((preset) => (
-                  <ZoruDropdownMenuItem
+                  <DropdownMenuItem
                     key={preset.id}
                     onClick={() => applyPreset(preset.id)}
                   >
@@ -379,9 +370,9 @@ export function KbListClient() {
                         </span>
                       ) : null}
                     </div>
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
             <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
               <button

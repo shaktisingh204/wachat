@@ -1,12 +1,7 @@
 import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import {
-  ZoruFeatureGrid,
-  ZoruFeatureCard,
-  ZoruBadge,
-  StatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { FeatureGrid, FeatureCard, Badge, StatCard } from '@/components/sabcrm/20ui/compat';
 import { MessageSquare, CheckCircle2, Clock } from "lucide-react";
 import { fmtQty } from "@/lib/utils";
 
@@ -85,18 +80,18 @@ async function TemplatesDataLoader({ searchParams }: PageProps) {
 
       {/* Feature Grid for Top Templates */}
       {topTemplates.length > 0 && (
-        <ZoruFeatureGrid
+        <FeatureGrid
           columns={3}
           heading="Top Templates"
           subhead="Your most recently updated templates with their snippets."
         >
           {topTemplates.map((row) => (
-            <ZoruFeatureCard
+            <FeatureCard
               key={row.id}
               title={
                 <div className="flex items-center gap-2">
                   <span className="truncate">{row.name}</span>
-                  <ZoruBadge
+                  <Badge
                     variant={
                       row.status === "approved"
                         ? "default"
@@ -106,7 +101,7 @@ async function TemplatesDataLoader({ searchParams }: PageProps) {
                     }
                   >
                     {row.status}
-                  </ZoruBadge>
+                  </Badge>
                 </div>
               }
               description={<span className="line-clamp-2">{row.bodyPreview || "(empty)"}</span>}
@@ -114,7 +109,7 @@ async function TemplatesDataLoader({ searchParams }: PageProps) {
               variant="soft"
             />
           ))}
-        </ZoruFeatureGrid>
+        </FeatureGrid>
       )}
 
       <TemplatesTable

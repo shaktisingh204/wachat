@@ -2,13 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/sabcrm/20ui/compat';
 
 export interface SabsmsDetailDrawerProps {
   open: boolean;
@@ -30,7 +24,7 @@ export function SabsmsDetailDrawer({
 }: SabsmsDetailDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent
+      <SheetContent
         side={side}
         className={
           side === "right"
@@ -38,14 +32,14 @@ export function SabsmsDetailDrawer({
             : "flex max-h-[80vh] flex-col gap-0 p-0"
         }
       >
-        <ZoruSheetHeader className="border-b border-[var(--st-border)] px-6 py-4">
-          <ZoruSheetTitle>{title}</ZoruSheetTitle>
+        <SheetHeader className="border-b border-[var(--st-border)] px-6 py-4">
+          <SheetTitle>{title}</SheetTitle>
           {description && (
-            <ZoruSheetDescription>{description}</ZoruSheetDescription>
+            <SheetDescription>{description}</SheetDescription>
           )}
-        </ZoruSheetHeader>
+        </SheetHeader>
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

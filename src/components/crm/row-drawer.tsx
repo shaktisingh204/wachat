@@ -2,13 +2,7 @@
 
 import * as React from "react";
 
-import {
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetDescription,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-} from "@/components/sabcrm/20ui/zoru/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/sabcrm/20ui/compat';
 import { cn } from "@/lib/utils";
 
 type DrawerWidth = "sm" | "md" | "lg";
@@ -61,18 +55,18 @@ export function RowDrawer({
                     </span>
                 ) : null}
             </button>
-            <ZoruSheetContent
+            <SheetContent
                 side={side}
                 className={cn("w-full overflow-y-auto", WIDTH_CLASSES[width])}
             >
-                <ZoruSheetHeader>
-                    <ZoruSheetTitle>{title}</ZoruSheetTitle>
+                <SheetHeader>
+                    <SheetTitle>{title}</SheetTitle>
                     {description ? (
-                        <ZoruSheetDescription>{description}</ZoruSheetDescription>
+                        <SheetDescription>{description}</SheetDescription>
                     ) : null}
-                </ZoruSheetHeader>
+                </SheetHeader>
                 <div className="mt-4">{children}</div>
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }

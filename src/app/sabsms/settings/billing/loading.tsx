@@ -1,5 +1,5 @@
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Skeleton, Card, ZoruCardHeader, ZoruCardContent } from "@/components/sabcrm/20ui/zoru";
+import { Skeleton, Card, CardHeader, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
   return (
@@ -16,13 +16,13 @@ export default function Loading() {
           ))}
         </div>
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <Skeleton className="h-6 w-1/4 mb-2" />
             <Skeleton className="h-4 w-1/2" />
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <Skeleton className="h-[300px] w-full" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </SabsmsPageShell>

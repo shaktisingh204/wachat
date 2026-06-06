@@ -3,13 +3,7 @@
 import * as React from "react";
 import { Check, X } from "lucide-react";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 export interface SabsmsBulkAction<T> {
   label: string;
@@ -69,23 +63,23 @@ export function SabsmsBulkActionsBar<T>({
         ))}
         {overflow.length > 0 && (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 More
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
               {overflow.map((a) => (
-                <ZoruDropdownMenuItem
+                <DropdownMenuItem
                   key={a.label}
                   onSelect={() => a.onSelect(rows)}
                   destructive={a.destructive}
                 >
                   {a.icon}
                   <span className={a.icon ? "ml-2" : undefined}>{a.label}</span>
-                </ZoruDropdownMenuItem>
+                </DropdownMenuItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         )}
         <Button

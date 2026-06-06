@@ -3,15 +3,7 @@
 import * as React from "react";
 import { Download, FileJson, FileSpreadsheet, FileText } from "lucide-react";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 export interface SabsmsExportMenuProps {
   /** CSV exporter — return text to download. */
@@ -68,31 +60,31 @@ export function SabsmsExportMenu({
 
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={!!busy}>
           <Download className="mr-1.5 h-3.5 w-3.5" />
           {busy ? `Exporting ${busy}…` : "Export"}
         </Button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align="end">
-        <ZoruDropdownMenuLabel>Download as</ZoruDropdownMenuLabel>
-        <ZoruDropdownMenuSeparator />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Download as</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {toCsv && (
-          <ZoruDropdownMenuItem onSelect={() => handle("csv")}>
+          <DropdownMenuItem onSelect={() => handle("csv")}>
             <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-          </ZoruDropdownMenuItem>
+          </DropdownMenuItem>
         )}
         {toXlsx && (
-          <ZoruDropdownMenuItem onSelect={() => handle("xlsx")}>
+          <DropdownMenuItem onSelect={() => handle("xlsx")}>
             <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel (.xlsx)
-          </ZoruDropdownMenuItem>
+          </DropdownMenuItem>
         )}
         {toJson && (
-          <ZoruDropdownMenuItem onSelect={() => handle("json")}>
+          <DropdownMenuItem onSelect={() => handle("json")}>
             <FileJson className="mr-2 h-4 w-4" /> JSONL
-          </ZoruDropdownMenuItem>
+          </DropdownMenuItem>
         )}
-      </ZoruDropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }

@@ -14,25 +14,12 @@ import {
   ThumbsUp,
   ExternalLink
 } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent
-} from "@/components/sabcrm/20ui/zoru/card";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell
-} from "@/components/sabcrm/20ui/zoru/table";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/sabcrm/20ui/zoru/avatar";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 
 const mockReviews = [
   {
@@ -238,19 +225,19 @@ export default function ReviewsModerationPage() {
         </CardHeader>
         <CardContent className="p-0 flex-1 overflow-auto">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">Review & Product</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th className="w-[300px]">Review & Product</Th>
+                <Th>Customer</Th>
+                <Th>Rating</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredReviews.map((review) => (
-                <TableRow key={review.id} className="group items-start">
-                  <TableCell className="align-top py-4">
+                <Tr key={review.id} className="group items-start">
+                  <Td className="align-top py-4">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <img 
@@ -270,9 +257,9 @@ export default function ReviewsModerationPage() {
                       </div>
                       <span className="text-xs text-[var(--st-text-secondary)]">{review.date}</span>
                     </div>
-                  </TableCell>
+                  </Td>
                   
-                  <TableCell className="align-top py-4">
+                  <Td className="align-top py-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={review.customer.avatar} />
@@ -288,13 +275,13 @@ export default function ReviewsModerationPage() {
                         <span className="text-xs text-[var(--st-text-secondary)]">{review.customer.email}</span>
                       </div>
                     </div>
-                  </TableCell>
+                  </Td>
                   
-                  <TableCell className="align-top py-4">
+                  <Td className="align-top py-4">
                     <RatingStars rating={review.rating} />
-                  </TableCell>
+                  </Td>
                   
-                  <TableCell className="align-top py-4">
+                  <Td className="align-top py-4">
                     <Badge 
                       variant={
                         review.status === "Approved" ? "default" :
@@ -308,9 +295,9 @@ export default function ReviewsModerationPage() {
                     >
                       {review.status}
                     </Badge>
-                  </TableCell>
+                  </Td>
                   
-                  <TableCell className="align-top py-4 text-right">
+                  <Td className="align-top py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       {review.status === "Pending" && (
                         <>
@@ -329,10 +316,10 @@ export default function ReviewsModerationPage() {
                         <MoreVertical className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                       </Button>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

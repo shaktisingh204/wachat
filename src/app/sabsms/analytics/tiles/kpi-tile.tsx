@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button, StatCard } from "@/components/sabcrm/20ui/zoru";
+import { Button, StatCard } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 

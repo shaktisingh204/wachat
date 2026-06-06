@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-  Checkbox,
-  ZoruFileUploadCard,
-  type ZoruFileUploadItem
-} from '@/components/sabcrm/20ui/zoru';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast, Checkbox, ZoruFileUploadCard, type ZoruFileUploadItem } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -124,7 +109,7 @@ function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: strin
 
 export default function NewFileRecordPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(saveFile, initialState);
   const [folders, setFolders] = useState<WsFileFolder[]>([]);
   const [url, setUrl] = useState('');
@@ -237,16 +222,16 @@ export default function NewFileRecordPage() {
             <div className="space-y-1.5">
               <Label htmlFor="folder_id">Folder</Label>
               <Select name="folder_id">
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="No folder (root)" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="No folder (root)" />
+                </SelectTrigger>
+                <SelectContent>
                   {folders.map((f) => (
-                    <ZoruSelectItem key={String(f._id)} value={String(f._id)}>
+                    <SelectItem key={String(f._id)} value={String(f._id)}>
                       {f.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">

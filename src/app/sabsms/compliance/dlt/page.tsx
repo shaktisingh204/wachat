@@ -35,38 +35,14 @@ import {
   Lock
 } from "lucide-react";
 
-import { cn } from "@/components/sabcrm/20ui/zoru/lib/cn";
+import { cn } from '@/components/sabcrm/20ui/compat';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  StatCard,
-  Switch,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  useZoruToast,
-  ZoruAccordion03,
-  ZoruAccordion03Item,
-  ZoruAccordion03Trigger,
-  ZoruAccordion03Content,
-  ZoruCollapsible,
-  ZoruCollapsibleTrigger,
-  ZoruCollapsibleContent,
-  ZoruAccordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, Input, Label, StatCard, Switch, CardBody, CardDescription, CardHeader, CardTitle, useToast, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 
 export default function DltRegistrationPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // States for collapsibles
   const [isJioOpen, setIsJioOpen] = React.useState(false);
@@ -181,15 +157,15 @@ export default function DltRegistrationPage() {
                         <Layers className="w-4 h-4 text-[var(--st-text-secondary)]" /> Operator-specific Mapping
                       </h4>
                       
-                      <ZoruAccordion type="multiple" defaultValue={["op-jio"]} className="space-y-3">
-                        <ZoruAccordionItem value="op-jio" className="border rounded-lg bg-white overflow-hidden">
-                          <ZoruAccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
+                      <Accordion type="multiple" defaultValue={["op-jio"]} className="space-y-3">
+                        <AccordionItem value="op-jio" className="border rounded-lg bg-white overflow-hidden">
+                          <AccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
                             <div className="flex items-center gap-3">
                               <Badge variant="default" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Jio</Badge>
                               <span className="text-sm font-medium">Reliance Jio Infocomm Ltd.</span>
                             </div>
-                          </ZoruAccordionTrigger>
-                          <ZoruAccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-1">
                                 <Label className="text-xs text-[var(--st-text)]">Mapped PEID</Label>
@@ -202,17 +178,17 @@ export default function DltRegistrationPage() {
                                 </div>
                               </div>
                             </div>
-                          </ZoruAccordionContent>
-                        </ZoruAccordionItem>
+                          </AccordionContent>
+                        </AccordionItem>
 
-                        <ZoruAccordionItem value="op-airtel" className="border rounded-lg bg-white overflow-hidden">
-                          <ZoruAccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
+                        <AccordionItem value="op-airtel" className="border rounded-lg bg-white overflow-hidden">
+                          <AccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
                             <div className="flex items-center gap-3">
                               <Badge variant="default" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Airtel</Badge>
                               <span className="text-sm font-medium">Bharti Airtel Ltd.</span>
                             </div>
-                          </ZoruAccordionTrigger>
-                          <ZoruAccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-1">
                                 <Label className="text-xs text-[var(--st-text)]">Mapped PEID</Label>
@@ -225,9 +201,9 @@ export default function DltRegistrationPage() {
                                 </div>
                               </div>
                             </div>
-                          </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                      </ZoruAccordion>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     </div>
                   </div>
                 </ZoruAccordion03Content>
@@ -349,7 +325,7 @@ export default function DltRegistrationPage() {
                       <div className="p-4 space-y-4">
                         
                         {/* Collapsible Template Items */}
-                        <ZoruCollapsible open={isJioOpen} onOpenChange={setIsJioOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
+                        <Collapsible open={isJioOpen} onOpenChange={setIsJioOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
                           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={() => setIsJioOpen(!isJioOpen)}>
                             <div className="flex items-center gap-4">
                               <ChevronRight className={cn("w-4 h-4 text-[var(--st-text-secondary)] transition-transform duration-200", isJioOpen && "rotate-90")} />
@@ -362,7 +338,7 @@ export default function DltRegistrationPage() {
                               <Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Mapped</Badge>
                             </div>
                           </div>
-                          <ZoruCollapsibleContent>
+                          <CollapsibleContent>
                             <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-muted)]/50 border-t border-[var(--st-border)]">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -379,10 +355,10 @@ export default function DltRegistrationPage() {
                                 </div>
                               </div>
                             </div>
-                          </ZoruCollapsibleContent>
-                        </ZoruCollapsible>
+                          </CollapsibleContent>
+                        </Collapsible>
 
-                        <ZoruCollapsible open={isAirtelOpen} onOpenChange={setIsAirtelOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
+                        <Collapsible open={isAirtelOpen} onOpenChange={setIsAirtelOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
                           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={() => setIsAirtelOpen(!isAirtelOpen)}>
                             <div className="flex items-center gap-4">
                               <ChevronRight className={cn("w-4 h-4 text-[var(--st-text-secondary)] transition-transform duration-200", isAirtelOpen && "rotate-90")} />
@@ -395,7 +371,7 @@ export default function DltRegistrationPage() {
                               <Badge variant="destructive" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Mismatch Error</Badge>
                             </div>
                           </div>
-                          <ZoruCollapsibleContent>
+                          <CollapsibleContent>
                             <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-muted)]/30 border-t border-[var(--st-border)]">
                                <div className="flex items-start gap-2 mb-4 p-3 bg-white border border-[var(--st-border)] rounded-lg shadow-sm">
                                   <AlertCircle className="w-4 h-4 text-[var(--st-text)] mt-0.5 flex-shrink-0" />
@@ -416,8 +392,8 @@ export default function DltRegistrationPage() {
                                 </div>
                               </div>
                             </div>
-                          </ZoruCollapsibleContent>
-                        </ZoruCollapsible>
+                          </CollapsibleContent>
+                        </Collapsible>
 
                       </div>
                     </div>
@@ -440,7 +416,7 @@ export default function DltRegistrationPage() {
                   These settings apply to all traffic routed through India DLT gateways.
                 </p>
               </div>
-              <ZoruCardContent className="p-5 space-y-6">
+              <CardBody className="p-5 space-y-6">
                 
                 <div className="space-y-5">
                   <div className="flex items-start justify-between gap-4">
@@ -496,18 +472,18 @@ export default function DltRegistrationPage() {
                     </div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card className="border-[var(--st-border)] shadow-sm border-dashed bg-[var(--st-bg-muted)]/50">
-              <ZoruCardContent className="p-6 text-center space-y-3">
+              <CardBody className="p-6 text-center space-y-3">
                 <div className="w-12 h-12 bg-white rounded-full border shadow-sm flex items-center justify-center mx-auto mb-4">
                   <FileKey className="w-6 h-6 text-[var(--st-text-secondary)]" />
                 </div>
                 <h4 className="text-sm font-semibold text-[var(--st-text)]">Need help with DLT?</h4>
                 <p className="text-xs text-[var(--st-text)] max-w-[240px] mx-auto">Our compliance team can help you register your business entities and templates.</p>
                 <Button variant="outline" className="mt-4 w-full bg-white text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Contact Compliance Team</Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
           </div>

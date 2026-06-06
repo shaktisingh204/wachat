@@ -22,33 +22,7 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabsmsDetailDrawer, SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import { AiRewriteToolbar } from "./ai-rewrite";
@@ -342,11 +316,11 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         {/* ── Left column — primary editor ─────────────────────────── */}
         <div className="space-y-6">
           <Card>
-            <ZoruCardHeader>
+            <CardHeader>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <ZoruCardTitle>Template</ZoruCardTitle>
-                  <ZoruCardDescription>
+                  <CardTitle>Template</CardTitle>
+                  <CardDescription>
                     Variables use{" "}
                     <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
                       {"{{ name }}"}
@@ -356,7 +330,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       {"{% if x %}…{% endif %}"}
                     </code>
                     .
-                  </ZoruCardDescription>
+                  </CardDescription>
                 </div>
                 <Badge
                   variant={
@@ -372,8 +346,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   {vm.status}
                 </Badge>
               </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-5">
+            </CardHeader>
+            <CardBody className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="tpl-name">Name</Label>
@@ -395,16 +369,16 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <ZoruSelectTrigger id="tpl-category">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="tpl-category">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                       {TEMPLATE_CATEGORIES.map((c) => (
-                        <ZoruSelectItem key={c} value={c}>
+                        <SelectItem key={c} value={c}>
                           {c}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -463,13 +437,13 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     Body — {activeLocale}
                   </Label>
                   <Popover open={varsHelpOpen} onOpenChange={setVarsHelpOpen}>
-                    <ZoruPopoverTrigger asChild>
+                    <PopoverTrigger asChild>
                       <Button variant="ghost" size="sm">
                         <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                         Variables &amp; helpers
                       </Button>
-                    </ZoruPopoverTrigger>
-                    <ZoruPopoverContent className="w-80 space-y-3 text-sm">
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 space-y-3 text-sm">
                       <div>
                         <div className="mb-1 font-medium">Date snippets</div>
                         <div className="flex flex-col gap-1">
@@ -502,7 +476,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                           {"{% if name %}…{% endif %}"}
                         </button>
                       </div>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                   </Popover>
                 </div>
                 <div className="relative">
@@ -540,19 +514,19 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 onApply={(next) => setBodyForLocale(activeLocale, next)}
                 onApplyTranslation={(locale, body) => setBodyForLocale(locale, body)}
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Variable defaults */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Variable defaults</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Variable defaults</CardTitle>
+              <CardDescription>
                 Used when a recipient is missing a value. The engine
                 falls back to the empty string if no default is set.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-3">
               {vm.variableDefaults.length === 0 && (
                 <p className="text-xs text-[var(--st-text)]">
                   Type{" "}
@@ -623,19 +597,19 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 <Plus className="mr-1 h-3.5 w-3.5" />
                 Add variable
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Carrier-registration forms */}
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>India DLT</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>India DLT</CardTitle>
+                <CardDescription>
                   Required for traffic terminating in India.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-3">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-3">
                 <DltField
                   label="Principal Entity ID (PEID)"
                   value={vm.metadata.dlt.principalEntityId}
@@ -689,36 +663,36 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Select category" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="promotional">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="promotional">
                         Promotional
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="transactional">
+                      </SelectItem>
+                      <SelectItem value="transactional">
                         Transactional
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="service-implicit">
+                      </SelectItem>
+                      <SelectItem value="service-implicit">
                         Service — implicit
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="service-explicit">
+                      </SelectItem>
+                      <SelectItem value="service-explicit">
                         Service — explicit
-                      </ZoruSelectItem>
-                    </ZoruSelectContent>
+                      </SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>US 10DLC</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>US 10DLC</CardTitle>
+                <CardDescription>
                   Required for A2P traffic terminating in the US.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-3">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-3">
                 <DltField
                   label="Brand ID"
                   value={vm.metadata.tendlc.brandId}
@@ -759,26 +733,26 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Select use case" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="2fa">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select use case" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2fa">
                         2FA / OTP
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="account_notification">
+                      </SelectItem>
+                      <SelectItem value="account_notification">
                         Account notification
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="marketing">
+                      </SelectItem>
+                      <SelectItem value="marketing">
                         Marketing
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="customer_care">
+                      </SelectItem>
+                      <SelectItem value="customer_care">
                         Customer care
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="delivery_notification">
+                      </SelectItem>
+                      <SelectItem value="delivery_notification">
                         Delivery notification
-                      </ZoruSelectItem>
-                    </ZoruSelectContent>
+                      </SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
@@ -802,19 +776,19 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     className="text-xs"
                   />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           {/* Per-template settings */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Send-time policy</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Send-time policy</CardTitle>
+              <CardDescription>
                 Applied to every send that uses this template.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <PolicyRow
                 title="Auto-wrap links"
                 desc="Rewrite URLs in the body to workspace short-links for click tracking."
@@ -843,18 +817,18 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   }))
                 }
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Approval */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Approval</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Approval</CardTitle>
+              <CardDescription>
                 Submitting moves the template to the reviewer queue.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <Label htmlFor="reviewer-notes">Reviewer notes</Label>
               <Textarea
                 id="reviewer-notes"
@@ -891,7 +865,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   with Phase 11.
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
@@ -899,20 +873,20 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         <div className="space-y-4">
           <div className="sticky top-4 space-y-4">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Test Payload</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>Test Payload</CardTitle>
+                <CardDescription>
                   Supply JSON to test variable rendering.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
                 <Textarea
                   value={payloadJson}
                   onChange={(e) => setPayloadJson(e.target.value)}
                   className="font-mono text-xs"
                   rows={6}
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <TemplatePreview

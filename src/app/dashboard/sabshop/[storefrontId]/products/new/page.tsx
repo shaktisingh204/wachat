@@ -4,30 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Upload, Plus, Trash2, HelpCircle } from "lucide-react";
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Switch,
-  Separator,
-  Badge,
-} from "@/components/sabcrm/20ui/zoru";
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Switch, Separator, Badge } from '@/components/sabcrm/20ui/compat';
 
 export default function NewProductPage() {
   const params = useParams();
@@ -43,20 +20,20 @@ export default function NewProductPage() {
       </div>
       
       <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Add Product</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Add Product</PageTitle>
+          <PageDescription>
             Create a new product listing.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" className="mr-2" onClick={() => router.back()}>
             Discard
           </Button>
           <Button>
             Save Product
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

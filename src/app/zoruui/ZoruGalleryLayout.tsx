@@ -2,14 +2,14 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { ZoruShell } from "@/components/sabcrm/20ui/zoru/shell/zoru-shell";
-import { ZoruAppSidebar, ZoruSidebarGroup } from "@/components/sabcrm/20ui/zoru/shell/zoru-app-sidebar";
+import { ZoruShell } from '@/components/sabcrm/20ui/compat';
+import { ZoruAppSidebar, SidebarGroup } from '@/components/sabcrm/20ui/compat';
 import { Sparkles, Layout, Palette, ToggleLeft, FormInput, GalleryHorizontalEnd, ArrowUpRight, Monitor, Layers } from "lucide-react";
 
 export function ZoruGalleryLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const groups: ZoruSidebarGroup[] = [
+  const groups: SidebarGroup[] = [
     {
       id: "overview",
       items: [

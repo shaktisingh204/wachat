@@ -1,4 +1,4 @@
-import { Badge } from "@/components/sabcrm/20ui/zoru";
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { getTicket } from "@/app/actions/crm/tickets.actions";
 
 function fmtDate(ts: string): string {

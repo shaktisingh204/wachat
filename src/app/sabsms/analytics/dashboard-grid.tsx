@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
 
-import { Button } from "@/components/sabcrm/20ui/zoru";
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Customisable layout for the analytics tiles.

@@ -1,20 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 
@@ -490,48 +477,48 @@ async function SabsmsAnalyticsPageContent({
 
       {/* Group-by table — driven by the URL ?groupBy=… selector. */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>By {groupBy}</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>By {groupBy}</CardTitle>
+          <CardDescription>
             Outbound counts grouped by{" "}
             <span className="font-medium">{groupBy}</span> in the current
             window.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="p-0">
           {data.grouped.length === 0 ? (
             <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No data yet — try a wider date range or switch group-by.
             </p>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>{groupBy}</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Sent</ZoruTableHead>
-                  <ZoruTableHead className="text-right">
+              <THead>
+                <Tr>
+                  <Th>{groupBy}</Th>
+                  <Th className="text-right">Sent</Th>
+                  <Th className="text-right">
                     Delivered
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right">Failed</ZoruTableHead>
-                  <ZoruTableHead className="text-right">DLR %</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th className="text-right">Failed</Th>
+                  <Th className="text-right">DLR %</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {data.grouped.slice(0, 50).map((g) => (
-                  <ZoruTableRow key={g.bucket}>
-                    <ZoruTableCell className="font-mono text-xs">
+                  <Tr key={g.bucket}>
+                    <Td className="font-mono text-xs">
                       {g.bucket}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {g.sent.toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {g.delivered.toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       {g.failed.toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs">
+                    </Td>
+                    <Td className="text-right text-xs">
                       <Badge
                         variant={
                           g.deliveryRate >= 95 ? "default" : "secondary"
@@ -539,13 +526,13 @@ async function SabsmsAnalyticsPageContent({
                       >
                         {g.deliveryRate}%
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <DashboardGrid items={gridItems} workspaceId={workspaceId || "anon"} />
@@ -554,47 +541,47 @@ async function SabsmsAnalyticsPageContent({
           stays predictable even when these collections are empty. */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>CTR per link</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>CTR per link</CardTitle>
+            <CardDescription>
               Click-through rate per short link. Populated when the engine
               writes to{" "}
               <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
                 sabsms_link_clicks
               </code>
               .
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <p className="text-sm text-[var(--st-text-secondary)]">
               No link clicks yet in this window. Once you send a campaign
               with a tracked short link, this table fills automatically.
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Conversions</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Conversions</CardTitle>
+            <CardDescription>
               Server pixel + on-site JS. Shows columns even with no data so
               you can wire the pixel.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Event</ZoruTableHead>
-                  <ZoruTableHead className="text-right">
+              <THead>
+                <Tr>
+                  <Th>Event</Th>
+                  <Th className="text-right">
                     Conversions
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right">Revenue</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                <ZoruTableRow>
-                  <ZoruTableCell
+                  </Th>
+                  <Th className="text-right">Revenue</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td
                     colSpan={3}
                     className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]"
                   >
@@ -606,11 +593,11 @@ async function SabsmsAnalyticsPageContent({
                       Configure pixel
                     </Link>
                     .
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              </ZoruTableBody>
+                  </Td>
+                </Tr>
+              </TBody>
             </Table>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </SabsmsPageShell>

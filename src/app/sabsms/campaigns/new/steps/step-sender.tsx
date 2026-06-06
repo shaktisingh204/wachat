@@ -2,17 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  ZoruRadioCard,
-  RadioGroup,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, RadioCard, RadioGroup } from '@/components/sabcrm/20ui/compat';
 
 import type { CampaignDraft, SenderStrategy } from "../types";
 
@@ -48,17 +38,17 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
         }
         className="grid gap-3 md:grid-cols-3"
       >
-        <ZoruRadioCard
+        <RadioCard
           value="single"
           label="Single number"
           description="One from-number for the whole campaign."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="pool"
           label="Pool"
           description="Round-robin across many numbers — boosts throughput, lowers carrier flagging."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="sticky_per_recipient"
           label="Sticky per recipient"
           description="Each contact always sees the same from-number — best for conversational tone."
@@ -66,15 +56,15 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
       </RadioGroup>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Sender numbers</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Sender numbers</CardTitle>
+          <CardDescription>
             {draft.senderStrategy === "single"
               ? "Pick exactly one."
               : "Pick at least one — the engine rotates within this pool."}
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {numbers.length === 0 ? (
             <p className="text-sm text-[var(--st-text)]">
               No active numbers. Provision one at <code>/sabsms/numbers</code>.
@@ -110,7 +100,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
               })}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

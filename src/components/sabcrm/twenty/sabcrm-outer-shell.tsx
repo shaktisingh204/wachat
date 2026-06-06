@@ -19,12 +19,12 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
-import { ZORU_APPS } from '@/components/sabcrm/20ui/zoru/shell/zoru-apps';
+import { ZORU_APPS } from '@/components/sabcrm/20ui/compat';
 import { AppRail, AppHeader, type AppRailItem } from '@/components/sabcrm/20ui';
 import type { LucideIcon } from 'lucide-react';
-import { useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/zoru/shell/app-theme';
-import { ZoruNotificationPopover } from '@/components/sabcrm/20ui/zoru/notification-popover';
-import { ZoruUserDropdown } from '@/components/sabcrm/20ui/zoru/user-dropdown';
+import { useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/compat';
+import { NotificationPopover } from '@/components/sabcrm/20ui/compat';
+import { UserDropdown } from '@/components/sabcrm/20ui/compat';
 import { CommandPaletteProvider } from '@/components/crm/command-palette';
 import { UniversalSearch } from '@/components/crm/universal-search';
 
@@ -93,8 +93,8 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
               trailing={
                 <>
                   <AppThemeToggle />
-                  <ZoruNotificationPopover />
-                  <ZoruUserDropdown
+                  <NotificationPopover />
+                  <UserDropdown
                     name={user?.name ?? 'Account'}
                     email={user?.email ?? undefined}
                     avatarUrl={user?.avatar ?? undefined}

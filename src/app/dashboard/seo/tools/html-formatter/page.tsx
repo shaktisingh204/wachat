@@ -1,7 +1,7 @@
 'use client';
 
-import { Textarea } from '@/components/sabcrm/20ui/zoru';
-import { ZoruFileUploadCard } from '@/components/sabcrm/20ui/zoru/file-upload-card';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
+import { ZoruFileUploadCard } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';

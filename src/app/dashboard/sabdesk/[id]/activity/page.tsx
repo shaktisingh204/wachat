@@ -1,4 +1,4 @@
-import { Badge, Card } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card } from '@/components/sabcrm/20ui/compat';
 import { notFound } from "next/navigation";
 import { LifeBuoy } from "lucide-react";
 

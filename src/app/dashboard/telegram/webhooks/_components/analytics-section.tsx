@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruChartContainer,
-  EmptyState,
-  Skeleton,
-  ZORU_CHART_PALETTE,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, ChartContainer, EmptyState, Skeleton, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from "lucide-react";
 import {
   Bar,
@@ -51,11 +44,11 @@ export function AnalyticsSection({
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
       <TelegramProjectGate />
       <Card className="xl:col-span-2">
-        <ZoruCardContent className="p-4">
+        <CardBody className="p-4">
           <h3 className="mb-2 text-sm font-medium">
             Deliveries & failures by day
           </h3>
-          <ZoruChartContainer config={{}} className="h-64 w-full">
+          <ChartContainer config={{}} className="h-64 w-full">
             <LineChart data={analytics.byDay}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
@@ -81,16 +74,16 @@ export function AnalyticsSection({
                 strokeWidth={2}
               />
             </LineChart>
-          </ZoruChartContainer>
-        </ZoruCardContent>
+          </ChartContainer>
+        </CardBody>
       </Card>
       <Card>
-        <ZoruCardContent className="p-4">
+        <CardBody className="p-4">
           <h3 className="mb-2 text-sm font-medium">By event type</h3>
           {analytics.byEventType.length === 0 ? (
             <p className="text-xs text-[var(--st-text-secondary)]">No data yet.</p>
           ) : (
-            <ZoruChartContainer config={{}} className="h-64 w-full">
+            <ChartContainer config={{}} className="h-64 w-full">
               <PieChart>
                 <Pie
                   data={analytics.byEventType}
@@ -107,17 +100,17 @@ export function AnalyticsSection({
                 <RechartsTooltip />
                 <Legend />
               </PieChart>
-            </ZoruChartContainer>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       <Card className="xl:col-span-3">
-        <ZoruCardContent className="p-4">
+        <CardBody className="p-4">
           <h3 className="mb-2 text-sm font-medium">Top event types</h3>
           {analytics.byEventType.length === 0 ? (
             <p className="text-xs text-[var(--st-text-secondary)]">No data yet.</p>
           ) : (
-            <ZoruChartContainer config={{}} className="h-56 w-full">
+            <ChartContainer config={{}} className="h-56 w-full">
               <BarChart data={analytics.byEventType.slice(0, 10)}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="eventType" tick={{ fontSize: 11 }} />
@@ -125,9 +118,9 @@ export function AnalyticsSection({
                 <RechartsTooltip />
                 <Bar dataKey="count" fill={ACCENT} />
               </BarChart>
-            </ZoruChartContainer>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

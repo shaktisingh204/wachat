@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { DataTable } from "@/components/sabcrm/20ui/zoru/data-table";
+import { DataTable } from '@/components/sabcrm/20ui/compat';
 import { ColumnDef } from "@tanstack/react-table";
 import { CheckCircle2, XCircle } from "lucide-react";
 

@@ -1,19 +1,6 @@
 import Link from "next/link";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsProviderScore } from "../aggregations";
@@ -38,13 +25,13 @@ export function ProviderScorecardTile({
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <ZoruCardTitle>{title}</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>
             DLR %, latency p95, error rate per{" "}
             {numberHealth ? "sender number" : "provider"}.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link
@@ -59,57 +46,57 @@ export function ProviderScorecardTile({
             queryString={queryString}
           />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="p-0">
+      </CardHeader>
+      <CardBody className="p-0">
         {rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No data yet.
           </p>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>
+            <THead>
+              <Tr>
+                <Th>
                   {numberHealth ? "Number" : "Provider"}
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                <ZoruTableHead className="text-right">DLR %</ZoruTableHead>
-                <ZoruTableHead className="text-right">Error %</ZoruTableHead>
-                <ZoruTableHead className="text-right">p95 ms</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th className="text-right">Total</Th>
+                <Th className="text-right">DLR %</Th>
+                <Th className="text-right">Error %</Th>
+                <Th className="text-right">p95 ms</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((r) => (
-                <ZoruTableRow key={r.provider}>
-                  <ZoruTableCell className="font-mono text-xs">
+                <Tr key={r.provider}>
+                  <Td className="font-mono text-xs">
                     {r.provider}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     {r.total.toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     <Badge
                       variant={r.dlrRate >= 95 ? "default" : "secondary"}
                     >
                       {r.dlrRate}%
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs">
+                  </Td>
+                  <Td className="text-right text-xs">
                     <Badge
                       variant={r.errorRate > 5 ? "destructive" : "secondary"}
                     >
                       {r.errorRate}%
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-right text-xs text-[var(--st-text-secondary)]">
                     {r.latencyP95Ms.toLocaleString()}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

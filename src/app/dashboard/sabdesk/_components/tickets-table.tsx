@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { formatDistanceToNow } from "date-fns";
 import {
   AlertTriangle,
@@ -100,9 +85,9 @@ export function TicketsTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-            <ZoruTableHead className="w-[36px]">
+        <THead>
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            <Th className="w-[36px]">
               <Checkbox
                 aria-label="Select all tickets on this page"
                 checked={
@@ -110,39 +95,39 @@ export function TicketsTable({
                 }
                 onCheckedChange={(c) => onToggleAll(c === true)}
               />
-            </ZoruTableHead>
-            <ZoruTableHead>#</ZoruTableHead>
-            <ZoruTableHead>Subject</ZoruTableHead>
-            <ZoruTableHead>Requester</ZoruTableHead>
-            <ZoruTableHead>Channel</ZoruTableHead>
-            <ZoruTableHead>Category</ZoruTableHead>
-            <ZoruTableHead>Priority</ZoruTableHead>
-            <ZoruTableHead>Severity</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Assignee</ZoruTableHead>
-            <ZoruTableHead>Due by</ZoruTableHead>
-            <ZoruTableHead>Created</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th>#</Th>
+            <Th>Subject</Th>
+            <Th>Requester</Th>
+            <Th>Channel</Th>
+            <Th>Category</Th>
+            <Th>Priority</Th>
+            <Th>Severity</Th>
+            <Th>Status</Th>
+            <Th>Assignee</Th>
+            <Th>Due by</Th>
+            <Th>Created</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                <ZoruTableCell colSpan={13}>
+              <Tr key={i} className="border-[var(--st-border)]">
+                <Td colSpan={13}>
                   <Skeleton className="h-10 w-full" />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))
           ) : tickets.length === 0 ? (
-            <ZoruTableRow className="border-[var(--st-border)]">
-              <ZoruTableCell
+            <Tr className="border-[var(--st-border)]">
+              <Td
                 colSpan={13}
                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 No tickets match the current filters.
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ) : (
             tickets.map((t) => {
               const id = String(t._id);
@@ -152,24 +137,24 @@ export function TicketsTable({
               const status = t.status ?? "";
               const kind = requesterKindOf(t);
               return (
-                <ZoruTableRow
+                <Tr
                   key={id}
                   className={[
                     "border-[var(--st-border)] transition-colors",
                     isSel ? "bg-[var(--st-bg-muted)]/70" : "",
                   ].join(" ")}
                 >
-                  <ZoruTableCell>
+                  <Td>
                     <Checkbox
                       aria-label={`Select ticket ${t.subject || id}`}
                       checked={isSel}
                       onCheckedChange={() => onToggleOne(id)}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                     {ticketNumber(t)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center gap-2">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <LifeBuoy className="h-3.5 w-3.5" />
@@ -184,29 +169,29 @@ export function TicketsTable({
                         subtitle={t.category || undefined}
                       />
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {t.requesterId ? (
                       <EntityPickerChip entity={kind} id={t.requesterId} />
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {t.channel ? (
                       <Badge variant="secondary">{t.channel}</Badge>
                     ) : (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {t.category ? (
                       <EntityPickerChip entity="category" id={t.category} />
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {priority ? (
                       <Badge variant={PRIORITY_VARIANTS[priority] ?? "ghost"}>
                         {priority}
@@ -214,11 +199,11 @@ export function TicketsTable({
                     ) : (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
                     {t.severity ?? "—"}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {status ? (
                       <StatusPill
                         label={status.replace(/_/g, " ")}
@@ -227,8 +212,8 @@ export function TicketsTable({
                     ) : (
                       <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {t.assigneeId ? (
                       <EntityPickerChip
                         entity="user"
@@ -240,8 +225,8 @@ export function TicketsTable({
                         Unassigned
                       </span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell
+                  </Td>
+                  <Td
                     className={[
                       "text-[12.5px]",
                       overdue
@@ -283,8 +268,8 @@ export function TicketsTable({
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell
+                  </Td>
+                  <Td
                     className="text-[12.5px] text-[var(--st-text-secondary)]"
                     title={(() => {
                       if (!t.createdAt) return "";
@@ -342,10 +327,10 @@ export function TicketsTable({
                           return `${day} ${month} ${year}`;
                         })()
                       : "—"}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <button
                           type="button"
                           aria-label={`Actions for ${t.subject || id}`}
@@ -353,40 +338,40 @@ export function TicketsTable({
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/sabdesk/${id}`}>
                             <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
                             View
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/sabdesk/${id}/edit`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" />
                             Edit
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => onMerge(id)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onMerge(id)}>
                           <Combine className="mr-1.5 h-3.5 w-3.5" />
                           Merge…
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           onClick={() => onDelete(id)}
                           className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

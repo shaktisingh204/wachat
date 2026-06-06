@@ -1,17 +1,10 @@
 "use client";
 
 import React from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
 import { 
   Store, 
   ShoppingCart, 

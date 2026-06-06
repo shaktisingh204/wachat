@@ -3,20 +3,7 @@
 import * as React from "react";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 
-import {
-  Button,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsBulkActionsBar, type SabsmsBulkAction } from "./sabsms-bulk-actions";
 import { SabsmsPagination } from "./sabsms-pagination";
@@ -191,10 +178,10 @@ export function SabsmsDataTable<T>({
       <div className="overflow-hidden rounded-md border border-[var(--st-border)] bg-white">
         <div className="max-h-[70vh] overflow-auto">
           <Table>
-            <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg-muted)]">
-              <ZoruTableRow>
+            <THead className="sticky top-0 z-10 bg-[var(--st-bg-muted)]">
+              <Tr>
                 {selectable && (
-                  <ZoruTableHead className="w-[40px]">
+                  <Th className="w-[40px]">
                     <Checkbox
                       checked={
                         allOnPageSelected
@@ -206,28 +193,28 @@ export function SabsmsDataTable<T>({
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
                     />
-                  </ZoruTableHead>
+                  </Th>
                 )}
                 {visibleCols.map((col) => (
-                  <ZoruTableHead
+                  <Th
                     key={col.id}
                     style={col.width ? { width: col.width } : undefined}
                     className={col.align === "right" ? "text-right" : undefined}
                   >
                     {col.header}
-                  </ZoruTableHead>
+                  </Th>
                 ))}
                 {rowActions && rowActions.length > 0 && (
-                  <ZoruTableHead className="w-[40px]" aria-label="Row actions" />
+                  <Th className="w-[40px]" aria-label="Row actions" />
                 )}
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((row, index) => {
                 const id = rowKey(row);
                 const isSelected = !!selectedIds?.includes(id);
                 return (
-                  <ZoruTableRow
+                  <Tr
                     key={id}
                     data-state={isSelected ? "selected" : undefined}
                     className={
@@ -237,7 +224,7 @@ export function SabsmsDataTable<T>({
                     }
                   >
                     {selectable && (
-                      <ZoruTableCell
+                      <Td
                         className={DENSITY_PADDING[density]}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -250,24 +237,24 @@ export function SabsmsDataTable<T>({
                             aria-label={`Select row ${id}`}
                           />
                         </span>
-                      </ZoruTableCell>
+                      </Td>
                     )}
                     {visibleCols.map((col) => (
-                      <ZoruTableCell
+                      <Td
                         key={col.id}
                         className={`${DENSITY_PADDING[density]} ${col.align === "right" ? "text-right" : ""}`}
                         onClick={onRowClick ? () => onRowClick(row) : undefined}
                       >
                         {col.render(row)}
-                      </ZoruTableCell>
+                      </Td>
                     ))}
                     {rowActions && rowActions.length > 0 && (
-                      <ZoruTableCell
+                      <Td
                         className={DENSITY_PADDING[density]}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <DropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -276,10 +263,10 @@ export function SabsmsDataTable<T>({
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end">
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
                             {rowActions.map((a) => (
-                              <ZoruDropdownMenuItem
+                              <DropdownMenuItem
                                 key={a.label}
                                 onSelect={() => a.onSelect(row)}
                                 destructive={a.destructive}
@@ -288,16 +275,16 @@ export function SabsmsDataTable<T>({
                                 <span className={a.icon ? "ml-2" : undefined}>
                                   {a.label}
                                 </span>
-                              </ZoruDropdownMenuItem>
+                              </DropdownMenuItem>
                             ))}
-                          </ZoruDropdownMenuContent>
+                          </DropdownMenuContent>
                         </DropdownMenu>
-                      </ZoruTableCell>
+                      </Td>
                     )}
-                  </ZoruTableRow>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </div>

@@ -1,19 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Badge,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronRight,
   RotateCcw,
@@ -71,37 +59,37 @@ export function DlqSection(props: {
   return (
     <div className="space-y-3">
       <Card>
-        <ZoruCardContent className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
+        <CardBody className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
           <Select value={props.bot} onValueChange={props.onBot}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Bot" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Bot" />
+            </SelectTrigger>
+            <SelectContent>
               {props.botOptions.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select value={props.status} onValueChange={props.onStatus}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-              <ZoruSelectItem value="retrying">Retrying</ZoruSelectItem>
-              <ZoruSelectItem value="failed_permanent">
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="retrying">Retrying</SelectItem>
+              <SelectItem value="failed_permanent">
                 Failed (permanent)
-              </ZoruSelectItem>
-              <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
-            </ZoruSelectContent>
+              </SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
           </Select>
           <Button onClick={props.onApply}>
             <Search className="mr-2 h-4 w-4" /> Apply
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       {props.loading && props.items.length === 0 ? (
         <Skeleton className="h-40 w-full" />
@@ -113,7 +101,7 @@ export function DlqSection(props: {
         />
       ) : (
         <Card>
-          <ZoruCardContent className="p-0">
+          <CardBody className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b bg-[var(--st-bg-muted)]/30 text-xs uppercase text-[var(--st-text-secondary)]">
@@ -187,7 +175,7 @@ export function DlqSection(props: {
                 </tbody>
               </table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

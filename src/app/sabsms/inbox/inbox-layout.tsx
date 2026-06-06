@@ -9,7 +9,7 @@
  *
  * Feature map (the 20 page-unique features from §B.1 page 3):
  *
- *   1. 3-pane layout                        → `ZoruResizablePanelGroup` below.
+ *   1. 3-pane layout                        → `ResizablePanelGroup` below.
  *   2. Filter rail (scope facet)            → `<SabsmsFilterBar>` toolbar.
  *   3. Conversation list w/ unread badges   → `<ConversationList>`.
  *   4. Thread w/ delivery ticks             → `<ThreadView>` → `DeliveryTicks`.
@@ -35,11 +35,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import {
-  ZoruResizableHandle,
-  ZoruResizablePanel,
-  ZoruResizablePanelGroup,
-} from "@/components/sabcrm/20ui/zoru";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsFilterBar,
   SabsmsKbdHint,
@@ -311,8 +307,8 @@ export function InboxLayout({
       toolbar={filterBar}
     >
       <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-md border border-[var(--st-border)] bg-white">
-        <ZoruResizablePanelGroup direction="horizontal">
-          <ZoruResizablePanel defaultSize={32} minSize={22} maxSize={45}>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={32} minSize={22} maxSize={45}>
             <ConversationList
               conversations={conversations}
               agents={agents}
@@ -320,9 +316,9 @@ export function InboxLayout({
               selectedId={selectedId}
               onSelect={setSelectedId}
             />
-          </ZoruResizablePanel>
-          <ZoruResizableHandle withHandle />
-          <ZoruResizablePanel defaultSize={68} minSize={45}>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={68} minSize={45}>
             <ThreadView
               workspaceId={workspaceId}
               thread={thread}
@@ -337,8 +333,8 @@ export function InboxLayout({
                 noteFocus.current = fn;
               }}
             />
-          </ZoruResizablePanel>
-        </ZoruResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
       <p className="px-1 text-xs text-[var(--st-text)]">
         Inbound messages route through{" "}

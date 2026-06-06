@@ -2,7 +2,7 @@ import { GitBranch, PlayCircle, Users, Zap, Activity, BarChart3, Workflow } from
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 import { DripsTable } from "./drips-table";
 import {
@@ -112,65 +112,65 @@ export default async function SabsmsDripsPage({
       {/* BULKY DATA-RICH DASHBOARD HEADER */}
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-gradient-to-br from-[var(--st-text)] to-[var(--st-text)] text-white shadow-xl">
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-white text-sm font-medium flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
               <Workflow className="h-4 w-4 text-[var(--st-text-secondary)]" />
               Active Nodes
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="text-4xl font-bold tracking-tight">{totalActiveNodes}</div>
             <p className="mt-1 text-xs text-[var(--st-text-secondary)] flex items-center gap-1">
               Across {activeDrips} running drips
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="shadow-md border-[var(--st-border)]/60">
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
               <Users className="h-4 w-4 text-[var(--st-text)]" />
               Active Enrolments
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">{totalActiveRecipients.toLocaleString()}</div>
             <p className="mt-1 text-xs text-[var(--st-text)] flex items-center gap-1">
               Contacts currently flowing
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="shadow-md border-[var(--st-border)]/60">
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
               <Activity className="h-4 w-4 text-[var(--st-text)]" />
               Global Throughput
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">{totalThroughput.toFixed(1)}</div>
             <p className="mt-1 text-xs text-[var(--st-text)] flex items-center gap-1">
               Messages per minute
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="shadow-md border-[var(--st-border)]/60 bg-gradient-to-br from-[var(--st-bg-muted)]/50 to-white">
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-[var(--st-text)]" />
               Avg Conversion
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">
               {(avgConversion * 100).toFixed(1)}%
             </div>
             <p className="mt-1 text-xs text-[var(--st-text)]/70 flex items-center gap-1">
               End-to-end success rate
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 

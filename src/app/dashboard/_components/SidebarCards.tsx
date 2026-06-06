@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Plus, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Card, Button } from "@/components/sabcrm/20ui/zoru";
+import { Card, Button } from '@/components/sabcrm/20ui/compat';
 import { InitialsStack } from "./shared";
 import { compact } from "./utils";
 

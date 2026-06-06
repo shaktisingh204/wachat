@@ -3,15 +3,7 @@
 import * as React from "react";
 import { Columns } from "lucide-react";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuCheckboxItem,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 export interface SabsmsColumnDef {
   id: string;
@@ -32,19 +24,19 @@ export function SabsmsColumnPicker({
 }: SabsmsColumnPickerProps) {
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <Columns className="mr-1.5 h-3.5 w-3.5" />
           Columns
         </Button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align="end" className="w-56">
-        <ZoruDropdownMenuLabel>Visible columns</ZoruDropdownMenuLabel>
-        <ZoruDropdownMenuSeparator />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>Visible columns</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {columns.map((col) => {
           const checked = visible.includes(col.id);
           return (
-            <ZoruDropdownMenuCheckboxItem
+            <DropdownMenuCheckboxItem
               key={col.id}
               checked={checked}
               disabled={col.required}
@@ -58,10 +50,10 @@ export function SabsmsColumnPicker({
               }}
             >
               {col.label}
-            </ZoruDropdownMenuCheckboxItem>
+            </DropdownMenuCheckboxItem>
           );
         })}
-      </ZoruDropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }

@@ -29,21 +29,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui/compat';
 
 import type { DraftDripNode } from "./validate";
 
@@ -151,7 +137,7 @@ export function StepNode({
         </div>
       </div>
 
-      <ZoruCardContent className="space-y-3 p-4">
+      <CardBody className="space-y-3 p-4">
         {node.kind === "message" && (
           <div className="space-y-2">
             <Label htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-[var(--st-text)]">
@@ -161,17 +147,17 @@ export function StepNode({
               value={node.templateId ?? ""}
               onValueChange={(v) => onChange({ ...node, templateId: v })}
             >
-              <ZoruSelectTrigger id={`tpl-${node.id}`}>
-                <ZoruSelectValue placeholder="Pick template…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id={`tpl-${node.id}`}>
+                <SelectValue placeholder="Pick template…" />
+              </SelectTrigger>
+              <SelectContent>
                 {templates.map((t) => (
-                  <ZoruSelectItem key={t.id} value={t.id}>
+                  <SelectItem key={t.id} value={t.id}>
                     {t.name}{" "}
                     <span className="ml-1 text-[10px] text-[var(--st-text)]">({t.category})</span>
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         )}
@@ -232,14 +218,14 @@ export function StepNode({
                 onChange({ ...node, branchOn: v as DraftDripNode["branchOn"] })
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="replied">Replied</ZoruSelectItem>
-                <ZoruSelectItem value="clicked">Clicked a link</ZoruSelectItem>
-                <ZoruSelectItem value="opened">Opened (carrier read receipt)</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="replied">Replied</SelectItem>
+                <SelectItem value="clicked">Clicked a link</SelectItem>
+                <SelectItem value="opened">Opened (carrier read receipt)</SelectItem>
+              </SelectContent>
             </Select>
             <Label className="text-xs">Within (seconds)</Label>
             <Input
@@ -421,7 +407,7 @@ export function StepNode({
             </div>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

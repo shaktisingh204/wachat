@@ -5,42 +5,7 @@ import {
   SabsmsPageShell,
   SabsmsDataTable,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Button,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  Input,
-  Label,
-  Badge,
-  ZoruStatCard,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Textarea,
-  Checkbox,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-  ZoruAccordion03,
-  ZoruAccordion03Item,
-  ZoruAccordion03Trigger,
-  ZoruAccordion03Content,
-  ZoruCollapsible,
-  ZoruCollapsibleTrigger,
-  ZoruCollapsibleContent,
-  RadioGroup,
-  ZoruRadioCard,
-  Separator,
-  Switch,
-  cn,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox, Accordion, AccordionItem, AccordionTrigger, AccordionContent, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, RadioGroup, RadioCard, Separator, Switch, cn } from '@/components/sabcrm/20ui/compat';
 import { 
   Briefcase, 
   MessageSquare, 
@@ -111,19 +76,19 @@ export default function TenDlcRegistrationPage() {
         {view === "brands" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
             <div className="grid gap-6 md:grid-cols-3">
-              <ZoruStatCard
+              <StatCard
                 label="Overall Trust Score"
                 value="95 / 100"
                 delta={5}
                 period="Excellent standing based on recent vetting"
                 className="bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)]/30 dark:to-[var(--st-text)]/10 border-[var(--st-border)]/50"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Registered Brands"
                 value="12 Active"
                 period="Across 4 different verticals"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Vetting Upgrades"
                 value="3 Eligible"
                 period="Upgrade for higher throughput"
@@ -142,7 +107,7 @@ export default function TenDlcRegistrationPage() {
                       <p className="text-sm text-[var(--st-text-secondary)]">Complete the multi-step verification process to register a new entity.</p>
                     </div>
                   </div>
-                  <ZoruCardContent className="p-0">
+                  <CardBody className="p-0">
                     <ZoruAccordion03 type="single" defaultValue="step-1" collapsible className="p-6">
                       <ZoruAccordion03Item value="step-1">
                         <ZoruAccordion03Trigger>1. Entity Profile & Legal Info, ChevronDownrmation</ZoruAccordion03Trigger>
@@ -150,10 +115,10 @@ export default function TenDlcRegistrationPage() {
                           <div className="grid gap-4 mt-2">
                             <Label>Entity Type</Label>
                             <RadioGroup defaultValue="private" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <ZoruRadioCard value="private" label="Private Company" description="LLC, Inc, Corp" icon={<Briefcase className="h-4 w-4" />} />
-                              <ZoruRadioCard value="public" label="Public Company" description="Traded on exchange" icon={<Globe className="h-4 w-4" />} />
-                              <ZoruRadioCard value="nonprofit" label="Non-Profit (501c3)" description="Registered charity" icon={<ShieldCheck className="h-4 w-4" />} />
-                              <ZoruRadioCard value="gov" label="Government" description="Local or Federal" icon={<Building2 className="h-4 w-4" />} />
+                              <RadioCard value="private" label="Private Company" description="LLC, Inc, Corp" icon={<Briefcase className="h-4 w-4" />} />
+                              <RadioCard value="public" label="Public Company" description="Traded on exchange" icon={<Globe className="h-4 w-4" />} />
+                              <RadioCard value="nonprofit" label="Non-Profit (501c3)" description="Registered charity" icon={<ShieldCheck className="h-4 w-4" />} />
+                              <RadioCard value="gov" label="Government" description="Local or Federal" icon={<Building2 className="h-4 w-4" />} />
                             </RadioGroup>
                           </div>
                           <div className="grid sm:grid-cols-2 gap-5">
@@ -172,15 +137,15 @@ export default function TenDlcRegistrationPage() {
                             <div className="space-y-2">
                               <Label>Vertical / Industry</Label>
                               <Select>
-                                <ZoruSelectTrigger>
-                                  <ZoruSelectValue placeholder="Select vertical" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                  <ZoruSelectItem value="tech">Technology & Software</ZoruSelectItem>
-                                  <ZoruSelectItem value="retail">Retail & Ecommerce</ZoruSelectItem>
-                                  <ZoruSelectItem value="finance">Financial Services</ZoruSelectItem>
-                                  <ZoruSelectItem value="healthcare">Healthcare</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select vertical" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="tech">Technology & Software</SelectItem>
+                                  <SelectItem value="retail">Retail & Ecommerce</SelectItem>
+                                  <SelectItem value="finance">Financial Services</SelectItem>
+                                  <SelectItem value="healthcare">Healthcare</SelectItem>
+                                </SelectContent>
                               </Select>
                             </div>
                           </div>
@@ -211,14 +176,14 @@ export default function TenDlcRegistrationPage() {
                           <div className="space-y-2">
                             <Label>Country</Label>
                             <Select defaultValue="us">
-                              <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select country" />
-                              </ZoruSelectTrigger>
-                              <ZoruSelectContent>
-                                <ZoruSelectItem value="us">United States</ZoruSelectItem>
-                                <ZoruSelectItem value="ca">Canada</ZoruSelectItem>
-                                <ZoruSelectItem value="uk">United Kingdom</ZoruSelectItem>
-                              </ZoruSelectContent>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="us">United States</SelectItem>
+                                <SelectItem value="ca">Canada</SelectItem>
+                                <SelectItem value="uk">United Kingdom</SelectItem>
+                              </SelectContent>
                             </Select>
                           </div>
                         </ZoruAccordion03Content>
@@ -253,7 +218,7 @@ export default function TenDlcRegistrationPage() {
                         </ZoruAccordion03Content>
                       </ZoruAccordion03Item>
                     </ZoruAccordion03>
-                  </ZoruCardContent>
+                  </CardBody>
                   <div className="p-6 bg-[var(--st-bg-secondary)] border-t flex justify-end gap-3">
                     <Button variant="outline">Save Draft</Button>
                     <Button>Submit for Verification</Button>
@@ -263,12 +228,12 @@ export default function TenDlcRegistrationPage() {
 
               <div className="space-y-6">
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base flex items-center gap-2">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" /> TCR Verification Status
-                    </ZoruCardTitle>
-                  </ZoruCardHeader>
-                  <ZoruCardContent className="space-y-4">
+                    </CardTitle>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[var(--st-text-secondary)]">EIN Verification</span>
@@ -288,39 +253,39 @@ export default function TenDlcRegistrationPage() {
                     <Button variant="outline" className="w-full mt-4">
                       <Zap className="mr-2 h-4 w-4 text-[var(--st-text)]" /> Apply for Enhanced Vetting
                     </Button>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
 
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base">Quick Help</ZoruCardTitle>
-                  </ZoruCardHeader>
-                  <ZoruCardContent>
+                  <CardHeader>
+                    <CardTitle className="text-base">Quick Help</CardTitle>
+                  </CardHeader>
+                  <CardBody>
                     <Accordion type="single" collapsible className="w-full">
-                      <ZoruAccordionItem value="item-1">
-                        <ZoruAccordionTrigger className="text-xs py-3">Why is EIN required?</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="text-xs">
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger className="text-xs py-3">Why is EIN required?</AccordionTrigger>
+                        <AccordionContent className="text-xs">
                           The Campaign Registry uses the Employer Identification Number to verify the legal existence of the business with the IRS.
-                        </ZoruAccordionContent>
-                      </ZoruAccordionItem>
-                      <ZoruAccordionItem value="item-2">
-                        <ZoruAccordionTrigger className="text-xs py-3">What if I don't have a website?</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="text-xs">
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-2">
+                        <AccordionTrigger className="text-xs py-3">What if I don't have a website?</AccordionTrigger>
+                        <AccordionContent className="text-xs">
                           You must provide a valid social media presence or other online footprint if a website is not available, otherwise vetting may be rejected.
-                        </ZoruAccordionContent>
-                      </ZoruAccordionItem>
+                        </AccordionContent>
+                      </AccordionItem>
                     </Accordion>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               </div>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Number ↔ Campaign Assignment Matrix</ZoruCardTitle>
-                <ZoruCardDescription>Manage your inventory of 10DLC numbers and their active campaign associations.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Number ↔ Campaign Assignment Matrix</CardTitle>
+                <CardDescription>Manage your inventory of 10DLC numbers and their active campaign associations.</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <SabsmsDataTable
                   rowKey={(r) => r.number}
                   columns={[
@@ -339,7 +304,7 @@ export default function TenDlcRegistrationPage() {
                     { number: "+1 555 123 4567", campaign: "Customer Support", throughput: "4,000", status: "Pending Verification" },
                   ]}
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         )}
@@ -347,17 +312,17 @@ export default function TenDlcRegistrationPage() {
         {view === "campaigns" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <ZoruStatCard
+              <StatCard
                 label="Campaign Status"
                 value="3 Active"
                 period="1 Pending Approval"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Capabilities"
                 value="SMS / MMS"
                 period="Voice enabled on 2 numbers"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Max Throughput"
                 value="12,000 TPM"
                 period="T-Mobile Tier: Top"
@@ -379,44 +344,44 @@ export default function TenDlcRegistrationPage() {
                   <p className="text-sm text-[var(--st-text-secondary)]">Detail your messaging use case, samples, and opt-in flows to ensure compliance.</p>
                 </div>
               </div>
-              <ZoruCardContent className="p-0">
+              <CardBody className="p-0">
                 <Accordion type="multiple" defaultValue={["uc", "samples", "opt"]} className="w-full">
-                  <ZoruAccordionItem value="uc" className="px-6">
-                    <ZoruAccordionTrigger className="text-base py-5">Use Case & Campaign Type</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-6 pb-6">
+                  <AccordionItem value="uc" className="px-6">
+                    <AccordionTrigger className="text-base py-5">Use Case & Campaign Type</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-6">
                       <div className="space-y-3">
                         <Label>Select Registered Brand</Label>
                         <Select defaultValue="acme">
-                          <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Select Brand" />
-                          </ZoruSelectTrigger>
-                          <ZoruSelectContent>
-                            <ZoruSelectItem value="acme">Acme Corporation Inc.</ZoruSelectItem>
-                            <ZoruSelectItem value="globex">Globex Corporation</ZoruSelectItem>
-                          </ZoruSelectContent>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Brand" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="acme">Acme Corporation Inc.</SelectItem>
+                            <SelectItem value="globex">Globex Corporation</SelectItem>
+                          </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-3">
                         <Label>Campaign Use Case</Label>
                         <RadioGroup defaultValue="2fa" className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <ZoruRadioCard value="2fa" label="2FA / OTP" description="Authentication codes" />
-                          <ZoruRadioCard value="marketing" label="Marketing" description="Promotions & sales" />
-                          <ZoruRadioCard value="alerts" label="Account Alerts" description="Notifications & updates" />
-                          <ZoruRadioCard value="cs" label="Customer Care" description="Support interactions" />
-                          <ZoruRadioCard value="mixed" label="Mixed" description="Multiple use cases" />
-                          <ZoruRadioCard value="special" label="Special / Political" description="Requires extra vetting" />
+                          <RadioCard value="2fa" label="2FA / OTP" description="Authentication codes" />
+                          <RadioCard value="marketing" label="Marketing" description="Promotions & sales" />
+                          <RadioCard value="alerts" label="Account Alerts" description="Notifications & updates" />
+                          <RadioCard value="cs" label="Customer Care" description="Support interactions" />
+                          <RadioCard value="mixed" label="Mixed" description="Multiple use cases" />
+                          <RadioCard value="special" label="Special / Political" description="Requires extra vetting" />
                         </RadioGroup>
                       </div>
                       <div className="space-y-3">
                         <Label>Campaign Description</Label>
                         <Textarea placeholder="Describe how consumers will interact with this campaign..." className="min-h-[100px]" />
                       </div>
-                    </ZoruAccordionContent>
-                  </ZoruAccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                  <ZoruAccordionItem value="samples" className="px-6">
-                    <ZoruAccordionTrigger className="text-base py-5">Message Samples</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-6 pb-6">
+                  <AccordionItem value="samples" className="px-6">
+                    <AccordionTrigger className="text-base py-5">Message Samples</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-6">
                       <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/10 border border-[var(--st-border)] dark:border-[var(--st-border)]/30 rounded-lg p-4 flex gap-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <Info className="h-5 w-5 shrink-0 mt-0.5" />
                         <div>
@@ -439,25 +404,25 @@ export default function TenDlcRegistrationPage() {
                           </div>
                         ))}
                       </div>
-                    </ZoruAccordionContent>
-                  </ZoruAccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                  <ZoruAccordionItem value="opt" className="px-6">
-                    <ZoruAccordionTrigger className="text-base py-5">Opt-In, Opt-Out & Help Workflows</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-6 pb-6">
+                  <AccordionItem value="opt" className="px-6">
+                    <AccordionTrigger className="text-base py-5">Opt-In, Opt-Out & Help Workflows</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-6">
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label>How do users opt-in?</Label>
                           <Select defaultValue="web">
-                            <ZoruSelectTrigger>
-                              <ZoruSelectValue placeholder="Select method" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                              <ZoruSelectItem value="web">Web Form / App Registration</ZoruSelectItem>
-                              <ZoruSelectItem value="sms">SMS Keyword (e.g., START)</ZoruSelectItem>
-                              <ZoruSelectItem value="paper">Paper Form / Point of Sale</ZoruSelectItem>
-                              <ZoruSelectItem value="voice">Verbal Consent / IVR</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="web">Web Form / App Registration</SelectItem>
+                              <SelectItem value="sms">SMS Keyword (e.g., START)</SelectItem>
+                              <SelectItem value="paper">Paper Form / Point of Sale</SelectItem>
+                              <SelectItem value="voice">Verbal Consent / IVR</SelectItem>
+                            </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
@@ -484,12 +449,12 @@ export default function TenDlcRegistrationPage() {
                           </div>
                         </div>
                       </div>
-                    </ZoruAccordionContent>
-                  </ZoruAccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
                 </Accordion>
 
                 <div className="px-6 py-4 bg-[var(--st-bg)] border-b border-t">
-                  <ZoruCollapsible
+                  <Collapsible
                     open={isAdvancedOpen}
                     onOpenChange={setIsAdvancedOpen}
                     className="w-full space-y-2"
@@ -498,14 +463,14 @@ export default function TenDlcRegistrationPage() {
                       <Label className="text-base font-medium cursor-pointer" onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}>
                         Advanced Capabilities
                       </Label>
-                      <ZoruCollapsibleTrigger asChild>
+                      <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="sm" className="w-9 p-0">
                           <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isAdvancedOpen ? "rotate-180" : "")} />
                           <span className="sr-only">Toggle advanced options</span>
                         </Button>
-                      </ZoruCollapsibleTrigger>
+                      </CollapsibleTrigger>
                     </div>
-                    <ZoruCollapsibleContent className="space-y-4 pt-4 pb-2">
+                    <CollapsibleContent className="space-y-4 pt-4 pb-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
@@ -550,10 +515,10 @@ export default function TenDlcRegistrationPage() {
                           <Switch defaultChecked />
                         </div>
                       </div>
-                    </ZoruCollapsibleContent>
-                  </ZoruCollapsible>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
               <div className="p-6 bg-[var(--st-bg-secondary)] flex justify-end gap-3">
                 <Button variant="outline">Save Campaign</Button>
                 <Button>Register Campaign ($15.00)</Button>
@@ -566,11 +531,11 @@ export default function TenDlcRegistrationPage() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="h-full">
-                <ZoruCardHeader>
-                  <ZoruCardTitle>TCR Fee Schedule & Cost Preview</ZoruCardTitle>
-                  <ZoruCardDescription>Current pricing for The Campaign Registry passes through directly.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                  <CardTitle>TCR Fee Schedule & Cost Preview</CardTitle>
+                  <CardDescription>Current pricing for The Campaign Registry passes through directly.</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="space-y-4">
                     <div className="bg-[var(--st-bg-secondary)] rounded-lg p-4 border">
                       <h4 className="font-semibold text-sm mb-3 text-[var(--st-text-secondary)] uppercase tracking-wider">One-Time Fees</h4>
@@ -596,16 +561,16 @@ export default function TenDlcRegistrationPage() {
                       </div>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <div className="space-y-6">
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle>Renewal Notifications</ZoruCardTitle>
-                    <ZoruCardDescription>Configure alerts to avoid campaign expiration.</ZoruCardDescription>
-                  </ZoruCardHeader>
-                  <ZoruCardContent className="space-y-4">
+                  <CardHeader>
+                    <CardTitle>Renewal Notifications</CardTitle>
+                    <CardDescription>Configure alerts to avoid campaign expiration.</CardDescription>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
                     <div className="flex items-start space-x-3 p-3 bg-[var(--st-bg-secondary)] rounded-lg border">
                       <Checkbox id="remind-30" defaultChecked className="mt-1" />
                       <div>
@@ -620,15 +585,15 @@ export default function TenDlcRegistrationPage() {
                         <p className="text-sm text-[var(--st-text-secondary)]">Critical final warning before expiration.</p>
                       </div>
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
 
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle>Reseller Configuration</ZoruCardTitle>
-                    <ZoruCardDescription>Manage relationships with downstream providers.</ZoruCardDescription>
-                  </ZoruCardHeader>
-                  <ZoruCardContent className="space-y-4">
+                  <CardHeader>
+                    <CardTitle>Reseller Configuration</CardTitle>
+                    <CardDescription>Manage relationships with downstream providers.</CardDescription>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
                     <div className="space-y-2">
                       <Label>Reseller TCR ID (Optional)</Label>
                       <Input placeholder="R-XXXXXXXX" />
@@ -640,7 +605,7 @@ export default function TenDlcRegistrationPage() {
                       </div>
                       <Switch />
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               </div>
             </div>
@@ -651,13 +616,13 @@ export default function TenDlcRegistrationPage() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-[var(--st-text)]" /> Action Required
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>Review rejected or flagged campaigns.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  </CardTitle>
+                  <CardDescription>Review rejected or flagged campaigns.</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="rounded-lg border p-5 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/10 border-[var(--st-border)] dark:border-[var(--st-border)]/30">
                     <div className="flex justify-between items-start mb-3">
                       <div>
@@ -678,15 +643,15 @@ export default function TenDlcRegistrationPage() {
                       </Button>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Submission Audit Trail</ZoruCardTitle>
-                  <ZoruCardDescription>Recent state changes for your entities.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                  <CardTitle>Submission Audit Trail</CardTitle>
+                  <CardDescription>Recent state changes for your entities.</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="relative border-l border-[var(--st-border)] ml-3 space-y-6 pb-2">
                     <div className="relative pl-6">
                       <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-text)]" />
@@ -710,16 +675,16 @@ export default function TenDlcRegistrationPage() {
                       </div>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Full Activity Log</ZoruCardTitle>
-                <ZoruCardDescription>Comprehensive log of all compliance activities across brands and campaigns.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Full Activity Log</CardTitle>
+                <CardDescription>Comprehensive log of all compliance activities across brands and campaigns.</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <SabsmsDataTable
                   rowKey={(r) => r.id}
                   columns={[
@@ -735,7 +700,7 @@ export default function TenDlcRegistrationPage() {
                     { id: 4, date: "2026-05-22 11:30:10", entity: "Marketing 2026", user: "Admin", action: "Campaign Registered" },
                   ]}
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         )}

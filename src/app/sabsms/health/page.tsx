@@ -5,31 +5,7 @@ import {
   Activity, AlertTriangle, CheckCircle2, Globe, List, Power, 
   Server, ShieldAlert, Webhook, Monitor, Zap, Plus, FileText, Settings 
 } from "lucide-react";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Badge,
-  Button,
-  Table,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableCell,
-  StatCard,
-  Progress,
-  Switch,
-  Label,
-  Input,
-  Checkbox,
-} from "@/components/sabcrm/20ui/zoru";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Card, CardHeader, CardTitle, CardDescription, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td, StatCard, Progress, Switch, Label, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { SabsmsPageShell, SabsmsRefreshButton } from "@/components/sabsms/page-toolkit";
 import {
   BarChart,
@@ -162,11 +138,11 @@ export default function HealthMonitorPage() {
               icon={<Webhook className="h-4 w-4 text-[var(--st-text)]" />}
             />
             <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 dark:border-[var(--st-border)] flex flex-col justify-center">
-              <ZoruCardContent className="p-4 pt-4">
+              <CardBody className="p-4 pt-4">
                 <Button variant="destructive" className="w-full">
                   <Power className="mr-2 h-4 w-4" /> Pause All Sends
                 </Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
@@ -177,11 +153,11 @@ export default function HealthMonitorPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Live Throughput</ZoruCardTitle>
-                <ZoruCardDescription>Messages per second over the last 24h</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="h-[250px]">
+              <CardHeader>
+                <CardTitle>Live Throughput</CardTitle>
+                <CardDescription>Messages per second over the last 24h</CardDescription>
+              </CardHeader>
+              <CardBody className="h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={MOCK_THROUGHPUT}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -191,15 +167,15 @@ export default function HealthMonitorPage() {
                     <Line type="monotone" dataKey="msgs" stroke="#3b82f6" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Queue & Concurrency</ZoruCardTitle>
-                <ZoruCardDescription>BullMQ depth vs active workers</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Queue & Concurrency</CardTitle>
+                <CardDescription>BullMQ depth vs active workers</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2"><List className="h-4 w-4"/> Queue Depth</span>
@@ -224,7 +200,7 @@ export default function HealthMonitorPage() {
                     <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Healthy</Badge>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </TabsContent>
@@ -232,44 +208,44 @@ export default function HealthMonitorPage() {
         <TabsContent value="providers" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Provider Rolling DLR</ZoruCardTitle>
-                <ZoruCardDescription>Delivery rate over 1h / 24h / 7d</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Provider Rolling DLR</CardTitle>
+                <CardDescription>Delivery rate over 1h / 24h / 7d</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Provider</ZoruTableHead>
-                      <ZoruTableHead>1h</ZoruTableHead>
-                      <ZoruTableHead>24h</ZoruTableHead>
-                      <ZoruTableHead>7d</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-medium">Twilio</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">98.2%</Badge></ZoruTableCell>
-                      <ZoruTableCell>97.5%</ZoruTableCell>
-                      <ZoruTableCell>97.8%</ZoruTableCell>
-                    </ZoruTableRow>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-medium">Vonage</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">89.1%</Badge></ZoruTableCell>
-                      <ZoruTableCell>92.4%</ZoruTableCell>
-                      <ZoruTableCell>94.1%</ZoruTableCell>
-                    </ZoruTableRow>
-                  </ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Provider</Th>
+                      <Th>1h</Th>
+                      <Th>24h</Th>
+                      <Th>7d</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    <Tr>
+                      <Td className="font-medium">Twilio</Td>
+                      <Td><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">98.2%</Badge></Td>
+                      <Td>97.5%</Td>
+                      <Td>97.8%</Td>
+                    </Tr>
+                    <Tr>
+                      <Td className="font-medium">Vonage</Td>
+                      <Td><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">89.1%</Badge></Td>
+                      <Td>92.4%</Td>
+                      <Td>94.1%</Td>
+                    </Tr>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Error Code Histogram</ZoruCardTitle>
-                <ZoruCardDescription>Top failure reasons across all providers</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="h-[200px]">
+              <CardHeader>
+                <CardTitle>Error Code Histogram</CardTitle>
+                <CardDescription>Top failure reasons across all providers</CardDescription>
+              </CardHeader>
+              <CardBody className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={MOCK_ERROR_HISTOGRAM} layout="vertical" margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
@@ -279,69 +255,69 @@ export default function HealthMonitorPage() {
                     <Bar dataKey="count" fill="#f43f5e" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Number Health Scoreboard</ZoruCardTitle>
-                <ZoruCardDescription>Flagged or degraded longcodes & shortcodes</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Number Health Scoreboard</CardTitle>
+                <CardDescription>Flagged or degraded longcodes & shortcodes</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Number</ZoruTableHead>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                      <ZoruTableHead>DLR</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-mono text-sm">+1234567890</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">High Spam</Badge></ZoruTableCell>
-                      <ZoruTableCell>64%</ZoruTableCell>
-                    </ZoruTableRow>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-mono text-sm">+1987654321</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Throttled</Badge></ZoruTableCell>
-                      <ZoruTableCell>88%</ZoruTableCell>
-                    </ZoruTableRow>
-                  </ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Number</Th>
+                      <Th>Status</Th>
+                      <Th>DLR</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    <Tr>
+                      <Td className="font-mono text-sm">+1234567890</Td>
+                      <Td><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">High Spam</Badge></Td>
+                      <Td>64%</Td>
+                    </Tr>
+                    <Tr>
+                      <Td className="font-mono text-sm">+1987654321</Td>
+                      <Td><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Throttled</Badge></Td>
+                      <Td>88%</Td>
+                    </Tr>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Carrier Deliverability</ZoruCardTitle>
-                <ZoruCardDescription>Performance by destination network</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Carrier Deliverability</CardTitle>
+                <CardDescription>Performance by destination network</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Carrier</ZoruTableHead>
-                      <ZoruTableHead>Latency</ZoruTableHead>
-                      <ZoruTableHead>DLR</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-medium">AT&T (US)</ZoruTableCell>
-                      <ZoruTableCell>1.2s</ZoruTableCell>
-                      <ZoruTableCell>99.1%</ZoruTableCell>
-                    </ZoruTableRow>
-                    <ZoruTableRow>
-                      <ZoruTableCell className="font-medium">T-Mobile (US)</ZoruTableCell>
-                      <ZoruTableCell>2.4s</ZoruTableCell>
-                      <ZoruTableCell>97.5%</ZoruTableCell>
-                    </ZoruTableRow>
-                  </ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Carrier</Th>
+                      <Th>Latency</Th>
+                      <Th>DLR</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    <Tr>
+                      <Td className="font-medium">AT&T (US)</Td>
+                      <Td>1.2s</Td>
+                      <Td>99.1%</Td>
+                    </Tr>
+                    <Tr>
+                      <Td className="font-medium">T-Mobile (US)</Td>
+                      <Td>2.4s</Td>
+                      <Td>97.5%</Td>
+                    </Tr>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </TabsContent>
@@ -357,44 +333,44 @@ export default function HealthMonitorPage() {
           
           <Card>
             <Table>
-               <ZoruTableHeader>
-                 <ZoruTableRow>
-                   <ZoruTableHead>Incident</ZoruTableHead>
-                   <ZoruTableHead>Status</ZoruTableHead>
-                   <ZoruTableHead>Date</ZoruTableHead>
-                   <ZoruTableHead>Resolution</ZoruTableHead>
-                 </ZoruTableRow>
-               </ZoruTableHeader>
-               <ZoruTableBody>
-                 <ZoruTableRow>
-                   <ZoruTableCell className="font-medium">Vodafone UK Gateway Timeout</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Resolved</Badge></ZoruTableCell>
-                   <ZoruTableCell>May 20, 2026</ZoruTableCell>
-                   <ZoruTableCell>Traffic rerouted to secondary provider. Connectivity restored.</ZoruTableCell>
-                 </ZoruTableRow>
-                 <ZoruTableRow>
-                   <ZoruTableCell className="font-medium">US Shortcode Processing Delay</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Resolved</Badge></ZoruTableCell>
-                   <ZoruTableCell>May 18, 2026</ZoruTableCell>
-                   <ZoruTableCell>Increased worker pool size to handle burst traffic.</ZoruTableCell>
-                 </ZoruTableRow>
-                 <ZoruTableRow>
-                   <ZoruTableCell className="font-medium">Webhook Delivery High Latency</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">Monitoring</Badge></ZoruTableCell>
-                   <ZoruTableCell>Today</ZoruTableCell>
-                   <ZoruTableCell>Investigating database lock contention in webhooks table.</ZoruTableCell>
-                 </ZoruTableRow>
-               </ZoruTableBody>
+               <THead>
+                 <Tr>
+                   <Th>Incident</Th>
+                   <Th>Status</Th>
+                   <Th>Date</Th>
+                   <Th>Resolution</Th>
+                 </Tr>
+               </THead>
+               <TBody>
+                 <Tr>
+                   <Td className="font-medium">Vodafone UK Gateway Timeout</Td>
+                   <Td><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Resolved</Badge></Td>
+                   <Td>May 20, 2026</Td>
+                   <Td>Traffic rerouted to secondary provider. Connectivity restored.</Td>
+                 </Tr>
+                 <Tr>
+                   <Td className="font-medium">US Shortcode Processing Delay</Td>
+                   <Td><Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">Resolved</Badge></Td>
+                   <Td>May 18, 2026</Td>
+                   <Td>Increased worker pool size to handle burst traffic.</Td>
+                 </Tr>
+                 <Tr>
+                   <Td className="font-medium">Webhook Delivery High Latency</Td>
+                   <Td><Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">Monitoring</Badge></Td>
+                   <Td>Today</Td>
+                   <Td>Investigating database lock contention in webhooks table.</Td>
+                 </Tr>
+               </TBody>
             </Table>
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Outage Timeline</ZoruCardTitle>
-                <ZoruCardDescription>Recent incidents & compliance alerts</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-4">
+              <CardHeader>
+                <CardTitle>Outage Timeline</CardTitle>
+                <CardDescription>Recent incidents & compliance alerts</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-4">
                 <div className="flex gap-4 border-l-2 border-[var(--st-border)] pl-4 py-2">
                   <ShieldAlert className="h-5 w-5 text-[var(--st-text)] mt-0.5" />
                   <div>
@@ -411,15 +387,15 @@ export default function HealthMonitorPage() {
                     <span className="text-xs text-[var(--st-text-secondary)]">Yesterday, 09:15</span>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Alert Rules & Channels</ZoruCardTitle>
-                <ZoruCardDescription>Configure health notifications</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Alert Rules & Channels</CardTitle>
+                <CardDescription>Configure health notifications</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 <div className="space-y-4">
                   <h4 className="text-sm font-medium">Notification Channels</h4>
                   <div className="flex items-center justify-between">
@@ -444,18 +420,18 @@ export default function HealthMonitorPage() {
                     <Badge variant="outline">Active</Badge>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </TabsContent>
 
         <TabsContent value="status-page" className="space-y-6">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Automated Status Page</ZoruCardTitle>
-              <ZoruCardDescription>Configure and generate a public-facing status page automatically.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6 max-w-2xl">
+            <CardHeader>
+              <CardTitle>Automated Status Page</CardTitle>
+              <CardDescription>Configure and generate a public-facing status page automatically.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-6 max-w-2xl">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Custom Domain / Subdomain</Label>
@@ -500,24 +476,24 @@ export default function HealthMonitorPage() {
                 <Button><Globe className="mr-2 h-4 w-4"/> Publish Changes</Button>
                 <Button variant="secondary"><FileText className="mr-2 h-4 w-4" /> View Live Page</Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </TabsContent>
 
         <TabsContent value="integrations" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Monitor className="h-5 w-5 text-[var(--st-text)]" />
-                    <ZoruCardTitle>Datadog Integration</ZoruCardTitle>
+                    <CardTitle>Datadog Integration</CardTitle>
                   </div>
                   <Switch defaultChecked />
                 </div>
-                <ZoruCardDescription>Export metrics, traces, and logs directly to Datadog for deeper analytics.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-4">
+                <CardDescription>Export metrics, traces, and logs directly to Datadog for deeper analytics.</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-4">
                 <div className="space-y-2">
                   <Label>Datadog API Key</Label>
                   <Input type="password" defaultValue="************************" />
@@ -536,21 +512,21 @@ export default function HealthMonitorPage() {
                   </select>
                 </div>
                 <Button variant="outline" className="w-full">Test Connection</Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Settings className="h-5 w-5 text-[var(--st-text)]" />
-                    <ZoruCardTitle>Prometheus Exporter</ZoruCardTitle>
+                    <CardTitle>Prometheus Exporter</CardTitle>
                   </div>
                   <Switch />
                 </div>
-                <ZoruCardDescription>Enable Prometheus scraping endpoint for metric collection.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-4">
+                <CardDescription>Enable Prometheus scraping endpoint for metric collection.</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-4">
                 <div className="space-y-2">
                   <Label>Metrics Endpoint Path</Label>
                   <Input defaultValue="/metrics/prometheus" disabled />
@@ -569,55 +545,55 @@ export default function HealthMonitorPage() {
                   </code>
                 </div>
                 <Button variant="outline" className="w-full">Regenerate Token</Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </TabsContent>
 
         <TabsContent value="audit" className="space-y-6">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Audit Log & Failures</ZoruCardTitle>
-              <ZoruCardDescription>System actions and sample failed sends</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Audit Log & Failures</CardTitle>
+              <CardDescription>System actions and sample failed sends</CardDescription>
+            </CardHeader>
+            <CardBody>
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Timestamp</ZoruTableHead>
-                    <ZoruTableHead>Type</ZoruTableHead>
-                    <ZoruTableHead>Actor / Resource</ZoruTableHead>
-                    <ZoruTableHead>Details</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
-                  <ZoruTableRow>
-                    <ZoruTableCell className="whitespace-nowrap">2026-05-22 14:00:21</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="secondary">Failed Send</Badge></ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs">msg_8f991...</ZoruTableCell>
-                    <ZoruTableCell>Error 30008: Unknown destination handset</ZoruTableCell>
-                  </ZoruTableRow>
-                  <ZoruTableRow>
-                    <ZoruTableCell className="whitespace-nowrap">2026-05-22 13:45:00</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="outline">Config Change</Badge></ZoruTableCell>
-                    <ZoruTableCell>admin@sabnode.com</ZoruTableCell>
-                    <ZoruTableCell>Updated auto-degrade rule threshold to 90%</ZoruTableCell>
-                  </ZoruTableRow>
-                  <ZoruTableRow>
-                    <ZoruTableCell className="whitespace-nowrap">2026-05-22 13:20:11</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="secondary">Failed Send</Badge></ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs">msg_2a11b...</ZoruTableCell>
-                    <ZoruTableCell>Error 21614: Unsubscribed recipient</ZoruTableCell>
-                  </ZoruTableRow>
-                  <ZoruTableRow>
-                    <ZoruTableCell className="whitespace-nowrap">2026-05-22 12:00:00</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="outline">System</Badge></ZoruTableCell>
-                    <ZoruTableCell>Health Monitor</ZoruTableCell>
-                    <ZoruTableCell>Daily SLA report generated</ZoruTableCell>
-                  </ZoruTableRow>
-                </ZoruTableBody>
+                <THead>
+                  <Tr>
+                    <Th>Timestamp</Th>
+                    <Th>Type</Th>
+                    <Th>Actor / Resource</Th>
+                    <Th>Details</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  <Tr>
+                    <Td className="whitespace-nowrap">2026-05-22 14:00:21</Td>
+                    <Td><Badge variant="secondary">Failed Send</Badge></Td>
+                    <Td className="font-mono text-xs">msg_8f991...</Td>
+                    <Td>Error 30008: Unknown destination handset</Td>
+                  </Tr>
+                  <Tr>
+                    <Td className="whitespace-nowrap">2026-05-22 13:45:00</Td>
+                    <Td><Badge variant="outline">Config Change</Badge></Td>
+                    <Td>admin@sabnode.com</Td>
+                    <Td>Updated auto-degrade rule threshold to 90%</Td>
+                  </Tr>
+                  <Tr>
+                    <Td className="whitespace-nowrap">2026-05-22 13:20:11</Td>
+                    <Td><Badge variant="secondary">Failed Send</Badge></Td>
+                    <Td className="font-mono text-xs">msg_2a11b...</Td>
+                    <Td>Error 21614: Unsubscribed recipient</Td>
+                  </Tr>
+                  <Tr>
+                    <Td className="whitespace-nowrap">2026-05-22 12:00:00</Td>
+                    <Td><Badge variant="outline">System</Badge></Td>
+                    <Td>Health Monitor</Td>
+                    <Td>Daily SLA report generated</Td>
+                  </Tr>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </TabsContent>
       </Tabs>

@@ -9,24 +9,7 @@ import {
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
 import { Sparkles, Filter, Eye, Layers, TrendingUp, Users, Target } from "lucide-react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Table, THead, Tr, Th, TBody, Td, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import {
   LineChart,
   Line,
@@ -355,21 +338,21 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[180px] pl-6 font-semibold">Cohort</TableHead>
-                <TableHead className="w-[120px] font-semibold">Initial Size</TableHead>
+            <THead>
+              <Tr className="hover:bg-transparent">
+                <Th className="w-[180px] pl-6 font-semibold">Cohort</Th>
+                <Th className="w-[120px] font-semibold">Initial Size</Th>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <TableHead key={i} className="text-center w-[120px] font-semibold">
+                  <Th key={i} className="text-center w-[120px] font-semibold">
                     Month {i}
-                  </TableHead>
+                  </Th>
                 ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+              </Tr>
+            </THead>
+            <TBody>
               {data.rows.map((row) => (
-                <TableRow key={row.id} className="group border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/30">
-                  <TableCell className="font-medium pl-6">
+                <Tr key={row.id} className="group border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/30">
+                  <Td className="font-medium pl-6">
                     <div className="flex items-center">
                       <span>{row.id}</span>
                       <DropdownMenu>
@@ -386,18 +369,18 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <span className="font-mono">{row.size.toLocaleString()}</span>
-                  </TableCell>
+                  </Td>
                   {Array.from({ length: 6 }).map((_, i) => {
                     const cell = row.cells.find((c) => c.period === i);
                     if (!cell) {
-                      return <TableCell key={i} className="bg-[var(--st-bg-muted)]/10 border-r border-[var(--st-border)]/10 last:border-r-0" />;
+                      return <Td key={i} className="bg-[var(--st-bg-muted)]/10 border-r border-[var(--st-border)]/10 last:border-r-0" />;
                     }
                     const isSelected = selectedCell?.rowId === row.id && selectedCell?.period === i;
                     return (
-                      <TableCell
+                      <Td
                         key={i}
                         className={`text-center p-0 border-r border-[var(--st-border)]/10 last:border-r-0`}
                       >
@@ -414,12 +397,12 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                             )}
                           </div>
                         </div>
-                      </TableCell>
+                      </Td>
                     );
                   })}
-                </TableRow>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

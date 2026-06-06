@@ -2,15 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 import type { CampaignDraft, ValidationIssue, WizardStepId } from "../types";
 
@@ -190,15 +182,15 @@ export function StepReview({
     <div className="space-y-5">
       {issues.length > 0 && (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base text-[var(--st-text)]">
+          <CardHeader>
+            <CardTitle className="text-base text-[var(--st-text)]">
               {issues.length} issue{issues.length === 1 ? "" : "s"} blocking launch
-            </ZoruCardTitle>
-            <ZoruCardDescription className="text-[var(--st-text)]">
+            </CardTitle>
+            <CardDescription className="text-[var(--st-text)]">
               Fix these before you can launch or schedule.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ul className="space-y-1 text-sm text-[var(--st-text)]">
               {issues.map((i, idx) => (
                 <li key={idx} className="flex items-center justify-between">
@@ -217,21 +209,21 @@ export function StepReview({
                 </li>
               ))}
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">
+        <CardHeader>
+          <CardTitle className="text-base">
             Page-7 feature checklist
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             All 20 features from <code>plans/sabsms-pages-catalog.md</code>{" "}
             §B.2 Page 7 — click any row to jump back to that step.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <ul className="divide-y divide-[var(--st-border)]">
             {items.map((it) => (
               <li
@@ -260,7 +252,7 @@ export function StepReview({
               </li>
             ))}
           </ul>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

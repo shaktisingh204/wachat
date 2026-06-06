@@ -2,14 +2,14 @@
 
 import React from "react";
 import { Plus, Search, ArrowRightLeft, Truck, PackageCheck, AlertTriangle, MoreHorizontal, ArrowRight } from "lucide-react";
-import { PageHeader } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/sabcrm/20ui/zoru/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/sabcrm/20ui/zoru/table";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 
 const mockTransfers = [
   {
@@ -140,38 +140,38 @@ export default function TransfersPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Transfer ID</TableHead>
-                <TableHead>Route</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Transfer ID</Th>
+                <Th>Route</Th>
+                <Th>Date</Th>
+                <Th>Items</Th>
+                <Th>Priority</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mockTransfers.map((transfer) => (
-                <TableRow key={transfer.id}>
-                  <TableCell className="font-medium">{transfer.id}</TableCell>
-                  <TableCell>
+                <Tr key={transfer.id}>
+                  <Td className="font-medium">{transfer.id}</Td>
+                  <Td>
                     <div className="flex items-center space-x-2 text-sm">
                       <span className="truncate max-w-[120px]">{transfer.origin}</span>
                       <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                       <span className="truncate max-w-[120px]">{transfer.destination}</span>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{transfer.date}</TableCell>
-                  <TableCell>{transfer.items}</TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td className="text-muted-foreground">{transfer.date}</Td>
+                  <Td>{transfer.items}</Td>
+                  <Td>
                     <div className="flex items-center">
                       {getPriorityIcon(transfer.priority)}
                       <span className="text-sm">{transfer.priority}</span>
                     </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(transfer.status)}</TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td>{getStatusBadge(transfer.status)}</Td>
+                  <Td className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -188,10 +188,10 @@ export default function TransfersPage() {
                         <DropdownMenuItem className="text-destructive">Cancel transfer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
         <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">

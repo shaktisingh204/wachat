@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  ZoruFilesPage,
-  type ZoruFileEntity,
-} from '@/components/sabcrm/20ui/zoru';
+import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
 import {
   EmptyState,
   Skeleton,

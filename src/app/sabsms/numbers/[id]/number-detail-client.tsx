@@ -28,41 +28,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import {
-  ZORU_CHART_PALETTE,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, ZoruChart, ChartContainer, ChartTooltip, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsDataTable,
@@ -95,7 +61,7 @@ interface Props {
 }
 
 export function NumberDetailClient({ detail }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   // ─── Override form state ────────────────────────────────────────────────
@@ -336,24 +302,24 @@ export function NumberDetailClient({ detail }: Props) {
       {detail.projectedUsageCost > 50 && (
         <Alert variant="default" className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
           <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-          <ZoruAlertTitle className="text-[var(--st-text)]">High projected volume cost</ZoruAlertTitle>
-          <ZoruAlertDescription className="text-[var(--st-text)]">
+          <AlertTitle className="text-[var(--st-text)]">High projected volume cost</AlertTitle>
+          <AlertDescription className="text-[var(--st-text)]">
             Based on the last 30 days of traffic, this number is projected to incur an additional{" "}
             <span className="font-semibold">${detail.projectedUsageCost.toFixed(2)}</span> in usage charges this month.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {/* Compliance + capabilities banner */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Compliance and capabilities</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Compliance and capabilities</CardTitle>
+          <CardDescription>
             Carrier readiness + the workspace registration state for this
             number.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <Badge
               variant={
@@ -404,18 +370,18 @@ export function NumberDetailClient({ detail }: Props) {
               value={new Date(detail.createdAt).toLocaleDateString()}
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Charts row */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Health (30d)</ZoruCardTitle>
-            <ZoruCardDescription>DLR + complaint rate.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+          <CardHeader>
+            <CardTitle>Health (30d)</CardTitle>
+            <CardDescription>DLR + complaint rate.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.LineChart data={detail.health}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -423,7 +389,7 @@ export function NumberDetailClient({ detail }: Props) {
                 />
                 <ZoruChart.XAxis dataKey="date" fontSize={10} />
                 <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -442,18 +408,18 @@ export function NumberDetailClient({ detail }: Props) {
                   name="Complaint %"
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Volume (30d)</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Volume (30d)</CardTitle>
+            <CardDescription>
               Sent / delivered / failed per day.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.LineChart data={detail.volume}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -461,7 +427,7 @@ export function NumberDetailClient({ detail }: Props) {
                 />
                 <ZoruChart.XAxis dataKey="date" fontSize={10} />
                 <ZoruChart.YAxis fontSize={10} />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -485,16 +451,16 @@ export function NumberDetailClient({ detail }: Props) {
                   dot={false}
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Cost (30d)</ZoruCardTitle>
-            <ZoruCardDescription>USD per day, this number.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+          <CardHeader>
+            <CardTitle>Cost (30d)</CardTitle>
+            <CardDescription>USD per day, this number.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.LineChart data={detail.cost}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -502,7 +468,7 @@ export function NumberDetailClient({ detail }: Props) {
                 />
                 <ZoruChart.XAxis dataKey="date" fontSize={10} />
                 <ZoruChart.YAxis fontSize={10} unit="$" />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -521,20 +487,20 @@ export function NumberDetailClient({ detail }: Props) {
                   name="Revenue"
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
       </div>
 
       {/* Deliverability & Bounces charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Deliverability (30d)</ZoruCardTitle>
-            <ZoruCardDescription>Percentage of messages successfully delivered.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+          <CardHeader>
+            <CardTitle>Deliverability (30d)</CardTitle>
+            <CardDescription>Percentage of messages successfully delivered.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.LineChart data={detail.health}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -542,7 +508,7 @@ export function NumberDetailClient({ detail }: Props) {
                 />
                 <ZoruChart.XAxis dataKey="date" fontSize={10} />
                 <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -553,16 +519,16 @@ export function NumberDetailClient({ detail }: Props) {
                   name="Deliverability %"
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Bounce Rate (30d)</ZoruCardTitle>
-            <ZoruCardDescription>Percentage of messages that failed to deliver.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={220}>
+          <CardHeader>
+            <CardTitle>Bounce Rate (30d)</CardTitle>
+            <CardDescription>Percentage of messages that failed to deliver.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={220}>
               <ZoruChart.LineChart data={detail.health}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -570,7 +536,7 @@ export function NumberDetailClient({ detail }: Props) {
                 />
                 <ZoruChart.XAxis dataKey="date" fontSize={10} />
                 <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
                 <ZoruChart.Line
                   type="monotone"
@@ -581,21 +547,21 @@ export function NumberDetailClient({ detail }: Props) {
                   name="Bounce Rate %"
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
       </div>
 
       {/* Per-country + per-template aggregators */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Per-country deliverability</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Per-country deliverability</CardTitle>
+            <CardDescription>
               Top destinations sent from this number.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             <table className="w-full text-sm">
               <thead className="bg-[var(--st-bg-muted)] text-xs text-[var(--st-text)]">
                 <tr>
@@ -635,16 +601,16 @@ export function NumberDetailClient({ detail }: Props) {
                 )}
               </tbody>
             </table>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Per-template performance</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Per-template performance</CardTitle>
+            <CardDescription>
               Top templates by send volume from this number.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             <table className="w-full text-sm">
               <thead className="bg-[var(--st-bg-muted)] text-xs text-[var(--st-text)]">
                 <tr>
@@ -678,19 +644,19 @@ export function NumberDetailClient({ detail }: Props) {
                 )}
               </tbody>
             </table>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Campaign + pool assignment */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Assignments</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Assignments</CardTitle>
+          <CardDescription>
             Where this number is being used.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
@@ -721,35 +687,35 @@ export function NumberDetailClient({ detail }: Props) {
                 Sender pool
               </div>
               <Select value={poolId} onValueChange={setPoolId}>
-                <ZoruSelectTrigger className="mt-2">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="mt-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {detail.pools.map((p) => (
-                    <ZoruSelectItem key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={p.id}>
                       {p.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Override config */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Per-number overrides</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Per-number overrides</CardTitle>
+          <CardDescription>
             Throttle, quiet hours, webhooks, sender id. Saves to{" "}
             <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
               sabsms_numbers
             </code>
             .
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-5">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-5">
           <div>
             <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
               Throttle
@@ -930,18 +896,18 @@ export function NumberDetailClient({ detail }: Props) {
               </span>
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Send + inbound history */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>History</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>History</CardTitle>
+          <CardDescription>
             Last 200 outbound + inbound messages for this number.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <SabsmsFilterBar
             searchPlaceholder="Search history"
             facets={historyFacets}
@@ -977,19 +943,19 @@ export function NumberDetailClient({ detail }: Props) {
               emptyDescription="No replies received on this number yet."
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Mini composer */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Test send from this number</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Test send from this number</CardTitle>
+          <CardDescription>
             Sends through the SabSMS engine using this number as the
             <span className="font-mono"> from </span>address.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-3 md:grid-cols-3">
             <div className="space-y-1">
               <Label htmlFor="composer-to">To (E.164)</Label>
@@ -1020,19 +986,19 @@ export function NumberDetailClient({ detail }: Props) {
               <span className="ml-2">Send test</span>
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Danger zone */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Danger zone</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Danger zone</CardTitle>
+          <CardDescription>
             Release the number or move it to another carrier. Both go
             through audit.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -1051,28 +1017,28 @@ export function NumberDetailClient({ detail }: Props) {
           </div>
           <Alert className="mt-3" variant="info">
             <AlertTriangle aria-hidden />
-            <ZoruAlertTitle>Heads-up</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Heads-up</AlertTitle>
+            <AlertDescription>
               Release transitions status to{" "}
               <span className="font-mono">releasing</span> immediately and
               schedules the final release after the grace window. Port-out
               files a stub audit entry — the engine doesn{`’`}t support
               carrier ports yet.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Release confirmation */}
-      <ZoruAlertDialog open={releaseOpen} onOpenChange={setReleaseOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Release this number?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={releaseOpen} onOpenChange={setReleaseOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Release this number?</AlertDialogTitle>
+            <AlertDialogDescription>
               After the grace window, the number will be released back to{" "}
               {detail.provider}. Inbound traffic will be lost.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           <div className="space-y-1 py-2">
             <Label htmlFor="grace">Grace period (hours)</Label>
             <Input
@@ -1088,30 +1054,30 @@ export function NumberDetailClient({ detail }: Props) {
               }
             />
           </div>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={actionPending}>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionPending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={doRelease}
               disabled={actionPending}
             >
               {actionPending ? "Releasing…" : "Release"}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Port-out dialog */}
-      <ZoruAlertDialog open={portOutOpen} onOpenChange={setPortOutOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Request port-out</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={portOutOpen} onOpenChange={setPortOutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Request port-out</AlertDialogTitle>
+            <AlertDialogDescription>
               Files a stub request for carrier support. The engine
               doesn{`’`}t support automated port-outs yet (Phase 7+).
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1">
               <Label htmlFor="port-carrier">Target carrier</Label>
@@ -1140,19 +1106,19 @@ export function NumberDetailClient({ detail }: Props) {
               />
             </div>
           </div>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={actionPending}>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionPending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={doPortOut}
               disabled={actionPending}
             >
               {actionPending ? "Filing…" : "File request"}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Audit drawer */}
       <SabsmsDetailDrawer

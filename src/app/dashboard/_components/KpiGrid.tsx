@@ -19,7 +19,7 @@ import {
   ChevronDown,
   ArrowUpRight
 } from "lucide-react";
-import { Button, DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuLabel, ZoruDropdownMenuRadioGroup, ZoruDropdownMenuRadioItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuItem, ZoruDropdownMenuCheckboxItem } from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import { compact, curr } from "./utils";
 import {
@@ -252,49 +252,49 @@ export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
         </div>
         <div className="flex items-center gap-1.5">
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" aria-label="Customize Layout">
                 <Settings className="opacity-60" /> Layout
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-56">
-              <ZoruDropdownMenuLabel>Customize Metric Tiles</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Customize Metric Tiles</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {kpis.map((kpi) => (
-                <ZoruDropdownMenuCheckboxItem
+                <DropdownMenuCheckboxItem
                   key={kpi.id}
                   checked={visibleKpis[kpi.id] !== false}
                   onCheckedChange={() => toggleKpi(kpi.id)}
                 >
                   {kpi.label}
-                </ZoruDropdownMenuCheckboxItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
 
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 {TIME_RANGE_LABELS[timeRange]}
                 <ChevronDown className="opacity-60" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuRadioGroup
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Time range</DropdownMenuLabel>
+              <DropdownMenuRadioGroup
                 value={timeRange}
                 onValueChange={(v) => setTimeRange(v as TimeRange)}
               >
-                <ZoruDropdownMenuRadioItem value="24h">Last 24 hours</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="7d">Last 7 days</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="30d">Last 30 days</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="all">All time</ZoruDropdownMenuRadioItem>
-              </ZoruDropdownMenuRadioGroup>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={() => router.push("/wachat/analytics")}>
+                <DropdownMenuRadioItem value="24h">Last 24 hours</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="7d">Last 7 days</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="30d">Last 30 days</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="all">All time</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => router.push("/wachat/analytics")}>
                 <ArrowUpRight /> Open analytics
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>

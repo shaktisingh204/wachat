@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/zoru';
+import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
 import {
   redirect } from "next/navigation";
 

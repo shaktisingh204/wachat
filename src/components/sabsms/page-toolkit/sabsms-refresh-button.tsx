@@ -3,17 +3,7 @@
 import * as React from "react";
 import { RefreshCcw } from "lucide-react";
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 const INTERVALS = [
   { value: "off", label: "Off" },
@@ -76,7 +66,7 @@ export function SabsmsRefreshButton({
         Refresh
       </Button>
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="sm"
@@ -85,21 +75,21 @@ export function SabsmsRefreshButton({
           >
             ▾
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
-          <ZoruDropdownMenuLabel>Auto-refresh</ZoruDropdownMenuLabel>
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuRadioGroup
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Auto-refresh</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup
             value={interval}
             onValueChange={setInterval}
           >
             {INTERVALS.map((i) => (
-              <ZoruDropdownMenuRadioItem key={i.value} value={i.value}>
+              <DropdownMenuRadioItem key={i.value} value={i.value}>
                 {i.label}
-              </ZoruDropdownMenuRadioItem>
+              </DropdownMenuRadioItem>
             ))}
-          </ZoruDropdownMenuRadioGroup>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );

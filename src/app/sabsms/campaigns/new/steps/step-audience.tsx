@@ -2,23 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Label,
-  ZoruRadioCard,
-  RadioGroup,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from "@/components/sabfiles";
 
 import type { AudienceDraft, CampaignDraft } from "../types";
@@ -69,17 +53,17 @@ export function StepAudience({
         onValueChange={(v) => setKind(v as AudienceKind)}
         className="grid gap-3 md:grid-cols-3"
       >
-        <ZoruRadioCard
+        <RadioCard
           value="segment"
           label="Segment"
           description="Pick a saved CRM segment."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="contacts"
           label="Contacts"
           description="Hand-pick recipients."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="csv"
           label="CSV upload"
           description="Upload via SabFiles."
@@ -104,17 +88,17 @@ export function StepAudience({
                 onChange({ audience: { kind: "segment", segmentId: v } })
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Pick a segment" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick a segment" />
+              </SelectTrigger>
+              <SelectContent>
                 {segments.map((s) => (
-                  <ZoruSelectItem key={s.id} value={s.id}>
+                  <SelectItem key={s.id} value={s.id}>
                     {s.name}
                     {s.count != null ? ` (${s.count})` : ""}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           )}
         </div>
@@ -122,13 +106,13 @@ export function StepAudience({
 
       {kind === "contacts" && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Contacts</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">Contacts</CardTitle>
+            <CardDescription>
               Hand-pick recipients from your saved contacts.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {contacts.length === 0 ? (
               <p className="text-sm text-[var(--st-text)]">
                 No contacts yet — add them at <code>/sabsms/contacts</code>.
@@ -171,19 +155,19 @@ export function StepAudience({
                 })}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {kind === "csv" && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">CSV upload</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">CSV upload</CardTitle>
+            <CardDescription>
               Files live in SabFiles — never a free-text URL.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-3">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-3">
             <SabFilePickerButton
               accept="document"
               onPick={(p) =>
@@ -210,7 +194,7 @@ export function StepAudience({
                 </code>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

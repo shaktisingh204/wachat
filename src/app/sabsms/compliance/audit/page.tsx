@@ -32,24 +32,7 @@ import {
   MoreHorizontal,
   BellRing,
 } from "lucide-react";
-import {
-  Button,
-  Badge,
-  Input,
-  Label,
-  Switch,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  ScrollArea,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Badge, Input, Label, Switch, Tabs, TabsList, TabsTrigger, TabsContent, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { toast } from "sonner";
 
 import {
@@ -62,17 +45,7 @@ import {
   type SabsmsFacet,
 } from "@/components/sabsms/page-toolkit";
 
-import {
-  DataTable,
-  ZoruActionSearchBar,
-  type ZoruActionSearchAction,
-  ZoruStatisticsCard1,
-  type ZoruStatisticsCard1Item,
-  DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-} from "@/components/sabcrm/20ui/zoru";
+import { DataTable, ActionSearchBar, type ZoruActionSearchAction, ZoruStatisticsCard1, type ZoruStatisticsCard1Item, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 
 // Mock Data Types
 type AuditAction = "template-approved" | "suppression-added" | "consent-changed" | "send-blocked" | "campaign-launched";
@@ -429,22 +402,22 @@ export default function ComplianceAuditPage() {
       cell: ({ row }) => {
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem onSelect={() => setDetailRecordId(row.original.id)}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => setDetailRecordId(row.original.id)}>
                 <Eye className="mr-2 h-4 w-4" /> View Details
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => toast.success("Hash copied.")}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => toast.success("Hash copied.")}>
                 <Hash className="mr-2 h-4 w-4" /> Copy Hash
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem disabled={!row.original.reversible}>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={!row.original.reversible}>
                 <Play className="mr-2 h-4 w-4" /> Replay Action
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       }
@@ -546,7 +519,7 @@ export default function ComplianceAuditPage() {
           pageSize={10}
           onRowSelectionChange={setRowSelection}
           toolbar={
-            <ZoruActionSearchBar 
+            <ActionSearchBar 
               actions={searchActions} 
               placeholder="Search by hash, command (⌘K)..." 
               className="w-72 md:w-96"

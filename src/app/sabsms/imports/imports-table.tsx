@@ -34,11 +34,7 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Badge,
-  Progress,
-  zoruSonnerToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Progress, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 
 import { ImportsWizard } from "./wizard";
 import {

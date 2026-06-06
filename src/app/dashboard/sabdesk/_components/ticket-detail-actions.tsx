@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -54,7 +48,7 @@ export function TicketDetailActions({
   onMergeClick,
 }: TicketDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const id = String(ticket._id);
   const [assignOpen, setAssignOpen] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
@@ -109,12 +103,12 @@ export function TicketDetailActions({
       </Button>
 
       <Popover open={assignOpen} onOpenChange={setAssignOpen}>
-        <ZoruPopoverTrigger asChild>
+        <PopoverTrigger asChild>
           <Button variant="outline" size="sm">
             <UserPlus className="h-3.5 w-3.5" /> Assign
           </Button>
-        </ZoruPopoverTrigger>
-        <ZoruPopoverContent align="end" className="w-72 space-y-2">
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-72 space-y-2">
           <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             Assign agent
           </p>
@@ -132,7 +126,7 @@ export function TicketDetailActions({
           >
             Unassign
           </button>
-        </ZoruPopoverContent>
+        </PopoverContent>
       </Popover>
 
       <Button variant="outline" size="sm" onClick={onMergeClick}>

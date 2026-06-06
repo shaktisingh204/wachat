@@ -10,38 +10,7 @@
  */
 
 import * as React from "react";
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -83,7 +52,7 @@ function buildCsv(rows: Row[]): string {
 }
 
 export default function TicketTypesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [search, setSearch] = useState("");
@@ -331,9 +300,9 @@ export default function TicketTypesPage() {
         <Card className="p-6">
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="w-10">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-10">
                     <Checkbox
                       checked={
                         allSelected
@@ -345,55 +314,55 @@ export default function TicketTypesPage() {
                       onCheckedChange={(v) => toggleAll(v === true)}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Type
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Colour
-                  </ZoruTableHead>
-                  <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="w-[120px] text-right text-[var(--st-text-secondary)]">
                     Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && rows.length === 0 ? (
                   [...Array(3)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                      <ZoruTableCell colSpan={4}>
+                    <Tr key={i} className="border-[var(--st-border)]">
+                      <Td colSpan={4}>
                         <Skeleton className="h-8 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : filtered.length === 0 ? (
-                  <ZoruTableRow className="border-[var(--st-border)]">
-                    <ZoruTableCell
+                  <Tr className="border-[var(--st-border)]">
+                    <Td
                       colSpan={4}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {rows.length === 0
                         ? "No types yet — click Add Type to get started."
                         : "No types match this search."}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((row) => (
-                    <ZoruTableRow
+                    <Tr
                       key={row._id}
                       className={cn(
                         "border-[var(--st-border)]",
                         selected.has(row._id) && "bg-[var(--st-bg-secondary)]",
                       )}
                     >
-                      <ZoruTableCell>
+                      <Td>
                         <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleOne(row._id)}
                           aria-label={`Select ${row.type}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={row.type}
                           subtitle={row.color ?? undefined}
@@ -427,8 +396,8 @@ export default function TicketTypesPage() {
                             </div>
                           </div>
                         </RowDrawer>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <div className="flex items-center gap-2">
                           <span
                             className="inline-block h-4 w-4 rounded-sm border border-[var(--st-border)]"
@@ -439,8 +408,8 @@ export default function TicketTypesPage() {
                             {row.color || "—"}
                           </code>
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -457,26 +426,26 @@ export default function TicketTypesPage() {
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">
               {editing ? "Edit Type" : "Add Type"}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            </DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">
               Assign a colour hex code to visually distinguish the type.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
@@ -497,10 +466,10 @@ export default function TicketTypesPage() {
               <Label className="text-[var(--st-text)]">Colour</Label>
               <input type="hidden" name="color" value={color} />
               <div className="mt-1.5">
-                <ZoruColorPicker value={color} onChange={setColor} />
+                <ColorPicker value={color} onChange={setColor} />
               </div>
             </div>
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -517,32 +486,32 @@ export default function TicketTypesPage() {
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--st-text)]">
               Delete Type?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

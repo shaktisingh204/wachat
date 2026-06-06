@@ -2,21 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type { SabsmsMessageCategory } from "@/lib/sabsms/types";
 
 import type { CampaignDraft } from "../types";
@@ -83,16 +69,16 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
               onChange({ category: v as SabsmsMessageCategory })
             }
           >
-            <ZoruSelectTrigger id="campaign-category">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger id="campaign-category">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {CATEGORIES.map((c) => (
-                <ZoruSelectItem key={c.value} value={c.value}>
+                <SelectItem key={c.value} value={c.value}>
                   {c.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>
@@ -154,15 +140,15 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
         </div>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Preview</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">Preview</CardTitle>
+            <CardDescription>
               {selected
                 ? `${selected.name} · ${selected.category}`
                 : "Pick a template to preview its body."}
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {selected && selected.bodies.length > 1 && (
               <div className="mb-3 space-y-2">
                 <Label htmlFor="locale-select">Locale</Label>
@@ -170,16 +156,16 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                   value={draft.templateLocale ?? selected.bodies[0]?.locale}
                   onValueChange={(v) => onChange({ templateLocale: v })}
                 >
-                  <ZoruSelectTrigger id="locale-select">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger id="locale-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {selected.bodies.map((b) => (
-                      <ZoruSelectItem key={b.locale} value={b.locale}>
+                      <SelectItem key={b.locale} value={b.locale}>
                         {b.locale}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             )}
@@ -195,7 +181,7 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                 ))}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

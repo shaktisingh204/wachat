@@ -3,26 +3,7 @@
 import React, { useState } from "react";
 import { Plus, Tag, Ticket, Activity, MoreHorizontal, Copy, Trash2, Edit3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Button,
-  StatCard,
-  DataTable,
-  Badge,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/sabcrm/20ui/zoru";
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 
 const discountData = [
   {
@@ -223,19 +204,19 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8 w-full max-w-7xl mx-auto">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Discounts</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Discounts</PageTitle>
+          <PageDescription>
             Manage discount codes and automatic discounts for your store.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline">Export</Button>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Create discount
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

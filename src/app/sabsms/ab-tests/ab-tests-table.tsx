@@ -41,41 +41,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import {
-  ZORU_CHART_PALETTE,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsDataTable,
@@ -678,57 +644,57 @@ function AbTestDetailDrawer({
 
             {/* Per-variant table — features #10 + #12 */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Variants</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>Variants</CardTitle>
+                <CardDescription>
                   CTR / reply / conversion + cost per arm.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="p-0">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="p-0">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Variant</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                      <ZoruTableHead className="text-right">CTR</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Reply</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Conv</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Cost</ZoruTableHead>
-                      <ZoruTableHead className="text-right" />
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Variant</Th>
+                      <Th className="text-right">Total</Th>
+                      <Th className="text-right">CTR</Th>
+                      <Th className="text-right">Reply</Th>
+                      <Th className="text-right">Conv</Th>
+                      <Th className="text-right">Cost</Th>
+                      <Th className="text-right" />
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {row.variants.map((v) => {
                       const ctr = v.total > 0 ? v.clicks / v.total : 0;
                       const reply = v.total > 0 ? v.replies / v.total : 0;
                       const conv = v.total > 0 ? v.conversions / v.total : 0;
                       const isWinner = v.id === row.winnerVariantId;
                       return (
-                        <ZoruTableRow key={v.id}>
-                          <ZoruTableCell>
+                        <Tr key={v.id}>
+                          <Td>
                             <div className="flex items-center gap-1.5">
                               {isWinner && (
                                 <Crown className="h-3.5 w-3.5 text-[var(--st-text)]" />
                               )}
                               {v.label}
                             </div>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
+                          </Td>
+                          <Td className="text-right tabular-nums">
                             {v.total.toLocaleString()}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
+                          </Td>
+                          <Td className="text-right tabular-nums">
                             {fmtPct(ctr)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
+                          </Td>
+                          <Td className="text-right tabular-nums">
                             {fmtPct(reply)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
+                          </Td>
+                          <Td className="text-right tabular-nums">
                             {fmtPct(conv)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
+                          </Td>
+                          <Td className="text-right tabular-nums">
                             {fmtCost(v.costMicros)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right">
+                          </Td>
+                          <Td className="text-right">
                             <SabsmsExportMenu
                               filename={`ab-${row.id}-${v.id}`}
                               toCsv={async () => {
@@ -736,25 +702,25 @@ function AbTestDetailDrawer({
                                 return res.ok ? res.csv : "";
                               }}
                             />
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Funnel comparison bars per variant (feature #11) */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Funnel comparison</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>Funnel comparison</CardTitle>
+                <CardDescription>
                   Sent → clicked → replied per variant.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
-                <ZoruChartContainer height={180}>
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
+                <ChartContainer height={180}>
                   <ZoruChart.BarChart
                     data={row.variants.map((v) => ({
                       name: v.label,
@@ -778,7 +744,7 @@ function AbTestDetailDrawer({
                       tickLine={false}
                       axisLine={false}
                     />
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} />
                     <ZoruChart.Bar
                       dataKey="sent"
                       fill={ZORU_CHART_PALETTE[0]}
@@ -795,21 +761,21 @@ function AbTestDetailDrawer({
                       radius={[2, 2, 0, 0]}
                     />
                   </ZoruChart.BarChart>
-                </ZoruChartContainer>
-              </ZoruCardContent>
+                </ChartContainer>
+              </CardBody>
             </Card>
 
             {/* Significance simulation line (feature #17) */}
             {row.simulation && row.simulation.length > 1 && (
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Significance over time</ZoruCardTitle>
-                  <ZoruCardDescription>
+                <CardHeader>
+                  <CardTitle>Significance over time</CardTitle>
+                  <CardDescription>
                     p-value as sample size grows. Lower is more confident.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                  <ZoruChartContainer height={140}>
+                  </CardDescription>
+                </CardHeader>
+                <CardBody>
+                  <ChartContainer height={140}>
                     <ZoruChart.LineChart data={row.simulation}>
                       <ZoruChart.CartesianGrid
                         strokeDasharray="3 3"
@@ -827,7 +793,7 @@ function AbTestDetailDrawer({
                         tickLine={false}
                         axisLine={false}
                       />
-                      <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                      <ZoruChart.Tooltip content={<ChartTooltip />} />
                       <ZoruChart.Line
                         type="monotone"
                         dataKey="pValue"
@@ -836,21 +802,21 @@ function AbTestDetailDrawer({
                         dot={false}
                       />
                     </ZoruChart.LineChart>
-                  </ZoruChartContainer>
-                </ZoruCardContent>
+                  </ChartContainer>
+                </CardBody>
               </Card>
             )}
 
             {/* Settings — features #5 / #6 / #7 / #19 */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Test settings</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>Test settings</CardTitle>
+                <CardDescription>
                   Persisted to <code>sabsms_ab_tests</code>; every change is
                   audited.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-3 py-2">
                   <div className="flex flex-col">
                     <Label>Auto-promote winner</Label>
@@ -891,19 +857,19 @@ function AbTestDetailDrawer({
                       void onPatch({ metric: v as AbConversionMetric })
                     }
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                       {(Object.entries(METRIC_LABELS) as [
                         AbConversionMetric,
                         string,
                       ][]).map(([k, label]) => (
-                        <ZoruSelectItem key={k} value={k}>
+                        <SelectItem key={k} value={k}>
                           {label}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
 
@@ -924,54 +890,54 @@ function AbTestDetailDrawer({
                     }
                   />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </>
         )}
 
         {tab === "segments" && (
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Per-segment lift</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Per-segment lift</CardTitle>
+              <CardDescription>
                 Chi-square per segment vs the control arm.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-0">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="p-0">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Segment</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                    <ZoruTableHead className="text-right">
+                <THead>
+                  <Tr>
+                    <Th>Segment</Th>
+                    <Th className="text-right">Total</Th>
+                    <Th className="text-right">
                       Conversions
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right">Lift</ZoruTableHead>
-                    <ZoruTableHead className="text-right">p</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-right">Lift</Th>
+                    <Th className="text-right">p</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {segments.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell
+                    <Tr>
+                      <Td
                         colSpan={5}
                         className="px-6 py-6 text-center text-sm text-[var(--st-text)]"
                       >
                         Need at least one non-control variant to compute
                         lift.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     segments.map((s) => (
-                      <ZoruTableRow key={s.variantId + s.segment}>
-                        <ZoruTableCell>{s.segment}</ZoruTableCell>
-                        <ZoruTableCell className="text-right tabular-nums">
+                      <Tr key={s.variantId + s.segment}>
+                        <Td>{s.segment}</Td>
+                        <Td className="text-right tabular-nums">
                           {s.total.toLocaleString()}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right tabular-nums">
+                        </Td>
+                        <Td className="text-right tabular-nums">
                           {s.conversions.toLocaleString()}
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className={
                             "text-right tabular-nums " +
                             (s.lift > 0
@@ -982,32 +948,32 @@ function AbTestDetailDrawer({
                           }
                         >
                           {(s.lift * 100).toFixed(1)}%
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right tabular-nums">
+                        </Td>
+                        <Td className="text-right tabular-nums">
                           <Badge
                             variant={s.significant ? "default" : "outline"}
                           >
                             {fmtP(s.pValue)}
                           </Badge>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
         {tab === "audit" && (
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Audit trail</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Audit trail</CardTitle>
+              <CardDescription>
                 Every settings change, stop, force-pick, and clone.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
               {audit === null ? (
                 <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                   <ScrollText className="h-4 w-4" /> Loading…
@@ -1039,7 +1005,7 @@ function AbTestDetailDrawer({
                   ))}
                 </ul>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       </div>
@@ -1106,20 +1072,20 @@ function ConfirmDialog({
   }
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{title}</ZoruDialogTitle>
-          <ZoruDialogDescription>{body}</ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <ZoruDialogFooter>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{body}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
           <Button variant="ghost" onClick={onCancel}>
             Cancel
           </Button>
           <Button onClick={onConfirm}>
             {cta}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

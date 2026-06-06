@@ -2,15 +2,15 @@
 
 import React from "react";
 import { Plus, Search, Building, Clock, Star, Users, MoreHorizontal, Mail, Phone } from "lucide-react";
-import { PageHeader } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/sabcrm/20ui/zoru/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/sabcrm/20ui/zoru/table";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
-import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/sabcrm/20ui/zoru/avatar";
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 
 const mockSuppliers = [
   {
@@ -148,21 +148,21 @@ export default function SuppliersPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Contact Info</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Lead Time</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Supplier</Th>
+                <Th>Contact Info</Th>
+                <Th>Category</Th>
+                <Th>Lead Time</Th>
+                <Th>Rating</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mockSuppliers.map((supplier) => (
-                <TableRow key={supplier.id}>
-                  <TableCell>
+                <Tr key={supplier.id}>
+                  <Td>
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-primary/10 text-primary text-xs">{supplier.avatar}</AvatarFallback>
@@ -172,8 +172,8 @@ export default function SuppliersPage() {
                         <span className="text-xs text-muted-foreground">{supplier.id}</span>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <div className="flex flex-col space-y-1 text-sm">
                       <span className="font-medium">{supplier.contactName}</span>
                       <div className="flex items-center text-muted-foreground text-xs">
@@ -185,16 +185,16 @@ export default function SuppliersPage() {
                         {supplier.phone}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>{supplier.category}</TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>{supplier.category}</Td>
+                  <Td>
                     <div className="flex items-center text-sm">
                       <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                       {supplier.leadTime}
                     </div>
-                  </TableCell>
-                  <TableCell>{getRatingStars(supplier.rating)}</TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>{getRatingStars(supplier.rating)}</Td>
+                  <Td>
                     <Badge 
                       variant={
                         supplier.status === "Active" ? "default" :
@@ -203,8 +203,8 @@ export default function SuppliersPage() {
                     >
                       {supplier.status}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -221,10 +221,10 @@ export default function SuppliersPage() {
                         <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
         <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">

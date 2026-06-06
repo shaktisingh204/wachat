@@ -1,48 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  ZoruFileUploadCard,
-  Input,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/zoru';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, ZoruFileUploadCard, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -67,7 +25,7 @@ import { bulkCreatePosts } from '@/app/actions/facebook.actions';
  * /dashboard/facebook/bulk-create — Bulk Facebook post creator (ZoruUI).
  *
  * `ZoruFileUploadCard` for CSV upload, editable preview table, and a
- * confirm-send `ZoruAlertDialog` before dispatching `bulkCreatePosts`.
+ * confirm-send `AlertDialog` before dispatching `bulkCreatePosts`.
  * No tab UI — manual entry and CSV upload sit side by side as
  * collapsible cards.
  */
@@ -85,7 +43,7 @@ const blankRow = (): PostRow => ({
 });
 
 export default function BulkCreatePage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [rows, setRows] = useState<PostRow[]>([blankRow()]);
   const [isPublishing, startPublish] = useTransition();
@@ -246,33 +204,33 @@ export default function BulkCreatePage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Bulk create</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Bulk create</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Tools</ZoruPageEyebrow>
-          <ZoruPageTitle>Bulk post creator</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Tools</PageEyebrow>
+          <PageTitle>Bulk post creator</PageTitle>
+          <PageDescription>
             Upload a CSV or hand-author multiple posts and publish them in one
             batch. Optional schedule and image URL per row.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" size="sm" onClick={addRow}>
             <Plus /> Add row
           </Button>
@@ -288,16 +246,16 @@ export default function BulkCreatePage() {
             )}
             Publish {validCount > 0 ? `${validCount} post${validCount === 1 ? '' : 's'}` : ''}
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {!projectId ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Select a project from the dashboard to use bulk create.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : (
         <>
@@ -307,10 +265,10 @@ export default function BulkCreatePage() {
               className="mt-6"
             >
               <CheckCircle2 className="h-4 w-4" />
-              <ZoruAlertTitle>Bulk publish complete</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Bulk publish complete</AlertTitle>
+              <AlertDescription>
                 {result.successCount} succeeded, {result.failCount} failed.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
           ) : null}
 
@@ -337,12 +295,12 @@ export default function BulkCreatePage() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Card className="p-0">
-              <ZoruCardHeader>
-                <ZoruCardTitle className="text-base">
+              <CardHeader>
+                <CardTitle className="text-base">
                   Upload CSV
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col gap-3">
+                </CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-col gap-3">
                 <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   CSV must have a <code>message</code> column. Optional
                   columns: <code>image_url</code>, <code>scheduled_time</code>.
@@ -353,16 +311,16 @@ export default function BulkCreatePage() {
                   onFilesSelected={handleFiles}
                   hint="Drop a .csv file or click to browse"
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card className="p-0">
-              <ZoruCardHeader>
-                <ZoruCardTitle className="text-base">
+              <CardHeader>
+                <CardTitle className="text-base">
                   Manual entry
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col gap-3">
+                </CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-col gap-3">
                 <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Add a row at a time. Each post must have a non-empty
                   message; image URL and schedule are optional.
@@ -379,22 +337,22 @@ export default function BulkCreatePage() {
                     <Trash2 /> Reset rows
                   </Button>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <Card className="mt-6 p-0">
-            <ZoruCardHeader>
-              <ZoruCardTitle className="flex items-center justify-between gap-2 text-base">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-2 text-base">
                 <span className="inline-flex items-center gap-2">
                   Posts preview
                   <Badge variant="outline">
                     {validCount} valid / {rows.length} rows
                   </Badge>
                 </span>
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
               {rows.length === 0 ? (
                 <EmptyState
                   compact
@@ -405,26 +363,26 @@ export default function BulkCreatePage() {
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
-                    <ZoruTableHeader>
-                      <ZoruTableRow>
-                        <ZoruTableHead className="w-8">#</ZoruTableHead>
-                        <ZoruTableHead>Message</ZoruTableHead>
-                        <ZoruTableHead className="w-[220px]">
+                    <THead>
+                      <Tr>
+                        <Th className="w-8">#</Th>
+                        <Th>Message</Th>
+                        <Th className="w-[220px]">
                           Image URL
-                        </ZoruTableHead>
-                        <ZoruTableHead className="w-[200px]">
+                        </Th>
+                        <Th className="w-[200px]">
                           Schedule
-                        </ZoruTableHead>
-                        <ZoruTableHead className="w-12" />
-                      </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                        </Th>
+                        <Th className="w-12" />
+                      </Tr>
+                    </THead>
+                    <TBody>
                       {rows.map((row, i) => (
-                        <ZoruTableRow key={i}>
-                          <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                        <Tr key={i}>
+                          <Td className="text-[var(--st-text-secondary)]">
                             {i + 1}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Textarea
                               value={row.message}
                               onChange={(e) =>
@@ -434,16 +392,16 @@ export default function BulkCreatePage() {
                               className="min-h-9"
                               rows={2}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <SabFileUrlInput
                               accept="image"
                               value={row.imageUrl}
                               onChange={(v) => updateRow(i, 'imageUrl', v)}
                               placeholder="https://…"
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Input
                               type="datetime-local"
                               value={row.scheduledTime}
@@ -451,8 +409,8 @@ export default function BulkCreatePage() {
                                 updateRow(i, 'scheduledTime', e.target.value)
                               }
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -462,26 +420,26 @@ export default function BulkCreatePage() {
                             >
                               <Trash2 />
                             </Button>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       ))}
-                    </ZoruTableBody>
+                    </TBody>
                   </Table>
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       )}
 
       {/* ── Confirm bulk send ── */}
-      <ZoruAlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Publish {validCount} post{validCount === 1 ? '' : 's'}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {scheduledCount > 0
                 ? `${scheduledCount} will be scheduled for a future time, ${
                     validCount - scheduledCount
@@ -489,13 +447,13 @@ export default function BulkCreatePage() {
                 : 'All posts will publish immediately to the connected Facebook Page.'}{' '}
               This action cannot be undone in bulk — you will need to delete
               individual posts to roll back.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isPublishing}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPublishing}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={runPublish}
               disabled={isPublishing || validCount === 0}
             >
@@ -505,10 +463,10 @@ export default function BulkCreatePage() {
                 <Send className="h-4 w-4" />
               )}
               Publish
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

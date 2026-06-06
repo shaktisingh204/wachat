@@ -31,34 +31,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  cn,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
@@ -120,7 +93,7 @@ export function ThreadView({
   registerComposerFocus,
   registerNoteFocus,
 }: ThreadViewProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [tab, setTab] = React.useState<"reply" | "note">("reply");
   const [composerBody, setComposerBody] = React.useState("");
   const [noteBody, setNoteBody] = React.useState("");
@@ -471,32 +444,32 @@ export function ThreadView({
               <Sparkles className="mr-1 h-3.5 w-3.5" /> AI Suggest
             </Button>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="ghost">
                   Canned response
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuLabel>Approved templates</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuSeparator />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Approved templates</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {templates.length === 0 ? (
-                  <ZoruDropdownMenuItem disabled>
+                  <DropdownMenuItem disabled>
                     No approved templates
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ) : (
                   templates.map((t) => (
-                    <ZoruDropdownMenuItem
+                    <DropdownMenuItem
                       key={t.id}
                       onSelect={() => void applyCannedResponse(t.id)}
                     >
                       {t.name}
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                   ))
                 )}
-                <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuLabel>Insert into composer</ZoruDropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Insert into composer</DropdownMenuLabel>
                 {templates.map((t) => (
-                  <ZoruDropdownMenuItem
+                  <DropdownMenuItem
                     key={`ins-${t.id}`}
                     onSelect={() =>
                       setComposerBody((prev) =>
@@ -505,9 +478,9 @@ export function ThreadView({
                     }
                   >
                     {t.name}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
@@ -587,14 +560,14 @@ export function ThreadView({
 
       {/* Snooze dialog */}
       <Dialog open={snoozeOpen} onOpenChange={setSnoozeOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Snooze conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Snooze conversation</DialogTitle>
+            <DialogDescription>
               The thread reopens after the chosen duration, or as soon as
               the contact replies.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <Label htmlFor="snooze-mins">Wake in (minutes)</Label>
             <Input
@@ -608,87 +581,87 @@ export function ThreadView({
               Tip: when set to 0 the thread waits indefinitely for a reply.
             </p>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setSnoozeOpen(false)}>
               Cancel
             </Button>
             <Button onClick={applySnooze}>Snooze</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Close dialog — reason is required */}
       <Dialog open={closeOpen} onOpenChange={setCloseOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Close conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Close conversation</DialogTitle>
+            <DialogDescription>
               Pick a reason. Reports group closed threads by this value.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <Label htmlFor="close-reason">Reason</Label>
             <Select value={closeReason} onValueChange={setCloseReason}>
-              <ZoruSelectTrigger id="close-reason">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="close-reason">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {CLOSE_REASONS.map((r) => (
-                  <ZoruSelectItem key={r} value={r}>
+                  <SelectItem key={r} value={r}>
                     {r}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setCloseOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={applyClose}>
               Close
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Merge dialog */}
       <Dialog open={mergeOpen} onOpenChange={setMergeOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Merge into another conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Merge into another conversation</DialogTitle>
+            <DialogDescription>
               Messages from this thread move into the target. The older
               conversation wins — labels are merged in.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <Label htmlFor="merge-target">Target conversation</Label>
             <Select value={mergeTarget} onValueChange={setMergeTarget}>
-              <ZoruSelectTrigger id="merge-target">
-                <ZoruSelectValue placeholder="Pick a conversation" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="merge-target">
+                <SelectValue placeholder="Pick a conversation" />
+              </SelectTrigger>
+              <SelectContent>
                 {allConversations
                   .filter((c) => c.id !== conversation.id)
                   .map((c) => (
-                    <ZoruSelectItem key={c.id} value={c.id}>
+                    <SelectItem key={c.id} value={c.id}>
                       {c.contactId} —{" "}
                       {(c.lastMessagePreview ?? "").slice(0, 40)}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setMergeOpen(false)}>
               Cancel
             </Button>
             <Button onClick={applyMerge} disabled={!mergeTarget}>
               <Merge className="mr-1.5 h-3.5 w-3.5" /> Merge
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       <SabsmsDetailDrawer
@@ -787,7 +760,7 @@ function ThreadHeader({
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline">
                 <UserPlus className="mr-1.5 h-3.5 w-3.5" />
                 {conversation.assignedAgentId
@@ -795,30 +768,30 @@ function ThreadHeader({
                       ?.name ?? conversation.assignedAgentId
                   : "Assign"}
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Assign to</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Assign to</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {agents.map((a) => (
-                <ZoruDropdownMenuItem
+                <DropdownMenuItem
                   key={a.id}
                   onSelect={() => void onPickAgent(a.id)}
                 >
                   {a.name}
-                </ZoruDropdownMenuItem>
+                </DropdownMenuItem>
               ))}
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={() => void onPickAgent(null)}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => void onPickAgent(null)}>
                 Unassign
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
                 onSelect={() => onAutoRoundRobinChange(!autoRoundRobin)}
               >
                 <AtSign className="mr-2 h-3.5 w-3.5" />
                 Auto round-robin {autoRoundRobin ? "on" : "off"}
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
 
           <Button size="sm" variant="outline" onClick={onSnooze}>
@@ -836,22 +809,22 @@ function ThreadHeader({
           )}
 
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button size="sm" variant="ghost">
                 More
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem onSelect={onMerge}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onMerge}>
                 <Merge className="mr-2 h-3.5 w-3.5" /> Merge conversation
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => void onSuppress()}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void onSuppress()}>
                 <Ban className="mr-2 h-3.5 w-3.5" /> Block sender
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => void onAddToSegment()}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void onAddToSegment()}>
                 <UserPlus className="mr-2 h-3.5 w-3.5" /> Add to segment
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
@@ -930,7 +903,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
         {isInbound && !isNote && (
           <div className="flex items-center gap-1 pt-1">
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
@@ -938,17 +911,17 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
                 >
                   <Smile className="h-3.5 w-3.5" />
                 </button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="start">
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
                 {REACTION_PALETTE.map((emoji) => (
-                  <ZoruDropdownMenuItem
+                  <DropdownMenuItem
                     key={emoji}
                     onSelect={() => onReact(emoji)}
                   >
                     {emoji}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
             <button
               type="button"

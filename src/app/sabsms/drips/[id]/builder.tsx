@@ -31,43 +31,7 @@ import {
   Users,
 } from "lucide-react";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  ZoruKbd,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-} from "@/components/sabcrm/20ui/zoru";
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Kbd, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsKbdHint,
   SabsmsRefreshButton,
@@ -297,13 +261,13 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
       {/* ── Canvas ─────────────────────────────────────────────── */}
       <div className="space-y-4">
         <Card>
-          <ZoruCardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+          <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <div>
-              <ZoruCardTitle>Canvas</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle>Canvas</CardTitle>
+              <CardDescription>
                 Vertical flow — each card is a step. Add waits, branches, or
                 messages between any two nodes.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <SabsmsKbdHint
@@ -313,8 +277,8 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 ]}
               />
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="px-4 pb-6">
+          </CardHeader>
+          <CardBody className="px-4 pb-6">
             <ScrollArea className="max-h-[68vh] pr-3">
               <div className="mx-auto max-w-md space-y-2">
                 {start ? (
@@ -337,26 +301,26 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 ) : (
                   <Alert>
                     <AlertTriangle className="h-4 w-4" />
-                    <ZoruAlertTitle>Empty drip</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>Empty drip</AlertTitle>
+                    <AlertDescription>
                       No start node. Reset the drip JSON or import a valid
                       definition.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                   </Alert>
                 )}
               </div>
             </ScrollArea>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* ── Side rail ─────────────────────────────────────────── */}
       <aside className="space-y-4">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Drip settings</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-3">
+          <CardHeader>
+            <CardTitle className="text-base">Drip settings</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="drip-name">Name</Label>
               <Input
@@ -385,14 +349,14 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                   }
                 }}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="manual">Manual enrol</ZoruSelectItem>
-                  <ZoruSelectItem value="segment_join">Segment join</ZoruSelectItem>
-                  <ZoruSelectItem value="event">Custom event</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">Manual enrol</SelectItem>
+                  <SelectItem value="segment_join">Segment join</SelectItem>
+                  <SelectItem value="event">Custom event</SelectItem>
+                </SelectContent>
               </Select>
               {draft.entryTrigger.kind === "segment_join" && (
                 <Input
@@ -438,17 +402,17 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               <span className="font-semibold text-[var(--st-text)]">{enrolCount}</span>
             </div>
             <SabsmsRefreshButton onRefresh={handleRefreshEnrol} defaultInterval={30} />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Exit conditions</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">Exit conditions</CardTitle>
+            <CardDescription>
               Auto-exit a contact when any of these become true.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-2">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-2">
             {(
               [
                 ["replied", "When contact replies"],
@@ -473,14 +437,14 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 />
               </label>
             ))}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Validation</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle className="text-base">Validation</CardTitle>
+          </CardHeader>
+          <CardBody>
             {validation.ok ? (
               <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                 <CheckCircle2 className="h-4 w-4" /> No issues.
@@ -503,7 +467,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 )}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <div className="grid grid-cols-2 gap-2">
@@ -539,20 +503,20 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </Button>
         </div>
         <div className="text-[11px] text-[var(--st-text)]">
-          Tip: press <ZoruKbd>⌘</ZoruKbd>
-          <ZoruKbd>S</ZoruKbd> to save without leaving the canvas.
+          Tip: press <Kbd>⌘</Kbd>
+          <Kbd>S</Kbd> to save without leaving the canvas.
         </div>
       </aside>
 
       {/* ── Add step dialog ───────────────────────────────────── */}
       <Dialog open={!!addOpen} onOpenChange={(o) => !o && setAddOpen(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add a step</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a step</DialogTitle>
+            <DialogDescription>
               Pick the kind of step to insert after this node.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="grid grid-cols-1 gap-2">
             <AddOptionButton
               icon={<Mail className="h-4 w-4" />}
@@ -579,18 +543,18 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               onClick={() => addOpen && handleSuggest(addOpen.afterId)}
             />
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* ── History dialog ────────────────────────────────────── */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Version history</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Version history</DialogTitle>
+            <DialogDescription>
               Rolling back creates a fresh save — you can roll forward again.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="max-h-[55vh] space-y-2 overflow-y-auto">
             {drip.versions.length === 0 ? (
               <div className="text-sm text-[var(--st-text)]">
@@ -628,7 +592,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 ))
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* ── Dry-run dialog ────────────────────────────────────── */}
@@ -641,14 +605,14 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
 
       {/* ── Clone dialog ──────────────────────────────────────── */}
       <Dialog open={cloneOpen} onOpenChange={setCloneOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Clone steps from another drip</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clone steps from another drip</DialogTitle>
+            <DialogDescription>
               Pick a source drip — its middle steps are appended after the
               current ones with a fresh id prefix.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             {otherDrips.length === 0 ? (
               <div className="text-sm text-[var(--st-text)]">No other drips to clone from.</div>
@@ -666,24 +630,24 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               ))
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* ── Confirm delete ────────────────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this step?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this step?</AlertDialogTitle>
+            <AlertDialogDescription>
               The predecessor will be stitched directly to the successor.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 if (confirmDelete) {
                   setDraft((d) => removeNode(d, confirmDelete));
@@ -692,10 +656,10 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
               }}
             >
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -876,13 +840,13 @@ function DryRunDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Dry-run with a sample contact</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Dry-run with a sample contact</DialogTitle>
+          <DialogDescription>
             No messages are actually sent. The engine simulates the schedule.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <Label>Phone (E.164)</Label>
@@ -921,15 +885,15 @@ function DryRunDialog({
             })}
           </div>
         )}
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Close
           </Button>
           <Button onClick={run} disabled={busy}>
             {busy ? "Simulating…" : "Run"}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

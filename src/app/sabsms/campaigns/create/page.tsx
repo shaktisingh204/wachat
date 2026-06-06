@@ -27,36 +27,7 @@ import {
 } from "lucide-react"
 
 import Link from "next/link"
-import {
-  PageHeader,
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Accordion,
-  ZoruAccordionItem as AccordionItem,
-  ZoruAccordionTrigger as AccordionTrigger,
-  ZoruAccordionContent as AccordionContent,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Switch,
-  Badge,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  cn,
-} from "@/components/sabcrm/20ui/zoru"
-
-const MOCK_SEGMENTS = [
+import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui/compat';const MOCK_SEGMENTS = [
   { id: 'seg-1', name: 'High Value Customers', count: 12450, lastSync: '2 hours ago', type: 'Dynamic', engagement: 'High' },
   { id: 'seg-2', name: 'Churn Risk (30 days)', count: 3200, lastSync: '5 hours ago', type: 'Dynamic', engagement: 'Low' },
   { id: 'seg-3', name: 'Beta Testers', count: 450, lastSync: '1 day ago', type: 'Static', engagement: 'Very High' },

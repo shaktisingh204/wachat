@@ -2,17 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Input,
-  Label,
-  ZoruRadioCard,
-  RadioGroup,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import type { CampaignDraft, ScheduleDraft } from "../types";
 
@@ -43,22 +33,22 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
         onValueChange={(v) => setKind(v as Kind)}
         className="grid gap-3 md:grid-cols-2 lg:grid-cols-4"
       >
-        <ZoruRadioCard
+        <RadioCard
           value="immediate"
           label="Immediate"
           description="Start as soon as you launch."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="scheduled"
           label="Scheduled"
           description="Pick a specific datetime."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="recurring"
           label="Recurring"
           description="Cron-driven repeat."
         />
-        <ZoruRadioCard
+        <RadioCard
           value="drip"
           label="Drip"
           description="Multi-step automation."
@@ -124,16 +114,16 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
                 onChange({ schedule: { kind: "drip", dripId: v } })
               }
             >
-              <ZoruSelectTrigger id="schedule-drip">
-                <ZoruSelectValue placeholder="Pick a drip" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="schedule-drip">
+                <SelectValue placeholder="Pick a drip" />
+              </SelectTrigger>
+              <SelectContent>
                 {drips.map((d) => (
-                  <ZoruSelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id}>
                     {d.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           )}
         </div>

@@ -27,34 +27,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import {
-  ZORU_CHART_PALETTE,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 
 import {
   SabsmsDataTable,
@@ -504,15 +477,15 @@ export function CampaignsTable({
       {/* Inline filter chart — feature §B.2 #20 */}
       {chartSeries.length > 0 && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Created over time</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Created over time</CardTitle>
+            <CardDescription>
               Campaigns created per day in the current filter window
               (max 30 buckets).
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={140}>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={140}>
               <ZoruChart.BarChart
                 data={chartSeries}
                 margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
@@ -533,15 +506,15 @@ export function CampaignsTable({
                   axisLine={false}
                   allowDecimals={false}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Bar
                   dataKey="count"
                   fill={ZORU_CHART_PALETTE[0]}
                   radius={[2, 2, 0, 0]}
                 />
               </ZoruChart.BarChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
       )}
 
@@ -595,14 +568,14 @@ export function CampaignsTable({
       {/* Compare result — inline card driven by the bulk action */}
       {comparison && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Compare</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Compare</CardTitle>
+            <CardDescription>
               {comparison.a.name} <span className="text-[var(--st-text-secondary)]">vs</span>{" "}
               {comparison.b.name}
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div className="text-xs font-medium text-[var(--st-text-tertiary)]">Metric</div>
               <div className="text-xs font-medium text-[var(--st-text-tertiary)] text-right">A</div>
@@ -624,7 +597,7 @@ export function CampaignsTable({
                 Close
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -633,13 +606,13 @@ export function CampaignsTable({
         open={!!tagDialog}
         onOpenChange={(open) => !open && setTagDialog(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add tag</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add tag</DialogTitle>
+            <DialogDescription>
               Tags help group related campaigns in saved views.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="sabsms-tag">Tag</Label>
             <Input
@@ -652,7 +625,7 @@ export function CampaignsTable({
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTagDialog(null)}>
               Cancel
             </Button>
@@ -672,8 +645,8 @@ export function CampaignsTable({
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Test send dialog — feature §B.2 #14 */}
@@ -681,14 +654,14 @@ export function CampaignsTable({
         open={!!testDialog}
         onOpenChange={(open) => !open && setTestDialog(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Test send</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Test send</DialogTitle>
+            <DialogDescription>
               Sends one message via the campaign&apos;s template to the
               number you pick — bypassing the audience.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="sabsms-test-to">Recipient (E.164)</Label>
             <Input
@@ -701,7 +674,7 @@ export function CampaignsTable({
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTestDialog(null)}>
               Cancel
             </Button>
@@ -721,8 +694,8 @@ export function CampaignsTable({
             >
               Send
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

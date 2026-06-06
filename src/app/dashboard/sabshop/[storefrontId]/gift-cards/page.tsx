@@ -3,23 +3,7 @@
 import React from "react";
 import { Plus, Gift, CreditCard, Clock, MoreHorizontal, Eye, Copy, RefreshCw, Download } from "lucide-react";
 
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Button,
-  StatCard,
-  DataTable,
-  Badge,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  Card,
-} from "@/components/sabcrm/20ui/zoru";
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Card } from '@/components/sabcrm/20ui/compat';
 
 const giftCardData = [
   {
@@ -157,13 +141,13 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8 w-full max-w-7xl mx-auto">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Gift Cards</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Gift Cards</PageTitle>
+          <PageDescription>
             Issue and track gift cards. Monitor current balances and redemptions.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export
@@ -172,7 +156,7 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
             <Plus className="mr-2 h-4 w-4" />
             Issue gift card
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

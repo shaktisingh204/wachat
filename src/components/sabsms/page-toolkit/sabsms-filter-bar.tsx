@@ -3,23 +3,7 @@
 import * as React from "react";
 import { ArrowDownUp, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  ZoruDropdownMenuCheckboxItem,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, DateRangePicker, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 
@@ -125,7 +109,7 @@ export function SabsmsFilterBar({
       ))}
 
       {dateRangeKey && (
-        <ZoruDateRangePicker
+        <DateRangePicker
           value={(() => {
             const fromStr = url.get(dateRangeKey.from);
             const toStr = url.get(dateRangeKey.to);
@@ -148,17 +132,17 @@ export function SabsmsFilterBar({
           value={sortValue}
           onValueChange={(v) => url.setOne("sort", v)}
         >
-          <ZoruSelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px]">
             <ArrowDownUp className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" />
-            <ZoruSelectValue placeholder="Sort" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
             {sortOptions.map((s) => (
-              <ZoruSelectItem key={s.value} value={s.value}>
+              <SelectItem key={s.value} value={s.value}>
                 {s.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       )}
 
@@ -191,7 +175,7 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
 
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           {facet.label}
@@ -201,14 +185,14 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
             </Badge>
           )}
         </Button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align="start">
-        <ZoruDropdownMenuLabel>{facet.label}</ZoruDropdownMenuLabel>
-        <ZoruDropdownMenuSeparator />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel>{facet.label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {facet.options.map((opt) => {
           const checked = values.includes(opt.value);
           return (
-            <ZoruDropdownMenuCheckboxItem
+            <DropdownMenuCheckboxItem
               key={opt.value}
               checked={checked}
               onCheckedChange={() => {
@@ -220,10 +204,10 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
               }}
             >
               {opt.label}
-            </ZoruDropdownMenuCheckboxItem>
+            </DropdownMenuCheckboxItem>
           );
         })}
-      </ZoruDropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }

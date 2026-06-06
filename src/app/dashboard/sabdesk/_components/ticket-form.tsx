@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -79,7 +72,7 @@ function SubmitButton({ editing }: { editing: boolean }) {
 
 export function TicketForm({ initial, customFields }: TicketFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const sp = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveTicketAction, INITIAL_STATE);

@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/zoru';
+import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -54,8 +25,8 @@ import {
   publishVideoStory,
 } from "@/app/actions/facebook.actions";
 import { uploadLibraryFile } from "@/app/actions/files.actions";
-import { ZoruFileUploadCard, ZoruFileUploadItem } from "@/components/sabcrm/20ui/zoru/file-upload-card";
-import { RadioGroup, ZoruRadioCard } from "@/components/sabcrm/20ui/zoru/radio-group";
+import { ZoruFileUploadCard, ZoruFileUploadItem } from '@/components/sabcrm/20ui/compat';
+import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui/compat';
 import { useProject } from "@/context/project-context";
 
 /**
@@ -194,7 +165,7 @@ export default function StoriesPage() {
   const [projectIdReady, setProjectIdReady] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchStories = useCallback(() => {
     if (!projectId) return;
@@ -238,32 +209,32 @@ export default function StoriesPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Stories</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Stories</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Stories</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Stories</PageTitle>
+          <PageDescription>
             Review your active Page stories and publish a fresh photo story.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Badge variant="secondary">
             <CircleDot />
             {stories.length} active
@@ -274,7 +245,7 @@ export default function StoriesPage() {
           >
             <Plus /> Create story
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6 flex flex-col gap-6">
@@ -344,7 +315,7 @@ function CreateStoryDialog({
   const [uploadedMime, setUploadedMime] = useState("");
   const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
   const [isPublishing, startPublishTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!open) {
@@ -428,20 +399,20 @@ function CreateStoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Create story</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create story</DialogTitle>
+          <DialogDescription>
             Upload a photo or video, or paste a publicly-accessible URL.
             SabNode will publish it as a Page story.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         {!projectId && (
           <Alert variant="warning">
-            <ZoruAlertDescription>
+            <AlertDescription>
               Pick a project before publishing.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         )}
 
@@ -451,12 +422,12 @@ function CreateStoryDialog({
             onValueChange={(val: "upload" | "url") => setMode(val)}
             className="grid grid-cols-2"
           >
-            <ZoruRadioCard
+            <RadioCard
               value="upload"
               label="Upload file"
               icon={<Upload className="h-4 w-4" />}
             />
-            <ZoruRadioCard
+            <RadioCard
               value="url"
               label="Paste URL"
               icon={<Link className="h-4 w-4" />}
@@ -500,7 +471,7 @@ function CreateStoryDialog({
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -516,8 +487,8 @@ function CreateStoryDialog({
           >
             <Upload /> Publish story
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

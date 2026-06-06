@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 
 const data = [
   { date: "Jan", users: 400, revenue: 2400 },
@@ -29,7 +24,7 @@ export function GrowthChart() {
           Users and Revenue over the last 7 months
         </p>
       </div>
-      <ZoruChartContainer height={300}>
+      <ChartContainer height={300}>
         <ZoruChart.LineChart
           data={data}
           margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
@@ -60,7 +55,7 @@ export function GrowthChart() {
             tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
           />
           <ZoruChart.Tooltip
-            content={<ZoruChartTooltip />}
+            content={<ChartTooltip />}
             cursor={{ stroke: "var(--st-border-strong)" }}
           />
           <ZoruChart.Legend
@@ -88,7 +83,7 @@ export function GrowthChart() {
             activeDot={{ r: 4 }}
           />
         </ZoruChart.LineChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     </div>
   );
 }

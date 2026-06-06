@@ -28,34 +28,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Switch,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -428,15 +401,15 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
               <Detail label="Cohort" value={drawerRow.cohort ?? "—"} />
             </div>
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle className="text-sm">Stage drop-off</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle className="text-sm">Stage drop-off</CardTitle>
+                <CardDescription>
                   Delivered count per step.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
                 <DropoffChart rows={drawerRow.stageDropoff} />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <div className="flex items-center gap-2">
               <Button asChild>
@@ -507,24 +480,24 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       />
 
       {/* ── Mass-exit confirm ─────────────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!confirmExit}
         onOpenChange={(o) => !o && setConfirmExit(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Remove all contacts from {confirmExit?.length} drip
               {confirmExit?.length === 1 ? "" : "s"}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Active enrolments will be flushed to zero and an audit event is
               recorded. The drip definitions stay intact.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={async () => {
                 if (confirmExit) {
                   await massExit(confirmExit.map((r) => r.id));
@@ -535,10 +508,10 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
               }}
             >
               Mass exit
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -562,14 +535,14 @@ function SummaryCard({
           : undefined
       }
     >
-      <ZoruCardContent className="p-3">
+      <CardBody className="p-3">
         <div className="text-[11px] uppercase tracking-wide text-[var(--st-text)]">
           {label}
         </div>
         <div className="mt-0.5 text-2xl font-semibold text-[var(--st-text)]">
           {value.toLocaleString()}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -613,7 +586,7 @@ function DropoffChart({
     return <div className="text-xs text-[var(--st-text)]">No data yet.</div>;
   }
   return (
-    <ZoruChartContainer height={180}>
+    <ChartContainer height={180}>
       <ZoruChart.BarChart data={rows} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
         <ZoruChart.CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
         <ZoruChart.XAxis dataKey="step" tick={{ fontSize: 11 }} />
@@ -621,7 +594,7 @@ function DropoffChart({
         <ZoruChart.Tooltip />
         <ZoruChart.Bar dataKey="delivered" fill="var(--st-text)" />
       </ZoruChart.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }
 
@@ -666,13 +639,13 @@ function TestEnrolDialog({
   }, [open]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Test enrol a contact</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Test enrol a contact</DialogTitle>
+          <DialogDescription>
             The contact joins {row?.name} as a one-shot test enrolment.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-2">
           <div className="space-y-1.5">
             <Label>Phone (E.164)</Label>
@@ -690,7 +663,7 @@ function TestEnrolDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -700,8 +673,8 @@ function TestEnrolDialog({
           >
             Enrol
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -722,13 +695,13 @@ function EditScheduleDialog({
   }, [open, row]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Edit schedule</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit schedule</DialogTitle>
+          <DialogDescription>
             Short human-readable summary surfaced in the list.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-1.5">
           <Label>Schedule summary</Label>
           <Input
@@ -737,15 +710,15 @@ function EditScheduleDialog({
             onChange={(e) => setSummary(e.target.value)}
           />
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={() => onSubmit(summary)} disabled={!summary}>
             Save
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -766,16 +739,16 @@ function BulkEnrolDialog({
   }, [open]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
             Bulk enrol {rows?.length} drip{rows?.length === 1 ? "" : "s"} from a segment
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Every contact in the segment will be enrolled. Existing enrolments
             are not duplicated.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-1.5">
           <Label>Segment ID</Label>
           <Input
@@ -784,15 +757,15 @@ function BulkEnrolDialog({
             onChange={(e) => setSegmentId(e.target.value)}
           />
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={() => onSubmit(segmentId)} disabled={!segmentId}>
             Enrol
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

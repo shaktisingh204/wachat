@@ -2,13 +2,7 @@ import * as React from "react";
 import { notFound } from "next/navigation";
 import sanitizeHtml from "sanitize-html";
 import { getPublicProposal } from "@/app/actions/public-proposal.actions";
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { ProposalActionsPanel } from "./proposal-actions-panel";
 import { fmtDate, fmtINR } from "@/lib/utils";
 
@@ -49,9 +43,9 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <ZoruCardTitle>{proposal.title || "Proposal"}</ZoruCardTitle>
+            <CardTitle>{proposal.title || "Proposal"}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               Valid till {fmtDate(proposal.validTill)} &middot; Total{" "}
               {fmtINR(proposal.total)}
@@ -70,8 +64,8 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
               Download PDF
             </a>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {cleanBody ? (
             <article
               className="prose prose-sm max-w-none text-[var(--st-text)]"
@@ -80,7 +74,7 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
           ) : (
             <p className="text-sm text-[var(--st-text)]">No proposal body provided.</p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <ProposalActionsPanel

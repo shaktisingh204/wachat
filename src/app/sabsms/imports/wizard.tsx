@@ -25,29 +25,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {
@@ -323,14 +301,14 @@ export function ImportsWizard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="flex max-h-[90vh] w-full max-w-3xl flex-col gap-0 p-0">
-        <ZoruDialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
-          <ZoruDialogTitle>New import</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="flex max-h-[90vh] w-full max-w-3xl flex-col gap-0 p-0">
+        <DialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
+          <DialogTitle>New import</DialogTitle>
+          <DialogDescription>
             Step {stepIndex + 1} of {STEPS.length} — {step}
-          </ZoruDialogDescription>
+          </DialogDescription>
           <Progress value={progressPct} className="mt-3 h-1" />
-        </ZoruDialogHeader>
+        </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {step === "Upload" && (
@@ -403,7 +381,7 @@ export function ImportsWizard({
           )}
         </div>
 
-        <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-3">
+        <DialogFooter className="border-t border-[var(--st-border)] px-6 py-3">
           <div className="flex w-full items-center justify-between gap-2">
             <Button
               variant="ghost"
@@ -440,8 +418,8 @@ export function ImportsWizard({
               </Button>
             )}
           </div>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -490,13 +468,13 @@ function UploadStep({
           ) : (
             <CheckCircle2 className="h-4 w-4" />
           )}
-          <ZoruAlertTitle>{picked.name}</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>{picked.name}</AlertTitle>
+          <AlertDescription>
             {parsing
               ? "Parsing…"
               : `${rowsCount.toLocaleString()} data row${rowsCount === 1 ? "" : "s"}.`}
             {parseError && <span className="block text-[var(--st-text)]">{parseError}</span>}
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -564,17 +542,17 @@ function MappingStep({
                 })
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="— None —" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__none__">— None —</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="— None —" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">— None —</SelectItem>
                 {headers.map((h) => (
-                  <ZoruSelectItem key={h} value={h}>
+                  <SelectItem key={h} value={h}>
                     {h}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         ))}
@@ -882,8 +860,8 @@ function ConfirmStep({
       {submitError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Failed to queue import</ZoruAlertTitle>
-          <ZoruAlertDescription>{submitError}</ZoruAlertDescription>
+          <AlertTitle>Failed to queue import</AlertTitle>
+          <AlertDescription>{submitError}</AlertDescription>
         </Alert>
       )}
     </div>

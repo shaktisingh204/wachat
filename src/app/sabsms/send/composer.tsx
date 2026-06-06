@@ -3,20 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import type {
   SabsmsMessage,
@@ -266,19 +253,19 @@ export function SabsmsSendComposer() {
                 value={category}
                 onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
               >
-                <ZoruSelectTrigger id="sabsms-send-category">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="sabsms-send-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {CATEGORIES.map((c) => (
-                    <ZoruSelectItem key={c.value} value={c.value}>
+                    <SelectItem key={c.value} value={c.value}>
                       <span className="flex flex-col">
                         <span>{c.label}</span>
                         <span className="text-[11px] text-[var(--st-text)]">{c.hint}</span>
                       </span>
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>

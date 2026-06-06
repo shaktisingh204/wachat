@@ -28,33 +28,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  StatCard,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, StatCard, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -381,10 +355,10 @@ export function ContactDetailClient({
         {/* Left column — conversation thread + composer */}
         <div className="space-y-4 lg:col-span-2">
           <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <ZoruCardTitle>Conversation thread</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle>Conversation thread</CardTitle>
+                <CardDescription>
                   Full history with delivery ticks. {state.conversationId && (
                     <Link
                       className="text-[var(--st-accent)] hover:underline"
@@ -393,13 +367,13 @@ export function ContactDetailClient({
                       Open in inbox <ExternalLink className="inline h-3 w-3" />
                     </Link>
                   )}
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 {consentBadge(state.consent)}
               </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2">
+            </CardHeader>
+            <CardBody className="space-y-2">
               {state.messages.length === 0 ? (
                 <div className="rounded-md border border-dashed border-[var(--st-border)] p-6 text-center text-sm text-[var(--st-text)]">
                   No messages exchanged yet.
@@ -444,19 +418,19 @@ export function ContactDetailClient({
                   ))}
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Mini composer */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Send a message</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Send a message</CardTitle>
+              <CardDescription>
                 Enqueues an outbound SMS via the SabSMS engine, scoped to this
                 contact.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <Textarea
                 value={composerBody}
                 onChange={(e) => setComposerBody(e.target.value)}
@@ -474,18 +448,18 @@ export function ContactDetailClient({
                   {busy === "send" ? "Sending…" : "Send"}
                 </Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Consent timeline */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Consent timeline</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Consent timeline</CardTitle>
+              <CardDescription>
                 Every opt-in / opt-out captured for {state.phone}.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
               {state.consentEvents.length === 0 ? (
                 <div className="text-sm text-[var(--st-text)]">No events.</div>
               ) : (
@@ -509,18 +483,18 @@ export function ContactDetailClient({
                   ))}
                 </ol>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Notes */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Internal notes</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Internal notes</CardTitle>
+              <CardDescription>
                 Visible to workspace members only. Never sent to the contact.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <Textarea
                 value={noteBody}
                 onChange={(e) => setNoteBody(e.target.value)}
@@ -547,20 +521,20 @@ export function ContactDetailClient({
                   </li>
                 ))}
               </ul>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
         {/* Right column — meta + actions */}
         <div className="space-y-4">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Identity</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Identity</CardTitle>
+              <CardDescription>
                 E.164 + workspace metadata.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-sm">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2 text-sm">
               <div>
                 <span className="text-[var(--st-text)]">Phone:</span>{" "}
                 <span className="font-mono">{state.phone}</span>
@@ -595,16 +569,16 @@ export function ContactDetailClient({
                   {state.riskScore}/100
                 </span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Carrier */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Carrier</ZoruCardTitle>
-              <ZoruCardDescription>HLR / operator details.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-1 text-sm">
+            <CardHeader>
+              <CardTitle>Carrier</CardTitle>
+              <CardDescription>HLR / operator details.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-1 text-sm">
               <div>
                 <span className="text-[var(--st-text)]">Operator:</span>{" "}
                 {state.carrier?.operator ?? "—"}
@@ -617,16 +591,16 @@ export function ContactDetailClient({
                 <span className="text-[var(--st-text)]">Line type:</span>{" "}
                 {state.carrier?.lineType ?? "—"}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Tags */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Tags & labels</ZoruCardTitle>
-              <ZoruCardDescription>Comma-separated.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2">
+            <CardHeader>
+              <CardTitle>Tags & labels</CardTitle>
+              <CardDescription>Comma-separated.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2">
               <Input
                 value={tagsDraft}
                 onChange={(e) => setTagsDraft(e.target.value)}
@@ -642,58 +616,58 @@ export function ContactDetailClient({
                   </Badge>
                 ))}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Timezone + locale */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Overrides</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Overrides</CardTitle>
+              <CardDescription>
                 Per-contact time zone + locale (used by scheduled sends).
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <div>
                 <Label>Time zone</Label>
                 <Select value={state.timezone} onValueChange={changeTimezone}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Pick a time zone" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pick a time zone" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {TZ_OPTIONS.map((tz) => (
-                      <ZoruSelectItem key={tz} value={tz}>
+                      <SelectItem key={tz} value={tz}>
                         {tz}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Locale</Label>
                 <Select value={state.locale} onValueChange={changeLocale}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Pick a locale" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pick a locale" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {LOCALE_OPTIONS.map((l) => (
-                      <ZoruSelectItem key={l} value={l}>
+                      <SelectItem key={l} value={l}>
                         {l}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Custom fields */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Custom fields</ZoruCardTitle>
-              <ZoruCardDescription>Key / value pairs.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2">
+            <CardHeader>
+              <CardTitle>Custom fields</CardTitle>
+              <CardDescription>Key / value pairs.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2">
               <div className="flex gap-2">
                 <Input
                   value={newFieldKey}
@@ -731,15 +705,15 @@ export function ContactDetailClient({
                   </li>
                 ))}
               </ul>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Drips */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Drip enrolments</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-sm">
+            <CardHeader>
+              <CardTitle>Drip enrolments</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-2 text-sm">
               {state.drips.length === 0 ? (
                 <div className="text-[var(--st-text)]">Not enrolled in any drip.</div>
               ) : (
@@ -753,15 +727,15 @@ export function ContactDetailClient({
                   </div>
                 ))
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Campaigns */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Campaign memberships</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-sm">
+            <CardHeader>
+              <CardTitle>Campaign memberships</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-2 text-sm">
               {state.campaigns.length === 0 ? (
                 <div className="text-[var(--st-text)]">No campaign memberships.</div>
               ) : (
@@ -776,18 +750,18 @@ export function ContactDetailClient({
                   </Link>
                 ))
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Linked CRM / SabWa / Wachat */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Linked records</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Linked records</CardTitle>
+              <CardDescription>
                 Cross-module handles. Placeholders shown when not linked yet.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-sm">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2 text-sm">
               {state.crmLeadId ? (
                 <Link
                   href={`/dashboard/crm/leads/${state.crmLeadId}`}
@@ -848,18 +822,18 @@ export function ContactDetailClient({
                   No linked Wachat contact
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Suppression */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Suppression</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Suppression</CardTitle>
+              <CardDescription>
                 Hashed entries live in `sabsms_suppressions`.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2">
               <Input
                 value={suppressionReason}
                 onChange={(e) => setSuppressionReason(e.target.value)}
@@ -883,19 +857,19 @@ export function ContactDetailClient({
                   Remove suppression (admin)
                 </Button>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* GDPR + audit */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Privacy</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Privacy</CardTitle>
+              <CardDescription>
                 Subject access + erasure. Audit drawer captures every consent
                 event.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-2">
               <Button size="sm" variant="outline" onClick={exportGdpr}>
                 <Download className="mr-1.5 h-3.5 w-3.5" /> GDPR export (JSON)
               </Button>
@@ -918,7 +892,7 @@ export function ContactDetailClient({
                 Deletion erases PII but retains a hashed suppression entry so
                 future re-imports stay compliant.
               </p>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -954,26 +928,26 @@ export function ContactDetailClient({
       </SabsmsDetailDrawer>
 
       {/* Erase confirm */}
-      <ZoruAlertDialog open={eraseConfirm} onOpenChange={setEraseConfirm}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={eraseConfirm} onOpenChange={setEraseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Permanently erase this contact?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               PII (phone, name, email, message bodies) will be replaced with
               hashed placeholders. The suppression hash is retained for
               compliance.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={confirmErase}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmErase}>
               <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Erase
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Tiny inline icon to silence the unused-symbol case */}
       <MessageSquare className="hidden" aria-hidden />

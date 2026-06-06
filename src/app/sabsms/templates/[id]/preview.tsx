@@ -2,16 +2,7 @@
 
 import { useMemo } from "react";
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Progress,
-  Separator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Separator } from '@/components/sabcrm/20ui/compat';
 
 import type { TemplateEditorMetadata, VariableDefault } from "./types";
 
@@ -212,14 +203,14 @@ export function TemplatePreview({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Live preview</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle>Live preview</CardTitle>
+        <CardDescription>
           Interpolated against your sample contact. The engine is the
           source of truth at send time — these numbers are estimates.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm whitespace-pre-wrap font-mono leading-relaxed text-[var(--st-text)] min-h-[7rem]">
           {interpolated || (
             <span className="text-[var(--st-text-secondary)]">Preview will appear here…</span>
@@ -277,7 +268,7 @@ export function TemplatePreview({
             emoji density.
           </p>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

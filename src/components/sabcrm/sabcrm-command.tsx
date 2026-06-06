@@ -15,7 +15,7 @@
  *      {@link searchRecordsForPickerAction}, fanned out per object slug and
  *      merged into one "Records" group. Hits route to the record detail page.
  *
- * Built on the ZoruUI cmdk primitives (`ZoruCommandDialog` and friends) so it
+ * Built on the ZoruUI cmdk primitives (`CommandDialog` and friends) so it
  * inherits the black-&-white ZoruUI design tokens and the shared dialog/overlay
  * behaviour. cmdk owns filtering for the static (jump/create) entries; the async
  * record results are appended verbatim (cmdk `shouldFilter={false}` would hide
@@ -32,15 +32,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { icons as lucideIcons, Database, Plus, FileText } from "lucide-react";
 
-import {
-  ZoruCommandDialog,
-  ZoruCommandInput,
-  ZoruCommandList,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandItem,
-  ZoruCommandShortcut,
-} from "@/components/sabcrm/20ui/zoru";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
 import {
   createRecordAction,
   searchRecordsForPickerAction,
@@ -191,27 +183,27 @@ export function SabcrmCommand({
   const hasQuery = query.trim().length >= 2;
 
   return (
-    <ZoruCommandDialog
+    <CommandDialog
       open={open}
       onOpenChange={onOpenChange}
       title="SabCRM command palette"
     >
       {/* cmdk owns filtering for the static jump/create groups. */}
-      <ZoruCommandInput
+      <CommandInput
         value={query}
         onValueChange={setQuery}
         placeholder="Search records or jump to an object…"
       />
-      <ZoruCommandList>
-        <ZoruCommandEmpty>
+      <CommandList>
+        <CommandEmpty>
           {searching ? "Searching…" : "No results found."}
-        </ZoruCommandEmpty>
+        </CommandEmpty>
 
         {/* Global record search results */}
         {hits.length > 0 && (
-          <ZoruCommandGroup heading="Records">
+          <CommandGroup heading="Records">
             {hits.map(({ option, object }) => (
-              <ZoruCommandItem
+              <CommandItem
                 key={`${option.object}:${option.id}`}
                 // Always-matching value so cmdk keeps server hits visible.
                 value={`${RECORD_VALUE_PREFIX} ${query} ${option.label} ${option.id}`}
@@ -221,33 +213,33 @@ export function SabcrmCommand({
               >
                 {objectIcon(object.icon)}
                 <span className="truncate">{option.label || "Untitled"}</span>
-                <ZoruCommandShortcut>
+                <CommandShortcut>
                   {object.labelSingular}
-                </ZoruCommandShortcut>
-              </ZoruCommandItem>
+                </CommandShortcut>
+              </CommandItem>
             ))}
-          </ZoruCommandGroup>
+          </CommandGroup>
         )}
 
         {/* Jump to an object's list view */}
-        <ZoruCommandGroup heading="Navigate">
+        <CommandGroup heading="Navigate">
           {objects.map((obj) => (
-            <ZoruCommandItem
+            <CommandItem
               key={`jump:${obj.slug}`}
               value={`open ${obj.labelPlural} ${obj.labelSingular} ${obj.slug}`}
               onSelect={() => goTo(`${CRM_BASE_PATH}/${obj.slug}`)}
             >
               {objectIcon(obj.icon)}
               <span className="truncate">{obj.labelPlural}</span>
-              <ZoruCommandShortcut>Open</ZoruCommandShortcut>
-            </ZoruCommandItem>
+              <CommandShortcut>Open</CommandShortcut>
+            </CommandItem>
           ))}
-        </ZoruCommandGroup>
+        </CommandGroup>
 
         {/* Create a new record */}
-        <ZoruCommandGroup heading="Create">
+        <CommandGroup heading="Create">
           {objects.map((obj) => (
-            <ZoruCommandItem
+            <CommandItem
               key={`create:${obj.slug}`}
               value={`create new add ${obj.labelSingular} ${obj.labelPlural} ${obj.slug}`}
               disabled={creatingSlug !== null}
@@ -257,25 +249,25 @@ export function SabcrmCommand({
             >
               <Plus />
               <span className="truncate">Create {obj.labelSingular}</span>
-              <ZoruCommandShortcut>
+              <CommandShortcut>
                 {creatingSlug === obj.slug ? "Creating…" : "New"}
-              </ZoruCommandShortcut>
-            </ZoruCommandItem>
+              </CommandShortcut>
+            </CommandItem>
           ))}
-        </ZoruCommandGroup>
+        </CommandGroup>
 
         {/* Hint row when a record search is pending but nothing has resolved. */}
         {hasQuery && searching && hits.length === 0 && (
-          <ZoruCommandGroup heading="Records">
-            <ZoruCommandItem value={`${RECORD_VALUE_PREFIX} ${query}`} disabled>
+          <CommandGroup heading="Records">
+            <CommandItem value={`${RECORD_VALUE_PREFIX} ${query}`} disabled>
               <FileText />
               <span className="truncate text-[var(--st-text-secondary)]">
                 Searching records…
               </span>
-            </ZoruCommandItem>
-          </ZoruCommandGroup>
+            </CommandItem>
+          </CommandGroup>
         )}
-      </ZoruCommandList>
-    </ZoruCommandDialog>
+      </CommandList>
+    </CommandDialog>
   );
 }

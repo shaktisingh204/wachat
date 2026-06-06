@@ -35,7 +35,7 @@ import { SabsmsExportMenu, rowsToCsv } from "@/components/sabsms/page-toolkit/sa
 import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-column-picker";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 
-import { Badge, Button, Switch, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
 
 import { getApiKeys, getExecutionLogs, createApiKey, updateApiKey, revokeApiKey, type SabsmsApiKey, type SabsmsExecutionLog } from "./actions";
 
@@ -337,17 +337,17 @@ function ApiKeysPageContent() {
           </Card>
 
           <Card className="shadow-sm border-[var(--st-border)]">
-            <ZoruCardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
+            <CardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <ZoruCardTitle className="text-base font-semibold flex items-center gap-2 text-[var(--st-text)]">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-[var(--st-text)]">
                     <Server className="h-4 w-4 text-[var(--st-text)]" /> Recent Executions
-                  </ZoruCardTitle>
-                  <ZoruCardDescription className="text-xs mt-1">Real-time view of API requests made across all your keys.</ZoruCardDescription>
+                  </CardTitle>
+                  <CardDescription className="text-xs mt-1">Real-time view of API requests made across all your keys.</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" className="h-8 text-xs shadow-sm">View Full Logs</Button>
               </div>
-            </ZoruCardHeader>
+            </CardHeader>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="text-xs text-[var(--st-text)] bg-white border-b border-[var(--st-border)]">
@@ -381,15 +381,15 @@ function ApiKeysPageContent() {
 
         <div className="space-y-6">
           <Card className="shadow-sm border-[var(--st-border)]">
-            <ZoruCardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
-              <ZoruCardTitle className="text-sm font-semibold flex items-center gap-2">
+            <CardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <Terminal className="h-4 w-4 text-[var(--st-text)]" /> CLI Tools
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4 p-5">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4 p-5">
               <div className="text-sm text-[var(--st-text)]">Generate CLI snippets or configure your local environment instantly.</div>
               <Button variant="outline" className="w-full shadow-sm text-xs font-medium">Generate Configuration</Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

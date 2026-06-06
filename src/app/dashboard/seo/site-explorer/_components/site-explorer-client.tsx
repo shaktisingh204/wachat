@@ -12,11 +12,11 @@ import dynamic from 'next/dynamic';
 import { getBacklinks, getSiteMetrics } from '@/app/actions/seo.actions';
 import type { Backlink, SiteMetrics } from '@/lib/definitions';
 
-const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartContainer), {
+const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/compat').then((mod) => mod.ChartContainer), {
     ssr: false,
     loading: () => <Skeleton className="h-64 w-full" />,
 }) as any;
-const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartTooltip), { ssr: false }) as any;
+const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/compat').then((mod) => mod.ChartTooltip), { ssr: false }) as any;
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend, PieChart, Pie, Cell } from 'recharts';
 
 const chartConfigBacklinks = { count: { label: 'Backlinks', color: 'hsl(var(--chart-1))' } };

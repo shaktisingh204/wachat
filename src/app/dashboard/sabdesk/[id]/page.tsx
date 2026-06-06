@@ -1,11 +1,4 @@
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { notFound } from "next/navigation";
 import { ArrowLeft, MessageSquare, Paperclip, Ticket } from "lucide-react";
 
@@ -271,10 +264,10 @@ export default async function TicketDetailPage({
 
         <aside className="flex flex-col gap-4">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Assignment</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+            <CardHeader>
+              <CardTitle>Assignment</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <AssignmentControl
                 entityType="ticket"
                 entityId={id}
@@ -311,14 +304,14 @@ export default async function TicketDetailPage({
               <Field label="Assigned at">
                 {fmtDateTime(ticket.assignment?.assignedAt)}
               </Field>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Linked</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+            <CardHeader>
+              <CardTitle>Linked</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
               <Field label="Deal">
                 {ticket.linkedDealId ? (
                   <EntityPickerChip entity="deal" id={ticket.linkedDealId} />
@@ -355,19 +348,19 @@ export default async function TicketDetailPage({
                   "—"
                 )}
               </Field>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {tags.length > 0 ? (
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Tags</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-wrap gap-1.5">
+              <CardHeader>
+                <CardTitle>Tags</CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-wrap gap-1.5">
                 {tags.map((tId) => (
                   <EntityPickerChip key={tId} entity="tag" id={tId} />
                 ))}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : null}
 

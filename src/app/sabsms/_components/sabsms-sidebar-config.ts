@@ -23,7 +23,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import { type ZoruSidebarGroup } from "@/components/sabcrm/20ui/zoru";
+import { type SidebarGroup } from '@/components/sabcrm/20ui/compat';
 
 /**
  * SabSMS sidebar — grouped menu configuration.
@@ -35,7 +35,7 @@ import { type ZoruSidebarGroup } from "@/components/sabcrm/20ui/zoru";
 
 export function buildSabsmsSidebarGroups(
   pathname: string | null,
-): ZoruSidebarGroup[] {
+): SidebarGroup[] {
   const isActive = (href: string, exact = false) => {
     if (!pathname) return false;
     if (exact) return pathname === href;

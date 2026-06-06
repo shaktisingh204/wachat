@@ -34,7 +34,7 @@ import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-colu
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 import { SabsmsTableSkeleton, SabsmsEmpty } from "@/components/sabsms/page-toolkit/sabsms-states";
 
-import { Badge, Button, Switch, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter } from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
 
 /** Mock data for Routing Rules */
 const MOCK_RULES = [
@@ -192,13 +192,13 @@ function RouteTraceTool() {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base flex items-center gap-2">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
           <Search className="h-4 w-4" /> Routing Trace Tool
-        </ZoruCardTitle>
-        <ZoruCardDescription>Input a number to explain exactly which provider will be used and why.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+        </CardTitle>
+        <CardDescription>Input a number to explain exactly which provider will be used and why.</CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <div>
           <label className="text-xs text-[var(--st-text)] mb-1 block">Test Number</label>
           <input 
@@ -249,7 +249,7 @@ function RouteTraceTool() {
             ))}
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -481,15 +481,15 @@ export default function RoutingPage() {
           <RouteTraceTool />
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-base flex items-center gap-2">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
                 <Activity className="h-4 w-4" /> Global Fallbacks
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="text-sm text-[var(--st-text)]">If no rules match, messages will route using default fallbacks.</div>
               <Button variant="outline" className="w-full">Edit Fallbacks</Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

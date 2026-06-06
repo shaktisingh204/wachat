@@ -1,28 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { Button } from "@/components/sabcrm/20ui/zoru/button";
-import { Input } from "@/components/sabcrm/20ui/zoru/input";
-import { Label } from "@/components/sabcrm/20ui/zoru/label";
-import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/sabcrm/20ui/zoru/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/sabcrm/20ui/zoru/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { 
   Briefcase, 
   Building2, 
@@ -87,27 +73,27 @@ export default function B2BPage() {
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Tier / Price List</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Net Terms</TableHead>
-                    <TableHead className="text-right">Credit Limit</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead className="bg-muted/50">
+                  <Tr>
+                    <Th>Company</Th>
+                    <Th>Tier / Price List</Th>
+                    <Th>Status</Th>
+                    <Th>Net Terms</Th>
+                    <Th className="text-right">Credit Limit</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {companies.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell>
+                    <Tr key={c.id}>
+                      <Td>
                         <div className="font-medium">{c.name}</div>
                         <div className="text-xs text-muted-foreground">{c.id}</div>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="outline" className="bg-primary/5">{c.tier}</Badge>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         {c.status === "Approved" ? (
                           <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 flex items-center gap-1 w-max">
                             <CheckCircle className="h-3 w-3" /> Approved
@@ -117,15 +103,15 @@ export default function B2BPage() {
                             <Clock className="h-3 w-3" /> Pending Review
                           </Badge>
                         )}
-                      </TableCell>
-                      <TableCell>{c.netTerms}</TableCell>
-                      <TableCell className="text-right font-medium">{c.creditLimit}</TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td>{c.netTerms}</Td>
+                      <Td className="text-right font-medium">{c.creditLimit}</Td>
+                      <Td className="text-right">
                         <Button variant="ghost" size="sm">Manage</Button>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </CardContent>

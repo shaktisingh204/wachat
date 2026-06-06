@@ -5,21 +5,7 @@ import {
   SabsmsPageShell,
 } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsDataTable } from "@/components/sabsms/page-toolkit/sabsms-data-table";
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  StatCard,
-  Badge,
-  Button,
-  Input,
-  Switch,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard, Badge, Button, Input, Switch, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { Zap, Bell, Settings2, RefreshCw, BarChart2, List, Shield, Download, FileText } from "lucide-react";
 
 export default function RateLimitsClient({ workspaceId }: { workspaceId: string }) {
@@ -101,11 +87,11 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
         <div className="space-y-6">
           <Alert>
             <Zap className="h-4 w-4" />
-            <ZoruAlertTitle>Auto-adjust suggestion</ZoruAlertTitle>
-            <ZoruAlertDescription className="flex items-center justify-between">
+            <AlertTitle>Auto-adjust suggestion</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
               <span>Your current burst credit is consistently exhausted during peak hours (10:00 AM - 11:00 AM). Consider increasing your API key TPS limit.</span>
               <Button size="sm" variant="outline">Apply Suggestion</Button>
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -116,11 +102,11 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
           </div>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Dynamic Limit Scaling</ZoruCardTitle>
-              <ZoruCardDescription>Automatically adjust rate limits based on your account balance to prevent unexpected overage.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Dynamic Limit Scaling</CardTitle>
+              <CardDescription>Automatically adjust rate limits based on your account balance to prevent unexpected overage.</CardDescription>
+            </CardHeader>
+            <CardBody>
               <div className="flex items-center justify-between p-4 border rounded-md">
                 <div>
                   <p className="font-medium text-sm">Enable Balance-Based Limits</p>
@@ -137,16 +123,16 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                   </div>
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Current Consumption</ZoruCardTitle>
-                <ZoruCardDescription>API requests over the last 60 minutes</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Current Consumption</CardTitle>
+                <CardDescription>API requests over the last 60 minutes</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <div className="relative flex h-[200px] items-end gap-1 px-2 pt-8">
                   {/* Visual limit line */}
                   <div className="absolute left-0 right-0 border-t-2 border-dashed border-[var(--st-border)] z-10 flex items-center pointer-events-none" style={{ bottom: "75%" }}>
@@ -165,15 +151,15 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                     );
                   })}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>429 Response Rate</ZoruCardTitle>
-                <ZoruCardDescription>Throttled requests over the last 60 minutes</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>429 Response Rate</CardTitle>
+                <CardDescription>Throttled requests over the last 60 minutes</CardDescription>
+              </CardHeader>
+              <CardBody>
                 <div className="flex h-[200px] items-end gap-1 px-2">
                   {/* Mock bar chart */}
                   {Array.from({ length: 30 }).map((_, i) => {
@@ -187,7 +173,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                     );
                   })}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>
@@ -195,11 +181,11 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
 
       {activeView === "routes" && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Per-Route Limits</ZoruCardTitle>
-            <ZoruCardDescription>Default rate limits applied per route and scope.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+          <CardHeader>
+            <CardTitle>Per-Route Limits</CardTitle>
+            <CardDescription>Default rate limits applied per route and scope.</CardDescription>
+          </CardHeader>
+          <CardBody className="p-0">
             <SabsmsDataTable
               rows={routeLimits}
               rowKey={(r) => r.id}
@@ -211,25 +197,25 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
               ]}
               selectable={false}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {activeView === "throttled" && (
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <ZoruCardTitle>Throttled Request Log</ZoruCardTitle>
-                <ZoruCardDescription>Log of requests that hit a 429 rate limit.</ZoruCardDescription>
+                <CardTitle>Throttled Request Log</CardTitle>
+                <CardDescription>Log of requests that hit a 429 rate limit.</CardDescription>
               </div>
               <Button variant="outline" size="sm">
                 <FileText className="mr-2 h-4 w-4" />
                 Audit Log
               </Button>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+          </CardHeader>
+          <CardBody className="p-0">
             <SabsmsDataTable
               rows={throttledLog}
               rowKey={(r) => r.id}
@@ -242,22 +228,22 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
               ]}
               selectable={false}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {activeView === "overrides" && (
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <ZoruCardTitle>Rate Limit Overrides</ZoruCardTitle>
-                <ZoruCardDescription>Custom per-key or per-IP rate limits overriding defaults.</ZoruCardDescription>
+                <CardTitle>Rate Limit Overrides</CardTitle>
+                <CardDescription>Custom per-key or per-IP rate limits overriding defaults.</CardDescription>
               </div>
               <Button size="sm">Add Override</Button>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+          </CardHeader>
+          <CardBody className="p-0">
             <SabsmsDataTable
               rows={overrides}
               rowKey={(r) => r.id}
@@ -284,7 +270,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
               selectedIds={[]}
               onSelectionChange={() => {}}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </SabsmsPageShell>

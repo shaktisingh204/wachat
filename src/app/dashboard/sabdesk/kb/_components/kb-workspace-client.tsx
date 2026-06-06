@@ -26,31 +26,8 @@ import {
   Trash2,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from "@/components/sabcrm/20ui/zoru/dialog";
+import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 
 import {
   saveKbArticle,
@@ -117,7 +94,7 @@ function visibilityBadge(v?: string): React.ReactNode {
 }
 
 export function KbWorkspaceClient(props: Props): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [articles, setArticles] = React.useState<ArticleDoc[]>(
@@ -456,7 +433,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
           {/* editor */}
           <ScrollArea className="min-w-0 flex-1">
             <Card className="m-5">
-              <ZoruCardContent className="space-y-4 p-5">
+              <CardBody className="space-y-4 p-5">
                 <div>
                   <Label>Title</Label>
                   <Input
@@ -492,17 +469,17 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         }))
                       }
                     >
-                      <ZoruSelectTrigger className="mt-1">
-                        <ZoruSelectValue placeholder="None" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="none">None</ZoruSelectItem>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="None" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
                         {categories.map((c) => (
-                          <ZoruSelectItem key={c._id} value={c._id}>
+                          <SelectItem key={c._id} value={c._id}>
                             {c.name}
-                          </ZoruSelectItem>
+                          </SelectItem>
                         ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div>
@@ -516,20 +493,20 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         }))
                       }
                     >
-                      <ZoruSelectTrigger className="mt-1">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="internal">
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="internal">
                           Internal (staff only)
-                        </ZoruSelectItem>
-                        <ZoruSelectItem value="portal">
+                        </SelectItem>
+                        <SelectItem value="portal">
                           Portal (customers)
-                        </ZoruSelectItem>
-                        <ZoruSelectItem value="public">
+                        </SelectItem>
+                        <SelectItem value="public">
                           Public (web)
-                        </ZoruSelectItem>
-                      </ZoruSelectContent>
+                        </SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                 </div>
@@ -594,7 +571,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                     </Button>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </ScrollArea>
         </div>
@@ -602,13 +579,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
       {/* New category dialog */}
       <Dialog open={showNewCategory} onOpenChange={setShowNewCategory}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New KB category</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New KB category</DialogTitle>
+            <DialogDescription>
               Group related articles for portal and public help-center browsing.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <div>
               <Label>Name</Label>
@@ -625,17 +602,17 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                 value={newCategoryParent}
                 onValueChange={setNewCategoryParent}
               >
-                <ZoruSelectTrigger className="mt-1">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="root">— Top level —</ZoruSelectItem>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="root">— Top level —</SelectItem>
                   {categories.map((c) => (
-                    <ZoruSelectItem key={c._id} value={c._id}>
+                    <SelectItem key={c._id} value={c._id}>
                       {c.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -648,26 +625,26 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   )
                 }
               >
-                <ZoruSelectTrigger className="mt-1">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="internal">Internal</ZoruSelectItem>
-                  <ZoruSelectItem value="portal">Portal</ZoruSelectItem>
-                  <ZoruSelectItem value="public">Public</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">Internal</SelectItem>
+                  <SelectItem value="portal">Portal</SelectItem>
+                  <SelectItem value="public">Public</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewCategory(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreateCategory} disabled={isPending}>
               Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

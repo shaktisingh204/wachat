@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ScrollArea,
-  Select,
-} from '@/components/sabcrm/20ui/zoru';
+import { Button, Card, CardBody, Input, Popover, PopoverContent, PopoverTrigger, ScrollArea, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -45,7 +35,7 @@ import {
 
 import * as React from 'react';
 
-import { Calendar } from '@/components/sabcrm/20ui/zoru';
+import { Calendar } from '@/components/sabcrm/20ui/compat';
 import { DATE_PRESETS } from '@/components/zoruui-domain/ad-manager/constants';
 
 /* ── Feature lock overlay ──────────────────────────────────────── */
@@ -54,7 +44,7 @@ function MetaFeatureLock() {
   const router = useRouter();
   return (
     <Card className="mt-6">
-      <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
+      <CardBody className="flex flex-col items-center justify-center gap-5 py-24 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
           <Lock className="h-7 w-7 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
@@ -74,7 +64,7 @@ function MetaFeatureLock() {
         >
           Explore plans
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -94,7 +84,7 @@ function DateRangeBar({
 }) {
   return (
     <Popover>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="rounded-full">
           <CalendarIcon className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
           {DATE_PRESETS.find((p) => p.id === preset)?.label ||
@@ -102,8 +92,8 @@ function DateRangeBar({
               ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
               : 'Last 7 days')}
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="p-0 w-auto" align="end">
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-auto" align="end">
         <div className="flex">
           <ScrollArea className="h-[340px] border-r w-40">
             <div className="p-2 flex flex-col">
@@ -135,7 +125,7 @@ function DateRangeBar({
             initialFocus
           />
         </div>
-      </ZoruPopoverContent>
+      </PopoverContent>
     </Popover>
   );
 }

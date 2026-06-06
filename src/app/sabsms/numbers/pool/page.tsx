@@ -1,37 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Badge,
-  Progress,
-  Button,
-  Input,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  StatCard,
-  Switch,
-  Label,
-} from "@/components/sabcrm/20ui/zoru";
+import { Table, TBody, Td, Th, THead, Tr, Badge, Progress, Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, StatCard, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import {
   Search,
   Filter,
@@ -324,17 +294,17 @@ export default function NumberPoolPage() {
             
             <div className="rounded-md border">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Number</TableHead>
-                    <TableHead>Provider</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Reputation</TableHead>
-                    <TableHead className="w-[200px]">Throughput (MPS)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>Number</Th>
+                    <Th>Provider</Th>
+                    <Th>Status</Th>
+                    <Th>Reputation</Th>
+                    <Th className="w-[200px]">Throughput (MPS)</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filteredNumbers.map((num) => {
                     const throughputPercent = Math.min(
                       Math.round((num.currentThroughput / num.throughputLimit) * 100), 
@@ -343,27 +313,27 @@ export default function NumberPoolPage() {
                     const isOverloaded = throughputPercent >= throughputThreshold && isAutoScalingEnabled;
                     
                     return (
-                      <TableRow key={num.id} className={isOverloaded ? "bg-[var(--st-danger)]/10" : ""}>
-                        <TableCell className="font-medium">
+                      <Tr key={num.id} className={isOverloaded ? "bg-[var(--st-danger)]/10" : ""}>
+                        <Td className="font-medium">
                           <div className="flex flex-col">
                             <span>{num.number}</span>
                             <span className="text-xs text-[var(--st-text-secondary)]">
                               {num.country} • {num.type}
                             </span>
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {num.provider === "Auto-Scale" ? (
                             <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-text)]">Auto-Scaled</Badge>
                           ) : num.provider}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {getStatusBadge(num.status)}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {getReputationBadge(num.reputation)}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <div className="flex flex-col space-y-1.5">
                             <div className="flex justify-between text-xs text-[var(--st-text-secondary)]">
                               <span>{Math.round(num.currentThroughput)} / {num.throughputLimit}</span>
@@ -376,8 +346,8 @@ export default function NumberPoolPage() {
                               className="h-2"
                             />
                           </div>
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
@@ -393,18 +363,18 @@ export default function NumberPoolPage() {
                               <DropdownMenuItem className="text-[var(--st-text)]">Release Number</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
                   {filteredNumbers.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-[var(--st-text-secondary)]">
+                    <Tr>
+                      <Td colSpan={6} className="text-center py-6 text-[var(--st-text-secondary)]">
                         No numbers found.
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   )}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </CardContent>

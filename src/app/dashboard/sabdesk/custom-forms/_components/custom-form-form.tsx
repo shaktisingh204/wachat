@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -57,7 +49,7 @@ interface CustomFormFormProps {
 
 export function CustomFormForm({ initialData }: CustomFormFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction] = useActionState(saveForm, initialState);

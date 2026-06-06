@@ -5,26 +5,7 @@ import {
   SabsmsPageShell,
   SabsmsDataTable,
 } from "@/components/sabsms/page-toolkit";
-import {
-  Button,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  Input,
-  Label,
-  Badge,
-  ZoruStatCard,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Textarea,
-  Checkbox,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { Key, ShieldAlert, Settings, Activity, Upload, Download, Sparkles, MessageSquare, Filter, Code2, ShieldCheck, ListFilter, Globe2 } from "lucide-react";
 
 export default function KeywordsPage() {
@@ -81,25 +62,25 @@ export default function KeywordsPage() {
         {view === "keywords" && (
           <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-4">
-              <ZoruStatCard
+              <StatCard
                 label="Active Keywords"
                 value="24"
                 delta={2}
                 period="Across 5 Locales"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Global Suppressions"
                 value="14,890"
                 delta={450}
                 period="Last 30 Days"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Auto-Responses Sent"
                 value="8,902"
                 delta={120}
                 period="Help & Info Requests"
               />
-              <ZoruStatCard
+              <StatCard
                 label="Carrier Compliant"
                 value="100%"
                 period="CTIA / CWTA / TRAI"
@@ -107,19 +88,19 @@ export default function KeywordsPage() {
             </div>
 
             <Card className="border-[var(--st-border)] shadow-sm">
-              <ZoruCardHeader className="flex flex-row items-start justify-between bg-[var(--st-bg-muted)]/20 pb-4 border-b">
+              <CardHeader className="flex flex-row items-start justify-between bg-[var(--st-bg-muted)]/20 pb-4 border-b">
                 <div>
-                  <ZoruCardTitle className="text-xl">Keyword & Suppression Mapping</ZoruCardTitle>
-                  <ZoruCardDescription className="mt-1">
+                  <CardTitle className="text-xl">Keyword & Suppression Mapping</CardTitle>
+                  <CardDescription className="mt-1">
                     Manage how inbound keywords (e.g., STOP, START) map to global and local suppression lists.
-                  </ZoruCardDescription>
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Input placeholder="Search keywords..." className="w-64 bg-[var(--st-bg-secondary)]" />
                   <Button variant="outline"><Filter className="w-4 h-4 mr-2" /> Filter</Button>
                 </div>
-              </ZoruCardHeader>
-              <ZoruCardContent className="p-0">
+              </CardHeader>
+              <CardBody className="p-0">
                 <SabsmsDataTable
                   rowKey={(r) => r.id}
                   columns={[
@@ -213,7 +194,7 @@ export default function KeywordsPage() {
                     { id: "9", keyword: "PROMO(.*)", matchType: "Regex", actionType: "Custom", suppressionList: "N/A", locale: "en-US", networks: [], count: 450, status: "Inactive" },
                   ]}
                 />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         )}
@@ -222,56 +203,56 @@ export default function KeywordsPage() {
           <>
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Per-Keyword Response Template (Feature 2)</ZoruCardTitle>
-                  <ZoruCardDescription>Define the auto-reply when a keyword is triggered.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Per-Keyword Response Template (Feature 2)</CardTitle>
+                  <CardDescription>Define the auto-reply when a keyword is triggered.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Select Keyword</Label>
                     <Select>
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="STOP" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="stop">STOP</ZoruSelectItem>
-                        <ZoruSelectItem value="help">HELP</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger>
+                        <SelectValue placeholder="STOP" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="stop">STOP</SelectItem>
+                        <SelectItem value="help">HELP</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Response Message</Label>
                     <Textarea placeholder="You have been unsubscribed. Reply START to resubscribe." rows={3} />
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button>Save Response</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Confirmation Template Editor (Feature 9)</ZoruCardTitle>
-                  <ZoruCardDescription>Edit double opt-in or state change confirmations.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Confirmation Template Editor (Feature 9)</CardTitle>
+                  <CardDescription>Edit double opt-in or state change confirmations.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Template Body</Label>
                     <Textarea placeholder="Please reply YES to confirm your subscription." rows={3} />
                   </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button>Save Confirmation</Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Handling Rules & Precedence</ZoruCardTitle>
-                <ZoruCardDescription>Configure edge cases and match order.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Handling Rules & Precedence</CardTitle>
+                <CardDescription>Configure edge cases and match order.</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-base">UNSTOP / START Handling Rules (Feature 12)</Label>
                   <div className="flex items-center space-x-2">
@@ -293,7 +274,7 @@ export default function KeywordsPage() {
                     3. Fuzzy match / Typo tolerance
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </>
         )}
@@ -302,11 +283,11 @@ export default function KeywordsPage() {
           <>
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Global Configuration</ZoruCardTitle>
-                  <ZoruCardDescription>Set rate limits and channel toggles.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                <CardHeader>
+                  <CardTitle>Global Configuration</CardTitle>
+                  <CardDescription>Set rate limits and channel toggles.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-6">
                   <div className="space-y-2">
                     <Label>Auto-reply Rate Limit (Feature 8)</Label>
                     <div className="flex items-center gap-2">
@@ -332,38 +313,38 @@ export default function KeywordsPage() {
                       </div>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <Card className="border-[var(--st-border)] dark:border-[var(--st-border)]">
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text)]">
                     <ShieldAlert className="h-5 w-5" />
-                    <ZoruCardTitle>Carrier-Blocked Warnings (Feature 11)</ZoruCardTitle>
+                    <CardTitle>Carrier-Blocked Warnings (Feature 11)</CardTitle>
                   </div>
-                  <ZoruCardDescription>Alerts regarding carrier restrictions on keywords.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  <CardDescription>Alerts regarding carrier restrictions on keywords.</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <div className="text-sm p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-md">
                     <strong>Warning:</strong> The keyword <em>"FREE"</em> is heavily filtered by US carriers on 10DLC. Avoid using this as a custom trigger.
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Bulk Operations</ZoruCardTitle>
-                <ZoruCardDescription>Import or export your keyword set.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex gap-4">
+              <CardHeader>
+                <CardTitle>Bulk Operations</CardTitle>
+                <CardDescription>Import or export your keyword set.</CardDescription>
+              </CardHeader>
+              <CardBody className="flex gap-4">
                 <Button variant="outline">
                   <Upload className="mr-2 h-4 w-4" /> Bulk Import (Feature 16)
                 </Button>
                 <Button variant="outline">
                   <Download className="mr-2 h-4 w-4" /> Bulk Export (Feature 17)
                 </Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </>
         )}
@@ -372,11 +353,11 @@ export default function KeywordsPage() {
           <>
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Test Keyword (Feature 5)</ZoruCardTitle>
-                  <ZoruCardDescription>Simulate an inbound message.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Test Keyword (Feature 5)</CardTitle>
+                  <CardDescription>Simulate an inbound message.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Inbound Message Content</Label>
                     <div className="flex gap-2">
@@ -387,32 +368,32 @@ export default function KeywordsPage() {
                   <div className="p-3 border rounded text-sm text-[var(--st-text-secondary)]">
                     Result: Matches <span className="font-bold text-[var(--st-text)]">STOP</span> (Fuzzy match)
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               <Card className="bg-[var(--st-text)]/5 border-primary/20">
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-center gap-2 text-[var(--st-text)]">
                     <Sparkles className="h-5 w-5" />
-                    <ZoruCardTitle>AI Insights (Feature 18)</ZoruCardTitle>
+                    <CardTitle>AI Insights (Feature 18)</CardTitle>
                   </div>
-                  <ZoruCardDescription>Suggest keywords from inbound corpus.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                  <CardDescription>Suggest keywords from inbound corpus.</CardDescription>
+                </CardHeader>
+                <CardBody>
                   <p className="text-sm mb-4">Analyze recent inbound messages to discover unrecognized opt-out intents.</p>
                   <Button variant="default" className="w-full">
                     <Sparkles className="mr-2 h-4 w-4" /> Suggest Keywords
                   </Button>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Audit Logs</ZoruCardTitle>
-                <ZoruCardDescription>Keyword fires and configuration changes.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Audit Logs</CardTitle>
+                <CardDescription>Keyword fires and configuration changes.</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-base">Per-Keyword Fires (Feature 6)</Label>
                   <SabsmsDataTable
@@ -444,7 +425,7 @@ export default function KeywordsPage() {
                     ]}
                   />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </>
         )}

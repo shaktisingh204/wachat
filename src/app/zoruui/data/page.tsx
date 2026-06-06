@@ -153,7 +153,7 @@ import {
   zoruToast,
   ZoruProvider,
 
-} from "@/components/sabcrm/20ui/zoru";
+} from "@/components/sabcrm/20ui/compat";
 import {
   ArrowRight,
   Activity,

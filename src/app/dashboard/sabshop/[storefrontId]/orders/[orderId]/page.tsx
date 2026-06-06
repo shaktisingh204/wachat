@@ -1,24 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-  Badge,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Separator,
-  Avatar,
-  AvatarFallback,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, Badge, Button, Table, TBody, Td, Th, THead, Tr, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import { 
   ArrowLeft, 
   Package, 
@@ -119,33 +102,33 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardContent>
               <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                 <Table>
-                  <TableHeader className="bg-[var(--st-bg-secondary)]">
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>SKU</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-center">Qty</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                  <THead className="bg-[var(--st-bg-secondary)]">
+                    <Tr>
+                      <Th>Product</Th>
+                      <Th>SKU</Th>
+                      <Th className="text-right">Price</Th>
+                      <Th className="text-center">Qty</Th>
+                      <Th className="text-right">Total</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {ORDER_DETAILS.items.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
+                      <Tr key={item.id}>
+                        <Td>
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded bg-[var(--st-bg-secondary)] flex items-center justify-center text-xl border border-[var(--st-border)]">
                               {item.image}
                             </div>
                             <span className="font-medium text-[var(--st-text)]">{item.name}</span>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-[var(--st-text-secondary)]">{item.sku}</TableCell>
-                        <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-center">{item.quantity}</TableCell>
-                        <TableCell className="text-right font-medium">${item.total.toFixed(2)}</TableCell>
-                      </TableRow>
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">{item.sku}</Td>
+                        <Td className="text-right">${item.price.toFixed(2)}</Td>
+                        <Td className="text-center">{item.quantity}</Td>
+                        <Td className="text-right font-medium">${item.total.toFixed(2)}</Td>
+                      </Tr>
                     ))}
-                  </TableBody>
+                  </TBody>
                 </Table>
               </div>
               

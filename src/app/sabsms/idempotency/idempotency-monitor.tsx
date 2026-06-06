@@ -17,16 +17,7 @@ import {
   Settings
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  StatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard } from '@/components/sabcrm/20ui/compat';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsFilterBar, type SabsmsFacet } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
@@ -220,11 +211,11 @@ export function IdempotencyMonitor() {
 
       <div className="grid gap-4 md:grid-cols-2 mb-6">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2"><Database className="h-4 w-4 text-[var(--st-text)]" /> Per-API-key Usage</ZoruCardTitle>
-            <ZoruCardDescription>Top API keys by idempotency requests</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Database className="h-4 w-4 text-[var(--st-text)]" /> Per-API-key Usage</CardTitle>
+            <CardDescription>Top API keys by idempotency requests</CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <span className="font-mono">pk_prod_999</span>
@@ -235,15 +226,15 @@ export function IdempotencyMonitor() {
                 <span className="font-medium">2,194 reqs</span>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-[var(--st-text)]" /> Per-endpoint Usage</ZoruCardTitle>
-            <ZoruCardDescription>Top routes by idempotency requests</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-[var(--st-text)]" /> Per-endpoint Usage</CardTitle>
+            <CardDescription>Top routes by idempotency requests</CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <Badge variant="outline">POST /v1/messages</Badge>
@@ -254,7 +245,7 @@ export function IdempotencyMonitor() {
                 <span className="font-medium">3,739 reqs</span>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 

@@ -32,32 +32,7 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import {
-  ZORU_CHART_PALETTE,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import {
   type CohortPoint,
@@ -358,10 +333,10 @@ export function ConsentTable({
     <div className="space-y-4">
       {/* Jurisdiction badge row */}
       <Card>
-        <ZoruCardHeader className="pb-2">
-          <ZoruCardTitle className="text-sm">Compliance status</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-wrap gap-2">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Compliance status</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-wrap gap-2">
           {jurisdictions.map((j) => (
             <span
               key={j.code}
@@ -382,19 +357,19 @@ export function ConsentTable({
               <span className="text-[var(--st-text)]">{j.note}</span>
             </span>
           ))}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Cohort retention */}
       {cohort.length > 0 && (
         <Card>
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">
               Consent stickiness (last 12 cohorts)
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruChartContainer height={180}>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            <ChartContainer height={180}>
               <ZoruChart.BarChart data={cohort} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -412,7 +387,7 @@ export function ConsentTable({
                   axisLine={false}
                   width={36}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Bar
                   dataKey="totalOptIn"
                   fill={ZORU_CHART_PALETTE[0]}
@@ -424,8 +399,8 @@ export function ConsentTable({
                   radius={[2, 2, 0, 0]}
                 />
               </ZoruChart.BarChart>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
       )}
 
@@ -589,14 +564,14 @@ export function ConsentTable({
 
       {/* Verify double-opt-in dialog */}
       <Dialog open={verifyOpen} onOpenChange={setVerifyOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Verify double opt-in</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verify double opt-in</DialogTitle>
+            <DialogDescription>
               Checks the event timeline for an opt-in-single → opt-in-double
               sequence without an intervening opt-out.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input
             value={verifyHash}
             onChange={(e) => setVerifyHash(e.target.value)}
@@ -611,28 +586,28 @@ export function ConsentTable({
                 : "Not double-opt-in verified"}
             </div>
           )}
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setVerifyOpen(false)}>
               Close
             </Button>
             <Button onClick={runVerify} disabled={!verifyHash.trim() || !!busy}>
               {busy ?? "Verify"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Retroactive import */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Import retroactive consents</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import retroactive consents</DialogTitle>
+            <DialogDescription>
               CSV must have <code>phone_hash</code> + optional{" "}
               <code>source</code> / <code>ip</code> / <code>user_agent</code> /
               <code>captured_at</code> columns.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label>Kind</Label>
@@ -640,16 +615,16 @@ export function ConsentTable({
                 value={importKind}
                 onValueChange={(v) => setImportKind(v as ConsentRow["kind"])}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {KIND_OPTIONS.map((k) => (
-                    <ZoruSelectItem key={k.value} value={k.value}>
+                    <SelectItem key={k.value} value={k.value}>
                       {k.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -660,20 +635,20 @@ export function ConsentTable({
                   setImportCapture(v as ConsentRow["captureMethod"])
                 }
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {CAPTURE_METHOD_OPTIONS.map((c) => (
-                    <ZoruSelectItem key={c.value} value={c.value}>
+                    <SelectItem key={c.value} value={c.value}>
                       {c.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
             </Button>
@@ -688,8 +663,8 @@ export function ConsentTable({
             >
               Pick CSV from SabFiles
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
       <ConsentImportPicker
         kind={importKind}
@@ -699,13 +674,13 @@ export function ConsentTable({
 
       {/* Tag */}
       <Dialog open={!!tagRow} onOpenChange={(o) => !o && setTagRow(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Tag consent event</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tag consent event</DialogTitle>
+            <DialogDescription>
               Useful for grouping events by campaign or audit batch.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input
             value={tagValue}
             onChange={(e) => setTagValue(e.target.value)}
@@ -725,27 +700,27 @@ export function ConsentTable({
               ))}
             </div>
           )}
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTagRow(null)}>
               Cancel
             </Button>
             <Button onClick={handleSaveTag} disabled={!!busy}>
               {busy ?? "Save"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* DSR */}
       <Dialog open={dsrOpen} onOpenChange={setDsrOpen}>
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Subject access request</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Subject access request</DialogTitle>
+            <DialogDescription>
               Returns a JSON dump of every consent event we hold for the given
               phone hash.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input
             value={dsrHash}
             onChange={(e) => setDsrHash(e.target.value)}
@@ -759,33 +734,33 @@ export function ConsentTable({
               className="font-mono text-xs"
             />
           )}
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDsrOpen(false)}>
               Close
             </Button>
             <Button onClick={runDsr} disabled={!dsrHash.trim() || !!busy}>
               {busy ?? "Build payload"}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Erasure */}
       <Dialog open={erasureOpen} onOpenChange={setErasureOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Erasure request</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Erasure request</DialogTitle>
+            <DialogDescription>
               Hash-preserving — clears IP / UA / metadata but keeps the
               hashed row so we still honour the opt-out forever.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input
             value={erasureHash}
             onChange={(e) => setErasureHash(e.target.value)}
             placeholder="64-char phone hash"
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setErasureOpen(false)}>
               Cancel
             </Button>
@@ -796,21 +771,21 @@ export function ConsentTable({
             >
               {busy ?? (isAdmin ? "Run erasure" : "Admin only")}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Reason taxonomy */}
       <Dialog open={taxonomyOpen} onOpenChange={setTaxonomyOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Consent reason taxonomy</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Consent reason taxonomy</DialogTitle>
+            <DialogDescription>
               Shared labels used for tagging consent events.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <ConsentTaxonomyEditor initial={reasonTaxonomy} refresh={refresh} />
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );

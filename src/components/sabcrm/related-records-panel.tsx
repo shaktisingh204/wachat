@@ -39,16 +39,7 @@ import {
 import Link from "next/link";
 import { Plus, X, Search, ExternalLink, Loader2, Link2 } from "lucide-react";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Input,
-  Badge,
-  EmptyState,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardHeader, CardTitle, CardContent, Button, Input, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import type {
   ActionResult,

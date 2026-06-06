@@ -3,43 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  ZoruKbd,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Kbd, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Table, TBody, Td, Th, THead, Tr, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import type {
@@ -316,15 +280,15 @@ export function QuickSendClient({
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recipients</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Recipients</CardTitle>
+          <CardDescription>
             Paste E.164 numbers (newline / comma) or a TSV/CSV with a
             `phone` header to bind variables. Phones are normalised and
             deduped on the fly.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <Textarea
             id="quick-send-paste"
             rows={8}
@@ -367,19 +331,19 @@ export function QuickSendClient({
               </ul>
             </details>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Message</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Message</CardTitle>
+          <CardDescription>
             Use <code>{`{{variable}}`}</code> placeholders to interpolate
             paste-row columns. The preview below renders one row per
             recipient.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <Textarea
             id="quick-send-body"
             rows={4}
@@ -398,18 +362,18 @@ export function QuickSendClient({
             <span>·</span>
             <span>est. ${totalCostDollars.toFixed(2)}</span>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Compliance</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Compliance</CardTitle>
+          <CardDescription>
             Pick the message category. Marketing requires explicit TCPA
             attestation before launch.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <RadioGroup
             value={category}
             onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
@@ -475,17 +439,17 @@ export function QuickSendClient({
               </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Send options</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Send options</CardTitle>
+          <CardDescription>
             Throttle, sender pool, and pre-flight skip filters.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="quick-send-throttle">
@@ -512,19 +476,19 @@ export function QuickSendClient({
                   setSenderNumberId(v === "default" ? "" : v)
                 }
               >
-                <ZoruSelectTrigger id="quick-send-sender">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="default">
+                <SelectTrigger id="quick-send-sender">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">
                     Workspace default
-                  </ZoruSelectItem>
+                  </SelectItem>
                   {senderNumbers.map((n) => (
-                    <ZoruSelectItem key={n.id} value={n.id}>
+                    <SelectItem key={n.id} value={n.id}>
                       {n.e164} ({n.country})
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
               {senderNumbers.length === 0 && (
                 <p className="text-xs text-[var(--st-text)]">
@@ -574,58 +538,58 @@ export function QuickSendClient({
               />
             </label>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Per-row preview</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Per-row preview</CardTitle>
+          <CardDescription>
             Shows the first 25 rendered rows. Quiet-hours flagged per
             country code.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="overflow-hidden rounded border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Phone</ZoruTableHead>
-                  <ZoruTableHead>Rendered body</ZoruTableHead>
-                  <ZoruTableHead className="w-24">Segments</ZoruTableHead>
-                  <ZoruTableHead className="w-32">Flags</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Phone</Th>
+                  <Th>Rendered body</Th>
+                  <Th className="w-24">Segments</Th>
+                  <Th className="w-32">Flags</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {previewRows.map((row) => (
-                  <ZoruTableRow key={`${row.sourceLine}-${row.phone}`}>
-                    <ZoruTableCell className="font-mono text-xs">
+                  <Tr key={`${row.sourceLine}-${row.phone}`}>
+                    <Td className="font-mono text-xs">
                       {row.phone}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[420px] truncate text-xs">
+                    </Td>
+                    <Td className="max-w-[420px] truncate text-xs">
                       {row.rendered}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs">
+                    </Td>
+                    <Td className="font-mono text-xs">
                       {row.seg.segments} ({row.seg.encoding})
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {row.quiet && (
                         <Badge variant="secondary">quiet hours</Badge>
                       )}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
                 {previewRows.length === 0 && (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={4}
                       className="py-8 text-center text-sm text-[var(--st-text)]"
                     >
                       Paste at least one phone to see the preview.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           {parsed.rows.length > 25 && (
@@ -633,18 +597,18 @@ export function QuickSendClient({
               Showing 25 of {parsed.rows.length} rows.
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Test send</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Test send</CardTitle>
+          <CardDescription>
             Drop one real message to a single recipient before the bulk
             run.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <div className="flex flex-wrap items-end gap-3">
             <div className="grow space-y-1">
               <Label htmlFor="quick-send-test-to">
@@ -681,12 +645,12 @@ export function QuickSendClient({
               {testResult}
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={handleLaunchClick} disabled={!canLaunch}>
-          {launchLabel} <ZoruKbd className="ml-2">⌘ ↵</ZoruKbd>
+          {launchLabel} <Kbd className="ml-2">⌘ ↵</Kbd>
         </Button>
         <Button variant="outline" asChild>
           <Link href={saveAsCampaignHref}>Save as campaign instead</Link>
@@ -698,11 +662,11 @@ export function QuickSendClient({
         )}
       </div>
 
-      <ZoruAlertDialog open={costConfirmOpen} onOpenChange={setCostConfirmOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Confirm spend</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={costConfirmOpen} onOpenChange={setCostConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm spend</AlertDialogTitle>
+            <AlertDialogDescription>
               This run is estimated at{" "}
               <strong>${totalCostDollars.toFixed(2)}</strong> across{" "}
               <strong>{totalSegments}</strong> segment
@@ -710,21 +674,21 @@ export function QuickSendClient({
               <strong>{parsed.rows.length}</strong> recipient
               {parsed.rows.length === 1 ? "" : "s"}. The engine charges
               the final cost — this estimate uses a fixed wholesale rate.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 setCostConfirmOpen(false);
                 void doLaunch();
               }}
             >
               Confirm and launch
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

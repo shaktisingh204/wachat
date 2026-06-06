@@ -6,16 +6,7 @@ import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-sh
 import { SabsmsDataTable, SabsmsColumn } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit/sabsms-detail-drawer";
 import { SabsmsFilterBar } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
-import { 
-  Badge, 
-  Button, 
-  Card,
-  Dialog, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogTitle, 
-  ZoruDialogDescription 
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { pingProvidersAction } from "./actions";
 
 export interface ProviderRow {
@@ -399,11 +390,11 @@ export function ProvidersClient({
        </SabsmsDetailDrawer>
 
        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-         <ZoruDialogContent className="max-w-2xl">
-           <ZoruDialogHeader>
-             <ZoruDialogTitle>Provider Catalog</ZoruDialogTitle>
-             <ZoruDialogDescription>Select a provider to configure your workspace credentials.</ZoruDialogDescription>
-           </ZoruDialogHeader>
+         <DialogContent className="max-w-2xl">
+           <DialogHeader>
+             <DialogTitle>Provider Catalog</DialogTitle>
+             <DialogDescription>Select a provider to configure your workspace credentials.</DialogDescription>
+           </DialogHeader>
            <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-1">
              {catalog.map(p => (
                 <div key={p.id} className="border border-[var(--st-border)] rounded-md p-3 flex flex-col justify-between hover:border-[var(--st-border)] transition-colors">
@@ -420,7 +411,7 @@ export function ProvidersClient({
                 </div>
              ))}
            </div>
-         </ZoruDialogContent>
+         </DialogContent>
        </Dialog>
     </SabsmsPageShell>
   );

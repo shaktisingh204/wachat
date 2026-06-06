@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from "@/components/crm/enum-form-field";
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useActionState, useEffect, useState } from "react";
@@ -58,7 +50,7 @@ interface SlaFormProps {
 
 export function SlaForm({ initialData }: SlaFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction] = useActionState(saveSla, initialState);

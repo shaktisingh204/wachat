@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sparkles } from "lucide-react";
-import { ZoruHeroPill } from "@/components/sabcrm/20ui/zoru";
+import { HeroPill } from '@/components/sabcrm/20ui/compat';
 import { Section } from "./components/Section";
 import { SnippetDemo } from "./components/SnippetDemo";
 
@@ -26,7 +26,7 @@ function Header() {
       </div>
       <div className="grid gap-8 px-5 py-8 sm:px-7 lg:grid-cols-[1fr_320px] lg:items-end">
         <div>
-          <ZoruHeroPill icon={<Sparkles className="size-3" />} text="Minimal premium refresh" />
+          <HeroPill icon={<Sparkles className="size-3" />} text="Minimal premium refresh" />
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--st-text)] sm:text-5xl">
             ZoruUI component showcase
           </h1>

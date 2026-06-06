@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useOptimistic, startTransition } from "react";
-import { Card, Button, Input, Checkbox } from "@/components/sabcrm/20ui/zoru";
+import { Card, Button, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { Pencil, Download, FileText, Check, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useVirtualizer } from "@tanstack/react-virtual";

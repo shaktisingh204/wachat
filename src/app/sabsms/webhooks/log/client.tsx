@@ -4,24 +4,7 @@ import * as React from "react";
 import { formatUTC } from "@/lib/utils";
 import { Copy, FileJson, Play, RefreshCw, ServerCrash, Clock, AlertTriangle, Code2, TerminalSquare, Activity, ShieldCheck } from "lucide-react";
 
-import {
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Badge,
-  Button,
-  ScrollArea,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent,
-  useZoruToast,
-  ZoruKbd,
-  ZoruResizablePanelGroup,
-  ZoruResizablePanel,
-  ZoruResizableHandle,
-  Input,
-} from "@/components/sabcrm/20ui/zoru";
+import { Alert, AlertTitle, AlertDescription, Badge, Button, ScrollArea, Card, CardHeader, CardTitle, CardBody, useToast, Kbd, ResizablePanelGroup, ResizablePanel, ResizableHandle, Input } from '@/components/sabcrm/20ui/compat';
 
 import {
   useSabsmsUrlState,
@@ -201,7 +184,7 @@ const syntaxHighlight = (jsonStr: string) => {
 
 export default function WebhookLogClient() {
   const urlState = useSabsmsUrlState();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(25);
@@ -384,24 +367,24 @@ export default function WebhookLogClient() {
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
          <Card className="border-[var(--st-border)]/60 shadow-sm">
-            <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[var(--st-text)]"/> HTTP Status Codes
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex items-end gap-2 h-20">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="flex items-end gap-2 h-20">
                <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "80%" }} title="2xx: 80%" />
                <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "10%" }} title="4xx: 10%" />
                <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "30%" }} title="5xx: 30%" />
-            </ZoruCardContent>
+            </CardBody>
          </Card>
          <Card className="border-[var(--st-border)]/60 shadow-sm">
-            <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[var(--st-text)]"/> Latency Overview (ms)
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex items-center gap-6 h-20">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="flex items-center gap-6 h-20">
                <div className="flex flex-col">
                  <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">145</span>
                  <span className="text-xs text-[var(--st-text)] font-medium">P50</span>
@@ -414,31 +397,31 @@ export default function WebhookLogClient() {
                  <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">3k</span>
                  <span className="text-xs text-[var(--st-text)] font-medium">Max</span>
                </div>
-            </ZoruCardContent>
+            </CardBody>
          </Card>
          <Card className="bg-[var(--st-text)] text-white border-[var(--st-border)] shadow-md">
-            <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text-secondary)] flex items-center gap-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)] flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-[var(--st-text-secondary)]"/> Webhook Health
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex flex-col justify-center h-20">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="flex flex-col justify-center h-20">
                <div className="flex items-baseline gap-2">
                  <span className="text-4xl font-bold text-[var(--st-text-secondary)] tracking-tighter">98.4%</span>
                  <span className="text-sm text-[var(--st-text-secondary)] font-medium">Success Rate</span>
                </div>
                <div className="text-xs text-[var(--st-text)] mt-1">Last 24 hours • 1.2M deliveries</div>
-            </ZoruCardContent>
+            </CardBody>
          </Card>
       </div>
 
       <div className="space-y-4">
         <Alert className="bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]">
           <AlertTriangle className="h-4 w-4 !text-[var(--st-text)]" />
-          <ZoruAlertTitle className="text-[var(--st-text)]">Aggressive Retention Policy Active</ZoruAlertTitle>
-          <ZoruAlertDescription className="text-[var(--st-text)]">
+          <AlertTitle className="text-[var(--st-text)]">Aggressive Retention Policy Active</AlertTitle>
+          <AlertDescription className="text-[var(--st-text)]">
             Due to high volume, webhook logs are automatically purged after 7 days. Older logs are permanently deleted and cannot be recovered or replayed.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
 
         <SabsmsFilterBar
@@ -459,8 +442,8 @@ export default function WebhookLogClient() {
         />
         
         <Card className="border shadow-sm overflow-hidden flex flex-col h-[600px] xl:h-[800px]">
-          <ZoruResizablePanelGroup direction="horizontal" className="flex-1 w-full h-full">
-            <ZoruResizablePanel defaultSize={55} minSize={30} className="h-full flex flex-col bg-white">
+          <ResizablePanelGroup direction="horizontal" className="flex-1 w-full h-full">
+            <ResizablePanel defaultSize={55} minSize={30} className="h-full flex flex-col bg-white">
                <div className="flex-1 overflow-hidden p-2">
                    <SabsmsDataTable
                      columns={columns}
@@ -479,11 +462,11 @@ export default function WebhookLogClient() {
                      onRowClick={setSelectedRow}
                    />
                </div>
-            </ZoruResizablePanel>
+            </ResizablePanel>
 
-            <ZoruResizableHandle withHandle />
+            <ResizableHandle withHandle />
 
-            <ZoruResizablePanel defaultSize={45} minSize={25} className="h-full bg-[var(--st-bg-muted)] flex flex-col border-l">
+            <ResizablePanel defaultSize={45} minSize={25} className="h-full bg-[var(--st-bg-muted)] flex flex-col border-l">
               {selectedRow ? (
                 <ScrollArea className="flex-1">
                   <div className="p-6 space-y-8">
@@ -559,7 +542,7 @@ export default function WebhookLogClient() {
                         <ShieldCheck className="w-4 h-4 text-[var(--st-text)]" /> Signature
                       </h3>
                       <div className="bg-white rounded-xl border shadow-sm overflow-hidden p-4 flex items-center justify-between">
-                         <ZoruKbd className="text-xs bg-[var(--st-bg-muted)]">{selectedRow.signature}</ZoruKbd>
+                         <Kbd className="text-xs bg-[var(--st-bg-muted)]">{selectedRow.signature}</Kbd>
                          <Button variant="ghost" size="sm" className="text-[var(--st-text)]" onClick={() => toast({ title: "Signature verified", description: "Matches workspace secret."})}>Verify</Button>
                       </div>
                     </div>
@@ -605,8 +588,8 @@ export default function WebhookLogClient() {
                   <p className="text-sm mt-2 max-w-[250px] leading-relaxed">Select a delivery attempt from the table to view its raw request payload, headers, and response data.</p>
                 </div>
               )}
-            </ZoruResizablePanel>
-          </ZoruResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </Card>
       </div>
     </SabsmsPageShell>

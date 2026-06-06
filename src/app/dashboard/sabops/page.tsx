@@ -1,16 +1,6 @@
 import { Server, ShieldAlert, Package, Send } from "lucide-react";
 
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    StatCard,
-} from "@/components/sabcrm/20ui/zoru";
+import { Card, CardBody, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
     listSabopsEndpoints,
     listSabopsAlerts,
@@ -45,12 +35,12 @@ export default async function SabopsOverviewPage() {
     return (
         <div className="flex flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>SabOps</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>SabOps</PageTitle>
+                    <PageDescription>
                         Endpoint management, MDM, Active Directory, and patching for your fleet.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -82,10 +72,10 @@ export default async function SabopsOverviewPage() {
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Endpoints by status</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Endpoints by status</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ul className="grid grid-cols-2 gap-3 text-sm">
                             {(["online", "offline", "stale", "disabled"] as const).map((s) => (
                                 <li
@@ -99,14 +89,14 @@ export default async function SabopsOverviewPage() {
                                 </li>
                             ))}
                         </ul>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Alerts by severity</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Alerts by severity</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ul className="grid grid-cols-2 gap-3 text-sm">
                             {(["critical", "high", "medium", "low"] as const).map((s) => (
                                 <li
@@ -120,7 +110,7 @@ export default async function SabopsOverviewPage() {
                                 </li>
                             ))}
                         </ul>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

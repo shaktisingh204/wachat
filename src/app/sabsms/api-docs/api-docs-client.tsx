@@ -20,25 +20,8 @@ import {
   X,
   Lock
 } from "lucide-react";
-import {
-  Button,
-  Card,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Label,
-  Badge,
-  ScrollArea,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-} from "@/components/sabcrm/20ui/zoru";
-import { cn } from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Label, Badge, ScrollArea, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 // ---------------------------------------------------------------------------
 // DATA MODEL

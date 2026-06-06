@@ -6,12 +6,7 @@ import { getAccountHomeData } from "@/app/actions/home.actions";
 import { getSession } from "@/app/actions/user.actions";
 import { getOnboardingState } from "@/app/actions/onboarding-flow.actions";
 
-import {
-  Button,
-  Badge,
-  StatCard,
-  EmptyState,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Badge, StatCard, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   MessageSquare,
   Users,

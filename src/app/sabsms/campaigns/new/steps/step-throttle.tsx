@@ -2,19 +2,7 @@
 
 import * as React from "react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Separator,
-  Switch,
-} from "@/components/sabcrm/20ui/zoru";
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Switch } from '@/components/sabcrm/20ui/compat';
 
 import type { CampaignDraft, QuietHoursWindow } from "../types";
 
@@ -48,13 +36,13 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
   return (
     <div className="space-y-5">
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Throughput</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Throughput</CardTitle>
+          <CardDescription>
             Tune outbound rate. Higher = faster delivery but more carrier risk.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="throttle-rps">
@@ -100,17 +88,17 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
               Hard ceiling enforced before round-robin. Leave empty for no cap.
             </p>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Quiet hours</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Quiet hours</CardTitle>
+          <CardDescription>
             Per-country windows when the engine pauses delivery. Times use 24h.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           {draft.quietHours.length === 0 ? (
             <p className="text-sm text-[var(--st-text)]">No quiet-hours windows.</p>
           ) : (
@@ -174,7 +162,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
               }
             />
           </label>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

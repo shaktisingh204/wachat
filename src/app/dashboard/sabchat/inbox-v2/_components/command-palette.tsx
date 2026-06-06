@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-    ZoruCommandDialog,
-    ZoruCommandInput,
-    ZoruCommandList,
-    ZoruCommandEmpty,
-    ZoruCommandGroup,
-    ZoruCommandItem,
-    ZoruCommandShortcut
-} from "@/components/sabcrm/20ui/zoru";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
 import { SabChatConversation } from "@/lib/rust-client/sabchat";
 
 interface CommandPaletteProps {
@@ -47,40 +39,40 @@ export function CommandPalette({
     }, [selectedId, onAssign]);
 
     return (
-        <ZoruCommandDialog open={open} onOpenChange={setOpen}>
-            <ZoruCommandInput placeholder="Type a command or search..." />
-            <ZoruCommandList>
-                <ZoruCommandEmpty>No results found.</ZoruCommandEmpty>
-                <ZoruCommandGroup heading="Actions">
-                    <ZoruCommandItem
+        <CommandDialog open={open} onOpenChange={setOpen}>
+            <CommandInput placeholder="Type a command or search..." />
+            <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup heading="Actions">
+                    <CommandItem
                         onSelect={() => {
                             if (selectedId) onAssign(selectedId);
                             setOpen(false);
                         }}
                     >
                         Auto-assign Current Conversation
-                        <ZoruCommandShortcut>⌘E</ZoruCommandShortcut>
-                    </ZoruCommandItem>
-                    <ZoruCommandItem
+                        <CommandShortcut>⌘E</CommandShortcut>
+                    </CommandItem>
+                    <CommandItem
                         onSelect={() => {
                             if (selectedId) onResolve(selectedId);
                             setOpen(false);
                         }}
                     >
                         Resolve Current Conversation
-                    </ZoruCommandItem>
-                    <ZoruCommandItem
+                    </CommandItem>
+                    <CommandItem
                         onSelect={() => {
                             if (selectedId) onSnooze(selectedId);
                             setOpen(false);
                         }}
                     >
                         Snooze Current Conversation
-                    </ZoruCommandItem>
-                </ZoruCommandGroup>
-                <ZoruCommandGroup heading="Conversations">
+                    </CommandItem>
+                </CommandGroup>
+                <CommandGroup heading="Conversations">
                     {conversations.map((c) => (
-                        <ZoruCommandItem
+                        <CommandItem
                             key={c._id}
                             onSelect={() => {
                                 onSelect(c._id);
@@ -88,10 +80,10 @@ export function CommandPalette({
                             }}
                         >
                             {c.lastMessagePreview || `Conversation ${c._id.slice(-6)}`}
-                        </ZoruCommandItem>
+                        </CommandItem>
                     ))}
-                </ZoruCommandGroup>
-            </ZoruCommandList>
-        </ZoruCommandDialog>
+                </CommandGroup>
+            </CommandList>
+        </CommandDialog>
     );
 }

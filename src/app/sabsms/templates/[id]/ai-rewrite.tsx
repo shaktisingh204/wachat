@@ -3,14 +3,7 @@
 import { useState, useTransition } from "react";
 import { Sparkles, Languages, Scissors, Smile, MousePointerClick } from "lucide-react";
 
-import {
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import {
   runAiRewrite,
@@ -121,16 +114,16 @@ export function AiRewriteToolbar({
             Translate to
           </div>
           <Select value={target} onValueChange={(v) => setTarget(v as LocaleCode)}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {SUPPORTED_LOCALES.map((l) => (
-                <ZoruSelectItem key={l.code} value={l.code}>
+                <SelectItem key={l.code} value={l.code}>
                   {l.label} ({l.code})
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <Button

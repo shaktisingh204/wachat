@@ -1,37 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruFileInput,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetTitle,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/zoru';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, ZoruFileInput, Input, Label, RadioGroup, ZoruRadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -242,11 +211,11 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
   if (!previewContent) return null;
 
   return (
-    <ZoruCardContent className="p-2 pt-0">
+    <CardBody className="p-2 pt-0">
       <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-sm text-[var(--st-text)]">
         {previewContent}
       </div>
-    </ZoruCardContent>
+    </CardBody>
   );
 }
 
@@ -312,15 +281,15 @@ function NodeComponent({
           isSelected && "ring-2 ring-[var(--st-text)]",
         )}
       >
-        <ZoruCardHeader className="flex flex-row items-center gap-3 p-3">
+        <CardHeader className="flex flex-row items-center gap-3 p-3">
           <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
-          <ZoruCardTitle className="text-sm">
+          <CardTitle className="text-sm">
             {node.data.label}
-          </ZoruCardTitle>
-        </ZoruCardHeader>
+          </CardTitle>
+        </CardHeader>
         <NodePreview node={node} />
         {node.type === "condition" ? (
-          <ZoruCardContent className="p-3 pt-0 text-xs text-[var(--st-text-secondary)]">
+          <CardBody className="p-3 pt-0 text-xs text-[var(--st-text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Yes</span>
             </div>
@@ -328,7 +297,7 @@ function NodeComponent({
             <div className="flex items-center justify-between">
               <span>No</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         ) : null}
       </Card>
 
@@ -414,7 +383,7 @@ function PropertiesPanel({
   updateNodeData: (id: string, data: Partial<Record<string, unknown>>) => void;
   deleteNode: (id: string) => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   if (!selectedNode) return null;
 
   const handleDataChange = (field: string, value: unknown) => {
@@ -868,22 +837,22 @@ function PropertiesPanel({
                   handleDataChange("operator", val)
                 }
               >
-                <ZoruSelectTrigger id="condition-operator">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="equals">Equals</ZoruSelectItem>
-                  <ZoruSelectItem value="not_equals">
+                <SelectTrigger id="condition-operator">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="equals">Equals</SelectItem>
+                  <SelectItem value="not_equals">
                     Does not equal
-                  </ZoruSelectItem>
-                  <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
-                  <ZoruSelectItem value="is_one_of">
+                  </SelectItem>
+                  <SelectItem value="contains">Contains</SelectItem>
+                  <SelectItem value="is_one_of">
                     Is one of (comma-sep)
-                  </ZoruSelectItem>
-                  <ZoruSelectItem value="is_not_one_of">
+                  </SelectItem>
+                  <SelectItem value="is_not_one_of">
                     Is not one of (comma-sep)
-                  </ZoruSelectItem>
-                </ZoruSelectContent>
+                  </SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -907,14 +876,14 @@ function PropertiesPanel({
               value={selectedNode.data.apiRequest?.method || "GET"}
               onValueChange={(val: string) => handleApiChange("method", val)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="GET">GET</ZoruSelectItem>
-                <ZoruSelectItem value="POST">POST</ZoruSelectItem>
-                <ZoruSelectItem value="PUT">PUT</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="GET">GET</SelectItem>
+                <SelectItem value="POST">POST</SelectItem>
+                <SelectItem value="PUT">PUT</SelectItem>
+              </SelectContent>
             </Select>
             <Input
               placeholder="https://api.example.com"
@@ -1143,23 +1112,23 @@ function PropertiesPanel({
                                     )
                                   }
                                 >
-                                  <ZoruSelectTrigger
+                                  <SelectTrigger
                                     id={`webview-height-${el.id}-${btnIndex}`}
                                     className="h-8"
                                   >
-                                    <ZoruSelectValue />
-                                  </ZoruSelectTrigger>
-                                  <ZoruSelectContent>
-                                    <ZoruSelectItem value="full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="full">
                                       Full
-                                    </ZoruSelectItem>
-                                    <ZoruSelectItem value="tall">
+                                    </SelectItem>
+                                    <SelectItem value="tall">
                                       Tall
-                                    </ZoruSelectItem>
-                                    <ZoruSelectItem value="compact">
+                                    </SelectItem>
+                                    <SelectItem value="compact">
                                       Compact
-                                    </ZoruSelectItem>
-                                  </ZoruSelectContent>
+                                    </SelectItem>
+                                  </SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-1 pt-1">
@@ -1307,14 +1276,14 @@ function PropertiesPanel({
 
   return (
     <Card className="flex h-full flex-col">
-      <ZoruCardHeader>
-        <ZoruCardTitle>Properties</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle>Properties</CardTitle>
+        <CardDescription>
           Configure the &lsquo;{selectedNode.data.label}&rsquo; block.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
+        </CardDescription>
+      </CardHeader>
       <ScrollArea className="flex-1">
-        <ZoruCardContent className="space-y-4">
+        <CardBody className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="node-label">Block label</Label>
             <Input
@@ -1325,10 +1294,10 @@ function PropertiesPanel({
           </div>
           <Separator />
           {renderProperties()}
-        </ZoruCardContent>
+        </CardBody>
       </ScrollArea>
       {selectedNode.type !== "start" ? (
-        <ZoruCardFooter className="border-t border-[var(--st-border)] pt-4">
+        <CardFooter className="border-t border-[var(--st-border)] pt-4">
           <Button
             variant="destructive"
             block
@@ -1337,7 +1306,7 @@ function PropertiesPanel({
             <Trash2 />
             Delete block
           </Button>
-        </ZoruCardFooter>
+        </CardFooter>
       ) : null}
     </Card>
   );
@@ -1366,8 +1335,8 @@ function FlowsAndBlocksPanel({
   return (
     <>
       <Card>
-        <ZoruCardHeader className="flex-row items-center justify-between p-3">
-          <ZoruCardTitle className="text-base">Flows</ZoruCardTitle>
+        <CardHeader className="flex-row items-center justify-between p-3">
+          <CardTitle className="text-base">Flows</CardTitle>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -1376,8 +1345,8 @@ function FlowsAndBlocksPanel({
           >
             <Plus />
           </Button>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-2 pt-0">
+        </CardHeader>
+        <CardBody className="p-2 pt-0">
           <ScrollArea className="h-40">
             {isLoading && flows.length === 0 ? (
               <Skeleton className="h-full w-full" />
@@ -1413,13 +1382,13 @@ function FlowsAndBlocksPanel({
               })
             )}
           </ScrollArea>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       <Card className="flex flex-1 flex-col">
-        <ZoruCardHeader className="p-3">
-          <ZoruCardTitle className="text-base">Blocks</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="min-h-0 flex-1 space-y-2 p-2 pt-0">
+        <CardHeader className="p-3">
+          <CardTitle className="text-base">Blocks</CardTitle>
+        </CardHeader>
+        <CardBody className="min-h-0 flex-1 space-y-2 p-2 pt-0">
           <ScrollArea className="h-full">
             {blockTypes.map(({ type, label, icon: Icon }) => (
               <Button
@@ -1434,7 +1403,7 @@ function FlowsAndBlocksPanel({
               </Button>
             ))}
           </ScrollArea>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </>
   );
@@ -1488,7 +1457,7 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
 // Top-level page
 // ──────────────────────────────────────────────────────────────────────
 export default function EcommFlowBuilderPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
   const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
   const [flows, setFlows] = useState<WithId<EcommFlow>[]>([]);
@@ -1874,10 +1843,10 @@ export default function EcommFlowBuilderPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>No shop found</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>No shop found</AlertTitle>
+        <AlertDescription>
           Please select a valid shop to use the chat-bot builder.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -1949,16 +1918,16 @@ export default function EcommFlowBuilderPage() {
           open={isBlocksSheetOpen}
           onOpenChange={setIsBlocksSheetOpen}
         >
-          <ZoruSheetContent
+          <SheetContent
             side="left"
             className="flex w-full max-w-xs flex-col gap-4 p-2"
           >
-            <ZoruSheetTitle className="sr-only">
+            <SheetTitle className="sr-only">
               Flows and blocks
-            </ZoruSheetTitle>
-            <ZoruSheetDescription className="sr-only">
+            </SheetTitle>
+            <SheetDescription className="sr-only">
               A list of flows and draggable blocks.
-            </ZoruSheetDescription>
+            </SheetDescription>
             <FlowsAndBlocksPanel
               isLoading={isLoading}
               flows={flows}
@@ -1968,7 +1937,7 @@ export default function EcommFlowBuilderPage() {
               handleCreateNewFlow={handleCreateNewFlow}
               addNode={addNode}
             />
-          </ZoruSheetContent>
+          </SheetContent>
         </Sheet>
 
         <div className="md:col-span-6 lg:col-span-7">
@@ -2114,16 +2083,16 @@ export default function EcommFlowBuilderPage() {
           open={isPropsSheetOpen}
           onOpenChange={setIsPropsSheetOpen}
         >
-          <ZoruSheetContent
+          <SheetContent
             side="right"
             className="flex w-full max-w-md flex-col p-0"
           >
-            <ZoruSheetTitle className="sr-only">
+            <SheetTitle className="sr-only">
               Block properties
-            </ZoruSheetTitle>
-            <ZoruSheetDescription className="sr-only">
+            </SheetTitle>
+            <SheetDescription className="sr-only">
               Configure the selected block&rsquo;s properties.
-            </ZoruSheetDescription>
+            </SheetDescription>
             {selectedNode ? (
               <PropertiesPanel
                 selectedNode={selectedNode}
@@ -2131,7 +2100,7 @@ export default function EcommFlowBuilderPage() {
                 deleteNode={deleteNode}
               />
             ) : null}
-          </ZoruSheetContent>
+          </SheetContent>
         </Sheet>
       </div>
     </div>

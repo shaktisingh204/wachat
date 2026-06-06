@@ -5,22 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, Loader2, Upload, FolderPlus, Folder, X } from 'lucide-react';
 
-import { 
-    Card, 
-    ZoruCardContent, 
-    Button, 
-    Progress, 
-    useZoruToast, 
-    cn, 
-    Input, 
-    Dialog, 
-    ZoruDialogContent, 
-    ZoruDialogHeader, 
-    ZoruDialogTitle, 
-    ZoruDialogDescription, 
-    ZoruDialogFooter 
-} from '@/components/sabcrm/20ui/zoru';
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/zoru/files-module';
+import { Card, CardBody, Button, Progress, useToast, cn, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
 
 import {
     confirmUpload,
@@ -85,7 +71,7 @@ function UploadDock({
     return (
         <div className="fixed bottom-24 right-6 z-40 w-[360px] max-w-[calc(100vw-3rem)]">
             <Card className="border-[var(--st-text)]/20 shadow-[var(--st-shadow-lg)]">
-                <ZoruCardContent className="p-3">
+                <CardBody className="p-3">
                     <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-medium text-[var(--st-text)]">
                             Uploads ({tasks.length})
@@ -119,7 +105,7 @@ function UploadDock({
                             </li>
                         ))}
                     </ul>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );
@@ -131,7 +117,7 @@ export function FileManager({
     initialBreadcrumb,
 }: FileManagerProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [nodes, setNodes] = React.useState<SabfilesNode[]>(initialNodes);
     const [uploads, setUploads] = React.useState<UploadTask[]>([]);
@@ -391,13 +377,13 @@ export function FileManager({
             />
 
             <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>
-                <ZoruDialogContent className="max-w-sm">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>New folder</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>New folder</DialogTitle>
+                        <DialogDescription>
                             Name your folder. Folder names must be unique inside a parent.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <Input
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
@@ -407,15 +393,15 @@ export function FileManager({
                             if (e.key === 'Enter') void handleNewFolderSubmit();
                         }}
                     />
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="ghost" onClick={() => setShowNewFolder(false)}>
                             Cancel
                         </Button>
                         <Button onClick={handleNewFolderSubmit} disabled={!newFolderName.trim()}>
                             Create
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {isDragging && (

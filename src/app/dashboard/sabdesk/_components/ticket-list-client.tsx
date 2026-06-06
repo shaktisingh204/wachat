@@ -1,26 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from "@/components/sabcrm/20ui/zoru";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   AlertCircle,
@@ -90,7 +70,7 @@ export function TicketListClient({
   initialQuery,
   error,
 }: TicketListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -157,31 +137,31 @@ export function TicketListClient({
       ) : null}
 
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Subject</ZoruTableHead>
-            <ZoruTableHead>Client</ZoruTableHead>
-            <ZoruTableHead>Category</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Priority</ZoruTableHead>
-            <ZoruTableHead>Severity</ZoruTableHead>
-            <ZoruTableHead>Assignee</ZoruTableHead>
-            <ZoruTableHead>Created</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Subject</Th>
+            <Th>Client</Th>
+            <Th>Category</Th>
+            <Th>Status</Th>
+            <Th>Priority</Th>
+            <Th>Severity</Th>
+            <Th>Assignee</Th>
+            <Th>Created</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {tickets.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
+            <Tr>
+              <Td
                 colSpan={9}
                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {initialQuery
                   ? "No tickets match this search."
                   : 'No tickets yet — click "New ticket" to add one.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ) : (
             tickets.map((ticket) => {
               const id = String(ticket._id);
@@ -190,16 +170,16 @@ export function TicketListClient({
               const statusVariant = STATUS_VARIANTS[status] ?? "ghost";
               const priorityVariant = PRIORITY_VARIANTS[priority] ?? "ghost";
               return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
+                <Tr key={id}>
+                  <Td>
                     <Link
                       href={`/dashboard/sabdesk/${id}`}
                       className="font-medium text-[var(--st-text)] hover:underline"
                     >
                       {ticket.subject || "Untitled"}
                     </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.requesterId ? (
                       <EntityPickerChip
                         entity="client"
@@ -208,8 +188,8 @@ export function TicketListClient({
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.category ? (
                       <EntityPickerChip
                         entity="category"
@@ -218,8 +198,8 @@ export function TicketListClient({
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {status ? (
                       <Badge variant={statusVariant}>
                         {statusLabel(status)}
@@ -229,8 +209,8 @@ export function TicketListClient({
                         —
                       </span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {priority ? (
                       <Badge variant={priorityVariant}>{priority}</Badge>
                     ) : (
@@ -238,21 +218,21 @@ export function TicketListClient({
                         —
                       </span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
                     {ticket.severity ?? "—"}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.assigneeId ? (
                       <EntityPickerChip entity="user" id={ticket.assigneeId} />
                     ) : (
                       "—"
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {fmtDate(ticket.createdAt || ticket.audit?.createdAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <div className="flex justify-end gap-1">
                       <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/sabdesk/${id}/edit`}>
@@ -268,34 +248,34 @@ export function TicketListClient({
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
 
       <PaginationBar page={page} limit={limit} hasMore={hasMore} />
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete ticket?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete ticket?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes{" "}
               <strong>{pendingDelete?.subject || "this ticket"}</strong> from
               the database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmDelete();
@@ -307,10 +287,10 @@ export function TicketListClient({
                 <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
               ) : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

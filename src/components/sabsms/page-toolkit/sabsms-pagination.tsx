@@ -3,14 +3,7 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
-import {
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 const PAGE_SIZES = [25, 50, 100, 250] as const;
 
@@ -49,16 +42,16 @@ export function SabsmsPagination({
             value={String(pageSize)}
             onValueChange={(v) => onPageSizeChange?.(parseInt(v, 10))}
           >
-            <ZoruSelectTrigger className="h-8 w-[80px]">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-8 w-[80px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {PAGE_SIZES.map((s) => (
-                <ZoruSelectItem key={s} value={String(s)}>
+                <SelectItem key={s} value={String(s)}>
                   {s}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-1">

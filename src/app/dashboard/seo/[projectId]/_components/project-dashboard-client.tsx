@@ -10,8 +10,8 @@ import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
-const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ChartTooltip), { ssr: false }) as any;
+const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui/compat").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
+const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui/compat").then(mod => mod.ChartTooltip), { ssr: false }) as any;
 
 const chartConfig = {
     organic: { label: "Organic", color: "hsl(var(--chart-1))" },

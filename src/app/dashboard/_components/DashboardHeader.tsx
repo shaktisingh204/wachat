@@ -13,21 +13,7 @@ import {
   Bell,
   AlarmClock
 } from "lucide-react";
-import {
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-} from "@/components/sabcrm/20ui/zoru";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import { greeting } from "./utils";
 
 type DashboardHeaderProps = {
@@ -66,19 +52,19 @@ export function DashboardHeader({ userName, totalProjects, planName, data }: Das
   return (
     <>
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">Account</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Account</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Overview</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mt-5 flex items-end justify-between gap-6">
@@ -104,30 +90,30 @@ export function DashboardHeader({ userName, totalProjects, planName, data }: Das
             <Download className="h-4 w-4" /> Export
           </Button>
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4" /> Filter
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-56">
-              <ZoruDropdownMenuLabel>Filter by</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuItem onSelect={() => router.push("/wachat/analytics")}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuItem onSelect={() => router.push("/wachat/analytics")}>
                 <Send className="h-4 w-4" /> Messages &amp; delivery
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => router.push("/dashboard/crm/sales-crm/leads")}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => router.push("/dashboard/crm/sales-crm/leads")}>
                 <Briefcase className="h-4 w-4" /> CRM pipeline
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => router.push("/dashboard/sabflow/flow-builder")}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => router.push("/dashboard/sabflow/flow-builder")}>
                 <Workflow className="h-4 w-4" /> Active flows
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => router.push("/dashboard/notifications")}>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => router.push("/dashboard/notifications")}>
                 <Bell className="h-4 w-4" /> Unread notifications
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={handleRefresh}>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleRefresh}>
                 <AlarmClock className="h-4 w-4" /> Refresh data
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>

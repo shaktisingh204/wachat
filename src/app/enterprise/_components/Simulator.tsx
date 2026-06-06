@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/zoru';
+import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
 import { Terminal, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InquiryRecord, EnterpriseResponse } from '../types';
 
@@ -108,10 +108,10 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
 
       <div className="flex-grow">
         <Card className="bg-black border-white/20 text-white rounded-none shadow-none mb-6">
-          <ZoruCardHeader className="border-b border-white/20 pb-4">
-            <ZoruCardTitle className="text-lg font-bold">Try it out</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="pt-6 space-y-5">
+          <CardHeader className="border-b border-white/20 pb-4">
+            <CardTitle className="text-lg font-bold">Try it out</CardTitle>
+          </CardHeader>
+          <CardBody className="pt-6 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="org" className="text-white">organization <span className="text-white/50">*</span></Label>
               <Input 
@@ -169,7 +169,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 </>
               ) : 'Execute'}
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Response Box */}

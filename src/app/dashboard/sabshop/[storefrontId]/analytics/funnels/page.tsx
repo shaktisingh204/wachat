@@ -1,16 +1,9 @@
 "use client";
 
 import React from "react";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent, 
-  CardDescription,
-  CardFooter
-} from "@/components/sabcrm/20ui/zoru/card";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
-import { Progress } from "@/components/sabcrm/20ui/zoru/progress";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
+import { Progress } from '@/components/sabcrm/20ui/compat';
 import { 
   ShoppingCart, 
   CreditCard, 
@@ -21,8 +14,8 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
-import { Separator } from "@/components/sabcrm/20ui/zoru/separator";
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Separator } from '@/components/sabcrm/20ui/compat';
 
 export default function FunnelsPage() {
   const funnelSteps = [

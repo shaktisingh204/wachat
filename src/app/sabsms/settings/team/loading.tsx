@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/sabcrm/20ui/zoru";
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 
 export default function Loading() {

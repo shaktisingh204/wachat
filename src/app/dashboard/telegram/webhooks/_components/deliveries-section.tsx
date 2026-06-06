@@ -1,21 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Input,
-  ZoruDateRangePicker,
-  Skeleton,
-  Badge,
-} from "@/components/sabcrm/20ui/zoru";
+import { Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, DateRangePicker, Skeleton, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   Eye,
@@ -81,41 +67,41 @@ export function DeliveriesSection(props: {
   return (
     <div className="space-y-3">
       <Card>
-        <ZoruCardContent className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 xl:grid-cols-6">
+        <CardBody className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 xl:grid-cols-6">
           <Select value={props.bot} onValueChange={props.onBot}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Bot" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Bot" />
+            </SelectTrigger>
+            <SelectContent>
               {props.botOptions.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select value={props.event} onValueChange={props.onEvent}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Event type" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Event type" />
+            </SelectTrigger>
+            <SelectContent>
               {EVENT_TYPE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select value={props.status} onValueChange={props.onStatus}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="received">Received</ZoruSelectItem>
-              <ZoruSelectItem value="processed">Processed</ZoruSelectItem>
-              <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="received">Received</SelectItem>
+              <SelectItem value="processed">Processed</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </SelectContent>
           </Select>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
@@ -126,18 +112,18 @@ export function DeliveriesSection(props: {
               onChange={(e) => props.onSearch(e.target.value)}
             />
           </div>
-          <ZoruDateRangePicker value={props.range} onChange={props.onRange} />
+          <DateRangePicker value={props.range} onChange={props.onRange} />
           <Button onClick={props.onApply}>
             <Search className="mr-2 h-4 w-4" /> Apply
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {props.loading && props.deliveries.length === 0 ? (
         <Card>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <Skeleton className="h-40 w-full" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : props.deliveries.length === 0 ? (
         <EmptyState
@@ -147,7 +133,7 @@ export function DeliveriesSection(props: {
         />
       ) : (
         <Card>
-          <ZoruCardContent className="p-0">
+          <CardBody className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b bg-[var(--st-bg-muted)]/30 text-xs uppercase text-[var(--st-text-secondary)]">
@@ -237,7 +223,7 @@ export function DeliveriesSection(props: {
                 </Button>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>
