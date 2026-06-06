@@ -13,7 +13,7 @@ export function FileDeadlineButton({ id }: { id: string }) {
         <Button
             size="sm"
             variant="outline"
-            disabled={pending}
+            loading={pending}
             onClick={() =>
                 start(async () => {
                     await markSabpracticeDeadlineFiled(id);
@@ -21,7 +21,7 @@ export function FileDeadlineButton({ id }: { id: string }) {
                 })
             }
         >
-            {pending ? 'Filing…' : 'Mark filed'}
+            {pending ? 'Filing' : 'Mark filed'}
         </Button>
     );
 }

@@ -4,6 +4,10 @@
  * SabCreator builder shell. Left rail switches between Forms / Pages /
  * Workflows / Roles / Data. Each tab renders its own list + inline
  * create action. Detail editors live at nested routes.
+ *
+ * Pure 20ui: every primitive comes from `@/components/sabcrm/20ui`. Inputs are
+ * wrapped in Field for automatic label + a11y wiring, dialogs use the compound
+ * Dialog, and create/publish failures surface through the 20ui toast system.
  */
 
 import { useState, useTransition } from 'react';
@@ -20,7 +24,30 @@ import {
   Workflow,
 } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   createSabcreatorForm,
   createSabcreatorPage,
@@ -51,12 +78,32 @@ interface Props {
 }
 
 const NAV: Array<{ key: Tab; label: string; icon: React.ReactNode }> = [
-  { key: 'forms', label: 'Forms', icon: <FileText className="size-4" /> },
-  { key: 'pages', label: 'Pages', icon: <LayoutGrid className="size-4" /> },
-  { key: 'workflows', label: 'Workflows', icon: <Workflow className="size-4" /> },
-  { key: 'roles', label: 'Roles', icon: <Shield className="size-4" /> },
-  { key: 'data', label: 'Data', icon: <Database className="size-4" /> },
+  { key: 'forms', label: 'Forms', icon: <FileText className="size-4" aria-hidden="true" /> },
+  { key: 'pages', label: 'Pages', icon: <LayoutGrid className="size-4" aria-hidden="true" /> },
+  { key: 'workflows', label: 'Workflows', icon: <Workflow className="size-4" aria-hidden="true" /> },
+  { key: 'roles', label: 'Roles', icon: <Shield className="size-4" aria-hidden="true" /> },
+  { key: 'data', label: 'Data', icon: <Database className="size-4" aria-hidden="true" /> },
 ];
+
+/** A Link styled as a 20ui secondary/outline button (Button has no asChild). */
+function LinkButton({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={['u-btn', 'u-btn--outline', 'u-btn--sm', className].filter(Boolean).join(' ')}
+    >
+      <span className="u-btn__label">{children}</span>
+    </Link>
+  );
+}
 
 export function BuilderShellClient({
   app,
@@ -71,65 +118,74 @@ export function BuilderShellClient({
   const [workflows, setWorkflows] = useState(initialWorkflows);
   const [roles, setRoles] = useState(initialRoles);
   const router = useRouter();
+  const { toast } = useToast();
   const [publishing, startPublish] = useTransition();
 
   const handlePublish = () => {
     startPublish(async () => {
       try {
         await publishSabcreatorApp(app._id);
+        toast.success('App published');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] publish failed', err);
+        toast.error('Could not publish the app');
       }
     });
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="ui20 min-h-screen flex flex-col">
       <PageHeader>
-        <div>
+        <PageHeaderHeading>
           <PageTitle>{app.name}</PageTitle>
           <PageDescription>
-            App builder · slug <code>/{app.slug}</code>
+            App builder, slug{' '}
+            <code className="text-[var(--st-text)]">/{app.slug}</code>
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
-          <Badge variant={app.status === 'published' ? 'default' : 'outline'}>
+          <Badge
+            tone={app.status === 'published' ? 'success' : 'neutral'}
+            kind={app.status === 'published' ? 'solid' : 'outline'}
+          >
             {app.status}
           </Badge>
-          <Button asChild variant="outline">
-            <Link href={`/dashboard/sabcreator/${app._id}/preview`}>Preview</Link>
-          </Button>
-          <Button onClick={handlePublish} disabled={publishing}>
-            <Rocket className="size-4" />
-            {publishing ? 'Publishing…' : 'Publish'}
+          <LinkButton href={`/dashboard/sabcreator/${app._id}/preview`}>
+            Preview
+          </LinkButton>
+          <Button
+            variant="primary"
+            onClick={handlePublish}
+            loading={publishing}
+            iconLeft={Rocket}
+          >
+            {publishing ? 'Publishing...' : 'Publish'}
           </Button>
         </PageActions>
       </PageHeader>
 
       <div className="flex-1 grid grid-cols-[220px_1fr] gap-6 px-6 pb-10">
-        <nav className="space-y-1">
+        <nav className="space-y-1" aria-label="Builder sections">
           {NAV.map((n) => (
-            <button
+            <Button
               key={n.key}
-              type="button"
+              variant={tab === n.key ? 'primary' : 'ghost'}
+              block
+              aria-current={tab === n.key ? 'page' : undefined}
               onClick={() => setTab(n.key)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-left transition-colors ${
-                tab === n.key
-                  ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
-                  : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
-              }`}
+              className="justify-start"
             >
               {n.icon}
               {n.label}
-            </button>
+            </Button>
           ))}
-          <div className="pt-4 border-t mt-4">
+          <div className="pt-4 border-t border-[var(--st-border)] mt-4">
             <Link
               href="/dashboard/sabcreator"
               className="block px-3 py-2 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             >
-              ← All apps
+              All apps
             </Link>
           </div>
         </nav>
@@ -170,7 +226,7 @@ export function BuilderShellClient({
   );
 }
 
-// ── Forms ────────────────────────────────────────────────────────────────────
+// Forms ───────────────────────────────────────────────────────────────────────
 function FormsPanel({
   appId,
   forms,
@@ -185,6 +241,7 @@ function FormsPanel({
   const [tableId, setTableId] = useState('');
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -201,45 +258,43 @@ function FormsPanel({
         setName('');
         setTableId('');
         setOpen(false);
+        toast.success('Form created');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] createForm failed', err);
+        toast.error('Could not create the form');
       }
     });
   };
 
   return (
-    <Card className="p-4">
+    <Card padding="md">
       <header className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">Forms</h2>
-        <Button size="sm" onClick={() => setOpen(true)}>
-          <Plus className="size-4" /> New form
+        <h2 className="font-semibold text-[var(--st-text)]">Forms</h2>
+        <Button variant="primary" size="sm" onClick={() => setOpen(true)} iconLeft={Plus}>
+          New form
         </Button>
       </header>
       {forms.length === 0 ? (
         <EmptyState
-          icon={<FileText className="size-6" />}
+          icon={FileText}
           title="No forms yet"
           description="Forms capture user input and write to a linked SabTables table."
         />
       ) : (
-        <ul className="divide-y">
+        <ul className="divide-y divide-[var(--st-border)]">
           {forms.map((f) => (
             <li key={f._id} className="py-3 flex items-center justify-between">
               <div>
-                <div className="font-medium">{f.name}</div>
+                <div className="font-medium text-[var(--st-text)]">{f.name}</div>
                 <div className="text-xs text-[var(--st-text-secondary)]">
-                  → {f.submitAction}
-                  {f.sabtablesTableId ? ` · table ${f.sabtablesTableId.slice(-6)}` : ''}
+                  to {f.submitAction}
+                  {f.sabtablesTableId ? `, table ${f.sabtablesTableId.slice(-6)}` : ''}
                 </div>
               </div>
-              <Button asChild size="sm" variant="outline">
-                <Link
-                  href={`/dashboard/sabcreator/${appId}/builder/forms/${f._id}`}
-                >
-                  <Settings2 className="size-4" /> Design
-                </Link>
-              </Button>
+              <LinkButton href={`/dashboard/sabcreator/${appId}/builder/forms/${f._id}`}>
+                <Settings2 className="size-4" aria-hidden="true" /> Design
+              </LinkButton>
             </li>
           ))}
         </ul>
@@ -250,31 +305,32 @@ function FormsPanel({
             <DialogTitle>New form</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="form-name">Name</Label>
+            <Field label="Name">
               <Input
-                id="form-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="form-table">SabTables table id (optional)</Label>
+            </Field>
+            <Field label="SabTables table id (optional)">
               <Input
-                id="form-table"
                 value={tableId}
                 onChange={(e) => setTableId(e.target.value)}
                 placeholder="paste a sabtables_tables _id"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={pending || !name.trim()}>
-              {pending ? 'Creating…' : 'Create'}
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              loading={pending}
+              disabled={!name.trim()}
+            >
+              {pending ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -283,7 +339,7 @@ function FormsPanel({
   );
 }
 
-// ── Pages ────────────────────────────────────────────────────────────────────
+// Pages ─────────────────────────────────────────────────────────────────────
 function PagesPanel({
   appId,
   pages,
@@ -298,6 +354,7 @@ function PagesPanel({
   const [kind, setKind] = useState<SabcreatorPageKind>('dashboard');
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -312,44 +369,42 @@ function PagesPanel({
         onCreate(res.entity);
         setName('');
         setOpen(false);
+        toast.success('Page created');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] createPage failed', err);
+        toast.error('Could not create the page');
       }
     });
   };
 
   return (
-    <Card className="p-4">
+    <Card padding="md">
       <header className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">Pages</h2>
-        <Button size="sm" onClick={() => setOpen(true)}>
-          <Plus className="size-4" /> New page
+        <h2 className="font-semibold text-[var(--st-text)]">Pages</h2>
+        <Button variant="primary" size="sm" onClick={() => setOpen(true)} iconLeft={Plus}>
+          New page
         </Button>
       </header>
       {pages.length === 0 ? (
         <EmptyState
-          icon={<LayoutGrid className="size-6" />}
+          icon={LayoutGrid}
           title="No pages yet"
           description="Compose dashboards, list views, and detail screens for app users."
         />
       ) : (
-        <ul className="divide-y">
+        <ul className="divide-y divide-[var(--st-border)]">
           {pages.map((p) => (
             <li key={p._id} className="py-3 flex items-center justify-between">
               <div>
-                <div className="font-medium">{p.name}</div>
+                <div className="font-medium text-[var(--st-text)]">{p.name}</div>
                 <div className="text-xs text-[var(--st-text-secondary)]">
-                  {p.kind} · /{p.slug}
+                  {p.kind}, /{p.slug}
                 </div>
               </div>
-              <Button asChild size="sm" variant="outline">
-                <Link
-                  href={`/dashboard/sabcreator/${appId}/builder/pages/${p._id}`}
-                >
-                  <Settings2 className="size-4" /> Design
-                </Link>
-              </Button>
+              <LinkButton href={`/dashboard/sabcreator/${appId}/builder/pages/${p._id}`}>
+                <Settings2 className="size-4" aria-hidden="true" /> Design
+              </LinkButton>
             </li>
           ))}
         </ul>
@@ -360,19 +415,16 @@ function PagesPanel({
             <DialogTitle>New page</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="page-name">Name</Label>
+            <Field label="Name">
               <Input
-                id="page-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Kind</Label>
+            </Field>
+            <Field label="Kind">
               <Select value={kind} onValueChange={(v) => setKind(v as SabcreatorPageKind)}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Kind">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -384,14 +436,19 @@ function PagesPanel({
                   <SelectItem value="custom">Custom</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={pending || !name.trim()}>
-              {pending ? 'Creating…' : 'Create'}
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              loading={pending}
+              disabled={!name.trim()}
+            >
+              {pending ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -400,7 +457,7 @@ function PagesPanel({
   );
 }
 
-// ── Workflows ────────────────────────────────────────────────────────────────
+// Workflows ─────────────────────────────────────────────────────────────────
 function WorkflowsPanel({
   appId,
   workflows,
@@ -417,6 +474,7 @@ function WorkflowsPanel({
   const [sabflowRefId, setSabflowRefId] = useState('');
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -432,39 +490,41 @@ function WorkflowsPanel({
         setName('');
         setSabflowRefId('');
         setOpen(false);
+        toast.success('Workflow created');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] createWorkflow failed', err);
+        toast.error('Could not create the workflow');
       }
     });
   };
 
   return (
-    <Card className="p-4">
+    <Card padding="md">
       <header className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">Workflows</h2>
-        <Button size="sm" onClick={() => setOpen(true)}>
-          <Plus className="size-4" /> New workflow
+        <h2 className="font-semibold text-[var(--st-text)]">Workflows</h2>
+        <Button variant="primary" size="sm" onClick={() => setOpen(true)} iconLeft={Plus}>
+          New workflow
         </Button>
       </header>
       {workflows.length === 0 ? (
         <EmptyState
-          icon={<Workflow className="size-6" />}
+          icon={Workflow}
           title="No workflows yet"
-          description="Hook into form submits, record changes, button clicks, or cron — fan out via SabFlow."
+          description="Hook into form submits, record changes, button clicks, or cron, then fan out via SabFlow."
         />
       ) : (
-        <ul className="divide-y">
+        <ul className="divide-y divide-[var(--st-border)]">
           {workflows.map((w) => (
             <li key={w._id} className="py-3 flex items-center justify-between">
               <div>
-                <div className="font-medium">{w.name}</div>
+                <div className="font-medium text-[var(--st-text)]">{w.name}</div>
                 <div className="text-xs text-[var(--st-text-secondary)]">
                   trigger: {w.trigger.kind}
-                  {w.sabflowRefId ? ` · sabflow ${w.sabflowRefId.slice(-6)}` : ' · inline'}
+                  {w.sabflowRefId ? `, sabflow ${w.sabflowRefId.slice(-6)}` : ', inline'}
                 </div>
               </div>
-              <Badge variant="outline">{w.status}</Badge>
+              <Badge kind="outline">{w.status}</Badge>
             </li>
           ))}
         </ul>
@@ -475,24 +535,21 @@ function WorkflowsPanel({
             <DialogTitle>New workflow</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="wf-name">Name</Label>
+            <Field label="Name">
               <Input
-                id="wf-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Trigger</Label>
+            </Field>
+            <Field label="Trigger">
               <Select
                 value={triggerKind}
                 onValueChange={(v) =>
                   setTriggerKind(v as SabcreatorWorkflowTriggerKind)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Trigger">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -502,23 +559,26 @@ function WorkflowsPanel({
                   <SelectItem value="button_click">Button click</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="wf-flow">SabFlow flow id (optional)</Label>
+            </Field>
+            <Field label="SabFlow flow id (optional)">
               <Input
-                id="wf-flow"
                 value={sabflowRefId}
                 onChange={(e) => setSabflowRefId(e.target.value)}
                 placeholder="paste a sabflow flow _id to delegate execution"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={pending || !name.trim()}>
-              {pending ? 'Creating…' : 'Create'}
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              loading={pending}
+              disabled={!name.trim()}
+            >
+              {pending ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -527,7 +587,7 @@ function WorkflowsPanel({
   );
 }
 
-// ── Roles ────────────────────────────────────────────────────────────────────
+// Roles ─────────────────────────────────────────────────────────────────────
 function RolesPanel({
   appId,
   roles,
@@ -544,6 +604,7 @@ function RolesPanel({
   const [deleteRule, setDeleteRule] = useState<'all' | 'own' | 'conditional'>('own');
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -559,39 +620,41 @@ function RolesPanel({
         onCreate(res.entity);
         setName('');
         setOpen(false);
+        toast.success('Role created');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] createRole failed', err);
+        toast.error('Could not create the role');
       }
     });
   };
 
   return (
-    <Card className="p-4">
+    <Card padding="md">
       <header className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">Roles & row-level security</h2>
-        <Button size="sm" onClick={() => setOpen(true)}>
-          <Plus className="size-4" /> New role
+        <h2 className="font-semibold text-[var(--st-text)]">Roles and row-level security</h2>
+        <Button variant="primary" size="sm" onClick={() => setOpen(true)} iconLeft={Plus}>
+          New role
         </Button>
       </header>
       {roles.length === 0 ? (
         <EmptyState
-          icon={<Shield className="size-6" />}
+          icon={Shield}
           title="No roles yet"
-          description="Define who can read, edit, or delete which records — and which forms/pages they may use."
+          description="Define who can read, edit, or delete which records, and which forms or pages they may use."
         />
       ) : (
-        <ul className="divide-y">
+        <ul className="divide-y divide-[var(--st-border)]">
           {roles.map((r) => (
             <li key={r._id} className="py-3 flex items-center justify-between">
               <div>
-                <div className="font-medium">{r.name}</div>
+                <div className="font-medium text-[var(--st-text)]">{r.name}</div>
                 <div className="text-xs text-[var(--st-text-secondary)]">
-                  read: {r.recordsCanRead.rule} · edit: {r.recordsCanEdit.rule} ·
+                  read: {r.recordsCanRead.rule}, edit: {r.recordsCanEdit.rule},
                   delete: {r.recordsCanDelete.rule}
                 </div>
               </div>
-              <Badge variant="outline">{r.formsCanSubmit?.length ?? 0} forms</Badge>
+              <Badge kind="outline">{r.formsCanSubmit?.length ?? 0} forms</Badge>
             </li>
           ))}
         </ul>
@@ -602,15 +665,13 @@ function RolesPanel({
             <DialogTitle>New role</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="role-name">Name</Label>
+            <Field label="Name">
               <Input
-                id="role-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
-            </div>
+            </Field>
             <RoleRuleRow label="Records can read" value={readRule} onChange={setReadRule} />
             <RoleRuleRow label="Records can edit" value={editRule} onChange={setEditRule} />
             <RoleRuleRow
@@ -623,8 +684,13 @@ function RolesPanel({
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={pending || !name.trim()}>
-              {pending ? 'Creating…' : 'Create'}
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              loading={pending}
+              disabled={!name.trim()}
+            >
+              {pending ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -643,10 +709,9 @@ function RoleRuleRow({
   onChange: (v: 'all' | 'own' | 'conditional') => void;
 }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
+    <Field label={label}>
       <Select value={value} onValueChange={(v) => onChange(v as typeof value)}>
-        <SelectTrigger>
+        <SelectTrigger aria-label={label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -655,32 +720,33 @@ function RoleRuleRow({
           <SelectItem value="conditional">Conditional (rule below)</SelectItem>
         </SelectContent>
       </Select>
-    </div>
+    </Field>
   );
 }
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// Data ──────────────────────────────────────────────────────────────────────
 function DataPanel({ app }: { app: SabcreatorAppDoc }) {
   return (
-    <Card className="p-6">
-      <h2 className="font-semibold mb-2">Data source</h2>
+    <Card padding="lg">
+      <h2 className="font-semibold mb-2 text-[var(--st-text)]">Data source</h2>
       <p className="text-sm text-[var(--st-text-secondary)] mb-4">
         SabCreator stores app records in SabTables. Each form points at one table; pages
         read from the same base.
       </p>
       {app.sabtablesBaseId ? (
-        <div className="text-sm">
-          Linked SabTables base: <code>{app.sabtablesBaseId}</code>
+        <div className="text-sm text-[var(--st-text)]">
+          Linked SabTables base:{' '}
+          <code className="text-[var(--st-text)]">{app.sabtablesBaseId}</code>
         </div>
       ) : (
         <div className="text-sm text-[var(--st-text-secondary)]">
-          No SabTables base linked yet. Update the app to link one — forms can still target
+          No SabTables base linked yet. Update the app to link one, forms can still target
           individual tables in the meantime.
         </div>
       )}
-      <Button asChild variant="outline" className="mt-4">
-        <Link href="/dashboard/sabtables">Open SabTables</Link>
-      </Button>
+      <div className="mt-4">
+        <LinkButton href="/dashboard/sabtables">Open SabTables</LinkButton>
+      </div>
     </Card>
   );
 }

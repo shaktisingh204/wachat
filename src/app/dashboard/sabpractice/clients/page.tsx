@@ -1,11 +1,44 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { Building2 } from 'lucide-react';
 
 import { listSabpracticeClients } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    Spinner,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
 
 import { ClientCreateDialog } from './_components/client-create-dialog';
+
+/** Map a client status to a Badge tone so colour always carries meaning. */
+function statusTone(status?: string): BadgeTone {
+    switch (status) {
+        case 'active':
+            return 'success';
+        case 'onboarding':
+            return 'info';
+        case 'inactive':
+            return 'neutral';
+        default:
+            return 'neutral';
+    }
+}
 
 async function ClientsData({ status }: { status?: string }) {
     const clients = await listSabpracticeClients({ status: status ?? 'all', limit: 100 });
@@ -13,23 +46,23 @@ async function ClientsData({ status }: { status?: string }) {
     return (
         <div className="space-y-4">
             <PageHeader>
-                <div className="flex w-full items-start justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-                        <p className="text-sm text-[var(--st-text-secondary)]">
-                            Business entities whose books you manage.
-                        </p>
-                    </div>
+                <PageHeading>
+                    <PageTitle>Clients</PageTitle>
+                    <PageDescription>Business entities whose books you manage.</PageDescription>
+                </PageHeading>
+                <PageActions>
                     <ClientCreateDialog />
-                </div>
+                </PageActions>
             </PageHeader>
 
-            <Card>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {clients.items.length === 0 ? (
                         <EmptyState
+                            icon={Building2}
                             title="No clients yet"
                             description="Add your first client business to start managing engagements."
+                            action={<ClientCreateDialog />}
                         />
                     ) : (
                         <Table>
@@ -53,10 +86,10 @@ async function ClientsData({ status }: { status?: string }) {
                                             </Link>
                                         </Td>
                                         <Td className="text-sm text-[var(--st-text-secondary)]">
-                                            {c.industry ?? '—'}
+                                            {c.industry ?? '-'}
                                         </Td>
                                         <Td className="text-sm">
-                                            {c.primaryContactName ?? '—'}
+                                            {c.primaryContactName ?? '-'}
                                             {c.primaryContactEmail ? (
                                                 <span className="block text-xs text-[var(--st-text-secondary)]">
                                                     {c.primaryContactEmail}
@@ -64,7 +97,9 @@ async function ClientsData({ status }: { status?: string }) {
                                             ) : null}
                                         </Td>
                                         <Td>
-                                            <Badge>{c.status ?? 'active'}</Badge>
+                                            <Badge tone={statusTone(c.status)}>
+                                                {c.status ?? 'active'}
+                                            </Badge>
                                         </Td>
                                     </Tr>
                                 ))}
@@ -81,7 +116,10 @@ export default function SabpracticeClientsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading clients…</div>
+                <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text-secondary)]">
+                    <Spinner size="sm" label="Loading clients" />
+                    <span>Loading clients.</span>
+                </div>
             }
         >
             <ClientsData />

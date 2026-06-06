@@ -18,18 +18,22 @@ const ITEMS: Array<{ href: string; label: string }> = [
 export function SabpracticeNav() {
     const pathname = usePathname();
     return (
-        <nav className="zoruui flex flex-wrap gap-1 border-b border-[var(--st-border-light)] pb-2 mb-6">
+        <nav
+            aria-label="SabPractice sections"
+            className="mb-6 flex flex-wrap gap-1 border-b border-[var(--st-border-light)] pb-2"
+        >
             {ITEMS.map((it) => {
                 const active =
                     it.href === '/dashboard/sabpractice'
                         ? pathname === it.href
-                        : pathname?.startsWith(it.href);
+                        : Boolean(pathname?.startsWith(it.href));
                 return (
                     <Link
                         key={it.href}
                         href={it.href}
+                        aria-current={active ? 'page' : undefined}
                         className={cn(
-                            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                            'rounded-[var(--st-radius)] px-3 py-1.5 text-sm font-medium transition-colors',
                             active
                                 ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',

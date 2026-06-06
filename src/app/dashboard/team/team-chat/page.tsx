@@ -1,22 +1,49 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
 import {
-  format,
-  formatDistanceToNowStrict,
-  isSameDay } from 'date-fns';
+    Badge,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    Checkbox,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    format,
+    formatDistanceToNowStrict,
+    isSameDay } from 'date-fns';
 import {
     Bell,
-  Image as ImageIcon,
-  Loader,
-  MessageSquare,
-  Paperclip,
-  Plus,
-  Search,
-  Send,
-  Users,
-  X,
-  } from 'lucide-react';
+    Image as ImageIcon,
+    Loader,
+    MessageSquare,
+    Paperclip,
+    Plus,
+    Search,
+    Send,
+    Users,
+    X,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -77,7 +104,7 @@ export default function TeamChatPage() {
     const [notifPerm, setNotifPerm] = React.useState<NotificationPermission>('default');
     const [sidebarQuery, setSidebarQuery] = React.useState('');
 
-    /* ─── SabCliq state ─── */
+    /* SabCliq state */
     const [pinned, setPinned] = React.useState<PinnedMessageView[]>([]);
     const [presence, setPresence] = React.useState<Record<string, PresenceView>>({});
     const [threadRootId, setThreadRootId] = React.useState<string | null>(null);
@@ -133,7 +160,7 @@ export default function TeamChatPage() {
         lastSeenCountRef.current = 0;
     }, [selectedChannelId, loadMessages]);
 
-    /* Pinned messages — refetched on channel change. */
+    /* Pinned messages, refetched on channel change. */
     const loadPinned = React.useCallback(async () => {
         if (!selectedChannelId) {
             setPinned([]);
@@ -147,7 +174,7 @@ export default function TeamChatPage() {
         void loadPinned();
     }, [loadPinned]);
 
-    /* Presence — best-effort, includes me + selected channel participants. */
+    /* Presence, best-effort, includes me + selected channel participants. */
     const loadPresence = React.useCallback(async () => {
         const ids = new Set<string>();
         if (sessionUser?._id) ids.add(sessionUser._id);
@@ -224,7 +251,7 @@ export default function TeamChatPage() {
         [reloadChannels],
     );
 
-    /* ─── SabCliq handlers ─── */
+    /* SabCliq handlers */
     const onToggleReaction = React.useCallback(
         async (messageId: string, emoji: string) => {
             const meId = sessionUser?._id;
@@ -237,11 +264,7 @@ export default function TeamChatPage() {
                 : addReactionToTeamMessage;
             const res = await fn(messageId, emoji);
             if (!res.success) {
-                toast({
-                    title: 'Reaction failed',
-                    description: res.error,
-                    variant: 'destructive',
-                });
+                toast.error({ title: 'Reaction failed', description: res.error });
                 return;
             }
             await loadMessages();
@@ -255,11 +278,7 @@ export default function TeamChatPage() {
                 ? await unpinTeamMessage(messageId)
                 : await pinTeamMessage(messageId);
             if (!res.success) {
-                toast({
-                    title: 'Pin update failed',
-                    description: res.error,
-                    variant: 'destructive',
-                });
+                toast.error({ title: 'Pin update failed', description: res.error });
                 return;
             }
             await Promise.all([loadMessages(), loadPinned()]);
@@ -271,14 +290,10 @@ export default function TeamChatPage() {
         async (messageId: string) => {
             const res = await bookmarkTeamMessage(messageId);
             if (!res.success) {
-                toast({
-                    title: 'Could not save',
-                    description: res.error,
-                    variant: 'destructive',
-                });
+                toast.error({ title: 'Could not save', description: res.error });
                 return;
             }
-            toast({ title: 'Saved' });
+            toast.success('Saved');
         },
         [toast],
     );
@@ -334,7 +349,7 @@ export default function TeamChatPage() {
             await loadMessages();
             await reloadChannels();
         } else {
-            toast({ title: 'Send failed', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Send failed', description: res.error });
             setInput(content);
             setAttachmentQueue(attachments);
         }
@@ -382,11 +397,13 @@ export default function TeamChatPage() {
     if (!canRead) {
         return (
             <div className="flex flex-col gap-6">
-                <Card className="p-10 text-center">
-                    <Badge variant="danger">Restricted</Badge>
-                    <p className="mt-3 text-[13px] text-[var(--st-text-secondary)]">
-                        You don&apos;t have permission to view Team Chat.
-                    </p>
+                <Card>
+                    <EmptyState
+                        tone="danger"
+                        icon={MessageSquare}
+                        title="Restricted"
+                        description="You do not have permission to view Team Chat."
+                    />
                 </Card>
             </div>
         );
@@ -417,32 +434,32 @@ export default function TeamChatPage() {
                         Direct messages and group channels. Polling at 3s.
                     </PageDescription>
                 </PageHeading>
-                <div className="flex items-center gap-2">
+                <PageActions>
                     {notifPerm === 'default' ? (
-                        <Button variant="outline" size="md" onClick={requestNotifPerm}>
-                            <Bell className="h-3.5 w-3.5" />
+                        <Button variant="outline" size="md" iconLeft={Bell} onClick={requestNotifPerm}>
                             Enable notifications
                         </Button>
                     ) : notifPerm === 'granted' ? (
-                        <Badge variant="success">Notifications on</Badge>
+                        <Badge tone="success">Notifications on</Badge>
                     ) : (
-                        <Badge variant="danger">Notifications blocked</Badge>
+                        <Badge tone="danger">Notifications blocked</Badge>
                     )}
                     {canSend ? (
                         <NewGroupDialog members={members} onCreated={reloadChannels} toast={toast} />
                     ) : null}
-                </div>
+                </PageActions>
             </PageHeader>
 
-            <Card className="flex h-[640px] overflow-hidden p-0">
-                {/* ─── Sidebar ─────────────────── */}
+            <Card padding="none" className="flex h-[640px] overflow-hidden">
+                {/* Sidebar */}
                 <div className="flex w-[300px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     <div className="border-b border-[var(--st-border)] p-3">
                         <Input
-                            leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
+                            iconLeft={Search}
                             placeholder="Search conversations"
                             value={sidebarQuery}
                             onChange={(e) => setSidebarQuery(e.target.value)}
+                            aria-label="Search conversations"
                         />
                     </div>
 
@@ -451,10 +468,11 @@ export default function TeamChatPage() {
                             type="button"
                             variant="outline"
                             size="md"
-                            className="w-full justify-start"
+                            block
+                            iconLeft={Bookmark}
+                            className="justify-start"
                             onClick={() => setBookmarksOpen(true)}
                         >
-                            <Bookmark className="h-3.5 w-3.5" />
                             Saved messages
                         </Button>
                     </div>
@@ -462,7 +480,7 @@ export default function TeamChatPage() {
                     <div className="flex-1 overflow-auto">
                         <SidebarGroupLabel label="Conversations" />
                         {channelsLoading ? (
-                            <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">Loading…</div>
+                            <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">Loading...</div>
                         ) : filteredChannels.length ? (
                             filteredChannels.map((c) => (
                                 <ChannelRow
@@ -491,7 +509,7 @@ export default function TeamChatPage() {
                                         className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)]"
                                     >
                                         <div className="relative">
-                                            <Dot name={u.name || u.email} />
+                                            <Avatar name={u.name || u.email} />
                                             <span className="absolute -bottom-0.5 -right-0.5">
                                                 <PresenceDot status={presence[uid]?.status ?? 'offline'} />
                                             </span>
@@ -507,7 +525,7 @@ export default function TeamChatPage() {
                     </div>
                 </div>
 
-                {/* ─── Message pane ─────────────────── */}
+                {/* Message pane */}
                 <div className="flex flex-1 flex-col">
                     {selectedChannel ? (
                         <>
@@ -528,7 +546,7 @@ export default function TeamChatPage() {
                             <div className="flex-1 space-y-3 overflow-auto bg-[var(--st-bg-muted)]/60 px-5 py-4">
                                 {messagesLoading ? (
                                     <div className="flex h-full items-center justify-center text-[12.5px] text-[var(--st-text-secondary)]">
-                                        Loading messages…
+                                        Loading messages...
                                     </div>
                                 ) : messages.length === 0 ? (
                                     <EmptyConversation channel={selectedChannel} meId={sessionUser?._id} />
@@ -558,35 +576,29 @@ export default function TeamChatPage() {
                                             {attachmentQueue.map((a, i) => (
                                                 <div
                                                     key={i}
-                                                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 h-6 text-[11.5px]"
+                                                    className="inline-flex h-6 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 text-[11.5px]"
                                                 >
                                                     <ImageIcon className="h-3 w-3" />
                                                     <span className="max-w-[160px] truncate">{a.filename}</span>
-                                                    <button
-                                                        type="button"
+                                                    <IconButton
+                                                        size="sm"
+                                                        icon={X}
+                                                        label={`Remove ${a.filename}`}
                                                         onClick={() =>
                                                             setAttachmentQueue((prev) => prev.filter((_, idx) => idx !== i))
                                                         }
-                                                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
-                                                        aria-label="Remove"
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </button>
+                                                    />
                                                 </div>
                                             ))}
                                         </div>
                                     ) : null}
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            type="button"
+                                        <IconButton
                                             variant="outline"
-                                            size="icon"
+                                            icon={Paperclip}
+                                            label="Attach file"
                                             onClick={onPickFile}
-                                            aria-label="Attach"
-                                            title="Attach file"
-                                        >
-                                            <Paperclip className="h-4 w-4" />
-                                        </Button>
+                                        />
                                         <input
                                             ref={fileInputRef}
                                             type="file"
@@ -597,37 +609,29 @@ export default function TeamChatPage() {
                                         <SabFileToFileButton
                                             accept="all"
                                             variant="outline"
-                                            className="h-9 px-2 text-[11.5px]"
                                             onPickFile={(file) => queueFiles([file])}
                                             onError={(err) =>
-                                                toast({
-                                                    title: 'Pick failed',
-                                                    description: err.message,
-                                                    variant: 'destructive',
-                                                })
+                                                toast.error({ title: 'Pick failed', description: err.message })
                                             }
                                         >
                                             SabFiles
                                         </SabFileToFileButton>
                                         <Input
                                             className="flex-1"
-                                            placeholder="Message…"
+                                            placeholder="Message..."
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
                                             disabled={sending}
+                                            aria-label="Message"
                                         />
-                                        <Button
+                                        <IconButton
                                             type="submit"
-                                            size="icon"
+                                            variant="primary"
+                                            icon={sending ? Loader : Send}
+                                            label="Send message"
                                             disabled={sending || (!input.trim() && attachmentQueue.length === 0)}
-                                            aria-label="Send"
-                                        >
-                                            {sending ? (
-                                                <Loader className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <Send className="h-4 w-4" />
-                                            )}
-                                        </Button>
+                                            className={sending ? '[&_svg]:animate-spin' : undefined}
+                                        />
                                     </div>
                                 </form>
                             ) : (
@@ -637,9 +641,12 @@ export default function TeamChatPage() {
                             )}
                         </>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-[var(--st-text-secondary)]">
-                            <MessageSquare className="h-8 w-8" strokeWidth={1.5} />
-                            <p className="text-[13px]">Select a conversation or start a new one.</p>
+                        <div className="flex flex-1 items-center justify-center">
+                            <EmptyState
+                                icon={MessageSquare}
+                                title="No conversation selected"
+                                description="Select a conversation or start a new one."
+                            />
                         </div>
                     )}
                 </div>
@@ -669,7 +676,7 @@ export default function TeamChatPage() {
     );
 }
 
-/* ─────────────────────────── Sidebar helpers ─────────────────────────── */
+/* Sidebar helpers */
 
 function SidebarGroupLabel({ label }: { label: string }) {
     return (
@@ -706,7 +713,7 @@ function ChannelRow({
                     <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
-                <Dot name={other?.name || title} />
+                <Avatar name={other?.name || title} />
             )}
             <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
@@ -725,7 +732,7 @@ function ChannelRow({
     );
 }
 
-function Dot({ name }: { name: string }) {
+function Avatar({ name }: { name: string }) {
     const hue = hashHue(name);
     const initial = (name || '?').charAt(0).toUpperCase();
     return (
@@ -750,7 +757,7 @@ function channelTitle(c: TeamChannelView, meId?: string) {
     return other?.name || 'Direct message';
 }
 
-/* ─────────────────────────── Message pane helpers ─────────────────────────── */
+/* Message pane helpers */
 
 function ChannelHeader({
     channel,
@@ -779,7 +786,7 @@ function ChannelHeader({
                 </span>
             ) : (
                 <div className="relative">
-                    <Dot name={title} />
+                    <Avatar name={title} />
                     {other ? (
                         <span className="absolute -bottom-0.5 -right-0.5">
                             <PresenceDot status={presence[other.userId]?.status ?? 'offline'} />
@@ -795,10 +802,10 @@ function ChannelHeader({
                 type="button"
                 variant="outline"
                 size="md"
+                iconLeft={Headphones}
                 onClick={onStartHuddle}
                 title="Start or join a huddle"
             >
-                <Headphones className="h-3.5 w-3.5" />
                 Huddle
             </Button>
         </div>
@@ -807,13 +814,17 @@ function ChannelHeader({
 
 function EmptyConversation({ channel, meId }: { channel: TeamChannelView; meId?: string }) {
     return (
-        <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--st-text-secondary)]">
-            <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
-            <p className="text-[12.5px]">
-                {channel.type === 'group'
-                    ? `Send the first message in #${channel.name || 'group'}.`
-                    : `Start a conversation with ${channelTitle(channel, meId)}.`}
-            </p>
+        <div className="flex h-full items-center justify-center">
+            <EmptyState
+                size="sm"
+                icon={MessageSquare}
+                title="No messages yet"
+                description={
+                    channel.type === 'group'
+                        ? `Send the first message in #${channel.name || 'group'}.`
+                        : `Start a conversation with ${channelTitle(channel, meId)}.`
+                }
+            />
         </div>
     );
 }
@@ -834,7 +845,7 @@ function renderMessagesWithDateDividers(
     const out: React.ReactNode[] = [];
     let lastDate: Date | null = null;
     for (const m of messages) {
-        // Skip thread-replies in the main stream — they only render inside the thread panel.
+        // Skip thread-replies in the main stream, they only render inside the thread panel.
         if ((m as any).threadRootId) continue;
         const d = new Date(m.createdAt);
         if (!lastDate || !isSameDay(lastDate, d)) {
@@ -880,7 +891,7 @@ function MessageRow({
         >
             <div
                 className={
-                    'relative max-w-[80%] rounded-lg px-3 py-2 text-[13px] shadow-sm ' +
+                    'relative max-w-[80%] rounded-[var(--st-radius)] px-3 py-2 text-[13px] shadow-[var(--st-shadow-sm)] ' +
                     (mine
                         ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
                         : 'border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]')
@@ -891,36 +902,27 @@ function MessageRow({
                     className={
                         'absolute -top-3 ' +
                         (mine ? 'right-2' : 'left-2') +
-                        ' z-10 hidden gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 shadow-sm group-hover/message:flex'
+                        ' z-10 hidden gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 shadow-[var(--st-shadow-sm)] group-hover/message:flex'
                     }
                 >
-                    <button
-                        type="button"
+                    <IconButton
+                        size="sm"
+                        icon={MessageCircleReply}
+                        label="Reply in thread"
                         onClick={() => callbacks.onOpenThread(id)}
-                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
-                        aria-label="Reply in thread"
-                        title="Reply in thread"
-                    >
-                        <MessageCircleReply className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                        type="button"
+                    />
+                    <IconButton
+                        size="sm"
+                        icon={isPinned ? PinOff : Pin}
+                        label={isPinned ? 'Unpin' : 'Pin to channel'}
                         onClick={() => callbacks.onTogglePin(id, isPinned)}
-                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
-                        aria-label={isPinned ? 'Unpin' : 'Pin'}
-                        title={isPinned ? 'Unpin' : 'Pin to channel'}
-                    >
-                        {isPinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
-                    </button>
-                    <button
-                        type="button"
+                    />
+                    <IconButton
+                        size="sm"
+                        icon={Bookmark}
+                        label="Save for later"
                         onClick={() => callbacks.onBookmark(id)}
-                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
-                        aria-label="Save"
-                        title="Save for later"
-                    >
-                        <Bookmark className="h-3.5 w-3.5" />
-                    </button>
+                    />
                 </div>
 
                 {isPinned ? (
@@ -959,7 +961,7 @@ function MessageRow({
                         type="button"
                         onClick={() => callbacks.onOpenThread(id)}
                         className={
-                            'mt-1.5 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] ' +
+                            'mt-1.5 inline-flex items-center gap-1 rounded-[var(--st-radius-sm)] border px-2 py-0.5 text-[11px] ' +
                             (mine
                                 ? 'border-[var(--st-bg)]/30 bg-[var(--st-bg)]/10 text-[var(--st-bg)] hover:bg-[var(--st-bg)]/20'
                                 : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg)]')
@@ -969,7 +971,7 @@ function MessageRow({
                         {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
                         {lastReplyAt ? (
                             <span className={mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]'}>
-                                · {format(new Date(lastReplyAt), 'p')}
+                                . {format(new Date(lastReplyAt), 'p')}
                             </span>
                         ) : null}
                     </button>
@@ -997,7 +999,7 @@ function Attachment({
                 <img
                     src={attachment.url}
                     alt={attachment.name}
-                    className="max-h-[240px] rounded-md border border-[var(--st-border)] object-contain"
+                    className="max-h-[240px] rounded-[var(--st-radius-sm)] border border-[var(--st-border)] object-contain"
                 />
             </a>
         );
@@ -1008,7 +1010,7 @@ function Attachment({
             target="_blank"
             rel="noopener noreferrer"
             className={
-                'inline-flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] ' +
+                'inline-flex items-center gap-2 rounded-[var(--st-radius-sm)] border px-2 py-1.5 text-[12px] ' +
                 (mine
                     ? 'border-[var(--st-bg)]/30 bg-[var(--st-bg)]/10 text-[var(--st-bg)]'
                     : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]')
@@ -1020,7 +1022,7 @@ function Attachment({
     );
 }
 
-/* ─────────────────────────── Group dialog ─────────────────────────── */
+/* Group dialog */
 
 function NewGroupDialog({
     members,
@@ -1048,20 +1050,19 @@ function NewGroupDialog({
         const res = await createGroupChannel({ name: name.trim(), memberUserIds: Array.from(picked) });
         setPending(false);
         if (res.success) {
-            toast({ title: 'Group created' });
+            toast.success('Group created');
             reset();
             setOpen(false);
             onCreated();
         } else {
-            toast({ title: 'Could not create', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Could not create', description: res.error });
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
             <DialogTrigger asChild>
-                <Button size="md">
-                    <Plus className="h-3.5 w-3.5" />
+                <Button size="md" variant="primary" iconLeft={Plus}>
                     New group
                 </Button>
             </DialogTrigger>
@@ -1070,74 +1071,67 @@ function NewGroupDialog({
                     <DialogHeader>
                         <DialogTitle>New group chat</DialogTitle>
                     </DialogHeader>
-                    <div>
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                            Group name
-                        </label>
+                    <Field label="Group name">
                         <Input
-                            className="mt-1.5"
                             placeholder="Growth squad"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
                         />
-                    </div>
-                    <div>
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                            Members ({picked.size} selected)
-                        </label>
-                        <div className="mt-1.5 max-h-[240px] overflow-auto rounded-lg border border-[var(--st-border)]">
+                    </Field>
+                    <Field label={`Members (${picked.size} selected)`}>
+                        <div className="max-h-[240px] overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                             {members.length === 0 ? (
                                 <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">No teammates yet.</div>
                             ) : (
                                 members.map((u) => {
                                     const id = u._id.toString();
                                     const on = picked.has(id);
+                                    const toggle = () =>
+                                        setPicked((prev) => {
+                                            const next = new Set(prev);
+                                            if (next.has(id)) next.delete(id);
+                                            else next.add(id);
+                                            return next;
+                                        });
                                     return (
-                                        <label
+                                        <div
                                             key={id}
                                             className={
-                                                'flex cursor-pointer items-center gap-3 border-b border-[var(--st-border)] px-3 py-2 last:border-b-0 text-[12.5px] ' +
+                                                'flex items-center gap-3 border-b border-[var(--st-border)] px-3 py-2 last:border-b-0 text-[12.5px] ' +
                                                 (on ? 'bg-[var(--st-bg-muted)]/60' : 'hover:bg-[var(--st-bg-muted)]')
                                             }
                                         >
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
                                                 checked={on}
-                                                onChange={() => {
-                                                    setPicked((prev) => {
-                                                        const next = new Set(prev);
-                                                        if (next.has(id)) next.delete(id);
-                                                        else next.add(id);
-                                                        return next;
-                                                    });
-                                                }}
-                                                className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
+                                                onChange={toggle}
+                                                aria-label={`Add ${u.name || u.email}`}
                                             />
-                                            <Dot name={u.name || u.email} />
+                                            <Avatar name={u.name || u.email} />
                                             <div className="min-w-0">
                                                 <div className="truncate text-[var(--st-text)]">{u.name}</div>
                                                 <div className="truncate text-[11px] text-[var(--st-text-secondary)]">{u.email}</div>
                                             </div>
-                                        </label>
+                                        </div>
                                     );
                                 })
                             )}
                         </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
+                    </Field>
+                    <DialogFooter>
                         <Button type="button" variant="outline" size="md" onClick={() => setOpen(false)} disabled={pending}>
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             size="md"
+                            variant="primary"
+                            loading={pending}
                             disabled={pending || !name.trim() || picked.size === 0}
                         >
-                            {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : null}
                             Create group
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

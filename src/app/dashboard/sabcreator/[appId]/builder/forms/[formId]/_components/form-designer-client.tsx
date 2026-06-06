@@ -4,9 +4,9 @@
  * SabCreator form designer.
  *
  * Left:    field palette (Text, Number, Date, Select, File).
- * Center:  the form canvas (re-orderable list — drag-drop deferred,
- *          using up/down arrows for now).
- * Right:   properties panel for the selected field + form-level submit
+ * Center:  the form canvas (re-orderable list). Drag-drop is deferred, so
+ *          up/down arrows handle ordering for now.
+ * Right:   properties panel for the selected field plus form-level submit
  *          settings.
  */
 
@@ -24,8 +24,33 @@ import {
   Trash2,
   Type,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-import { Badge, Button, Card, Checkbox, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { updateSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
 import type {
@@ -36,12 +61,12 @@ import type {
 
 type FieldKind = 'text' | 'number' | 'date' | 'select' | 'file';
 
-const PALETTE: Array<{ kind: FieldKind; label: string; icon: React.ReactNode }> = [
-  { kind: 'text', label: 'Text', icon: <Type className="size-4" /> },
-  { kind: 'number', label: 'Number', icon: <Hash className="size-4" /> },
-  { kind: 'date', label: 'Date', icon: <CalendarDays className="size-4" /> },
-  { kind: 'select', label: 'Select', icon: <List className="size-4" /> },
-  { kind: 'file', label: 'File (SabFiles)', icon: <PaperclipIcon className="size-4" /> },
+const PALETTE: Array<{ kind: FieldKind; label: string; icon: LucideIcon }> = [
+  { kind: 'text', label: 'Text', icon: Type },
+  { kind: 'number', label: 'Number', icon: Hash },
+  { kind: 'date', label: 'Date', icon: CalendarDays },
+  { kind: 'select', label: 'Select', icon: List },
+  { kind: 'file', label: 'File (SabFiles)', icon: PaperclipIcon },
 ];
 
 interface InternalField extends SabcreatorFormFieldSpec {
@@ -75,6 +100,7 @@ interface Props {
 
 export function FormDesignerClient({ app, form }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [fields, setFields] = useState<InternalField[]>(() => toInternal(form.fieldsJson));
   const [selectedId, setSelectedId] = useState<string | null>(
     fields[0]?.id ?? null,
@@ -144,9 +170,11 @@ export function FormDesignerClient({ app, form }: Props) {
               : undefined,
           sabtablesTableId: tableId.trim() || undefined,
         });
+        toast.success('Form saved');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] saveForm failed', err);
+        toast.error('Could not save the form');
       }
     });
   };
@@ -154,10 +182,10 @@ export function FormDesignerClient({ app, form }: Props) {
   return (
     <div className="min-h-screen flex flex-col">
       <PageHeader>
-        <div>
+        <PageHeaderHeading>
           <PageTitle>{form.name}</PageTitle>
           <PageDescription>
-            Form designer · {app.name} ·{' '}
+            Form designer, {app.name},{' '}
             <Link
               href={`/dashboard/sabcreator/${app._id}/builder`}
               className="underline"
@@ -165,11 +193,11 @@ export function FormDesignerClient({ app, form }: Props) {
               back to builder
             </Link>
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
-          <Badge variant="outline">{form.status}</Badge>
-          <Button onClick={save} disabled={pending}>
-            <Save className="size-4" /> {pending ? 'Saving…' : 'Save'}
+          <Badge kind="outline">{form.status}</Badge>
+          <Button variant="primary" onClick={save} loading={pending} iconLeft={Save}>
+            {pending ? 'Saving…' : 'Save'}
           </Button>
         </PageActions>
       </PageHeader>
@@ -177,197 +205,200 @@ export function FormDesignerClient({ app, form }: Props) {
       <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
         {/* Palette */}
         <aside>
-          <Card className="p-3">
-            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
-              FIELD PALETTE
-            </h3>
-            <div className="space-y-1">
+          <Card padding="sm">
+            <CardHeader>
+              <CardTitle className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+                Field palette
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-1">
               {PALETTE.map((p) => (
-                <button
+                <Button
                   key={p.kind}
-                  type="button"
+                  variant="ghost"
+                  block
+                  iconLeft={p.icon}
                   onClick={() => addField(p.kind)}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left hover:bg-[var(--st-bg-muted)]"
+                  className="justify-start"
                 >
-                  {p.icon}
                   {p.label}
-                </button>
+                </Button>
               ))}
-            </div>
+            </CardBody>
           </Card>
         </aside>
 
         {/* Canvas */}
         <main>
-          <Card className="p-4">
-            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-3">
-              FORM CANVAS
-            </h3>
-            {fields.length === 0 ? (
-              <div className="text-sm text-[var(--st-text-secondary)] py-8 text-center">
-                Click a field in the palette to add it.
-              </div>
-            ) : (
-              <ul className="space-y-2">
-                {fields.map((f) => (
-                  <li
-                    key={f.id}
-                    onClick={() => setSelectedId(f.id)}
-                    className={`p-3 border rounded-md cursor-pointer transition-colors ${
-                      selectedId === f.id
-                        ? 'border-primary bg-[var(--st-text)]/5'
-                        : 'hover:bg-[var(--st-bg-muted)]/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">
-                          {f.label}{' '}
-                          {f.required ? (
-                            <span className="text-[var(--st-text)]">*</span>
-                          ) : null}
+          <Card padding="md">
+            <CardHeader>
+              <CardTitle className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+                Form canvas
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              {fields.length === 0 ? (
+                <EmptyState
+                  icon={Type}
+                  title="No fields yet"
+                  description="Click a field in the palette to add it."
+                />
+              ) : (
+                <ul className="space-y-2">
+                  {fields.map((f) => (
+                    <li
+                      key={f.id}
+                      onClick={() => setSelectedId(f.id)}
+                      className={`p-3 border rounded-[var(--st-radius)] cursor-pointer transition-colors ${
+                        selectedId === f.id
+                          ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                          : 'border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium truncate text-[var(--st-text)]">
+                            {f.label}{' '}
+                            {f.required ? (
+                              <span className="text-[var(--st-danger)]">*</span>
+                            ) : null}
+                          </div>
+                          <div className="text-xs text-[var(--st-text-secondary)]">
+                            {f.kind} - {f.tableFieldId}
+                          </div>
                         </div>
-                        <div className="text-xs text-[var(--st-text-secondary)]">
-                          {f.kind} · {f.tableFieldId}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <IconButton
+                            label="Move field up"
+                            icon={ArrowUp}
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              move(f.id, -1);
+                            }}
+                          />
+                          <IconButton
+                            label="Move field down"
+                            icon={ArrowDown}
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              move(f.id, 1);
+                            }}
+                          />
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            move(f.id, -1);
-                          }}
-                        >
-                          <ArrowUp className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            move(f.id, 1);
-                          }}
-                        >
-                          <ArrowDown className="size-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
           </Card>
         </main>
 
         {/* Properties */}
         <aside className="space-y-4">
-          <Card className="p-3">
-            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
-              FIELD PROPERTIES
-            </h3>
-            {selected ? (
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label>Label</Label>
-                  <Input
-                    value={selected.label}
-                    onChange={(e) => updateSelected({ label: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Table field id</Label>
-                  <Input
-                    value={selected.tableFieldId}
-                    onChange={(e) =>
-                      updateSelected({ tableFieldId: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Help text</Label>
-                  <Textarea
-                    rows={2}
-                    value={selected.helpText ?? ''}
-                    onChange={(e) => updateSelected({ helpText: e.target.value })}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
+          <Card padding="sm">
+            <CardHeader>
+              <CardTitle className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+                Field properties
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              {selected ? (
+                <div className="space-y-3">
+                  <Field label="Label">
+                    <Input
+                      value={selected.label}
+                      onChange={(e) => updateSelected({ label: e.target.value })}
+                    />
+                  </Field>
+                  <Field label="Table field id">
+                    <Input
+                      value={selected.tableFieldId}
+                      onChange={(e) =>
+                        updateSelected({ tableFieldId: e.target.value })
+                      }
+                    />
+                  </Field>
+                  <Field label="Help text">
+                    <Textarea
+                      rows={2}
+                      value={selected.helpText ?? ''}
+                      onChange={(e) => updateSelected({ helpText: e.target.value })}
+                    />
+                  </Field>
                   <Checkbox
-                    id="req"
+                    label="Required"
                     checked={!!selected.required}
-                    onCheckedChange={(c) => updateSelected({ required: Boolean(c) })}
+                    onChange={(e) => updateSelected({ required: e.target.checked })}
                   />
-                  <Label htmlFor="req">Required</Label>
-                </div>
-                <div className="flex items-center gap-2">
                   <Checkbox
-                    id="hidden"
+                    label="Hidden"
                     checked={!!selected.hidden}
-                    onCheckedChange={(c) => updateSelected({ hidden: Boolean(c) })}
+                    onChange={(e) => updateSelected({ hidden: e.target.checked })}
                   />
-                  <Label htmlFor="hidden">Hidden</Label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    iconLeft={Trash2}
+                    onClick={removeSelected}
+                  >
+                    Remove field
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={removeSelected}>
-                  <Trash2 className="size-4" /> Remove field
-                </Button>
-              </div>
-            ) : (
-              <div className="text-xs text-[var(--st-text-secondary)]">
-                Select a field on the canvas to edit it.
-              </div>
-            )}
+              ) : (
+                <EmptyState
+                  icon={List}
+                  size="sm"
+                  title="No field selected"
+                  description="Select a field on the canvas to edit it."
+                />
+              )}
+            </CardBody>
           </Card>
 
-          <Card className="p-3">
-            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
-              SUBMIT BEHAVIOUR
-            </h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label>SabTables table id</Label>
+          <Card padding="sm">
+            <CardHeader>
+              <CardTitle className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+                Submit behaviour
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              <Field label="SabTables table id">
                 <Input
                   value={tableId}
                   onChange={(e) => setTableId(e.target.value)}
                   placeholder="sabtables_tables _id"
                 />
-              </div>
-              <div className="space-y-1">
-                <Label>On submit</Label>
+              </Field>
+              <Field label="On submit">
                 <Select
                   value={submitAction}
                   onValueChange={(v) =>
                     setSubmitAction(v as SabcreatorFormSubmitAction)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="On submit">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="createRecord">
-                      Create record
-                    </SelectItem>
-                    <SelectItem value="updateRecord">
-                      Update record
-                    </SelectItem>
-                    <SelectItem value="callWorkflow">
-                      Call workflow
-                    </SelectItem>
+                    <SelectItem value="createRecord">Create record</SelectItem>
+                    <SelectItem value="updateRecord">Update record</SelectItem>
+                    <SelectItem value="callWorkflow">Call workflow</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
               {submitAction === 'callWorkflow' ? (
-                <div className="space-y-1">
-                  <Label>SabCreator workflow id</Label>
+                <Field label="SabCreator workflow id">
                   <Input
                     value={submitWorkflowId}
                     onChange={(e) => setSubmitWorkflowId(e.target.value)}
                     placeholder="sabcreator_workflows _id"
                   />
-                </div>
+                </Field>
               ) : null}
-            </div>
+            </CardBody>
           </Card>
         </aside>
       </div>

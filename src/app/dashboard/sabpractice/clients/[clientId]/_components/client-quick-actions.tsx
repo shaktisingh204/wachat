@@ -3,7 +3,25 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Checkbox,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    Field,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
     createSabpracticeAdvisoryNote,
     createSabpracticeDeadline,
@@ -14,6 +32,7 @@ import {
 
 export function CreateEngagementButton({ clientId }: { clientId: string }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
     const [cadence, setCadence] = React.useState('monthly');
@@ -30,17 +49,15 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                     <DialogTitle>New engagement</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <div className="space-y-1">
-                        <Label>Name</Label>
+                    <Field label="Name">
                         <Input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="FY26 audit"
                         />
-                    </div>
+                    </Field>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                            <Label>Billing cadence</Label>
+                        <Field label="Billing cadence">
                             <Select value={cadence} onValueChange={setCadence}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -51,16 +68,15 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                                     <SelectItem value="on_completion">On completion</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Hourly rate (minor)</Label>
+                        </Field>
+                        <Field label="Hourly rate (minor)">
                             <Input
                                 inputMode="numeric"
                                 value={rate}
                                 onChange={(e) => setRate(e.target.value)}
                                 placeholder="500000"
                             />
-                        </div>
+                        </Field>
                     </div>
                 </div>
                 <DialogFooter>
@@ -68,25 +84,31 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                         Cancel
                     </Button>
                     <Button
+                        loading={pending}
                         onClick={() =>
                             start(async () => {
                                 if (!name.trim()) return;
-                                await createSabpracticeEngagement({
-                                    clientId,
-                                    name: name.trim(),
-                                    startDate: new Date().toISOString(),
-                                    billingCadence: cadence,
-                                    hourlyRateMinor: rate ? Number(rate) : undefined,
-                                });
-                                setOpen(false);
-                                setName('');
-                                setRate('');
-                                router.refresh();
+                                try {
+                                    await createSabpracticeEngagement({
+                                        clientId,
+                                        name: name.trim(),
+                                        startDate: new Date().toISOString(),
+                                        billingCadence: cadence,
+                                        hourlyRateMinor: rate ? Number(rate) : undefined,
+                                    });
+                                    toast.success('Engagement created');
+                                    setOpen(false);
+                                    setName('');
+                                    setRate('');
+                                    router.refresh();
+                                } catch {
+                                    toast.error('Could not create engagement');
+                                }
                             })
                         }
                         disabled={pending || !name.trim()}
                     >
-                        {pending ? 'Saving…' : 'Create'}
+                        {pending ? 'Saving' : 'Create'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -102,6 +124,7 @@ export function CreateTaskButton({
     engagementId?: string;
 }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [title, setTitle] = React.useState('');
     const [eid, setEid] = React.useState(engagementId ?? '');
@@ -118,50 +141,50 @@ export function CreateTaskButton({
                     <DialogTitle>New task</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <div className="space-y-1">
-                        <Label>Title</Label>
+                    <Field label="Title">
                         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Engagement ID</Label>
+                    </Field>
+                    <Field label="Engagement ID">
                         <Input
                             value={eid}
                             onChange={(e) => setEid(e.target.value)}
                             placeholder="engagement _id"
                         />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            id="sp-billable"
-                            type="checkbox"
-                            checked={billable}
-                            onChange={(e) => setBillable(e.target.checked)}
-                        />
-                        <Label htmlFor="sp-billable">Billable</Label>
-                    </div>
+                    </Field>
+                    <Checkbox
+                        label="Billable"
+                        checked={billable}
+                        onChange={(e) => setBillable(e.target.checked)}
+                    />
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        loading={pending}
                         onClick={() =>
                             start(async () => {
                                 if (!title.trim() || !eid.trim()) return;
-                                await createSabpracticeTask({
-                                    clientId,
-                                    engagementId: eid.trim(),
-                                    title: title.trim(),
-                                    billable,
-                                });
-                                setOpen(false);
-                                setTitle('');
-                                router.refresh();
+                                try {
+                                    await createSabpracticeTask({
+                                        clientId,
+                                        engagementId: eid.trim(),
+                                        title: title.trim(),
+                                        billable,
+                                    });
+                                    toast.success('Task created');
+                                    setOpen(false);
+                                    setTitle('');
+                                    router.refresh();
+                                } catch {
+                                    toast.error('Could not create task');
+                                }
                             })
                         }
                         disabled={pending || !title.trim() || !eid.trim()}
                     >
-                        {pending ? 'Saving…' : 'Create'}
+                        {pending ? 'Saving' : 'Create'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -171,6 +194,7 @@ export function CreateTaskButton({
 
 export function CreateDeadlineButton({ clientId }: { clientId: string }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
     const [kind, setKind] = React.useState('tax_filing');
@@ -187,13 +211,11 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                     <DialogTitle>New compliance deadline</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <div className="space-y-1">
-                        <Label>Name</Label>
+                    <Field label="Name">
                         <Input value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
+                    </Field>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                            <Label>Kind</Label>
+                        <Field label="Kind">
                             <Select value={kind} onValueChange={setKind}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -206,15 +228,14 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                                     <SelectItem value="custom">Custom</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Due date</Label>
+                        </Field>
+                        <Field label="Due date">
                             <Input
                                 type="date"
                                 value={due}
                                 onChange={(e) => setDue(e.target.value)}
                             />
-                        </div>
+                        </Field>
                     </div>
                 </div>
                 <DialogFooter>
@@ -222,24 +243,30 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                         Cancel
                     </Button>
                     <Button
+                        loading={pending}
                         onClick={() =>
                             start(async () => {
                                 if (!name.trim() || !due) return;
-                                await createSabpracticeDeadline({
-                                    clientId,
-                                    name: name.trim(),
-                                    kind,
-                                    dueDate: new Date(due).toISOString(),
-                                });
-                                setOpen(false);
-                                setName('');
-                                setDue('');
-                                router.refresh();
+                                try {
+                                    await createSabpracticeDeadline({
+                                        clientId,
+                                        name: name.trim(),
+                                        kind,
+                                        dueDate: new Date(due).toISOString(),
+                                    });
+                                    toast.success('Deadline created');
+                                    setOpen(false);
+                                    setName('');
+                                    setDue('');
+                                    router.refresh();
+                                } catch {
+                                    toast.error('Could not create deadline');
+                                }
                             })
                         }
                         disabled={pending || !name.trim() || !due}
                     >
-                        {pending ? 'Saving…' : 'Create'}
+                        {pending ? 'Saving' : 'Create'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -249,6 +276,7 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
 
 export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [title, setTitle] = React.useState('');
     const [body, setBody] = React.useState('');
@@ -265,12 +293,10 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
                     <DialogTitle>New advisory note</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <div className="space-y-1">
-                        <Label>Title</Label>
+                    <Field label="Title">
                         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Kind</Label>
+                    </Field>
+                    <Field label="Kind">
                         <Select value={kind} onValueChange={setKind}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -281,41 +307,46 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
                                 <SelectItem value="risk">Risk</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Body (markdown)</Label>
+                    </Field>
+                    <Field label="Body (markdown)">
                         <Textarea
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
                             rows={6}
                         />
-                    </div>
+                    </Field>
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        loading={pending}
                         onClick={() =>
                             start(async () => {
                                 if (!title.trim()) return;
-                                await createSabpracticeAdvisoryNote({
-                                    clientId,
-                                    authorUserId: '',
-                                    title: title.trim(),
-                                    body,
-                                    kind,
-                                    status: 'draft',
-                                });
-                                setOpen(false);
-                                setTitle('');
-                                setBody('');
-                                router.refresh();
+                                try {
+                                    await createSabpracticeAdvisoryNote({
+                                        clientId,
+                                        authorUserId: '',
+                                        title: title.trim(),
+                                        body,
+                                        kind,
+                                        status: 'draft',
+                                    });
+                                    toast.success('Advisory note saved');
+                                    setOpen(false);
+                                    setTitle('');
+                                    setBody('');
+                                    router.refresh();
+                                } catch {
+                                    toast.error('Could not save advisory note');
+                                }
                             })
                         }
                         disabled={pending || !title.trim()}
                     >
-                        {pending ? 'Saving…' : 'Save draft'}
+                        {pending ? 'Saving' : 'Save draft'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -325,20 +356,27 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
 
 export function ShareAdvisoryNoteButton({ id }: { id: string }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, start] = React.useTransition();
     return (
         <Button
             size="sm"
             variant="outline"
+            loading={pending}
             disabled={pending}
             onClick={() =>
                 start(async () => {
-                    await shareSabpracticeAdvisoryNote(id);
-                    router.refresh();
+                    try {
+                        await shareSabpracticeAdvisoryNote(id);
+                        toast.success('Advisory note shared');
+                        router.refresh();
+                    } catch {
+                        toast.error('Could not share advisory note');
+                    }
                 })
             }
         >
-            {pending ? 'Sharing…' : 'Share'}
+            {pending ? 'Sharing' : 'Share'}
         </Button>
     );
 }
