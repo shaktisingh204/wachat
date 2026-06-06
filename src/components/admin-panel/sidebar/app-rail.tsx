@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, ZoruTooltipContent, ZoruTooltipTrigger, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Tooltip, ZoruTooltipContent, ZoruTooltipTrigger, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';

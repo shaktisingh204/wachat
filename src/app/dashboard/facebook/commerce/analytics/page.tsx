@@ -19,7 +19,7 @@ import {
   EmptyState,
   Skeleton,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

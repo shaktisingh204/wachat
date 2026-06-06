@@ -10,7 +10,7 @@ import {
   Button,
   Card,
   ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useState } from "react";

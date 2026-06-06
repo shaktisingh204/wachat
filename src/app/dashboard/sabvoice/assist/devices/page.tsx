@@ -16,7 +16,7 @@ import {
   ZoruDialogFooter,
   Alert,
   ZoruAlertDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ServerCog, Plus, ScreenShare, ArrowLeft, Trash2 } from 'lucide-react';
 import {

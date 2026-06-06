@@ -44,7 +44,7 @@ import {
   ZoruTableRow,
   Textarea,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   BookUser,
   Ban,

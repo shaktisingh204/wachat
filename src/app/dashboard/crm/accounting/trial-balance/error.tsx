@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { Button, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { Button, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
 
 export default function TrialBalanceError({
     error,

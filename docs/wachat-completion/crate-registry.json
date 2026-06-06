@@ -1,0 +1,91 @@
+{
+  "_comment": "Registry of WaChat-completion crates. register-crates.py uses ident/state/mount to apply the 3 api-side edits (Cargo dep, FromRef impl, router let+nest). name = crate dir under rust/crates/.",
+  "crates": {
+    "wachat-number-routing": {
+      "ident": "wachat_number_routing",
+      "state": "WachatNumberRoutingState",
+      "mount": "/v1/wachat/number-routing",
+      "wired": true
+    },
+    "wachat-canned-messages": {
+      "ident": "wachat_canned_messages",
+      "state": "WachatCannedMessagesState",
+      "mount": "/v1/wachat/canned-messages"
+    },
+    "wachat-ai-training": {
+      "ident": "wachat_ai_training",
+      "state": "WachatAiTrainingState",
+      "mount": "/v1/wachat/ai-training"
+    },
+    "wachat-interactive-builder": {
+      "ident": "wachat_interactive_builder",
+      "state": "WachatInteractiveBuilderState",
+      "mount": "/v1/wachat/interactive-builder"
+    },
+    "wachat-setup-kb": {
+      "ident": "wachat_setup_kb",
+      "state": "WachatSetupKbState",
+      "mount": "/v1/wachat/setup-kb"
+    },
+    "wachat-ads-roadmap": {
+      "ident": "wachat_ads_roadmap",
+      "state": "WachatAdsRoadmapState",
+      "mount": "/v1/wachat/ads-roadmap"
+    },
+    "wachat-quality-history": {
+      "ident": "wachat_quality_history",
+      "state": "WachatQualityHistoryState",
+      "mount": "/v1/wachat/quality-history"
+    },
+    "wachat-flow-events": {
+      "ident": "wachat_flow_events",
+      "state": "WachatFlowEventsState",
+      "mount": "/v1/wachat/flow-events"
+    },
+    "wachat-opt-out-settings": {
+      "ident": "wachat_opt_out_settings",
+      "state": "WachatOptOutSettingsState",
+      "mount": "/v1/wachat/opt-out-settings"
+    },
+    "wachat-ab-testing": {
+      "ident": "wachat_ab_testing",
+      "state": "WachatAbTestingState",
+      "mount": "/v1/wachat/ab-tests"
+    },
+    "wachat-contact-merge": {
+      "ident": "wachat_contact_merge",
+      "state": "WachatContactMergeState",
+      "mount": "/v1/wachat/contact-merge"
+    },
+    "wachat-auto-reply-settings": {
+      "ident": "wachat_auto_reply_settings",
+      "state": "WachatAutoReplySettingsState",
+      "mount": "/v1/wachat/auto-reply-settings"
+    },
+    "wachat-project-agents": {
+      "ident": "wachat_project_agents",
+      "state": "WachatProjectAgentsState",
+      "mount": "/v1/wachat/project-agents"
+    },
+    "wachat-project-attributes": {
+      "ident": "wachat_project_attributes",
+      "state": "WachatProjectAttributesState",
+      "mount": "/v1/wachat/project-attributes"
+    },
+    "wachat-link-generator": {
+      "ident": "wachat_link_generator",
+      "state": "WachatLinkGeneratorState",
+      "mount": "/v1/wachat/link-generator"
+    },
+    "wachat-widget-tracking": {
+      "ident": "wachat_widget_tracking",
+      "state": "WachatWidgetTrackingState",
+      "mount": "/v1/wachat/widget"
+    },
+    "wachat-integrations-hub": {
+      "ident": "wachat_integrations_hub",
+      "state": "WachatIntegrationsHubState",
+      "mount": "/v1/wachat/integrations"
+    }
+  }
+}

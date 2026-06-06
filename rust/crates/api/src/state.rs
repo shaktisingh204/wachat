@@ -1265,6 +1265,46 @@ impl FromRef<AppState> for wachat_number_routing::WachatNumberRoutingState {
         wachat_number_routing::WachatNumberRoutingState::new(s.mongo.clone())
     }
 }
+impl FromRef<AppState> for wachat_canned_messages::WachatCannedMessagesState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_canned_messages::WachatCannedMessagesState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_ai_training::WachatAiTrainingState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_ai_training::WachatAiTrainingState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_interactive_builder::WachatInteractiveBuilderState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_interactive_builder::WachatInteractiveBuilderState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_setup_kb::WachatSetupKbState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_setup_kb::WachatSetupKbState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_ads_roadmap::WachatAdsRoadmapState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_ads_roadmap::WachatAdsRoadmapState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_quality_history::WachatQualityHistoryState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_quality_history::WachatQualityHistoryState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_flow_events::WachatFlowEventsState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_flow_events::WachatFlowEventsState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_opt_out_settings::WachatOptOutSettingsState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_opt_out_settings::WachatOptOutSettingsState::new(s.mongo.clone())
+    }
+}
 impl FromRef<AppState> for sabcatalyst_usage::state::SabcatalystUsageState {
     fn from_ref(s: &AppState) -> Self {
         sabcatalyst_usage::state::SabcatalystUsageState::new(s.mongo.clone())

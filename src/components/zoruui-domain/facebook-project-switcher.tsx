@@ -12,7 +12,7 @@ import {
   ZoruAvatarFallback,
   ZoruAvatarImage,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';

@@ -14,7 +14,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 

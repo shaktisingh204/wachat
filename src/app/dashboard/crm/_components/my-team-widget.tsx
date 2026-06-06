@@ -17,7 +17,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';
 import { getEmployeeAssignmentStats } from '@/app/actions/crm-assignment.actions';
 

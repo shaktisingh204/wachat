@@ -16,7 +16,7 @@ import {
   Label,
   Switch,
   Separator,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Send,
   Megaphone,

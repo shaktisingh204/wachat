@@ -16,7 +16,7 @@ import {
   Input,
   Checkbox,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';

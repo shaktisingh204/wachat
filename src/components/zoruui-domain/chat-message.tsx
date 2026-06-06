@@ -9,7 +9,7 @@ import {
   Separator,
   Avatar,
   ZoruAvatarFallback,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage,

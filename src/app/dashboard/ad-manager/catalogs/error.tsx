@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ZoruAlertDescription, ZoruAlertTitle, Alert, Button } from '@/components/zoruui';
+import { ZoruAlertDescription, ZoruAlertTitle, Alert, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function CatalogsError({

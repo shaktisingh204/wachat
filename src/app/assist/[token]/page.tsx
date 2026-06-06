@@ -11,7 +11,7 @@ import {
   ZoruAlertTitle,
   ZoruAlertDescription,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ScreenShare, ShieldCheck, KeyRound } from 'lucide-react';
 import { redeemSabassistAccessToken } from '@/app/actions/sabassist.actions';
 import { createAssistTransport, type IAssistTransport } from '@/lib/sabassist/transport';

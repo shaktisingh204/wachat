@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
 import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui/alert';
 import { Switch } from '@/components/zoruui/switch';
 import { Label } from '@/components/zoruui/label';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { fmtINR } from '@/lib/utils';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

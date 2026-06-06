@@ -5,7 +5,7 @@ import {
   ZoruAlertDescription,
   ZoruAlertTitle,
   Button
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import * as React from 'react';
 

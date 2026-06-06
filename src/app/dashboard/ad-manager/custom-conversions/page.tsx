@@ -35,7 +35,7 @@ import {
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Target,
   Plus,

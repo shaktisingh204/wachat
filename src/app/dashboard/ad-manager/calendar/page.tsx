@@ -7,7 +7,7 @@ import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-overrides.css';
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Label } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { CircleAlert } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';

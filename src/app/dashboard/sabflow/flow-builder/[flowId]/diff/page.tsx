@@ -13,7 +13,7 @@ import {
   ZoruAlertDialogTitle,
   Button,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

@@ -12,7 +12,7 @@ import {
   ZoruBreadcrumbPage,
   Alert,
   ZoruAlertDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { KeysClient } from './_KeysClient';
 

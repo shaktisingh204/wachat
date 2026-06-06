@@ -21,7 +21,7 @@ import {
   Sheet,
   Badge,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -119,7 +119,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarProvider,
-  } from '@/components/zoruui';
+  } from '@/components/sabcrm/20ui/compat';
 import { ProjectProvider, useProject } from '@/context/project-context';
 
 import React from 'react';

@@ -330,6 +330,14 @@ pub fn build(state: AppState) -> Router {
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let wachat_number_routing = wachat_number_routing::router::<AppState>();
+    let wachat_canned_messages = wachat_canned_messages::router::<AppState>();
+    let wachat_ai_training = wachat_ai_training::router::<AppState>();
+    let wachat_interactive_builder = wachat_interactive_builder::router::<AppState>();
+    let wachat_setup_kb = wachat_setup_kb::router::<AppState>();
+    let wachat_ads_roadmap = wachat_ads_roadmap::router::<AppState>();
+    let wachat_quality_history = wachat_quality_history::router::<AppState>();
+    let wachat_flow_events = wachat_flow_events::router::<AppState>();
+    let wachat_opt_out_settings = wachat_opt_out_settings::router::<AppState>();
     let crm_lookup = crm_lookup::router::<AppState>();
     let crm_accounts = crm_accounts::router::<AppState>();
     let crm_pipelines = crm_pipelines::router::<AppState>();
@@ -593,6 +601,14 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/analytics", wachat_analytics)
         .nest("/v1/wachat/public", wachat_public)
         .nest("/v1/wachat/number-routing", wachat_number_routing)
+        .nest("/v1/wachat/canned-messages", wachat_canned_messages)
+        .nest("/v1/wachat/ai-training", wachat_ai_training)
+        .nest("/v1/wachat/interactive-builder", wachat_interactive_builder)
+        .nest("/v1/wachat/setup-kb", wachat_setup_kb)
+        .nest("/v1/wachat/ads-roadmap", wachat_ads_roadmap)
+        .nest("/v1/wachat/quality-history", wachat_quality_history)
+        .nest("/v1/wachat/flow-events", wachat_flow_events)
+        .nest("/v1/wachat/opt-out-settings", wachat_opt_out_settings)
         .nest("/v1/wachat", wachat_send)
         .nest("/v1/meta/suite", meta_suite)
         .nest("/v1/meta/token", meta_token)

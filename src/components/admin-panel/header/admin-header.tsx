@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Button, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
 import {
   useProject } from '@/context/project-context';
-import { SidebarTrigger } from '@/components/zoruui';
+import { SidebarTrigger } from '@/components/sabcrm/20ui/compat';
 
 import * as React from 'react';
 

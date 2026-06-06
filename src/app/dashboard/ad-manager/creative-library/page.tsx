@@ -9,7 +9,7 @@ import {
   Card,
   ZoruCardContent,
   Skeleton
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Upload, AlertCircle, Trash2, ExternalLink } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';

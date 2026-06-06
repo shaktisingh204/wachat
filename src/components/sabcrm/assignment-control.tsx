@@ -57,7 +57,7 @@ import {
   ZoruPopoverTrigger,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 import { assignRecordAction } from '@/app/actions/sabcrm.actions';
 

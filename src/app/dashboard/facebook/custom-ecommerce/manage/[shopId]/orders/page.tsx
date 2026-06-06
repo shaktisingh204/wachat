@@ -15,7 +15,7 @@ import {
   ZoruSheetHeader,
   ZoruSheetTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

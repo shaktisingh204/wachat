@@ -17,7 +17,7 @@ import {
   Separator,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 /**
  * <NewVoucherEntryClient> — moved from the previous `/new/page.tsx`.
  * Records a single voucher entry (debit + credit legs). The book form

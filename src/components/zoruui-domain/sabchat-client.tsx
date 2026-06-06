@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Alert, ZoruAlertDescription, ZoruAlertTitle, Card, Select } from '@/components/zoruui';
+import { Skeleton, Alert, ZoruAlertDescription, ZoruAlertTitle, Card, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,

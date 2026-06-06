@@ -8,7 +8,7 @@ import {
   Input,
   Label,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
@@ -24,7 +24,7 @@ import {
 import { addCustomDomain, verifyCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 export type StepperState =
   | { step: 'idle' }

@@ -4,7 +4,7 @@ import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { LayoutGrid, AlertCircle } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';
-import { EmptyState, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { EmptyState, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
 
 export const revalidate = 60; // Enable ISR caching
 

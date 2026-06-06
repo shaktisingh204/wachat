@@ -38,7 +38,7 @@ import {
   Label,
   Input,
   Switch,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

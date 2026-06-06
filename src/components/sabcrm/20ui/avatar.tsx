@@ -16,6 +16,7 @@
  */
 
 import * as React from 'react';
+import * as AvatarPrimitive from '@radix-ui/react-avatar';
 
 import {
   TwentyAvatar,
@@ -28,16 +29,95 @@ import './avatar.css';
 
 export type AvatarSize = TwentyAvatarSize;
 export type AvatarShape = TwentyAvatarShape;
-export type AvatarProps = TwentyAvatarProps;
 
 /**
- * The 20ui avatar — a pass-through wrapper over {@link TwentyAvatar}. Same props
- * (`name`, `src?`, `size`, `shape`, `initials?`, `className`); exists so callers
- * import avatars from the 20ui namespace alongside the rest of the system.
+ * Two shapes:
+ *  • the original prop-driven form ({@link TwentyAvatarProps}: `name`, `src?`, …)
+ *  • the ZoruUI-compatible compound form — `<Avatar><AvatarImage/><AvatarFallback/></Avatar>`
+ *    — where the children supply the image + initials, so `name` is not required.
+ *
+ * `name` is required only when no `children` are given, which keeps every existing
+ * prop-driven caller type-checking exactly as before.
+ */
+export type AvatarProps =
+  | TwentyAvatarProps
+  | (Omit<React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>, 'color'> & {
+      children: React.ReactNode;
+    });
+
+function isCompound(
+  props: AvatarProps,
+): props is React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
+  children: React.ReactNode;
+} {
+  return 'children' in props && props.children != null;
+}
+
+/**
+ * The 20ui avatar. Backward-compatible with the prop-driven {@link TwentyAvatar}
+ * (`name`, `src?`, `size`, `shape`, `initials?`, `className`) AND a drop-in for
+ * the ZoruUI compound API: when given `children`, it renders a Radix
+ * `Avatar.Root` so `<Avatar><AvatarImage/><AvatarFallback>JD</AvatarFallback></Avatar>`
+ * works. The compound container is a circle by default — pass `data-shape="square"`
+ * to square the corners, matching the prop-driven `shape`.
  */
 export function Avatar(props: AvatarProps): React.JSX.Element {
-  return <TwentyAvatar {...props} />;
+  if (isCompound(props)) {
+    const { className, children, ...rest } = props;
+    return (
+      <AvatarPrimitive.Root
+        className={['u-avatar', className].filter(Boolean).join(' ')}
+        {...rest}
+      >
+        {children}
+      </AvatarPrimitive.Root>
+    );
+  }
+  // Not the compound form (no `children`): a prop-driven avatar. The two union
+  // members overlap structurally, so TS won't narrow this via the negative
+  // branch of the guard — assert the prop-driven shape, which `isCompound`
+  // has ruled out at runtime.
+  return <TwentyAvatar {...(props as TwentyAvatarProps)} />;
 }
+
+/**
+ * Image slot for the compound {@link Avatar}. A token-styled Radix `Avatar.Image`
+ * that covers the frame (`object-cover`) and inherits the container's radius; it
+ * fades in subtly once the source loads (≤200ms, disabled under reduced-motion).
+ * Radix automatically unmounts it on load error so the {@link AvatarFallback}
+ * shows through. `alt` is forwarded — always pass one for accessibility.
+ */
+export const AvatarImage = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+>(function AvatarImage({ className, ...props }, ref) {
+  return (
+    <AvatarPrimitive.Image
+      ref={ref}
+      className={['u-avatar__img', className].filter(Boolean).join(' ')}
+      {...props}
+    />
+  );
+});
+
+/**
+ * Fallback slot for the compound {@link Avatar} — a token-styled Radix
+ * `Avatar.Fallback` with a muted background and centred initials, shown until the
+ * image loads (or permanently when there is no image). Children carry the text
+ * (e.g. `JD`), which is read by assistive tech, so no extra label is needed.
+ */
+export const AvatarFallback = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+>(function AvatarFallback({ className, ...props }, ref) {
+  return (
+    <AvatarPrimitive.Fallback
+      ref={ref}
+      className={['u-avatar__fallback', className].filter(Boolean).join(' ')}
+      {...props}
+    />
+  );
+});
 
 export interface AvatarGroupProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {

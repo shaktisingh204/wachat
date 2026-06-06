@@ -19,7 +19,7 @@ import {
   Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
+import { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   cn } from '@/lib/utils';
 import { format } from 'date-fns';

@@ -22,7 +22,7 @@ import {
   ScrollArea,
   Separator,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type {
   EmailInboxMessageDoc,
   EmailInboxThreadDoc,

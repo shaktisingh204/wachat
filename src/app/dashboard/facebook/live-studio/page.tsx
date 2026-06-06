@@ -41,7 +41,7 @@ import {
   Textarea,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,

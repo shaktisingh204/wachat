@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, ZoruCardContent, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Alert, ZoruAlertTitle, ZoruAlertDescription, Badge } from '@/components/zoruui';
+import { Button, Textarea, Card, ZoruCardContent, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Alert, ZoruAlertTitle, ZoruAlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { Download, Copy, AlertCircle } from 'lucide-react';
 import { useState, Component, ReactNode, ErrorInfo } from 'react';
 

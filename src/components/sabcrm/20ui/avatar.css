@@ -1,7 +1,62 @@
 /* 20ui · Avatar + AvatarGroup
-   Avatar itself is rendered by the shared `.st-avatar` primitive; the styles
-   here only cover the overlapping group + its "+N" overflow chip. The ring is a
-   surface-coloured outline so overlapping avatars read as distinct chips. */
+   The prop-driven Avatar is rendered by the shared `.st-avatar` primitive. The
+   `.u-avatar*` rules below cover (a) the ZoruUI-compatible *compound* form
+   (`<Avatar><AvatarImage/><AvatarFallback/></Avatar>`, built on Radix) and (b)
+   the overlapping group + its "+N" overflow chip. Rings are a surface-coloured
+   outline so overlapping avatars read as distinct chips. */
+
+/* ----- Compound Avatar (Radix Avatar.Root / Image / Fallback) -----
+   A 36px circular frame by default; one radius token, swapped to the square
+   corner radius via `data-shape="square"`. Both slots fill the frame and inherit
+   its radius, so the container owns the single source of truth for the shape. */
+:is(.ui20, .sabcrm-twenty) .u-avatar {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-muted, var(--st-bg-secondary));
+  user-select: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-avatar[data-shape='square'] {
+  border-radius: var(--st-radius);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-avatar__img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: inherit;
+  /* Emil: a subtle, quick fade-in once the image loads — no layout shift. */
+  animation: u-avatar-fade-in var(--u-dur-fast, 180ms) var(--u-ease-out, ease-out);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-avatar__fallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: var(--st-bg-muted, var(--st-bg-secondary));
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@keyframes u-avatar-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 :is(.ui20, .sabcrm-twenty) .u-avatar-group {
   display: inline-flex;
@@ -97,5 +152,8 @@
   }
   :is(.ui20, .sabcrm-twenty) .u-avatar-group__item:hover {
     transform: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-avatar__img {
+    animation: none;
   }
 }

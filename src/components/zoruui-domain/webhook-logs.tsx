@@ -24,7 +24,7 @@ import {
   Alert,
   ZoruAlertDescription as AlertDescription,
   ZoruAlertTitle as AlertTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

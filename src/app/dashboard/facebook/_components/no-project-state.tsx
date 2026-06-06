@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from "lucide-react";
 
 /**

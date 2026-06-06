@@ -14,7 +14,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
 import React,

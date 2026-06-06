@@ -17,7 +17,7 @@ import {
   ZoruSkeleton,
   ZoruStatCard,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import Link from 'next/link';

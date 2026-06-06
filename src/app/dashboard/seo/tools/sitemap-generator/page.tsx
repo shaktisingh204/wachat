@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Alert, ZoruAlertTitle, ZoruAlertDescription, Label } from '@/components/zoruui';
+import { Button, Input, Textarea, Alert, ZoruAlertTitle, ZoruAlertDescription, Label } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Info, Upload, Download } from 'lucide-react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   BarChart3,

@@ -9,7 +9,7 @@ import {
   Skeleton,
   useZoruToast,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useTransition, useState, useMemo, useEffect } from 'react';
 import {
   LoaderCircle,

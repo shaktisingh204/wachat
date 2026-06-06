@@ -27,7 +27,7 @@ import {
   ZoruAlertDescription,
   EmptyState,
   StatCard
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, AlertCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';

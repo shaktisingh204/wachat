@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
 import { LuEllipsis } from 'react-icons/lu';
 
 import * as React from 'react';

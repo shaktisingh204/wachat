@@ -13312,10 +13312,13 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url-shortener",
+ "wachat-ads-roadmap",
+ "wachat-ai-training",
  "wachat-analytics",
  "wachat-api-keys-admin",
  "wachat-broadcast",
  "wachat-calling",
+ "wachat-canned-messages",
  "wachat-chat-mark",
  "wachat-chat-read",
  "wachat-config",
@@ -13334,15 +13337,19 @@ dependencies = [
  "wachat-facebook-misc",
  "wachat-facebook-pages",
  "wachat-features",
+ "wachat-flow-events",
  "wachat-flows",
  "wachat-instagram",
+ "wachat-interactive-builder",
  "wachat-media",
  "wachat-meta-client",
  "wachat-number-routing",
+ "wachat-opt-out-settings",
  "wachat-pay",
  "wachat-payment-request",
  "wachat-projects",
  "wachat-public-api",
+ "wachat-quality-history",
  "wachat-queue",
  "wachat-rate-limit",
  "wachat-send",
@@ -13350,6 +13357,7 @@ dependencies = [
  "wachat-send-flows",
  "wachat-send-orders",
  "wachat-send-router",
+ "wachat-setup-kb",
  "wachat-templates",
  "wachat-templates-actions",
  "wachat-templates-categories",
@@ -18668,6 +18676,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c3082ca00d5a5ef149bb8b555a72ae84c9c59f7250f013ac822ac2e49b19c64"
 
 [[package]]
+name = "wachat-ab-testing"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-ads-accounts"
 version = "0.1.0"
 dependencies = [
@@ -18794,6 +18822,26 @@ dependencies = [
  "sha2 0.10.9",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "wachat-auto-reply-settings"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -18936,6 +18984,26 @@ dependencies = [
  "tracing",
  "wachat-meta-client",
  "wachat-types",
+]
+
+[[package]]
+name = "wachat-contact-merge"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -19316,7 +19384,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-integrations-hub"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-interactive-builder"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "wachat-link-generator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -19489,6 +19597,46 @@ dependencies = [
  "serde",
  "thiserror 1.0.69",
  "tracing",
+]
+
+[[package]]
+name = "wachat-project-agents"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "wachat-project-attributes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]
@@ -20176,6 +20324,26 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "wachat-widget-tracking"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]

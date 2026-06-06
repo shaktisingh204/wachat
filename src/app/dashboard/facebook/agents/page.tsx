@@ -30,7 +30,7 @@ import {
   Skeleton,
   Textarea,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

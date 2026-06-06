@@ -11,7 +11,7 @@ import {
   Avatar,
   ZoruAvatarFallback,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 

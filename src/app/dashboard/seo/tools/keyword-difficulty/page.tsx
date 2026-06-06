@@ -16,7 +16,7 @@ import {
   TableHead,
   TableCell,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { InfoIcon, Search, ExternalLink, Activity } from 'lucide-react';

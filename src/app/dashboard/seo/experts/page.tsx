@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectContent,
   SelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { Star, CheckCircle2, Briefcase, MapPin, Search, SlidersHorizontal } from 'lucide-react';
 
 const MOCK_EXPERTS = [

@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, Input } from '@/components/zoruui';
+import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useRef,

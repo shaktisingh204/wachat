@@ -15,7 +15,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ZoruSabChatWidgetGenerator } from '../_components/zoru-sabchat-widget-generator';
 import {
   useEffect,

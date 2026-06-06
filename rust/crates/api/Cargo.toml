@@ -58,6 +58,14 @@ wachat-public-api = { path = "../wachat-public-api" }
 wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
 wachat-number-routing = { path = "../wachat-number-routing" }
+wachat-canned-messages = { path = "../wachat-canned-messages" }
+wachat-ai-training = { path = "../wachat-ai-training" }
+wachat-interactive-builder = { path = "../wachat-interactive-builder" }
+wachat-setup-kb = { path = "../wachat-setup-kb" }
+wachat-ads-roadmap = { path = "../wachat-ads-roadmap" }
+wachat-quality-history = { path = "../wachat-quality-history" }
+wachat-flow-events = { path = "../wachat-flow-events" }
+wachat-opt-out-settings = { path = "../wachat-opt-out-settings" }
 crm-lookup = { path = "../crm-lookup" }
 crm-accounts = { path = "../crm-accounts" }
 crm-pipelines = { path = "../crm-pipelines" }

@@ -16,7 +16,7 @@ import {
     ZoruSelectValue,
     Skeleton,
     useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { format } from 'date-fns';
 import { AlertCircle } from 'lucide-react';

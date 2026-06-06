@@ -10,7 +10,7 @@ import {
   Input,
   ScrollArea,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import type { EmailInboxThreadDoc } from '@/lib/rust-client/email-inbox';
 
 export interface ConversationListProps {

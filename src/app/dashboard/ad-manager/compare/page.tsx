@@ -17,7 +17,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   GitCompareArrows,
   CircleAlert,
@@ -27,7 +27,7 @@ import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { listCampaigns } from '@/app/actions/ad-manager.actions';
 import { compareCampaigns } from '@/app/actions/ad-manager-features.actions';
 

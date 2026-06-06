@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Avatar, ZoruAvatarFallback, Card, useZoruToast } from '@/components/zoruui';
+import { Button, Textarea, Avatar, ZoruAvatarFallback, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 

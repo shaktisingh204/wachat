@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { Button, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { Button, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function ErrorBoundary({

@@ -114,6 +114,36 @@
   box-shadow: var(--u-focus-ring);
 }
 
+/* Compound sub-parts — <Alert><AlertTitle/><AlertDescription/></Alert>.       */
+/* Token-styled, static (no motion). AlertTitle = medium-weight heading line;  */
+/* AlertDescription = secondary body text. Both sit inside .u-alert__body.      */
+:is(.ui20, .sabcrm-twenty) .u-alert-title {
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+:is(.ui20, .sabcrm-twenty) .u-alert-title + .u-alert-description {
+  margin-top: 2px;
+}
+:is(.ui20, .sabcrm-twenty) .u-alert-description {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  line-height: 1.5;
+}
+:is(.ui20, .sabcrm-twenty) .u-alert-description p {
+  margin: 0;
+  line-height: 1.5;
+}
+:is(.ui20, .sabcrm-twenty) .u-alert-description a {
+  color: var(--u-alert-fg);
+  font-weight: var(--st-fw-medium);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 @keyframes u-alert-in {
   from {
     opacity: 0;

@@ -17,7 +17,7 @@ import {
   ZoruPageTitle,
   Input,
   Checkbox,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';

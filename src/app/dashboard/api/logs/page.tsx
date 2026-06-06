@@ -15,7 +15,7 @@ import {
   ZoruAlertDescription,
   Card,
   ZoruCardContent,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { LogFilter } from './components/log-filter';
 import { LogTimeline } from './components/log-timeline';

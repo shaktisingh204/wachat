@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   LayoutGrid,
   Table as TableIcon,

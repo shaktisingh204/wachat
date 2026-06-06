@@ -6,7 +6,7 @@ import {
   ZoruAlertDescription,
   ZoruAlertTitle,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 
 export default function ApiKeysError({

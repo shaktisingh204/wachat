@@ -21,7 +21,7 @@ import {
   Separator,
   Progress,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity, BarChart2 } from 'lucide-react';
 
 interface Props {

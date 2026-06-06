@@ -10,7 +10,7 @@ import {
   Avatar,
   ZoruAvatarFallback,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   MessageSquare,
   Send,

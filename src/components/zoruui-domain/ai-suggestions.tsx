@@ -12,7 +12,7 @@ import {
   Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Wand2, LoaderCircle, AlertCircle } from 'lucide-react';

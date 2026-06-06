@@ -25,7 +25,7 @@ import {
   ZoruAlertDialogTrigger,
   Card,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
 import { Plus,
   Trash2,

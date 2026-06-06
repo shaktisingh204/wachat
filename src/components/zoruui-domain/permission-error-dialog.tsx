@@ -10,7 +10,7 @@ import {
   ZoruAlertDescription,
   ZoruAlertTitle,
   Button,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId,
   Project } from '@/lib/definitions';

@@ -13,7 +13,7 @@ import {
   ZoruSelectValue,
   ZoruSelectContent,
   ZoruSelectItem,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   X,

@@ -18,7 +18,7 @@ import {
   Alert,
   ZoruAlertDescription,
   ZoruAlertTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus,
   Trash2,

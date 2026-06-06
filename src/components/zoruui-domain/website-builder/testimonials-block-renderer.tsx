@@ -9,7 +9,7 @@ import {
   Avatar,
   ZoruAvatarImage,
   ZoruAvatarFallback,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import Image from 'next/image';
 import React from 'react';
 

@@ -11,7 +11,7 @@ import {
   ZoruCardFooter,
   ZoruCardHeader,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,

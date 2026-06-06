@@ -17,7 +17,7 @@ import {
   Badge,
   Separator,
   EmptyState
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { Shield, Building2, Key, Clock, ChevronRight, Settings, LayoutDashboard, Globe } from 'lucide-react';
 import { redirect } from 'next/navigation';

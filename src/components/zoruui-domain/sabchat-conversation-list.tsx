@@ -9,7 +9,7 @@ import {
   Skeleton,
   Button,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Search,

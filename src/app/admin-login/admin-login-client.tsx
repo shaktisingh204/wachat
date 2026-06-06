@@ -19,7 +19,7 @@ import {
     ZoruCardContent,
     Alert,
     ZoruAlertDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 
 // --- Error Boundary ---
 class ErrorBoundary extends Component<{ children: ReactNode, fallback: ReactNode }, { hasError: boolean }> {

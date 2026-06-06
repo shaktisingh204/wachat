@@ -34,7 +34,7 @@ import {
   Skeleton,
   DataTable,
   zoruSonnerToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useCallback, useEffect, useState, useTransition, useMemo } from 'react';
 import { AlertCircle, ExternalLink, Plus, Radar, RefreshCw, Trash2, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';

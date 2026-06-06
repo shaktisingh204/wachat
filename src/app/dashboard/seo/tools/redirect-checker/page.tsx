@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, Badge, cn, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { AlertCircle, MoveDown, Info } from 'lucide-react';

@@ -22,7 +22,7 @@ import {
   ZoruTableCell,
   Badge,
   EmptyState,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, TriangleAlert, Copy, Key } from 'lucide-react';
 
 interface KeyRow {

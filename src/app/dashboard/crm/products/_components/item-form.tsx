@@ -11,7 +11,7 @@ import {
   ZoruAlert,
   ZoruAlertTitle,
   ZoruAlertDescription
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { saveCrmProduct, getCrmProductById } from '@/app/actions/crm-products.actions';
 import { AlertCircle } from 'lucide-react';
 

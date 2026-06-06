@@ -1,12 +1,12 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Label, Button } from '@/components/zoruui';
+import { Card, ZoruCardContent, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Copy, Check, Wand2, Loader2, Download, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 import { generateAdCopyAction } from './actions';
-import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
 
 function CopyText({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

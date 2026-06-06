@@ -20,7 +20,7 @@ import {
   ZoruAvatarFallback,
   ZoruAvatarImage,
   Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';

@@ -11,7 +11,7 @@ import {
   ScrollArea,
   Avatar,
   ZoruAvatarFallback,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,

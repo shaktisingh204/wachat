@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, ZoruAlertTitle, ZoruAlertDescription, Button } from '@/components/zoruui';
+import { Alert, ZoruAlertTitle, ZoruAlertDescription, Button } from '@/components/sabcrm/20ui/compat';
 import { CircleAlert, RefreshCw } from 'lucide-react';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 

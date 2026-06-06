@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, ZoruAlertDescription, EmptyState, ZoruPageEyebrow, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton, useZoruToast } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, EmptyState, ZoruPageEyebrow, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Settings, Sparkles, Clock3, AlertCircle, ShieldAlert, UserCog, Globe2, ClipboardList } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';

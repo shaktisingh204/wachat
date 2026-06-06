@@ -29,7 +29,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   ChartBar,
   CircleAlert,

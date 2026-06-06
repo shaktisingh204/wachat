@@ -83,6 +83,32 @@ export function Alert({
   );
 }
 
+/**
+ * Compound sub-parts so ZoruUI/shadcn-style usages work as a drop-in:
+ *   <Alert><AlertTitle/><AlertDescription/></Alert>
+ * These render *inside* an Alert's `children` (which lands in `.u-alert__body`).
+ * Token-styled only; no motion (alerts are static).
+ */
+
+export type AlertTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
+
+/** A medium-weight heading line for a compound Alert. Matches ZoruUI AlertTitle. */
+export function AlertTitle({ className, ...rest }: AlertTitleProps): React.JSX.Element {
+  const cls = ['u-alert-title', className].filter(Boolean).join(' ');
+  return <h5 className={cls} {...rest} />;
+}
+
+export type AlertDescriptionProps = React.HTMLAttributes<HTMLDivElement>;
+
+/** Secondary body text for a compound Alert. Matches ZoruUI AlertDescription. */
+export function AlertDescription({
+  className,
+  ...rest
+}: AlertDescriptionProps): React.JSX.Element {
+  const cls = ['u-alert-description', className].filter(Boolean).join(' ');
+  return <div className={cls} {...rest} />;
+}
+
 export interface CalloutProps extends React.HTMLAttributes<HTMLDivElement> {
   tone?: FeedbackTone;
   /** Optional leading icon (defaults to the tone icon; pass `null` to hide). */

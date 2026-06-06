@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useProject } from '@/context/project-context';
 import { Bell, Sparkles } from 'lucide-react';

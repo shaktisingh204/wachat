@@ -13,7 +13,7 @@ import {
   Checkbox,
   Label,
   Progress,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 /**

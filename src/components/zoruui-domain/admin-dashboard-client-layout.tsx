@@ -13,7 +13,7 @@ import {
   ZoruAvatarFallback,
   Skeleton,
   cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -27,7 +27,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarProvider,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { LayoutDashboard,
   ShieldCheck,

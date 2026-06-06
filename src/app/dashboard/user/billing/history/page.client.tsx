@@ -9,7 +9,7 @@ import {
   ZoruAlert,
   ZoruAlertTitle,
   ZoruAlertDescription,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

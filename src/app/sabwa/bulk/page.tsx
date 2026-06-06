@@ -41,7 +41,7 @@ import {
   ZoruTooltipTrigger,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -78,7 +78,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Slider } from '@/components/zoruui';
+import { Slider } from '@/components/sabcrm/20ui/compat';
 import {
   SabFilePickerButton,
   type SabFilePick,

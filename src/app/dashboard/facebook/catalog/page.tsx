@@ -17,7 +17,7 @@ import {
   Input,
   Skeleton,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

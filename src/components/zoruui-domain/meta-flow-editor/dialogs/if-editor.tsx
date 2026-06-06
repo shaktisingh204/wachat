@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
 import { Lightbulb } from 'lucide-react';
 
 interface IfEditorProps {

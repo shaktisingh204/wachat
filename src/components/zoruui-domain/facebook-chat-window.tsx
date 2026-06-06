@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';

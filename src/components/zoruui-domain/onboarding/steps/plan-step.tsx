@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Check,

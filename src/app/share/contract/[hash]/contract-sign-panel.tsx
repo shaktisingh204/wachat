@@ -16,7 +16,7 @@ import {
   ZoruCardTitle,
   Input,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { SignaturePad } from '@/components/share/signature-pad';
 import { signContract } from '@/app/actions/public-contract.actions';
 

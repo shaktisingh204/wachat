@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button, ScrollArea } from '@/components/zoruui';
+import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   Ban,

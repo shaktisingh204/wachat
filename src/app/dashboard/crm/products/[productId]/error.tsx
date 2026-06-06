@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription, ZoruButton } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription, ZoruButton } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

@@ -9,7 +9,7 @@ import {
   Badge,
   Skeleton,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Search,

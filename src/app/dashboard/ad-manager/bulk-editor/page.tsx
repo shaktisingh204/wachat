@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
   Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/compat';
 import {
   Table2,
   Upload,
