@@ -1,15 +1,48 @@
 "use client";
 
 import React from "react";
-import { Plus, Search, ArrowRightLeft, Truck, PackageCheck, AlertTriangle, MoreHorizontal, ArrowRight } from "lucide-react";
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
-import { StatCard } from '@/components/sabcrm/20ui';
+import {
+  Plus,
+  Search,
+  ArrowRightLeft,
+  Truck,
+  PackageCheck,
+  AlertTriangle,
+  MoreHorizontal,
+  ArrowRight,
+} from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Input,
+  Field,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  type BadgeTone,
+  StatCard,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/sabcrm/20ui";
 
 const mockTransfers = [
   {
@@ -59,82 +92,100 @@ const mockTransfers = [
   },
 ];
 
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Delivered: "success",
+  "In Transit": "info",
+  Preparing: "neutral",
+  Delayed: "danger",
+  Draft: "neutral",
+};
+
 export default function TransfersPage() {
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Delivered': return <Badge variant="default">{status}</Badge>;
-      case 'In Transit': return <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-200">{status}</Badge>;
-      case 'Preparing': return <Badge variant="outline">{status}</Badge>;
-      case 'Delayed': return <Badge variant="destructive">{status}</Badge>;
-      case 'Draft': return <Badge variant="secondary" className="opacity-50">{status}</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
-    }
+    const tone = STATUS_TONE[status] ?? "neutral";
+    return <Badge tone={tone}>{status}</Badge>;
   };
 
   const getPriorityIcon = (priority: string) => {
-    if (priority === 'Urgent') return <AlertTriangle className="h-3 w-3 text-red-500 mr-1" />;
-    if (priority === 'High') return <AlertTriangle className="h-3 w-3 text-orange-500 mr-1" />;
+    if (priority === "Urgent") {
+      return (
+        <AlertTriangle
+          className="h-3 w-3 mr-1 text-[var(--st-danger)]"
+          aria-hidden="true"
+        />
+      );
+    }
+    if (priority === "High") {
+      return (
+        <AlertTriangle
+          className="h-3 w-3 mr-1 text-[var(--st-warn)]"
+          aria-hidden="true"
+        />
+      );
+    }
     return null;
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader
-        title="Stock Transfers"
-        description="Manage inventory movement between your warehouses and retail locations."
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Transfer
-        </Button>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Stock Transfers</PageTitle>
+          <PageDescription>
+            Manage inventory movement between your warehouses and retail locations.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
+            New Transfer
+          </Button>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Active Transfers"
+          label="Active Transfers"
           value="12"
-          icon={<ArrowRightLeft className="h-4 w-4 text-muted-foreground" />}
-          description="Preparing or In Transit"
+          icon={ArrowRightLeft}
+          delta={{ value: "Preparing or In Transit", tone: "neutral" }}
         />
         <StatCard
-          title="Items In Transit"
+          label="Items In Transit"
           value="2,450"
-          icon={<Truck className="h-4 w-4 text-muted-foreground" />}
-          trend="+300 from last week"
-          trendUp={true}
+          icon={Truck}
+          delta={{ value: "+300 from last week", tone: "up" }}
         />
         <StatCard
-          title="Delivered (MTD)"
+          label="Delivered (MTD)"
           value="45"
-          icon={<PackageCheck className="h-4 w-4 text-muted-foreground" />}
-          description="Successfully received"
+          icon={PackageCheck}
+          delta={{ value: "Successfully received", tone: "neutral" }}
         />
         <StatCard
-          title="Delayed Shipments"
+          label="Delayed Shipments"
           value="2"
-          icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />}
-          trend="Needs attention"
-          trendUp={false}
+          icon={AlertTriangle}
+          delta={{ value: "Needs attention", tone: "down" }}
         />
       </div>
 
-      <Card className="col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Transfer History</CardTitle>
             <CardDescription>
               Track internal stock movements across your supply chain network.
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <Field className="w-[200px] sm:w-[300px]">
               <Input
                 type="search"
                 placeholder="Search transfers..."
-                className="w-[200px] sm:w-[300px] pl-8"
+                iconLeft={Search}
+                aria-label="Search transfers"
               />
-            </div>
+            </Field>
             <Button variant="outline">Filters</Button>
           </div>
         </CardHeader>
@@ -148,7 +199,7 @@ export default function TransfersPage() {
                 <Th>Items</Th>
                 <Th>Priority</Th>
                 <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
@@ -156,13 +207,16 @@ export default function TransfersPage() {
                 <Tr key={transfer.id}>
                   <Td className="font-medium">{transfer.id}</Td>
                   <Td>
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
                       <span className="truncate max-w-[120px]">{transfer.origin}</span>
-                      <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                      <ArrowRight
+                        className="h-3 w-3 flex-shrink-0 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
                       <span className="truncate max-w-[120px]">{transfer.destination}</span>
                     </div>
                   </Td>
-                  <Td className="text-muted-foreground">{transfer.date}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">{transfer.date}</Td>
                   <Td>{transfer.items}</Td>
                   <Td>
                     <div className="flex items-center">
@@ -171,13 +225,15 @@ export default function TransfersPage() {
                     </div>
                   </Td>
                   <Td>{getStatusBadge(transfer.status)}</Td>
-                  <Td className="text-right">
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton
+                          label={`Actions for ${transfer.id}`}
+                          icon={MoreHorizontal}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -185,7 +241,7 @@ export default function TransfersPage() {
                         <DropdownMenuItem>Print packing slip</DropdownMenuItem>
                         <DropdownMenuItem>Update status</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">Cancel transfer</DropdownMenuItem>
+                        <DropdownMenuItem variant="danger">Cancel transfer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </Td>
@@ -194,11 +250,15 @@ export default function TransfersPage() {
             </TBody>
           </Table>
         </CardBody>
-        <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
+        <CardFooter className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
           <div>Showing 1 to {mockTransfers.length} of 84 transfers</div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm">Next</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm">
+              Next
+            </Button>
           </div>
         </CardFooter>
       </Card>

@@ -1,19 +1,29 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
     Activity,
     CreditCard,
     DollarSign,
-    Package,
-    ArrowUpRight,
-    ArrowDownRight,
-    Users
+    ExternalLink,
+    Users,
 } from 'lucide-react';
 
-import { Card, CardBody, CardHeader, CardTitle, Button, Badge, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    StatCard,
+} from '@/components/sabcrm/20ui';
 
 import { getStorefront } from '@/app/actions/sabshop.actions';
 
@@ -23,6 +33,29 @@ interface StorefrontDoc {
     displayName: string;
     currency?: string;
     status?: string;
+}
+
+const SALES_BARS = [40, 25, 60, 80, 50, 90, 75, 45, 65, 85, 55, 70];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const RECENT_ORDERS: Array<{
+    id: string;
+    customer: string;
+    email: string;
+    amount: string;
+    status: 'Paid' | 'Pending' | 'Unpaid';
+}> = [
+    { id: '#1024', customer: 'Olivia Martin', email: 'olivia.m@email.com', amount: '₹1,999.00', status: 'Paid' },
+    { id: '#1023', customer: 'Jackson Lee', email: 'lee@example.com', amount: '₹39.00', status: 'Pending' },
+    { id: '#1022', customer: 'Isabella Nguyen', email: 'isabella.n@email.com', amount: '₹299.00', status: 'Paid' },
+    { id: '#1021', customer: 'William Kim', email: 'will@email.com', amount: '₹99.00', status: 'Unpaid' },
+    { id: '#1020', customer: 'Sofia Davis', email: 'sofia.d@email.com', amount: '₹39.00', status: 'Paid' },
+];
+
+function orderTone(status: 'Paid' | 'Pending' | 'Unpaid'): 'success' | 'warning' | 'danger' {
+    if (status === 'Paid') return 'success';
+    if (status === 'Pending') return 'warning';
+    return 'danger';
 }
 
 export default function StorefrontOverviewPage(): React.JSX.Element {
@@ -39,119 +72,90 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
 
     return (
         <div className="flex flex-col gap-6">
-            <header className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
-                        {sf ? sf.displayName : 'Storefront Overview'}
-                    </h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
-                        Here's what's happening with your store today.
-                    </p>
-                </div>
-                <div className="flex gap-2">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>{sf ? sf.displayName : 'Storefront Overview'}</PageTitle>
+                    <PageDescription>Here is what is happening with your store today.</PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
                     {sf && (
-                        <Button size="sm" variant="outline" asChild>
-                            <Link href={`/store/${sf.slug}`} target="_blank">View Live Store</Link>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            iconRight={ExternalLink}
+                            onClick={() => window.open(`/store/${sf.slug}`, '_blank', 'noopener,noreferrer')}
+                        >
+                            View Live Store
                         </Button>
                     )}
-                </div>
-            </header>
+                </PageActions>
+            </PageHeader>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                        <DollarSign className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </CardHeader>
-                    <CardBody>
-                        <div className="text-2xl font-bold">₹45,231.89</div>
-                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
-                            <ArrowUpRight className="h-3 w-3" />
-                            +20.1% from last month
-                        </p>
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Orders</CardTitle>
-                        <CreditCard className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </CardHeader>
-                    <CardBody>
-                        <div className="text-2xl font-bold">+2350</div>
-                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
-                            <ArrowUpRight className="h-3 w-3" />
-                            +180.1% from last month
-                        </p>
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                        <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </CardHeader>
-                    <CardBody>
-                        <div className="text-2xl font-bold">+12,234</div>
-                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
-                            <ArrowUpRight className="h-3 w-3" />
-                            +19% from last month
-                        </p>
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-                        <Users className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </CardHeader>
-                    <CardBody>
-                        <div className="text-2xl font-bold">+573</div>
-                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-red-500">
-                            <ArrowDownRight className="h-3 w-3" />
-                            -12% since last hour
-                        </p>
-                    </CardBody>
-                </Card>
+                <StatCard
+                    label="Total Revenue"
+                    value="₹45,231.89"
+                    icon={DollarSign}
+                    delta={{ value: '+20.1% from last month', tone: 'up' }}
+                />
+                <StatCard
+                    label="Orders"
+                    value="+2350"
+                    icon={CreditCard}
+                    delta={{ value: '+180.1% from last month', tone: 'up' }}
+                />
+                <StatCard
+                    label="Sales"
+                    value="+12,234"
+                    icon={Activity}
+                    delta={{ value: '+19% from last month', tone: 'up' }}
+                />
+                <StatCard
+                    label="Active Now"
+                    value="+573"
+                    icon={Users}
+                    delta={{ value: '-12% since last hour', tone: 'down' }}
+                />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
+                <Card className="lg:col-span-4">
                     <CardHeader>
                         <CardTitle>Sales Overview</CardTitle>
                     </CardHeader>
-                    <CardBody className="pl-2">
-                        <div className="h-[300px] w-full flex items-end gap-2 px-4">
-                            {/* Fake bar chart using divs */}
-                            {[40, 25, 60, 80, 50, 90, 75, 45, 65, 85, 55, 70].map((h, i) => (
-                                <div key={i} className="bg-[var(--st-text)] flex-1 rounded-t-sm transition-all hover:bg-opacity-80" style={{ height: `${h}%` }}></div>
+                    <CardBody>
+                        <div className="flex h-[300px] w-full items-end gap-2 px-4">
+                            {SALES_BARS.map((h, i) => (
+                                <div
+                                    key={MONTHS[i]}
+                                    className="flex-1 rounded-t-[var(--st-radius)] bg-[var(--st-accent)] transition-all hover:opacity-80"
+                                    style={{ height: `${h}%` }}
+                                />
                             ))}
                         </div>
-                        <div className="flex justify-between px-4 mt-2 text-xs text-[var(--st-text-secondary)]">
-                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                            <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                        <div className="mt-2 flex justify-between px-4 text-xs text-[var(--st-text-secondary)]">
+                            {MONTHS.map(m => (
+                                <span key={m}>{m}</span>
+                            ))}
                         </div>
                     </CardBody>
                 </Card>
-                
-                <Card className="col-span-3">
+
+                <Card className="lg:col-span-3">
                     <CardHeader>
                         <CardTitle>Recent Orders</CardTitle>
                     </CardHeader>
                     <CardBody>
-                        <div className="space-y-6">
-                            {[
-                                { id: '#1024', customer: 'Olivia Martin', email: 'olivia.m@email.com', amount: '₹1,999.00', status: 'Paid' },
-                                { id: '#1023', customer: 'Jackson Lee', email: 'lee@example.com', amount: '₹39.00', status: 'Pending' },
-                                { id: '#1022', customer: 'Isabella Nguyen', email: 'isabella.n@email.com', amount: '₹299.00', status: 'Paid' },
-                                { id: '#1021', customer: 'William Kim', email: 'will@email.com', amount: '₹99.00', status: 'Unpaid' },
-                                { id: '#1020', customer: 'Sofia Davis', email: 'sofia.d@email.com', amount: '₹39.00', status: 'Paid' },
-                            ].map(order => (
+                        <div className="flex flex-col gap-6">
+                            {RECENT_ORDERS.map(order => (
                                 <div key={order.id} className="flex items-center">
-                                    <div className="ml-0 space-y-1">
-                                        <p className="text-sm font-medium leading-none">{order.customer}</p>
+                                    <div className="flex flex-col gap-1">
+                                        <p className="text-sm font-medium leading-none text-[var(--st-text)]">{order.customer}</p>
                                         <p className="text-sm text-[var(--st-text-secondary)]">{order.email}</p>
                                     </div>
                                     <div className="ml-auto flex items-center gap-4">
-                                        <Badge variant={order.status === 'Paid' ? 'success' : order.status === 'Pending' ? 'warning' : 'destructive'}>{order.status}</Badge>
-                                        <div className="font-medium">{order.amount}</div>
+                                        <Badge tone={orderTone(order.status)}>{order.status}</Badge>
+                                        <div className="font-medium text-[var(--st-text)]">{order.amount}</div>
                                     </div>
                                 </div>
                             ))}

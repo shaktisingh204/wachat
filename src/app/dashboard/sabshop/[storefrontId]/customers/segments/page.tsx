@@ -1,33 +1,53 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Users, 
-  Filter, 
-  Plus, 
-  MoreHorizontal, 
-  Settings, 
-  Trash2, 
-  PenTool, 
+import {
+  Users,
+  Filter,
+  Plus,
+  MoreHorizontal,
+  Settings,
+  Trash2,
+  PenTool,
   Sparkles,
   Search,
-  Activity
+  Activity,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/sabcrm/20ui';
-import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+  Button,
+  IconButton,
+  Badge,
+  Field,
+  Input,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from "@/components/sabcrm/20ui";
 
 const mockSegments = [
   {
     id: "seg_1",
     name: "High Spenders",
-    description: "Customers who spent > $1000 in the last 30 days",
+    description: "Customers who spent more than $1000 in the last 30 days",
     customerCount: 1245,
     status: "Active",
     lastUpdated: "2 hours ago",
-    rules: 2
+    rules: 2,
   },
   {
     id: "seg_2",
@@ -36,7 +56,7 @@ const mockSegments = [
     customerCount: 389,
     status: "Active",
     lastUpdated: "1 day ago",
-    rules: 3
+    rules: 3,
   },
   {
     id: "seg_3",
@@ -45,7 +65,7 @@ const mockSegments = [
     customerCount: 150,
     status: "Active",
     lastUpdated: "5 mins ago",
-    rules: 1
+    rules: 1,
   },
   {
     id: "seg_4",
@@ -54,162 +74,147 @@ const mockSegments = [
     customerCount: 5200,
     status: "Inactive",
     lastUpdated: "2 months ago",
-    rules: 4
-  }
+    rules: 4,
+  },
 ];
 
 export default function CustomerSegmentsPage() {
   const [search, setSearch] = useState("");
 
-  const filteredSegments = mockSegments.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredSegments = mockSegments.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="flex w-full flex-col gap-6 p-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)] tracking-tight flex items-center gap-2">
-            <Filter className="w-6 h-6 text-indigo-500" />
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <Filter className="w-6 h-6 text-[var(--st-accent)]" aria-hidden="true" />
             Customer Segments
-          </h1>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
+          </PageTitle>
+          <PageDescription>
             Build dynamic segments using powerful rule criteria to target specific audiences.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500" />
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={Sparkles}>
             AI Generator
           </Button>
-          <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
+          <Button variant="primary" iconLeft={Plus}>
             Create Segment
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardBody className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-500/10 rounded-[var(--st-radius)]">
-                <Users className="w-5 h-5 text-indigo-500" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Segmented</p>
-                <p className="text-2xl font-bold text-[var(--st-text)]">6,984</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardBody className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-500/10 rounded-[var(--st-radius)]">
-                <Activity className="w-5 h-5 text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Active Rules</p>
-                <p className="text-2xl font-bold text-[var(--st-text)]">24</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/10 rounded-[var(--st-radius)]">
-                <Settings className="w-5 h-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Dynamic Updates</p>
-                <p className="text-2xl font-bold text-[var(--st-text)]">Real-time</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+        <StatCard
+          icon={Users}
+          label="Total Segmented"
+          value="6,984"
+          accent="var(--st-accent)"
+        />
+        <StatCard
+          icon={Activity}
+          label="Active Rules"
+          value="24"
+          accent="var(--st-status-ok)"
+        />
+        <StatCard
+          icon={Settings}
+          label="Dynamic Updates"
+          value="Real-time"
+          accent="var(--st-info)"
+        />
       </div>
 
-      <Card>
+      <Card padding="none">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--st-border)] pb-4">
           <div>
             <CardTitle>All Segments</CardTitle>
             <CardDescription>Manage and track your customer segments.</CardDescription>
           </div>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--st-text-secondary)]" />
-            <Input 
-              placeholder="Search segments..." 
-              className="pl-9"
+          <Field className="w-full sm:w-72">
+            <Input
+              iconLeft={Search}
+              placeholder="Search segments..."
+              aria-label="Search segments"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
+          </Field>
         </CardHeader>
         <CardBody className="p-0">
-          <Table>
-            <THead>
-              <Tr>
-                <Th>Segment Name</Th>
-                <Th>Description</Th>
-                <Th>Rules</Th>
-                <Th>Customers</Th>
-                <Th>Status</Th>
-                <Th>Last Updated</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {filteredSegments.length > 0 ? (
-                filteredSegments.map((segment) => (
+          {filteredSegments.length > 0 ? (
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Segment Name</Th>
+                  <Th>Description</Th>
+                  <Th>Rules</Th>
+                  <Th>Customers</Th>
+                  <Th>Status</Th>
+                  <Th>Last Updated</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {filteredSegments.map((segment) => (
                   <Tr key={segment.id}>
-                    <Td className="font-medium text-[var(--st-text)]">
-                      {segment.name}
-                    </Td>
-                    <Td className="text-[var(--st-text-tertiary)]">
-                      {segment.description}
-                    </Td>
+                    <Td className="font-medium text-[var(--st-text)]">{segment.name}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">{segment.description}</Td>
                     <Td>
-                      <Badge variant="outline" className="bg-[var(--st-bg-secondary)] font-mono">
+                      <Badge tone="neutral" kind="outline" className="font-mono">
                         {segment.rules} Rules
                       </Badge>
                     </Td>
+                    <Td>{segment.customerCount.toLocaleString()}</Td>
                     <Td>
-                      {segment.customerCount.toLocaleString()}
-                    </Td>
-                    <Td>
-                      <Badge variant={segment.status === "Active" ? "default" : "secondary"} className={segment.status === "Active" ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20" : ""}>
+                      <Badge tone={segment.status === "Active" ? "success" : "neutral"} dot>
                         {segment.status}
                       </Badge>
                     </Td>
-                    <Td className="text-[var(--st-text-tertiary)]">
-                      {segment.lastUpdated}
-                    </Td>
-                    <Td className="text-right">
+                    <Td className="text-[var(--st-text-secondary)]">{segment.lastUpdated}</Td>
+                    <Td align="right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <PenTool className="w-4 h-4 text-[var(--st-text-tertiary)]" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4 text-[var(--st-text-tertiary)]" />
-                        </Button>
+                        <IconButton
+                          label={`Edit ${segment.name}`}
+                          icon={PenTool}
+                          size="sm"
+                        />
+                        <IconButton
+                          label={`Delete ${segment.name}`}
+                          icon={Trash2}
+                          variant="danger"
+                          size="sm"
+                        />
+                        <IconButton
+                          label={`More actions for ${segment.name}`}
+                          icon={MoreHorizontal}
+                          size="sm"
+                        />
                       </div>
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr>
-                  <Td colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
-                    No segments found matching "{search}"
-                  </Td>
-                </Tr>
-              )}
-            </TBody>
-          </Table>
+                ))}
+              </TBody>
+            </Table>
+          ) : (
+            <EmptyState
+              icon={Filter}
+              title="No segments found"
+              description={
+                search
+                  ? `No segments match "${search}". Try a different search term.`
+                  : "Create your first segment to start targeting audiences."
+              }
+              action={
+                <Button variant="primary" iconLeft={Plus}>
+                  Create Segment
+                </Button>
+              }
+            />
+          )}
         </CardBody>
       </Card>
     </div>

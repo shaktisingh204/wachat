@@ -1,8 +1,33 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Badge, Button, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
-import { Filter, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  type BadgeTone,
+  Button,
+  IconButton,
+  EmptyState,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from "@/components/sabcrm/20ui";
+import { Download, ChevronLeft, ChevronRight, Eye, Inbox } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Mock Data
@@ -20,45 +45,59 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("all");
 
-  const filteredOrders = MOCK_ORDERS.filter(order => {
+  const filteredOrders = MOCK_ORDERS.filter((order) => {
     if (activeTab === "all") return true;
     if (activeTab === "unfulfilled") return order.status === "Unfulfilled";
     if (activeTab === "unpaid") return order.payment === "Unpaid";
     return true;
   });
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch(status) {
-      case "Fulfilled": return "default";
-      case "Unfulfilled": return "secondary";
-      case "Cancelled": return "destructive";
-      default: return "outline";
+  const getStatusBadgeTone = (status: string): BadgeTone => {
+    switch (status) {
+      case "Fulfilled":
+        return "success";
+      case "Unfulfilled":
+        return "warning";
+      case "Cancelled":
+        return "danger";
+      default:
+        return "neutral";
     }
   };
-  
-  const getPaymentBadgeVariant = (payment: string) => {
-    switch(payment) {
-      case "Paid": return "default";
-      case "Unpaid": return "destructive";
-      case "Refunded": return "secondary";
-      default: return "outline";
+
+  const getPaymentBadgeTone = (payment: string): BadgeTone => {
+    switch (payment) {
+      case "Paid":
+        return "success";
+      case "Unpaid":
+        return "danger";
+      case "Refunded":
+        return "neutral";
+      default:
+        return "neutral";
     }
+  };
+
+  const openOrder = (orderId: string) => {
+    router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${orderId}`);
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Orders</h1>
-          <p className="text-[var(--st-text-secondary)] mt-1 text-sm">Manage and track your storefront orders.</p>
-        </div>
-        <Button onClick={() => console.log("Export")} variant="outline" className="gap-2">
-          <Filter className="w-4 h-4" /> Export
-        </Button>
-      </div>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Orders</PageTitle>
+          <PageDescription>Manage and track your storefront orders.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={Download} onClick={() => console.log("Export")}>
+            Export
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader>
           <CardTitle>Order History</CardTitle>
           <CardDescription>View all recent orders from your customers.</CardDescription>
         </CardHeader>
@@ -71,71 +110,76 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
                 <TabsTrigger value="unpaid">Unpaid</TabsTrigger>
               </TabsList>
             </div>
-            
-            <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
-              <Table>
-                <THead className="bg-[var(--st-bg-secondary)]">
-                  <Tr>
-                    <Th className="w-[100px]">Order</Th>
-                    <Th>Date</Th>
-                    <Th>Customer</Th>
-                    <Th>Fulfillment</Th>
-                    <Th>Payment</Th>
-                    <Th className="text-right">Total</Th>
-                    <Th className="w-[80px]"></Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {filteredOrders.length > 0 ? (
-                    filteredOrders.map((order) => (
-                      <Tr 
-                        key={order.id} 
-                        className="hover:bg-[var(--st-bg-muted)] cursor-pointer transition-colors" 
-                        onClick={() => router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)}
-                      >
-                        <Td className="font-medium text-[var(--st-accent)]">{order.id}</Td>
-                        <Td className="text-[var(--st-text-secondary)]">{order.date}</Td>
-                        <Td className="font-medium">{order.customer}</Td>
-                        <Td>
-                          <Badge variant={getStatusBadgeVariant(order.status) as any}>{order.status}</Badge>
-                        </Td>
-                        <Td>
-                          <Badge variant={getPaymentBadgeVariant(order.payment) as any}>{order.payment}</Badge>
-                        </Td>
-                        <Td className="text-right font-medium">{order.total}</Td>
-                        <Td>
-                          <Button variant="ghost" size="icon" className="hover:bg-[var(--st-bg-secondary)]" onClick={(e) => { 
-                            e.stopPropagation(); 
-                            router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)
-                          }}>
-                            <Eye className="w-4 h-4 text-[var(--st-text-secondary)]" />
-                          </Button>
-                        </Td>
-                      </Tr>
-                    ))
-                  ) : (
-                    <Tr>
-                      <Td colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
-                        No orders found.
+          </Tabs>
+
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th width={100}>Order</Th>
+                  <Th>Date</Th>
+                  <Th>Customer</Th>
+                  <Th>Fulfillment</Th>
+                  <Th>Payment</Th>
+                  <Th align="right">Total</Th>
+                  <Th width={80}>
+                    <span className="sr-only">Actions</span>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <Tr
+                      key={order.id}
+                      className="cursor-pointer"
+                      onClick={() => openOrder(order.id)}
+                    >
+                      <Td className="font-medium text-[var(--st-accent)]">{order.id}</Td>
+                      <Td className="text-[var(--st-text-secondary)]">{order.date}</Td>
+                      <Td className="font-medium">{order.customer}</Td>
+                      <Td>
+                        <Badge tone={getStatusBadgeTone(order.status)}>{order.status}</Badge>
+                      </Td>
+                      <Td>
+                        <Badge tone={getPaymentBadgeTone(order.payment)}>{order.payment}</Badge>
+                      </Td>
+                      <Td align="right" className="font-medium">
+                        {order.total}
+                      </Td>
+                      <Td>
+                        <IconButton
+                          label={`View order ${order.id}`}
+                          icon={Eye}
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openOrder(order.id);
+                          }}
+                        />
                       </Td>
                     </Tr>
-                  )}
-                </TBody>
-              </Table>
-            </div>
-          </Tabs>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={7}>
+                      <EmptyState icon={Inbox} title="No orders found" description="Orders matching this filter will appear here." />
+                    </Td>
+                  </Tr>
+                )}
+              </TBody>
+            </Table>
+          </div>
 
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-[var(--st-text-secondary)]">
-              Showing <strong className="text-[var(--st-text)]">1</strong> to <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> of <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> orders
+              Showing <strong className="text-[var(--st-text)]">1</strong> to{" "}
+              <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> of{" "}
+              <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> orders
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" disabled>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="icon" disabled>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              <IconButton label="Previous page" icon={ChevronLeft} variant="outline" disabled />
+              <IconButton label="Next page" icon={ChevronRight} variant="outline" disabled />
             </div>
           </div>
         </CardBody>

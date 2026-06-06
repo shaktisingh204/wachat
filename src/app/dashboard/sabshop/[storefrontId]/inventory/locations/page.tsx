@@ -1,18 +1,63 @@
 "use client";
 
-import React from "react";
-import { Plus, MapPin, Building2, HardDrive, Settings, Search, MoreHorizontal } from "lucide-react";
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
-import { StatCard } from '@/components/sabcrm/20ui';
-import { Progress } from '@/components/sabcrm/20ui';
+import * as React from "react";
+import {
+  Plus,
+  MapPin,
+  Building2,
+  HardDrive,
+  Settings,
+  Search,
+  MoreHorizontal,
+} from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  type BadgeTone,
+  type BadgeStyleKind,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  StatCard,
+  Progress,
+  type ZoruProgressTone,
+} from "@/components/sabcrm/20ui";
 
-const mockLocations = [
+interface InventoryLocation {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  capacity: number;
+  used: number;
+  status: "Active" | "Maintenance" | "Warning";
+  manager: string;
+}
+
+const mockLocations: InventoryLocation[] = [
   {
     id: "LOC-001",
     name: "Central US Distribution",
@@ -65,67 +110,84 @@ const mockLocations = [
   },
 ];
 
+const STATUS_TONE: Record<InventoryLocation["status"], BadgeTone> = {
+  Active: "success",
+  Maintenance: "info",
+  Warning: "warning",
+};
+
+const STATUS_KIND: Record<InventoryLocation["status"], BadgeStyleKind> = {
+  Active: "soft",
+  Maintenance: "outline",
+  Warning: "soft",
+};
+
+function utilizationTone(percent: number): ZoruProgressTone {
+  if (percent >= 90) return "danger";
+  if (percent >= 75) return "warning";
+  return "accent";
+}
+
 export default function LocationsPage() {
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader
-        title="Locations"
-        description="Manage your warehouses, distribution centers, and retail storage capacities."
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Location
-        </Button>
+    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Locations</PageTitle>
+          <PageDescription>
+            Manage your warehouses, distribution centers, and retail storage capacities.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
+            Add Location
+          </Button>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Locations"
+          label="Total Locations"
           value="12"
-          icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
-          trend="+1 from last month"
-          trendUp={true}
+          icon={MapPin}
+          delta={{ value: "+1 from last month", tone: "up" }}
         />
         <StatCard
-          title="Total Capacity"
+          label="Total Capacity"
           value="195,000"
-          icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
-          description="Pallet positions across all sites"
+          icon={Building2}
+          delta={{ value: "Pallet positions across all sites", tone: "neutral" }}
         />
         <StatCard
-          title="Global Utilization"
+          label="Global Utilization"
           value="79%"
-          icon={<HardDrive className="h-4 w-4 text-muted-foreground" />}
-          trend="+5% from last month"
-          trendUp={true}
+          icon={HardDrive}
+          delta={{ value: "+5% from last month", tone: "up" }}
         />
         <StatCard
-          title="Locations in Maint."
+          label="Locations in Maint."
           value="1"
-          icon={<Settings className="h-4 w-4 text-muted-foreground" />}
-          description="Requires attention"
-          trend="Down 1 from last week"
-          trendUp={false} // Technically good that it's down, but false shows as red/down depending on component
+          icon={Settings}
+          delta={{ value: "Down 1 from last week", tone: "down" }}
         />
       </div>
 
-      <Card className="col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Inventory Locations</CardTitle>
             <CardDescription>
               View and manage your network of inventory storage facilities.
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <Field label="Search locations" className="w-[200px] sm:w-[300px]">
               <Input
                 type="search"
                 placeholder="Search locations..."
-                className="w-[200px] sm:w-[300px] pl-8"
+                iconLeft={Search}
               />
-            </div>
+            </Field>
             <Button variant="outline">Filters</Button>
           </div>
         </CardHeader>
@@ -138,61 +200,78 @@ export default function LocationsPage() {
                 <Th>Capacity / Utilization</Th>
                 <Th>Manager</Th>
                 <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
               {mockLocations.map((location) => {
-                const utilPercentage = Math.round((location.used / location.capacity) * 100);
+                const utilPercentage = Math.round(
+                  (location.used / location.capacity) * 100,
+                );
                 return (
                   <Tr key={location.id}>
                     <Td>
-                      <div className="flex flex-col space-y-1">
-                        <span className="font-medium">{location.name}</span>
-                        <span className="text-xs text-muted-foreground">{location.address}</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-[var(--st-text)]">
+                          {location.name}
+                        </span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">
+                          {location.address}
+                        </span>
                       </div>
                     </Td>
                     <Td>
-                      <Badge variant="secondary" className="font-normal">
+                      <Badge tone="neutral" kind="soft">
                         {location.type}
                       </Badge>
                     </Td>
                     <Td>
-                      <div className="flex flex-col space-y-2 w-[150px]">
+                      <div className="flex w-[150px] flex-col gap-2">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">
-                            {location.used.toLocaleString()} / {location.capacity.toLocaleString()}
+                          <span className="text-[var(--st-text-secondary)]">
+                            {location.used.toLocaleString()} /{" "}
+                            {location.capacity.toLocaleString()}
                           </span>
-                          <span className="font-medium">{utilPercentage}%</span>
+                          <span className="font-medium text-[var(--st-text)]">
+                            {utilPercentage}%
+                          </span>
                         </div>
-                        <Progress value={utilPercentage} className="h-2" />
+                        <Progress
+                          value={utilPercentage}
+                          size="sm"
+                          tone={utilizationTone(utilPercentage)}
+                          aria-label={`${location.name} utilization`}
+                        />
                       </div>
                     </Td>
                     <Td>{location.manager}</Td>
                     <Td>
-                      <Badge 
-                        variant={
-                          location.status === "Active" ? "default" :
-                          location.status === "Maintenance" ? "outline" : "destructive"
-                        }
+                      <Badge
+                        tone={STATUS_TONE[location.status]}
+                        kind={STATUS_KIND[location.status]}
+                        dot
                       >
                         {location.status}
                       </Badge>
                     </Td>
-                    <Td className="text-right">
+                    <Td align="right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
+                          <IconButton
+                            label={`Open actions for ${location.name}`}
+                            icon={MoreHorizontal}
+                            variant="ghost"
+                            size="sm"
+                          />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem>View inventory</DropdownMenuItem>
                           <DropdownMenuItem>Edit location</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
+                          <DropdownMenuItem variant="danger">
+                            Deactivate
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </Td>
@@ -202,11 +281,15 @@ export default function LocationsPage() {
             </TBody>
           </Table>
         </CardBody>
-        <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
+        <CardFooter className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
           <div>Showing 1 to {mockLocations.length} of 12 locations</div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm">Next</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm">
+              Next
+            </Button>
           </div>
         </CardFooter>
       </Card>

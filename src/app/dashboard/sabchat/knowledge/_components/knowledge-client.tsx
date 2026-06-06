@@ -2,7 +2,27 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Plus, Search, Trash2, X } from 'lucide-react';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Separator,
+    Textarea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/sabcrm/20ui';
 import {
     createPortal,
     deletePortal,
@@ -34,10 +54,10 @@ interface Props {
 
 const STATUSES: KbArticleStatus[] = ['draft', 'published', 'archived'];
 
-const STATUS_BADGE: Record<KbArticleStatus, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-    draft: 'outline',
-    published: 'default',
-    archived: 'secondary',
+const STATUS_TONE: Record<KbArticleStatus, 'neutral' | 'success' | 'info'> = {
+    draft: 'neutral',
+    published: 'success',
+    archived: 'info',
 };
 
 export function KnowledgeClient({
@@ -81,7 +101,7 @@ export function KnowledgeClient({
         router.replace(qsStr ? `${pathname}?${qsStr}` : pathname);
     }
 
-    // ── Portal handlers ─────────────────────────────────────────────────
+    // Portal handlers
     function onCreatePortal(formData: FormData) {
         startTransition(async () => {
             const r = await createPortal(formData);
@@ -97,7 +117,7 @@ export function KnowledgeClient({
     }
 
     function onDeletePortal(id: string) {
-        if (!confirm('Delete this portal? Articles + categories under it will be orphaned.'))
+        if (!confirm('Delete this portal? Articles and categories under it will be orphaned.'))
             return;
         startTransition(async () => {
             const r = await deletePortal(id);
@@ -110,7 +130,7 @@ export function KnowledgeClient({
         });
     }
 
-    // ── Category handlers ───────────────────────────────────────────────
+    // Category handlers
     function onCreateCategory(formData: FormData) {
         formData.set('portalId', selectedPortalId);
         startTransition(async () => {
@@ -138,7 +158,7 @@ export function KnowledgeClient({
         });
     }
 
-    // ── Article handlers ────────────────────────────────────────────────
+    // Article handlers
     function onCreateArticle(formData: FormData) {
         formData.set('portalId', selectedPortalId);
         startTransition(async () => {
@@ -211,13 +231,14 @@ export function KnowledgeClient({
         pushQuery({ q: searchDraft || undefined, selected: undefined });
     }
 
-    // ── Empty: no portals ──────────────────────────────────────────────
+    // Empty: no portals
     if (portals.length === 0) {
         return (
-            <div className="space-y-4">
-                <div className="rounded border border-dashed bg-[var(--st-bg-secondary)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
-                    No knowledge portals yet. Create one to start authoring articles.
-                </div>
+            <div className="flex flex-col gap-4">
+                <EmptyState
+                    title="No knowledge portals yet"
+                    description="Create one to start authoring articles."
+                />
                 <PortalForm pending={isPending} onSubmit={onCreatePortal} />
             </div>
         );
@@ -225,16 +246,16 @@ export function KnowledgeClient({
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Top toolbar — portal selector + new portal trigger */}
+            {/* Top toolbar: portal selector + new portal trigger */}
             <div className="flex flex-wrap items-center gap-2">
-                <Label className="text-xs font-semibold uppercase text-[var(--st-text-secondary)]">
+                <span className="text-xs font-semibold uppercase text-[var(--st-text-secondary)]">
                     Portal
-                </Label>
+                </span>
                 <Select
                     value={selectedPortalId}
                     onValueChange={(v) => pushQuery({ portalId: v, selected: undefined })}
                 >
-                    <SelectTrigger className="w-64">
+                    <SelectTrigger aria-label="Portal" className="w-64">
                         <SelectValue placeholder="Select a portal" />
                     </SelectTrigger>
                     <SelectContent>
@@ -246,7 +267,7 @@ export function KnowledgeClient({
                     </SelectContent>
                 </Select>
                 {selectedPortal ? (
-                    <Badge variant={selectedPortal.active ? 'default' : 'secondary'}>
+                    <Badge tone={selectedPortal.active ? 'success' : 'neutral'}>
                         {selectedPortal.active ? 'active' : 'inactive'}
                     </Badge>
                 ) : null}
@@ -254,6 +275,7 @@ export function KnowledgeClient({
                     <Button
                         size="sm"
                         variant="outline"
+                        iconLeft={showPortalForm ? undefined : Plus}
                         onClick={() => setShowPortalForm((v) => !v)}
                         disabled={isPending}
                     >
@@ -263,6 +285,7 @@ export function KnowledgeClient({
                         <Button
                             size="sm"
                             variant="ghost"
+                            iconLeft={Trash2}
                             onClick={() => onDeletePortal(selectedPortal._id)}
                             disabled={isPending}
                         >
@@ -280,7 +303,7 @@ export function KnowledgeClient({
             <div className="flex flex-wrap items-center gap-2">
                 <Button
                     size="sm"
-                    variant={status === undefined ? 'default' : 'outline'}
+                    variant={status === undefined ? 'primary' : 'outline'}
                     onClick={() => pushQuery({ status: undefined, selected: undefined })}
                 >
                     All
@@ -289,7 +312,7 @@ export function KnowledgeClient({
                     <Button
                         key={s}
                         size="sm"
-                        variant={status === s ? 'default' : 'outline'}
+                        variant={status === s ? 'primary' : 'outline'}
                         className="capitalize"
                         onClick={() => pushQuery({ status: s, selected: undefined })}
                     >
@@ -298,7 +321,9 @@ export function KnowledgeClient({
                 ))}
                 <form onSubmit={onSearchSubmit} className="ml-auto flex gap-2">
                     <Input
-                        placeholder="Search title or body…"
+                        aria-label="Search articles"
+                        iconLeft={Search}
+                        placeholder="Search title or body..."
                         value={searchDraft}
                         onChange={(e) => setSearchDraft(e.target.value)}
                         className="w-64"
@@ -314,15 +339,16 @@ export function KnowledgeClient({
                 {/* Articles list + category mini-rail */}
                 <section className="col-span-4 flex flex-col gap-3">
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between gap-2">
                             <CardTitle className="text-sm">Categories</CardTitle>
                             <Button
                                 size="sm"
                                 variant="ghost"
+                                iconLeft={showCategoryForm ? undefined : Plus}
                                 onClick={() => setShowCategoryForm((v) => !v)}
                                 disabled={isPending}
                             >
-                                {showCategoryForm ? 'Cancel' : '+ New'}
+                                {showCategoryForm ? 'Cancel' : 'New'}
                             </Button>
                         </CardHeader>
                         <CardBody className="space-y-2">
@@ -335,15 +361,13 @@ export function KnowledgeClient({
                                 />
                             ) : null}
                             {categories.length === 0 ? (
-                                <div className="rounded border border-dashed p-3 text-center text-xs text-[var(--st-text-secondary)]">
-                                    No categories yet.
-                                </div>
+                                <EmptyState size="sm" title="No categories yet" />
                             ) : (
                                 <ul className="space-y-1">
                                     {categories.map((c) => (
                                         <li
                                             key={c._id}
-                                            className="flex items-center justify-between rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
+                                            className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
                                         >
                                             <span className="truncate">
                                                 {c.name}
@@ -351,14 +375,14 @@ export function KnowledgeClient({
                                                     /{c.slug}
                                                 </span>
                                             </span>
-                                            <Button
+                                            <IconButton
+                                                label={`Delete category ${c.name}`}
+                                                icon={X}
                                                 size="sm"
                                                 variant="ghost"
                                                 onClick={() => onDeleteCategory(c._id)}
                                                 disabled={isPending}
-                                            >
-                                                ×
-                                            </Button>
+                                            />
                                         </li>
                                     ))}
                                 </ul>
@@ -366,7 +390,7 @@ export function KnowledgeClient({
                         </CardBody>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-2">
+                        <CardHeader>
                             <CardTitle className="text-sm">Articles</CardTitle>
                             <CardDescription className="text-xs">
                                 {articles.length} result(s)
@@ -374,50 +398,56 @@ export function KnowledgeClient({
                         </CardHeader>
                         <CardBody>
                             {articles.length === 0 ? (
-                                <div className="rounded border border-dashed p-4 text-center text-xs text-[var(--st-text-secondary)]">
-                                    No articles yet. Use the editor to create one.
-                                </div>
+                                <EmptyState
+                                    size="sm"
+                                    title="No articles yet"
+                                    description="Use the editor to create one."
+                                />
                             ) : (
-                                <ul className="divide-y">
+                                <ul className="divide-y divide-[var(--st-border)]">
                                     {articles.map((a) => (
-                                        <li
-                                            key={a._id}
-                                            className={`cursor-pointer rounded px-2 py-2 text-sm hover:bg-[var(--st-bg-muted)] ${
-                                                a._id === selectedArticleId ? 'bg-[var(--st-bg-muted)]' : ''
-                                            }`}
-                                            onClick={() => pushQuery({ selected: a._id })}
-                                        >
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span className="truncate font-medium">
-                                                    {a.title}
-                                                </span>
-                                                <Badge
-                                                    variant={STATUS_BADGE[a.status]}
-                                                    className="text-[10px] capitalize"
-                                                >
-                                                    {a.status}
-                                                </Badge>
-                                            </div>
-                                            <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--st-text-secondary)]">
-                                                <span className="truncate">/{a.slug}</span>
-                                                <span>
-                                                    {a.viewCount} views ·{' '}
-                                                    {new Date(a.updatedAt).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            {a.tags.length ? (
-                                                <div className="mt-1 flex flex-wrap gap-1">
-                                                    {a.tags.slice(0, 4).map((t) => (
-                                                        <Badge
-                                                            key={t}
-                                                            variant="outline"
-                                                            className="text-[10px]"
-                                                        >
-                                                            {t}
-                                                        </Badge>
-                                                    ))}
+                                        <li key={a._id}>
+                                            <button
+                                                type="button"
+                                                aria-label={`Open article ${a.title}`}
+                                                aria-pressed={a._id === selectedArticleId}
+                                                className={`w-full cursor-pointer rounded-[var(--st-radius)] px-2 py-2 text-left text-sm hover:bg-[var(--st-bg-secondary)] ${
+                                                    a._id === selectedArticleId ? 'bg-[var(--st-bg-secondary)]' : ''
+                                                }`}
+                                                onClick={() => pushQuery({ selected: a._id })}
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="truncate font-medium">
+                                                        {a.title}
+                                                    </span>
+                                                    <Badge
+                                                        tone={STATUS_TONE[a.status]}
+                                                        className="capitalize"
+                                                    >
+                                                        {a.status}
+                                                    </Badge>
                                                 </div>
-                                            ) : null}
+                                                <div className="mt-1 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+                                                    <span className="truncate">/{a.slug}</span>
+                                                    <span>
+                                                        {a.viewCount} views,{' '}
+                                                        {new Date(a.updatedAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                {a.tags.length ? (
+                                                    <div className="mt-1 flex flex-wrap gap-1">
+                                                        {a.tags.slice(0, 4).map((t) => (
+                                                            <Badge
+                                                                key={t}
+                                                                tone="neutral"
+                                                                kind="outline"
+                                                            >
+                                                                {t}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                ) : null}
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
@@ -448,9 +478,7 @@ export function KnowledgeClient({
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // PortalForm
-// ─────────────────────────────────────────────────────────────────────────────
 
 function PortalForm({
     pending,
@@ -464,7 +492,7 @@ function PortalForm({
             <CardHeader>
                 <CardTitle className="text-base">New knowledge portal</CardTitle>
                 <CardDescription>
-                    One portal per brand or product line — articles + categories live inside.
+                    One portal per brand or product line. Articles and categories live inside.
                 </CardDescription>
             </CardHeader>
             <CardBody>
@@ -472,36 +500,23 @@ function PortalForm({
                     action={(fd) => onSubmit(fd)}
                     className="grid grid-cols-1 gap-3 md:grid-cols-2"
                 >
-                    <div className="space-y-1">
-                        <Label htmlFor="portal-name">Name</Label>
-                        <Input id="portal-name" name="name" placeholder="Help Center" required />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="portal-slug">Slug</Label>
-                        <Input
-                            id="portal-slug"
-                            name="slug"
-                            placeholder="auto-generated from name"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="portal-lang">Default language</Label>
-                        <Input id="portal-lang" name="defaultLanguage" defaultValue="en" />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="portal-domain">Custom domain (optional)</Label>
-                        <Input
-                            id="portal-domain"
-                            name="customDomain"
-                            placeholder="help.example.com"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="portal-color">Theme color (optional)</Label>
-                        <Input id="portal-color" name="color" placeholder="#4f46e5" />
-                    </div>
+                    <Field label="Name" required>
+                        <Input name="name" placeholder="Help Center" required />
+                    </Field>
+                    <Field label="Slug">
+                        <Input name="slug" placeholder="auto-generated from name" />
+                    </Field>
+                    <Field label="Default language">
+                        <Input name="defaultLanguage" defaultValue="en" />
+                    </Field>
+                    <Field label="Custom domain (optional)">
+                        <Input name="customDomain" placeholder="help.example.com" />
+                    </Field>
+                    <Field label="Theme color (optional)">
+                        <Input name="color" placeholder="#4f46e5" />
+                    </Field>
                     <div className="flex items-end md:col-span-2">
-                        <Button type="submit" disabled={pending}>
+                        <Button type="submit" variant="primary" disabled={pending}>
                             Create portal
                         </Button>
                     </div>
@@ -511,9 +526,7 @@ function PortalForm({
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // CategoryForm
-// ─────────────────────────────────────────────────────────────────────────────
 
 function CategoryForm({
     portalId,
@@ -526,45 +539,52 @@ function CategoryForm({
     onSubmit: (fd: FormData) => void;
     parents: KbCategory[];
 }) {
+    const [parentId, setParentId] = useState('');
+
     return (
         <form
             action={(fd) => onSubmit(fd)}
-            className="space-y-2 rounded border bg-[var(--st-bg-secondary)] p-2"
+            className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
         >
             <input type="hidden" name="portalId" value={portalId} />
-            <Input name="name" placeholder="Category name" required className="text-sm" />
-            <Input name="slug" placeholder="slug (auto)" className="text-sm" />
+            <input type="hidden" name="parentId" value={parentId} />
+            <Field label="Name" required>
+                <Input name="name" placeholder="Category name" required />
+            </Field>
+            <Field label="Slug">
+                <Input name="slug" placeholder="slug (auto)" />
+            </Field>
             {parents.length ? (
-                <select
-                    name="parentId"
-                    defaultValue=""
-                    className="w-full rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
-                >
-                    <option value="">No parent</option>
-                    {parents.map((p) => (
-                        <option key={p._id} value={p._id}>
-                            {p.name}
-                        </option>
-                    ))}
-                </select>
+                <Field label="Parent">
+                    <Select
+                        value={parentId || 'none'}
+                        onValueChange={(v) => setParentId(v === 'none' ? '' : v)}
+                    >
+                        <SelectTrigger aria-label="Parent category">
+                            <SelectValue placeholder="No parent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">No parent</SelectItem>
+                            {parents.map((p) => (
+                                <SelectItem key={p._id} value={p._id}>
+                                    {p.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </Field>
             ) : null}
-            <Input
-                name="sortOrder"
-                type="number"
-                defaultValue={0}
-                placeholder="Sort order"
-                className="text-sm"
-            />
-            <Button type="submit" size="sm" disabled={pending}>
+            <Field label="Sort order">
+                <Input name="sortOrder" type="number" defaultValue={0} placeholder="Sort order" />
+            </Field>
+            <Button type="submit" size="sm" variant="primary" disabled={pending}>
                 Create
             </Button>
         </form>
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ArticleEditor — switches between create/edit by presence of `article`
-// ─────────────────────────────────────────────────────────────────────────────
+// ArticleEditor: switches between create/edit by presence of `article`
 
 function ArticleEditor({
     portalId,
@@ -592,28 +612,29 @@ function ArticleEditor({
     onNew: () => void;
 }) {
     const isEdit = !!article;
+    const [categoryId, setCategoryId] = useState(article?.categoryId ?? '');
+    const [articleStatus, setArticleStatus] = useState<KbArticleStatus>(
+        article?.status ?? 'draft',
+    );
 
     return (
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <div>
                     <CardTitle className="text-base">
                         {isEdit ? 'Edit article' : 'New article'}
                     </CardTitle>
                     {isEdit && article ? (
                         <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
-                            <Badge
-                                variant={STATUS_BADGE[article.status]}
-                                className="capitalize"
-                            >
+                            <Badge tone={STATUS_TONE[article.status]} className="capitalize">
                                 {article.status}
                             </Badge>
                             <span>{article.viewCount} views</span>
-                            <span>· {article.helpfulCount} 👍</span>
-                            <span>· {article.notHelpfulCount} 👎</span>
+                            <span>, {article.helpfulCount} helpful</span>
+                            <span>, {article.notHelpfulCount} not helpful</span>
                             {article.publishedAt ? (
                                 <span>
-                                    · published{' '}
+                                    , published{' '}
                                     {new Date(article.publishedAt).toLocaleDateString()}
                                 </span>
                             ) : null}
@@ -627,11 +648,17 @@ function ArticleEditor({
                 <div className="flex flex-wrap gap-1">
                     {isEdit ? (
                         <>
-                            <Button size="sm" variant="ghost" onClick={onNew} disabled={pending}>
-                                + New
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                iconLeft={Plus}
+                                onClick={onNew}
+                                disabled={pending}
+                            >
+                                New
                             </Button>
                             {article && article.status !== 'published' ? (
-                                <Button size="sm" onClick={onPublish} disabled={pending}>
+                                <Button size="sm" variant="primary" onClick={onPublish} disabled={pending}>
                                     Publish
                                 </Button>
                             ) : null}
@@ -648,6 +675,7 @@ function ArticleEditor({
                             <Button
                                 size="sm"
                                 variant="ghost"
+                                iconLeft={Trash2}
                                 onClick={onDelete}
                                 disabled={pending}
                             >
@@ -664,94 +692,86 @@ function ArticleEditor({
                     className="grid grid-cols-1 gap-3 md:grid-cols-2"
                 >
                     <input type="hidden" name="portalId" value={portalId} />
-                    <div className="md:col-span-2 space-y-1">
-                        <Label htmlFor="article-title">Title</Label>
+                    <input type="hidden" name="categoryId" value={categoryId} />
+                    <input type="hidden" name="status" value={articleStatus} />
+                    <Field label="Title" required className="md:col-span-2">
                         <Input
-                            id="article-title"
                             name="title"
                             defaultValue={article?.title ?? ''}
                             placeholder="How to reset your password"
                             required
                         />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="article-slug">Slug</Label>
+                    </Field>
+                    <Field label="Slug">
                         <Input
-                            id="article-slug"
                             name="slug"
                             defaultValue={article?.slug ?? ''}
                             placeholder="auto-generated from title"
                         />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="article-lang">Language</Label>
+                    </Field>
+                    <Field label="Language">
                         <Input
-                            id="article-lang"
                             name="language"
                             defaultValue={article?.language ?? defaultLanguage}
                         />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="article-category">Category</Label>
-                        <select
-                            id="article-category"
-                            name="categoryId"
-                            defaultValue={article?.categoryId ?? ''}
-                            className="h-9 w-full rounded border bg-[var(--st-bg-secondary)] px-2 text-sm"
+                    </Field>
+                    <Field label="Category">
+                        <Select
+                            value={categoryId || 'none'}
+                            onValueChange={(v) => setCategoryId(v === 'none' ? '' : v)}
                         >
-                            <option value="">— None —</option>
-                            {categories.map((c) => (
-                                <option key={c._id} value={c._id}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="article-status">Status</Label>
-                        <select
-                            id="article-status"
-                            name="status"
-                            defaultValue={article?.status ?? 'draft'}
-                            className="h-9 w-full rounded border bg-[var(--st-bg-secondary)] px-2 text-sm"
+                            <SelectTrigger aria-label="Category">
+                                <SelectValue placeholder="None" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                {categories.map((c) => (
+                                    <SelectItem key={c._id} value={c._id}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="Status">
+                        <Select
+                            value={articleStatus}
+                            onValueChange={(v) => setArticleStatus(v as KbArticleStatus)}
                         >
-                            {STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                    {s}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="md:col-span-2 space-y-1">
-                        <Label htmlFor="article-tags">Tags (comma-separated)</Label>
+                            <SelectTrigger aria-label="Status" className="capitalize">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {STATUSES.map((s) => (
+                                    <SelectItem key={s} value={s} className="capitalize">
+                                        {s}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="Tags (comma-separated)" className="md:col-span-2">
                         <Input
-                            id="article-tags"
                             name="tags"
                             defaultValue={article?.tags.join(', ') ?? ''}
                             placeholder="billing, account, password"
                         />
-                    </div>
-                    <div className="md:col-span-2 space-y-1">
-                        <Label htmlFor="article-body">Body (markdown)</Label>
+                    </Field>
+                    <Field label="Body (markdown)" className="md:col-span-2">
                         <Textarea
-                            id="article-body"
                             name="body"
                             defaultValue={article?.body ?? ''}
                             rows={16}
-                            placeholder="# Heading&#10;&#10;Write the article in markdown…"
+                            placeholder="# Heading&#10;&#10;Write the article in markdown..."
                             className="font-mono text-sm"
                         />
-                    </div>
+                    </Field>
                     <div className="md:col-span-2 flex gap-2">
-                        <Button type="submit" disabled={pending}>
+                        <Button type="submit" variant="primary" disabled={pending}>
                             {isEdit ? 'Save changes' : 'Create article'}
                         </Button>
                         {!isEdit ? (
-                            <Button
-                                type="reset"
-                                variant="ghost"
-                                disabled={pending}
-                            >
+                            <Button type="reset" variant="ghost" disabled={pending}>
                                 Clear
                             </Button>
                         ) : null}

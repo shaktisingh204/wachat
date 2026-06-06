@@ -1,4 +1,9 @@
-import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
 import {
     listPortals,
     listCategories,
@@ -45,28 +50,29 @@ export default async function SabChatKnowledgePage({
           ];
 
     return (
-        <div className="zoruui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>SabKnow — Knowledge Base</CardTitle>
-                    <CardDescription>
+        <div className="flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>SabKnow, Knowledge Base</PageTitle>
+                    <PageDescription>
                         Author help-center articles, organise them into portals and
                         categories, then publish to your widget. {portals.length}{' '}
                         portal(s).
-                    </CardDescription>
-                </CardHeader>
-                <CardBody>
-                    <KnowledgeClient
-                        portals={portals}
-                        selectedPortalId={portalId ?? ''}
-                        status={status}
-                        q={q ?? ''}
-                        categories={categoriesResp.items ?? []}
-                        articles={articlesResp.items ?? []}
-                        initialSelectedArticleId={sp.selected}
-                    />
-                </CardBody>
-            </Card>
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+
+            <div className="min-h-0 flex-1">
+                <KnowledgeClient
+                    portals={portals}
+                    selectedPortalId={portalId ?? ''}
+                    status={status}
+                    q={q ?? ''}
+                    categories={categoriesResp.items ?? []}
+                    articles={articlesResp.items ?? []}
+                    initialSelectedArticleId={sp.selected}
+                />
+            </div>
         </div>
     );
 }

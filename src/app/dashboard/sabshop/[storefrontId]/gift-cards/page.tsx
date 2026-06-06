@@ -1,11 +1,58 @@
 "use client";
 
 import React from "react";
-import { Plus, Gift, CreditCard, Clock, MoreHorizontal, Eye, Copy, RefreshCw, Download } from "lucide-react";
+import {
+  Plus,
+  Gift,
+  CreditCard,
+  Clock,
+  MoreHorizontal,
+  Eye,
+  Copy,
+  RefreshCw,
+  Download,
+  Search,
+} from "lucide-react";
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Card } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  StatCard,
+  Card,
+  CardHeader,
+  CardTitle,
+  DataTable,
+  type DataTableColumn,
+  Badge,
+  type BadgeTone,
+  EmptyState,
+  Field,
+  Input,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
-const giftCardData = [
+interface GiftCard {
+  id: string;
+  code: string;
+  customer: string;
+  initialBalance: string;
+  currentBalance: string;
+  status: string;
+  issueDate: string;
+  expiryDate: string;
+}
+
+const giftCardData: GiftCard[] = [
   {
     id: "gc_001",
     code: "•••• •••• •••• 4A92",
@@ -29,7 +76,7 @@ const giftCardData = [
   {
     id: "gc_003",
     code: "•••• •••• •••• 1C77",
-    customer: "-",
+    customer: "Unassigned",
     initialBalance: "$200.00",
     currentBalance: "$200.00",
     status: "Active",
@@ -58,78 +105,85 @@ const giftCardData = [
   },
 ];
 
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Active: "success",
+  Redeemed: "neutral",
+  Expired: "warning",
+};
+
 export default function GiftCardsPage({ params }: { params: { storefrontId: string } }) {
-  const giftCardColumns = [
+  const { toast } = useToast();
+  const [query, setQuery] = React.useState("");
+
+  const filteredRows = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return giftCardData;
+    return giftCardData.filter((row) => row.code.toLowerCase().includes(q));
+  }, [query]);
+
+  const columns: Array<DataTableColumn<GiftCard>> = [
     {
-      accessorKey: "code",
+      key: "code",
       header: "Gift Card Code",
-      cell: ({ row }: any) => (
+      render: (row) => (
         <div className="flex items-center gap-2">
-          <Gift className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          <span className="font-medium font-mono">{row.original.code}</span>
+          <Gift className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          <span className="font-medium font-mono">{row.code}</span>
         </div>
       ),
     },
+    { key: "customer", header: "Customer" },
     {
-      accessorKey: "customer",
-      header: "Customer",
-    },
-    {
-      accessorKey: "status",
+      key: "status",
       header: "Status",
-      cell: ({ row }: any) => (
-        <Badge
-          variant={
-            row.original.status === "Active"
-              ? "success"
-              : row.original.status === "Redeemed"
-              ? "default"
-              : "outline"
-          }
-        >
-          {row.original.status}
+      render: (row) => (
+        <Badge tone={STATUS_TONE[row.status] ?? "neutral"} dot>
+          {row.status}
         </Badge>
       ),
     },
     {
-      accessorKey: "currentBalance",
+      key: "currentBalance",
       header: "Current Balance",
-      cell: ({ row }: any) => (
-        <span className="font-semibold">{row.original.currentBalance}</span>
-      ),
+      align: "right",
+      render: (row) => <span className="font-semibold">{row.currentBalance}</span>,
     },
     {
-      accessorKey: "initialBalance",
+      key: "initialBalance",
       header: "Initial Balance",
-      cell: ({ row }: any) => (
-        <span className="text-[var(--st-text-secondary)]">{row.original.initialBalance}</span>
+      align: "right",
+      render: (row) => (
+        <span className="text-[var(--st-text-secondary)]">{row.initialBalance}</span>
       ),
     },
+    { key: "issueDate", header: "Issue Date" },
     {
-      accessorKey: "issueDate",
-      header: "Issue Date",
-    },
-    {
-      id: "actions",
-      cell: ({ row }: any) => (
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <IconButton label="Gift card actions" icon={MoreHorizontal} variant="ghost" size="sm" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
+            <DropdownMenuItem
+              iconLeft={Eye}
+              onSelect={() => toast.success(`Opening ${row.code}`)}
+            >
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Copy className="mr-2 h-4 w-4" />
+            <DropdownMenuItem
+              iconLeft={Copy}
+              onSelect={() => toast.success("Gift card code copied")}
+            >
               Copy Code
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <RefreshCw className="mr-2 h-4 w-4" />
+            <DropdownMenuItem
+              iconLeft={RefreshCw}
+              onSelect={() => toast.success("Gift card resent to customer")}
+            >
               Resend to Customer
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -148,12 +202,10 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
+          <Button variant="outline" iconLeft={Download} onClick={() => toast.success("Export started")}>
             Export
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="primary" iconLeft={Plus} onClick={() => toast({ title: "Issue gift card", tone: "info" })}>
             Issue gift card
           </Button>
         </PageActions>
@@ -163,37 +215,49 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
         <StatCard
           label="Total Issued (Value)"
           value="$5,250.00"
-          delta={8.2}
-          period="vs last month"
-          icon={<CreditCard className="h-4 w-4" />}
+          icon={CreditCard}
+          delta={{ value: "+8.2% vs last month", tone: "up" }}
         />
         <StatCard
           label="Outstanding Balance"
           value="$3,145.50"
-          delta={2.4}
-          period="vs last month"
-          icon={<Clock className="h-4 w-4" />}
+          icon={Clock}
+          delta={{ value: "+2.4% vs last month", tone: "up" }}
         />
         <StatCard
           label="Active Gift Cards"
           value="48"
-          delta={5.0}
-          period="vs last month"
-          icon={<Gift className="h-4 w-4" />}
+          icon={Gift}
+          delta={{ value: "+5.0% vs last month", tone: "up" }}
         />
       </div>
 
-      <div className="mt-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
-        <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
-          <h3 className="font-semibold">All Gift Cards</h3>
-        </div>
-        <DataTable
-          columns={giftCardColumns}
-          data={giftCardData}
-          filterColumn="code"
-          filterPlaceholder="Search by gift card code..."
+      <Card padding="none">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>All Gift Cards</CardTitle>
+          <Field label="Search gift cards" className="w-full sm:w-72">
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by gift card code..."
+              iconLeft={Search}
+            />
+          </Field>
+        </CardHeader>
+        <DataTable<GiftCard>
+          columns={columns}
+          rows={filteredRows}
+          getRowId={(row) => row.id}
+          empty={
+            <EmptyState
+              icon={Gift}
+              title="No gift cards found"
+              description="No gift cards match your search. Adjust the code or issue a new gift card."
+            />
+          }
         />
-      </div>
+      </Card>
     </div>
   );
 }

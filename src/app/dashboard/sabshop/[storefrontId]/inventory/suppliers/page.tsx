@@ -1,16 +1,51 @@
 "use client";
 
 import React from "react";
-import { Plus, Search, Building, Clock, Star, Users, MoreHorizontal, Mail, Phone } from "lucide-react";
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
-import { StatCard } from '@/components/sabcrm/20ui';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
+import {
+  Plus,
+  Search,
+  Building2,
+  Clock,
+  Star,
+  Users,
+  MoreHorizontal,
+  Mail,
+  Phone,
+} from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Input,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  type BadgeTone,
+  StatCard,
+  Avatar,
+  AvatarFallback,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 const mockSuppliers = [
   {
@@ -23,7 +58,7 @@ const mockSuppliers = [
     leadTime: "14 days",
     rating: 4.8,
     status: "Active",
-    avatar: "GE"
+    avatar: "GE",
   },
   {
     id: "SUP-02",
@@ -35,7 +70,7 @@ const mockSuppliers = [
     leadTime: "21 days",
     rating: 4.5,
     status: "Active",
-    avatar: "PT"
+    avatar: "PT",
   },
   {
     id: "SUP-03",
@@ -47,7 +82,7 @@ const mockSuppliers = [
     leadTime: "30 days",
     rating: 4.9,
     status: "Active",
-    avatar: "NH"
+    avatar: "NH",
   },
   {
     id: "SUP-04",
@@ -59,7 +94,7 @@ const mockSuppliers = [
     leadTime: "7 days",
     rating: 3.2,
     status: "Under Review",
-    avatar: "TS"
+    avatar: "TS",
   },
   {
     id: "SUP-05",
@@ -71,78 +106,78 @@ const mockSuppliers = [
     leadTime: "45 days",
     rating: 4.1,
     status: "Inactive",
-    avatar: "AM"
+    avatar: "AM",
   },
 ];
 
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Active: "success",
+  "Under Review": "warning",
+  Inactive: "neutral",
+};
+
 export default function SuppliersPage() {
-  const getRatingStars = (rating: number) => {
-    return (
-      <div className="flex items-center space-x-1">
-        <Star className={`h-3 w-3 ${rating >= 4 ? 'text-yellow-400 fill-yellow-400' : 'text-yellow-400'}`} />
-        <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-      </div>
-    );
-  };
+  const { toast } = useToast();
+
+  const renderRating = (rating: number) => (
+    <div className="flex items-center gap-1">
+      <Star
+        className="h-3 w-3 fill-current text-[var(--st-warn)]"
+        aria-hidden="true"
+      />
+      <span className="text-sm font-medium">{rating.toFixed(1)} out of 5</span>
+    </div>
+  );
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader
-        title="Suppliers"
-        description="Manage your vendor relationships, contacts, and performance metrics."
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Supplier
-        </Button>
+    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Suppliers</PageTitle>
+          <PageDescription>
+            Manage your vendor relationships, contacts, and performance metrics.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
+            Add Supplier
+          </Button>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Active Suppliers"
+          label="Active Suppliers"
           value="42"
-          icon={<Building className="h-4 w-4 text-muted-foreground" />}
-          trend="+3 new this quarter"
-          trendUp={true}
+          icon={Building2}
+          delta={{ value: "+3 new this quarter", tone: "up" }}
         />
         <StatCard
-          title="Avg Lead Time"
+          label="Avg Lead Time"
           value="18 days"
-          icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-          trend="-2 days from last year"
-          trendUp={true}
+          icon={Clock}
+          delta={{ value: "-2 days from last year", tone: "up" }}
         />
-        <StatCard
-          title="Avg Supplier Rating"
-          value="4.6 / 5"
-          icon={<Star className="h-4 w-4 text-muted-foreground" />}
-          description="Based on quality and speed"
-        />
-        <StatCard
-          title="Total Contacts"
-          value="156"
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
-          description="Across all supplier accounts"
-        />
+        <StatCard label="Avg Supplier Rating" value="4.6 / 5" icon={Star} />
+        <StatCard label="Total Contacts" value="156" icon={Users} />
       </div>
 
-      <Card className="col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Supplier Database</CardTitle>
             <CardDescription>
               Directory of all vendors and manufacturing partners.
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search suppliers..."
-                className="w-[200px] sm:w-[300px] pl-8"
-              />
-            </div>
+          <div className="flex items-center gap-2">
+            <Input
+              type="search"
+              aria-label="Search suppliers"
+              placeholder="Search suppliers..."
+              iconLeft={Search}
+              className="w-[200px] sm:w-[300px]"
+            />
             <Button variant="outline">Filters</Button>
           </div>
         </CardHeader>
@@ -156,32 +191,36 @@ export default function SuppliersPage() {
                 <Th>Lead Time</Th>
                 <Th>Rating</Th>
                 <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
               {mockSuppliers.map((supplier) => (
                 <Tr key={supplier.id}>
                   <Td>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs">{supplier.avatar}</AvatarFallback>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8" data-shape="square">
+                        <AvatarFallback className="text-xs">
+                          {supplier.avatar}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col">
                         <span className="font-medium">{supplier.name}</span>
-                        <span className="text-xs text-muted-foreground">{supplier.id}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">
+                          {supplier.id}
+                        </span>
                       </div>
                     </div>
                   </Td>
                   <Td>
-                    <div className="flex flex-col space-y-1 text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="font-medium">{supplier.contactName}</span>
-                      <div className="flex items-center text-muted-foreground text-xs">
-                        <Mail className="mr-1 h-3 w-3" />
+                      <div className="flex items-center text-xs text-[var(--st-text-secondary)]">
+                        <Mail className="mr-1 h-3 w-3" aria-hidden="true" />
                         {supplier.email}
                       </div>
-                      <div className="flex items-center text-muted-foreground text-xs">
-                        <Phone className="mr-1 h-3 w-3" />
+                      <div className="flex items-center text-xs text-[var(--st-text-secondary)]">
+                        <Phone className="mr-1 h-3 w-3" aria-hidden="true" />
                         {supplier.phone}
                       </div>
                     </div>
@@ -189,36 +228,61 @@ export default function SuppliersPage() {
                   <Td>{supplier.category}</Td>
                   <Td>
                     <div className="flex items-center text-sm">
-                      <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <Clock
+                        className="mr-2 h-4 w-4 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
                       {supplier.leadTime}
                     </div>
                   </Td>
-                  <Td>{getRatingStars(supplier.rating)}</Td>
+                  <Td>{renderRating(supplier.rating)}</Td>
                   <Td>
-                    <Badge 
-                      variant={
-                        supplier.status === "Active" ? "default" :
-                        supplier.status === "Under Review" ? "secondary" : "outline"
-                      }
-                    >
+                    <Badge tone={STATUS_TONE[supplier.status] ?? "neutral"} dot>
                       {supplier.status}
                     </Badge>
                   </Td>
-                  <Td className="text-right">
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <IconButton
+                          label={`Actions for ${supplier.name}`}
+                          icon={MoreHorizontal}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View profile</DropdownMenuItem>
-                        <DropdownMenuItem>View POs</DropdownMenuItem>
-                        <DropdownMenuItem>Edit details</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            toast.success(`Opening profile for ${supplier.name}`)
+                          }
+                        >
+                          View profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            toast.success(`Loading POs for ${supplier.name}`)
+                          }
+                        >
+                          View POs
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            toast.success(`Editing ${supplier.name}`)
+                          }
+                        >
+                          Edit details
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="danger"
+                          onSelect={() =>
+                            toast.success(`${supplier.name} deactivated`)
+                          }
+                        >
+                          Deactivate
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </Td>
@@ -227,11 +291,15 @@ export default function SuppliersPage() {
             </TBody>
           </Table>
         </CardBody>
-        <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
+        <CardFooter className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
           <div>Showing 1 to {mockSuppliers.length} of 42 suppliers</div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm">Next</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm">
+              Next
+            </Button>
           </div>
         </CardFooter>
       </Card>

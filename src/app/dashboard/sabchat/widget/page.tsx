@@ -1,22 +1,31 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui';
-import { ZoruSabChatWidgetGenerator } from '../_components/zoru-sabchat-widget-generator';
 import {
-  useEffect,
-  useState } from "react";
+  Alert,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+} from "@/components/sabcrm/20ui";
+import { ZoruSabChatWidgetGenerator } from "../_components/zoru-sabchat-widget-generator";
+import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 
 import { getSession } from "@/app/actions/user.actions";
-import type { WithId,
-  User } from "@/lib/definitions";
+import type { WithId, User } from "@/lib/definitions";
 
 /**
- * /dashboard/sabchat/widget — widget configuration & embed code.
+ * /dashboard/sabchat/widget — widget configuration and embed code.
  *
- * Same `getSession` flow. Visual layer fully Zoru — delegates to local
- * `ZoruSabChatWidgetGenerator` to avoid pulling visual primitives from
- * `@/components/zoruui-domain`.
+ * Same `getSession` flow. Visual layer is pure 20ui. Delegates to the local
+ * `ZoruSabChatWidgetGenerator` feature component for the configuration surface.
  */
 
 function WidgetSkeleton() {
@@ -66,12 +75,8 @@ export default function SabChatWidgetPage() {
       {isLoading ? (
         <WidgetSkeleton />
       ) : !user ? (
-        <Alert variant="destructive">
-          <MessageCircle />
-          <AlertTitle>Not signed in</AlertTitle>
-          <AlertDescription>
-            You must be logged in to configure the chat widget.
-          </AlertDescription>
+        <Alert tone="danger" icon={MessageCircle} title="Not signed in">
+          You must be logged in to configure the chat widget.
         </Alert>
       ) : (
         <ZoruSabChatWidgetGenerator user={user} />

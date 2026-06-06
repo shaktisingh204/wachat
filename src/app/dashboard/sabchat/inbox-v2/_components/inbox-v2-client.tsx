@@ -1,10 +1,23 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { Button, Input, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Field,
+    Input,
+    Badge,
+    EmptyState,
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+} from '@/components/sabcrm/20ui';
 import { CommandPalette } from './command-palette';
 import { Contact360 } from './contact-360';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X, Inbox, MessagesSquare } from 'lucide-react';
 import {
     listConversationMessages,
     sendAgentMessage,
@@ -131,18 +144,18 @@ export function InboxV2Client({
     return (
         <div className="grid h-[calc(100vh-12rem)] grid-cols-12 gap-3">
             {/* Inbox + filter rail */}
-            <aside className="col-span-2 flex flex-col gap-2 overflow-y-auto rounded border bg-[var(--st-bg-secondary)] p-2">
+            <aside className="col-span-2 flex flex-col gap-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
                 <div className="text-xs font-semibold uppercase text-[var(--st-text-secondary)]">Inboxes</div>
                 {inboxes.map((ix) => (
                     <Button
                         key={ix._id}
-                        variant={ix._id === selectedInboxId ? 'default' : 'ghost'}
+                        variant={ix._id === selectedInboxId ? 'primary' : 'ghost'}
                         size="sm"
                         className="justify-start"
                         onClick={() => updateUrl({ inboxId: ix._id, selected: undefined })}
                     >
                         <span className="truncate">{ix.name}</span>
-                        <Badge variant="secondary" className="ml-auto text-[10px]">
+                        <Badge tone="neutral" className="ml-auto text-[10px]">
                             {ix.channelType.replace(/_/g, ' ')}
                         </Badge>
                     </Button>
@@ -151,7 +164,7 @@ export function InboxV2Client({
                 {STATUSES.map((s) => (
                     <Button
                         key={s}
-                        variant={s === status ? 'default' : 'ghost'}
+                        variant={s === status ? 'primary' : 'ghost'}
                         size="sm"
                         className="justify-start capitalize"
                         onClick={() => updateUrl({ status: s, selected: undefined })}
@@ -162,13 +175,18 @@ export function InboxV2Client({
             </aside>
 
             {/* Conversation list */}
-            <section className="col-span-3 overflow-y-auto rounded border bg-[var(--st-bg-secondary)]">
+            <section className="col-span-3 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 {conversations.length === 0 ? (
-                    <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
-                        No conversations.
+                    <div className="flex h-full items-center justify-center p-6">
+                        <EmptyState
+                            icon={Inbox}
+                            size="sm"
+                            title="No conversations"
+                            description="Conversations for this inbox and status will appear here."
+                        />
                     </div>
                 ) : (
-                    <ul className="divide-y">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {conversations.map((c) => (
                             <li
                                 key={c._id}
@@ -188,17 +206,17 @@ export function InboxV2Client({
                                             : ''}
                                     </span>
                                 </div>
-                                <div className="truncate text-sm font-medium">
+                                <div className="truncate text-sm font-medium text-[var(--st-text)]">
                                     {c.lastMessagePreview ?? '(no messages yet)'}
                                 </div>
                                 <div className="mt-1 flex flex-wrap gap-1">
                                     {(c.labels ?? []).map((l) => (
-                                        <Badge key={l} variant="outline" className="text-[10px]">
+                                        <Badge key={l} tone="neutral" kind="outline" className="text-[10px]">
                                             {l}
                                         </Badge>
                                     ))}
                                     {c.unreadCount ? (
-                                        <Badge variant="destructive" className="ml-auto text-[10px]">
+                                        <Badge tone="danger" kind="solid" className="ml-auto text-[10px]">
                                             {c.unreadCount}
                                         </Badge>
                                     ) : null}
@@ -210,22 +228,27 @@ export function InboxV2Client({
             </section>
 
             {/* Timeline + composer */}
-            <main className="col-span-5 flex flex-col rounded border bg-[var(--st-bg-secondary)] overflow-hidden">
+            <main className="col-span-5 flex flex-col overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 {/* Tabs Bar */}
                 {activeTabs.length > 0 && (
-                    <div className="flex bg-[var(--st-bg-muted)]/50 border-b overflow-x-auto">
+                    <div className="flex overflow-x-auto border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
                         {activeTabs.map(tabId => {
                             const tConv = conversations.find(c => c._id === tabId);
                             const title = tConv ? (tConv.lastMessagePreview ? tConv.lastMessagePreview.slice(0, 15) + '...' : `Conv ${tabId.slice(-6)}`) : tabId.slice(-6);
+                            const isActiveTab = selectedId === tabId;
                             return (
                                 <div
                                     key={tabId}
-                                    className={`group flex items-center gap-2 px-3 py-2 text-sm border-r cursor-pointer ${selectedId === tabId ? 'bg-[var(--st-bg-secondary)] font-medium border-b-2 border-b-primary' : 'hover:bg-[var(--st-bg-muted)]'}`}
+                                    className={`group flex cursor-pointer items-center gap-2 border-r border-[var(--st-border)] px-3 py-2 text-sm ${isActiveTab ? 'border-b-2 border-b-[var(--st-accent)] bg-[var(--st-bg-secondary)] font-medium' : 'hover:bg-[var(--st-bg-muted)]'}`}
                                     onClick={() => { setSelectedId(tabId); updateUrl({ selected: tabId }); }}
                                 >
                                     <span>{title}</span>
-                                    <button
-                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-[var(--st-bg-muted)]"
+                                    <IconButton
+                                        icon={X}
+                                        label={`Close ${title}`}
+                                        size="sm"
+                                        variant="ghost"
+                                        className="opacity-0 group-hover:opacity-100"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             const newTabs = activeTabs.filter(id => id !== tabId);
@@ -236,9 +259,7 @@ export function InboxV2Client({
                                                 updateUrl({ selected: next });
                                             }
                                         }}
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
+                                    />
                                 </div>
                             );
                         })}
@@ -246,18 +267,18 @@ export function InboxV2Client({
                 )}
                 {selected ? (
                     <>
-                        <header className="flex items-center justify-between border-b p-3">
-                            <div className="text-sm font-semibold">
+                        <header className="flex items-center justify-between border-b border-[var(--st-border)] p-3">
+                            <div className="text-sm font-semibold text-[var(--st-text)]">
                                 Conversation {selected._id.slice(-6)}
-                                <Badge variant="secondary" className="ml-2 capitalize">
+                                <Badge tone="neutral" className="ml-2 capitalize">
                                     {selected.status}
                                 </Badge>
                             </div>
-                            <div className="flex gap-1 items-center">
+                            <div className="flex items-center gap-1">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button size="sm" variant="outline">
-                                            Actions <ChevronDown className="w-4 h-4 ml-1" />
+                                        <Button size="sm" variant="outline" iconRight={ChevronDown}>
+                                            Actions
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
@@ -283,11 +304,11 @@ export function InboxV2Client({
                                     Snooze
                                 </Button>
                                 {selected.status === 'resolved' ? (
-                                    <Button size="sm" onClick={onReopen} disabled={isPending}>
+                                    <Button size="sm" variant="primary" onClick={onReopen} disabled={isPending}>
                                         Reopen
                                     </Button>
                                 ) : (
-                                    <Button size="sm" onClick={onResolve} disabled={isPending}>
+                                    <Button size="sm" variant="primary" onClick={onResolve} disabled={isPending}>
                                         Resolve
                                     </Button>
                                 )}
@@ -302,10 +323,10 @@ export function InboxV2Client({
                                     }`}
                                 >
                                     <div
-                                        className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
+                                        className={`max-w-[70%] rounded-[var(--st-radius)] px-3 py-2 text-sm ${
                                             m.direction === 'outbound'
-                                                ? 'bg-[var(--st-text)] text-white'
-                                                : 'bg-[var(--st-bg-muted)]'
+                                                ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
+                                                : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                         } ${m.private ? 'border-2 border-dashed border-[var(--st-border)]' : ''}`}
                                     >
                                         {renderContent(m.content)}
@@ -316,33 +337,44 @@ export function InboxV2Client({
                                 </div>
                             ))}
                             {messages.length === 0 ? (
-                                <div className="py-8 text-center text-xs text-[var(--st-text-secondary)]">
-                                    No messages yet.
+                                <div className="flex h-full items-center justify-center py-8">
+                                    <EmptyState
+                                        icon={MessagesSquare}
+                                        size="sm"
+                                        title="No messages yet"
+                                        description="Send a reply to start the conversation."
+                                    />
                                 </div>
                             ) : null}
                         </div>
-                        <footer className="border-t p-2">
+                        <footer className="border-t border-[var(--st-border)] p-2">
                             <div className="flex gap-2">
-                                <Input
-                                    placeholder="Type a reply... (Cmd+K for Command Palette)"
-                                    value={draft}
-                                    onChange={(e) => setDraft(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            onSend();
-                                        }
-                                    }}
-                                />
-                                <Button onClick={onSend} disabled={isPending || !draft.trim()}>
+                                <Field label="Reply" className="flex-1">
+                                    <Input
+                                        placeholder="Type a reply... (Cmd+K for Command Palette)"
+                                        value={draft}
+                                        onChange={(e) => setDraft(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                onSend();
+                                            }
+                                        }}
+                                    />
+                                </Field>
+                                <Button variant="primary" className="self-end" onClick={onSend} disabled={isPending || !draft.trim()}>
                                     Send
                                 </Button>
                             </div>
                         </footer>
                     </>
                 ) : (
-                    <div className="flex flex-1 items-center justify-center text-sm text-[var(--st-text-secondary)]">
-                        Pick a conversation.
+                    <div className="flex flex-1 items-center justify-center">
+                        <EmptyState
+                            icon={MessagesSquare}
+                            title="Pick a conversation"
+                            description="Choose a conversation from the list to view its timeline."
+                        />
                     </div>
                 )}
             </main>
@@ -367,7 +399,7 @@ function renderContent(block: ContentBlock) {
             return <span className="whitespace-pre-wrap">{block.text}</span>;
         case 'image':
             // eslint-disable-next-line @next/next/no-img-element
-            return <img src={block.url} alt={block.alt ?? ''} className="max-h-40 rounded" />;
+            return <img src={block.url} alt={block.alt ?? ''} className="max-h-40 rounded-[var(--st-radius)]" />;
         case 'file':
             return (
                 <a href={block.attachment.url} target="_blank" rel="noreferrer" className="underline">

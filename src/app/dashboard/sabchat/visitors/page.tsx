@@ -1,14 +1,55 @@
 "use client";
 
-import { cn, useToast, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
+import {
+  cn,
+  useToast,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  IconButton,
+  Card,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Input,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/sabcrm/20ui";
 import {
   useCallback,
   useEffect,
   useState,
-  useTransition } from "react";
+  useTransition,
+} from "react";
+import { useRouter } from "next/navigation";
 import {
   LoaderCircle,
-  MessageSquare,
   RefreshCw,
   Users,
   Search,
@@ -19,12 +60,10 @@ import {
   Clock,
   ExternalLink,
   Filter,
-  ArrowUpDown,
   Send,
   MoreHorizontal,
-  History
+  History,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 import { getLiveVisitors } from "@/app/actions/sabchat.actions";
 import type { WithId, SabChatSession } from "@/lib/definitions";
@@ -35,10 +74,10 @@ import type { WithId, SabChatSession } from "@/lib/definitions";
 
 function VisitorTableSkeleton() {
   return (
-    <Card className="overflow-hidden p-0">
+    <Card padding="none" className="overflow-hidden">
       <div className="space-y-2 p-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
+          <Skeleton key={i} height={64} width="100%" />
         ))}
       </div>
     </Card>
@@ -51,6 +90,7 @@ export default function SabChatVisitorsPage() {
   const [didInitialLoad, setDidInitialLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const router = useRouter();
 
   const fetchData = useCallback(
     (showToast = false) => {
@@ -62,13 +102,13 @@ export default function SabChatVisitorsPage() {
             toast({
               title: "Refreshed",
               description: "Visitor list has been updated.",
+              tone: "success",
             });
           }
         } catch {
-          toast({
+          toast.error({
             title: "Error",
             description: "Failed to fetch live visitors.",
-            variant: "destructive",
           });
         } finally {
           setDidInitialLoad(true);
@@ -84,17 +124,19 @@ export default function SabChatVisitorsPage() {
     return () => clearInterval(intervalId);
   }, [fetchData]);
 
-  const filteredVisitors = visitors.filter(v => {
+  const filteredVisitors = visitors.filter((v) => {
     if (!searchQuery) return true;
     const s = searchQuery.toLowerCase();
-    return v.visitorInfo?.name?.toLowerCase().includes(s) || 
-           v.visitorInfo?.email?.toLowerCase().includes(s) || 
-           v.visitorInfo?.ip?.includes(s) || 
-           v.visitorInfo?.page?.toLowerCase().includes(s);
+    return (
+      v.visitorInfo?.name?.toLowerCase().includes(s) ||
+      v.visitorInfo?.email?.toLowerCase().includes(s) ||
+      v.visitorInfo?.ip?.includes(s) ||
+      v.visitorInfo?.page?.toLowerCase().includes(s)
+    );
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+    <div className="ui20 mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -117,7 +159,7 @@ export default function SabChatVisitorsPage() {
         <PageHeading>
           <div className="flex items-center gap-3">
             <PageTitle>Live visitors</PageTitle>
-            <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+            <Badge variant="success" className="animate-pulse">
               {filteredVisitors.length} Online
             </Badge>
           </div>
@@ -131,18 +173,15 @@ export default function SabChatVisitorsPage() {
             size="sm"
             onClick={() => fetchData(true)}
             disabled={isLoading}
+            iconLeft={isLoading ? LoaderCircle : RefreshCw}
+            className={isLoading ? "[&_svg]:animate-spin" : undefined}
           >
-            {isLoading ? (
-              <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
             Refresh
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <Tabs defaultValue="all" className="w-[400px]">
           <TabsList>
             <TabsTrigger value="all">All Visitors</TabsTrigger>
@@ -151,20 +190,20 @@ export default function SabChatVisitorsPage() {
           </TabsList>
         </Tabs>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-            <Input 
-              placeholder="Search visitors..." 
-              className="pl-9 h-9" 
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="w-full sm:w-64">
+            <Input
+              inputSize="sm"
+              placeholder="Search visitors..."
+              aria-label="Search visitors"
+              iconLeft={Search}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 px-3">
-                <Filter className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" iconLeft={Filter}>
                 Filter
               </Button>
             </DropdownMenuTrigger>
@@ -175,8 +214,8 @@ export default function SabChatVisitorsPage() {
               <DropdownMenuItem>Asia</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Filter by Device</DropdownMenuLabel>
-              <DropdownMenuItem><Laptop className="h-4 w-4 mr-2"/> Desktop</DropdownMenuItem>
-              <DropdownMenuItem><Smartphone className="h-4 w-4 mr-2"/> Mobile</DropdownMenuItem>
+              <DropdownMenuItem iconLeft={Laptop}>Desktop</DropdownMenuItem>
+              <DropdownMenuItem iconLeft={Smartphone}>Mobile</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -186,20 +225,20 @@ export default function SabChatVisitorsPage() {
         <VisitorTableSkeleton />
       ) : visitors.length === 0 ? (
         <EmptyState
-          icon={<Users />}
+          icon={Users}
           title="No live visitors right now"
           description="When visitors land on your site, they will appear here in real time with rich analytics."
         />
       ) : (
-        <Card className="overflow-hidden p-0 shadow-sm">
+        <Card padding="none" className="overflow-hidden">
           <Table>
-            <THead className="bg-[var(--st-bg-muted)]/50">
+            <THead>
               <Tr>
                 <Th>Visitor</Th>
-                <Th>Status & Time</Th>
-                <Th>Location & Device</Th>
-                <Th>Current Page & Source</Th>
-                <Th className="text-right">Actions</Th>
+                <Th>Status &amp; Time</Th>
+                <Th>Location &amp; Device</Th>
+                <Th>Current Page &amp; Source</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
@@ -208,7 +247,7 @@ export default function SabChatVisitorsPage() {
                 const isOnline = new Date(visitor.updatedAt) > fiveMinutesAgo;
                 const name = visitor.visitorInfo?.name || "Visitor";
                 const email = visitor.visitorInfo?.email;
-                
+
                 // Mocks for new features
                 const isReturning = Math.random() > 0.5;
                 const timeOnSite = Math.floor(Math.random() * 15) + 1; // 1-15 mins
@@ -220,16 +259,19 @@ export default function SabChatVisitorsPage() {
                     <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-[var(--st-text)]">{name}</span>
+                          <span className="font-semibold text-[var(--st-text)]">
+                            {name}
+                          </span>
                           {isReturning && (
-                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider">
                               Returning
                             </Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-[var(--st-text-secondary)]">
-                            {email || `ID: ${visitor._id.toString().slice(-6)}`}
+                            {email ||
+                              `ID: ${visitor._id.toString().slice(-6)}`}
                           </span>
                         </div>
                       </div>
@@ -238,19 +280,24 @@ export default function SabChatVisitorsPage() {
                       <div className="flex flex-col gap-2">
                         <Badge
                           variant={isOnline ? "success" : "secondary"}
-                          className={cn("w-fit gap-1.5", !isOnline && "text-[var(--st-text-secondary)]")}
+                          className={cn(
+                            "w-fit gap-1.5",
+                            !isOnline && "text-[var(--st-text-secondary)]",
+                          )}
                         >
                           <span
                             aria-hidden
                             className={cn(
                               "h-1.5 w-1.5 rounded-full",
-                              isOnline ? "bg-[var(--st-status-ok)]" : "bg-[var(--st-text-tertiary)]",
+                              isOnline
+                                ? "bg-[var(--st-status-ok)]"
+                                : "bg-[var(--st-text-tertiary)]",
                             )}
                           />
                           {isOnline ? "Online Now" : "Idle"}
                         </Badge>
                         <div className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="h-3 w-3" aria-hidden="true" />
                           <span>{timeOnSite}m on site</span>
                         </div>
                       </div>
@@ -258,72 +305,100 @@ export default function SabChatVisitorsPage() {
                     <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)]">
-                          <MapPin className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                          <MapPin
+                            className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                            aria-hidden="true"
+                          />
                           New York, US
                         </div>
                         <div className="flex items-center gap-3 text-xs text-[var(--st-text-secondary)]">
                           <span className="flex items-center gap-1">
-                            {isMobile ? <Smartphone className="h-3 w-3" /> : <Laptop className="h-3 w-3" />}
+                            {isMobile ? (
+                              <Smartphone className="h-3 w-3" aria-hidden="true" />
+                            ) : (
+                              <Laptop className="h-3 w-3" aria-hidden="true" />
+                            )}
                             {isMobile ? "iOS" : "Mac OS"}
                           </span>
-                          <span className="font-mono text-[10px]">{visitor.visitorInfo?.ip || "Unknown IP"}</span>
+                          <span className="font-mono text-[10px]">
+                            {visitor.visitorInfo?.ip || "Unknown IP"}
+                          </span>
                         </div>
                       </div>
                     </Td>
                     <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
-                          <Globe className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                          <Globe
+                            className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                            aria-hidden="true"
+                          />
                           <span
-                            className="max-w-[200px] truncate text-sm text-[var(--st-text)] font-medium"
+                            className="max-w-[200px] truncate text-sm font-medium text-[var(--st-text)]"
                             title={visitor.visitorInfo?.page}
                           >
                             {visitor.visitorInfo?.page || "/"}
                           </span>
-                          <ExternalLink className="h-3 w-3 text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
+                          <ExternalLink
+                            className="h-3 w-3 text-[var(--st-text-secondary)] opacity-0 transition-opacity group-hover:opacity-100"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
-                          <span className="px-1.5 py-0.5 bg-[var(--st-bg-muted)] rounded text-[10px]">Source</span>
+                          <span className="rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px]">
+                            Source
+                          </span>
                           {source}
                         </div>
                       </div>
                     </Td>
-                    <Td className="text-right">
+                    <Td align="right">
                       <div className="flex items-center justify-end gap-2">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
-                                <History className="h-4 w-4" />
-                              </Button>
+                              <IconButton
+                                label="View journey"
+                                icon={History}
+                                variant="ghost"
+                                size="sm"
+                              />
                             </TooltipTrigger>
                             <TooltipContent>View Journey</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        
+
                         <Button
-                          asChild
                           variant="secondary"
                           size="sm"
-                          className="font-medium"
+                          iconLeft={Send}
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/sabchat/inbox?conversationId=${visitor._id.toString()}`,
+                            )
+                          }
                         >
-                          <a href={`/dashboard/sabchat/inbox?conversationId=${visitor._id.toString()}`}>
-                            <Send className="mr-1.5 h-3.5 w-3.5" />
-                            Invite
-                          </a>
+                          Invite
                         </Button>
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)]">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                            <IconButton
+                              label="More actions"
+                              icon={MoreHorizontal}
+                              variant="ghost"
+                              size="sm"
+                            />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View full profile</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              View full profile
+                            </DropdownMenuItem>
                             <DropdownMenuItem>Block IP Address</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-[var(--st-text)]">Delete session</DropdownMenuItem>
+                            <DropdownMenuItem variant="danger">
+                              Delete session
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

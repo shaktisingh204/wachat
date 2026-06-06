@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 
 export default function ReportsError({
@@ -16,19 +16,18 @@ export default function ReportsError({
   }, [error]);
 
   return (
-    <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-xl border border-dashed p-8 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20">
-        <AlertTriangle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
-      </div>
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold tracking-tight">Something went wrong!</h2>
-        <p className="text-sm text-[var(--st-text-secondary)] max-w-[500px]">
-          There was an error loading the reports module. {error.message}
-        </p>
-      </div>
-      <Button onClick={() => reset()} variant="outline">
-        Try again
-      </Button>
+    <div className="ui20 flex min-h-[400px] w-full items-center justify-center p-8">
+      <EmptyState
+        icon={AlertTriangle}
+        tone="danger"
+        title="Something went wrong!"
+        description={`There was an error loading the reports module. ${error.message}`}
+        action={
+          <Button variant="outline" onClick={() => reset()}>
+            Try again
+          </Button>
+        }
+      />
     </div>
   );
 }

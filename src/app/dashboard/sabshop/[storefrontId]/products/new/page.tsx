@@ -1,36 +1,80 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Upload, Plus, Trash2, HelpCircle } from "lucide-react";
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Textarea, Label, Card, CardBody, CardHeader, CardTitle, CardDescription, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Switch, Separator, Badge } from '@/components/sabcrm/20ui';
+import { ArrowLeft, Upload, Plus, Trash2, X, FileImage } from "lucide-react";
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Field,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Switch,
+  Separator,
+  Dot,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 export default function NewProductPage() {
   const params = useParams();
   const router = useRouter();
   const storefrontId = params.storefrontId as string;
+  const { toast } = useToast();
+
   const [hasVariants, setHasVariants] = useState(false);
+  const [media, setMedia] = useState<SabFilePick[]>([]);
+
+  function handlePickMedia(pick: SabFilePick) {
+    setMedia((prev) => [...prev, pick]);
+    toast.success("Media added");
+  }
+
+  function handleRemoveMedia(index: number) {
+    setMedia((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleSave() {
+    toast.success("Product saved");
+  }
 
   return (
     <div className="flex-1 space-y-6 p-8 w-full max-w-5xl mx-auto">
-      <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] mb-4 hover:text-[var(--st-text)] transition-colors cursor-pointer w-fit" onClick={() => router.back()}>
-        <ArrowLeft className="w-4 h-4" />
+      <Button
+        variant="ghost"
+        size="sm"
+        iconLeft={ArrowLeft}
+        className="w-fit"
+        onClick={() => router.back()}
+      >
         Back to Products
-      </div>
-      
+      </Button>
+
       <PageHeader bordered={false}>
         <PageHeading>
           <PageTitle>Add Product</PageTitle>
-          <PageDescription>
-            Create a new product listing.
-          </PageDescription>
+          <PageDescription>Create a new product listing.</PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline" className="mr-2" onClick={() => router.back()}>
+          <Button variant="outline" onClick={() => router.back()}>
             Discard
           </Button>
-          <Button>
+          <Button variant="primary" onClick={handleSave}>
             Save Product
           </Button>
         </PageActions>
@@ -44,18 +88,16 @@ export default function NewProductPage() {
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" placeholder="Short Sleeve T-Shirt" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea 
-                  id="description" 
-                  placeholder="Describe your product in detail..." 
+              <Field label="Title">
+                <Input placeholder="Short Sleeve T-Shirt" />
+              </Field>
+              <Field label="Description">
+                <Textarea
+                  placeholder="Describe your product in detail..."
+                  rows={6}
                   className="min-h-[150px]"
                 />
-              </div>
+              </Field>
             </CardBody>
           </Card>
 
@@ -64,19 +106,54 @@ export default function NewProductPage() {
               <CardTitle>Media</CardTitle>
               <CardDescription>Add images, videos, or 3D models.</CardDescription>
             </CardHeader>
-            <CardBody>
-              <div className="border-2 border-dashed border-[var(--st-border)] rounded-xl p-10 flex flex-col items-center justify-center text-center bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer">
-                <div className="w-12 h-12 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mb-4">
+            <CardBody className="space-y-4">
+              <div className="border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-10 flex flex-col items-center justify-center text-center bg-[var(--st-bg-secondary)]">
+                <span
+                  className="w-12 h-12 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mb-4"
+                  aria-hidden="true"
+                >
                   <Upload className="w-6 h-6 text-[var(--st-text-tertiary)]" />
-                </div>
-                <h3 className="text-sm font-medium text-[var(--st-text)] mb-1">Click to upload or drag and drop</h3>
-                <p className="text-xs text-[var(--st-text-secondary)] max-w-[200px]">
-                  SVG, PNG, JPG or GIF (max. 800x400px)
+                </span>
+                <h3 className="text-sm font-medium text-[var(--st-text)] mb-1">
+                  Add media from your library or upload a new file
+                </h3>
+                <p className="text-xs text-[var(--st-text-secondary)] max-w-[220px]">
+                  SVG, PNG, JPG or GIF up to 800x400px.
                 </p>
-                <Button variant="secondary" size="sm" className="mt-6">
-                  Select Files
-                </Button>
+                <SabFilePickerButton
+                  accept="image"
+                  variant="outline"
+                  className="mt-6"
+                  onPick={handlePickMedia}
+                >
+                  <Upload /> Select Files
+                </SabFilePickerButton>
               </div>
+
+              {media.length > 0 ? (
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {media.map((file, index) => (
+                    <li
+                      key={`${file.url}-${index}`}
+                      className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                    >
+                      <FileImage
+                        className="w-4 h-4 shrink-0 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
+                      <span className="flex-1 truncate text-xs text-[var(--st-text)]">
+                        {file.name ?? "Untitled file"}
+                      </span>
+                      <IconButton
+                        label={`Remove ${file.name ?? "file"}`}
+                        icon={X}
+                        size="sm"
+                        onClick={() => handleRemoveMedia(index)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </CardBody>
           </Card>
 
@@ -86,28 +163,24 @@ export default function NewProductPage() {
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-tertiary)]">$</span>
-                    <Input id="price" type="number" placeholder="0.00" className="pl-7" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="compare-price">Compare at price</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-tertiary)]">$</span>
-                    <Input id="compare-price" type="number" placeholder="0.00" className="pl-7" />
-                  </div>
-                </div>
+                <Field label="Price">
+                  <Input type="number" placeholder="0.00" prefix="$" />
+                </Field>
+                <Field label="Compare at price">
+                  <Input type="number" placeholder="0.00" prefix="$" />
+                </Field>
               </div>
               <div className="mt-6 pt-6 border-t border-[var(--st-border)]">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <Label className="text-base">Charge tax on this product</Label>
-                    <p className="text-xs text-[var(--st-text-secondary)]">Applies to the base price.</p>
+                    <p className="text-sm font-medium text-[var(--st-text)]">
+                      Charge tax on this product
+                    </p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">
+                      Applies to the base price.
+                    </p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch defaultChecked aria-label="Charge tax on this product" />
                 </div>
               </div>
             </CardBody>
@@ -115,22 +188,26 @@ export default function NewProductPage() {
 
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <CardTitle>Variants</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setHasVariants(!hasVariants)}>
-                  {hasVariants ? "Cancel" : <><Plus className="w-4 h-4 mr-2" /> Add options like size or color</>}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={hasVariants ? undefined : Plus}
+                  onClick={() => setHasVariants(!hasVariants)}
+                >
+                  {hasVariants ? "Cancel" : "Add options like size or color"}
                 </Button>
               </div>
             </CardHeader>
-            {hasVariants && (
+            {hasVariants ? (
               <CardBody className="space-y-6">
                 <Separator />
                 <div className="space-y-4">
                   <div className="flex items-end gap-4">
-                    <div className="space-y-2 flex-1">
-                      <Label>Option name</Label>
+                    <Field label="Option name" className="flex-1">
                       <Select defaultValue="size">
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Option name">
                           <SelectValue placeholder="Select option" />
                         </SelectTrigger>
                         <SelectContent>
@@ -140,22 +217,29 @@ export default function NewProductPage() {
                           <SelectItem value="style">Style</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="space-y-2 flex-[2]">
-                      <Label>Option values</Label>
+                    </Field>
+                    <Field label="Option values" className="flex-[2]">
                       <Input placeholder="Small, Medium, Large" />
-                    </div>
-                    <Button variant="ghost" size="icon" className="mb-0.5 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    </Field>
+                    <IconButton
+                      label="Remove option"
+                      icon={Trash2}
+                      variant="ghost"
+                      className="mb-0.5"
+                    />
                   </div>
-                  <Button variant="outline" size="sm" className="w-full border-dashed">
-                    <Plus className="w-4 h-4 mr-2" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    block
+                    iconLeft={Plus}
+                    className="border-dashed"
+                  >
                     Add another option
                   </Button>
                 </div>
               </CardBody>
-            )}
+            ) : null}
           </Card>
         </div>
 
@@ -166,25 +250,27 @@ export default function NewProductPage() {
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <Select defaultValue="draft">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="success" className="w-2 h-2 rounded-full p-0 flex-shrink-0" />
-                      Active
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="draft">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="w-2 h-2 rounded-full p-0 flex-shrink-0" />
-                      Draft
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Field label="Product status">
+                <Select defaultValue="draft">
+                  <SelectTrigger aria-label="Product status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">
+                      <span className="flex items-center gap-2">
+                        <Dot tone="success" />
+                        Active
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="draft">
+                      <span className="flex items-center gap-2">
+                        <Dot tone="neutral" />
+                        Draft
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
               <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                 This product will be hidden from all sales channels.
               </p>
@@ -196,52 +282,48 @@ export default function NewProductPage() {
               <CardTitle>Organization</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="space-y-2">
-                <Label>Product type</Label>
+              <Field label="Product type">
                 <Input placeholder="e.g. T-Shirt" />
-              </div>
-              <div className="space-y-2">
-                <Label>Vendor</Label>
+              </Field>
+              <Field label="Vendor">
                 <Input placeholder="e.g. Nike" />
-              </div>
-              <div className="space-y-2">
-                <Label>Collections</Label>
+              </Field>
+              <Field label="Collections">
                 <Input placeholder="Search collections..." />
-              </div>
-              <div className="space-y-2">
-                <Label>Tags</Label>
+              </Field>
+              <Field label="Tags">
                 <Input placeholder="Find or create tags" />
-              </div>
+              </Field>
             </CardBody>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Inventory</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="space-y-2">
-                <Label>SKU (Stock Keeping Unit)</Label>
+              <Field label="SKU (Stock Keeping Unit)">
                 <Input placeholder="e.g. TSHIRT-001" />
-              </div>
-              <div className="space-y-2">
-                <Label>Barcode (ISBN, UPC, GTIN, etc.)</Label>
+              </Field>
+              <Field label="Barcode (ISBN, UPC, GTIN, etc.)">
                 <Input placeholder="e.g. 123456789012" />
-              </div>
+              </Field>
               <div className="mt-4 pt-4 border-t border-[var(--st-border)] space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Track quantity</Label>
-                  <Switch defaultChecked />
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-medium text-[var(--st-text)]">Track quantity</p>
+                  <Switch defaultChecked aria-label="Track quantity" />
                 </div>
-                <div className="space-y-2">
-                  <Label>Quantity Available</Label>
+                <Field label="Quantity Available">
                   <Input type="number" defaultValue="0" />
-                </div>
+                </Field>
               </div>
             </CardBody>
           </Card>
         </div>
       </div>
+
+      {/* Carries the route param so the surface is wired to its storefront. */}
+      <input type="hidden" name="storefrontId" value={storefrontId} />
     </div>
   );
 }

@@ -2,8 +2,25 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
+import { Palette } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Textarea,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     listThemes, createTheme, deleteTheme,
@@ -41,18 +58,18 @@ export default function ThemesPage(): React.JSX.Element {
         if (!name.trim()) return;
         let parsed: unknown = {};
         try { parsed = JSON.parse(config); } catch {
-            toast({ title: 'Theme config must be valid JSON', variant: 'destructive' });
+            toast.error('Theme config must be valid JSON');
             return;
         }
         const r = await createTheme({ name, configJson: parsed });
-        if (!r.ok) { toast({ title: r.error, variant: 'destructive' }); return; }
+        if (!r.ok) { toast.error(r.error); return; }
         setName('');
         load();
     }
 
     async function onApply(themeId: string) {
         const r = await updateStorefront(id, { themeId });
-        if (r.ok) { setActiveThemeId(themeId); toast({ title: 'Theme applied' }); }
+        if (r.ok) { setActiveThemeId(themeId); toast.success('Theme applied'); }
     }
 
     async function onDelete(themeId: string) {
@@ -62,22 +79,25 @@ export default function ThemesPage(): React.JSX.Element {
     }
 
     return (
-        <div className="zoruui flex flex-col gap-4 p-6">
-            <h1 className="text-2xl font-semibold text-[var(--st-text)]">Themes</h1>
+        <div className="flex flex-col gap-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Themes</PageTitle>
+                </PageHeaderHeading>
+                <PageActions />
+            </PageHeader>
 
             <Card className="max-w-2xl">
                 <CardHeader><CardTitle>New custom theme</CardTitle></CardHeader>
                 <CardBody className="flex flex-col gap-3">
-                    <div className="space-y-1">
-                        <Label>Name</Label>
+                    <Field label="Name">
                         <Input value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Config JSON</Label>
+                    </Field>
+                    <Field label="Config JSON">
                         <Textarea rows={6} value={config} onChange={(e) => setConfig(e.target.value)} />
-                    </div>
+                    </Field>
                     <div className="flex justify-end">
-                        <Button onClick={onCreate}>Save theme</Button>
+                        <Button variant="primary" onClick={onCreate}>Save theme</Button>
                     </div>
                 </CardBody>
             </Card>
@@ -86,7 +106,11 @@ export default function ThemesPage(): React.JSX.Element {
                 <CardHeader><CardTitle>All themes</CardTitle></CardHeader>
                 <CardBody>
                     {themes.length === 0 ? (
-                        <p className="text-sm text-[var(--st-text-secondary)]">No themes yet.</p>
+                        <EmptyState
+                            icon={Palette}
+                            title="No themes yet"
+                            description="Create a custom theme above to get started."
+                        />
                     ) : (
                         <ul className="divide-y divide-[var(--st-border)]">
                             {themes.map((t) => (
@@ -95,14 +119,14 @@ export default function ThemesPage(): React.JSX.Element {
                                         <div className="font-medium text-[var(--st-text)]">{t.name}</div>
                                         {t.description && <div className="text-xs text-[var(--st-text-secondary)]">{t.description}</div>}
                                     </div>
-                                    {t.system && <Badge variant="ghost">System</Badge>}
+                                    {t.system && <Badge tone="neutral">System</Badge>}
                                     {activeThemeId === t._id ? (
-                                        <Badge variant="success">Active</Badge>
+                                        <Badge tone="success">Active</Badge>
                                     ) : (
                                         <Button size="sm" variant="outline" onClick={() => onApply(t._id)}>Apply</Button>
                                     )}
                                     {!t.system && (
-                                        <Button size="sm" variant="destructive" onClick={() => onDelete(t._id)}>Delete</Button>
+                                        <Button size="sm" variant="danger" onClick={() => onDelete(t._id)}>Delete</Button>
                                     )}
                                 </li>
                             ))}

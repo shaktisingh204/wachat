@@ -1,11 +1,68 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, Tag, Ticket, Activity, MoreHorizontal, Copy, Trash2, Edit3, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import {
+  Plus,
+  Tag,
+  Ticket,
+  Activity,
+  MoreHorizontal,
+  Copy,
+  Trash2,
+  Edit3,
+  ArrowUpRight,
+} from "lucide-react";
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  StatCard,
+  Card,
+  CardHeader,
+  CardTitle,
+  Field,
+  DataTable,
+  Badge,
+  EmptyState,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  useToast,
+  type BadgeVariant,
+  type DataTableColumn,
+} from "@/components/sabcrm/20ui";
+import { SearchInput } from "@/components/sabcrm/20ui";
 
-const discountData = [
+interface DiscountCode {
+  id: string;
+  code: string;
+  type: string;
+  value: string;
+  status: string;
+  usage: string;
+  createdAt: string;
+}
+
+interface AutomaticDiscount {
+  id: string;
+  title: string;
+  status: string;
+  usage: string;
+  createdAt: string;
+}
+
+const discountData: DiscountCode[] = [
   {
     id: "d_001",
     code: "SUMMER2026",
@@ -44,7 +101,7 @@ const discountData = [
   },
 ];
 
-const automaticDiscountData = [
+const automaticDiscountData: AutomaticDiscount[] = [
   {
     id: "ad_001",
     title: "Buy 2 Get 1 Free",
@@ -68,70 +125,75 @@ const automaticDiscountData = [
   },
 ];
 
-export default function DiscountsPage({ params }: { params: { storefrontId: string } }) {
-  const [activeTab, setActiveTab] = useState("codes");
+function statusVariant(status: string): BadgeVariant {
+  if (status === "Active") return "success";
+  if (status === "Expired" || status === "Inactive") return "destructive";
+  if (status === "Scheduled") return "warning";
+  return "outline";
+}
 
-  const discountColumns = [
+export default function DiscountsPage({ params }: { params: { storefrontId: string } }) {
+  void params;
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("codes");
+  const [codeQuery, setCodeQuery] = useState("");
+  const [autoQuery, setAutoQuery] = useState("");
+
+  const filteredCodes = useMemo(() => {
+    const q = codeQuery.trim().toLowerCase();
+    if (!q) return discountData;
+    return discountData.filter((d) => d.code.toLowerCase().includes(q));
+  }, [codeQuery]);
+
+  const filteredAutomatic = useMemo(() => {
+    const q = autoQuery.trim().toLowerCase();
+    if (!q) return automaticDiscountData;
+    return automaticDiscountData.filter((d) => d.title.toLowerCase().includes(q));
+  }, [autoQuery]);
+
+  const discountColumns: Array<DataTableColumn<DiscountCode>> = [
     {
-      accessorKey: "code",
+      key: "code",
       header: "Discount Code",
-      cell: ({ row }: any) => (
+      sortable: true,
+      render: (row) => (
         <div className="flex items-center gap-2">
-          <Ticket className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          <span className="font-medium">{row.original.code}</span>
+          <Ticket className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          <span className="font-medium">{row.code}</span>
         </div>
       ),
     },
     {
-      accessorKey: "status",
+      key: "status",
       header: "Status",
-      cell: ({ row }: any) => (
-        <Badge
-          variant={
-            row.original.status === "Active"
-              ? "success"
-              : row.original.status === "Expired"
-              ? "danger"
-              : "outline"
-          }
-        >
-          {row.original.status}
-        </Badge>
-      ),
+      sortable: true,
+      render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge>,
     },
+    { key: "type", header: "Type", sortable: true },
+    { key: "value", header: "Value" },
+    { key: "usage", header: "Usage" },
     {
-      accessorKey: "type",
-      header: "Type",
-    },
-    {
-      accessorKey: "value",
-      header: "Value",
-    },
-    {
-      accessorKey: "usage",
-      header: "Usage",
-    },
-    {
-      id: "actions",
-      cell: ({ row }: any) => (
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <IconButton label={`Actions for ${row.code}`} icon={MoreHorizontal} size="sm" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Copy className="mr-2 h-4 w-4" />
-              Copy Code
+            <DropdownMenuItem
+              iconLeft={Copy}
+              onSelect={() => {
+                void navigator.clipboard?.writeText(row.code);
+                toast.success(`Copied ${row.code}`);
+              }}
+            >
+              Copy code
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Edit3 className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
+            <DropdownMenuItem iconLeft={Edit3}>Edit</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-[var(--st-danger)]">
-              <Trash2 className="mr-2 h-4 w-4" />
+            <DropdownMenuItem variant="danger" iconLeft={Trash2}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -140,59 +202,39 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
     },
   ];
 
-  const automaticColumns = [
+  const automaticColumns: Array<DataTableColumn<AutomaticDiscount>> = [
     {
-      accessorKey: "title",
+      key: "title",
       header: "Title",
-      cell: ({ row }: any) => (
+      sortable: true,
+      render: (row) => (
         <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          <span className="font-medium">{row.original.title}</span>
+          <Tag className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          <span className="font-medium">{row.title}</span>
         </div>
       ),
     },
     {
-      accessorKey: "status",
+      key: "status",
       header: "Status",
-      cell: ({ row }: any) => (
-        <Badge
-          variant={
-            row.original.status === "Active"
-              ? "success"
-              : row.original.status === "Scheduled"
-              ? "warning"
-              : "outline"
-          }
-        >
-          {row.original.status}
-        </Badge>
-      ),
+      sortable: true,
+      render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge>,
     },
+    { key: "usage", header: "Usage count", sortable: true },
+    { key: "createdAt", header: "Created", sortable: true },
     {
-      accessorKey: "usage",
-      header: "Usage count",
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created",
-    },
-    {
-      id: "actions",
-      cell: ({ row }: any) => (
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <IconButton label={`Actions for ${row.title}`} icon={MoreHorizontal} size="sm" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Edit3 className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
+            <DropdownMenuItem iconLeft={Edit3}>Edit</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-[var(--st-danger)]">
-              <Trash2 className="mr-2 h-4 w-4" />
+            <DropdownMenuItem variant="danger" iconLeft={Trash2}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -211,9 +253,10 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline">Export</Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="outline" onClick={() => toast({ title: "Export started", tone: "info" })}>
+            Export
+          </Button>
+          <Button variant="primary" iconLeft={Plus}>
             Create discount
           </Button>
         </PageActions>
@@ -223,61 +266,85 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
         <StatCard
           label="Total Redemptions"
           value="1,544"
-          delta={12.5}
-          period="vs last month"
-          icon={<Activity className="h-4 w-4" />}
+          icon={Activity}
+          delta={{ value: "+12.5% vs last month", tone: "up" }}
         />
         <StatCard
           label="Discount Revenue"
           value="$12,450.00"
-          delta={5.2}
-          period="vs last month"
-          icon={<ArrowUpRight className="h-4 w-4" />}
+          icon={ArrowUpRight}
+          delta={{ value: "+5.2% vs last month", tone: "up" }}
         />
         <StatCard
           label="Active Campaigns"
           value="4"
-          delta={-1}
-          period="vs last month"
-          icon={<Tag className="h-4 w-4" />}
-          invertDelta
+          icon={Tag}
+          delta={{ value: "-1 vs last month", tone: "down" }}
         />
       </div>
 
-      <div className="mt-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="codes">Discount Codes</TabsTrigger>
-            <TabsTrigger value="automatic">Automatic Discounts</TabsTrigger>
-          </TabsList>
-          <TabsContent value="codes" className="w-full">
-            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
-              <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
-                <h3 className="font-semibold">Active & Expired Codes</h3>
-              </div>
-              <DataTable
-                columns={discountColumns}
-                data={discountData}
-                filterColumn="code"
-                filterPlaceholder="Search discount codes..."
-              />
-            </div>
-          </TabsContent>
-          <TabsContent value="automatic" className="w-full">
-            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
-              <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
-                <h3 className="font-semibold">Automatic Discounts</h3>
-              </div>
-              <DataTable
-                columns={automaticColumns}
-                data={automaticDiscountData}
-                filterColumn="title"
-                filterPlaceholder="Search automatic discounts..."
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="codes">Discount Codes</TabsTrigger>
+          <TabsTrigger value="automatic">Automatic Discounts</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="codes" className="w-full">
+          <Card padding="none">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle>Active &amp; Expired Codes</CardTitle>
+              <Field label="Search discount codes" className="sm:w-72" id="search-codes">
+                <SearchInput
+                  value={codeQuery}
+                  onValueChange={setCodeQuery}
+                  placeholder="Search discount codes..."
+                  clearLabel="Clear discount code search"
+                />
+              </Field>
+            </CardHeader>
+            <DataTable
+              columns={discountColumns}
+              rows={filteredCodes}
+              getRowId={(row) => row.id}
+              empty={
+                <EmptyState
+                  icon={Ticket}
+                  title="No discount codes found"
+                  description="Try a different search, or create your first discount code."
+                />
+              }
+            />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="automatic" className="w-full">
+          <Card padding="none">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle>Automatic Discounts</CardTitle>
+              <Field label="Search automatic discounts" className="sm:w-72" id="search-automatic">
+                <SearchInput
+                  value={autoQuery}
+                  onValueChange={setAutoQuery}
+                  placeholder="Search automatic discounts..."
+                  clearLabel="Clear automatic discount search"
+                />
+              </Field>
+            </CardHeader>
+            <DataTable
+              columns={automaticColumns}
+              rows={filteredAutomatic}
+              getRowId={(row) => row.id}
+              empty={
+                <EmptyState
+                  icon={Tag}
+                  title="No automatic discounts found"
+                  description="Try a different search, or create an automatic discount."
+                />
+              }
+            />
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

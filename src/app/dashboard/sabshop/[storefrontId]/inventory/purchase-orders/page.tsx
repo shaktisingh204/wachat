@@ -1,23 +1,72 @@
 "use client";
 
 import React from "react";
-import { Plus, Search, FileText, PackageCheck, Clock, AlertCircle, MoreHorizontal } from "lucide-react";
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
-import { StatCard } from '@/components/sabcrm/20ui';
+import {
+  Plus,
+  Search,
+  FileText,
+  PackageCheck,
+  Clock,
+  AlertCircle,
+  MoreHorizontal,
+  Inbox,
+} from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  type BadgeTone,
+  StatCard,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/sabcrm/20ui";
 
-const mockPurchaseOrders = [
+interface PurchaseOrder {
+  id: string;
+  supplier: string;
+  orderDate: string;
+  expectedDate: string;
+  totalAmount: number;
+  items: number;
+  status: string;
+}
+
+const mockPurchaseOrders: PurchaseOrder[] = [
   {
     id: "PO-2023-1042",
     supplier: "Global Electronics Ltd.",
     orderDate: "2023-10-15",
     expectedDate: "2023-10-22",
-    totalAmount: 14500.00,
+    totalAmount: 14500.0,
     items: 450,
     status: "Pending",
   },
@@ -26,7 +75,7 @@ const mockPurchaseOrders = [
     supplier: "Pacific Textiles Inc.",
     orderDate: "2023-10-16",
     expectedDate: "2023-10-25",
-    totalAmount: 8240.50,
+    totalAmount: 8240.5,
     items: 1200,
     status: "Draft",
   },
@@ -35,7 +84,7 @@ const mockPurchaseOrders = [
     supplier: "Nordic Home Goods",
     orderDate: "2023-10-10",
     expectedDate: "2023-10-18",
-    totalAmount: 22100.00,
+    totalAmount: 22100.0,
     items: 320,
     status: "Receiving",
   },
@@ -44,7 +93,7 @@ const mockPurchaseOrders = [
     supplier: "TechSupply Co.",
     orderDate: "2023-10-05",
     expectedDate: "2023-10-12",
-    totalAmount: 4500.00,
+    totalAmount: 4500.0,
     items: 50,
     status: "Completed",
   },
@@ -53,142 +102,195 @@ const mockPurchaseOrders = [
     supplier: "Global Electronics Ltd.",
     orderDate: "2023-10-18",
     expectedDate: "2023-11-01",
-    totalAmount: 56000.00,
+    totalAmount: 56000.0,
     items: 2000,
     status: "Pending",
   },
 ];
 
-export default function PurchaseOrdersPage() {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-  };
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Completed: "success",
+  Receiving: "info",
+  Pending: "warning",
+  Draft: "neutral",
+};
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'Completed': return 'default';
-      case 'Receiving': return 'secondary';
-      case 'Pending': return 'outline';
-      case 'Draft': return 'secondary';
-      default: return 'outline';
-    }
-  };
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+}
+
+export default function PurchaseOrdersPage() {
+  const [query, setQuery] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return mockPurchaseOrders.filter((po) => {
+      const matchesQuery =
+        q === "" ||
+        po.id.toLowerCase().includes(q) ||
+        po.supplier.toLowerCase().includes(q);
+      const matchesStatus = statusFilter === "all" || po.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [query, statusFilter]);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader
-        title="Purchase Orders"
-        description="Manage incoming procurement from your suppliers and vendors."
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create PO
-        </Button>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Purchase Orders</PageTitle>
+          <PageDescription>
+            Manage incoming procurement from your suppliers and vendors.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
+            Create PO
+          </Button>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Active POs"
+          label="Active POs"
           value="24"
-          icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-          description="Pending and Receiving"
+          icon={FileText}
+          delta={{ value: "Pending and Receiving", tone: "neutral" }}
         />
         <StatCard
-          title="Pending Value"
+          label="Pending Value"
           value="$124,500"
-          icon={<AlertCircle className="h-4 w-4 text-muted-foreground" />}
-          trend="+12% from last month"
-          trendUp={true}
+          icon={AlertCircle}
+          delta={{ value: "+12% from last month", tone: "up" }}
         />
         <StatCard
-          title="Expected Today"
+          label="Expected Today"
           value="3"
-          icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-          description="Shipments arriving today"
+          icon={Clock}
+          delta={{ value: "Shipments arriving today", tone: "neutral" }}
         />
         <StatCard
-          title="Received (MTD)"
+          label="Received (MTD)"
           value="18"
-          icon={<PackageCheck className="h-4 w-4 text-muted-foreground" />}
-          trend="+4 from last month"
-          trendUp={true}
+          icon={PackageCheck}
+          delta={{ value: "+4 from last month", tone: "up" }}
         />
       </div>
 
-      <Card className="col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <CardTitle>Procurement Orders</CardTitle>
             <CardDescription>
-              Track all your purchase orders and their current fulfillment status.
+              Track all your purchase orders and their current fulfillment
+              status.
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Field className="w-full sm:w-[300px]">
               <Input
                 type="search"
                 placeholder="Search POs..."
-                className="w-[200px] sm:w-[300px] pl-8"
+                iconLeft={Search}
+                aria-label="Search purchase orders"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
-            </div>
-            <Button variant="outline">Filter Status</Button>
+            </Field>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger aria-label="Filter by status" className="sm:w-[160px]">
+                <SelectValue placeholder="Filter Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Receiving">Receiving</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Draft">Draft</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardBody>
-          <Table>
-            <THead>
-              <Tr>
-                <Th>PO Number</Th>
-                <Th>Supplier</Th>
-                <Th>Order Date</Th>
-                <Th>Expected Date</Th>
-                <Th>Total Amount</Th>
-                <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {mockPurchaseOrders.map((po) => (
-                <Tr key={po.id}>
-                  <Td className="font-medium">{po.id}</Td>
-                  <Td>{po.supplier}</Td>
-                  <Td className="text-muted-foreground">{po.orderDate}</Td>
-                  <Td className="text-muted-foreground">{po.expectedDate}</Td>
-                  <Td>{formatCurrency(po.totalAmount)}</Td>
-                  <Td>
-                    <Badge variant={getStatusBadgeVariant(po.status)} className={po.status === 'Draft' ? 'opacity-50' : ''}>
-                      {po.status}
-                    </Badge>
-                  </Td>
-                  <Td className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit PO</DropdownMenuItem>
-                        <DropdownMenuItem>Mark as Received</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">Cancel PO</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </Td>
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={Inbox}
+              title="No purchase orders found"
+              description="Try a different search term or clear the status filter."
+            />
+          ) : (
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>PO Number</Th>
+                  <Th>Supplier</Th>
+                  <Th>Order Date</Th>
+                  <Th>Expected Date</Th>
+                  <Th align="right">Total Amount</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Actions</Th>
                 </Tr>
-              ))}
-            </TBody>
-          </Table>
+              </THead>
+              <TBody>
+                {filtered.map((po) => (
+                  <Tr key={po.id}>
+                    <Td className="font-medium">{po.id}</Td>
+                    <Td>{po.supplier}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {po.orderDate}
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {po.expectedDate}
+                    </Td>
+                    <Td align="right">{formatCurrency(po.totalAmount)}</Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[po.status] ?? "neutral"} dot>
+                        {po.status}
+                      </Badge>
+                    </Td>
+                    <Td align="right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <IconButton
+                            label={`Actions for ${po.id}`}
+                            icon={MoreHorizontal}
+                            variant="ghost"
+                            size="sm"
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem>View details</DropdownMenuItem>
+                          <DropdownMenuItem>Edit PO</DropdownMenuItem>
+                          <DropdownMenuItem>Mark as Received</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem variant="danger">
+                            Cancel PO
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          )}
         </CardBody>
-        <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
-          <div>Showing 1 to {mockPurchaseOrders.length} of 156 purchase orders</div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm">Next</Button>
+        <CardFooter className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
+          <div>
+            Showing 1 to {filtered.length} of 156 purchase orders
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm">
+              Next
+            </Button>
           </div>
         </CardFooter>
       </Card>
