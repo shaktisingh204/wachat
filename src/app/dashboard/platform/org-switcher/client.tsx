@@ -2,10 +2,29 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  Badge,
+  Field,
+  Input,
+  EmptyState,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { createOrganization, deleteOrganization } from '@/app/actions/platform/org-switcher.actions';
 import type { Organization } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2, Building } from 'lucide-react';
+import { Plus, Trash2, Building } from 'lucide-react';
 
 interface OrgSwitcherClientProps {
   initialData: Organization[];
@@ -24,11 +43,11 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
     startTransition(async () => {
       try {
         await createOrganization(form);
-        toast({ title: 'Organization created', variant: 'success' });
+        toast.success('Organization created');
         setDialogOpen(false);
         setForm({ name: '', slug: '', role: 'owner', active: true });
       } catch (err) {
-        toast({ title: 'Error creating organization', variant: 'destructive' });
+        toast.error('Error creating organization');
       }
     });
   };
@@ -38,48 +57,75 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
     startTransition(async () => {
       try {
         await deleteOrganization(id);
-        toast({ title: 'Organization deleted', variant: 'success' });
+        toast.success('Organization deleted');
       } catch (err) {
-        toast({ title: 'Error deleting organization', variant: 'destructive' });
+        toast.error('Error deleting organization');
       }
     });
   };
 
-  const filteredData = initialData.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = initialData.filter((d) =>
+    d.name.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
     <EntityListShell
       title="Organizations"
       subtitle="Manage your organizations and workspaces."
-      primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />New Organization</Button>}
+      primaryAction={
+        <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+          New Organization
+        </Button>
+      }
       search={{ value: query, onChange: setQuery, placeholder: 'Search orgs...' }}
     >
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredData.map(item => (
-          <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-[var(--st-accent)] transition-all group">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-[var(--st-hover)] flex items-center justify-center">
-                  <Building className="w-5 h-5 text-[var(--st-text)]" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-[var(--st-text)]">{item.name}</h3>
-                  <p className="text-sm text-[var(--st-text-tertiary)]">@{item.slug}</p>
+      {filteredData.length === 0 ? (
+        <EmptyState
+          icon={Building}
+          title="No organizations found"
+          description="Create your first organization to start managing workspaces."
+          action={
+            <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+              New Organization
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredData.map((item) => (
+            <Card
+              key={item.id}
+              padding="lg"
+              className="group flex flex-col justify-between transition-all hover:border-[var(--st-accent)]"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-hover)]">
+                    <Building className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-[var(--st-text)]">{item.name}</h3>
+                    <p className="text-sm text-[var(--st-text-tertiary)]">@{item.slug}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-6 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
-              <span className="text-sm font-medium capitalize px-2 py-1 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-md">{item.role}</span>
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-                <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
-              </Button>
-            </div>
-          </Card>
-        ))}
-        {filteredData.length === 0 && (
-          <div className="col-span-full py-12 text-center text-[var(--st-text-tertiary)]">No organizations found.</div>
-        )}
-      </div>
+              <div className="mt-6 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+                <Badge tone="neutral" className="capitalize">
+                  {item.role}
+                </Badge>
+                <IconButton
+                  icon={Trash2}
+                  label={`Delete ${item.name}`}
+                  variant="ghost"
+                  onClick={() => handleDelete(item.id)}
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
+                  disabled={isPending}
+                />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -87,30 +133,37 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
             <DialogTitle>New Organization</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Organization Name</Label>
-              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Slug</Label>
-              <Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Your Role</Label>
-              <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
-                <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+            <Field label="Organization Name">
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </Field>
+            <Field label="Slug">
+              <Input
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              />
+            </Field>
+            <Field label="Your Role">
+              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
+                <SelectTrigger aria-label="Your Role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="owner">Owner</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="member">Member</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isPending}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={isPending}>
-              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleCreate} loading={isPending}>
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>

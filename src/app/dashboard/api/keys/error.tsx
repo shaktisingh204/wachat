@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui';
+import { Alert, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 
 export default function ApiKeysError({
@@ -17,18 +17,18 @@ export default function ApiKeysError({
 
   return (
     <div className="flex min-h-[400px] items-center justify-center p-6">
-      <Alert variant="destructive" className="max-w-md">
-        <AlertCircle className="h-5 w-5" />
-        <AlertTitle>Something went wrong!</AlertTitle>
-        <AlertDescription className="mt-2">
-          <p className="mb-4 text-sm opacity-90">
-            Failed to load API keys or usage data. {error.message}
-          </p>
-          <Button onClick={() => reset()} variant="outline" size="sm">
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Try again
-          </Button>
-        </AlertDescription>
+      <Alert
+        tone="danger"
+        icon={AlertCircle}
+        title="Something went wrong"
+        className="max-w-md"
+      >
+        <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
+          Failed to load API keys or usage data. {error.message}
+        </p>
+        <Button onClick={() => reset()} variant="outline" size="sm" iconLeft={RefreshCcw}>
+          Try again
+        </Button>
       </Alert>
     </div>
   );

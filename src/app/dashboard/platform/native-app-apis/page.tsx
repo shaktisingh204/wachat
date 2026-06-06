@@ -11,4 +11,3 @@ export default async function NativeAppAPIsPage() {
   const data = await getNativeAppAPIKeys();
   return <NativeAppAPIsClient initialData={data} />;
 }
-

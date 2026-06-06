@@ -10,7 +10,13 @@
 
 import Link from 'next/link';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 
 import {
     getSabConnectFeed,
@@ -35,7 +41,7 @@ export default async function SabConnectFeedPage() {
     ]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
+        <div className="ui20 flex w-full flex-col gap-6">
             <PageHeader>
                 <PageHeading>
                     <PageTitle>Connect</PageTitle>
@@ -43,16 +49,20 @@ export default async function SabConnectFeedPage() {
                         One feed for posts, announcements, recognition and events across the workspace.
                     </PageDescription>
                 </PageHeading>
-                <div className="flex gap-2">
-                    <Button asChild variant="outline">
-                        <Link href="/dashboard/sabconnect/announcements/new">
-                            New announcement
-                        </Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                        <Link href="/dashboard/crm/workspace/awards/new">Give recognition</Link>
-                    </Button>
-                </div>
+                <PageActions>
+                    <Link
+                        href="/dashboard/sabconnect/announcements/new"
+                        className="u-btn u-btn--outline u-btn--md"
+                    >
+                        <span className="u-btn__label">New announcement</span>
+                    </Link>
+                    <Link
+                        href="/dashboard/crm/workspace/awards/new"
+                        className="u-btn u-btn--outline u-btn--md"
+                    >
+                        <span className="u-btn__label">Give recognition</span>
+                    </Link>
+                </PageActions>
             </PageHeader>
 
             <SabConnectComposer groups={groups.items} />

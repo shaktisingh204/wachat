@@ -2,24 +2,36 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card, Button } from '@/components/sabcrm/20ui';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Field,
+  Input,
+  Card,
+  CardBody,
+  Badge,
+  EmptyState,
+  Skeleton,
+  Pagination,
+} from '@/components/sabcrm/20ui';
+import { ArrowRight, Search, SearchX } from 'lucide-react';
 import type { GlobalSearchResult } from '@/types/platform';
 
-export function GlobalSearchClient({ 
-  initialQuery, 
-  currentPage, 
-  total, 
-  limit, 
-  data 
-}: { 
-  initialQuery: string; 
-  currentPage: number; 
-  total: number; 
-  limit: number; 
-  data: GlobalSearchResult[]; 
+export function GlobalSearchClient({
+  initialQuery,
+  currentPage,
+  total,
+  limit,
+  data,
+}: {
+  initialQuery: string;
+  currentPage: number;
+  total: number;
+  limit: number;
+  data: GlobalSearchResult[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,82 +62,90 @@ export function GlobalSearchClient({
     });
   };
 
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const firstResult = total > 0 ? (currentPage - 1) * limit + 1 : 0;
+  const lastResult = Math.min(currentPage * limit, total);
 
   return (
-    <EntityListShell
-      title="Platform Search"
-      subtitle="Find anything across CRM, HRM, Organizations, and more instantly."
-      search={{
-        value: query,
-        onChange: setQuery,
-        placeholder: 'Search deals, contacts, settings...',
-      }}
-      loading={isPending}
-      empty={
-        data.length === 0 ? (
-          initialQuery ? (
-            <div className="text-center py-12 text-[var(--st-text-tertiary)]">
-              No results found for "{initialQuery}". Try searching for something else.
-            </div>
-          ) : (
-            <div className="text-center py-12 text-[var(--st-text-tertiary)]">
-              Enter a search term to begin.
-            </div>
-          )
-        ) : null
-      }
-      pagination={
-        total > 0 ? (
-          <div className="flex items-center justify-between pt-4 mt-6">
-            <span className="text-sm text-[var(--st-text-tertiary)]">
-              Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total} results
-            </span>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSearch(query, currentPage - 1)}
-                disabled={currentPage <= 1 || isPending}
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Previous
-              </Button>
-              <span className="text-sm px-2 text-[var(--st-text-tertiary)]">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSearch(query, currentPage + 1)}
-                disabled={currentPage >= totalPages || isPending}
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
-          </div>
-        ) : null
-      }
-    >
-      {data.length > 0 && (
-        <div className="space-y-4">
-          {data.map(item => (
-            <Link key={item.id} href={item.url} className="block">
-              <Card className="p-4 flex items-center justify-between hover:border-[var(--st-accent)] transition-colors group cursor-pointer shadow-none">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs uppercase font-bold tracking-wider text-[var(--st-accent)]">{item.type}</span>
+    <div className="flex w-full flex-col gap-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Platform Search</PageTitle>
+          <PageDescription>
+            Find anything across CRM, HRM, Organizations, and more instantly.
+          </PageDescription>
+        </PageHeaderHeading>
+        <div className="w-full sm:w-72">
+          <Field label="Search" className="[&_.u-field__label]:sr-only">
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search deals, contacts, settings..."
+              iconLeft={Search}
+            />
+          </Field>
+        </div>
+      </PageHeader>
+
+      {isPending ? (
+        <div className="space-y-2" aria-live="polite" aria-busy="true">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full" />
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <Card className="flex min-h-[240px] items-center justify-center">
+          <EmptyState
+            icon={SearchX}
+            title={initialQuery ? `No results for "${initialQuery}"` : 'Start a search'}
+            description={
+              initialQuery
+                ? 'Try searching for something else.'
+                : 'Enter a search term to begin.'
+            }
+          />
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {data.map((item) => (
+            <Link key={item.id} href={item.url} className="group block no-underline">
+              <Card variant="interactive" padding="none">
+                <CardBody className="flex items-center justify-between gap-4 p-4">
+                  <div className="min-w-0">
+                    <Badge tone="accent" kind="soft" className="uppercase tracking-wider">
+                      {item.type}
+                    </Badge>
+                    <h3 className="mt-2 truncate text-lg font-semibold text-[var(--st-text)] transition-colors group-hover:text-[var(--st-accent)]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 truncate text-sm text-[var(--st-text-secondary)]">
+                      {item.subtitle}
+                    </p>
                   </div>
-                  <h3 className="font-semibold text-lg text-[var(--st-text)] mt-1 group-hover:text-[var(--st-accent)] transition-colors">{item.title}</h3>
-                  <p className="text-[var(--st-text-tertiary)] mt-1">{item.subtitle}</p>
-                </div>
-                <ArrowRight className="w-5 h-5 text-[var(--st-text-tertiary)] group-hover:text-[var(--st-accent)] transition-colors opacity-0 group-hover:opacity-100" />
+                  <ArrowRight
+                    className="h-5 w-5 shrink-0 text-[var(--st-text-tertiary)] opacity-0 transition-all group-hover:translate-x-0.5 group-hover:text-[var(--st-accent)] group-hover:opacity-100"
+                    aria-hidden="true"
+                  />
+                </CardBody>
               </Card>
             </Link>
           ))}
         </div>
       )}
-    </EntityListShell>
+
+      {total > 0 ? (
+        <div className="flex flex-col items-center justify-between gap-3 pt-2 sm:flex-row">
+          <span className="text-sm text-[var(--st-text-secondary)]">
+            Showing {firstResult} to {lastResult} of {total} results
+          </span>
+          <Pagination
+            page={currentPage}
+            pageCount={totalPages}
+            onPageChange={(p) => handleSearch(query, p)}
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 /**
- * Announcements — list page (§1B W7).
+ * Announcements, list page (§1B W7).
  *
  * Server component that pre-fetches announcements + KPIs in parallel,
- * then hands off to the client list for filtering / bulk actions / export.
+ * then hands off to the client list for filtering, bulk actions, and export.
  */
 
 import {
@@ -19,7 +19,7 @@ export default async function AnnouncementsPage() {
         getAnnouncementKpis(),
     ]);
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
+        <div className="ui20 flex w-full flex-col gap-6 p-4 md:p-6">
             <AnnouncementsListClient initialItems={items} initialKpis={kpis} />
         </div>
     );

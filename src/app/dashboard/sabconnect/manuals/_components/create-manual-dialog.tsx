@@ -3,7 +3,21 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Checkbox } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Checkbox,
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    Field,
+    Input,
+    Textarea,
+} from '@/components/sabcrm/20ui';
 
 import { createSabConnectManual } from '@/app/actions/sabconnect.actions';
 
@@ -43,49 +57,41 @@ export function CreateManualDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>New manual</Button>
+                <Button variant="primary">New manual</Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Create a manual</DialogTitle>
+                    <DialogDescription>
+                        Write the manual content in markdown, then publish when it is ready.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="manual-title">Title</Label>
+                    <Field label="Title">
                         <Input
-                            id="manual-title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="manual-body">Body (markdown)</Label>
+                    </Field>
+                    <Field label="Body (markdown)" error={error ?? undefined}>
                         <Textarea
-                            id="manual-body"
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
                             rows={10}
                         />
-                    </div>
-                    <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                        <Checkbox
-                            checked={published}
-                            onCheckedChange={(v) => setPublished(v === true)}
-                        />
-                        Publish immediately
-                    </label>
-                    {error ? (
-                        <p role="alert" className="text-sm text-[var(--st-danger)]">
-                            {error}
-                        </p>
-                    ) : null}
+                    </Field>
+                    <Checkbox
+                        checked={published}
+                        onChange={(e) => setPublished(e.target.checked)}
+                        label="Publish immediately"
+                    />
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
-                        Cancel
-                    </Button>
-                    <Button onClick={submit} disabled={pending}>
-                        {pending ? 'Saving…' : 'Save manual'}
+                    <DialogClose asChild>
+                        <Button variant="secondary">Cancel</Button>
+                    </DialogClose>
+                    <Button variant="primary" onClick={submit} loading={pending}>
+                        Save manual
                     </Button>
                 </DialogFooter>
             </DialogContent>

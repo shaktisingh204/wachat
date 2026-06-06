@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { LogOut, UserPlus } from 'lucide-react';
 
 import { Button } from '@/components/sabcrm/20ui';
 
@@ -39,7 +40,12 @@ export function GroupMembershipButton({ groupId, isMember }: Props) {
     };
 
     return (
-        <Button onClick={onClick} disabled={pending} variant={optimistic ? 'outline' : 'default'}>
+        <Button
+            onClick={onClick}
+            loading={pending}
+            variant={optimistic ? 'outline' : 'primary'}
+            iconLeft={optimistic ? LogOut : UserPlus}
+        >
             {optimistic ? 'Leave group' : 'Join group'}
         </Button>
     );

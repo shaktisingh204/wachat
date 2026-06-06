@@ -3,7 +3,26 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+    Field,
+    Input,
+    Textarea,
+    Label,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectGroup } from '@/app/actions/sabconnect.actions';
@@ -11,20 +30,21 @@ import type { SabConnectGroupVisibility } from '@/lib/rust-client/sabconnect-gro
 
 export function CreateGroupDialog() {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [visibility, setVisibility] = useState<SabConnectGroupVisibility>('open');
     const [cover, setCover] = useState<SabFilePick | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [nameError, setNameError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
     const submit = () => {
         if (!name.trim()) {
-            setError('Name is required.');
+            setNameError('Name is required.');
             return;
         }
-        setError(null);
+        setNameError(null);
         startTransition(async () => {
             const res = await createSabConnectGroup({
                 name: name.trim(),
@@ -33,9 +53,10 @@ export function CreateGroupDialog() {
                 coverFileId: cover?.id ?? undefined,
             });
             if ('error' in res) {
-                setError(res.error);
+                toast.error(res.error);
                 return;
             }
+            toast.success('Group created.');
             setOpen(false);
             setName('');
             setDescription('');
@@ -48,49 +69,49 @@ export function CreateGroupDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>New group</Button>
+                <Button variant="primary">New group</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create a group</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="group-name">Name</Label>
+                    <Field
+                        label="Name"
+                        required
+                        error={nameError ?? undefined}
+                    >
                         <Input
-                            id="group-name"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                if (nameError) setNameError(null);
+                            }}
                             placeholder="e.g. Engineering"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="group-desc">Description</Label>
+                    </Field>
+                    <Field label="Description">
                         <Textarea
-                            id="group-desc"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="What is this group for?"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Visibility</Label>
+                    </Field>
+                    <Field label="Visibility">
                         <Select
                             value={visibility}
                             onValueChange={(v) => setVisibility(v as SabConnectGroupVisibility)}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Visibility">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="open">Open — anyone can join</SelectItem>
-                                <SelectItem value="closed">
-                                    Closed — request to join
-                                </SelectItem>
-                                <SelectItem value="secret">Secret — invite only</SelectItem>
+                                <SelectItem value="open">Open, anyone can join</SelectItem>
+                                <SelectItem value="closed">Closed, request to join</SelectItem>
+                                <SelectItem value="secret">Secret, invite only</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                     <div className="flex flex-col gap-1.5">
                         <Label>Cover image</Label>
                         <SabFilePickerButton
@@ -100,18 +121,13 @@ export function CreateGroupDialog() {
                             {cover ? cover.name : 'Pick cover'}
                         </SabFilePickerButton>
                     </div>
-                    {error ? (
-                        <p role="alert" className="text-sm text-[var(--st-danger)]">
-                            {error}
-                        </p>
-                    ) : null}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
-                        Cancel
-                    </Button>
-                    <Button onClick={submit} disabled={pending}>
-                        {pending ? 'Creating…' : 'Create group'}
+                    <DialogClose asChild>
+                        <Button variant="secondary">Cancel</Button>
+                    </DialogClose>
+                    <Button variant="primary" onClick={submit} loading={pending}>
+                        {pending ? 'Creating' : 'Create group'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

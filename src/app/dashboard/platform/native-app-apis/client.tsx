@@ -1,13 +1,43 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus, Trash2, KeyRound } from 'lucide-react';
+
+import { fmtDate } from '@/lib/utils';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Badge,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { createNativeAppAPIKey, deleteNativeAppAPIKey } from '@/app/actions/platform/native-app-apis.actions';
 import type { NativeAppAPIKey } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2, KeyRound } from 'lucide-react';
 
 export default function NativeAppAPIsClient({ initialData }: { initialData: NativeAppAPIKey[] }) {
   const router = useRouter();
@@ -16,127 +46,195 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [newKey, setNewKey] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<NativeAppAPIKey | null>(null);
 
   const [form, setForm] = useState({ name: '', scopes: '' });
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!form.name) return;
     startTransition(async () => {
       try {
         const res = await createNativeAppAPIKey({
           ...form,
-          scopes: form.scopes.split(',').map(s => s.trim()).filter(Boolean)
+          scopes: form.scopes.split(',').map((s) => s.trim()).filter(Boolean),
         });
         setNewKey(res.key);
-        toast({ title: 'API Key generated', variant: 'success' });
+        toast.success('API key generated');
         setForm({ name: '', scopes: '' });
         router.refresh();
-      } catch (err) {
-        toast({ title: 'Error creating key', variant: 'destructive' });
+      } catch {
+        toast.error('Error creating key');
       }
     });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
+  const handleDelete = (id: string) => {
     startTransition(async () => {
       try {
         await deleteNativeAppAPIKey(id);
-        toast({ title: 'Key deleted', variant: 'success' });
+        toast.success('Key deleted');
         router.refresh();
-      } catch (err) {
-        toast({ title: 'Error deleting key', variant: 'destructive' });
+      } catch {
+        toast.error('Error deleting key');
+      } finally {
+        setPendingDelete(null);
       }
     });
   };
 
-  const filteredData = initialData.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = initialData.filter((d) => d.name.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <EntityListShell
       title="Native API Keys"
       subtitle="Manage access tokens for mobile apps and integrations."
-      primaryAction={<Button onClick={() => { setDialogOpen(true); setNewKey(null); }}><Plus className="w-4 h-4 mr-2" />Generate Key</Button>}
+      primaryAction={
+        <Button variant="primary" iconLeft={Plus} onClick={() => { setDialogOpen(true); setNewKey(null); }}>
+          Generate Key
+        </Button>
+      }
       search={{ value: query, onChange: setQuery, placeholder: 'Search keys...' }}
     >
-      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-        <Table>
-          <THead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Key Prefix</Th>
-              <Th>Scopes</Th>
-              <Th>Created</Th>
-              <Th className="text-right">Actions</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {filteredData.map(item => (
-              <Tr key={item.id}>
-                <Td className="font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" />{item.name}</Td>
-                <Td className="font-mono text-sm">{item.keyPrefix}...</Td>
-                <Td>
-                  <div className="flex gap-1 flex-wrap">
-                    {item.scopes.map(s => <span key={s} className="bg-[var(--st-hover)] px-2 py-0.5 rounded text-xs">{s}</span>)}
-                  </div>
-                </Td>
-                <Td className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</Td>
-                <Td className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={isPending}>
-                    <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
-                  </Button>
-                </Td>
-              </Tr>
-            ))}
-            {filteredData.length === 0 && (
+      <Card padding="none" className="overflow-hidden">
+        {filteredData.length === 0 ? (
+          <EmptyState
+            icon={KeyRound}
+            title="No API keys found"
+            description="Generate a key to give a mobile app or integration access."
+          />
+        ) : (
+          <Table>
+            <THead>
               <Tr>
-                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No API keys found.</Td>
+                <Th>Name</Th>
+                <Th>Key Prefix</Th>
+                <Th>Scopes</Th>
+                <Th>Created</Th>
+                <Th align="right">Actions</Th>
               </Tr>
-            )}
-          </TBody>
-        </Table>
+            </THead>
+            <TBody>
+              {filteredData.map((item) => (
+                <Tr key={item.id}>
+                  <Td className="font-medium">
+                    <span className="flex items-center gap-2">
+                      <KeyRound className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                      {item.name}
+                    </span>
+                  </Td>
+                  <Td className="font-mono text-sm">{item.keyPrefix}...</Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1">
+                      {item.scopes.map((s) => (
+                        <Badge key={s} tone="neutral">
+                          {s}
+                        </Badge>
+                      ))}
+                    </div>
+                  </Td>
+                  <Td className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</Td>
+                  <Td align="right">
+                    <IconButton
+                      label={`Delete ${item.name}`}
+                      icon={Trash2}
+                      variant="ghost"
+                      onClick={() => setPendingDelete(item)}
+                      disabled={isPending}
+                    />
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{newKey ? 'Save Your Key' : 'Generate API Key'}</DialogTitle>
+            <DialogDescription>
+              {newKey
+                ? 'Copy this key now. For your security, it will not be shown again.'
+                : 'Name the key and grant the scopes a mobile app or integration needs.'}
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             {newKey ? (
-              <div className="bg-[var(--st-bg-muted)] p-4 rounded-lg border border-[var(--st-border)]">
-                <p className="text-sm text-[var(--st-text)] mb-2 font-medium">Please copy your API key now. It will not be shown again.</p>
-                <code className="block p-3 bg-white border border-[var(--st-border)] rounded text-[var(--st-text)] font-mono break-all">
+              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                <p className="mb-2 text-sm font-medium text-[var(--st-text)]">
+                  Please copy your API key now. It will not be shown again.
+                </p>
+                <code className="block break-all rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 font-mono text-[var(--st-text)]">
                   {newKey}
                 </code>
               </div>
             ) : (
               <>
-                <div className="grid gap-2">
-                  <Label>Key Name</Label>
-                  <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Mobile App Production" />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Scopes (comma separated)</Label>
-                  <Input value={form.scopes} onChange={e => setForm({ ...form, scopes: e.target.value })} placeholder="read:deals, write:contacts" />
-                </div>
+                <Field label="Key Name">
+                  <Input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="e.g. Mobile App Production"
+                  />
+                </Field>
+                <Field label="Scopes (comma separated)">
+                  <Input
+                    value={form.scopes}
+                    onChange={(e) => setForm({ ...form, scopes: e.target.value })}
+                    placeholder="read:deals, write:contacts"
+                  />
+                </Field>
               </>
             )}
           </div>
           <DialogFooter>
             {newKey ? (
-              <Button onClick={() => setDialogOpen(false)}>Done</Button>
+              <Button variant="primary" onClick={() => setDialogOpen(false)}>
+                Done
+              </Button>
             ) : (
               <>
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreate} disabled={isPending}>
-                  {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Generate
+                <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="primary" loading={isPending} onClick={handleCreate}>
+                  Generate
                 </Button>
               </>
             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this API key?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete
+                ? `This permanently revokes "${pendingDelete.name}". Any app using it will lose access. You cannot undo this.`
+                : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Keep key</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isPending}
+              onClick={(e) => {
+                // Keep the dialog mounted until the async delete settles.
+                e.preventDefault();
+                if (pendingDelete) handleDelete(pendingDelete.id);
+              }}
+            >
+              Delete key
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

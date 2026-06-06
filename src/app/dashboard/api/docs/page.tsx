@@ -1,7 +1,24 @@
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Separator } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Badge,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { CodeBlock } from '@/components/zoruui-domain/code-block';
-import { ArrowLeft,
-  BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
 
 import Link from 'next/link';
 
@@ -47,7 +64,7 @@ const crmApiDocs = [
             { name: 'company', type: 'string', desc: 'Company name associated with the lead. (Optional)' },
             { name: 'value', type: 'number', desc: 'The estimated monetary value of the deal. (Optional)' },
             { name: 'stage', type: 'string', desc: 'The current stage in your sales pipeline. (Optional)' },
-            { name: 'source', type: 'string', desc: 'Where the lead came from (e.g., "Website", "Referral"). (Optional)' },
+            { name: 'source', type: 'string', desc: 'Where the lead came from (e.g. "Website", "Referral"). (Optional)' },
         ],
         example: `curl -X POST \\
   https://yourapp.com/api/v1/crm/leads \\
@@ -123,57 +140,75 @@ const crmApiDocs = [
     }
 ];
 
+const METHOD_TONE: Record<string, BadgeTone> = {
+    GET: 'info',
+    POST: 'success',
+    PUT: 'warning',
+    DELETE: 'danger',
+};
+
 export default function ApiDocsPage() {
     return (
         <div className="space-y-8">
-             <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/api">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to API Keys
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <BookOpen className="h-8 w-8" />
-                    API Documentation
-                </h1>
-                <p className="text-[var(--st-text-secondary)] mt-2">
-                    Integrate your applications with SabNode using our REST API.
-                </p>
+            <div className="space-y-4">
+                <Link
+                    href="/dashboard/api"
+                    className="inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
+                >
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    Back to API Keys
+                </Link>
+                <PageHeader bordered={false}>
+                    <PageHeaderHeading>
+                        <PageTitle className="flex items-center gap-3">
+                            <BookOpen className="h-7 w-7" aria-hidden="true" />
+                            API Documentation
+                        </PageTitle>
+                        <PageDescription>
+                            Integrate your applications with SabNode using our REST API.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                </PageHeader>
             </div>
 
             <Card>
                 <CardHeader>
                     <CardTitle>Authentication</CardTitle>
                     <CardDescription>
-                        Authenticate your API requests by including your API key in the `Authorization` header.
+                        Authenticate your API requests by including your API key in the Authorization header.
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
                     <CodeBlock code={'Authorization: Bearer YOUR_API_KEY'} language="bash" />
-                    <p className="text-sm text-[var(--st-text-secondary)] mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-[var(--st-text)] hover:underline">API settings page</Link>.</p>
+                    <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
+                        You can generate API keys from the{' '}
+                        <Link href="/dashboard/api" className="text-[var(--st-text)] hover:underline">
+                            API settings page
+                        </Link>
+                        .
+                    </p>
                 </CardBody>
             </Card>
 
             <div className="space-y-4">
-                 <h2 className="text-2xl font-bold font-headline">CRM Suite APIs</h2>
-                 <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-[var(--st-text)]">CRM Suite APIs</h2>
+                <div className="space-y-6">
                     {crmApiDocs.map((endpoint, i) => {
                         const [method, path] = endpoint.endpoint.split(' ');
                         return (
-                            <Card key={i} className="card-gradient card-gradient-green">
+                            <Card key={i}>
                                 <CardHeader>
                                     <div className="flex items-center gap-4">
-                                        <Badge className={method === 'GET' ? 'bg-[var(--st-text)]' : (method === 'POST' ? 'bg-[var(--st-text)]' : (method === 'PUT' ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'))}>{method}</Badge>
+                                        <Badge tone={METHOD_TONE[method] ?? 'neutral'} kind="solid">{method}</Badge>
                                         <CardTitle className="font-mono text-lg">{path}</CardTitle>
                                     </div>
                                     <CardDescription>{endpoint.description}</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-6">
                                     {endpoint.queryParams && endpoint.queryParams.length > 0 && (
-                                        <>
-                                            <h4 className="font-semibold">Query Parameters</h4>
-                                            <div className="border rounded-md overflow-hidden">
+                                        <div className="space-y-3">
+                                            <h3 className="font-semibold text-[var(--st-text)]">Query Parameters</h3>
+                                            <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                                                 <Table>
                                                     <THead>
                                                         <Tr>
@@ -187,18 +222,18 @@ export default function ApiDocsPage() {
                                                             <Tr key={param.name}>
                                                                 <Td className="font-mono">{param.name}</Td>
                                                                 <Td className="font-mono text-xs">{param.type}</Td>
-                                                                <Td className="text-[var(--st-text-secondary)] text-xs">{param.desc}</Td>
+                                                                <Td className="text-xs text-[var(--st-text-secondary)]">{param.desc}</Td>
                                                             </Tr>
                                                         ))}
                                                     </TBody>
                                                 </Table>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                     {endpoint.bodyParams && endpoint.bodyParams.length > 0 && (
-                                        <>
-                                            <h4 className="font-semibold">Request Body Parameters</h4>
-                                            <div className="border rounded-md overflow-hidden">
+                                        <div className="space-y-3">
+                                            <h3 className="font-semibold text-[var(--st-text)]">Request Body Parameters</h3>
+                                            <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                                                 <Table>
                                                     <THead>
                                                         <Tr>
@@ -212,27 +247,27 @@ export default function ApiDocsPage() {
                                                             <Tr key={param.name}>
                                                                 <Td className="font-mono">{param.name}</Td>
                                                                 <Td className="font-mono text-xs">{param.type}</Td>
-                                                                <Td className="text-[var(--st-text-secondary)] text-xs">{param.desc}</Td>
+                                                                <Td className="text-xs text-[var(--st-text-secondary)]">{param.desc}</Td>
                                                             </Tr>
                                                         ))}
                                                     </TBody>
                                                 </Table>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                     <div>
-                                        <h4 className="font-semibold mb-2">Example Request</h4>
+                                        <h3 className="mb-2 font-semibold text-[var(--st-text)]">Example Request</h3>
                                         <CodeBlock code={endpoint.example} language="bash" />
                                     </div>
                                     <div>
-                                        <h4 className="font-semibold mb-2">Example Response</h4>
+                                        <h3 className="mb-2 font-semibold text-[var(--st-text)]">Example Response</h3>
                                         <CodeBlock code={endpoint.response} language="json" />
                                     </div>
                                 </CardBody>
                             </Card>
-                        )
+                        );
                     })}
-                 </div>
+                </div>
             </div>
         </div>
     );

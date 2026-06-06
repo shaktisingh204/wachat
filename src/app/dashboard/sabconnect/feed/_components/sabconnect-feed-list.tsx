@@ -2,18 +2,39 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 
-import { Avatar, AvatarFallback, Badge, Card, CardBody, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Avatar,
+    AvatarFallback,
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    SegmentedControl,
+    type BadgeVariant,
+    type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 
 import type { SabConnectFeedItemDoc } from '@/lib/rust-client/sabconnect-feed';
 import { SabConnectFeedItemActions } from './sabconnect-feed-item-actions';
 
-const KIND_VARIANTS: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+const KIND_VARIANTS: Record<string, { label: string; variant: BadgeVariant }> = {
     post: { label: 'Post', variant: 'default' },
     announcement: { label: 'Announcement', variant: 'secondary' },
     recognition: { label: 'Recognition', variant: 'outline' },
     event: { label: 'Event', variant: 'outline' },
 };
+
+type FeedFilter = 'all' | 'post' | 'announcement' | 'recognition' | 'event';
+
+const FILTER_ITEMS: ReadonlyArray<SegmentedItem<FeedFilter>> = [
+    { value: 'all', label: 'All' },
+    { value: 'post', label: 'Post' },
+    { value: 'announcement', label: 'Announcement' },
+    { value: 'recognition', label: 'Recognition' },
+    { value: 'event', label: 'Event' },
+];
 
 type FeedRow = {
     id: string;
@@ -78,9 +99,7 @@ function toFeedRows(props: Props): FeedRow[] {
 }
 
 export function SabConnectFeedList(props: Props) {
-    const [filter, setFilter] = useState<'all' | 'post' | 'announcement' | 'recognition' | 'event'>(
-        'all',
-    );
+    const [filter, setFilter] = useState<FeedFilter>('all');
     const rows = useMemo(() => toFeedRows(props), [props]);
     const visible = useMemo(
         () => (filter === 'all' ? rows : rows.filter((r) => r.kind === filter)),
@@ -89,24 +108,12 @@ export function SabConnectFeedList(props: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter feed">
-                {(['all', 'post', 'announcement', 'recognition', 'event'] as const).map((k) => (
-                    <button
-                        key={k}
-                        type="button"
-                        role="tab"
-                        aria-selected={filter === k}
-                        onClick={() => setFilter(k)}
-                        className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                            filter === k
-                                ? 'border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text)]'
-                                : 'border-[var(--st-border)] bg-transparent text-[var(--st-bg-muted)] hover:bg-[var(--st-hover)]'
-                        }`}
-                    >
-                        {k === 'all' ? 'All' : KIND_VARIANTS[k]?.label ?? k}
-                    </button>
-                ))}
-            </div>
+            <SegmentedControl
+                items={FILTER_ITEMS}
+                value={filter}
+                onChange={setFilter}
+                aria-label="Filter feed"
+            />
 
             {visible.length === 0 ? (
                 <EmptyState
@@ -134,7 +141,7 @@ export function SabConnectFeedList(props: Props) {
                                                     <Badge variant={kind.variant}>{kind.label}</Badge>
                                                 </div>
                                                 <time
-                                                    className="text-xs text-[var(--st-bg-muted)]"
+                                                    className="text-xs text-[var(--st-text-secondary)]"
                                                     dateTime={row.createdAt}
                                                 >
                                                     {new Date(row.createdAt).toLocaleString()}
@@ -155,17 +162,18 @@ export function SabConnectFeedList(props: Props) {
                                         <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">
                                             {row.body}
                                         </p>
-                                        {/* Reactions + comments only on canonical feed items
-                                         (the spawned proxies for announcement/recognition/event
-                                         link out to their module pages). */}
+                                        {/* Reactions + comments only on canonical feed items.
+                                         The spawned proxies for announcement/recognition/event
+                                         link out to their module pages. */}
                                         {row.kind === 'post' || !row.href ? (
                                             <SabConnectFeedItemActions itemId={row.id} />
                                         ) : (
                                             <Link
                                                 href={row.href}
-                                                className="text-xs font-medium text-[var(--st-accent)] hover:underline"
+                                                className="inline-flex items-center gap-1 text-xs font-medium text-[var(--st-accent)] hover:underline"
                                             >
-                                                Open in workspace →
+                                                Open in workspace
+                                                <ArrowUpRight size={13} aria-hidden="true" />
                                             </Link>
                                         )}
                                     </CardBody>

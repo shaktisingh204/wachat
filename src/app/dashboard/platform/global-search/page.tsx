@@ -24,18 +24,20 @@ export default async function GlobalSearchPage(props: { searchParams: SearchPara
 
   return (
     <div className="max-w-5xl mx-auto p-6 md:p-10">
-      <Suspense fallback={
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-12 w-full max-w-md" />
-          <div className="space-y-2 mt-8">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
+      <Suspense
+        fallback={
+          <div className="space-y-4">
+            <Skeleton height={40} width={256} radius="var(--st-radius)" />
+            <Skeleton height={48} className="w-full max-w-md" radius="var(--st-radius)" />
+            <div className="space-y-2 mt-8">
+              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
+              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
+              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
+            </div>
           </div>
-        </div>
-      }>
-        <GlobalSearchClient 
+        }
+      >
+        <GlobalSearchClient
           initialQuery={query}
           currentPage={page}
           total={total}

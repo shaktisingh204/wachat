@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react';
 
-import { Button, Card, CardBody, Textarea, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { Paperclip, Send } from 'lucide-react';
+
+import { Button, Card, CardBody, Field, Tag, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectPost } from '@/app/actions/sabconnect.actions';
@@ -13,6 +15,7 @@ interface Props {
 }
 
 export function SabConnectComposer({ groups }: Props) {
+    const { toast } = useToast();
     const [body, setBody] = useState('');
     const [attachments, setAttachments] = useState<SabFilePick[]>([]);
     const [groupId, setGroupId] = useState<string>('all');
@@ -33,36 +36,41 @@ export function SabConnectComposer({ groups }: Props) {
             });
             if ('error' in res) {
                 setError(res.error);
+                toast.error(res.error);
                 return;
             }
             setBody('');
             setAttachments([]);
+            toast.success('Update shared with your team.');
         });
     };
 
     return (
         <Card>
             <CardBody className="flex flex-col gap-3 p-4">
-                <Textarea
-                    aria-label="Share an update"
-                    placeholder="Share an update with your team…"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    rows={3}
-                />
+                <Field error={error ?? undefined}>
+                    <Textarea
+                        aria-label="Share an update"
+                        placeholder="Share an update with your team."
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        rows={3}
+                    />
+                </Field>
                 {attachments.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                         {attachments.map((a) => (
-                            <Badge key={a.id} variant="secondary">
+                            <Tag
+                                key={a.id}
+                                removeLabel={`Remove ${a.name}`}
+                                onRemove={() =>
+                                    setAttachments((prev) => prev.filter((p) => p.id !== a.id))
+                                }
+                            >
                                 {a.name}
-                            </Badge>
+                            </Tag>
                         ))}
                     </div>
-                ) : null}
-                {error ? (
-                    <p role="alert" className="text-sm text-[var(--st-danger)]">
-                        {error}
-                    </p>
                 ) : null}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -74,7 +82,10 @@ export function SabConnectComposer({ groups }: Props) {
                                 )
                             }
                         >
-                            Attach
+                            <span className="inline-flex items-center gap-1.5">
+                                <Paperclip size={14} aria-hidden="true" />
+                                Attach
+                            </span>
                         </SabFilePickerButton>
                         <Select value={groupId} onValueChange={setGroupId}>
                             <SelectTrigger className="w-[180px]" aria-label="Post audience">
@@ -90,8 +101,8 @@ export function SabConnectComposer({ groups }: Props) {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={onSubmit} disabled={pending}>
-                        {pending ? 'Posting…' : 'Post'}
+                    <Button variant="primary" iconRight={Send} onClick={onSubmit} loading={pending}>
+                        {pending ? 'Posting' : 'Post'}
                     </Button>
                 </div>
             </CardBody>

@@ -1,7 +1,21 @@
 import Link from 'next/link';
 import { getUsageLogs } from '@/app/actions/developer-platform.actions';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Alert, AlertDescription, Card, CardBody } from '@/components/sabcrm/20ui';
-import { AlertCircle } from 'lucide-react';
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+  Alert,
+  Card,
+  CardBody,
+} from '@/components/sabcrm/20ui';
+import { ArrowRight } from 'lucide-react';
 import { LogFilter } from './components/log-filter';
 import { LogTimeline } from './components/log-timeline';
 
@@ -73,9 +87,8 @@ export default async function LogsPage({
       </Card>
 
       {!res.success ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{res.error}</AlertDescription>
+        <Alert tone="danger" title="Could not load logs">
+          {res.error}
         </Alert>
       ) : (
         <>
@@ -89,9 +102,10 @@ export default async function LogsPage({
             <div className="flex justify-end">
               <Link
                 href={nextUrl}
-                className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] underline underline-offset-2"
+                className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)] underline underline-offset-2 hover:text-[var(--st-text)]"
               >
-                Next page →
+                Next page
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </div>
           ) : null}

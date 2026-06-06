@@ -4,7 +4,18 @@
 
 import Link from 'next/link';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Card,
+    CardBody,
+    CardTitle,
+    Badge,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import { getSabConnectGroups } from '@/app/actions/sabconnect.actions';
 import { CreateGroupDialog } from './_components/create-group-dialog';
@@ -23,7 +34,9 @@ export default async function SabConnectGroupsPage() {
                         Spaces for teams, projects and interest groups.
                     </PageDescription>
                 </PageHeading>
-                <CreateGroupDialog />
+                <PageActions>
+                    <CreateGroupDialog />
+                </PageActions>
             </PageHeader>
 
             {items.length === 0 ? (
@@ -37,22 +50,22 @@ export default async function SabConnectGroupsPage() {
                         <li key={g._id}>
                             <Link
                                 href={`/dashboard/sabconnect/groups/${g._id}`}
-                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+                                className="block rounded-[var(--st-radius)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
-                                <Card className="h-full transition-shadow hover:shadow-md">
-                                    <CardBody className="flex flex-col gap-2 p-4">
+                                <Card variant="interactive" padding="md" className="h-full">
+                                    <CardBody className="flex flex-col gap-2">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h3 className="text-base font-semibold text-[var(--st-text)]">
-                                                {g.name}
-                                            </h3>
-                                            <Badge variant="outline">{g.visibility}</Badge>
+                                            <CardTitle>{g.name}</CardTitle>
+                                            <Badge tone="neutral" kind="outline">
+                                                {g.visibility}
+                                            </Badge>
                                         </div>
                                         {g.description ? (
-                                            <p className="line-clamp-2 text-sm text-[var(--st-bg-muted)]">
+                                            <p className="line-clamp-2 text-sm text-[var(--st-text-secondary)]">
                                                 {g.description}
                                             </p>
                                         ) : null}
-                                        <p className="text-xs text-[var(--st-bg-muted)]">
+                                        <p className="text-xs text-[var(--st-text-secondary)]">
                                             {g.memberCount ?? g.memberIds?.length ?? 0} members
                                         </p>
                                     </CardBody>

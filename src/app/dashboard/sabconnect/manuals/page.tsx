@@ -1,8 +1,19 @@
 /**
- * SabConnect — manuals / wiki list (tree view of top-level pages).
+ * SabConnect manuals / wiki list (tree view of top-level pages).
  */
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Card,
+    CardBody,
+    CardTitle,
+    Badge,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import { getSabConnectManuals } from '@/app/actions/sabconnect.actions';
 import { CreateManualDialog } from './_components/create-manual-dialog';
@@ -21,7 +32,9 @@ export default async function SabConnectManualsPage() {
                         Living documentation, runbooks and how-tos.
                     </PageDescription>
                 </PageHeading>
-                <CreateManualDialog />
+                <PageActions>
+                    <CreateManualDialog />
+                </PageActions>
             </PageHeader>
 
             {items.length === 0 ? (
@@ -36,15 +49,19 @@ export default async function SabConnectManualsPage() {
                             <Card>
                                 <CardBody className="flex flex-col gap-2 p-4">
                                     <div className="flex items-start justify-between gap-2">
-                                        <h3 className="text-base font-semibold text-[var(--st-text)]">
+                                        <CardTitle className="text-base font-semibold text-[var(--st-text)]">
                                             {m.title}
-                                        </h3>
-                                        <Badge variant={m.published ? 'default' : 'outline'}>
+                                        </CardTitle>
+                                        <Badge tone={m.published ? 'success' : 'neutral'}>
                                             {m.published ? 'Published' : 'Draft'}
                                         </Badge>
                                     </div>
-                                    <p className="line-clamp-3 text-sm text-[var(--st-bg-muted)]">{m.body}</p>
-                                    <p className="text-xs text-[var(--st-bg-muted)]">v{m.version ?? 1}</p>
+                                    <p className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
+                                        {m.body}
+                                    </p>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">
+                                        v{m.version ?? 1}
+                                    </p>
                                 </CardBody>
                             </Card>
                         </li>

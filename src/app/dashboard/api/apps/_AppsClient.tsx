@@ -6,22 +6,47 @@ import {
   deleteOAuthApp,
   type OAuthAppRow,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardBody, Button, Input, Textarea, Label, Alert, AlertDescription, EmptyState, Separator, Progress, Badge } from '@/components/sabcrm/20ui';
-import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity, BarChart2 } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Field,
+  Alert,
+  EmptyState,
+  Separator,
+  Progress,
+  Badge,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { TriangleAlert, Copy, Boxes, Trash2, BarChart2 } from 'lucide-react';
+
+interface UsageRow {
+  keyId: string;
+  count?: number;
+  errorCount?: number;
+  lastUsedAt?: string;
+}
 
 interface Props {
   initialApps: OAuthAppRow[];
-  usageData?: any[];
+  usageData?: UsageRow[];
 }
 
+const REQUEST_LIMIT = 10000;
+
 export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element {
+  const { toast } = useToast();
   const [apps, setApps] = useState<OAuthAppRow[]>(initialApps);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [redirects, setRedirects] = useState('');
   const [scopes, setScopes] = useState('me:read');
   const [secret, setSecret] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [busy, startBusy] = useTransition();
 
   const handleCreate = (): void => {
@@ -30,10 +55,9 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
       .map((s) => s.trim())
       .filter(Boolean);
     if (!name.trim() || redirectUris.length === 0) {
-      setError('name and at least one redirect URI are required.');
+      toast.error('Name and at least one redirect URI are required.');
       return;
     }
-    setError(null);
     startBusy(async () => {
       const res = await registerOAuthApp({
         name: name.trim(),
@@ -42,7 +66,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
         scopes: scopes.split(/[\s,]+/).filter(Boolean),
       });
       if (!res.success) {
-        setError(res.error);
+        toast.error(res.error);
         return;
       }
       setApps((prev) => [res.app, ...prev]);
@@ -50,6 +74,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
       setName('');
       setDescription('');
       setRedirects('');
+      toast.success('OAuth app registered.');
     });
   };
 
@@ -58,30 +83,41 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
     startBusy(async () => {
       const res = await deleteOAuthApp(id);
       if (!res.success) {
-        setError(res.error);
+        toast.error(res.error);
         return;
       }
       setApps((prev) => prev.filter((a) => a._id !== id));
+      toast.success('App deleted.');
     });
+  };
+
+  const copySecret = (value: string): void => {
+    navigator.clipboard.writeText(value);
+    toast.success('Client secret copied.');
   };
 
   return (
     <div className="space-y-4">
       {secret ? (
-        <Alert variant="warning">
-          <TriangleAlert className="h-4 w-4" />
+        <Alert
+          tone="warning"
+          icon={TriangleAlert}
+          title="Save this client secret. It is shown once."
+          onClose={() => setSecret(null)}
+        >
           <div className="space-y-2">
-            <p className="font-semibold text-sm">Save this client secret — shown once.</p>
             <p className="text-xs">Configure it alongside the client_id in your OAuth client.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
+              <code className="flex-1 overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-xs text-[var(--st-text)]">
                 {secret}
               </code>
-              <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
-                <Copy className="h-3 w-3 mr-1" /> Copy
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setSecret(null)}>
-                Dismiss
+              <Button
+                size="sm"
+                variant="outline"
+                iconLeft={Copy}
+                onClick={() => copySecret(secret)}
+              >
+                Copy
               </Button>
             </div>
           </div>
@@ -93,17 +129,18 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
           <CardTitle>Register OAuth app</CardTitle>
         </CardHeader>
         <CardBody className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Name">
               <Input value={name} onChange={(e) => setName(e.target.value)} disabled={busy} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Description</Label>
-              <Input value={description} onChange={(e) => setDescription(e.target.value)} disabled={busy} />
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label>Redirect URIs (one per line)</Label>
+            </Field>
+            <Field label="Description">
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={busy}
+              />
+            </Field>
+            <Field label="Redirect URIs (one per line)" className="sm:col-span-2">
               <Textarea
                 value={redirects}
                 onChange={(e) => setRedirects(e.target.value)}
@@ -112,135 +149,142 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                 className="font-mono"
                 disabled={busy}
               />
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label>Requested scopes (space-separated)</Label>
+            </Field>
+            <Field label="Requested scopes (space-separated)" className="sm:col-span-2">
               <Input
                 value={scopes}
                 onChange={(e) => setScopes(e.target.value)}
                 className="font-mono"
                 disabled={busy}
               />
-            </div>
+            </Field>
           </div>
           <div className="flex justify-end">
-            <Button onClick={handleCreate} disabled={busy || !name.trim()}>
-              {busy ? 'Working…' : 'Register'}
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              loading={busy}
+              disabled={busy || !name.trim()}
+            >
+              Register
             </Button>
           </div>
         </CardBody>
       </Card>
 
-      {error ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
-
       {apps.length === 0 ? (
         <EmptyState
-          icon={<Boxes className="h-8 w-8" />}
+          icon={Boxes}
           title="No OAuth apps yet"
           description="Register an app above to get started."
         />
       ) : (
         <div className="space-y-3">
-          {apps.map((a) => (
-            <Card key={a._id}>
-              <CardBody className="pt-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--st-text)]">{a.name}</p>
-                    {a.description ? (
-                      <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">{a.description}</p>
-                    ) : null}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(a._id)}
-                    disabled={busy}
-                    className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Separator className="my-3" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Client ID</p>
-                    <code className="font-mono text-[var(--st-text)]">{a.clientId}</code>
-                  </div>
-                  <div>
-                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Created</p>
-                    <p className="text-[var(--st-text)]">{new Date(a.createdAt).toLocaleString()}</p>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Redirect URIs</p>
-                    <ul className="font-mono text-[var(--st-text)] space-y-0.5">
-                      {a.redirectUris.map((u) => (
-                        <li key={u}>{u}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Allowed scopes</p>
-                    <code className="font-mono text-[var(--st-text)]">{a.scopes.join(' ')}</code>
-                  </div>
-                </div>
-                
-                <Separator className="my-3" />
-                
-                <div className="bg-[var(--st-bg-muted)]/50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-[var(--st-text)]">
-                    <BarChart2 className="h-4 w-4 text-[var(--st-accent)]" />
-                    Usage & Rate Limit
-                  </div>
-                  
-                  <div className="space-y-4 text-xs">
+          {apps.map((a) => {
+            const usage = usageData.find((u) => u.keyId === a.clientId);
+            const requestCount = usage?.count ?? 0;
+            const errorCount = usage?.errorCount ?? 0;
+            const rateLimited = requestCount >= REQUEST_LIMIT;
+            const usagePct = Math.min(100, (requestCount / REQUEST_LIMIT) * 100);
+            return (
+              <Card key={a._id}>
+                <CardBody className="pt-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="flex justify-between items-end mb-1">
-                        <p className="text-[var(--st-text-tertiary)]">API Requests (30d)</p>
-                        <p className="text-[var(--st-text)] font-medium">
-                          {usageData.find((u) => u.keyId === a.clientId)?.count || 0} / 10,000
+                      <p className="text-sm font-semibold text-[var(--st-text)]">{a.name}</p>
+                      {a.description ? (
+                        <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
+                          {a.description}
                         </p>
-                      </div>
-                      <Progress 
-                        value={Math.min(100, ((usageData.find((u) => u.keyId === a.clientId)?.count || 0) / 10000) * 100)} 
-                        className="h-2" 
-                      />
+                      ) : null}
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
+                    <IconButton
+                      label="Delete app"
+                      icon={Trash2}
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(a._id)}
+                      disabled={busy}
+                    />
+                  </div>
+
+                  <Separator className="my-3" />
+
+                  <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+                    <div>
+                      <p className="mb-0.5 text-[var(--st-text-tertiary)]">Client ID</p>
+                      <code className="font-mono text-[var(--st-text)]">{a.clientId}</code>
+                    </div>
+                    <div>
+                      <p className="mb-0.5 text-[var(--st-text-tertiary)]">Created</p>
+                      <p className="text-[var(--st-text)]">
+                        {new Date(a.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <p className="mb-0.5 text-[var(--st-text-tertiary)]">Redirect URIs</p>
+                      <ul className="space-y-0.5 font-mono text-[var(--st-text)]">
+                        {a.redirectUris.map((u) => (
+                          <li key={u}>{u}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <p className="mb-0.5 text-[var(--st-text-tertiary)]">Allowed scopes</p>
+                      <code className="font-mono text-[var(--st-text)]">{a.scopes.join(' ')}</code>
+                    </div>
+                  </div>
+
+                  <Separator className="my-3" />
+
+                  <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                      <BarChart2 className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                      Usage and rate limit
+                    </div>
+
+                    <div className="space-y-4 text-xs">
                       <div>
-                        <p className="text-[var(--st-text-tertiary)] mb-1">Status</p>
-                        <Badge 
-                          variant={((usageData.find((u) => u.keyId === a.clientId)?.count || 0) >= 10000) ? 'danger' : 'success'}
-                        >
-                          {((usageData.find((u) => u.keyId === a.clientId)?.count || 0) >= 10000) ? 'Rate Limited' : 'Active'}
-                        </Badge>
+                        <div className="mb-1 flex items-end justify-between">
+                          <p className="text-[var(--st-text-tertiary)]">API requests (30d)</p>
+                          <p className="font-medium text-[var(--st-text)]">
+                            {requestCount.toLocaleString()} / {REQUEST_LIMIT.toLocaleString()}
+                          </p>
+                        </div>
+                        <Progress
+                          value={usagePct}
+                          tone={rateLimited ? 'danger' : 'accent'}
+                          size="sm"
+                          aria-label="API request usage"
+                        />
                       </div>
-                      <div>
-                        <p className="text-[var(--st-text-tertiary)] mb-1">Errors (30d)</p>
-                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
-                          {usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0}
-                        </p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-[var(--st-text-tertiary)] mb-1">Last used</p>
-                        <p className="text-[var(--st-text)] font-medium">
-                          {usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt 
-                            ? new Date(usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt as string).toLocaleString() 
-                            : 'Never'}
-                        </p>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="mb-1 text-[var(--st-text-tertiary)]">Status</p>
+                          <Badge tone={rateLimited ? 'danger' : 'success'}>
+                            {rateLimited ? 'Rate Limited' : 'Active'}
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="mb-1 text-[var(--st-text-tertiary)]">Errors (30d)</p>
+                          <p className="font-medium text-[var(--st-text)]">{errorCount}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="mb-1 text-[var(--st-text-tertiary)]">Last used</p>
+                          <p className="font-medium text-[var(--st-text)]">
+                            {usage?.lastUsedAt
+                              ? new Date(usage.lastUsedAt).toLocaleString()
+                              : 'Never'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+                </CardBody>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

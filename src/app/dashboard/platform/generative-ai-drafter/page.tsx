@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { getGenerativeAIDrafts } from '@/app/actions/platform/generative-ai-drafter.actions';
 import GenerativeAIDrafterClientPage from './client-page';
 import { Suspense } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { Spinner } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export const metadata = {
@@ -23,7 +23,9 @@ export default async function GenerativeAIDrafterPage({
   return (
     <Suspense fallback={
       <EntityListShell title="Generative AI Drafter" subtitle="Draft emails, proposals, and contracts instantly using AI." loading={true}>
-        <div className="flex justify-center items-center py-12"><LoaderCircle className="w-8 h-8 animate-spin text-[var(--st-accent)]" /></div>
+        <div className="flex justify-center items-center py-12">
+          <Spinner size="lg" label="Loading drafts" />
+        </div>
       </EntityListShell>
     }>
       <GenerativeAIDrafterClientPage initialData={drafts} total={total} currentPage={page} limit={limit} />

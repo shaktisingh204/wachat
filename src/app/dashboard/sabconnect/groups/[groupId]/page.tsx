@@ -1,5 +1,5 @@
 /**
- * SabConnect — single group page.
+ * SabConnect, single group page.
  *
  * Shows a group-scoped feed, the manuals attached to the group, and
  * the member roster.
@@ -7,7 +7,16 @@
 
 import { notFound } from 'next/navigation';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    PageDescription,
+    Card,
+    CardBody,
+    Badge,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import {
     getSabConnectFeed,
@@ -43,7 +52,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                     </PageDescription>
                     <div className="flex items-center gap-2 pt-1">
                         <Badge variant="outline">{group.visibility}</Badge>
-                        <span className="text-xs text-[var(--st-bg-muted)]">
+                        <span className="text-xs text-[var(--st-text-secondary)]">
                             {group.memberCount ?? group.memberIds?.length ?? 0} members
                         </span>
                     </div>
@@ -54,7 +63,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
             <SabConnectComposer groups={[]} />
 
             <section aria-labelledby="group-manuals" className="flex flex-col gap-2">
-                <h2 id="group-manuals" className="text-sm font-semibold text-[var(--st-bg-muted)]">
+                <h2 id="group-manuals" className="text-sm font-semibold text-[var(--st-text)]">
                     Manuals
                 </h2>
                 {manuals.items.length === 0 ? (
@@ -71,7 +80,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                                         <p className="text-sm font-semibold text-[var(--st-text)]">
                                             {m.title}
                                         </p>
-                                        <p className="line-clamp-2 text-xs text-[var(--st-bg-muted)]">
+                                        <p className="line-clamp-2 text-xs text-[var(--st-text-secondary)]">
                                             {m.body}
                                         </p>
                                     </CardBody>
@@ -82,8 +91,8 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                 )}
             </section>
 
-            <section aria-labelledby="group-feed">
-                <h2 id="group-feed" className="pb-2 text-sm font-semibold text-[var(--st-bg-muted)]">
+            <section aria-labelledby="group-feed" className="flex flex-col gap-2">
+                <h2 id="group-feed" className="text-sm font-semibold text-[var(--st-text)]">
                     Feed
                 </h2>
                 <SabConnectFeedList

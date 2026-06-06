@@ -15,18 +15,20 @@ export default function ErrorPage({
     console.error('[personal-tokens] route error', error);
   }, [error]);
 
+  const description =
+    error?.message?.length && error.message.length < 200
+      ? error.message
+      : 'We encountered an error loading your personal tokens.';
+
   return (
     <div className="flex h-[50vh] items-center justify-center">
       <EmptyState
-        icon={<AlertTriangle className="h-8 w-8 text-[var(--st-danger)]" />}
+        icon={AlertTriangle}
+        tone="danger"
         title="Something went wrong"
-        description={
-          error?.message?.length && error.message.length < 200
-            ? error.message
-            : 'We encountered an error loading your personal tokens.'
-        }
+        description={description}
         action={
-          <Button size="md" onClick={() => reset()}>
+          <Button variant="primary" size="md" onClick={() => reset()}>
             Try again
           </Button>
         }

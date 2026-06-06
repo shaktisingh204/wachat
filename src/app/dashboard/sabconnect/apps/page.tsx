@@ -1,5 +1,5 @@
 /**
- * SabConnect — pinned custom apps grid.
+ * SabConnect, pinned custom apps grid.
  */
 
 import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, EmptyState } from '@/components/sabcrm/20ui';
@@ -28,6 +28,7 @@ export default async function SabConnectAppsPage() {
                 <EmptyState
                     title="No apps pinned yet"
                     description="Add the first app to surface it for the team."
+                    action={<CreateCustomAppDialog />}
                 />
             ) : (
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -37,18 +38,19 @@ export default async function SabConnectAppsPage() {
                                 href={app.url}
                                 target={app.openIn === 'iframe' ? '_self' : '_blank'}
                                 rel="noopener noreferrer"
-                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+                                aria-label={`Open ${app.name}`}
+                                className="block rounded-[var(--st-radius)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
-                                <Card className="h-full transition-shadow hover:shadow-md">
+                                <Card variant="interactive" className="h-full">
                                     <CardBody className="flex flex-col items-center gap-2 p-4 text-center">
-                                        <div className="grid size-12 place-items-center rounded-lg bg-[var(--st-hover)] text-lg font-semibold text-[var(--st-text)]">
+                                        <div className="grid size-12 place-items-center rounded-[var(--st-radius)] bg-[var(--st-hover)] text-lg font-semibold text-[var(--st-text)]">
                                             {app.name.charAt(0).toUpperCase()}
                                         </div>
                                         <p className="text-sm font-semibold text-[var(--st-text)]">
                                             {app.name}
                                         </p>
                                         {app.description ? (
-                                            <p className="line-clamp-2 text-xs text-[var(--st-bg-muted)]">
+                                            <p className="line-clamp-2 text-xs text-[var(--st-text-secondary)]">
                                                 {app.description}
                                             </p>
                                         ) : null}

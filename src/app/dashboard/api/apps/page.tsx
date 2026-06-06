@@ -1,5 +1,17 @@
 import { listOAuthApps, getUsageByKey } from '@/app/actions/developer-platform.actions';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { AppsClient } from './_AppsClient';
 
 import { Suspense } from 'react';
@@ -38,14 +50,14 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
   );
 }
 
-function AppsSkeleton() {
-    return (
-        <div className="space-y-4 animate-pulse">
-            <div className="h-64 bg-[var(--st-text)]/50 rounded-lg"></div>
-            <div className="h-32 bg-[var(--st-text)]/50 rounded-lg"></div>
-            <div className="h-32 bg-[var(--st-text)]/50 rounded-lg"></div>
-        </div>
-    );
+function AppsSkeleton(): JSX.Element {
+  return (
+    <div className="flex flex-col gap-4">
+      <Skeleton height={256} radius="var(--st-radius)" />
+      <Skeleton height={128} radius="var(--st-radius)" />
+      <Skeleton height={128} radius="var(--st-radius)" />
+    </div>
+  );
 }
 
 async function AppsLoader() {
@@ -53,13 +65,13 @@ async function AppsLoader() {
     listOAuthApps(),
     getUsageByKey()
   ]);
-  
+
   if (!res.success) {
     throw new Error(res.error || 'Failed to load apps');
   }
 
   const initial = res.apps;
   const usageData = usageRes.success ? usageRes.rows : [];
-  
+
   return <AppsClient initialApps={initial} usageData={usageData} />;
 }

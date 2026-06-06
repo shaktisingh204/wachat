@@ -3,7 +3,25 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Button,
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Field,
+    Input,
+    Textarea,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectCustomApp } from '@/app/actions/sabconnect.actions';
@@ -11,6 +29,7 @@ import type { SabConnectCustomAppOpenIn } from '@/lib/rust-client/sabconnect-cus
 
 export function CreateCustomAppDialog() {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
@@ -43,6 +62,7 @@ export function CreateCustomAppDialog() {
             setUrl('');
             setDescription('');
             setIcon(null);
+            toast.success('App pinned.');
             router.refresh();
         });
     };
@@ -50,46 +70,39 @@ export function CreateCustomAppDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>Pin app</Button>
+                <Button variant="primary">Pin app</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Pin a custom app</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="app-name">Name</Label>
+                    <Field label="Name">
                         <Input
-                            id="app-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="app-url">URL</Label>
+                    </Field>
+                    <Field label="URL">
                         <Input
-                            id="app-url"
                             type="url"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="https://…"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="app-desc">Description</Label>
+                    </Field>
+                    <Field label="Description">
                         <Textarea
-                            id="app-desc"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Open in</Label>
+                    </Field>
+                    <Field label="Open in">
                         <Select
                             value={openIn}
                             onValueChange={(v) => setOpenIn(v as SabConnectCustomAppOpenIn)}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Open in">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -97,27 +110,24 @@ export function CreateCustomAppDialog() {
                                 <SelectItem value="iframe">Embedded iframe</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Icon</Label>
+                    </Field>
+                    <Field label="Icon">
                         <SabFilePickerButton
                             accept="image"
                             onPick={(pick) => setIcon(pick)}
                         >
                             {icon ? icon.name : 'Pick icon'}
                         </SabFilePickerButton>
-                    </div>
+                    </Field>
                     {error ? (
-                        <p role="alert" className="text-sm text-[var(--st-danger)]">
-                            {error}
-                        </p>
+                        <Alert tone="danger">{error}</Alert>
                     ) : null}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
+                    <Button variant="secondary" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
-                    <Button onClick={submit} disabled={pending}>
+                    <Button variant="primary" onClick={submit} loading={pending}>
                         {pending ? 'Saving…' : 'Pin app'}
                     </Button>
                 </DialogFooter>

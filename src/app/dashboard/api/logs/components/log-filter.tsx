@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button } from '@/components/sabcrm/20ui';
+import { Button, Field, Input } from '@/components/sabcrm/20ui';
 import { Filter } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, Suspense } from 'react';
@@ -30,27 +30,33 @@ function FilterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
-      <Input
-        name="path"
-        defaultValue={path}
-        placeholder="path (e.g. /api/v1/me)"
-        className="font-mono"
-      />
-      <Input
-        name="keyId"
-        defaultValue={keyId}
-        placeholder="key id"
-        className="font-mono"
-      />
-      <Input
-        name="minStatus"
-        type="number"
-        defaultValue={minStatus}
-        placeholder="min status (e.g. 400)"
-      />
-      <Button type="submit">
-        <Filter className="h-4 w-4 mr-1" /> Filter
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+      <Field label="Path">
+        <Input
+          name="path"
+          defaultValue={path}
+          placeholder="/api/v1/me"
+          className="font-mono"
+        />
+      </Field>
+      <Field label="Key ID">
+        <Input
+          name="keyId"
+          defaultValue={keyId}
+          placeholder="key id"
+          className="font-mono"
+        />
+      </Field>
+      <Field label="Min status">
+        <Input
+          name="minStatus"
+          type="number"
+          defaultValue={minStatus}
+          placeholder="400"
+        />
+      </Field>
+      <Button type="submit" variant="primary" iconLeft={Filter}>
+        Filter
       </Button>
     </form>
   );
@@ -58,7 +64,11 @@ function FilterForm() {
 
 export function LogFilter() {
   return (
-    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-[var(--st-bg-secondary)]/50 rounded-md"></div>}>
+    <Suspense
+      fallback={
+        <div className="h-10 w-full animate-pulse rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]" />
+      }
+    >
       <FilterForm />
     </Suspense>
   );
