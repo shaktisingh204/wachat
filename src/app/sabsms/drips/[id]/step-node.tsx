@@ -29,7 +29,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui';
 
 import type { DraftDripNode } from "./validate";
 

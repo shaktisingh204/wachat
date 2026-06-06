@@ -14,7 +14,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CheckSquare, FileText, Pin } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui';
 
 import {
     EntityDetailShell,

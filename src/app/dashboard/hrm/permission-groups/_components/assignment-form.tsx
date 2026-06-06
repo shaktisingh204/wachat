@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 interface Employee {
   _id: string;

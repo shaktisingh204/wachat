@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Skeleton } from '@/components/sabcrm/20ui';
 import { Radar, RefreshCw, Link2, Unlink } from 'lucide-react';
 import { AlertsDialog } from './alerts-dialog';
 import { useEffect, useState } from 'react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 /**
  * <QuotationTable> — the table-view body of the canonical quotations
  * list. Pure presentation; the parent owns filters / selection.

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 
 interface EntityCrudPageProps<T> {
   title: string;

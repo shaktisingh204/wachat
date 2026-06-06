@@ -1,4 +1,4 @@
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Separator } from '@/components/sabcrm/20ui';
 import { CodeBlock } from '@/components/zoruui-domain/code-block';
 import { ArrowLeft,
   BookOpen } from 'lucide-react';

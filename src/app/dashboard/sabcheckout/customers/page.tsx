@@ -6,7 +6,7 @@
  */
 import { Users, Search, Filter, Mail, Phone, ExternalLink, Download } from 'lucide-react';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Input, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Input, Badge } from '@/components/sabcrm/20ui';
 
 import { listSabcheckoutCustomers } from '@/app/actions/sabcheckout.actions';
 

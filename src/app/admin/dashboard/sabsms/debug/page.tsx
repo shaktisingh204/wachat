@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { getAdminSession } from '@/lib/admin-session';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import { SabsmsDebugSendForm } from './debug-form';
 import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 

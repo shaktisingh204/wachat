@@ -22,7 +22,7 @@ import {
   MoreHorizontal,
   Settings
 } from "lucide-react";
-import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui';
 import { ModuleTile } from "./shared";
 import { compact, curr } from "./utils";
 import {

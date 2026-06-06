@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui';
 import { Check, ArrowRight, FileText, ArrowRightCircle } from 'lucide-react';
 
 export interface LineageNode {

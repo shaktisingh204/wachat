@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Checkbox, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button, Checkbox, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { RotateCw, Download, Search, Trash2 } from 'lucide-react';
 import type { WsAutomateShift } from '@/lib/worksuite/shifts-types';
 import { useEffect, useState, useMemo } from 'react';

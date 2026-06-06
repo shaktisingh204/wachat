@@ -7,7 +7,7 @@ import {
     signUpSabcatalystUser,
     revokeSabcatalystAuthSession,
 } from '@/app/actions/sabcatalyst.actions';
-import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge } from '@/components/sabcrm/20ui';
 import type { SabcatalystAuthUser } from '@/lib/rust-client/sabcatalyst-auth-users';
 
 interface Props { projectId: string; initialUsers: SabcatalystAuthUser[] }

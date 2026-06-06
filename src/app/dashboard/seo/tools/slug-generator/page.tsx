@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Label, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Label, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

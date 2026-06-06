@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Trash2, GripHorizontal } from 'lucide-react';
 import type { EnvelopeField, EsignFieldType } from '@/lib/rust-client/esign-envelopes';
 

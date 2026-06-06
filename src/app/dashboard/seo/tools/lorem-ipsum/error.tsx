@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export default function ErrorBoundary({
   error,

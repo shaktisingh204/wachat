@@ -11,7 +11,7 @@ import {
   BanIcon,
 } from 'lucide-react';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 

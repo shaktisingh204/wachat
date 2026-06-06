@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId,
   Project } from '@/lib/definitions';

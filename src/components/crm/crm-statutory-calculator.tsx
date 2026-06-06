@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Table, THead, TBody, Tr, Th, Td, Button, Input, Card, Label } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, Button, Input, Card, Label } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Calculator, Info } from 'lucide-react';
 
 export interface CalculatorItem {

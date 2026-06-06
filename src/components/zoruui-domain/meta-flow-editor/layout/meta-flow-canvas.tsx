@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from '@/components/sabcrm/20ui';
 import { MetaFlowPreview } from "@/components/zoruui-domain/meta-flow-preview";
 import { Smartphone, Code } from "lucide-react";
 

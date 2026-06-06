@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui';
 /**
  * <BillListClient> — canonical Bills list view per CRM_REBUILD_PLAN §1D.
  *

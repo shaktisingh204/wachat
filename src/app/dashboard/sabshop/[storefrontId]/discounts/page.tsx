@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Plus, Tag, Ticket, Activity, MoreHorizontal, Copy, Trash2, Edit3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 
 const discountData = [
   {

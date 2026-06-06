@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card, Alert } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Alert } from '@/components/sabcrm/20ui';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 
 export default function EditContactError({

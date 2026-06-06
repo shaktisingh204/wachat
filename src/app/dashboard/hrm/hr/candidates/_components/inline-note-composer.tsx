@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea } from '@/components/sabcrm/20ui';
 import { addCandidateNote } from '@/app/actions/hr-recruitment-mutations.actions';
 
 export function InlineNoteComposer({ candidateId }: { candidateId: string }) {

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/sabcrm/20ui';
 import { cn } from "@/lib/utils";
 
 type DrawerWidth = "sm" | "md" | "lg";

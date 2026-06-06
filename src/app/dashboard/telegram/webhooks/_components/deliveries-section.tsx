@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, DateRangePicker, Skeleton, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, DateRangePicker, Skeleton, Badge } from '@/components/sabcrm/20ui';
 import {
   ChevronDown,
   Eye,

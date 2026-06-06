@@ -6,7 +6,7 @@ import { SetsGrid, GridSkeleton } from './_components/sets-grid';
 import { CreatePackDrawer } from './_components/create-pack-drawer';
 import { SetDetailDrawer } from './_components/set-detail-drawer';
 
-import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui';
 import {
   Sticker as StickerIcon,
   Plus,

@@ -14,7 +14,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { Archive, Download, FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

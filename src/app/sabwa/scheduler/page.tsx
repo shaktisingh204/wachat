@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui';
 import {
   CalendarClock,
   ChevronLeft,

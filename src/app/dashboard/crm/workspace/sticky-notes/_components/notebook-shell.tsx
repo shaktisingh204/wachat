@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 
-import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import {
   getSabnotebookNote,
   listSabnotebookNotes,

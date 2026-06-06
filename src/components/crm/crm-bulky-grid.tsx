@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Table, THead, TBody, Tr, Th, Td, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem, Card, Input } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem, Card, Input } from '@/components/sabcrm/20ui';
 import { Settings2, ArrowUpDown, ChevronDown, Check, X, Edit2 } from 'lucide-react';
 
 export interface ColumnDef<T> {

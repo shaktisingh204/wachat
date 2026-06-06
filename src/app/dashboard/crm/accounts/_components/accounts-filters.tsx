@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, DateRangePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type { DateRange } from 'react-day-picker';
 import {
   Archive,

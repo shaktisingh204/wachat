@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import type { SabshowSlideDoc } from '@/lib/rust-client/sabshow-slides';
 import type { SabshowElementDoc } from '@/lib/rust-client/sabshow-elements';
 

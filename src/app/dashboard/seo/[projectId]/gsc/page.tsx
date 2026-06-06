@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { GscClient } from './_components/gsc-client';
 import { getGscIntegration } from '@/app/actions/seo-gsc.actions';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

@@ -22,7 +22,7 @@ import {
   Eye,
 } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, SheetContent, SheetHeader, SheetTitle, Sheet, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, SheetContent, SheetHeader, SheetTitle, Sheet, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';
 import {
   createSabtablesRecord,
   updateSabtablesRecord,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Skeleton, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Skeleton, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Textarea } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

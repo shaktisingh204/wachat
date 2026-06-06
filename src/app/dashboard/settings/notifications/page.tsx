@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, useToast } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from 'react';

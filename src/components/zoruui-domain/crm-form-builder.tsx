@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, ScrollArea, Separator, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Card, Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, ScrollArea, Separator, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Card, Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@/components/sabcrm/20ui';
 import {
   DndContext,
   DragEndEvent,

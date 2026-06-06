@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Check, X, Clock, FileText, Send, UserCheck, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 gsap.registerPlugin(useGSAP);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { PlusCircle } from 'lucide-react';
 import { addDisciplinaryHearing } from '@/app/actions/hr.actions';
 import { toast } from 'sonner';

@@ -32,7 +32,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { icons as lucideIcons, Database, Plus, FileText } from "lucide-react";
 
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui';
 import {
   createRecordAction,
   searchRecordsForPickerAction,

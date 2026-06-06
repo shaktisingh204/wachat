@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Input, Button } from '@/components/sabcrm/20ui';
 import { Filter } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, Suspense } from 'react';

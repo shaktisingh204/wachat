@@ -52,7 +52,7 @@
 import * as React from 'react';
 import { GripVertical, LayoutGrid, Plus, RefreshCw } from 'lucide-react';
 
-import { Badge, Button, Card, EmptyState, ScrollArea, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, ScrollArea, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   groupRecordsAction,
   updateRecordAction,

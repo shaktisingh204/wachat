@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 import { useDebouncedCallback } from "use-debounce";
 import { Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, DateRangePicker, DateRangePickerProps, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, DateRangePicker, DateRangePickerProps, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { use, useEffect, useState, useCallback } from 'react';
 import { LineChart, Loader2, CheckCircle, Search, Filter } from 'lucide-react';
 import { startGscAuth, getGscIntegration } from '@/app/actions/seo-gsc.actions';

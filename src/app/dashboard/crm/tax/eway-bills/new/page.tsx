@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 /**
  * Generate-new e-way bill — `/dashboard/crm/tax/eway-bills/new`.

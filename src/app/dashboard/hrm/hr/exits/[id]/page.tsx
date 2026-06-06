@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { Badge, Button } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

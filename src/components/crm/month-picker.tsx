@@ -4,7 +4,7 @@ import * as React from "react";
 import { format, subMonths, addMonths } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export function MonthPicker() {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, ScrollArea, Separator } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

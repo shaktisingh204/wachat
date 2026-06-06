@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { fmtINR } from '@/lib/utils';
 import { Package } from 'lucide-react';
 

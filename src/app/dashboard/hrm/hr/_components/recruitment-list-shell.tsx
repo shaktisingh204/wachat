@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { Button, Card, CardBody, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Input, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Input, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { Plus,

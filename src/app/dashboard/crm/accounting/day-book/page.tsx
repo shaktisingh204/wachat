@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { ArrowDownCircle, ArrowUpCircle, ListChecks, Scale } from 'lucide-react';
 
-import { Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui/compat';
+import { Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

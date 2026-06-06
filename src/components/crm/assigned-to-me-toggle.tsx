@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 import { UserCheck } from 'lucide-react';
-import { Button, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, cn } from '@/components/sabcrm/20ui';
 import { getMyEmployeeId } from '@/app/actions/crm-assignment.actions';
 
 export interface AssignedToMeToggleProps {

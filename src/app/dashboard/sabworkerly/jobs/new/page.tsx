@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle } from '@/components/sabcrm/20ui';
 import { JobForm } from './_form';
 import { getSabworkerlyClients } from '@/app/actions/sabworkerly.actions';
 

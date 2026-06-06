@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Play } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, PageHeader, PageTitle, PageDescription, Table, TBody, Td, Th, THead, Tr, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, PageHeader, PageTitle, PageDescription, Table, TBody, Td, Th, THead, Tr, EmptyState, Badge } from '@/components/sabcrm/20ui';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { Recording } from '@/lib/rust-client/pagesense-recordings';

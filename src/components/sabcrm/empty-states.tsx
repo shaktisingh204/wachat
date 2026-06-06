@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { EmptyState, type EmptyStateProps } from '@/components/sabcrm/20ui/compat';
+import { EmptyState, type EmptyStateProps } from '@/components/sabcrm/20ui';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // No records / No results state

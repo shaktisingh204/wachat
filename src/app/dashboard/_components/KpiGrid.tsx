@@ -19,7 +19,7 @@ import {
   ChevronDown,
   ArrowUpRight
 } from "lucide-react";
-import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuCheckboxItem } from '@/components/sabcrm/20ui';
 import { useRouter } from "next/navigation";
 import { compact, curr } from "./utils";
 import {

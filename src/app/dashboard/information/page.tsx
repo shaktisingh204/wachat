@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Badge, Separator, Button, Input, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Badge, Separator, Button, Input, Checkbox, useToast } from '@/components/sabcrm/20ui';
 import { getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';

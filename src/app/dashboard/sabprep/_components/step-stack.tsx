@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ChevronDown, ChevronUp, Trash2, Plus, EyeOff, Eye } from 'lucide-react';
 
-import { Card, CardHeader, CardTitle, CardBody, Button, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Badge, EmptyState } from '@/components/sabcrm/20ui';
 import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 import { StepEditor } from './step-editor';
 

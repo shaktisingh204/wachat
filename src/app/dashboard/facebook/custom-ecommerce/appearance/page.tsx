@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from "react";

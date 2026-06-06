@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { EnumFilterField } from '@/components/crm/enum-filter-field';

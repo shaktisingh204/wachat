@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 import { getSabmonitorCheck } from '@/app/actions/sabmonitor.actions';
 import { CheckForm } from '../../_components/check-form';

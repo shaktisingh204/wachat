@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui';
 import { exportSubmissions } from '@/app/actions/crm-forms.actions';
 
 export interface ExportButtonProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Sheet } from '@/components/sabcrm/20ui/compat';
+import { Label, Sheet } from '@/components/sabcrm/20ui';
 import { CodeBlock } from '@/components/zoruui-domain/code-block';
 
 export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { verifyLinkPassword } from '@/app/actions/url-shortener.actions';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
 import { Lock, Loader2 } from 'lucide-react';
 import RedirectScript from './RedirectScript';
 

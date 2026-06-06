@@ -11,7 +11,7 @@ import { notFound, redirect } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 import { IntegrationForm } from '../../_components/integration-form';
 

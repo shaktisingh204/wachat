@@ -2,8 +2,8 @@
 
 import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { Edit, CreditCard, PlusCircle, GripHorizontal } from 'lucide-react';
 import { AdminDeletePlanButton } from '@/components/zoruui-domain/admin-delete-plan-button';
 import { AdminPlanPermissionsDialog } from '@/components/zoruui-domain/admin-plan-permissions-dialog';

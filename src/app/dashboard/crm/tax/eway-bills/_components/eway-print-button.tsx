@@ -2,7 +2,7 @@
 
 import { Printer } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export function EWayPrintButton() {
   return (

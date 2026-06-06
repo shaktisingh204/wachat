@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { Banknote, Coins, FileMinus, Network, TrendingUp } from 'lucide-react';
 
 /**

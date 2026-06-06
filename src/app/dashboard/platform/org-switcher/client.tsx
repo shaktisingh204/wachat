@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { createOrganization, deleteOrganization } from '@/app/actions/platform/org-switcher.actions';
 import type { Organization } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Building } from 'lucide-react';

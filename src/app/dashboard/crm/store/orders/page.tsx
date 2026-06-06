@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { Download, ShoppingBag, Trash2 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { GitBranch, Plus } from 'lucide-react';
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailJourney,
   actionListEmailJourneys,

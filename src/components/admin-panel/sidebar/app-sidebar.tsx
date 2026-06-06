@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Collapsible, CollapsibleContent, CollapsibleTrigger, ScrollArea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui/compat';
+import { Badge, Collapsible, CollapsibleContent, CollapsibleTrigger, ScrollArea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui';
 import {
   usePathname,
   useRouter } from 'next/navigation';

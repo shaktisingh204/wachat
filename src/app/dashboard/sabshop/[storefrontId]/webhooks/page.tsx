@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { StatCard } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { StatCard } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import {
   Plus,
   Webhook,
@@ -21,7 +21,7 @@ import {
   ShieldCheck,
   Zap
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 
 const mockWebhooks = [
   {

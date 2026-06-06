@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Alert, AlertTitle, AlertDescription, EmptyState, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Alert, AlertTitle, AlertDescription, EmptyState, StatCard } from '@/components/sabcrm/20ui';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, AlertCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';

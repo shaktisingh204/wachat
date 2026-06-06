@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, StatCard, useToast } from '@/components/sabcrm/20ui';
 import {
   CheckCircle2,
   Download,

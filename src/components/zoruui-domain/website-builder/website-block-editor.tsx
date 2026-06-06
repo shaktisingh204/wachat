@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Select } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Select } from '@/components/sabcrm/20ui';
 import {
   WebsiteBlock,
   EcommProduct,

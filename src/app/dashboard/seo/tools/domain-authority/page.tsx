@@ -1,11 +1,11 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn, Progress } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn, Progress } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 import { Loader2, Copy, Download, AlertCircle, ExternalLink, ShieldAlert, Link as LinkIcon, Activity } from 'lucide-react';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 function hash(s: string): number {
   let h = 0;

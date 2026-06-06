@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
   EntityDetailShell,
   type EntityStatusTone,

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicContract } from '@/app/actions/public-contract.actions';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { ContractSignPanel } from './contract-sign-panel';
 import DOMPurify from 'isomorphic-dompurify';
 import { fmtDate, fmtINR } from '@/lib/utils';

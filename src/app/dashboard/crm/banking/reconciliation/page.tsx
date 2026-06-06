@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCrmReconciliationKpis,
@@ -21,7 +21,7 @@ import { ObjectId } from 'mongodb';
 import { ReconciliationListClient } from './_components/reconciliation-list-client';
 
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

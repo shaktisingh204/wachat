@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui';
 import {
   ShieldCheck,
   KeyRound,

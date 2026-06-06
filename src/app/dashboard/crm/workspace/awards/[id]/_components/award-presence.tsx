@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 
 export function AwardPresence({ awardId }: { awardId: string }) {
     const [viewers, setViewers] = useState<number>(1);

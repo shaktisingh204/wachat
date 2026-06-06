@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, Button, Switch, Label, ScrollArea, useToast, Tabs, TabsContent, TabsList, TabsTrigger, Badge } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, Button, Switch, Label, ScrollArea, useToast, Tabs, TabsContent, TabsList, TabsTrigger, Badge } from '@/components/sabcrm/20ui';
 import { ShieldCheck, Check, X, Info } from "lucide-react";
 import { updateUserPermissions } from "@/app/actions/admin.actions";
 import { moduleCategories, permissionActions } from "@/lib/permission-modules";

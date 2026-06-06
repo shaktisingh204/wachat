@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, StatCard, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   AtSign,

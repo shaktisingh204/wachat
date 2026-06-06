@@ -1,4 +1,4 @@
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Progress } from '@/components/sabcrm/20ui';
 import {
   HardDrive } from 'lucide-react';
 

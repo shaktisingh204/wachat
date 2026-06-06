@@ -1,6 +1,6 @@
 import { fmtDate } from '@/lib/utils';
 import { Suspense } from 'react';
-import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';

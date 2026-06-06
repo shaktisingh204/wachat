@@ -1,7 +1,7 @@
 'use client';
 
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/sabcrm/20ui';
 import { AssignTaskForm } from './assign-task-form';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 

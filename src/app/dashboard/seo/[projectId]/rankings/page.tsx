@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { RankingsClient } from './_components/rankings-client';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
 import { getSeoProject } from '@/app/actions/seo.actions';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

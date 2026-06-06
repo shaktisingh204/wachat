@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui';
 import React from 'react';
 
 export function FaqBlockRenderer({ settings }: { settings: any }) {

@@ -40,7 +40,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui';
 import {
   issueApiKeyAction,
   listApiKeysAction,

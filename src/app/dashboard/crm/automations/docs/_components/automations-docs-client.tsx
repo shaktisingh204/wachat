@@ -12,7 +12,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, Separator, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, Separator, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 import { Download, Loader2, Play, Pause, Plus, Trash2, X } from 'lucide-react';
 
 import {

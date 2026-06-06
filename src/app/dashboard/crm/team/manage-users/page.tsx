@@ -27,7 +27,7 @@ import {
     Users,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';

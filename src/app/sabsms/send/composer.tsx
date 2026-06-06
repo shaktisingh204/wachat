@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
-import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui';
 
 import type {
   SabsmsMessage,

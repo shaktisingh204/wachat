@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { Columns3, Download, ListChecks, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';

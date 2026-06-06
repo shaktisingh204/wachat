@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import {
   downloadCsv,

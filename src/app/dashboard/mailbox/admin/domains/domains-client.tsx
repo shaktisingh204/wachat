@@ -28,7 +28,7 @@ import {
     recheckMailDomainDns,
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui';
 
 type Status = 'pending' | 'verified' | 'failed';
 

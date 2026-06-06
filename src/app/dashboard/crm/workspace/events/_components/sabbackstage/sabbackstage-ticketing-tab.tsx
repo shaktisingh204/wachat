@@ -14,7 +14,7 @@
  */
 
 import * as React from 'react';
-import { Badge, Button, Input, Label, Progress, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Progress, useToast } from '@/components/sabcrm/20ui';
 import { Loader2, Plus, RotateCcw, Trash2 } from 'lucide-react';
 
 import {

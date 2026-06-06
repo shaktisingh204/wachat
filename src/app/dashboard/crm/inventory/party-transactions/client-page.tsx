@@ -22,7 +22,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { Button, Card, DatePicker, Label, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DatePicker, Label, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { generatePartyTransactionReport } from '@/app/actions/crm-reports.actions';
 import type { PartyTransactionsDeepKpis } from '@/app/actions/crm-inventory.actions.types';
 import {

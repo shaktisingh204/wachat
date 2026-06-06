@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, Textarea } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

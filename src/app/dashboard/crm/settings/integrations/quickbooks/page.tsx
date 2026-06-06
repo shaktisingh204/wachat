@@ -11,7 +11,7 @@
  * Reads / mutates settings through `@/app/actions/quickbooks.actions`.
  */
 
-import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, useToast } from '@/components/sabcrm/20ui';
 import { Suspense, useCallback, useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {

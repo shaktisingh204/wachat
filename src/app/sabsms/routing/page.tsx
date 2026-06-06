@@ -34,7 +34,7 @@ import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-colu
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 import { SabsmsTableSkeleton, SabsmsEmpty } from "@/components/sabsms/page-toolkit/sabsms-states";
 
-import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
 
 /** Mock data for Routing Rules */
 const MOCK_RULES = [

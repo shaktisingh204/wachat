@@ -7,9 +7,9 @@ import { fmtINR } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
 import { getClientInvoices } from '@/app/actions/client-portal.actions';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 import { ClientInvoicesView } from './client-invoices-view';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 
 async function ClientInvoicesPageContent() {

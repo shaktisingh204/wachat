@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 /**

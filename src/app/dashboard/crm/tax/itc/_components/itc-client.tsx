@@ -14,7 +14,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Download, Loader2, X } from 'lucide-react';
 
-import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 import { bulkReconcileMismatched } from '@/app/actions/crm-india-itc.actions';

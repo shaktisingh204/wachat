@@ -8,7 +8,7 @@
 import { Suspense } from 'react';
 import { getCrmAccounts, getCrmAccountKpis } from '@/app/actions/crm-accounts.actions';
 import { ClientsListClient } from './_components/clients-list-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

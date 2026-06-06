@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Separator, Alert, AlertTitle, AlertDescription, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Separator, Alert, AlertTitle, AlertDescription, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import {
   Check,
   X,

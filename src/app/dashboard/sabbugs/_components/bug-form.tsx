@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createBug, updateBug } from '@/app/actions/bug-tracker.actions';

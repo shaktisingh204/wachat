@@ -8,10 +8,10 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getClientTickets } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { NewTicketDrawer } from '@/components/client-portal/new-ticket-drawer';
 import { TicketFilters } from './ticket-filters';
 import { SlaIndicator } from './sla-indicator';

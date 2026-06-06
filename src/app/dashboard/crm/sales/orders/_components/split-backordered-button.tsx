@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 import { LoaderCircle, SplitSquareVertical } from 'lucide-react';
 import { useTransition } from 'react';
 import { splitSalesOrderBackorderAction } from '@/app/actions/crm/sales-orders-split.actions';

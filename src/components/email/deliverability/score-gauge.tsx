@@ -4,7 +4,7 @@
  * Circular score gauge for deliverability (0..100). Pure SVG — we don't
  * use Progress here because the zoruui progress primitive is linear-only.
  */
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 interface ScoreGaugeProps {
   /** 0..100 */

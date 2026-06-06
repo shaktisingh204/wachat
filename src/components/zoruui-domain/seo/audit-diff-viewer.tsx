@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Button, Badge } from '@/components/sabcrm/20ui';
 import { SeoPageAudit } from '@/lib/seo/definitions';
 import { ArrowRight, CheckCircle, AlertCircle, FilePlus, FileMinus } from 'lucide-react';
 import { useMemo } from 'react';

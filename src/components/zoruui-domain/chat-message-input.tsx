@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button, Popover, PopoverAnchor, PopoverContent, PopoverTrigger, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Select } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Popover, PopoverAnchor, PopoverContent, PopoverTrigger, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Select } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,

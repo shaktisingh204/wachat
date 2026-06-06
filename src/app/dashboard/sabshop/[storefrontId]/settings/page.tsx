@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Input, Label, Badge, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, useToast, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Input, Label, Badge, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, useToast, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui';
 import { 
     Settings, Store, CreditCard, ShoppingBag, Bell, Globe, 
     Truck, Receipt, Save, RefreshCw, Upload, Plus, AlertCircle 

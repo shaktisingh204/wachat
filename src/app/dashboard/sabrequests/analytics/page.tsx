@@ -5,7 +5,7 @@
  */
 import * as React from 'react';
 
-import { Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card } from '@/components/sabcrm/20ui';
 import { getRequestsAnalytics } from '@/app/actions/sabrequests.actions';
 
 export const dynamic = 'force-dynamic';

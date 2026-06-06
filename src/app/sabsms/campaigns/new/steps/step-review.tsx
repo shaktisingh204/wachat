@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 import type { CampaignDraft, ValidationIssue, WizardStepId } from "../types";
 

@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { NewTdsClient } from './page-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

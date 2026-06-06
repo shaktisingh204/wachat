@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, Input, Label } from '@/components/sabcrm/20ui';
 
 interface Props {
     open: boolean;

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { OrgChartNode } from '@/lib/hrm-advanced-types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Button } from '@/components/sabcrm/20ui';
 
 interface OrgChartFormProps {
   open: boolean;

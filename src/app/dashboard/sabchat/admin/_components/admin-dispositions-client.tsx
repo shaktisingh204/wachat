@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { createAdminDisposition, deleteAdminDisposition } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminDispositionsClient({ initialData }: { initialData: any[] }) {

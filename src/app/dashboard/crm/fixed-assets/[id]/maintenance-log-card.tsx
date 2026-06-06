@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/sabcrm/20ui';
 import { getMaintenanceLogs, addMaintenanceLog, type MaintenanceLog } from './maintenance.actions';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';

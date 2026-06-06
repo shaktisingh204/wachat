@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { ChevronDown, ChevronRight, Palette, Layout, Settings, Type, FileCode } from 'lucide-react';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { Paperclip, X } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import type { DocumentType } from './live-document-editor';
 import { getSidebarEntity } from './seed-templates';
 

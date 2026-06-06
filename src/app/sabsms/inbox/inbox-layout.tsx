@@ -35,7 +35,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/sabcrm/20ui/compat';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/sabcrm/20ui';
 import {
   SabsmsFilterBar,
   SabsmsKbdHint,

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateRoadmap } from '@/app/actions/hrm-roadmaps.actions';
-import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast, ToastAction } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast, ToastAction } from '@/components/sabcrm/20ui';
 import { Users } from 'lucide-react';
 import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';

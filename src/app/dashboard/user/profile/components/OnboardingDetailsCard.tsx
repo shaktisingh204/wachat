@@ -1,6 +1,6 @@
 'use client';
 
-import { CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui';
 import { UserProfileFormProps } from './types';
 import { 
     CheckCircle2, 

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, AlertDescription, EmptyState, PageEyebrow, PageHeader, PageHeading, PageTitle, PageDescription, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, EmptyState, PageEyebrow, PageHeader, PageHeading, PageTitle, PageDescription, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import { Settings, Sparkles, Clock3, AlertCircle, ShieldAlert, UserCog, Globe2, ClipboardList } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';

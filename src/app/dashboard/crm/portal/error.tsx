@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function PortalError({

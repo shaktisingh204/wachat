@@ -7,7 +7,7 @@ import {
 } from '@/app/actions/worksuite/leave.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import type { WsLeave, WsLeaveFile, WsLeaveType } from '@/lib/worksuite/leave-types';
 
 export const dynamic = 'force-dynamic';

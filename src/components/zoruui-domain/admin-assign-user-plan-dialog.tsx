@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui';
 import {
   useState,
   useTransition } from 'react';

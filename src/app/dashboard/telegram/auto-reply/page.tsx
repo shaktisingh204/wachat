@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, EmptyState, Input, PageHeader, PageTitle, PageDescription, PageEyebrow, PageActions, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, EmptyState, Input, PageHeader, PageTitle, PageDescription, PageEyebrow, PageActions, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   DndContext,
   PointerSensor,

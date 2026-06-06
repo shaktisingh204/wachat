@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams,

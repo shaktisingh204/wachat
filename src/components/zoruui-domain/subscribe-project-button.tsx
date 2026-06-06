@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';

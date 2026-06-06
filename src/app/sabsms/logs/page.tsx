@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ObjectId } from "mongodb";
 import { FileSearch, Inbox, Eye } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { connectToDatabase } from "@/lib/mongodb";

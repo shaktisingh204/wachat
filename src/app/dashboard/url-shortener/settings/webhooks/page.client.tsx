@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { fmtDate } from "@/lib/utils";
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, useToast, Skeleton, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, useToast, Skeleton, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Webhook, Search, AlertCircle } from 'lucide-react';
 
 const STORAGE_KEY = 'url-shortener-webhooks';

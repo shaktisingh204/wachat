@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 /**
  * Trigger configuration panel — rendered above the canvas and inside the
  * inspector when no node is selected. The shape mirrors `FlowTrigger` on the

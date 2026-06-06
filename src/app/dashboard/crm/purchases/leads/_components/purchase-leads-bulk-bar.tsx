@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Archive, Download, ListChecks, Trash2, X } from 'lucide-react';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 const STATUS_BULK_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
     { value: 'New', label: 'New' },

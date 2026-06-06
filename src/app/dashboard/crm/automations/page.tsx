@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, Input, Label, Popover, PopoverContent, PopoverTrigger, ScrollArea, Switch, useToast, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, Input, Label, Popover, PopoverContent, PopoverTrigger, ScrollArea, Switch, useToast, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
 
 import {

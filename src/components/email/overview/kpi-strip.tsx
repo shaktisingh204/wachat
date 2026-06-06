@@ -2,7 +2,7 @@
 
 import { Activity, MousePointerClick, Send, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 export interface EmailKpiStripProps {
   sent: number;

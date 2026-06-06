@@ -3,7 +3,7 @@
 import React from "react";
 import { Plus, Gift, CreditCard, Clock, MoreHorizontal, Eye, Copy, RefreshCw, Download } from "lucide-react";
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Card } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, StatCard, DataTable, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Card } from '@/components/sabcrm/20ui';
 
 const giftCardData = [
   {

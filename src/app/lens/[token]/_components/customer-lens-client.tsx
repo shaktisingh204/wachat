@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { joinSablensCustomerSession } from '@/app/actions/sablens.actions';
 import { MockTransport } from '@/lib/sablens/mock-transport';
 import type { LensAnnotation } from '@/lib/sablens/transport';

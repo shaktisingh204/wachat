@@ -1,7 +1,7 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, Input, Checkbox } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';

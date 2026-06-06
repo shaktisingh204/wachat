@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { notFound } from 'next/navigation';
 import { withTimeout } from '../lib/timeout';
 import { fmtINR } from '@/lib/utils';
@@ -23,7 +23,7 @@ import { BomDetailActions } from '../_components/bom-detail-actions';
 import { BomDetailRail } from '../_components/bom-detail-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

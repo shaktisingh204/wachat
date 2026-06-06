@@ -50,7 +50,7 @@ import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
-import { ICONS } from '@/components/sabcrm/20ui/compat';
+import { ICONS } from '@/components/sabcrm/20ui';
 import { getCrmSettingsTw } from '@/app/actions/sabcrm-settings.actions';
 import {
   SabcrmSettingsProvider,

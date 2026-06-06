@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate, fmtINR } from '@/lib/utils';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   Edit,
   LoaderCircle,

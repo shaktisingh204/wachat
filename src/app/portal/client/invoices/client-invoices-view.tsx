@@ -15,11 +15,11 @@ import {
 } from 'recharts';
 
 import { ClientInvoice } from '@/lib/client-portal/types';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';

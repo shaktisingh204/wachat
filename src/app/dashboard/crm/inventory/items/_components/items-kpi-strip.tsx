@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { fmtINR } from '@/lib/utils';
 import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet, PackageCheck } from 'lucide-react';
 

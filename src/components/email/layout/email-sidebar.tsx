@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 export interface EmailSidebarChildItem {

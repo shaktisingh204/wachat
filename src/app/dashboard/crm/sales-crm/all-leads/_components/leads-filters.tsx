@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, DateRangePicker, Input, Label, Popover, PopoverContent, PopoverTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Input, Label, Popover, PopoverContent, PopoverTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import {
   Archive,
   ChevronDown,

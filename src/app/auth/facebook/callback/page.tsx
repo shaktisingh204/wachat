@@ -1,6 +1,6 @@
 import "@/components/sabcrm/20ui/zoru-legacy.css";
 
-import { Card, CardHeader, CardTitle, CardDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, Button } from '@/components/sabcrm/20ui';
 import { Suspense } from 'react'
 import { LoaderCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'

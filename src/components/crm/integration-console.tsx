@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, ScrollArea, Separator, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, ScrollArea, Separator, StatCard, useToast } from '@/components/sabcrm/20ui';
 
 import type {
   IntegrationEvent,

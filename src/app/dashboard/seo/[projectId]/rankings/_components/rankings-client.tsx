@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
   use,
   useEffect,
@@ -23,7 +23,7 @@ import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
 import { RankingsTable } from '@/components/zoruui-domain/seo/rankings-table';
 import { AddKeywordDialog } from '@/components/zoruui-domain/seo/add-keyword-dialog';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 

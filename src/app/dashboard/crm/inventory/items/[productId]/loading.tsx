@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function InventoryItemDetailLoading() {
     return (

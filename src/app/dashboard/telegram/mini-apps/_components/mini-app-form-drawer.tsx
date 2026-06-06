@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { Loader2, X as XIcon } from 'lucide-react';
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import {

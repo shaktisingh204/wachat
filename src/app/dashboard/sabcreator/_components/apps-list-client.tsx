@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, Plus, Rocket } from 'lucide-react';
 
-import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState, Badge } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { createSabcreatorApp } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';

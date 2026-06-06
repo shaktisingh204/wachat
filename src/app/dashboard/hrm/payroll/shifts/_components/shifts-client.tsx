@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useOptimistic, useTransition, useMemo, useRef } from 'react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
     Edit,
     LoaderCircle,

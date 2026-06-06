@@ -11,7 +11,7 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import { FacebookPost } from '@/lib/definitions';
 import { handleReschedulePost } from '@/app/actions/facebook.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 const locales = {
   'en-US': enUS,

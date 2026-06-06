@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy, Loader2, Check } from 'lucide-react';

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { AuditPageClient } from './_components/audit-page-client';
 import { getAuditHistory } from '@/app/actions/seo.actions';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

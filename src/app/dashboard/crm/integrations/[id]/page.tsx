@@ -1,4 +1,4 @@
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -30,7 +30,7 @@ import {
 import { SyncStatusMonitor } from '../_components/sync-status-monitor';
 import { WebhookLogsPreview } from '../_components/webhook-logs';
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

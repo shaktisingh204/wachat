@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getWsProjectById } from '@/app/actions/worksuite/projects.actions';
 import { ProjectForm } from '../../_components/project-form';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

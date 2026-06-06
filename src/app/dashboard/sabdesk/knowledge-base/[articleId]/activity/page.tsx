@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { redirect } from "next/navigation";
 import { BookOpen, Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import { ObjectId } from "mongodb";

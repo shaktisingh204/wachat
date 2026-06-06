@@ -13,7 +13,7 @@ import { mapToStockAdjustmentDto } from '../../types';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
 import { ActivityFilter } from './activity-filter';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 interface PageProps {
   params: Promise<{ id: string }>;

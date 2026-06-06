@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 export interface SubmissionsFiltersProps {
     initialQuery: string;

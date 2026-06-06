@@ -22,7 +22,7 @@ import {
     UserCircle,
 } from 'lucide-react';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 type Item = {
     href: string;

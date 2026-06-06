@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, Separator, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Separator, Card, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Server, Save } from 'lucide-react';

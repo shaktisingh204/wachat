@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";

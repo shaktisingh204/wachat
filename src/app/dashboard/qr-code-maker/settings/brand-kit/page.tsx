@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, cn } from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 import { Palette, Plus, Trash2, ChevronLeft } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';

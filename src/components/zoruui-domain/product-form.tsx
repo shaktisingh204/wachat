@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Separator, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DatePicker } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Separator, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DatePicker } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,

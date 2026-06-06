@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { GripVertical, Settings2 } from 'lucide-react';
-import { Button, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, Switch, useToast } from '@/components/sabcrm/20ui';
 import {
   getMyWidgets,
   reorderWidgets,
@@ -13,7 +13,7 @@ import type {
   WidgetKey,
   WidgetPref,
 } from '@/app/actions/dashboard-widgets.config';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 export interface WidgetConfigDrawerProps {
   dashboardType: DashboardType;

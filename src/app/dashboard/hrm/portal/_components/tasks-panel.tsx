@@ -1,8 +1,8 @@
 'use client';
 
 import { useTransition, useState, useMemo, useEffect, useOptimistic, useRef } from 'react';
-import { Button, Badge, EmptyState, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, EmptyState, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { markTaskComplete } from '@/app/actions/hrm-portal.actions';
 import { CheckCircle2, ClipboardList, Download, FileText, Search, CheckSquare } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 import type {
   BugDoc,
   BugPriority,

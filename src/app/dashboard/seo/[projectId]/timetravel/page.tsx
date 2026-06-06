@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { TimeTravelClient } from './_components/timetravel-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

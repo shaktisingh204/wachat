@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { File as FileIcon, Trash2 } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 export interface FileValue {

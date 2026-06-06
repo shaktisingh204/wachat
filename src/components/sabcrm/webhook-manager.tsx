@@ -47,7 +47,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Separator, Skeleton, Switch, Textarea, Tooltip, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Separator, Skeleton, Switch, Textarea, Tooltip, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui';
 
 import {
   createWebhookAction,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 import { TdsForm } from '../_components/tds-form';
 import { Users } from 'lucide-react';
 import { BulkUpload } from './components/bulk-upload';

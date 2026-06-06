@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 
-import { Card, Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Badge, useToast } from '@/components/sabcrm/20ui';
 import { Clock, FileText, Plus } from 'lucide-react';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

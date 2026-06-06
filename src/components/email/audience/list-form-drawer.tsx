@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, Input, Label, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, Input, Label, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailList,
   actionUpdateEmailList,

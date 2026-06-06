@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { SabsmsDashboardWidgets, type MetricData } from "./_components/sabsms-dashboard-widgets";

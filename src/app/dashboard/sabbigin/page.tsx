@@ -7,7 +7,7 @@ import {
     Layers,
 } from 'lucide-react';
 
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { SabbiginNav } from './_components/sabbigin-shell';

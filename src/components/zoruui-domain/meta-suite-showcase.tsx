@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, CardDescription, Avatar, AvatarFallback, AvatarImage, Input, Textarea, Label, Switch, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, CardDescription, Avatar, AvatarFallback, AvatarImage, Input, Textarea, Label, Switch, Separator } from '@/components/sabcrm/20ui';
 import {
   Send,
   Megaphone,

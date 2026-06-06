@@ -10,7 +10,7 @@
 import * as React from 'react';
 import { Sparkles } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { adjustRewardsMember } from '@/app/actions/rewards.actions';
 import type { RewardsMemberDoc } from '@/lib/rust-client/rewards-members';

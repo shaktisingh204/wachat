@@ -35,7 +35,7 @@ import { SabsmsExportMenu, rowsToCsv } from "@/components/sabsms/page-toolkit/sa
 import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-column-picker";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 
-import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
 
 import { getApiKeys, getExecutionLogs, createApiKey, updateApiKey, revokeApiKey, type SabsmsApiKey, type SabsmsExecutionLog } from "./actions";
 

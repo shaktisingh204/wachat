@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import type { CrmEnumName } from '@/data/reference/crm-enums';
 import {

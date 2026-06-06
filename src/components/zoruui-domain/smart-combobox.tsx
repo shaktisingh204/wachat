@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, Select } from '@/components/sabcrm/20ui';
 import {
   Check,
   ChevronsUpDown,

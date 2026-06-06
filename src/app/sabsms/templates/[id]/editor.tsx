@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
 import { SabsmsDetailDrawer, SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import { AiRewriteToolbar } from "./ai-rewrite";

@@ -2,7 +2,7 @@
 
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { Badge, Button, Card, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

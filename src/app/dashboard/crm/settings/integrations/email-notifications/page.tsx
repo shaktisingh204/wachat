@@ -13,7 +13,7 @@ import {
   CalendarClock,
 } from 'lucide-react';
 
-import { Button, Card, CardBody, Switch, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Switch, Badge } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ModuleConnectionWizard,

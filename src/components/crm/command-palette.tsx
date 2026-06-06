@@ -1,6 +1,6 @@
 'use client';
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut, Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut, Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 

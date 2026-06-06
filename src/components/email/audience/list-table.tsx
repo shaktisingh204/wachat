@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Archive, MoreHorizontal, Pencil, Users } from 'lucide-react';
-import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import type { EmailListDoc } from '@/lib/rust-client/email-audience';
 
 interface EmailListTableProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, Input, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Badge, cn } from '@/components/sabcrm/20ui';
 import {
   cn as _zoruCn,
   useMemo,

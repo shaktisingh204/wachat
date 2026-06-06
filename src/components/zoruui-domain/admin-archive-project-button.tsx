@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@/components/sabcrm/20ui/compat';
+import { Button, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@/components/sabcrm/20ui';
 import { Archive, ArchiveRestore, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { setProjectArchived } from '@/app/actions/admin-hardening.actions';

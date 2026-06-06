@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { LoaderCircle } from 'lucide-react';
 import { startOfWeek, addDays } from 'date-fns';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';

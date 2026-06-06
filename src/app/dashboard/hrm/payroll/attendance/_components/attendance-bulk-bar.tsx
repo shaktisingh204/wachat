@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { CheckCheck, CheckCircle2, Download, ListChecks, UserX, X, } from 'lucide-react';
 
 /**

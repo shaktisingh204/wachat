@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DialogFooter } from '@/components/sabcrm/20ui';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import type { WsEmployeeShift } from '@/lib/worksuite/shifts-types';
 

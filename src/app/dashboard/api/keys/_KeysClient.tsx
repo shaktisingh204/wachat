@@ -5,7 +5,7 @@ import {
   createDeveloperKey,
   revokeDeveloperKey,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardBody, Button, Input, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertCircle, TriangleAlert, Copy, Key } from 'lucide-react';
 
 interface KeyRow {

@@ -1,4 +1,4 @@
-import { PageHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function ProductionOrdersLoading() {
   return (

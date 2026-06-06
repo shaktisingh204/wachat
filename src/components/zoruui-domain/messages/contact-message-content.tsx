@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui';
 import { User, Phone, Briefcase } from 'lucide-react';
 
 interface ContactMessageContentProps {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui';
 import { ClipboardList, Clock, CheckCircle2, CalendarDays } from 'lucide-react';
 
 export interface KpiItem {

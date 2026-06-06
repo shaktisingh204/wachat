@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Label, Button, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Button, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select } from '@/components/sabcrm/20ui';
 import {
   useEditor } from '@/components/builder/editor-provider';
 

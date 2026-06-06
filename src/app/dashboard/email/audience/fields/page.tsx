@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { FieldsClient } from '@/components/email/audience/fields-client';
 import { Database } from 'lucide-react';

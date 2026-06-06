@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { bulkImportPfEsiFromPayrollRun } from '@/app/actions/crm-pf-esi.actions';
 import { LoaderCircle, FileDown } from 'lucide-react';
 

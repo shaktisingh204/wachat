@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import React, { Suspense } from 'react';

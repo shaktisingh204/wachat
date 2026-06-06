@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Table, TBody, Td, Th, THead, Tr, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Table, TBody, Td, Th, THead, Tr, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -37,7 +37,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Slider } from '@/components/sabcrm/20ui/compat';
+import { Slider } from '@/components/sabcrm/20ui';
 import {
   SabFilePickerButton,
   type SabFilePick,

@@ -42,7 +42,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { Button, Input, Table, THead, TBody, Tr, Th, Td, TCaption, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, THead, TBody, Tr, Th, Td, TCaption, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   listRecordsAction,
   deleteRecordAction,

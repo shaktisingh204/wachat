@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle } from '@/components/sabcrm/20ui';
 import { ClientForm } from './_form';
 
 export default function NewClientPage() {

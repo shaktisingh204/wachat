@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Input, Badge, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Input, Badge, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from "react";

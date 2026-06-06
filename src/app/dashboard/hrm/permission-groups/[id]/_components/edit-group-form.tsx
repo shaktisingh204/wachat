@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card } from '@/components/sabcrm/20ui';
 import { LoaderCircle, ShieldCheck } from 'lucide-react';
 import { GroupDetailsCard } from './group-details-card';
 import { PermissionMatrix } from '../../_components/permission-matrix';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Input, Button, Alert, Card, CardBody as CardContent, useToast } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Input, Button, Alert, Card, CardBody as CardContent, useToast } from '@/components/sabcrm/20ui';
 import { useState, useMemo, Component, ReactNode } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';

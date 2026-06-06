@@ -1,7 +1,7 @@
 'use client';
 
-import { Button, Input, cn } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, cn } from '@/components/sabcrm/20ui';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';

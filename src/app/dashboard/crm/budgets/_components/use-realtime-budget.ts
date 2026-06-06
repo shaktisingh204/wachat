@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 export function useRealtimeBudget(budgetId: string, initialActual: number, planAmount: number, alertAt: number) {
   const [actual, setActual] = useState(initialActual);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { MapPin, Play, Search, Map as MapIcon } from 'lucide-react';
 import { startGridTracking, getSeoProject, updateSeoProjectSettings } from '@/app/actions/seo.actions';

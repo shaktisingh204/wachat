@@ -11,8 +11,8 @@
 import * as React from 'react';
 import { LoaderCircle, RotateCcw, Send, Save, Eye, Code } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 import {
     previewEmailTemplate,

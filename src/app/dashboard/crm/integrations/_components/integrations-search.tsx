@@ -1,6 +1,6 @@
 'use client';
 
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui';
 import { Search } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui';
 import { useDebouncedCallback } from "use-debounce";
 import { ChevronDown, LayoutList, ListChecks, Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";

@@ -3,7 +3,7 @@
 import React, { Suspense } from 'react';
 import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {

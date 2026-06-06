@@ -12,7 +12,7 @@
  */
 
 import * as React from 'react';
-import { Badge, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { Camera, Loader2, ScanLine } from 'lucide-react';
 
 import {

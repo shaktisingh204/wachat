@@ -10,7 +10,7 @@ import {
   type SabsmsFacet,
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, FeatureGrid, FeatureCard, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, FeatureGrid, FeatureCard, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Textarea } from '@/components/sabcrm/20ui';
 import { Sparkles, Copy, Plus, Activity, AlertTriangle, Workflow, Settings, FileCode2, Code, Download, Upload } from "lucide-react";
 import { MOCK_BLOCKS, MOCK_TEMPLATES, type SabflowBlock, type SabflowTemplate } from "./mock-data";
 

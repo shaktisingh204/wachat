@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { refreshDatasetAction } from '@/app/actions/analytics-bi.actions';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export function RefreshButton({ id }: { id: string }) {
   const router = useRouter();

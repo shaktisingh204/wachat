@@ -20,7 +20,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

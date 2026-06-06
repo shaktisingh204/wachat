@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui';
 import { ImageIcon, Pencil, Send, Trash2, VideoIcon, X, XCircle } from 'lucide-react';
 import type { StoryRow, StoryStatus } from '@/lib/rust-client/telegram-stories';
 

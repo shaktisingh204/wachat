@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Badge } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Download, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';

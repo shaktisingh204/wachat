@@ -6,7 +6,7 @@
  * queue card, an agent leaderboard table, an inbox rollup table, a channel
  * rollup table, and a CSAT card. MVP — numbers + tables only, no charts.
  */
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui';
 import {
     getByAgent,
     getByChannel,

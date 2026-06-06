@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { Headphones, Mic, MicOff, PhoneOff, Users } from 'lucide-react';
 
-import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, useToast } from '@/components/sabcrm/20ui';
 
 import {
     startTeamHuddle,

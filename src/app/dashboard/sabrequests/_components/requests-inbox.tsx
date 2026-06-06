@@ -11,7 +11,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type {
     RequestBlueprintDoc,
 } from '@/lib/rust-client/sabrequests-blueprints';

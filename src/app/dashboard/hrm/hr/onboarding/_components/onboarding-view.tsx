@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import {
   ListChecks,
   CheckCircle2,

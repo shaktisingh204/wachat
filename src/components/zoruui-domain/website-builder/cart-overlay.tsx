@@ -1,7 +1,7 @@
 'use client';
 
 import { useCart } from '@/context/cart-context';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**

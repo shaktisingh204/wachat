@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 interface FeatureTableProps<T> {
   columns: { header: string; cell: (row: T) => React.ReactNode; className?: string }[];

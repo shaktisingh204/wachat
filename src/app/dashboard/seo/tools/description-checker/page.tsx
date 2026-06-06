@@ -1,11 +1,11 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Copy, Download, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 export default function DescriptionCheckerPage() {
   const [urlsInput, setUrlsInput] = useState('');

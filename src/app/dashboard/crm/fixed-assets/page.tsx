@@ -1,4 +1,4 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Plus } from 'lucide-react';
 
 /**
@@ -21,7 +21,7 @@ import { FixedAssetListClient } from './_components/fixed-asset-list-client';
 import { BarcodeScannerDialog } from './_components/barcode-scanner-dialog';
 
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

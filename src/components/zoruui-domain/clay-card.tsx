@@ -1,4 +1,4 @@
-import { Card, type CardProps } from '@/components/sabcrm/20ui/compat';
+import { Card, type CardProps } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

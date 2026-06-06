@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import { Download, FileJson, FileText, FileSpreadsheet } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';
 
 export function ExportSettingsButton({ settings }: { settings: PayrollSettings }) {

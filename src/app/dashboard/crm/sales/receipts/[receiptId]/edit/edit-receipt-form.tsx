@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useToast, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Select } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -8,7 +8,7 @@ import {
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 
-import { DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui';
 import { LoaderCircle, Save } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { updatePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';

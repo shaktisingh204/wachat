@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label } from '@/components/sabcrm/20ui';
 
 interface ParamSpec {
   name: string;

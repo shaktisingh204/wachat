@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 
 /**

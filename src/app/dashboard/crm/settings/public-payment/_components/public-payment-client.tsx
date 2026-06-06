@@ -10,7 +10,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import { Badge, Button, Card, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { dateStamp, downloadCsv, downloadXlsx } from '@/lib/crm-list-export';

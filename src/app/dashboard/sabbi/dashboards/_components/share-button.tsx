@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useToast } from '@/components/sabcrm/20ui';
 import { Share2, Copy, Check } from 'lucide-react';
 import { setDashboardVisibility } from './share-action';
 

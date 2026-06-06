@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Badge, Textarea, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Badge, Textarea, Input, Label } from '@/components/sabcrm/20ui';
 import {
   UserPlus,
   Upload,

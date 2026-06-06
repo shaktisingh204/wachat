@@ -1,4 +1,4 @@
-import { Card, CardBody, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import { CreditCard } from 'lucide-react';
 import { fmtCurrency, fmtDateTime } from '@/lib/worksuite/format';
 import { PaymentData } from '../types';

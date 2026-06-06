@@ -1,7 +1,7 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { Plus } from 'lucide-react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function GrnLoading() {
     return (

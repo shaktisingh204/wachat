@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui';
 import { useState, useTransition, useEffect, useCallback } from 'react';
 
 import { useToast } from '@/hooks/use-toast';

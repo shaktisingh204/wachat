@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Input } from '@/components/sabcrm/20ui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ArrowRightCircle,

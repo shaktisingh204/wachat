@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 /**
  * Candidates kanban — groups candidates by stage. Read-only board for
  * now (drag-to-reorder will land in a follow-up that wires the stage

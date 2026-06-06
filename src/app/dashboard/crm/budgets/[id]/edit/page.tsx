@@ -7,7 +7,7 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';

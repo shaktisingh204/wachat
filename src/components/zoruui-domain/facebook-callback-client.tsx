@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useTransition } from 'react';

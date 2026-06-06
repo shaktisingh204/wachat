@@ -21,7 +21,7 @@ import {
   Workflow,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ConnectionHeader,

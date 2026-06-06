@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui';
 /**
  * <VendorBidListClient> — canonical Vendor Bids list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (thin spec).

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { XCircle, Repeat, Search, Filter, MoreHorizontal, ExternalLink, CalendarClock, Ban } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, useToast, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, useToast, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import { cancelSabcheckoutSubscription } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutSubscriptionDoc } from '@/lib/rust-client/sabcheckout-subscriptions';

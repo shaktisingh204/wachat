@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { Boxes, GitBranch, IndianRupee, Layers } from 'lucide-react';
 
 /**

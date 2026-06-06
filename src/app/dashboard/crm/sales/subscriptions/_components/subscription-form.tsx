@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Checkbox, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect } from 'react';

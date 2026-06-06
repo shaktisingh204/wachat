@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, Input, Label, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, Input, Label, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   format } from 'date-fns';
 import {

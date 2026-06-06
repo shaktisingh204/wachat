@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function NewProductionOrderLoading() {
   return (

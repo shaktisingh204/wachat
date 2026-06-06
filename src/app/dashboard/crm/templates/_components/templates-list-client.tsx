@@ -20,9 +20,9 @@ import {
     Bookmark
 } from 'lucide-react';
 
-import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter, Card, CardBody, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter, Card, CardBody, Badge, useToast } from '@/components/sabcrm/20ui';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 import {
     saveCrmTemplate,
     deleteCrmTemplate,

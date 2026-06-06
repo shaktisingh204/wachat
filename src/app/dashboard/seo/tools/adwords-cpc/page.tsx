@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
 import { fmtINR } from '@/lib/utils';

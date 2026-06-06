@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Card } from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { JourneysClient } from '@/components/email/journeys/journeys-client';
 import { GitBranch, Plus } from 'lucide-react';

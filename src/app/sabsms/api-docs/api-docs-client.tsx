@@ -20,8 +20,8 @@ import {
   X,
   Lock
 } from "lucide-react";
-import { Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Label, Badge, ScrollArea, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Label, Badge, ScrollArea, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 // ---------------------------------------------------------------------------
 // DATA MODEL

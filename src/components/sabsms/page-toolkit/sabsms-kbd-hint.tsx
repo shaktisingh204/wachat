@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Keyboard } from "lucide-react";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Kbd } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Kbd } from '@/components/sabcrm/20ui';
 
 export interface SabsmsShortcut {
   keys: string[];

@@ -25,7 +25,7 @@ import {
   HrStatusCell,
 } from '../../hr/_components/hr-list-shell';
 
-import { Alert, AlertDescription, AlertTitle, Input, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, Label, Textarea, DateRangePicker } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Input, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, Label, Textarea, DateRangePicker } from '@/components/sabcrm/20ui';
 import type { DateRange } from 'react-day-picker';
 
 type Row = WithId<CrmKpi>;

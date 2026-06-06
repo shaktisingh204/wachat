@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button } from '@/components/sabcrm/20ui';
 import {
   useProject } from '@/context/project-context';
 import { Bell, Sparkles } from 'lucide-react';

@@ -10,8 +10,8 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { BookOpen, Search } from 'lucide-react';
 
-import { Badge, Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { listKbArticles } from '@/app/actions/crm-knowledge-base.actions';
 
 export default async function PortalSupportKbPage() {

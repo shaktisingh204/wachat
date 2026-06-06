@@ -1,4 +1,4 @@
-import { Badge, type BadgeProps } from '@/components/sabcrm/20ui/compat';
+import { Badge, type BadgeProps } from '@/components/sabcrm/20ui';
 import {
   ArrowLeft } from 'lucide-react';
 import { type ReactNode } from 'react';

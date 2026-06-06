@@ -1,7 +1,7 @@
 'use client';
 
 import { AwardsForm } from '../_components/awards-form';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard } from '@/components/sabcrm/20ui';
 import { Trophy, Users, Star, Lightbulb } from 'lucide-react';
 
 export default function NewAwardPage() {

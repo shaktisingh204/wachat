@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (

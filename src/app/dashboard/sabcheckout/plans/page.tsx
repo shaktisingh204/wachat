@@ -4,7 +4,7 @@
  * Server-fetches all plans for the signed-in user and hands off to a
  * thin client component that owns the create/edit/archive forms.
  */
-import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 
 import { listSabcheckoutPlans } from '@/app/actions/sabcheckout.actions';
 import { SabcheckoutPlansClient } from './plans-client';

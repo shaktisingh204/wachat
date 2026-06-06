@@ -8,7 +8,7 @@
 import { useMemo } from 'react';
 import { ArrowDown, ArrowUp, Copy, Trash2 } from 'lucide-react';
 
-import { Button, EmptyState, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState, ScrollArea, cn } from '@/components/sabcrm/20ui';
 import type {
   EmailBuilderBlock,
   EmailBuilderDocument,

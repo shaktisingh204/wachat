@@ -1,6 +1,6 @@
 import { useTransition } from 'react';
 import Link from 'next/link';
-import { Card, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   Trash2,
   Check,

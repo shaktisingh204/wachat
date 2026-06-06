@@ -46,7 +46,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   SabFileToFileButton,
   type SabFilePick,

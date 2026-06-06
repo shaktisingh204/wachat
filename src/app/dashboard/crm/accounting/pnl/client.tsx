@@ -6,7 +6,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import Papa from 'papaparse';
 import { Download, ChevronDown, SlidersHorizontal, LoaderCircle } from "lucide-react";
 
-import { Button, Card, DatePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DatePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 

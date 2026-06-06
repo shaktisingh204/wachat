@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { useRealtimeBudget } from './use-realtime-budget';
 import { BudgetProgressBar } from './budget-progress-bar';
 

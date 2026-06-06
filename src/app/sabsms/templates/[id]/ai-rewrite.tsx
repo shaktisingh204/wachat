@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Sparkles, Languages, Scissors, Smile, MousePointerClick } from "lucide-react";
 
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import {
   runAiRewrite,

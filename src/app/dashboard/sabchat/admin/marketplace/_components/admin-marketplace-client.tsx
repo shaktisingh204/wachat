@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { installMarketplaceApp, uninstallMarketplaceApp } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) {

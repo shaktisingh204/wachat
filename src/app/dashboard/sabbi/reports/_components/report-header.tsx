@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { RefreshCw, Download, ChevronDown } from 'lucide-react';
-import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 
 export interface ReportHeaderProps {
   defaultRangeDays?: number;

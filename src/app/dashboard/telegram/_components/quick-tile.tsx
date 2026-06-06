@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { ArrowUpRight } from 'lucide-react';
 
 export interface QuickTileProps {

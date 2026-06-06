@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Play, Search } from 'lucide-react';
-import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type { WsShiftRotation } from '@/lib/worksuite/shifts-types';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import { useVirtualizer } from '@tanstack/react-virtual';

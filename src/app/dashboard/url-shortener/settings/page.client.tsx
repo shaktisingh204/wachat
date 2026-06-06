@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, Skeleton } from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Globe } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';

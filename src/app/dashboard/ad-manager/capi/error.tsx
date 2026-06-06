@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export default function CapiError({
   error,

@@ -7,7 +7,7 @@ import {
     createSabcatalystApiKey,
     revokeSabcatalystApiKey,
 } from '@/app/actions/sabcatalyst.actions';
-import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import type { SabcatalystApiKey, ApiKeyScope } from '@/lib/rust-client/sabcatalyst-api-keys';
 
 const SCOPES: ApiKeyScope[] = ['read', 'write', 'admin'];

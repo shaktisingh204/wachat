@@ -8,7 +8,7 @@
 
 import Link from 'next/link';
 
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 

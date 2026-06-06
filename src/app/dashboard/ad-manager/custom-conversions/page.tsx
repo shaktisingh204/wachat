@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { z } from 'zod';
-import { Button, Card, CardBody, Alert, AlertDescription, AlertTitle, Skeleton, Badge, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Alert, AlertDescription, AlertTitle, Skeleton, Badge, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 import {
   Target,
   Plus,

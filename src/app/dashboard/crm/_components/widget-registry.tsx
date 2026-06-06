@@ -23,7 +23,7 @@ import {
   Users,
   Megaphone,
 } from 'lucide-react';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import type { WidgetKey } from '@/app/actions/dashboard-widgets.config';
 import type {
   DashboardWidgetItem,

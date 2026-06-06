@@ -6,7 +6,7 @@
 import * as React from 'react';
 import { Pin, X } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 import type { PinnedMessageView } from '@/app/actions/team-chat.actions.types';
 

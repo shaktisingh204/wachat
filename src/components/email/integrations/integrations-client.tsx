@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { KeyRound, Network, Plus } from 'lucide-react';
-import { Button, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Button, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 import {
   actionListEmailApiKeys,
   actionListEmailWebhooks,

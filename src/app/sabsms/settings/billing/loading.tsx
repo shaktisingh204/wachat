@@ -1,5 +1,5 @@
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Skeleton, Card, CardHeader, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Card, CardHeader, CardBody } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (

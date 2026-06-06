@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, ArrowRight, ArrowLeft, Send } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, toast, Badge, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, toast, Badge, Checkbox } from '@/components/sabcrm/20ui';
 import { actionCreateEmailCampaign } from '@/app/actions/email/campaigns.actions';
 import type { EmailListDoc, EmailSegmentDoc } from '@/lib/rust-client/email-audience';
 

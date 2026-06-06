@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast, SelectItem } from '@/components/sabcrm/20ui';
 import {
   Download,
   SlidersHorizontal,
@@ -21,7 +21,7 @@ import { generateAttendanceReportData,
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import { DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 

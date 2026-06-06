@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle, Label, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle, Label, cn } from '@/components/sabcrm/20ui';
 import { useRef, useState } from 'react';
 import { FileDown, Upload, CheckCircle, AlertCircle, LoaderCircle } from 'lucide-react';
 

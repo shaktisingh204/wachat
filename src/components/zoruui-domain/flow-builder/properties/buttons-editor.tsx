@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Label, Textarea } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 

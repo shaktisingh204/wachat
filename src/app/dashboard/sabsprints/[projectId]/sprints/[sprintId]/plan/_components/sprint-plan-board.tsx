@@ -8,7 +8,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, Progress } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Progress } from '@/components/sabcrm/20ui';
 import { moveStory } from '@/app/actions/agile.actions';
 import type { AgileSprintDoc } from '@/lib/rust-client/agile-sprints';
 import type { AgileStoryDoc } from '@/lib/rust-client/agile-stories';

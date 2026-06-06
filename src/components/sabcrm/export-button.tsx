@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 import { FileDown, Loader2, ChevronDown } from 'lucide-react';
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger as DropdownMenuTriggerPrimitive, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger as DropdownMenuTriggerPrimitive, useToast } from '@/components/sabcrm/20ui';
 import { exportRecordsAction } from '@/app/actions/sabcrm.actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';

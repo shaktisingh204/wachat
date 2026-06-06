@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Download, Copy, Check } from 'lucide-react';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';

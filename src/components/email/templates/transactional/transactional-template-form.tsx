@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Send, Trash2, Eye } from 'lucide-react';
-import { Badge, Button, Card, Checkbox, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateTransactionalTemplate,
   actionGetTransactionalTemplate,

@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { getCrmNotifications } from '@/app/actions/crm-notifications.actions';
 
 /**

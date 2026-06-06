@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { AlertTriangle, ChevronRight, Hash } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

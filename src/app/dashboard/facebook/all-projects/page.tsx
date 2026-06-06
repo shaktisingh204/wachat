@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

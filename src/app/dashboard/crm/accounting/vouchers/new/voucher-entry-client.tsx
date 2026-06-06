@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
 /**
  * <NewVoucherEntryClient> — moved from the previous `/new/page.tsx`.
  * Records a single voucher entry (debit + credit legs). The book form

@@ -3,8 +3,8 @@
 import React, { useState, useMemo, useOptimistic, useEffect, useRef } from 'react';
 import { OffboardingTask } from '@/lib/hrm-advanced-types';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Input, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { OffboardingForm } from './OffboardingForm';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Papa from 'papaparse';

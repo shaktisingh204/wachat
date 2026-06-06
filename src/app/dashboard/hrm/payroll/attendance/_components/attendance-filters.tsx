@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Input, Label } from '@/components/sabcrm/20ui';
 /**
  * <AttendanceFilters> — collapsible filter row for the attendance list.
  *

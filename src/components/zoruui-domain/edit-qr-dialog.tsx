@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { updateQrCode } from '@/app/actions/qr-code.actions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, cn, useToast } from '@/components/sabcrm/20ui';
 import type { QrCodeWithShortUrl } from '@/lib/definitions';
 import { LoaderCircle, Pencil } from 'lucide-react';
 

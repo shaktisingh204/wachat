@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { addCrmContact } from '@/app/actions/crm.actions';
 

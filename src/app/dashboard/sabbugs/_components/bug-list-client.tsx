@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Checkbox, Label, EmptyState, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Checkbox, Label, EmptyState, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui';
 
 import { listBugs, saveCurrentFilter, deleteSavedFilter } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc } from '@/lib/rust-client/bug-tracker-bugs';

@@ -1,5 +1,5 @@
-import { PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function SabFlowLoading() {
   return (

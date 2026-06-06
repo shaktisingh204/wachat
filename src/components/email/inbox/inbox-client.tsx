@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup, toast } from '@/components/sabcrm/20ui/compat';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup, toast } from '@/components/sabcrm/20ui';
 import {
   actionBulkUpdateEmailInboxThreads,
   actionGetEmailInboxThread,

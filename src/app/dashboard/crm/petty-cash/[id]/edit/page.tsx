@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPettyCashFloatById } from '@/app/actions/crm-petty-cash.actions';

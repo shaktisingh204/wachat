@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Skeleton, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Skeleton, Card } from '@/components/sabcrm/20ui';
 
 import {
     HubKpiGrid,

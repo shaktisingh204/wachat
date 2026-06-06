@@ -1,6 +1,6 @@
 'use client';
 
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import {
   CheckCircle2,
   XCircle,

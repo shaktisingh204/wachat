@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose, Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose, Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 export interface DirectReport {
   _id: string;

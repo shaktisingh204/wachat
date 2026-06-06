@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, ScrollArea, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, ScrollArea, Select } from '@/components/sabcrm/20ui';
 import {
   cn } from '@/lib/utils';
 import { Check,

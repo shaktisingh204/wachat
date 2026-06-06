@@ -4,10 +4,10 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { OnboardingTask, OnboardingTaskSchema } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui';
 
 interface OnboardingFormProps {
   initialData?: Partial<OnboardingTask>;

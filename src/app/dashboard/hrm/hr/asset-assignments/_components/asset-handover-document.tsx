@@ -3,7 +3,7 @@ import { fmtDate } from '@/lib/utils';
 import React from "react";
 
 import { useState, useRef } from 'react';
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import { Download, Eraser, LoaderCircle, CheckCircle2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';

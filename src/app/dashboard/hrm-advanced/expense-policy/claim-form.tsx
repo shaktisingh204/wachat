@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ExpenseClaim } from '@/lib/hrm-advanced-types';
-import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 
 interface ClaimFormProps {
   open: boolean;

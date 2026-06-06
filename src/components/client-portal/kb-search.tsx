@@ -10,7 +10,7 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui';
 
 export function KbSearch() {
     const router = useRouter();

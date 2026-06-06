@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';

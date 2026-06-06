@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { AlertTriangle, Check, Copy } from 'lucide-react';
-import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, toast } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailApiKey,
   type EmailApiKeyScope,

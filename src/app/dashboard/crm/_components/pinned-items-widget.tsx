@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { GripVertical, Pin, X } from 'lucide-react';
-import { Badge, Button, Card, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import {
   getMyPinnedItems,
   reorderPinned,

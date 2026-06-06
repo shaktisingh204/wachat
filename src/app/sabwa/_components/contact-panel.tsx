@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea } from '@/components/sabcrm/20ui';
 import {
   Archive,
   Ban,

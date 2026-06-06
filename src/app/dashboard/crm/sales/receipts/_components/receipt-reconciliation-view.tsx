@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { CrmPaymentReceiptDoc } from '@/lib/rust-client/crm-payment-receipts';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import { setPaymentReceiptStatus } from '@/app/actions/crm/payment-receipts.actions';
 
 interface ReceiptReconciliationViewProps {

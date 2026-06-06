@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, LoaderCircle, Plus, Save, Trash2, GripHorizontal } from 'lucide-react';
 import * as React from 'react';

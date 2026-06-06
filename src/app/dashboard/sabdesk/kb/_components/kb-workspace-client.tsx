@@ -26,8 +26,8 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 
 import {
   saveKbArticle,

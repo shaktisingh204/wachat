@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Table, TBody, Td, Th, THead, Tr, Badge, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr, Badge, useToast, Checkbox } from '@/components/sabcrm/20ui';
 import {
   Plus,
   Pencil,

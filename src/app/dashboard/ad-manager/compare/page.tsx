@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   GitCompareArrows,
   CircleAlert,
@@ -10,7 +10,7 @@ import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import { listCampaigns } from '@/app/actions/ad-manager.actions';
 import { compareCampaigns } from '@/app/actions/ad-manager-features.actions';
 

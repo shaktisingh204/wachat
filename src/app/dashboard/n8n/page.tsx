@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn, useToast, Checkbox } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

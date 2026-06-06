@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui';
 /**
  * <PurchaseOrdersListClient> — canonical PO list view per
  * CRM_REBUILD_PLAN §1D.1.

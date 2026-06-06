@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Alert, AlertDescription, AlertTitle, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Select } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Alert, AlertDescription, AlertTitle, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Select } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

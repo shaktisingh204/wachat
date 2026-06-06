@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 import {
     acknowledgeSabmonitorIncident,

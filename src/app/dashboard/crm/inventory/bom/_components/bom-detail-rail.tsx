@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 /**
  * Right-rail for the BOM detail page. Lists sibling versions / variants
  * for the same finished good and related production orders. Pure

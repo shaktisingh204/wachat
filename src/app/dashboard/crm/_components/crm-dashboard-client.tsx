@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from 'react';

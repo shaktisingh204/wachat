@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 
-import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui';
 import {
   Check,
   CheckCircle2,

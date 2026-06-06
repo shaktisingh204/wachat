@@ -8,7 +8,7 @@ import { Shield, Eye, EyeOff, LoaderCircle, AlertCircle, Sparkles } from 'lucide
 import { cn } from '@/lib/utils';
 
 // ZoruUI Components
-import { Button, Input, Label, Card, CardHeader, CardTitle, CardDescription, CardBody, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, CardHeader, CardTitle, CardDescription, CardBody, Alert, AlertDescription } from '@/components/sabcrm/20ui';
 
 // --- Error Boundary ---
 class ErrorBoundary extends Component<{ children: ReactNode, fallback: ReactNode }, { hasError: boolean }> {

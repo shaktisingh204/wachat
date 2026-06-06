@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Switch, Badge, Separator, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Switch, Badge, Separator, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui';
 import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ProviderConfigPage({ params }: { params: { id: string } }) {

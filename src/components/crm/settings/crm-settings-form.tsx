@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Switch, Separator, Tabs, TabsContent, TabsList, TabsTrigger, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Switch, Separator, Tabs, TabsContent, TabsList, TabsTrigger, Card } from '@/components/sabcrm/20ui';
 import { useActionState, useState, useEffect } from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';

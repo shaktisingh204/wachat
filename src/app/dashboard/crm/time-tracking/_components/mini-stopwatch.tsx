@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, useToast } from '@/components/sabcrm/20ui';
 import { Clock, Pause, Square } from 'lucide-react';
 import { getTimeLogs, stopTimer } from '@/app/actions/worksuite/time.actions';
 import type { WsProjectTimeLog } from '@/lib/worksuite/time-types';

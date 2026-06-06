@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch, Label, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Switch, Label, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/sabcrm/20ui';
 import { useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';

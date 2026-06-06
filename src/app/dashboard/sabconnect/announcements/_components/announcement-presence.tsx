@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 
 export function AnnouncementPresence({ entityId }: { entityId: string }) {
     const [viewers, setViewers] = useState<{ id: string; name: string; color: string }[]>([

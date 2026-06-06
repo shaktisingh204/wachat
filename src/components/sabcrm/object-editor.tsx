@@ -47,7 +47,7 @@ import {
   Info,
 } from 'lucide-react';
 
-import { Button, Input, Label, Textarea, Separator, Badge, Switch, cn, useToast, IconPicker, ICONS, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectContent, SelectItem, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, ScrollArea, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Separator, Badge, Switch, cn, useToast, IconPicker, ICONS, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectContent, SelectItem, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, ScrollArea, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui';
 
 import {
   createCustomObjectAction,

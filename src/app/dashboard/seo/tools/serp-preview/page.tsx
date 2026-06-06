@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input, Label, Switch, Card, CardBody, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, Card, CardBody, Textarea } from '@/components/sabcrm/20ui';
 
 function useTextWidth() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

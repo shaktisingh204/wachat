@@ -17,7 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Button, Card, CardBody, Label, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Label, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ConnectionHeader,

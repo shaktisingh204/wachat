@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ArrowDownUp, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 
-import { Badge, Button, DateRangePicker, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 

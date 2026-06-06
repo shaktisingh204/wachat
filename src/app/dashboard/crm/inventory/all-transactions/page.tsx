@@ -52,7 +52,7 @@ import {
 } from '@/app/actions/crm-inventory.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import { Badge, Button, Card, DatePicker, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DatePicker, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import {
     dateStamp,
     downloadCsv,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Button } from '@/components/sabcrm/20ui';
 import { Check, Copy } from 'lucide-react';
 
 export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }) {

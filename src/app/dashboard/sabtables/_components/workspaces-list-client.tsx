@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Layers, Plus } from 'lucide-react';
 
-import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui';
 import { createSabtablesWorkspace } from '@/app/actions/sabtables.actions';
 import type { SabtablesWorkspaceDoc } from '@/lib/rust-client/sabtables-workspaces';
 

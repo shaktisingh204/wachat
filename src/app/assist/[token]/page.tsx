@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { Button, Card, Input, Label, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui';
 import { ScreenShare, ShieldCheck, KeyRound } from 'lucide-react';
 import { redeemSabassistAccessToken } from '@/app/actions/sabassist.actions';
 import { createAssistTransport, type IAssistTransport } from '@/lib/sabassist/transport';

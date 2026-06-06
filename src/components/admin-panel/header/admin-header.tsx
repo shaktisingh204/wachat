@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Button, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import {
   useProject } from '@/context/project-context';
-import { SidebarTrigger } from '@/components/sabcrm/20ui/compat';
+import { SidebarTrigger } from '@/components/sabcrm/20ui';
 
 import * as React from 'react';
 

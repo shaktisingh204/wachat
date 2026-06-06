@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ColorPicker, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, ColorPicker, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,

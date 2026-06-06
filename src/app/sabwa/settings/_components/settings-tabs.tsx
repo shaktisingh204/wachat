@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 import { usePathname } from 'next/navigation';
 
 /**

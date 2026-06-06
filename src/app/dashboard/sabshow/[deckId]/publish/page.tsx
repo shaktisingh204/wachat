@@ -7,7 +7,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
     getSabshowDeck,
     listSabshowPublications,

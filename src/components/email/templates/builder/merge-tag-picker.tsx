@@ -6,7 +6,7 @@
  */
 import { Braces } from 'lucide-react';
 
-import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 
 interface MergeTag {
   key: string;

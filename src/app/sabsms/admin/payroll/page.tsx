@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listPayrollRuns, type CrmPayrollRunDoc } from '@/app/actions/crm-payroll-runs.actions';
 

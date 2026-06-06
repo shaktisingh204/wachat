@@ -18,7 +18,7 @@ import * as React from 'react';
 import { Search, UserCircle2, UserMinus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, Input, Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Input, Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 
 import {
   getAssignableEmployees,

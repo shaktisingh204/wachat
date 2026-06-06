@@ -24,7 +24,7 @@ import { useMemo, useState, useCallback } from 'react';
 import { useRouter } from "next/navigation";
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
 import { type PnlDeepKpis } from '@/app/actions/crm-inventory.actions';
 import {
     dateStamp,

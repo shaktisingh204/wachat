@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 import { createWorkbookAction } from '@/app/actions/analytics-bi.actions';
-import { Button, Dialog, Input, Label, Textarea, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, Input, Label, Textarea, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 
 export function NewWorkbookButton() {
   const router = useRouter();

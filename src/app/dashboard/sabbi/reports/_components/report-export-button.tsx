@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import { Download } from 'lucide-react';
 import {
   downloadCsv,

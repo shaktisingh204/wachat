@@ -3,8 +3,8 @@
 import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TrainingCourse } from '@/lib/hrm-advanced-types';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { Edit2, Trash2 } from 'lucide-react';
 
 interface VirtualizedCourseListProps {

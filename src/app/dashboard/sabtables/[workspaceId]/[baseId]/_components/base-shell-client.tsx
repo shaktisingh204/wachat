@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Plus, Database } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, cn } from '@/components/sabcrm/20ui';
 import { createSabtablesTable } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Loader2, Search, Star } from 'lucide-react';
 
-import { Avatar, AvatarFallback, Badge, Input, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Input, ScrollArea, cn } from '@/components/sabcrm/20ui';
 import type { EmailInboxThreadDoc } from '@/lib/rust-client/email-inbox';
 
 export interface ConversationListProps {

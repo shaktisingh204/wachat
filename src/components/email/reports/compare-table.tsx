@@ -1,7 +1,7 @@
 'use client';
 
 import { Scale } from 'lucide-react';
-import { Card, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import type { EmailCompareRow, EmailMetricsTotals } from '@/lib/rust-client/email-reports';
 
 interface CompareTableProps {

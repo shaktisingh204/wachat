@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 /**
  * Body cards for the contact detail page (extracted to keep
  * `[contactId]/page.tsx` under the 600-line scope cap).

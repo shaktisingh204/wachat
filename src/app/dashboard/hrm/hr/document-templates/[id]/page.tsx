@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

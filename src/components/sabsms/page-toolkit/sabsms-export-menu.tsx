@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Download, FileJson, FileSpreadsheet, FileText } from "lucide-react";
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 export interface SabsmsExportMenuProps {
   /** CSV exporter — return text to download. */

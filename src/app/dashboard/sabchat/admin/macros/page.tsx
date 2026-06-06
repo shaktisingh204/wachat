@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { listAdminMacros } from '@/app/actions/sabchat-admin.actions';
 import { AdminMacrosClient } from '../_components/admin-macros-client';
 

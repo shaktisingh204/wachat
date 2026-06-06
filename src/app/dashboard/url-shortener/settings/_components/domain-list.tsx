@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Skeleton, useToast, Input } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Skeleton, useToast, Input } from '@/components/sabcrm/20ui';
 import { useTransition, useState, useMemo, useEffect } from 'react';
 import {
   LoaderCircle,

@@ -4,7 +4,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listLeads } from '@/app/actions/crm/leads.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { LeadListClient } from './_components/lead-list-client';
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { Users, DollarSign, Target, Activity } from 'lucide-react';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import LeadsLoading from './loading';

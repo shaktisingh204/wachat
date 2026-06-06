@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Calendar as CalendarIcon, List } from 'lucide-react';
-import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 

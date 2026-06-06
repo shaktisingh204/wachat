@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export function SyncGstnButton() {
     const [isSyncing, setIsSyncing] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

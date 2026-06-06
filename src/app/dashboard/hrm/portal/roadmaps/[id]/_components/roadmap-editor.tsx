@@ -12,7 +12,7 @@ import {
   type RoadmapPhase,
   type RoadmapTask,
 } from '@/app/actions/hrm-roadmaps.actions';
-import { Button, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { TaskCard } from './task-card';
 import { AddTaskDrawer, type DirectReport } from './add-task-drawer';
 import { PhaseHeader } from './phase-header';

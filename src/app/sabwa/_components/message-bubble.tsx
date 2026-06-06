@@ -28,7 +28,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, cn } from '@/components/sabcrm/20ui';
 import { formatJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import type { SabwaMessage, SabwaMessageStatus } from "@/lib/sabwa/types";
 

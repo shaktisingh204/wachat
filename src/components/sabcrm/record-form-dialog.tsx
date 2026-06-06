@@ -33,7 +33,7 @@
 import * as React from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   createRecordAction,
   updateRecordAction,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   format } from 'date-fns';
 import { Eye, MessageSquare, Pencil } from 'lucide-react';

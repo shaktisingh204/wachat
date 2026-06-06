@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardBody, Button, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Textarea } from '@/components/sabcrm/20ui';
 import { MessageSquare, ThumbsDown, Loader2, Send } from 'lucide-react';
 import { addProposalComment, declineProposal } from './_actions';
 

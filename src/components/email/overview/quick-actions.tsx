@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { PlusCircle, Users, Mail, Workflow, ShieldCheck } from 'lucide-react';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 interface EmailQuickActionsProps {
   accountId?: string;

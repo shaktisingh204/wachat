@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Skeleton } from '@/components/sabcrm/20ui';
 
 export function TransactionSkeleton() {
     return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, Button, Table, TBody, Td, Th, THead, Tr, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar, AvatarFallback, AvatarImage, Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Table, TBody, Td, Th, THead, Tr, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar, AvatarFallback, AvatarImage, Progress } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';

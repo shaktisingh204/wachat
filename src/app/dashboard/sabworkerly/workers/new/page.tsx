@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorkerForm } from './_form';
-import { PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 
 export default function NewWorkerPage() {
     return (

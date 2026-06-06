@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, Label } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Edit, Check, AlertTriangle, Barcode, Calendar } from 'lucide-react';
 
 /**

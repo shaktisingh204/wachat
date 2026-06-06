@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Download, ListChecks, PauseCircle, PlayCircle, Trash2, X, XCircle } from 'lucide-react';
 
 /**

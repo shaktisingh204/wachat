@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui';
 import { useRouter } from "next/navigation";
 import {
   Activity,

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { PageDescription, PageHeader, PageHeading, PageTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageDescription, PageHeader, PageHeading, PageTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';

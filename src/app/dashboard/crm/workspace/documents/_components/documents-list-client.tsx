@@ -13,7 +13,7 @@ import {
     ExternalLink,
     FolderOpen,
 } from 'lucide-react';
-import { Button, Card, Checkbox, Input, Label, Textarea, useToast, Table, THead, TBody, Tr, Td, Th } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Textarea, useToast, Table, THead, TBody, Tr, Td, Th } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

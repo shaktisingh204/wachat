@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Card, Input, Label, Switch, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Switch, CardBody } from '@/components/sabcrm/20ui';
 import { Loader2, X } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export interface ChipInputProps {
     label?: string;

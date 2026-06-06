@@ -7,7 +7,7 @@ import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-overrides.css';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui';
 import { CircleAlert } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';

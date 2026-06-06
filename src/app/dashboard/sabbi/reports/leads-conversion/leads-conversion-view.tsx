@@ -8,7 +8,7 @@ const LeadsBarChart = dynamic(
   () => import('./leads-conversion-charts').then((mod) => mod.LeadsBarChart),
   { ssr: false }
 );
-import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtNumber } from '../_components/report-toolbar';

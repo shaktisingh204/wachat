@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Separator, cn, useToast } from '@/components/sabcrm/20ui';
 import { Share2, Trash2, LoaderCircle, UserPlus, Mail, Eye, Pencil } from 'lucide-react';
 import {
     getShares, createShare, revokeShare, updateShareRole,

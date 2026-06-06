@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';

@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 import { ArrowDownCircle, ArrowUpCircle, Banknote, Wallet } from 'lucide-react';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {

@@ -8,7 +8,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Monitor, Moon, Smartphone, Sun } from 'lucide-react';
 
-import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, cn } from '@/components/sabcrm/20ui';
 
 type DeviceMode = 'desktop' | 'mobile';
 type ColorMode = 'light' | 'dark';

@@ -8,7 +8,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Receipt } from 'lucide-react';
-import { PageHeader, WaterLoader } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, WaterLoader } from '@/components/sabcrm/20ui';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useOptimistic } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Save, LoaderCircle } from 'lucide-react';

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { WidgetRenderer } from '../_components/widget-renderer';
 import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions.types';
 import { useGSAP } from '@gsap/react';

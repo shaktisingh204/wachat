@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Table, TBody, Td, Th, THead, Tr, Button, Checkbox, Input } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Button, Checkbox, Input } from '@/components/sabcrm/20ui';
 import { ChevronLeft, ChevronRight, GripVertical, Search } from 'lucide-react';
 import {
   DndContext,

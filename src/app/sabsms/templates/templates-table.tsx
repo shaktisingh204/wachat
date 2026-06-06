@@ -46,7 +46,7 @@ import {
   type SabsmsRowAction,
 } from "@/components/sabsms/page-toolkit";
 import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfiles";
-import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui';
 
 import {
   duplicateTemplate,

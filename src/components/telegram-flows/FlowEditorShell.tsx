@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

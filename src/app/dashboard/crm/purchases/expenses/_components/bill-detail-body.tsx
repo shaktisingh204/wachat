@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card } from '@/components/sabcrm/20ui';
 /**
  * <BillDetailBody> — body cards on the bill detail page.
  *

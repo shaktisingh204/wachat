@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui';
 import { Bell, BellRing, Trash2, Check, AlertCircle } from 'lucide-react';
 import { saveAlertConfig, deleteAlertConfig, markAlertRead } from './actions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

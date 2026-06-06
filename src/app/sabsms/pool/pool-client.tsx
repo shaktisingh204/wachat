@@ -17,7 +17,7 @@ import {
   rowsToCsv
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button, Switch, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Switch, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 export interface PoolRow {
   id: string;

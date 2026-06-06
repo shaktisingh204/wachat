@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, useToast } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Upload, LoaderCircle } from 'lucide-react';
 import { importProfessionalTaxRecordsCsv } from '@/app/actions/crm-professional-tax.actions';

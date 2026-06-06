@@ -3,7 +3,7 @@ import {
   getUsageTop,
   getUsageByKey,
 } from '@/app/actions/developer-platform.actions';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Card, StatCard, Table, THead, Th, TBody, Tr, Td } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Card, StatCard, Table, THead, Th, TBody, Tr, Td } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import { format } from 'date-fns';
 

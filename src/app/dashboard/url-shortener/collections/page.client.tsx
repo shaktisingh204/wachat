@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { PageHeader, PageTitle, PageHeading, PageDescription, Card, Button, Badge, cn, useToast, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle, PageHeading, PageDescription, Card, Button, Badge, cn, useToast, Skeleton } from '@/components/sabcrm/20ui';
 import { FolderOpen, Link2 } from 'lucide-react';
 import {
     getCollections, addLinkToCollection, removeLinkFromCollection,

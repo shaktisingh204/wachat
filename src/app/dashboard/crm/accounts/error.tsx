@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useT } from '@/lib/i18n/client';
 

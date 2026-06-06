@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Label, Input, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, Label, Input, Textarea } from '@/components/sabcrm/20ui';
 import { fmtDate } from '@/lib/utils';
 import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions.types';
 

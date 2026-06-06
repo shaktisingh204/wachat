@@ -18,7 +18,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import type { DateRange } from 'react-day-picker';
 import { CheckCircle2, Download, FileSpreadsheet, FileText, Plus, Tag, Timer, XCircle } from 'lucide-react';
 
-import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

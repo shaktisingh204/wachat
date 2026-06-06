@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useMemo, useState, Component, ReactNode } from 'react';
 import { Copy, CheckCircle2, Download, Search, AlertCircle, Loader2 } from 'lucide-react';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';

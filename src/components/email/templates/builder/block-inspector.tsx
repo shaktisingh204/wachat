@@ -8,7 +8,7 @@
 import { useRef } from 'react';
 import { ImagePlus, Plus, Trash2 } from 'lucide-react';
 
-import { Button, EmptyState, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type {
   EmailBuilderBlock,

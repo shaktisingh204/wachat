@@ -11,7 +11,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
     createRequest,

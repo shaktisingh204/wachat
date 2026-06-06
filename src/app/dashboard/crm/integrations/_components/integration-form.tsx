@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Input, Label, Select, Switch, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, Switch, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 import {
     ArrowLeft,
     LoaderCircle,

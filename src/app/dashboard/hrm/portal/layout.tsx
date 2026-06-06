@@ -9,7 +9,7 @@
 
 import { getSession } from '@/app/actions/user.actions';
 import { getMyEmployeeProfile } from '@/app/actions/hrm-portal.actions';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { UserX } from 'lucide-react';
 
 interface PortalLayoutProps {

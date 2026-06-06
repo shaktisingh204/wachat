@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui';
 import { Download, Copy, AlertCircle } from 'lucide-react';
 import { useState, Component, ReactNode, ErrorInfo } from 'react';
 

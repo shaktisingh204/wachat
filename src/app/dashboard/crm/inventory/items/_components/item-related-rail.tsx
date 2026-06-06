@@ -1,4 +1,4 @@
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   CircleCheck,

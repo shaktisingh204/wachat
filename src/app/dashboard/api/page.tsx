@@ -1,4 +1,4 @@
-import { Card, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import {
   ArrowUpRight,
   Key,

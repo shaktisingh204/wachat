@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, cn, Checkbox, Alert, AlertTitle, AlertDescription, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, cn, Checkbox, Alert, AlertTitle, AlertDescription, Input } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { AlertTriangle, Copy } from 'lucide-react';

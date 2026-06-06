@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import LeaveTypesClient from './client';
 import { getLeaveTypes } from '@/app/actions/worksuite/leave.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

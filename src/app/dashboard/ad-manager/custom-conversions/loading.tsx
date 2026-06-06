@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Skeleton, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 export default function CustomConversionsLoading() {

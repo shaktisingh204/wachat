@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui';
 import Image from 'next/image';
 import React from 'react';
 

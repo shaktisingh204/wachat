@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 const ITEMS: Array<{ href: string; label: string }> = [
     { href: '/dashboard/sabpractice', label: 'Overview' },

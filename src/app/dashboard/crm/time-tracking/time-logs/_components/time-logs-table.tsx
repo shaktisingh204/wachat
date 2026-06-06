@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   Check,
   Square,

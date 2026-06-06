@@ -5,7 +5,7 @@ import {
   getSabcreatorApp,
   listSabcreatorWorkflows,
 } from '@/app/actions/sabcreator.actions';
-import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

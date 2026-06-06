@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   useParams,
   useRouter } from 'next/navigation';

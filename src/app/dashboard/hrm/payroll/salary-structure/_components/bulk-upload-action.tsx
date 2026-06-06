@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Upload, FileText, CheckCircle2 } from 'lucide-react';
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui';
 
 export function BulkUploadAction() {
     const [open, setOpen] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, ScrollArea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, ScrollArea, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

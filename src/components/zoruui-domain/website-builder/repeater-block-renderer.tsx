@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui';
 import {
   cn } from '@/lib/utils';
 

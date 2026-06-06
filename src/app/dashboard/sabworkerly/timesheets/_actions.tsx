@@ -3,7 +3,7 @@
 import React, { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
     submitSabworkerlyTimesheet,
     approveSabworkerlyTimesheet,

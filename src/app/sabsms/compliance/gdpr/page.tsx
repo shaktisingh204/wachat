@@ -21,7 +21,7 @@ import {
   type SabsmsColumn,
 } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 import { SabsmsFilterBar } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Switch, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Switch, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard, Separator } from '@/components/sabcrm/20ui';
 
 type RequestType = "SAR" | "Erasure" | "Rectification";
 

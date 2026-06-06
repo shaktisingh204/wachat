@@ -15,7 +15,7 @@ import {
     listSabcatalystDomains,
     getSabcatalystUsage,
 } from '@/app/actions/sabcatalyst.actions';
-import { Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@/components/sabcrm/20ui';
 
 import { OverviewTab } from './_components/overview-tab';
 import { FunctionsTab } from './_components/functions-tab';

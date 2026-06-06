@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Play, Trash2, Sparkles } from 'lucide-react';
 
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, EmptyState, Input, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, EmptyState, Input, Badge } from '@/components/sabcrm/20ui';
 import {
     createRecipe,
     deleteRecipe,

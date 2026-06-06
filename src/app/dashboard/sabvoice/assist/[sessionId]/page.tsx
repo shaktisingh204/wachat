@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Card, Badge, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ScreenShare,

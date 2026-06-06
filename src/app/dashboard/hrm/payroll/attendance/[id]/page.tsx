@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import {
   useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';

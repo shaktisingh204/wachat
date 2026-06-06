@@ -1,7 +1,7 @@
 'use client';
 
-import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch, Textarea, Separator, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
-import { Tabs, TabsList, TabsTrigger, TabsContent, Slider } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch, Textarea, Separator, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Slider } from '@/components/sabcrm/20ui';
 
 import { Lightbulb, Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
   EntityDetailShell,
   type EntityStatusTone,

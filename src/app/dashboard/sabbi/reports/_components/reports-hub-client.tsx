@@ -34,7 +34,7 @@ import {
     ScrollText,
 } from 'lucide-react';
 
-import { Card, Input, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui';
 
 /**
  * Server → client boundary is serialization-only: icons are passed as

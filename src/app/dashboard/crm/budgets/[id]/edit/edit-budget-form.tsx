@@ -20,7 +20,7 @@
  */
 
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Plus, Save, Trash2, X, Upload } from 'lucide-react';

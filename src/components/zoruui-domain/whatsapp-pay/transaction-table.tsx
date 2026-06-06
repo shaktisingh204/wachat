@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 
-import { Button, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Badge } from '@/components/sabcrm/20ui/compat';import { format } from "date-fns"
+import { Button, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Badge } from '@/components/sabcrm/20ui';import { format } from "date-fns"
 
 export type PaymentTransaction = {
     id: string

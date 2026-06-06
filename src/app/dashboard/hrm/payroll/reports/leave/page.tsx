@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui';
 import {
   Download,
   SlidersHorizontal,

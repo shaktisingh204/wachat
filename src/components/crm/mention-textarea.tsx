@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 export type MentionUser = {
   id: string;

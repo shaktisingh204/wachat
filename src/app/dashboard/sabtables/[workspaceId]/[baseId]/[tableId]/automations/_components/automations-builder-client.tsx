@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Plus, Play, Trash2 } from 'lucide-react';
 
-import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui';
 import {
   createSabtablesAutomation,
   deleteSabtablesAutomation,

@@ -26,7 +26,7 @@ import type {
     MailRuleDoc,
 } from '@/lib/rust-client/mail-rules';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
 
 const FIELDS: { id: MailRuleConditionField; label: string }[] = [
     { id: 'from', label: 'From' },

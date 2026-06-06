@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import {
   FIELD_LABELS,

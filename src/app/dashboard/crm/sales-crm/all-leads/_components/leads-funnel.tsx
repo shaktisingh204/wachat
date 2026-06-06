@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 /**
  * <LeadsFunnel> — compact 5-segment horizontal bar that visualises the
  * conversion funnel (New → Contacted → Qualified → Proposal → Won).

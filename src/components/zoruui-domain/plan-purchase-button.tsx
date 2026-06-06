@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Switch } from '@/components/sabcrm/20ui/compat';
+import { Button, Switch } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
 import type { Plan } from '@/lib/definitions';

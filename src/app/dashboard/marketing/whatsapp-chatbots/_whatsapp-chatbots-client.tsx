@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Plus, Edit2, Trash2, MessageSquare, Users, Activity, MessageCircle, Megaphone, TrendingUp, DollarSign, Target } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
-import { Input, Label, Badge, useToast, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
+import { Input, Label, Badge, useToast, StatCard } from '@/components/sabcrm/20ui';
 import { createWhatsappBot, updateWhatsappBot, deleteWhatsappBot } from '@/app/actions/marketing/whatsapp-chatbots.actions';
 
 export function WhatsappBotClient({ initialData }: { initialData: any[] }) {

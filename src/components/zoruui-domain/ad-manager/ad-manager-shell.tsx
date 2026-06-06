@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Popover, PopoverContent, PopoverTrigger, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, ScrollArea, Select, Calendar, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Popover, PopoverContent, PopoverTrigger, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, ScrollArea, Select, Calendar, cn } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import {

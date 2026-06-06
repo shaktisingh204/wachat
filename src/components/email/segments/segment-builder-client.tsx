@@ -11,7 +11,7 @@
 import { useCallback, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Sigma } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui';
 import type {
   EmailFilterGroup,
   EmailFilterLeaf,

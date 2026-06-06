@@ -37,10 +37,10 @@ import {
     type ClientPortalKpis,
     type ClientActivityItem
 } from '@/app/actions/client-portal.actions';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui';
 
 function formatRelative(iso: string): string {
     const d = new Date(iso);

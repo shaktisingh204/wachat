@@ -2,9 +2,9 @@
 
 import React, { useState, useTransition, useMemo, useEffect } from 'react';
 import { TrainingCourse } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
 import { toast } from 'sonner';
 import { getTrainingCourses, deleteTrainingCourse } from '@/app/actions/hrm-advanced/lms-training';
 import { Plus, Trash2, Download, FileText, Search, Edit2 } from 'lucide-react';

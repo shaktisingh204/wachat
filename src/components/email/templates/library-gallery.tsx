@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { Copy, FileText, Sparkles } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui';
 import { actionForkLibraryTemplate } from '@/app/actions/email/templates.actions';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 

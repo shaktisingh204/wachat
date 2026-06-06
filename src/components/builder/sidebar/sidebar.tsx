@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label, Select, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import {
   useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';

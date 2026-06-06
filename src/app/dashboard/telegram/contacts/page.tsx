@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   ChevronLeft,

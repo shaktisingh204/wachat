@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Button, Badge, Input, Textarea, Avatar, AvatarFallback, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Badge, Input, Textarea, Avatar, AvatarFallback, useToast } from '@/components/sabcrm/20ui';
 import {
   MessageSquare,
   Send,

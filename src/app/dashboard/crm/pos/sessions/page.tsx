@@ -1,4 +1,4 @@
-import { Button, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Skeleton } from '@/components/sabcrm/20ui';
 import { Plus } from 'lucide-react';
 import * as React from 'react';
 

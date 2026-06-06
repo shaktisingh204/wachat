@@ -2,7 +2,7 @@ import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { fmtDate } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, PageHeader, Button, Avatar, AvatarImage, AvatarFallback, Badge, Separator, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, PageHeader, Button, Avatar, AvatarImage, AvatarFallback, Badge, Separator, EmptyState } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import { Shield, Building2, Key, Clock, ChevronRight, Settings, LayoutDashboard, Globe } from 'lucide-react';
 import { redirect } from 'next/navigation';

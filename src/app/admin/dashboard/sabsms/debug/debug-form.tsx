@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Badge, Button, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { sendDebugSms, fetchDebugStatus } from './actions';
 import type {
   SabsmsMessage,

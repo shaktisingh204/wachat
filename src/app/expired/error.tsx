@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertCircle, ArrowRight } from 'lucide-react';
-import { Card, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Button } from '@/components/sabcrm/20ui';
 
 export default function ExpiredError({
     error,

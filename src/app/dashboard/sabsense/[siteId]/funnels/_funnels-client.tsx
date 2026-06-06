@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Play } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Progress, Badge, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Progress, Badge, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 
 import {
     createFunnel,

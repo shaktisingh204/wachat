@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Dialog, Input, Label, Badge, Card } from '@/components/sabcrm/20ui/compat';
-import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, Input, Label, Badge, Card } from '@/components/sabcrm/20ui';
+import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { getCustomerPortals, createCustomerPortal, updateCustomerPortal, deleteCustomerPortal } from '@/app/actions/crm-advanced/customer-portal';
 import type { CustomerPortalType } from '@/app/actions/crm-advanced/customer-portal.schema';

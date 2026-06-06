@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label, Skeleton } from '@/components/sabcrm/20ui';
 import {
   BarChart3,
   Bot,

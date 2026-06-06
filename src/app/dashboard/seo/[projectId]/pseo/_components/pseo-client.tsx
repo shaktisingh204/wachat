@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge } from '@/components/sabcrm/20ui';
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
 

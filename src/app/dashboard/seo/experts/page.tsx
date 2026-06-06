@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardTitle, CardDescription, CardBody, CardHeader, CardFooter, Badge, Button, Avatar, AvatarImage, AvatarFallback, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose, Input, Textarea, Label, useToast, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, CardTitle, CardDescription, CardBody, CardHeader, CardFooter, Badge, Button, Avatar, AvatarImage, AvatarFallback, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose, Input, Textarea, Label, useToast, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { Star, CheckCircle2, Briefcase, MapPin, Search, SlidersHorizontal } from 'lucide-react';
 
 const MOCK_EXPERTS = [

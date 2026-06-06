@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 import * as React from 'react';
 

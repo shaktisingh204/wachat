@@ -1,4 +1,4 @@
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';

@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   ShieldOff,
 } from 'lucide-react';
-import { Badge, Button, Card, Collapsible, CollapsibleContent, CollapsibleTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Collapsible, CollapsibleContent, CollapsibleTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
   actionCheckEmailDomain,
   actionRotateDkim,

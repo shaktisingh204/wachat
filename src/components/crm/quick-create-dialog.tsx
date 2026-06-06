@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Button, Input, Label } from '@/components/sabcrm/20ui';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { quickCreateEntity } from '@/app/actions/crm-quick-create.actions';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export class LocalErrorBoundary extends React.Component<
   { children: React.ReactNode },

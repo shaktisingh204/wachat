@@ -2,7 +2,7 @@ import {
   listWebhookSubscriptions,
   listWebhookDeliveries,
 } from '@/app/actions/developer-platform.actions';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui';
 import { WebhooksClient } from './_WebhooksClient';
 
 export const dynamic = 'force-dynamic';

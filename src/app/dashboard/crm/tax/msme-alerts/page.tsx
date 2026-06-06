@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';

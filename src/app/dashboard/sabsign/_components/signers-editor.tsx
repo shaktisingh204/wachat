@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import { Plus, Trash2, ChevronUp, ChevronDown, Mail, ShieldAlert } from 'lucide-react';
-import { Button, Input, Label, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/sabcrm/20ui';
 import type { AuthMethod, EnvelopeSigner, RoutingOrder } from '@/lib/rust-client/esign-envelopes';
 
 const AUTH_METHODS: Array<{ value: AuthMethod; label: string; help: string }> = [

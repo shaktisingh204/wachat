@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 
 import { getClientProfile } from '@/app/actions/client-portal.actions';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { ProfileForm } from '@/components/client-portal/profile-form';
 
 async function ClientProfilePageContent() {

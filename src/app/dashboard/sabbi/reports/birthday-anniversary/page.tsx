@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import * as React from 'react';
 import { Cake, Gift, Mail } from 'lucide-react';
 import { format } from 'date-fns';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 function safeFormatDate(isoString: string) {
   if (!isoString) return '—';
@@ -19,7 +19,7 @@ function safeFormatDate(isoString: string) {
   return format(new Date(y, m - 1, displayDay), 'PP');
 }
 
-import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

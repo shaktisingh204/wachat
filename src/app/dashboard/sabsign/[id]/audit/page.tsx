@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card } from '@/components/sabcrm/20ui';
 import { getEnvelopeAudit } from '@/app/actions/sabsign.actions';
 import type { EsignAuditEvent } from '@/lib/rust-client/esign-audit';
 

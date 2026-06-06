@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { QuotationForm } from '../../_components/quotation-form';
 import { QuotationPrintView } from '../../_components/quotation-print-view';
-import { Card, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Button } from '@/components/sabcrm/20ui';
 import type { CrmQuotationDoc } from '@/lib/rust-client/crm-quotations';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { getQuotation } from '@/app/actions/crm/quotations.actions';

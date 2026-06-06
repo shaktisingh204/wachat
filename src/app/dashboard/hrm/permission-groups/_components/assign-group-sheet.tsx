@@ -8,7 +8,7 @@
 import * as React from 'react';
 import { UserCheck } from 'lucide-react';
 import { AssignmentForm } from './assignment-form';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, useToast } from '@/components/sabcrm/20ui';
 import {
   assignGroupToEmployee,
   removeGroupFromEmployee,

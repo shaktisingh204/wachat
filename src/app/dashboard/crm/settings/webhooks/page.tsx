@@ -15,7 +15,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   CheckCircle2,

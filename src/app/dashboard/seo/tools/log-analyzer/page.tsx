@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, Progress, Button, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Progress, Button, cn } from '@/components/sabcrm/20ui';
 import { useState, useRef } from 'react';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 

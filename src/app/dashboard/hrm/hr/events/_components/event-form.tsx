@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';

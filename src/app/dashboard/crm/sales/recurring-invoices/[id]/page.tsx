@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card } from '@/components/sabcrm/20ui';
 import { notFound } from 'next/navigation';
 import { Repeat } from 'lucide-react';
 

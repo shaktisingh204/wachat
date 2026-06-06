@@ -2,7 +2,7 @@ import * as React from "react";
 import { notFound } from "next/navigation";
 import sanitizeHtml from "sanitize-html";
 import { getPublicProposal } from "@/app/actions/public-proposal.actions";
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { ProposalActionsPanel } from "./proposal-actions-panel";
 import { fmtDate, fmtINR } from "@/lib/utils";
 

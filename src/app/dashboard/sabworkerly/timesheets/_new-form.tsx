@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { addSabworkerlyTimesheet } from '@/app/actions/sabworkerly.actions';
 
 interface PlacementOpt { id: string; label: string; workerId: string }

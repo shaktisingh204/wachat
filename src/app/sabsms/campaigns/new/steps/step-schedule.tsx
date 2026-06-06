@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import type { CampaignDraft, ScheduleDraft } from "../types";
 

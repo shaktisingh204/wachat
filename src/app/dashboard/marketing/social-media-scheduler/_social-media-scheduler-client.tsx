@@ -2,14 +2,14 @@
 
 import React, { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Plus, Edit2, Trash2, Wand2, Loader2 } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { createSocialPost, updateSocialPost, deleteSocialPost, suggestOptimizations } from '@/app/actions/marketing/social-media-scheduler.actions';
 
 export function SocialPostClient({ initialData }: { initialData: any[] }) {

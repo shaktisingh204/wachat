@@ -12,7 +12,7 @@
  */
 
 import * as React from 'react';
-import { Alert, AlertDescription, Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 import {
   submitPublicLead,
   type LeadFormField,

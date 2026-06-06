@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Input, cn } from '@/components/sabcrm/20ui/compat';
+import { Input, cn } from '@/components/sabcrm/20ui';
 
 export type InboxQuickFilter =
   | 'all'

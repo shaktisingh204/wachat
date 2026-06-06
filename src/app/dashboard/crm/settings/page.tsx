@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import {
   getCrmSettings } from '@/app/actions/crm-settings.actions';
 import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';

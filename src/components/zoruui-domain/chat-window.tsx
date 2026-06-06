@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useRef,

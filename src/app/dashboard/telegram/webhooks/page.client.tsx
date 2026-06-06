@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, EmptyState, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, ScrollArea, StatCard, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, EmptyState, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, ScrollArea, StatCard, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Switch, Label } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   Inbox,

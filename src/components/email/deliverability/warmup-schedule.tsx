@@ -7,12 +7,12 @@ import {
   Play,
   X,
 } from 'lucide-react';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui';
 import {
   actionUpdateWarmupRun,
   type WarmupRunDoc,
 } from '@/app/actions/email/deliverability.actions';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 interface WarmupScheduleProps {
   runs: WarmupRunDoc[];

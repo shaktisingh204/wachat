@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 
 export function TierLogicVisualizer({
     tiers,

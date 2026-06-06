@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Skeleton, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Skeleton, Card } from '@/components/sabcrm/20ui';
 import { ArrowRight } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';

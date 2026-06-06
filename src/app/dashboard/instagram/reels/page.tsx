@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

@@ -1,7 +1,7 @@
 'use client';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { LoaderCircle } from 'lucide-react';
 
 import { useParams } from 'next/navigation';

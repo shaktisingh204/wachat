@@ -37,7 +37,7 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea } from '@/components/sabcrm/20ui';
 
 import {
   type AuditTrailEntry,

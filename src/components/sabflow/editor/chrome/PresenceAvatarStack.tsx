@@ -37,7 +37,7 @@
 
 import * as React from 'react';
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import {
 	colorForUserId,

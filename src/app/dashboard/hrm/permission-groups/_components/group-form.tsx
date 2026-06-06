@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { PermissionMatrix } from './permission-matrix';
 import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';
 interface GroupFormProps {

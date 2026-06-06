@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 
 export default function SabsmsError({
   error,

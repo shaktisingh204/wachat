@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Download, FileText, Plus, Trash2, Workflow } from 'lucide-react';
 import { Suspense, useMemo, useState, useEffect, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Button, useToast, PageHeading, PageTitle, PageDescription, PageHeader, PageActions, Table, TBody, Td, Th, THead, Tr, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast, PageHeading, PageTitle, PageDescription, PageHeader, PageActions, Table, TBody, Td, Th, THead, Tr, Input, Checkbox } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ShiftForm } from '../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';

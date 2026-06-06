@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type {
   BugListParams,
   BugPriority,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 /**
  * <SubscriptionFilters> — collapsible filter row for the §1D
  * subscriptions list.

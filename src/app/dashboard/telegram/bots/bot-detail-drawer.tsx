@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   CheckCircle2,

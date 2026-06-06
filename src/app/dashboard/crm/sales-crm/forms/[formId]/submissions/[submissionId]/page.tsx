@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import sanitizeHtml from 'sanitize-html';
 
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast } from '@/components/sabcrm/20ui';
 import { createCustomReport, deleteCustomReport } from '@/app/actions/platform/custom-report-builder.actions';
 import type { CustomReport } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';

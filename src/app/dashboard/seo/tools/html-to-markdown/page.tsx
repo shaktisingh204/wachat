@@ -1,7 +1,7 @@
 'use client';
 
-import { Textarea, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Card } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Card } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useEffect } from 'react';
 import { Copy, Check, Settings2 } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

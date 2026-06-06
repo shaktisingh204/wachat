@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Input, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, Progress } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, Progress } from '@/components/sabcrm/20ui';
 import {
   Users,
   Plus,

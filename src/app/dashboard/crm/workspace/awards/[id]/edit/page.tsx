@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAwardById, getAppreciationsByAward } from '@/app/actions/worksuite/knowledge.actions';
 import { AwardsForm } from '../../_components/awards-form';
 import type { WsAward, WsAppreciation } from '@/lib/worksuite/knowledge-types';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, StatCard } from '@/components/sabcrm/20ui';
 import { Users, Award } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

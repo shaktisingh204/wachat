@@ -4,7 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { LoaderCircle, Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator, Badge } from '@/components/sabcrm/20ui';
 import {
   disable2fa,
   disableEmail2fa,

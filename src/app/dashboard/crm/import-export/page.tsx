@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import {
     AlertCircle,
     ArrowRight,
@@ -30,7 +30,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { listImportJobs } from '@/app/actions/crm-import.actions';
 import { hasPermissionGroup } from '@/lib/permission-groups/check';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Skeleton, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Skeleton, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
 import { ImportWizardShell } from './_components/import-wizard-shell';

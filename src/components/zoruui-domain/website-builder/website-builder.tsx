@@ -1,6 +1,6 @@
 'use client';
 
-import { Separator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui/compat';
+import { Separator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { FileText, PenLine, Sparkles, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
 function relativeTime(iso?: string): string {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Button, Card, CardBody, DateRangePicker, Label } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Label } from '@/components/sabcrm/20ui';
 import { EnumFilterField } from "@/components/crm/enum-filter-field";
 import { X } from "lucide-react";
 

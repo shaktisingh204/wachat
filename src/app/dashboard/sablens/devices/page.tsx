@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import { listSablensDevices } from '@/app/actions/sablens.actions';
 
 import { DeviceRegisterDialog } from './_components/device-register-dialog';

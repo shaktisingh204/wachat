@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { ShieldCheck } from 'lucide-react';

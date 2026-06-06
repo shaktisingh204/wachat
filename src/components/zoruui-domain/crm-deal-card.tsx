@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Card } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Card } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 
 import { User, Building, FolderKanban } from 'lucide-react';

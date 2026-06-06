@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { CheckCircle2, Percent, Target, Trophy } from 'lucide-react';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import type { CrmLeadKpis } from '@/app/actions/crm-leads.actions.types';
 
 /**

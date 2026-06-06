@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Building2, CheckCircle2, Crown, Wallet } from 'lucide-react';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 
 import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions.types';
 

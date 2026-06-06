@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -17,7 +17,7 @@ import { saveLoan } from '@/app/actions/crm-loans.actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
-import { DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui';
 import { format } from 'date-fns';
 
 function SubmitButton() {

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { UserMinus, Download, Printer, Search } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { fmtDate } from '@/lib/utils';
-import { Badge, Button, Card, Input, TBody, Td, Th, THead, Tr, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, TBody, Td, Th, THead, Tr, Checkbox } from '@/components/sabcrm/20ui';
 
 interface AssignedEmployee {
   employeeId: string;

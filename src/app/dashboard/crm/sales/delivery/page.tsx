@@ -15,7 +15,7 @@ import {
   type DcStatus,
 } from './_components/delivery-list-client';
 import type { LineageRef } from '@/lib/definitions';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

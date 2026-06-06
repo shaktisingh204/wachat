@@ -3,7 +3,7 @@
 import * as React from "react";
 import { MoreHorizontal, Sparkles } from "lucide-react";
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 

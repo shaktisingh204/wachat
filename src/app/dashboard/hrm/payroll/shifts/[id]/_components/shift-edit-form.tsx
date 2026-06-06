@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 import { ShiftForm } from '../../_components/shift-form';
 

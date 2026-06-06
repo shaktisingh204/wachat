@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

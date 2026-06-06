@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Table, THead, TBody, Tr, Th, Td, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Table, THead, TBody, Tr, Th, Td, Skeleton } from '@/components/sabcrm/20ui';
 import { Suspense } from 'react';
 import {
   notFound } from 'next/navigation';

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 import { settleTaxJournalEntries } from '@/app/actions/crm-india-gst.actions';
 
 export function TaxSettlementButton({ period, taxType, amount }: { period: string; taxType: string; amount: number }) {

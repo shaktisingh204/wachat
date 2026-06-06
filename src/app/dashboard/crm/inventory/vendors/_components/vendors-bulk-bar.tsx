@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Download, Tag, Trash2, X } from 'lucide-react';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import type { VendorTypeOption } from './vendors-filters';
 

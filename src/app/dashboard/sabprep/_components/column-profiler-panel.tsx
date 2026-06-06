@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Badge, Button, Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Badge, Button, Progress } from '@/components/sabcrm/20ui';
 import type { ColumnProfile } from '@/lib/rust-client/sabprep-profiles';
 
 interface Props {

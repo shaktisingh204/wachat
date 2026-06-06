@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import React, { Component, ReactNode } from 'react';
 import { Download, Copy, CheckCircle2 } from 'lucide-react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Popover, PopoverTrigger, PopoverContent } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Popover, PopoverTrigger, PopoverContent } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useMemo,

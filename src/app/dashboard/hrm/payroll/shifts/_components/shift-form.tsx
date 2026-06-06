@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle } from 'lucide-react';
-import { Button, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveShift } from '@/app/actions/crm-shifts.actions';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';

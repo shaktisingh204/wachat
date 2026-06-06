@@ -24,10 +24,10 @@ import {
 } from 'recharts';
 import { Download, FileJson, FileSpreadsheet } from 'lucide-react';
 
-import { Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { syncWithGstPortal, reconcileGstr2bVsLocal } from '@/app/actions/crm-india-gst.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
     downloadCsv,

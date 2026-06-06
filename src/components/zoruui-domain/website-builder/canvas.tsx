@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Separator } from '@/components/sabcrm/20ui';
 import {
   SortableContext,
   useSortable,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 

@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

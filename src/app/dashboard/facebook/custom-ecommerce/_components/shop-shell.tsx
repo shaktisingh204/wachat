@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 /**
  * Shared zoru-only chrome for the Custom E-commerce manage scope.
  *

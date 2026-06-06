@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Badge, Switch } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Badge, Switch } from '@/components/sabcrm/20ui';
 import {
   planFeatureMap,
   planFeaturesDefaults } from '@/lib/plans';

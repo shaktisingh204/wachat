@@ -1,4 +1,4 @@
-import { Button, Card, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 import { Package, Pencil } from 'lucide-react';
 import type { WithId } from 'mongodb';
 

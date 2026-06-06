@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 export function ExitStepper({
   status,

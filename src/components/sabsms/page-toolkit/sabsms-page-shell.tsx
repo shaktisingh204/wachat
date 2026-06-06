@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ChevronRight, HelpCircle, MoreHorizontal } from "lucide-react";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 
 /**
  * Common page shell for every `/sabsms/*` route.

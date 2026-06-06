@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Textarea, Label, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Textarea, Label, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 /**
  * <CustomFieldInput> + <CustomFieldDisplay> — render a single
  * `WsCustomField` instance.

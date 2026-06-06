@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui';
 import type { FormField, FormFieldValidation } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {

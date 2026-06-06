@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { ZoruFacebookChatClient } from '../_components/zoru-fb-chat-client';
 import { Suspense } from "react";
 

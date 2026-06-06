@@ -1,6 +1,6 @@
 import React from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
-import { Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 
 interface OKRFormProps {
   open: boolean;

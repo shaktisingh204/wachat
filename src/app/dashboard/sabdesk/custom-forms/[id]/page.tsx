@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { notFound, redirect } from "next/navigation";
 import { Pencil } from "lucide-react";
 

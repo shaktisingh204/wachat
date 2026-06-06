@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Badge } from '@/components/sabcrm/20ui';
 import { Trash2, Paperclip, MessageSquare, StickyNote } from 'lucide-react';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 

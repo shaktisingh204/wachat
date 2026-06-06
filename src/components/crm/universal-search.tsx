@@ -3,9 +3,9 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import { Input, Kbd, Popover, PopoverAnchor, PopoverContent } from '@/components/sabcrm/20ui/compat';
+import { Input, Kbd, Popover, PopoverAnchor, PopoverContent } from '@/components/sabcrm/20ui';
 import { searchAll, type UniversalSearchResult } from '@/app/actions/universal-search.actions';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 const SECTIONS: Array<{
   key: keyof UniversalSearchResult;

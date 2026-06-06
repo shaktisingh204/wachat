@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, Button } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { LoaderCircle, ShieldCheck } from 'lucide-react';

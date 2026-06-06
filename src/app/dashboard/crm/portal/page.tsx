@@ -1,10 +1,10 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { ObjectId } from 'mongodb';
 import { Plus } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 import Link from 'next/link';
 

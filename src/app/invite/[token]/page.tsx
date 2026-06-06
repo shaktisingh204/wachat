@@ -3,7 +3,7 @@ import "@/components/sabcrm/20ui/zoru-legacy.css";
 import Link from 'next/link';
 import { LuArrowRight, LuMailX } from 'react-icons/lu';
 
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { getInvitationByToken } from '@/app/actions/team.actions';
 import { getSession } from '@/app/actions/user.actions';

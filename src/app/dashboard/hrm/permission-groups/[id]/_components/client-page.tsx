@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, LoaderCircle, ShieldCheck } from 'lucide-react';
-import { Button, Badge, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card, useToast } from '@/components/sabcrm/20ui';
 import {
   updatePermissionGroup,
   removeGroupFromEmployee,

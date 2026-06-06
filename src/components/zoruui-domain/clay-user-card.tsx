@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import { LuEllipsis } from 'react-icons/lu';
 
 import * as React from 'react';

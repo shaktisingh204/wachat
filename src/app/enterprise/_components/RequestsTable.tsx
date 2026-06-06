@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { InquiryRecord } from '../types';
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 export function RequestsTable({ requests, isLoading }: { requests: InquiryRecord[], isLoading: boolean }) {

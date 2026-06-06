@@ -1,7 +1,7 @@
 'use client';
 
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
     AreaChart,
     Area,

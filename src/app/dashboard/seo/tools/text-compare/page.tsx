@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Card, CardBody, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Card, CardBody, Switch, Label } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useRef } from 'react';
 import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

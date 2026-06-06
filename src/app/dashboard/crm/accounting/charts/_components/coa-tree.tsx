@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge } from '@/components/sabcrm/20ui';
 import { ChevronDown, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
 
 /**

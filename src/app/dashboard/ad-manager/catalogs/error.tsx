@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertDescription, AlertTitle, Alert, Button } from '@/components/sabcrm/20ui/compat';
+import { AlertDescription, AlertTitle, Alert, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export default function CatalogsError({

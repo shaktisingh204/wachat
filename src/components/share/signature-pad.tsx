@@ -14,7 +14,7 @@
  */
 
 import * as React from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export type SignaturePadProps = {
   width?: number;

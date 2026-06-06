@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const mockHistoryData = [

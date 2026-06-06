@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import { Pin, UsersRound, VolumeX } from "lucide-react";
 
 /**

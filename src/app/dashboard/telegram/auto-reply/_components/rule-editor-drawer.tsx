@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from '@/components/sabcrm/20ui';
 import {
   Plus,
   Trash2,

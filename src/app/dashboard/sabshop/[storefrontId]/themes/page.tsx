@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui';
 
 import {
     listThemes, createTheme, deleteTheme,

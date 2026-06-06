@@ -1,7 +1,7 @@
 'use client';
 
-import { Input, Label, Card, CardBody, Button, cn } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Card, CardBody, Button, cn } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { Copy, Download } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 

@@ -21,7 +21,7 @@ import {
   ShieldCheck,
   Trash2,
 } from 'lucide-react';
-import { Badge, Button, Card, Checkbox, Input, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import {
   deletePermissionGroup,

@@ -11,7 +11,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { Card, Table, TBody, Td, Th, THead, Tr, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Button } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';

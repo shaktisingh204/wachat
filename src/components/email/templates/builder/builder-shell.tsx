@@ -17,7 +17,7 @@ import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, Eye, Save } from 'lucide-react';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Input, Separator, toast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Input, Separator, toast } from '@/components/sabcrm/20ui';
 import type {
   EmailBuilderBlock,
   EmailBuilderDocument,

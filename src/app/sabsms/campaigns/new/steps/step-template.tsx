@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type { SabsmsMessageCategory } from "@/lib/sabsms/types";
 
 import type { CampaignDraft } from "../types";

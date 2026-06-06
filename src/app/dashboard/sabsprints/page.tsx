@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

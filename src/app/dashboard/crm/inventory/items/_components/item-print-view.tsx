@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { fmtINR } from '@/lib/utils';
 /**
  * <ItemPrintView> — A4 label sheet for an item barcode or QR.

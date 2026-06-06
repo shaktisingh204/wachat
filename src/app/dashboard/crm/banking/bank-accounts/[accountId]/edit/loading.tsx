@@ -1,4 +1,4 @@
-import { WaterLoader } from '@/components/sabcrm/20ui/compat';
+import { WaterLoader } from '@/components/sabcrm/20ui';
 
 export default function LoadingEditBankAccount() {
     return (

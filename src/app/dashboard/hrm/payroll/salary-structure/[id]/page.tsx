@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import type { StatusTone } from '@/components/crm/status-pill';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';

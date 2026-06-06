@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import { use } from 'react';
 import {
   formatDistanceToNow } from 'date-fns';

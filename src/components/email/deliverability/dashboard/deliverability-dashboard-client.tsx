@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, XCircle, Clock, AlertCircle, Shield, ShieldOff } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
   actionGetDeliverabilityScore,
   actionListEmailDomains,

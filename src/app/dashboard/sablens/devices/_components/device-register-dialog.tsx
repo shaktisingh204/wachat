@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { CirclePlus } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { registerSablensDevice } from '@/app/actions/sablens.actions';
 
 export function DeviceRegisterDialog() {

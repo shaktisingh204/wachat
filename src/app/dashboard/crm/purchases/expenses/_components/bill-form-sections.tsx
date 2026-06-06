@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 /**
  * Section sub-cards for `<BillForm>`. Hoisted out so the form file
  * stays under the 600-line cap. Each section is presentational —

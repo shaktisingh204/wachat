@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   format } from "date-fns";
 import { CalendarClock,

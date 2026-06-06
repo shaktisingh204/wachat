@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Play, Square, Check, X, Timer, Plus, Filter, Download, Trash2, Users } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import { Badge, Button, Card, Input, Table, TBody, Td, Th, THead, Tr, useToast, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Table, TBody, Td, Th, THead, Tr, useToast, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeLogs, startTimer, stopTimer, approveTimeLog, rejectTimeLog, bulkDeleteTimeLogs } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';

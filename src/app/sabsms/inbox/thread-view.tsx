@@ -31,7 +31,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 

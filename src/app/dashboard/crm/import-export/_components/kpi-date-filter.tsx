@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui';
 
 export function KpiDateFilter() {
     const router = useRouter();

@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientKnowledgeBaseArticle } from '@/app/actions/client-portal.actions';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '';

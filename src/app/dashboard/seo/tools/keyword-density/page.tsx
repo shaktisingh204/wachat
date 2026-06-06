@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, Textarea, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Label } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

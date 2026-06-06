@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Wand2, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Textarea, Badge } from '@/components/sabcrm/20ui';
 
 export function ContentAnalyzer() {
   const [content, setContent] = useState('');

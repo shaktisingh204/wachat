@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
 import { Bell, Boxes, Settings2, Users } from 'lucide-react';
 import { useTransition } from 'react';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Button, Input, ScrollArea, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Button, Input, ScrollArea, Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 import { useEffect } from 'react';
 

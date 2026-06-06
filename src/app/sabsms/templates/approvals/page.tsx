@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { fmtQty } from "@/lib/utils";
 
 import {

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from "@/components/sabfiles";
 
 import type { AudienceDraft, CampaignDraft } from "../types";

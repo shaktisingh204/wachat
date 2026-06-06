@@ -14,7 +14,7 @@ import {
   Undo2,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback, Badge, Button, ScrollArea, Separator, cn } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, ScrollArea, Separator, cn } from '@/components/sabcrm/20ui';
 import type {
   EmailInboxMessageDoc,
   EmailInboxThreadDoc,

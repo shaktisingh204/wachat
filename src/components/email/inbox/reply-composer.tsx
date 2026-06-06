@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Loader2, Paperclip, Send, X } from 'lucide-react';
 
-import { Button, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, cn } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import type { EmailAttachment } from '@/lib/rust-client/email-inbox';
 

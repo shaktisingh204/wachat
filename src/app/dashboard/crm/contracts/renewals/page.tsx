@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 
-import { Alert, AlertTitle, AlertDescription, Badge, Button, Card, Checkbox, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Badge, Button, Card, Checkbox, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   AlertTriangle,

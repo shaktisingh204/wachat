@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Workflow, Plus, Play, MoreHorizontal, Settings, Clock } from 'lucide-react';
-import { PageHeader } from '@/components/sabcrm/20ui/compat';
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { PageHeader } from '@/components/sabcrm/20ui';
+import { Card } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 
 const MOCK_WORKFLOWS = [
   {

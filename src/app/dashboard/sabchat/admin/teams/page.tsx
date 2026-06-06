@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { listAdminTeams } from '@/app/actions/sabchat-admin.actions';
 import { AdminTeamsClient } from '../_components/admin-teams-client';
 

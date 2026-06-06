@@ -12,7 +12,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, useToast } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 import type {

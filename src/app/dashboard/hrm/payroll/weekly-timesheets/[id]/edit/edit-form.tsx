@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui';
 import { useState, useTransition, useEffect, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
 import { LoaderCircle, Download, Users, Filter, CheckSquare } from 'lucide-react';

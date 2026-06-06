@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Tooltip, TooltipContent, TooltipTrigger, Drawer, DrawerContent, DrawerTrigger, ScrollArea, type ButtonProps } from '@/components/sabcrm/20ui/compat';
+import { Button, Tooltip, TooltipContent, TooltipTrigger, Drawer, DrawerContent, DrawerTrigger, ScrollArea, type ButtonProps } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 

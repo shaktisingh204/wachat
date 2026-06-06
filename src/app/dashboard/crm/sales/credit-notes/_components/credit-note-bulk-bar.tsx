@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Archive, BadgeDollarSign, Download, Trash2, X } from 'lucide-react';
 
 /**

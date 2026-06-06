@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Badge } from '@/components/sabcrm/20ui';
 import { Sparkles, Building2, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch } from '@/components/sabcrm/20ui';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';

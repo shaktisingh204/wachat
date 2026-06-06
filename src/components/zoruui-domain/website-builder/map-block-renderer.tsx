@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 import React, { useEffect, useState } from 'react';

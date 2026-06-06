@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Popover, PopoverContent, PopoverTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Popover, PopoverContent, PopoverTrigger, Textarea } from '@/components/sabcrm/20ui';
 import {
   CalendarClock,
   Loader2,

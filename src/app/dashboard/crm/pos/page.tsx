@@ -1,5 +1,5 @@
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import {
     Banknote,
     Building2,

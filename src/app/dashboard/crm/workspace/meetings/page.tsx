@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { getMeetingSchedulers } from '@/app/actions/crm-advanced/meeting-scheduler';
 import { MeetingsListClient } from './_components/meetings-list-client';
-import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,4 +1,4 @@
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 export function StatusPill({ status }: { status: string }) {
   const active = status === 'active';

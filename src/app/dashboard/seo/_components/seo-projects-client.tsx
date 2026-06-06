@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, Button } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

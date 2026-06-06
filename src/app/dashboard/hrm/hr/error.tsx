@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export default function HrError({

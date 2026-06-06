@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;

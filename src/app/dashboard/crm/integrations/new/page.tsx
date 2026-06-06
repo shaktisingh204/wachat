@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { WaterLoader } from '@/components/sabcrm/20ui/compat';
+import { WaterLoader } from '@/components/sabcrm/20ui';
 
 import { IntegrationForm } from '../_components/integration-form';
 

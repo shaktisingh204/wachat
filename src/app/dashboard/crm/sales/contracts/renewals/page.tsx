@@ -23,7 +23,7 @@ import {
   Bell,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';

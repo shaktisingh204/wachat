@@ -17,7 +17,7 @@ import {
   type HrmRoadmap,
 } from '@/app/actions/hrm-roadmaps.actions';
 import { fmtDate } from '@/lib/utils';
-import { Button, Badge, StatCard, Progress, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, StatCard, Progress, Card, CardBody } from '@/components/sabcrm/20ui';
 
 /* ─── Error Boundary ─────────────────────────────────────────────────── */
 

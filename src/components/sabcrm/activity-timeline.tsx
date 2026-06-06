@@ -38,7 +38,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { cn, useToast } from '@/components/sabcrm/20ui';
 import {
   Card,
   Button,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider, Button, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider, Button, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 import {
   handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage,

@@ -3,7 +3,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Send } from 'lucide-react';
 import Link from 'next/link';
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui';
 import type { WithId, EmailCampaign } from '@/lib/definitions';
 
 interface EmailActivityFeedProps {

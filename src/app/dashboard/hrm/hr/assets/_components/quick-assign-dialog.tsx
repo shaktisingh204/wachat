@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Label, Input, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Label, Input, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { saveAssetAssignment } from '@/app/actions/crm-asset-assignments.actions';

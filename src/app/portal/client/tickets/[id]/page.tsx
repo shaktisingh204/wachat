@@ -9,10 +9,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientTicketById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { TicketReplyForm } from '@/components/client-portal/ticket-reply-form';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 function fmtDateTime(iso: string | null): string {
     if (!iso) return '';

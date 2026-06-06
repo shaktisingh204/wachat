@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { SabsmsBulkActionsBar, type SabsmsBulkAction } from "./sabsms-bulk-actions";
 import { SabsmsPagination } from "./sabsms-pagination";

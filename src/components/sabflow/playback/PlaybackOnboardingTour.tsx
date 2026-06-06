@@ -35,7 +35,7 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Popover, PopoverContent, PopoverAnchor } from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverAnchor } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 /* ─── Public API ─────────────────────────────────────────────────────── */

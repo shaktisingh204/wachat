@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;

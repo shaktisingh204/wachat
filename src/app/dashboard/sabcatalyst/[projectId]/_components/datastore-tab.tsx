@@ -7,7 +7,7 @@ import {
     createSabcatalystTable,
     deleteSabcatalystTable,
 } from '@/app/actions/sabcatalyst.actions';
-import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge } from '@/components/sabcrm/20ui';
 import type { SabcatalystTable, TableField } from '@/lib/rust-client/sabcatalyst-tables';
 
 interface Props { projectId: string; initialTables: SabcatalystTable[] }

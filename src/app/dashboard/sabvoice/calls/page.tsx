@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Input, Label, Badge, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Badge, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   Phone,

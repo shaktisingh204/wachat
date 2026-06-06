@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui';
 import {
     revokeSabvaultShare,
     shareSabvaultSecret,

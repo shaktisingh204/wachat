@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { LayoutDashboard, Lock, Plus, Search, Share2, Star } from 'lucide-react';

@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 /**
  * Local Meta Suite › Commerce shells.
  *

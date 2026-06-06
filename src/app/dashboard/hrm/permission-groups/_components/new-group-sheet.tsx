@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { Plus } from 'lucide-react';
-import { Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
 import { GroupForm } from './group-form';
 import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';

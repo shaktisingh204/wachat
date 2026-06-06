@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import {
     BarChart3,

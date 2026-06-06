@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Badge, Skeleton, Dialog, DialogContent, DialogTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Badge, Skeleton, Dialog, DialogContent, DialogTrigger } from '@/components/sabcrm/20ui';
 import {
   Image as ImageIcon,
   CircleAlert,

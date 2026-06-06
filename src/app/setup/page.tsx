@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Alert, AlertDescription, AlertTitle, Checkbox, Label, Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Alert, AlertDescription, AlertTitle, Checkbox, Label, Progress } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 
 /**

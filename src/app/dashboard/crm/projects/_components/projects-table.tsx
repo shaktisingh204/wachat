@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr, Progress, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr, Progress, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import {
   Archive,
   Download,

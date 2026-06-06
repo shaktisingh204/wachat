@@ -8,7 +8,7 @@ import { startOfMonth, format } from 'date-fns';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { TdsPeriodSelector } from './period-selector';
 import { TdsDataView } from './tds-client-view';
-import { EmptyState, Button } from '@/components/sabcrm/20ui/compat';
+import { EmptyState, Button } from '@/components/sabcrm/20ui';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);

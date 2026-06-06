@@ -1,6 +1,6 @@
 import { fmtDate } from '@/lib/utils';
 import { Suspense } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

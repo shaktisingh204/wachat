@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

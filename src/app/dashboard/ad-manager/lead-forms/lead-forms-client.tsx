@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button, Card, CardBody, Skeleton, Badge, Table, TBody, Td, Th, THead, Tr, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Checkbox, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Skeleton, Badge, Table, TBody, Td, Th, THead, Tr, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Checkbox, Switch, Label } from '@/components/sabcrm/20ui';
 import {
   FileText,
   Plus,

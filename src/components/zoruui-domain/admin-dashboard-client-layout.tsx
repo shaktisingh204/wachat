@@ -1,10 +1,10 @@
 'use client';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, cn } from '@/components/sabcrm/20ui';
 import {
   usePathname,
   useRouter } from 'next/navigation';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui/compat';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { LayoutDashboard,
   ShieldCheck,

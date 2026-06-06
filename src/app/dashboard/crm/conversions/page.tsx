@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card } from '@/components/sabcrm/20ui';
 import { ArrowRight, ShoppingCart, Truck, GitMerge, ShoppingBag, Package } from 'lucide-react';
 
 /**

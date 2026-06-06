@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 export default function SabchatAdminLayout({ children }: { children: React.ReactNode }) {
     const navItems = [

@@ -18,7 +18,7 @@ import {
     listMailContacts,
 } from '@/app/actions/mailbox.actions';
 import type { MailContactDoc } from '@/lib/rust-client/mail-contacts-sync';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui';
 
 export interface ContactsClientProps {
     accountId: string;

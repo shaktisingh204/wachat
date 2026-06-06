@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { Users, ClipboardList, CheckCircle2, FileWarning } from 'lucide-react';
 import type { PortalKpis } from '@/app/actions/hrm-portal.actions.types';
 

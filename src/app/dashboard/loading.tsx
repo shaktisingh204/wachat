@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 /**
  * /dashboard/* loading fallback. Shown instantly during route
  * transitions while the layout's session + project + RBAC checks

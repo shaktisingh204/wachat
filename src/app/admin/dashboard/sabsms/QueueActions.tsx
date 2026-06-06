@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { retryFailedMessages, cancelQueuedMessages } from './actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 
 export function QueueActions() {
   const [loadingRetry, setLoadingRetry] = useState(false);

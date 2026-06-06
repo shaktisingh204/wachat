@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, CardFooter, PageHeader, Skeleton, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardBody, CardFooter, PageHeader, Skeleton, Separator } from '@/components/sabcrm/20ui';
 
 export default function UserDashboardLoading() {
   return (

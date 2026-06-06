@@ -20,7 +20,7 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
 import type { MailAccountDoc } from '@/lib/rust-client/mail-accounts';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
 
 export interface AccountsClientProps {
     domains: MailDomainDoc[];

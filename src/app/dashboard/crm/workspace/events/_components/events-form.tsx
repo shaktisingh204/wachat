@@ -1,6 +1,6 @@
 'use client';
 
-import { ColorPicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { ColorPicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect } from 'react';

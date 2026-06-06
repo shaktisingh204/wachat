@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Popover, PopoverContent, PopoverTrigger, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Popover, PopoverContent, PopoverTrigger, Separator } from '@/components/sabcrm/20ui';
 import {
   useState,
   useRef,

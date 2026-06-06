@@ -1,4 +1,4 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { FileQuestion } from 'lucide-react';
 import Link from 'next/link';
 

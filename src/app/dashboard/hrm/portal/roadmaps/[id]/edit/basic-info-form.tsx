@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardBody, Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 
 type RoadmapStatus = 'draft' | 'active' | 'completed' | 'archived';
 

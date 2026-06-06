@@ -20,8 +20,8 @@ import {
   SabsmsSavedViews,
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Button } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/sabcrm/20ui';
 
 
 const chartConfig = {

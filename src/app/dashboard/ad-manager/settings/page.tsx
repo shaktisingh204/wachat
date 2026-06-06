@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { Briefcase, Wallet, Bell, Shield } from 'lucide-react';
 import Link from 'next/link';
 

@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
-import { Card, CardBody as CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';import { DateRange } from "react-day-picker"
+import { Card, CardBody as CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';import { DateRange } from "react-day-picker"
 import { format, isWithinInterval, startOfDay, endOfDay, parseISO } from "date-fns"
 
 interface TransactionChartProps {

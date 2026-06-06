@@ -26,7 +26,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

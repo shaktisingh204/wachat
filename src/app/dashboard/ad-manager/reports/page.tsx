@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus, Download, Calendar, Mail, Save, Trash2, Search, Loader2 } from 'lucide-react';
 import * as React from 'react';

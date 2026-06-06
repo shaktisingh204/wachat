@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Badge, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Badge, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import { History, RotateCcw, LoaderCircle, Clock } from 'lucide-react';
 import { getShortUrlHistory, rollbackShortUrl } from '@/app/actions/url-shortener.actions';
 

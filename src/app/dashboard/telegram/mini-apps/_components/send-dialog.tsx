@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { Loader2, Send } from 'lucide-react';
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { sendTelegramMiniAppAction } from '@/app/actions/telegram-extra.actions';
 import type { MiniAppRow } from '@/lib/rust-client/telegram-mini-apps';

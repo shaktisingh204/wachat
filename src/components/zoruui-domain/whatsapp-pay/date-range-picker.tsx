@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';interface DatePickerWithRangeProps {
+import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';interface DatePickerWithRangeProps {
     className?: string
     date: DateRange | undefined
     setDate: (date: DateRange | undefined) => void

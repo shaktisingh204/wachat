@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, Component, ErrorInfo, ReactNode } from 'react';
-import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiDnsLookup } from '@/lib/seo-tools/api-client';
 import { Copy, Download, AlertCircle } from 'lucide-react';

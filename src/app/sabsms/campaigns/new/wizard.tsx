@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Kbd, Label, Separator } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Kbd, Label, Separator } from '@/components/sabcrm/20ui';
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import {

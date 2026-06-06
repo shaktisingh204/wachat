@@ -12,7 +12,7 @@ import {
   Save,
   Settings,
 } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, Skeleton, StatCard, Textarea, cn, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Skeleton, StatCard, Textarea, cn, toast } from '@/components/sabcrm/20ui';
 import {
   actionActivateEmailJourney,
   actionGetEmailJourney,

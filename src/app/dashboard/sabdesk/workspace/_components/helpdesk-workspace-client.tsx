@@ -30,9 +30,9 @@ import {
   User,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";

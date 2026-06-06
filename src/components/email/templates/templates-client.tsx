@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Library, Plus, SquarePen } from 'lucide-react';
 
-import { Button, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Skeleton, cn, toast } from '@/components/sabcrm/20ui/compat';
+import { Button, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Skeleton, cn, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailTemplate,
   actionDeleteEmailTemplate,

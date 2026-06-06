@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 
 interface StatCardProps {
     label: string;

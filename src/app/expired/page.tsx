@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Clock, ShieldAlert, Activity, ArrowRight, ExternalLink } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ShortUrl } from '@/lib/definitions';
-import { Card, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Button } from '@/components/sabcrm/20ui';
 import { format } from 'date-fns';
 
 import { Metadata } from 'next';

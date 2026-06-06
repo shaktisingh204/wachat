@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Input, Button, Badge, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Badge, Checkbox, useToast } from '@/components/sabcrm/20ui';
 import { Download, FileSpreadsheet, Search, Trash } from 'lucide-react';
 
 interface Employee {

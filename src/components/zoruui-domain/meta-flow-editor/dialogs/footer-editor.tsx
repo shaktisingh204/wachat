@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Button } from '@/components/sabcrm/20ui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 

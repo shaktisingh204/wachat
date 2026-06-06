@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Alert, AlertTitle, AlertDescription, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Alert, AlertTitle, AlertDescription, Label } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Info, Upload, Download } from 'lucide-react';

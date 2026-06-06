@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 import { Monitor } from 'lucide-react';
 
 interface AnalyticsDevices {

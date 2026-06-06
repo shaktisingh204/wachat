@@ -1,4 +1,4 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPosHolds } from '@/app/actions/crm-pos.actions';
 import { PosHoldRecallClient } from '../_components/pos-hold-recall-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 /**
  * POS held tickets — `/dashboard/crm/pos/hold-recall`.

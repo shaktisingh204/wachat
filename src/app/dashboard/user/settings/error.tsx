@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button } from '@/components/sabcrm/20ui';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 
 export default function SettingsError({

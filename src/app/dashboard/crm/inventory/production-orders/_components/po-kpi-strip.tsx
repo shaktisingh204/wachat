@@ -1,6 +1,6 @@
 'use client';
 
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { Activity, AlertTriangle, CheckCircle2, Gauge, Pause } from 'lucide-react';
 
 /**

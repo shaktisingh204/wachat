@@ -7,8 +7,8 @@ import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { createRoadmap, type RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';
-import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 
 function generateId() {
   return crypto.randomUUID();

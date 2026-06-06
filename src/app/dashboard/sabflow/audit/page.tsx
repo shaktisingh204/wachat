@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, StatCard, DataTable, Badge, Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, StatCard, DataTable, Badge, Button, useToast } from '@/components/sabcrm/20ui';
 import { type ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import {

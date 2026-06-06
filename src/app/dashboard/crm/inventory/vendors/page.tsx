@@ -7,7 +7,7 @@ import type { WithId } from 'mongodb';
 import { useDebouncedCallback } from 'use-debounce';
 import { Building2, Plus, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

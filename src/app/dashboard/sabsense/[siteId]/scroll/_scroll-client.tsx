@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, Progress } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, Progress } from '@/components/sabcrm/20ui';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';

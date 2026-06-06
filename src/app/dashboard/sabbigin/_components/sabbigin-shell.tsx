@@ -9,7 +9,7 @@ import {
     Phone,
 } from 'lucide-react';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 /**
  * SabBigin top-nav. Minimal by design — the whole point of SabBigin is a

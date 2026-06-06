@@ -2,7 +2,7 @@
 
 /** Overview tab — KPI cards. */
 import React from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import type { SabcatalystProject } from '@/lib/rust-client/sabcatalyst-projects';
 
 interface Props {

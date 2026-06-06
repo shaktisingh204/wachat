@@ -2,9 +2,9 @@
 
 import { useRef, useEffect, useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Button, useToast, Popover, PopoverTrigger, PopoverContent, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Button, useToast, Popover, PopoverTrigger, PopoverContent, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, cn } from '@/components/sabcrm/20ui';
 import NextLink from 'next/link';
-import { DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui';
 import { BulkImportDialog } from '@/components/zoruui-domain/bulk-url-import-dialog';
 import { TagPicker, type TagPickerTag } from '@/components/zoruui-domain/tag-picker';
 import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';

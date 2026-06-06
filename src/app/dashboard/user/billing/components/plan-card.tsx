@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Separator } from '@/components/sabcrm/20ui';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';

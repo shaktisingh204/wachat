@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   getSignupSettingsForAdmin,
   saveSignupSettings,

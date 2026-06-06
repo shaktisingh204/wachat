@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui';
 
 export interface TextEditorProps {
   value: string;

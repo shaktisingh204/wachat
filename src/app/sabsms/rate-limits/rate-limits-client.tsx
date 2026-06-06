@@ -5,7 +5,7 @@ import {
   SabsmsPageShell,
 } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsDataTable } from "@/components/sabsms/page-toolkit/sabsms-data-table";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard, Badge, Button, Input, Switch, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard, Badge, Button, Input, Switch, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 import { Zap, Bell, Settings2, RefreshCw, BarChart2, List, Shield, Download, FileText } from "lucide-react";
 
 export default function RateLimitsClient({ workspaceId }: { workspaceId: string }) {

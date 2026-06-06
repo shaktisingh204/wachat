@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import { GitBranch } from 'lucide-react';
 
 /**

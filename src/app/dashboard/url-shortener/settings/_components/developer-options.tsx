@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label } from '@/components/sabcrm/20ui';
 import { Key, BookOpen, Webhook, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

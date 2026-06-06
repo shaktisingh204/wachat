@@ -1,5 +1,5 @@
 import { resolvePublicToken } from '@/app/actions/worksuite/public.actions';
-import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import { fmtCurrency } from '@/lib/worksuite/format';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ContractSignForm } from './_form';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, DateRangePicker } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker } from '@/components/sabcrm/20ui';
 import {
   X } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';

@@ -10,7 +10,7 @@ import {
   type WebhookSubscription,
   type WebhookDelivery,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Textarea, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Textarea, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertCircle, TriangleAlert, Copy, Webhook, RefreshCw } from 'lucide-react';
 
 interface Props {

@@ -3,11 +3,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { createRedactionPolicy, deleteRedactionPolicy, updateRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
 import type { RedactionPolicy } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 
 interface DataRedactionClientProps {
   initialData: RedactionPolicy[];

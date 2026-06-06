@@ -7,7 +7,7 @@
  */
 import Link from 'next/link';
 
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 
 import { listBugs } from '@/app/actions/bug-tracker.actions';
 import type {

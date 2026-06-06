@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { listInventoryItems } from '@/app/actions/finance/inventory.actions';
 import { InventoryItemListClient } from './_components/inventory-list-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

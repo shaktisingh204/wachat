@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Bookmark, BookmarkPlus, Pin, PinOff, Trash2 } from "lucide-react";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label } from '@/components/sabcrm/20ui';
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 

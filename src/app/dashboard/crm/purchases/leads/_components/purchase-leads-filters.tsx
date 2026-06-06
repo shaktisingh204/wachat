@@ -4,7 +4,7 @@ import * as React from 'react';
 import type { DateRange } from 'react-day-picker';
 import { X } from 'lucide-react';
 
-import { Badge, Button, DateRangePicker, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import type { PurchaseLeadsKpiFilter } from './purchase-leads-kpi-strip';
 

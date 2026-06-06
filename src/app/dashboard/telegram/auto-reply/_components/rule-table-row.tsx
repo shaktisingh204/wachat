@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Switch, Td, Tr, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Switch, Td, Tr, cn } from '@/components/sabcrm/20ui';
 import {
   useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

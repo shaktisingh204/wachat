@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 
 import { getPagesenseSite, getRecording } from '@/app/actions/sabsense.actions';
 

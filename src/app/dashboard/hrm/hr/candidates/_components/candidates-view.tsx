@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useToast, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { useToast, Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 import {
   LayoutGrid,
   Table as TableIcon,

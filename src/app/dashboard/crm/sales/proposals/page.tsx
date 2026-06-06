@@ -12,7 +12,7 @@ import { Suspense } from 'react';
 import { getProposals } from '@/app/actions/worksuite/proposals.actions';
 import type { WsProposal } from '@/lib/worksuite/proposals-types';
 import { ProposalListClient } from './_components/proposal-list-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

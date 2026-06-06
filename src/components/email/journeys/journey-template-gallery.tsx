@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
-import { Badge, Button, Card, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailJourney,
   actionListEmailJourneyTemplates,

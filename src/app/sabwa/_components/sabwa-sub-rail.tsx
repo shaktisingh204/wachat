@@ -57,7 +57,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { Button, ScrollArea, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, ScrollArea, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, cn } from '@/components/sabcrm/20ui';
 
 type NavItem = {
   href: string;

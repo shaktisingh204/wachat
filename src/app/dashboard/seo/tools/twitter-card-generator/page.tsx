@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy } from 'lucide-react';

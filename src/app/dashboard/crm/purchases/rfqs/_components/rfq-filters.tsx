@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 /**
  * <RfqFilters> — collapsible filter row for the RFQs list.
  *

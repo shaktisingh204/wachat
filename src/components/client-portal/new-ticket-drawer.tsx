@@ -14,11 +14,11 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/sabcrm/20ui';
 import { createClientTicket } from '@/app/actions/client-portal.actions';
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;

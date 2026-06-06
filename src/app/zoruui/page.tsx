@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sparkles } from "lucide-react";
-import { HeroPill } from '@/components/sabcrm/20ui/compat';
+import { HeroPill } from '@/components/sabcrm/20ui';
 import { Section } from "./components/Section";
 import { SnippetDemo } from "./components/SnippetDemo";
 

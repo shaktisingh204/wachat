@@ -57,7 +57,7 @@ import {
 } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Input, Checkbox, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Input, Checkbox, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast } from '@/components/sabcrm/20ui';
 import {
   listViewsAction,
   saveViewAction,

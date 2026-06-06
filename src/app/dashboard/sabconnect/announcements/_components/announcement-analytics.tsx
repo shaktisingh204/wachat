@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 import { BarChart, Users, CheckCircle2, TrendingUp } from 'lucide-react';
 
 export function AnnouncementAnalytics({ entityId }: { entityId: string }) {

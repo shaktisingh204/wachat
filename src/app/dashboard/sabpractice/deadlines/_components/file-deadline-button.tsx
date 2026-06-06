@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { markSabpracticeDeadlineFiled } from '@/app/actions/sabpractice.actions';
 
 export function FileDeadlineButton({ id }: { id: string }) {

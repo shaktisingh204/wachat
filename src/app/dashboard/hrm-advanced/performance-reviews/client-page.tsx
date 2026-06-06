@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { PerformanceReview } from '@/lib/hrm-advanced-types';
 import { savePerformanceReview, deletePerformanceReview, getPerformanceReviews } from '@/app/actions/hrm-advanced/performance-reviews';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { ReviewForm } from './review-form';
 import { toast } from 'sonner';
 import { useVirtualizer } from '@tanstack/react-virtual';

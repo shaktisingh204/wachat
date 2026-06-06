@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 
 export default function CheckoutError({
   error,

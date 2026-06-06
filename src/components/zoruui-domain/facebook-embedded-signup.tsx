@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import React from 'react';
 
 import { FacebookIcon } from './custom-sidebar-components';

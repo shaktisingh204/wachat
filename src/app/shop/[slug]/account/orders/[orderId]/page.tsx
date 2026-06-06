@@ -1,5 +1,5 @@
 import { fmtDate } from "@/lib/utils";
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui';
 import { getEcommOrderById, getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';

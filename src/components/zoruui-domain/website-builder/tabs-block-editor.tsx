@@ -1,12 +1,12 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Separator } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Separator } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as LucideIcons from 'lucide-react';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 
 const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
 

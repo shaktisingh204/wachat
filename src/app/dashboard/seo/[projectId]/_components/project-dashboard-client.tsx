@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Skeleton, useToast, ChartContainer, ChartTooltip, Input, Label, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Skeleton, useToast, ChartContainer, ChartTooltip, Input, Label, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { useEffect, useState, use } from 'react';
 
 import { Star, Link as LinkIcon, BarChart, Globe, Target, Map, Trash2, Save, Plus } from 'lucide-react';
@@ -10,8 +10,8 @@ import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui/compat").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
-const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui/compat").then(mod => mod.ChartTooltip), { ssr: false }) as any;
+const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
+const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui").then(mod => mod.ChartTooltip), { ssr: false }) as any;
 
 const chartConfig = {
     organic: { label: "Organic", color: "hsl(var(--chart-1))" },

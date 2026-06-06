@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { use, useEffect, useState, useTransition } from 'react';
 
 import { getProposalTemplateById } from '@/app/actions/worksuite/proposals.actions';

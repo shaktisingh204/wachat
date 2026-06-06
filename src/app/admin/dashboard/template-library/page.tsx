@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { useEffect, useState, useTransition, useMemo } from 'react';
 import Link from 'next/link';
 

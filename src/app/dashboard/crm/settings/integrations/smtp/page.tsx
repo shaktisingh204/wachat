@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Skeleton, Switch, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Skeleton, Switch, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useCallback,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DataTable, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Progress, Skeleton, StatCard, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DataTable, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Progress, Skeleton, StatCard, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useCallback,

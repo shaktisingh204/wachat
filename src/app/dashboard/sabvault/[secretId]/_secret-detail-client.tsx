@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, Badge, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, Separator } from '@/components/sabcrm/20ui';
 import {
     decryptPayload,
     hibpKAnonymityHash,

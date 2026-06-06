@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Label, Skeleton, Badge, Select } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Label, Skeleton, Badge, Select } from '@/components/sabcrm/20ui';
 import {
   useToast } from '@/hooks/use-toast';
 import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucide-react';

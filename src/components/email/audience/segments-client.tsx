@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Filter, Plus, RefreshCw, Trash2 } from 'lucide-react';
-import { Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailSegment,
   actionDeleteEmailSegment,

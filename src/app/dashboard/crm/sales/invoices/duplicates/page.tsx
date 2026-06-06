@@ -26,7 +26,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui';
 import { findInvoiceDuplicates, type InvoiceDuplicateGroup } from '@/app/actions/crm/invoices.actions';
 import {
     getInvoiceDuplicatesDeepKpis,

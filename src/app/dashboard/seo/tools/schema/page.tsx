@@ -1,6 +1,6 @@
 'use client';
 
-import { cn as _zoruCn, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { cn as _zoruCn, Card, CardBody } from '@/components/sabcrm/20ui';
 void _zoruCn;
 
 import SchemaBuilder from '@/components/seo/schema-builder';

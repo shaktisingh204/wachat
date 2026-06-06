@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui';
 import { Terminal, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InquiryRecord, EnterpriseResponse } from '../types';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, PageDescription, PageHeader, PageHeading, PageTitle, useToast, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, PageDescription, PageHeader, PageHeading, PageTitle, useToast, Skeleton } from '@/components/sabcrm/20ui';
 import { BioState } from './types';
 import { fetchBioData, saveBioData } from './api';
 import { BioProfileForm } from './_components/BioProfileForm';

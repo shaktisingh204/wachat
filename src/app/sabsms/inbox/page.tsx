@@ -12,7 +12,7 @@ import {
 } from "./actions";
 import type { InboxFilters } from "./types";
 
-import { Card, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { InboxLayout } from "./inbox-layout";
 
 export const dynamic = "force-dynamic";

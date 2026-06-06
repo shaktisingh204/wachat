@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Table, TBody, Td, Th, THead, Tr, useToast, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Table, TBody, Td, Th, THead, Tr, useToast, cn } from '@/components/sabcrm/20ui';
 import {
   Pencil,
   Trash2,

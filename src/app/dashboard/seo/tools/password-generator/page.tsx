@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, cn } from '@/components/sabcrm/20ui';
 import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import zxcvbn from 'zxcvbn';

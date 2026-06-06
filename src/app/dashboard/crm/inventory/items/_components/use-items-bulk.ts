@@ -1,6 +1,6 @@
 'use client';
 
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 /**
  * useItemsBulk — bulk-action runner for the items list.
  *

@@ -17,8 +17,8 @@
 import * as React from 'react';
 import { LoaderCircle, Mail, Search } from 'lucide-react';
 
-import { Badge, Input, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Input, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 import {
     getEmailTemplate,

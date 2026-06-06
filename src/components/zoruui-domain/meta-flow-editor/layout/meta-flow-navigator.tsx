@@ -5,7 +5,7 @@ import {
     BadgeX, ChevronRight, Layers, Layout, Plus, Search, Trash2, MoreHorizontal,
     MousePointerClick, Copy,
 } from "lucide-react";
-import { cn, Button, Input, ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger, Accordion, AccordionContent, AccordionItem, AccordionTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { cn, Button, Input, ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger, Accordion, AccordionContent, AccordionItem, AccordionTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import { declarativeFlowComponents } from "@/components/zoruui-domain/meta-flow-templates";
 
 interface MetaFlowNavigatorProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Table, TBody, Td, Th, THead, Tr, Popover, PopoverTrigger, PopoverContent, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr, Popover, PopoverTrigger, PopoverContent, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 import {
   Eye,
   LoaderCircle,

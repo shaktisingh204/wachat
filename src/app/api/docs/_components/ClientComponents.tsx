@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Check, Copy, Moon, Sun } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 export function CodeTerminal({ title, code, response }: { title: string; code: string; response?: string }) {
   const [copiedReq, setCopiedReq] = useState(false);

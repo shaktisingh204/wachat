@@ -1,9 +1,9 @@
 'use client';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 export default function PartyTransactionsError({
     error,

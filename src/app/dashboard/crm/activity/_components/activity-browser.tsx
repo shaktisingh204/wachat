@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Card, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, Badge } from '@/components/sabcrm/20ui';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search,
   XCircle } from 'lucide-react';

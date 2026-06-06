@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Td, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Td, Tr } from '@/components/sabcrm/20ui';
 import { getEstimateItems, requestEstimateRevision, type EstimateItem } from './actions';
 import { Loader2, MessageSquare, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import type { ClientEstimate } from '@/lib/client-portal/types';

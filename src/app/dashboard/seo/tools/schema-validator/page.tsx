@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import { validateSchema } from './validator';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';

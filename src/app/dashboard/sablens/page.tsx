@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import { listSablensSessions } from '@/app/actions/sablens.actions';
 import { CirclePlus, Hammer, Smartphone, Video } from 'lucide-react';
 

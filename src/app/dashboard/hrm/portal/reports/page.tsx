@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useToast } from '@/components/sabcrm/20ui/compat';
-import { Button, Input } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
+import { Button, Input } from '@/components/sabcrm/20ui';
 import {
   Download,
   Inbox,

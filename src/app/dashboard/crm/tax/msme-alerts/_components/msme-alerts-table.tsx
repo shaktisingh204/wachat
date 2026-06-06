@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox } from '@/components/sabcrm/20ui';
 import { CalendarClock, Download, Loader2, Wallet, X, Mail } from 'lucide-react';
 
 /**

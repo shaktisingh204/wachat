@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, ScrollArea, ScrollBar } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, ScrollArea, ScrollBar } from '@/components/sabcrm/20ui';
 import {
   Heart,
   MessageCircle,

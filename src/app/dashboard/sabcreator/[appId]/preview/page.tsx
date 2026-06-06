@@ -6,7 +6,7 @@ import {
   listSabcreatorForms,
   listSabcreatorPages,
 } from '@/app/actions/sabcreator.actions';
-import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
 
 import { PreviewRunnerClient } from './_components/preview-runner-client';
 

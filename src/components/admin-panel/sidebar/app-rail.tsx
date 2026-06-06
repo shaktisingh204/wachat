@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, TooltipContent, TooltipTrigger, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Tooltip, TooltipContent, TooltipTrigger, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import {
   usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';

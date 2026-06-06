@@ -10,10 +10,10 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getClientKnowledgeBase } from '@/app/actions/client-portal.actions';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { KbSearch } from '@/components/client-portal/kb-search';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '';

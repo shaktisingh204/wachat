@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardHeader, CardTitle, CardFooter, Input, Label, Textarea, ScrollArea, Badge } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardHeader, CardTitle, CardFooter, Input, Label, Textarea, ScrollArea, Badge } from '@/components/sabcrm/20ui';
 import { 
   MessageSquare, 
   X, 

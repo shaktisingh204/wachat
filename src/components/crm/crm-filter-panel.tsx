@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button, Label, Input, DateRangePicker } from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button, Label, Input, DateRangePicker } from '@/components/sabcrm/20ui';
 import { Filter, X, SlidersHorizontal, Save } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 

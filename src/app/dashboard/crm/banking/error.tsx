@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 
 export default function BankingErrorBoundary({

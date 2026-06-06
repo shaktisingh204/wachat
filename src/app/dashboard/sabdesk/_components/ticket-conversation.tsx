@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Button, Card, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Send, Bot } from "lucide-react";
 

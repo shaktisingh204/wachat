@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button } from '@/components/sabcrm/20ui';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';

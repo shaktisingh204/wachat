@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
-import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui';
 import { submitContact, type ContactFormState } from './actions';
 import { toast } from 'sonner';
 

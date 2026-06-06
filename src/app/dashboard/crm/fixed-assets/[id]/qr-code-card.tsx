@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui';
 import { Printer } from 'lucide-react';
 
 export function QrCodeCard({ value, code }: { value: string, code: string }) {

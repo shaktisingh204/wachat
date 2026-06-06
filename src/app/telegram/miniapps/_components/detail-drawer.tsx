@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { ExternalLink, Link as LinkIcon, Loader2, Monitor, Pencil, ShieldCheck, Smartphone } from 'lucide-react';
-import { Button, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Card } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listTelegramMiniAppSessionsAction,

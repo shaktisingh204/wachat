@@ -1,5 +1,5 @@
 import { fmtDate } from '@/lib/utils';
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import {
   redirect } from 'next/navigation';
 import {

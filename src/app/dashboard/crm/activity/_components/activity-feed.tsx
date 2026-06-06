@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter,
   usePathname } from 'next/navigation';

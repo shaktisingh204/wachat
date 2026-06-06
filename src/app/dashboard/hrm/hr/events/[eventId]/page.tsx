@@ -1,6 +1,6 @@
 import { fmtDate } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
-import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import {

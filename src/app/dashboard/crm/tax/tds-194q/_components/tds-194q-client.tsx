@@ -15,7 +15,7 @@
 import * as React from 'react';
 import { Download, Loader2, X, Mail } from 'lucide-react';
 
-import { Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';

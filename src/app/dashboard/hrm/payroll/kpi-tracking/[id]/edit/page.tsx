@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import {
   use } from 'react';
 import { LineChart } from 'lucide-react';

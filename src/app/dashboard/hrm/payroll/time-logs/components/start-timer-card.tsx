@@ -1,5 +1,5 @@
 import { Play, Timer } from 'lucide-react';
-import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input } from '@/components/sabcrm/20ui';
 
 interface StartTimerCardProps {
   memo: string;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Database } from 'lucide-react';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, Badge, toast } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, Badge, toast } from '@/components/sabcrm/20ui';
 import { actionGetEmailFieldSchema } from '@/app/actions/email/audience.actions';
 import type { CustomFieldDef } from '@/lib/rust-client/email-audience';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui';
 /**
  * <EmployeesListClient> — canonical Employees list view per §1D.
  *

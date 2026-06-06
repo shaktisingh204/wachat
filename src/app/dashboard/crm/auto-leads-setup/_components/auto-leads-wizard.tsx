@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import {

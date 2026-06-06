@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Button, useToast } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { Clock, Trophy } from 'lucide-react';
 

@@ -5,7 +5,7 @@
  */
 import { Download } from 'lucide-react';
 
-import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui';
 
 import { listSabcheckoutSubscriptions } from '@/app/actions/sabcheckout.actions';
 import { SubscriptionsClient } from './subscriptions-client';

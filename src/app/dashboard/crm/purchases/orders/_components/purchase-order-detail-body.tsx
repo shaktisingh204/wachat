@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 /**
  * <PurchaseOrderDetailBody> — body cards on the PO detail page.
  *

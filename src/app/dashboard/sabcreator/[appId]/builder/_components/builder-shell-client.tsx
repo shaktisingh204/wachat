@@ -20,7 +20,7 @@ import {
   Workflow,
 } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
 import {
   createSabcreatorForm,
   createSabcreatorPage,

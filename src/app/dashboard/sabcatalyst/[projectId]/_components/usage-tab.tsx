@@ -3,7 +3,7 @@
 /** Usage tab — monthly aggregates + billing breakdown. */
 import React from 'react';
 
-import { Card, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, EmptyState } from '@/components/sabcrm/20ui';
 import type { SabcatalystUsageRow } from '@/lib/rust-client/sabcatalyst-usage';
 
 interface Props { projectId: string; initialRows: SabcatalystUsageRow[] }

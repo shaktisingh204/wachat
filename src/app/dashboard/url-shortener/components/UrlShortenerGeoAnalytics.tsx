@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import type { WithId, ShortUrl } from '@/lib/definitions';
 import { useMemo } from 'react';
 

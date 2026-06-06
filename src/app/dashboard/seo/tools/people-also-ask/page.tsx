@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

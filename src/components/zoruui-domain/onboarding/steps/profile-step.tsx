@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Alert, AlertDescription, AlertTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Alert, AlertDescription, AlertTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   LoaderCircle } from 'lucide-react';

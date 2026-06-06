@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui';
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import type { WebhookSubscriptionRow } from "@/lib/rust-client/telegram-webhooks";
 import { TELEGRAM_ALLOWED_UPDATES } from "@/lib/rust-client/telegram-webhooks-shared";

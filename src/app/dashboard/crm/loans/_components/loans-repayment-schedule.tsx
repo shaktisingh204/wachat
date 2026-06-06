@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { ArrowDownAZ, ArrowUpAZ, Download } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 

@@ -10,7 +10,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui';
 import { createSabshowDeck } from '@/app/actions/sabshow.actions';
 
 export function NewDeckButton() {

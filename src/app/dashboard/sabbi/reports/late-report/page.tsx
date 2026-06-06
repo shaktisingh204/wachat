@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -18,7 +18,7 @@ import {
 } from '@/app/actions/crm-reports.actions';
 import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
 import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 
 interface PageProps {
   searchParams: Promise<{

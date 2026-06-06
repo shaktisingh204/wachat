@@ -1,4 +1,4 @@
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

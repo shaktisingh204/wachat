@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useState } from "react";

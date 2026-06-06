@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Button } from '@/components/sabcrm/20ui';
 import { LuTag } from 'react-icons/lu';
 
 import * as React from 'react';

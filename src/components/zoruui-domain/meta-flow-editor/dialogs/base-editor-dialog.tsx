@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Button, ScrollArea } from '@/components/sabcrm/20ui';
 interface BaseEditorDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

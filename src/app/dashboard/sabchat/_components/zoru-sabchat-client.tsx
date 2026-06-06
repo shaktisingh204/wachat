@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, useToast, Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Input, ScrollArea, Skeleton, Switch, Label, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Textarea } from '@/components/sabcrm/20ui/compat';
+import { cn, useToast, Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Input, ScrollArea, Skeleton, Switch, Label, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Textarea } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, Badge } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge } from '@/components/sabcrm/20ui';
 import { User as UserIcon } from 'lucide-react';
 
 /**

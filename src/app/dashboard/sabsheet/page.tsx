@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { listSabsheetWorkbooks } from '@/app/actions/sabsheet.actions';
 import { NewWorkbookButton } from './_components/new-workbook-button';
 

@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import { FolderTree, Layers, Tag } from 'lucide-react';
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 
 import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';

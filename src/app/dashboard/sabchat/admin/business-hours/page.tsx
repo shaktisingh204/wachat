@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { listAdminBusinessHours } from '@/app/actions/sabchat-admin.actions';
 import { AdminBusinessHoursClient } from '../_components/admin-business-hours-client';
 

@@ -16,11 +16,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientProjectById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Progress } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Progress } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 type TabKey = 'overview' | 'tasks' | 'milestones' | 'files' | 'invoices' | 'rating';
 

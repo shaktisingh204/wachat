@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BarChart3, DollarSign, RefreshCw, TrendingUp } from 'lucide-react';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   actionCompareCampaigns,
   actionGetAccountReport,

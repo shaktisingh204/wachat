@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
-import { Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Input, Label } from '@/components/sabcrm/20ui';
 
 gsap.registerPlugin(useGSAP);
 

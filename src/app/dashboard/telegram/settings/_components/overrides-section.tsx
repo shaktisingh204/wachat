@@ -1,13 +1,13 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input, Switch, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input, Switch, Button, EmptyState } from '@/components/sabcrm/20ui';
 import { UserCog, Trash2 } from 'lucide-react';
 import { SectionCard, SwitchRow } from './shared';
 import { PARSE_MODES, IANA_TIMEZONES } from '../constants';
 import type { ProjectSettings } from '@/lib/rust-client/telegram-settings';
 import { getTelegramBotOverridesAction, saveTelegramBotOverridesAction, clearTelegramBotOverridesAction } from '@/app/actions/telegram-settings.actions';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 interface BotOption {
     _id: string;

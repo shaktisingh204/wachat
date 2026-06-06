@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   BarChart3,
   TrendingUp,

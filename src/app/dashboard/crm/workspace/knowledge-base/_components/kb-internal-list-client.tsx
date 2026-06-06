@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';

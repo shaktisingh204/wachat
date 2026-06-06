@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Plus, Send, MoreHorizontal, Trash2, FileText, Mail } from 'lucide-react';
-import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailCampaign,
   actionDeleteEmailCampaign,

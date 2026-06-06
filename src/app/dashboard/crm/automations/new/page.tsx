@@ -8,7 +8,7 @@ import { Mail, ShoppingCart, Plus } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 
 import { AutomationForm } from '../_components/automation-form';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 

@@ -10,7 +10,7 @@
 import * as React from 'react';
 import { Coins, Copy, Crown, Gift, Share2, Sparkles } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui';
 
 import {
   createRewardsRedemption,

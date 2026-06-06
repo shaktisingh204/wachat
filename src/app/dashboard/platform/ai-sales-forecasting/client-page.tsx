@@ -4,7 +4,7 @@ import { fmtINR } from "@/lib/utils";
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { createSalesForecast, deleteSalesForecast, getSalesForecasts } from '@/app/actions/platform/ai-sales-forecasting.actions';
 import type { AISalesForecast } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';

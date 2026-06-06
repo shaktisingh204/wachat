@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertTitle, AlertDescription, Switch, Badge, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertTitle, AlertDescription, Switch, Badge, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

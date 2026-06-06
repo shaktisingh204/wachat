@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -11,7 +11,7 @@ import { startOfMonth } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Download } from 'lucide-react';
 import { getComplianceData } from './actions';
 import { fmtINR } from '@/lib/utils';

@@ -1,7 +1,7 @@
 "use client";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from "lucide-react";
 
 export default function ErrorBoundary({

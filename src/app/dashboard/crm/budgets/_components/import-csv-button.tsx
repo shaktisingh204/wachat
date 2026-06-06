@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 import { Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

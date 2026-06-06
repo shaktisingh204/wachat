@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui';
 import {
   useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";

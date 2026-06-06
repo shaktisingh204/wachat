@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Input, StatCard } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { Search as SearchIcon } from 'lucide-react';

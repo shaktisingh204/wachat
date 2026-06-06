@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Label } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Label } from '@/components/sabcrm/20ui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {

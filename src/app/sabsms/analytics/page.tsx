@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 

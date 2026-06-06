@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useState, useRef } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';

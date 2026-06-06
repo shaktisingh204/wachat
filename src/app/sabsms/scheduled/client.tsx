@@ -23,7 +23,7 @@ import {
   SabsmsRefreshButton,
 } from "@/components/sabsms/page-toolkit";
 
-import { Button, Badge, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label } from '@/components/sabcrm/20ui';
 
 import {
   loadScheduledSends,

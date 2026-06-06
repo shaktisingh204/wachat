@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
-import { Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, EmptyState } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { saveOKR, deleteOKR } from '@/app/actions/hrm-advanced/okr-tracking';
 import { OKRForm } from './okr-form';
 import { Download, FileText, Plus, Trash2, Search, Filter } from 'lucide-react';

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react';
 import * as React from 'react';
-import { Button, Popover, PopoverContent, PopoverTrigger, Tabs, TabsContent, TabsList, TabsTrigger, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger, Tabs, TabsContent, TabsList, TabsTrigger, ScrollArea } from '@/components/sabcrm/20ui';
 import { Bell, Check, Loader2, Info, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import { cn } from "@/lib/utils";

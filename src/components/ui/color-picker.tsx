@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover, PopoverContent, PopoverTrigger, Button } from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverTrigger, Button } from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import { SketchPicker } from 'react-color';

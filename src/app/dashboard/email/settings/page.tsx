@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertTitle, AlertDescription, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input, Label, Textarea, Switch, Badge, Skeleton, Separator, PageHeader, PageHeading, PageTitle, PageDescription, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input, Label, Textarea, Switch, Badge, Skeleton, Separator, PageHeader, PageHeading, PageTitle, PageDescription, useToast } from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useEffect,

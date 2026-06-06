@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, LogOut, User } from 'lucide-react';
-import { Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, cn } from '@/components/sabcrm/20ui';
 
 // Map path segments to readable labels
 const labelMap: Record<string, string> = {

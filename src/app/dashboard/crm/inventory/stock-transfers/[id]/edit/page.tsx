@@ -10,7 +10,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import * as React from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions';

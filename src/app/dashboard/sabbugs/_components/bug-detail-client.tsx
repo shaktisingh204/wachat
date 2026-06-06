@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {

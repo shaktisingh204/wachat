@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { useDraggable } from '@dnd-kit/core';
 
 import React from 'react';

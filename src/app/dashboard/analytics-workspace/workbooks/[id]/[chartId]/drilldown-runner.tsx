@@ -8,7 +8,7 @@ import type {
   BiChartType,
   BiFilterOp,
 } from '@/lib/rust-client/bi-charts';
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import { ChartPreview } from '../chart-preview';
 

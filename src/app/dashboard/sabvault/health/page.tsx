@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, StatCard, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, StatCard, Badge, EmptyState } from '@/components/sabcrm/20ui';
 import { listSabvaultSecrets } from '@/app/actions/sabvault.actions';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 

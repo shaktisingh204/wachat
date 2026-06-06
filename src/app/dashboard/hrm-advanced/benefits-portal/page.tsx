@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { getBenefitPlans } from '@/app/actions/hrm-advanced/benefits-portal';
 import BenefitsPortalClient from './client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

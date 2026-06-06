@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Card, Badge, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button } from '@/components/sabcrm/20ui';
 import { bulkDeleteOldRuns } from '@/app/actions/crm-reports.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from 'recharts';
 

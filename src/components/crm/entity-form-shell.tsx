@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 import {
   LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';

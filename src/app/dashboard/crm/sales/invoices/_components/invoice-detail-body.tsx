@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 /**
  * <InvoiceDetailBody> — body cards on the invoice detail page.
  *

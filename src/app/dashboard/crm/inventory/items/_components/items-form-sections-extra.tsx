@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Upload, X } from 'lucide-react';
 
 /**

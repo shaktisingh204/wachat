@@ -14,10 +14,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientInvoiceById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';

@@ -5,7 +5,7 @@ import {
   getPublicInvoice,
   markInvoiceViewed,
 } from '@/app/actions/public-invoice.actions';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 

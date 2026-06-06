@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { TagsClient } from '@/components/email/audience/tags-client';
 import { Tag } from 'lucide-react';

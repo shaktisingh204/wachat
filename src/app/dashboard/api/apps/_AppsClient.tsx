@@ -6,7 +6,7 @@ import {
   deleteOAuthApp,
   type OAuthAppRow,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardBody, Button, Input, Textarea, Label, Alert, AlertDescription, EmptyState, Separator, Progress, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Textarea, Label, Alert, AlertDescription, EmptyState, Separator, Progress, Badge } from '@/components/sabcrm/20ui';
 import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity, BarChart2 } from 'lucide-react';
 
 interface Props {

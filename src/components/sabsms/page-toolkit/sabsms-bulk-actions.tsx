@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Check, X } from "lucide-react";
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 export interface SabsmsBulkAction<T> {
   label: string;

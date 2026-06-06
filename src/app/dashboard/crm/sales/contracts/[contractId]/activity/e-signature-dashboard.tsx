@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Badge, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Badge, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { Mail, CheckCircle2, Clock, XCircle } from 'lucide-react';
 
 interface Signer {

@@ -6,7 +6,7 @@ import { ChevronLeft, Download, RefreshCw, FileSpreadsheet, FileText } from 'luc
 import * as LucideIcons from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import { Button, Card, DateRangePicker, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DateRangePicker, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**

@@ -8,7 +8,7 @@ import * as React from 'react';
 import { Bookmark, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui';
 
 import {
     listMyBookmarks,

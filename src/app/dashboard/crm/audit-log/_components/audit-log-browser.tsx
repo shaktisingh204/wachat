@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';

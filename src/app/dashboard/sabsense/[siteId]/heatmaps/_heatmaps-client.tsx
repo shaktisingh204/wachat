@@ -4,7 +4,7 @@ import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Monitor, Smartphone, Tablet, RefreshCw } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, useToast } from '@/components/sabcrm/20ui';
 
 import { regenerateHeatmapSnapshot } from '@/app/actions/sabsense.actions';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';

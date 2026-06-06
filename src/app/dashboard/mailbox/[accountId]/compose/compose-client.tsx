@@ -23,7 +23,7 @@ import {
     sendMailMessage,
 } from '@/app/actions/mailbox.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui';
 
 interface ChipInputProps {
     id: string;

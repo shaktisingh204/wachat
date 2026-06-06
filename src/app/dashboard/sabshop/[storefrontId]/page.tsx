@@ -13,7 +13,7 @@ import {
     Users
 } from 'lucide-react';
 
-import { Card, CardBody, CardHeader, CardTitle, Button, Badge, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Badge, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { getStorefront } from '@/app/actions/sabshop.actions';
 

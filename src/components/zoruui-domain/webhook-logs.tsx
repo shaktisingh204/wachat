@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Card, CardBody as CardContent, CardDescription, CardHeader, CardTitle, Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Skeleton, useToast, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Card, CardBody as CardContent, CardDescription, CardHeader, CardTitle, Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Skeleton, useToast, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,

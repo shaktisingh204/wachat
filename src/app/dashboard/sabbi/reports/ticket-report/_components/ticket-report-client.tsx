@@ -27,7 +27,7 @@ import {
 } from 'recharts';
 import { Download, FileSpreadsheet, AlertTriangle, AlertCircle, Star } from 'lucide-react';
 
-import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {

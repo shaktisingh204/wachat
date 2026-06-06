@@ -40,7 +40,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronsUpDown, UserMinus, UserPlus } from 'lucide-react';
 
-import { Avatar, AvatarImage, AvatarFallback, Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarImage, AvatarFallback, Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, cn, useToast } from '@/components/sabcrm/20ui';
 
 import { assignRecordAction } from '@/app/actions/sabcrm.actions';
 

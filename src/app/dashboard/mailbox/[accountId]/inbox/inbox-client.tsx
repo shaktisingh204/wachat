@@ -29,7 +29,7 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
 import type { MailMessageDoc } from '@/lib/rust-client/mail-messages';
-import { Badge, Button, Card, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui';
 
 type SortKey = 'date' | 'sender' | 'subject';
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import { getPublicLeadForm } from '@/app/actions/public-lead-form.actions';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { LeadFormClient } from './lead-form-client';
 
 export const dynamic = 'force-dynamic';

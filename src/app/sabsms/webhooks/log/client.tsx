@@ -4,7 +4,7 @@ import * as React from "react";
 import { formatUTC } from "@/lib/utils";
 import { Copy, FileJson, Play, RefreshCw, ServerCrash, Clock, AlertTriangle, Code2, TerminalSquare, Activity, ShieldCheck } from "lucide-react";
 
-import { Alert, AlertTitle, AlertDescription, Badge, Button, ScrollArea, Card, CardHeader, CardTitle, CardBody, useToast, Kbd, ResizablePanelGroup, ResizablePanel, ResizableHandle, Input } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Badge, Button, ScrollArea, Card, CardHeader, CardTitle, CardBody, useToast, Kbd, ResizablePanelGroup, ResizablePanel, ResizableHandle, Input } from '@/components/sabcrm/20ui';
 
 import {
   useSabsmsUrlState,

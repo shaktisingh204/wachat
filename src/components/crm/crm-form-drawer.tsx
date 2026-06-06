@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button } from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button } from '@/components/sabcrm/20ui';
 import { FilePlus2, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export interface FormSection {

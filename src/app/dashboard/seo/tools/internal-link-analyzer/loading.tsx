@@ -1,4 +1,4 @@
-import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function LoadingSkeleton() {
   return (

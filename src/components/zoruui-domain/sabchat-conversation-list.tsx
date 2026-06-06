@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Button, Input } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Button, Input } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Search,

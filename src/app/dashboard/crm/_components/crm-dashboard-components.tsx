@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Card, ScrollArea, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Card, ScrollArea, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   Users,
   UserPlus,

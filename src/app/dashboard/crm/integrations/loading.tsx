@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { HubKpiGrid } from '../_components/hub-kpi-grid';
 import { IntegrationsSearch } from './_components/integrations-search';

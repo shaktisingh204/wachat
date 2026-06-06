@@ -8,7 +8,7 @@ import type { DateRange } from 'react-day-picker';
 import { useDebouncedCallback } from 'use-debounce';
 import { Plus, Target, Upload } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui';
 
 import { SabFileToFileButton } from '@/components/sabfiles';
 

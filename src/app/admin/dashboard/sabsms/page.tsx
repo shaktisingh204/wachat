@@ -5,7 +5,7 @@ import { getAdminSession } from '@/lib/admin-session';
 import { sabsmsEngine, SabsmsEngineError } from '@/lib/sabsms/engine-client';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SABSMS_COLLECTIONS } from '@/lib/sabsms/db/collections';
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, StatCard } from '@/components/sabcrm/20ui';
 import { SabsmsHistoricalChart } from './HistoricalChart';
 import { QueueActions } from './QueueActions';
 

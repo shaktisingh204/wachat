@@ -14,7 +14,7 @@ import { getExportHistory } from './_components/export-history.actions';
 import { hasPermissionGroup } from '@/lib/permission-groups/check';
 import { format } from 'date-fns';
 import { Suspense } from 'react';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

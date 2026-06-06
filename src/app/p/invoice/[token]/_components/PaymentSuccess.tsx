@@ -1,4 +1,4 @@
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 export function PaymentSuccess() {
   return (

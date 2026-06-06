@@ -8,7 +8,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { createSprint } from '@/app/actions/agile.actions';
 
 export function SprintCreateForm({ projectId }: { projectId: string }) {

@@ -1,4 +1,4 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   headers } from 'next/headers';
 import { getCachedSession } from '@/lib/server-cache';

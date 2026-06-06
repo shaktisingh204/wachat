@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 
 export function StockTransferDetailTabs({
   children,

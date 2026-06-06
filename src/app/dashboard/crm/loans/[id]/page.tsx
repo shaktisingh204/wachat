@@ -1,4 +1,4 @@
-import { Badge, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

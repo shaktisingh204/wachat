@@ -6,7 +6,7 @@
  */
 import { Activity, Search, Filter, ExternalLink, Download, FileText } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageHeading, PageTitle, PageDescription, Input } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageHeading, PageTitle, PageDescription, Input } from '@/components/sabcrm/20ui';
 
 import { listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutSessionStatus } from '@/lib/rust-client/sabcheckout-sessions';

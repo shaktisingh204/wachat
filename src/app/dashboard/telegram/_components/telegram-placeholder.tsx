@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { type LucideIcon } from 'lucide-react';

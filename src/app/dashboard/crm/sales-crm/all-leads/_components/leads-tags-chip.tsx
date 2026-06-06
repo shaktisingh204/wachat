@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui';
 import {
   Tag,
   X } from 'lucide-react';

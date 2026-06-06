@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle } from 'lucide-react';
-import { Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { ShiftForm } from './shift-form';
 import { saveShift } from '@/app/actions/crm-shifts.actions';

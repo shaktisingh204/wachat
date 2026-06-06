@@ -4,12 +4,12 @@ import React, { useMemo, useState, useEffect, useRef, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table";
 import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer, LuCircle } from "react-icons/lu";
 
-import { DataTable } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
-import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { DataTable } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
+import { Card } from '@/components/sabcrm/20ui';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

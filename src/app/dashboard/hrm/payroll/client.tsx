@@ -1,7 +1,7 @@
 'use client';
 
-import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Progress } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Progress } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

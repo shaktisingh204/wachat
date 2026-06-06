@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { NewFormWizard } from './new-form-wizard';
 import { getCrmForms } from '@/app/actions/crm-forms.actions';
 import { getSession } from '@/app/actions/user.actions';

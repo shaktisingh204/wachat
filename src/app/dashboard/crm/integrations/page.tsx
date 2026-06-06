@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Badge, Card, cn, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, cn, Skeleton } from '@/components/sabcrm/20ui';
 import { AlertTriangle, Link2, Link2Off, Plus } from 'lucide-react';
 import Link from 'next/link';
 

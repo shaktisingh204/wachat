@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { ClientPage } from './client-page';
 import { getExpenseClaims } from '@/app/actions/hrm-advanced/expense-policy';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export const dynamic = 'force-dynamic';

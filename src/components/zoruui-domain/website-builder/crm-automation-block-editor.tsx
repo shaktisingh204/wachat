@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui';
 export function CrmAutomationBlockEditor({ settings, onUpdate, availableAutomations }: { settings: any, onUpdate: (newSettings: any) => void, availableAutomations?: any[] }) {
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });

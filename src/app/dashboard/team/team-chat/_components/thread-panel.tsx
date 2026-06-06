@@ -8,7 +8,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import { Loader, Send, X } from 'lucide-react';
 
-import { Button, Input, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui';
 
 import {
     getMessageThread,

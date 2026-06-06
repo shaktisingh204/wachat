@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { Button, Input, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, cn, useToast } from '@/components/sabcrm/20ui';
 import { Folder, Plus, Trash2, LoaderCircle, FolderX } from 'lucide-react';
 import {
     getCollections, createCollection, deleteCollection,

@@ -1,5 +1,5 @@
 import { listDeveloperKeys, getUsageByKey, getUsageLogs } from '@/app/actions/developer-platform.actions';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Alert, AlertDescription } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 import { KeysClient } from './_KeysClient';
 

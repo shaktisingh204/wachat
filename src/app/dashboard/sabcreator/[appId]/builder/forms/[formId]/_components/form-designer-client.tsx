@@ -25,7 +25,7 @@ import {
   Type,
 } from 'lucide-react';
 
-import { Badge, Button, Card, Checkbox, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
 import { updateSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
 import type {

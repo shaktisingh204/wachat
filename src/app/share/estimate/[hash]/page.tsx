@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicEstimate } from '@/app/actions/public-estimate.actions';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { EstimateActionsPanel } from './estimate-actions-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 

@@ -8,7 +8,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 import { createSabcatalystProject } from '@/app/actions/sabcatalyst.actions';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import type { ProjectRuntime } from '@/lib/rust-client/sabcatalyst-projects';
 
 const RUNTIMES: ProjectRuntime[] = ['nodejs20', 'python311', 'deno', 'bun'];

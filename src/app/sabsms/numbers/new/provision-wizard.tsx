@@ -25,7 +25,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui';
 
 import type { SabsmsNumberType, SabsmsProviderId } from "@/lib/sabsms/types";
 

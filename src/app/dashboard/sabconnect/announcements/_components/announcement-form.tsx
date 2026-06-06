@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {

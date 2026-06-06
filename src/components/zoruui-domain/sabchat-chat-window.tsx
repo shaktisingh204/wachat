@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, Input } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, Input } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useRef,

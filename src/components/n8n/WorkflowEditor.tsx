@@ -18,7 +18,7 @@ import { N8NNodesList } from './nodes/N8NNodesList';
 import { N8NNodeRegistry } from './nodes/N8NNodeProperties';
 import type { N8NCanvasWorkflow, N8NCanvasNode } from './types';
 import { WORKFLOW_TEMPLATES, WorkflowTemplate } from './WorkflowTemplates';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import { createId } from '@paralleldrive/cuid2';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 /**
  * Forge block: LDAP
  *

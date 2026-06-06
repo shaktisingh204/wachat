@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Dialog, Input, Label, Badge, Card } from '@/components/sabcrm/20ui/compat';
-import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, Input, Label, Badge, Card } from '@/components/sabcrm/20ui';
+import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { getSocialMediaListenings, createSocialMediaListening, updateSocialMediaListening, deleteSocialMediaListening } from '@/app/actions/crm-advanced/social-media-listening';
 import type { SocialMediaListeningType } from '@/app/actions/crm-advanced/social-media-listening.schema';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';

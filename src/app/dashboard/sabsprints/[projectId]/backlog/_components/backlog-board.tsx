@@ -10,7 +10,7 @@
  */
 import { useMemo, useState, useTransition } from 'react';
 
-import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui';
 import {
   createStory,
   reorderStories,

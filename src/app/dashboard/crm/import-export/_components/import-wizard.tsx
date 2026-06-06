@@ -28,7 +28,7 @@ import {
     Download,
 } from 'lucide-react';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
     ENTITY_SCHEMAS,
     listEntitySchemas,

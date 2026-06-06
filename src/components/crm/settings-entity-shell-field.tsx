@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 /**
  * Internal helpers for <SettingsEntityShell>:
  *  - FieldRenderer: renders one form field by `SettingsField` shape

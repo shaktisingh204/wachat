@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui';
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';

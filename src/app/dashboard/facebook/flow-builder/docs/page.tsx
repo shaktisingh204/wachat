@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Separator } from '@/components/sabcrm/20ui';
 import {
   useParams,
   useRouter } from 'next/navigation';

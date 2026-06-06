@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SheetFooter } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SheetFooter } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { assignTaskToEmployee } from '@/app/actions/hrm-portal.actions';
 import type { CrmTask } from '@/lib/definitions';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';

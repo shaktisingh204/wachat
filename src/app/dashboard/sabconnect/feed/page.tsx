@@ -10,7 +10,7 @@
 
 import Link from 'next/link';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui';
 
 import {
     getSabConnectFeed,

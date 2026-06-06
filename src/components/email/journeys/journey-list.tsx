@@ -12,7 +12,7 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
-import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, toast } from '@/components/sabcrm/20ui';
 import {
   actionActivateEmailJourney,
   actionCloneEmailJourney,

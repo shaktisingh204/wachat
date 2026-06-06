@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 
 export default function BacklinkCheckerError({
   error,

@@ -1,7 +1,7 @@
 'use client';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { useParams } from 'next/navigation';
 
 export default function BudgetActivityLoading() {

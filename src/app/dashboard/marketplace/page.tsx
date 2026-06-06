@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import { Store } from 'lucide-react';
 import { listApps, listInstallsForTenant } from '@/lib/marketplace';
 import type { AppListFilter } from '@/lib/marketplace';

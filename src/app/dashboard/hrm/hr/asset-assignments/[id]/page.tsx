@@ -1,5 +1,5 @@
 import { fmtDate } from '@/lib/utils';
-import { Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Card } from '@/components/sabcrm/20ui';
 import { notFound, redirect } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';

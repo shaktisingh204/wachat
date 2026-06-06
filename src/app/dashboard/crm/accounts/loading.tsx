@@ -1,5 +1,5 @@
 import { Building2 } from 'lucide-react';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function AccountsLoading() {
     return (

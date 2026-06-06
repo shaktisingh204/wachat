@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { AlertTriangle, Inbox } from "lucide-react";
 
-import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 
 export interface SabsmsEmptyProps {
   icon?: React.ReactNode;

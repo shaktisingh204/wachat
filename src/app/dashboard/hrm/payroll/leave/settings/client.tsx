@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Input, Label, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Input, Label, Switch, useToast } from '@/components/sabcrm/20ui';
 import { useOptimistic, useEffect, useState, useTransition } from 'react';
 import { LoaderCircle, Save } from 'lucide-react';
 

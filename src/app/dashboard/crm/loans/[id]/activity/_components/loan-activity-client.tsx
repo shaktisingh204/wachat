@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { addManualLogEntry } from '../actions';
 import { toast } from 'sonner';
 

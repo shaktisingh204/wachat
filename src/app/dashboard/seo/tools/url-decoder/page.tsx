@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Label, cn, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Label, cn, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

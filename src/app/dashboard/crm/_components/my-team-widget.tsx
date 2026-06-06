@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { Users2 } from 'lucide-react';
 
-import { Avatar, AvatarFallback, Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';
 import { getEmployeeAssignmentStats } from '@/app/actions/crm-assignment.actions';
 

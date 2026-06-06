@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   use,
   useEffect,
@@ -16,7 +16,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

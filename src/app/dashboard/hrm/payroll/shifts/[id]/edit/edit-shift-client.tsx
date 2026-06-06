@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ShiftForm } from '../../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';
-import { Button, Card, Input, Table, THead, Tr, Th, TBody, Td, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Table, THead, Tr, Th, TBody, Td, Checkbox, useToast } from '@/components/sabcrm/20ui';
 import { Download, Users, AlertCircle, FileText, Trash } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 

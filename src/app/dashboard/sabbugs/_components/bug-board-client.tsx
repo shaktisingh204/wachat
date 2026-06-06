@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 
 import { updateBug } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc, BugStatus } from '@/lib/rust-client/bug-tracker-bugs';

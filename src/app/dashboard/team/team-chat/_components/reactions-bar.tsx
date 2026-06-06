@@ -6,7 +6,7 @@
 import * as React from 'react';
 import { SmilePlus } from 'lucide-react';
 
-import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 
 const QUICK_EMOJIS = ['👍', '❤️', '🎉', '🙏', '😂', '🔥'];
 const PICKER_EMOJIS = [

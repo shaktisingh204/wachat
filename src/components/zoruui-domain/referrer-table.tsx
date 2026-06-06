@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 import { ExternalLink } from 'lucide-react';
 
 interface ReferrerTableProps {

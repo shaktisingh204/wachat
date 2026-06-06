@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Avatar, AvatarFallback, AvatarImage, Separator, Skeleton, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Avatar, AvatarFallback, AvatarImage, Separator, Skeleton, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Card, useToast } from '@/components/sabcrm/20ui';
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
 import { Plus,
   Trash2,

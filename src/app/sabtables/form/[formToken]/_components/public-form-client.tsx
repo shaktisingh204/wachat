@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';
 import type { SabtablesViewDoc } from '@/lib/rust-client/sabtables-views';
 

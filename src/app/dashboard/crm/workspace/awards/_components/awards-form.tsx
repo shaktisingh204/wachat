@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,

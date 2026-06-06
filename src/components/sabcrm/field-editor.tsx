@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { Loader2, Plus, Trash2, GripVertical } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   addFieldAction,
   updateFieldAction,

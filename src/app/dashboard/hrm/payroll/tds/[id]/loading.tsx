@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function LoadingTdsDetail() {

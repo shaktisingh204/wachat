@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, cn, Breadcrumb, BreadcrumbList } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, cn, Breadcrumb, BreadcrumbList } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, Badge, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AssignTaskDrawer } from './assign-task-drawer';
 import { ClipboardPlus, Users } from 'lucide-react';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';

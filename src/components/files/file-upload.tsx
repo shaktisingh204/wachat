@@ -24,7 +24,7 @@ import {
   VideoIcon,
 } from "lucide-react";
 
-import { Button, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { useFileUpload, formatBytes, type FileMetadata } from "./use-file-upload";
 
 // ---------- Demo initial files (safe to remove) ----------

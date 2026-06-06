@@ -1,6 +1,6 @@
 import { Server, ShieldAlert, Package, Send } from "lucide-react";
 
-import { Card, CardBody, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui';
 import {
     listSabopsEndpoints,
     listSabopsAlerts,

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui';
 import { createWebhook, deleteWebhook } from '@/app/actions/platform/webhooks.actions';
 import type { WebhookEndpoint } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Key } from 'lucide-react';

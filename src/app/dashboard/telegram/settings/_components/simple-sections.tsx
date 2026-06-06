@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { Loader2, Sparkles, Clock3, AlertCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
 import type { ProjectSettings } from '@/lib/rust-client/telegram-settings';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui';
 import { Pencil, Trash2, CheckCircle2, XCircle } from 'lucide-react';
 
 /**

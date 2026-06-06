@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 
 export default function EditProductionOrderError({

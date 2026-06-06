@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useEffect } from "react";
 import { useActionState } from "react";

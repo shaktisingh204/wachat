@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { crmAwardProgramsApi } from '@/lib/rust-client/crm-awards';
-import { StatCard } from '@/components/sabcrm/20ui/compat';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { Award, Trophy, Users, Star } from 'lucide-react';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

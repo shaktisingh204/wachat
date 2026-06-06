@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, Component, ErrorInfo, ReactNode } from 'react';
-import { Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import JSZip from 'jszip';

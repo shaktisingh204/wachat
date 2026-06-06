@@ -1,5 +1,5 @@
 import { fmtDate, fmtINR } from '@/lib/utils';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import {
   Award } from 'lucide-react';
 

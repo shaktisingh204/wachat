@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Label, Select, Input, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, Input, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 
 type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 

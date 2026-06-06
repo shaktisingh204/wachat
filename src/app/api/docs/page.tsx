@@ -1,6 +1,6 @@
 import { ArrowLeft, Database, Shield } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardBody, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, cn } from '@/components/sabcrm/20ui';
 import catalogData from './_data/catalog.json';
 import { CodeTerminal, ModuleSelector } from './_components/ClientComponents';
 

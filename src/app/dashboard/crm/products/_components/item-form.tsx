@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Card, useToast, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, useToast, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 import { saveCrmProduct, getCrmProductById } from '@/app/actions/crm-products.actions';
 import { AlertCircle } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { listGlEntrys } from '@/app/actions/finance/gl.actions';
 import { GlEntryListClient } from './_components/gl-list-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

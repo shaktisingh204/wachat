@@ -1,4 +1,4 @@
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { redirect } from "next/navigation";
 import type { WithId } from "mongodb";
 

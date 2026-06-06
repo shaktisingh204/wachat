@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Coins, Gift, RefreshCcw, Share2, Trophy, Users } from 'lucide-react';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard, EmptyState } from '@/components/sabcrm/20ui';
 
 import {
   getRewardsDashboard,

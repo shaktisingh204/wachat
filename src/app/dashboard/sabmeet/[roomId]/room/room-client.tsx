@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Badge, Input, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Input, Textarea } from '@/components/sabcrm/20ui';
 import {
   Mic,
   MicOff,

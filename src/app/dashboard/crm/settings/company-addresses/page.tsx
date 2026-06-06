@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, useToast } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
 import { MapPin,

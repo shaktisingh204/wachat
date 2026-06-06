@@ -1,4 +1,4 @@
-import { Button, Card, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/sabcrm/20ui';
 import {
   getShortUrlById,
   getShortUrlAnalyticsTimeline,

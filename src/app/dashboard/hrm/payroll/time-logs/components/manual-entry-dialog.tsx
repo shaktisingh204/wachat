@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Button, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Button, useToast } from '@/components/sabcrm/20ui';
 import { saveTimeLog } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';
 

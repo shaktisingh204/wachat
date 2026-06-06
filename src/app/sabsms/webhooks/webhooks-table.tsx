@@ -26,7 +26,7 @@ import {
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfiles";
-import { Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui';
 
 import {
   toggleWebhook,

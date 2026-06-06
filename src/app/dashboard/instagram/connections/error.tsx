@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function ErrorBoundary({

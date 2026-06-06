@@ -73,7 +73,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Dock, DockIcon, type DockAccent } from "@/components/ui/dock";
 import { useTabsOptional } from "@/components/tabs";
 import { cn } from "@/lib/utils";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui/compat';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui';
 import { ChevronRight } from "lucide-react";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";

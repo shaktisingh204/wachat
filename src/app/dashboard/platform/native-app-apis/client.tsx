@@ -4,7 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui';
 import { createNativeAppAPIKey, deleteNativeAppAPIKey } from '@/app/actions/platform/native-app-apis.actions';
 import type { NativeAppAPIKey } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, KeyRound } from 'lucide-react';

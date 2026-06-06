@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 /**
  * <ItemsFilters> — collapsible filter row for the items list.
  *

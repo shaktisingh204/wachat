@@ -8,7 +8,7 @@
  */
 
 import * as React from 'react';
-import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { SignaturePad } from '@/components/share/signature-pad';
 import {
   acceptEstimate,

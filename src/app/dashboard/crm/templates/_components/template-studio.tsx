@@ -30,9 +30,9 @@ import {
     RefreshCw
 } from 'lucide-react';
 
-import { Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, Switch, useToast, ColorPicker, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, Switch, useToast, ColorPicker, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui';
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 import { AiCopilotPanel } from './ai-copilot-panel';
 import { VersionHistoryPanel } from './version-history-panel';
 import {

@@ -10,9 +10,9 @@ import { fmtINR } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
 import { getClientEstimates } from '@/app/actions/client-portal.actions';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Table, TBody, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { EstimateRow } from './EstimateRow';
 import { Info } from 'lucide-react';
 

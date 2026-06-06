@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Terminal, FileCode, ArrowRight, Github, Command, Cpu, Code2, Layers, Shield
 } from 'lucide-react';
-import { Button, Badge, Card, Separator, Kbd, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card, Separator, Kbd, ScrollArea } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions';
 
 export default function HomePage() {

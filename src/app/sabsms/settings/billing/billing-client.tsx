@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Badge, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, Tr, Th, TBody, Td, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Progress, StatCard, DataTable } from '@/components/sabcrm/20ui/compat';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Badge, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, Tr, Th, TBody, Td, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Progress, StatCard, DataTable } from '@/components/sabcrm/20ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import {
   CreditCard,
   Download,
@@ -26,7 +26,7 @@ import {
   ShieldAlert,
   MoreHorizontal
 } from "lucide-react";
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 import { fmtDate, fmtINR } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 

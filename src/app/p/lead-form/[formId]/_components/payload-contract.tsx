@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import { Database } from 'lucide-react';
 import type { LeadFormField } from '../types';
 

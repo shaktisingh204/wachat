@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui';
 import { Download, Check, X, Eye } from 'lucide-react';
 import { updateVoucherStatus } from '../extended-actions';
 

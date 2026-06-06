@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export default function EstimatesError({

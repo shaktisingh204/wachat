@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Checkbox, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Label } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Checkbox, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Label } from '@/components/sabcrm/20ui';
 import {
   Table2,
   Upload,

@@ -26,7 +26,7 @@ import { Download, FileSpreadsheet, UserCheck, CalendarClock, AlertTriangle } fr
 import { bulkEscalatePriority, bulkReassignTasks } from '../../_components/local-actions';
 import { toast } from 'sonner';
 
-import { Button, Card, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';

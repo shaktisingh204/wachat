@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Skeleton } from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 import { getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';

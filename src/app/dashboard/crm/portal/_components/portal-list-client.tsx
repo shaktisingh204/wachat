@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   ListChecks,
   Search,
@@ -18,7 +18,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { bulkRevokePortalUsers } from '@/app/actions/crm-portal.actions';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 import {
   PortalKpiStrip,

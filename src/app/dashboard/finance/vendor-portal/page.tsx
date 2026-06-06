@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { listVendors } from '@/app/actions/finance/vendor-portal.actions';
 import { VendorListClient } from './_components/vendor-portal-list-client';
 

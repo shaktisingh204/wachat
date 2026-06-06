@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { listMarketplaceApps } from '@/app/actions/sabchat-admin.actions';
 import { AdminMarketplaceClient } from './_components/admin-marketplace-client';
 

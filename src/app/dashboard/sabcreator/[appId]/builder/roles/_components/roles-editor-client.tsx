@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 
-import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
 import {
   assignSabcreatorRole,
   createSabcreatorRole,

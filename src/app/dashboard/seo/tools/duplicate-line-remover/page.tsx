@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Input, Checkbox, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Input, Checkbox, Card } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Copy, Download, Link, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';

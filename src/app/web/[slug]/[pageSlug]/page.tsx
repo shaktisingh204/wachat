@@ -4,9 +4,9 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { WebsitePage } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 import { Metadata } from 'next';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { Database } from 'lucide-react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 
 async function getPageBySlug(siteSlug: string, pageSlug: string) {

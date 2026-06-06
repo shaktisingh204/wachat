@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, useToast } from '@/components/sabcrm/20ui';
 import { Clock, Bell, Mail, MessageSquare, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {

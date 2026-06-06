@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 import {
   EmailSegmentBuilder,
   emptyFilterTree,

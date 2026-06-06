@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Textarea, Alert, AlertDescription, AlertTitle, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Textarea, Alert, AlertDescription, AlertTitle, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export function CustomHtmlBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {

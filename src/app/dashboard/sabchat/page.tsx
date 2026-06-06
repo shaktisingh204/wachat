@@ -1,6 +1,6 @@
 'use client';
 
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import {
   useEffect } from 'react';
 import { useRouter } from 'next/navigation';

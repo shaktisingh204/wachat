@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Input, Button } from '@/components/sabcrm/20ui';
 
 export function TdsAdjustForm({
     editingRow,

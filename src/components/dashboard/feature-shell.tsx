@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Card, StatCard, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Card, StatCard, EmptyState } from '@/components/sabcrm/20ui';
 
 interface FeatureShellProps {
   title: string;

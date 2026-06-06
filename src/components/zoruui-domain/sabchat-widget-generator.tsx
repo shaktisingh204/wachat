@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, Switch, Textarea, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, Switch, Textarea, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui';
 import {
   useState,
   useMemo,

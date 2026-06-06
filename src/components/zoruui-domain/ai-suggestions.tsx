@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import { Wand2, LoaderCircle, AlertCircle } from 'lucide-react';

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Tag } from 'lucide-react';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, toast } from '@/components/sabcrm/20ui';
 import { actionListEmailTags } from '@/app/actions/email/audience.actions';
 import type { TagWithCount } from '@/lib/rust-client/email-audience';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Label, Textarea } from '@/components/sabcrm/20ui';
 import {
   Sparkles,
   Wand2,

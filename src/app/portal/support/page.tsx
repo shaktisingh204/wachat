@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { AlertTriangle, BookOpen, MessageSquare, Plus } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 import { listSupportTicketsForRequester } from '@/app/actions/helpdesk.actions';
 

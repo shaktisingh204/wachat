@@ -37,7 +37,7 @@ import {
   LuX,
 } from 'react-icons/lu';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */

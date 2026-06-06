@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import {
   createVersion,

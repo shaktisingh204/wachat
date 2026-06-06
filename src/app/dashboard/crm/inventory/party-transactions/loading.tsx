@@ -1,5 +1,5 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { LoaderCircle } from 'lucide-react';
 
 export default function PartyTransactionsLoading() {

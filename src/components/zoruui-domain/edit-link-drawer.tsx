@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { updateShortUrl } from '@/app/actions/url-shortener.actions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import type { WithId } from 'mongodb';
 import type { ShortUrl } from '@/lib/definitions';
 import { Settings, LoaderCircle } from 'lucide-react';

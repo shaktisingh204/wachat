@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react';
-import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from '@/components/sabcrm/20ui';
 import { SignaturePad } from '@/components/share/signature-pad';
 import { signContract } from '@/app/actions/public-contract.actions';
 

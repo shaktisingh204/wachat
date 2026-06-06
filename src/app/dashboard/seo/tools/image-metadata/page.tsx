@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useState } from 'react';
 import EXIF from 'exif-js';
 import { fmtDate } from '@/lib/utils';

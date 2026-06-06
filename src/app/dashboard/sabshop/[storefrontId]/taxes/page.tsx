@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Badge, Checkbox, useToast, Switch, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Badge, Checkbox, useToast, Switch, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Receipt, Search, ArrowLeft, Percent } from 'lucide-react';
 
 import { listTaxRules, upsertTaxRule, deleteTaxRule } from '@/app/actions/sabshop.actions';

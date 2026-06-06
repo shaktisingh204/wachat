@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge, EmptyState, Table } from '@/components/sabcrm/20ui/compat';
+import { Badge, EmptyState, Table } from '@/components/sabcrm/20ui';
 import type { SabpublishSyncJobDoc } from '@/lib/rust-client/sabpublish-sync-jobs';
 
 export function SabpublishSyncHistoryTab({

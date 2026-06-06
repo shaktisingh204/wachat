@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
+import { Checkbox, useToast } from '@/components/sabcrm/20ui';
 /**
  * <TaskChecklist> — interactive checklist for the task detail page.
  *

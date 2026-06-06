@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ScrollArea, ScrollBar } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, ScrollBar } from '@/components/sabcrm/20ui';
 import { PlanCard } from './plan-card';
 import type { Plan, WithId } from '@/lib/definitions';
 

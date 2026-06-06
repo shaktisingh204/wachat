@@ -1,6 +1,6 @@
 'use client';
 
-import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast, Breadcrumb } from '@/components/sabcrm/20ui/compat';
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast, Breadcrumb } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,

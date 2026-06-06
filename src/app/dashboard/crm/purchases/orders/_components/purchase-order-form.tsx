@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   useSearchParams } from 'next/navigation';
 import { useFormStatus } from 'react-dom';

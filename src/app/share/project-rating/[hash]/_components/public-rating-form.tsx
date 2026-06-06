@@ -11,7 +11,7 @@
 
 import { useState, useTransition } from 'react';
 import { Star, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
-import { Button, Label, Textarea, Input, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Textarea, Input, cn } from '@/components/sabcrm/20ui';
 import {
   submitProjectRating,
   type PublicProjectRatingCategories,

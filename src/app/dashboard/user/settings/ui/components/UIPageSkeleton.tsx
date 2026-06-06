@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, CardFooter, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardBody, CardFooter, Skeleton } from '@/components/sabcrm/20ui';
 
 export function UIPageSkeleton() {
     return (

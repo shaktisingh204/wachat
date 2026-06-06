@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui';
 /**
  * <DiscussionsRepliesPanel> — client island rendered inside the detail
  * page. Loads replies on mount, owns the composer + per-row delete.

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label, useToast, Skeleton, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label, useToast, Skeleton, DialogDescription } from '@/components/sabcrm/20ui';
 import { MoreVertical, BarChart, Settings, QrCode as QrCodeIcon, Download, Trash, Plus } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { updateShortUrl, getShortUrlAnalyticsGeo } from '@/app/actions/url-shortener.actions';

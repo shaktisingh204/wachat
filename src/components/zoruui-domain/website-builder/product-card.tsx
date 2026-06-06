@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import Image from 'next/image';
 

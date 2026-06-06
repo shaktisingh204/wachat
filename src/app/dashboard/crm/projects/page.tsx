@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { Image as ImageIcon, X } from 'lucide-react';
 /**

@@ -23,7 +23,7 @@
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 
 export interface ComingSoonProps {
   /** Page title (e.g. "Inbox", "Bulk sender"). */

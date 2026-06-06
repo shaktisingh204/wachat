@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;

@@ -7,10 +7,10 @@
  */
 import Link from 'next/link';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { listSabshowDecks } from '@/app/actions/sabshow.actions';
 
 import { NewDeckButton } from './_components/new-deck-button';

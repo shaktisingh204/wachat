@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Button, Switch, Badge, Label } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Switch, Badge, Label } from '@/components/sabcrm/20ui';
 import {
   moduleCategories,
   permissionActions } from '@/lib/permission-modules';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Button, Input, Textarea, Label, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { FileText, File as FileIcon, Copy, Loader2, UploadCloud, X } from 'lucide-react';
 import md5 from 'md5';

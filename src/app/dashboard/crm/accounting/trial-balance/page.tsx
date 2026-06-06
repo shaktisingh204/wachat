@@ -22,7 +22,7 @@ import {
     FileText,
 } from 'lucide-react';
 
-import { Alert, AlertDescription, AlertTitle, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Card } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Card } from '@/components/sabcrm/20ui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Input, Button } from '@/components/sabcrm/20ui';
 import type { StatusFilter } from '../page';
 
 export interface ReportsFilterProps {

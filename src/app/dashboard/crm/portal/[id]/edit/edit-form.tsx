@@ -20,7 +20,7 @@
  */
 
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { z } from 'zod';

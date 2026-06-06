@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Card, CardBody, cn, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Button, Table, THead, TBody, Tr, Th, Td, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Card, CardBody, cn, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Button, Table, THead, TBody, Tr, Th, Td, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useEffect } from 'react';
 import { Info, Save, History, TrendingUp, MousePointerClick, Target, LayoutDashboard } from 'lucide-react';
 

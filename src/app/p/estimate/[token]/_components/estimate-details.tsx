@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import { fmtDate, fmtDateTime } from '@/lib/worksuite/format';
 import { FileText, Database } from 'lucide-react';
 

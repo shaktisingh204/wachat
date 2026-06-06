@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { getWebhookLogs } from '@/app/actions/crm-integrations.actions';
 
 function fmtDate(value: unknown): string {

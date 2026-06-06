@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Eye, MousePointerClick, Mailbox, UserMinus, Inbox, Activity } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, StatCard } from '@/components/sabcrm/20ui';
 import {
   actionGetEmailCampaign,
   actionGetEmailCampaignReport,

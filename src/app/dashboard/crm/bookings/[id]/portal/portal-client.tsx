@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Label, Textarea, DatePicker } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Label, Textarea, DatePicker } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { cancelBooking, rescheduleBooking } from '@/app/actions/crm/bookings.actions';
 import { Loader2 } from 'lucide-react';
 

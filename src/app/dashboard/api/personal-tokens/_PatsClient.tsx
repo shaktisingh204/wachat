@@ -5,7 +5,7 @@ import {
   createPersonalToken,
   revokePersonalToken,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Alert, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Alert, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui';
 import { TriangleAlert, Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {

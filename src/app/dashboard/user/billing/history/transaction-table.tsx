@@ -1,4 +1,4 @@
-import { Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui';
 import { Receipt } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

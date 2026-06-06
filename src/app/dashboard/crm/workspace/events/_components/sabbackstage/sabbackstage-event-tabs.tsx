@@ -9,7 +9,7 @@
  */
 
 import * as React from 'react';
-import { Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 
 import { SabbackstageTicketingTab } from './sabbackstage-ticketing-tab';
 import { SabbackstageSponsorsTab } from './sabbackstage-sponsors-tab';

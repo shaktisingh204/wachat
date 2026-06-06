@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import * as React from 'react';
 

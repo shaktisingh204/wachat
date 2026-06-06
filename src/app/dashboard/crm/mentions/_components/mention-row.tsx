@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, useToast } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 

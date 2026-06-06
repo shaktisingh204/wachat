@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export default function ErrorBoundary({

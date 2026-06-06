@@ -1,4 +1,4 @@
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 import { ArrowUpRight } from 'lucide-react';
 
 import Link from 'next/link';

@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Sparkles, LoaderCircle, Check, Copy, RefreshCw, Send, ArrowRight } from 'lucide-react';
-import { Button, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 
 interface AiCopilotPanelProps {
     templateType: 'email' | 'sms' | 'whatsapp' | 'document';

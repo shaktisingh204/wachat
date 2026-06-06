@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast, StatCard } from '@/components/sabcrm/20ui';
 import {
   Check,
   GitCompare, Save, Download } from 'lucide-react';

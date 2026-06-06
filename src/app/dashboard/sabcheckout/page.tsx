@@ -7,7 +7,7 @@
 import Link from 'next/link';
 import { Plus, LayoutDashboard, CreditCard, Activity, Package, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui';
 
 import { listSabcheckoutPages, listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutPageStatus } from '@/lib/rust-client/sabcheckout-pages';

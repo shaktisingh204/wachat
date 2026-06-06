@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { Plus, ShoppingCart, Store } from 'lucide-react';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

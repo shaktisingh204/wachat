@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Mail, Inbox, Ticket, ArrowUpRight } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ModuleConnectionWizard,

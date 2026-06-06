@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Separator, Accordion } from '@/components/sabcrm/20ui/compat';
+import { Button, Separator, Accordion } from '@/components/sabcrm/20ui';
 import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid, ShoppingCart as CartIcon, Zap } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   Download,
   FileSpreadsheet,

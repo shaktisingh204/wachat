@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
@@ -16,7 +16,7 @@ import {
 import { addCustomDomain, verifyCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
 export type StepperState =
   | { step: 'idle' }

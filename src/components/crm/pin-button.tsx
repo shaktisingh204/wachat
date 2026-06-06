@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Pin, PinOff } from 'lucide-react';
-import { Button, useToast } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
 import {
   togglePin,
   isPinned,

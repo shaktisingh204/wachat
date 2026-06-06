@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
 import React,

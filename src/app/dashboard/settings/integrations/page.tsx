@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn } from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import {

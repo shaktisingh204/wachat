@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Textarea, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Textarea, Badge, cn } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 
 import { Download, Layers, Play, Sparkles, Copy, Check } from 'lucide-react';

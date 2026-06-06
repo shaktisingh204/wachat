@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Input, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   Check,
   Copy,

@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { getPublicProjectRating } from '@/app/actions/public-project-rating.actions';
 import { PublicRatingForm } from './_components/public-rating-form';
 

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';

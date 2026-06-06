@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Input, Textarea, Label, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Input, Textarea, Label, Button, Badge } from '@/components/sabcrm/20ui';
 import type {
     AggregateFunc,
     CastType,

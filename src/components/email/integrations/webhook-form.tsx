@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Check, Copy } from 'lucide-react';
-import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch, toast } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch, toast } from '@/components/sabcrm/20ui';
 import {
   actionCreateEmailWebhook,
   actionUpdateEmailWebhook,

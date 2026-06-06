@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Badge } from '@/components/sabcrm/20ui';
 import {
   UserCheck,
   Banknote,

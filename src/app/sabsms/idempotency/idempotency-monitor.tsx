@@ -17,7 +17,7 @@ import {
   Settings
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard } from '@/components/sabcrm/20ui';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsFilterBar, type SabsmsFacet } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";

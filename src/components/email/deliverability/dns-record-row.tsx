@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
-import { Badge, Button, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, toast } from '@/components/sabcrm/20ui';
 import type { DnsRecord, DnsRecordStatus } from '@/lib/rust-client/email-deliverability';
 
 interface DnsRecordRowProps {

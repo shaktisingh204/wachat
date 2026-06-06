@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Badge, EmptyState, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Badge, EmptyState, ScrollArea, Separator } from '@/components/sabcrm/20ui';
 import type { SabvaultFolderDoc } from '@/lib/rust-client/sabvault-folders';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 

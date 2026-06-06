@@ -18,7 +18,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Copy, Check, ExternalLink, Share2 } from 'lucide-react';
-import { Button, Card, Switch, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Switch, useToast } from '@/components/sabcrm/20ui';
 import {
   ensureWsProjectRatingHash,
   getWsProjectShareState,

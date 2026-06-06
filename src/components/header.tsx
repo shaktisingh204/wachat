@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { SidebarTrigger } from "./ui/sidebar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch, Label, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Switch, Label, Skeleton } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

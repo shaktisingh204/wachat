@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup, Select } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { ChevronsUpDown, Check, LayoutTemplate, File, ShoppingCart } from 'lucide-react';

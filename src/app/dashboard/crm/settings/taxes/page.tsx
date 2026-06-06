@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 import { Percent, Star, BarChart3, TrendingUp } from 'lucide-react';
 
 /**

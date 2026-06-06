@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, Button, Badge } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Calendar, Mail, ArrowLeft, RefreshCw, XCircle } from 'lucide-react';
 

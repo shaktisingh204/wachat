@@ -1,6 +1,6 @@
 'use client';
 
-import { Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger, Label } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger, Label } from '@/components/sabcrm/20ui';
 import { AlertCircle, CheckCircle, ExternalLink, Bot } from "lucide-react";
 import { SeoPageAudit, SeoPageIssue } from "@/lib/seo/definitions";
 import { useState } from "react";
@@ -46,7 +46,7 @@ export function AuditTable({ pages }: { pages: ClientSeoPageAudit[] }) {
     );
 }
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui';
 import { generateMetaTagsAction } from "@/app/actions/seo-ai.actions";
 import { Loader2 } from "lucide-react";
 

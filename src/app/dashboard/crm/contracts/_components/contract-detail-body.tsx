@@ -1,4 +1,4 @@
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 /**
  * <ContractDetailBody> — main content cards for the contract detail page.
  * Server component. Renders: Overview · Parties · Terms & body ·

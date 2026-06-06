@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Database, Plus, ChevronLeft } from 'lucide-react';
 
-import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui';
 import { createSabtablesBase } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesWorkspaceDoc } from '@/lib/rust-client/sabtables-workspaces';

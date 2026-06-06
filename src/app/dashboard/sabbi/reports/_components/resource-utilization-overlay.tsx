@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui';
 
 export function ResourceUtilizationOverlay({ rows }: { rows: any[] }) {
   // Aggregate tasks by owner to show utilization

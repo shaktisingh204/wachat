@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { Package, Download, HardDrive } from 'lucide-react';
 
 export default function InventoryPage() {

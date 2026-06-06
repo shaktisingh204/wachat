@@ -1,12 +1,12 @@
 'use client';
 
-import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { Copy, Check, Wand2, Loader2, Download, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 import { generateAdCopyAction } from './actions';
-import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 
 function CopyText({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

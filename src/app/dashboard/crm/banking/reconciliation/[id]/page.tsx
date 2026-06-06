@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Paperclip, Pencil, Sparkles, CheckCircle2, Clock } from 'lucide-react';

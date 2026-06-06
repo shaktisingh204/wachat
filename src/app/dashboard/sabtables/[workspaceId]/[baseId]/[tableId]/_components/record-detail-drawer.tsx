@@ -8,7 +8,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 
-import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabtablesComment,

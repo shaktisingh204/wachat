@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 
 // Hydration-safe date component

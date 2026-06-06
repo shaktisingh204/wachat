@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 import { listMailDomains } from '@/app/actions/mailbox.actions';
-import { Button, PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Button, PageHeader } from '@/components/sabcrm/20ui';
 
 import { DomainsClient } from './domains-client';
 

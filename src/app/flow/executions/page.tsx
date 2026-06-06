@@ -5,15 +5,15 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowMo
 import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fmtDate, formatUTC } from "@/lib/utils";
 import { Search, Filter, Play, CheckCircle2, Clock, AlertCircle, MoreHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Activity, Zap, MousePointer2, Calendar, Eye, Trash2, XCircle } from "lucide-react";
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui/compat';
-import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 
 type ExecutionTriggerMode = "webhook" | "schedule" | "manual" | "app_event";
 type ExecutionStatus = "completed" | "running" | "failed" | "canceled";

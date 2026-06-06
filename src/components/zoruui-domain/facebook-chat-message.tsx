@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui';
 import {
   cn } from '@/lib/utils';
 import { format } from 'date-fns';

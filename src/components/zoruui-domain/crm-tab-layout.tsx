@@ -1,6 +1,6 @@
 'use client';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, Drawer, DrawerTrigger, Collapsible, CollapsibleContent, CollapsibleTrigger, Separator, Sheet, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, Drawer, DrawerTrigger, Collapsible, CollapsibleContent, CollapsibleTrigger, Separator, Sheet, Badge, cn } from '@/components/sabcrm/20ui';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -88,7 +88,7 @@ import type { Plan,
   Project,
   User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/zoruui-domain/facebook-project-switcher';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui/compat';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui';
 import { ProjectProvider, useProject } from '@/context/project-context';
 
 import React from 'react';

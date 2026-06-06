@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

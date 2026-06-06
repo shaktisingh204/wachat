@@ -8,7 +8,7 @@ import {
   RefreshCw,
   ShieldCheck,
 } from 'lucide-react';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   actionGetDeliverabilityScore,
   actionGetLatestPlacementTest,

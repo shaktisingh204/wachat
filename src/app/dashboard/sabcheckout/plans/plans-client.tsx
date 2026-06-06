@@ -8,7 +8,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Edit3, MoreHorizontal, Copy, RefreshCw } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import {
   createSabcheckoutPlan,

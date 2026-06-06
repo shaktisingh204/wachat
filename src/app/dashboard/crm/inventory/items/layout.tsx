@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;

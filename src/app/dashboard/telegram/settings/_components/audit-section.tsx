@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Table, TBody, Td, Th, THead, Tr, Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Button, Input, EmptyState } from '@/components/sabcrm/20ui';
 import { ChevronRight, ClipboardList, Loader2 } from 'lucide-react';
 import { SectionCard } from './shared';
 import type { AuditRow } from '@/lib/rust-client/telegram-settings';
 import { listTelegramSettingsAuditAction } from '@/app/actions/telegram-settings.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 export function AuditSection({ projectId }: { projectId: string }) {
     const { toast } = useToast();

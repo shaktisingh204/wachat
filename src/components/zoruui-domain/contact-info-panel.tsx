@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Badge, Avatar, AvatarFallback, Tabs, TabsContent, TabsList, TabsTrigger, useToast, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Badge, Avatar, AvatarFallback, Tabs, TabsContent, TabsList, TabsTrigger, useToast, cn } from '@/components/sabcrm/20ui';
 import {
   useState,
   useTransition,

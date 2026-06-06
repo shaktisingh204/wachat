@@ -1,4 +1,4 @@
-import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { PieChart } from 'lucide-react';
 import {
   notFound } from 'next/navigation';

@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { LoaderCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { duplicatePlan } from '@/app/actions/admin-hardening.actions';

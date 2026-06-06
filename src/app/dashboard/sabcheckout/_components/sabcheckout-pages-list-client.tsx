@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Pencil, Search, Filter, MoreHorizontal, Copy, Trash, Archive, BarChart } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 
 import type { SabcheckoutPageDoc } from '@/lib/rust-client/sabcheckout-pages';
 

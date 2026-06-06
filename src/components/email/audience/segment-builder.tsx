@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type {
   EmailFilterGroup,
   EmailFilterLeaf,

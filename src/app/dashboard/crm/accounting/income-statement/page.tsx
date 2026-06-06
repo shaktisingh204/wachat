@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { AlertCircle, LoaderCircle, Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
-import { Alert, AlertDescription, AlertTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateIncomeStatementData } from '@/app/actions/crm-accounting.actions';

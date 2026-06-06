@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { Suspense } from 'react';
 import { performGlobalSearch } from '@/app/actions/platform/global-search.actions';
 import { GlobalSearchClient } from './global-search-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 

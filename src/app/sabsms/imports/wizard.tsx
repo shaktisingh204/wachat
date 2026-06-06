@@ -25,7 +25,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {

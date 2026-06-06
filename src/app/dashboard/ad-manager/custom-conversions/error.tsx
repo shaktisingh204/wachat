@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, AlertTitle, AlertDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Button } from '@/components/sabcrm/20ui';
 import { CircleAlert, RefreshCw } from 'lucide-react';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 

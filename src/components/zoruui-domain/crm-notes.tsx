@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Avatar, AvatarFallback, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Avatar, AvatarFallback, Card, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 

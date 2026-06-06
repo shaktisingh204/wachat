@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 import { Database, FileText } from 'lucide-react';
 
 export default function LoadingEstimate() {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui';
 import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

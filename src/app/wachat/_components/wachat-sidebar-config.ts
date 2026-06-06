@@ -1,4 +1,4 @@
-import { type SidebarGroup } from '@/components/sabcrm/20ui/compat';
+import { type SidebarGroup } from '@/components/sabcrm/20ui';
 import {
   Activity,
   BarChart,

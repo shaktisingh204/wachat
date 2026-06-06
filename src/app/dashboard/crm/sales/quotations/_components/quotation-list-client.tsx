@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus } from 'lucide-react';
 

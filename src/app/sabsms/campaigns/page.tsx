@@ -35,16 +35,16 @@ import {
   RefreshCw
 } from "lucide-react";
 
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui/compat';
-import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 
 type Campaign = {
   id: string;

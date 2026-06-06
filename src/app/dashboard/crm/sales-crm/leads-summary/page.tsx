@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, DatePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, DatePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { format } from 'date-fns';
 import { AlertCircle } from 'lucide-react';

@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,

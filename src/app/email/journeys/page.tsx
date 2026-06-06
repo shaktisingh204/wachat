@@ -20,7 +20,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { Button, Badge, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, Label, Textarea } from '@/components/sabcrm/20ui';
 
 import { 
   Mail, 

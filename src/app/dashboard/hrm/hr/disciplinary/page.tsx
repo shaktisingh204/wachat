@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   Gavel,
   Plus } from 'lucide-react';

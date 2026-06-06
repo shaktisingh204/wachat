@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 
 /* ------------------------------------------------------------------ */
 /*  Shared admin page primitives                                       */

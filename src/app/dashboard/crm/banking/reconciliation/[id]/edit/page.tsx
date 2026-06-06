@@ -9,7 +9,7 @@ import { Suspense } from 'react';
  */
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 import { getReconciliationById } from '@/app/actions/crm-reconciliation.actions';
 import type { CrmReconciliationDoc } from '@/lib/rust-client/crm-reconciliation';

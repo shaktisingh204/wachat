@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import {
   Wallet,
   CircleAlert,

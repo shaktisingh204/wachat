@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';

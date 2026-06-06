@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { FeatureGrid, FeatureCard, Badge, StatCard } from '@/components/sabcrm/20ui/compat';
+import { FeatureGrid, FeatureCard, Badge, StatCard } from '@/components/sabcrm/20ui';
 import { MessageSquare, CheckCircle2, Clock } from "lucide-react";
 import { fmtQty } from "@/lib/utils";
 

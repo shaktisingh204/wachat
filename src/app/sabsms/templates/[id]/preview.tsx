@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Separator } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Separator } from '@/components/sabcrm/20ui';
 
 import type { TemplateEditorMetadata, VariableDefault } from "./types";
 

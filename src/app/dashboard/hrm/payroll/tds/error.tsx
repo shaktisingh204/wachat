@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 
 export default function TdsError({

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Table, TBody, Td, Th, THead, Tr, Badge, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Badge, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { Download, Globe2, Loader2, Trash2 } from 'lucide-react';
 import { NumberRow, SectionCard } from './shared';
 import type { ProjectSettings, GdprRequestRow } from '@/lib/rust-client/telegram-settings';
@@ -8,7 +8,7 @@ import {
     requestTelegramDataDeletionAction,
     requestTelegramDataExportAction,
 } from '@/app/actions/telegram-settings.actions';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui';
 
 export function GdprSection({
     projectId,

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
 
 export default function TrialBalanceError({
     error,

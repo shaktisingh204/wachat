@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Button, Card, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

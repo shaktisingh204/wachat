@@ -1,4 +1,4 @@
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Button } from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Button } from '@/components/sabcrm/20ui';
 import { Trash } from 'lucide-react';
 import type { EmployeeLite } from '../new-timesheet-client';
 

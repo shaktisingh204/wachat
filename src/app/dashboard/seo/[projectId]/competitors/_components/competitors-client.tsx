@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td, Badge, StatCard, Separator, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td, Badge, StatCard, Separator, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import { use, useEffect, useMemo, useState } from 'react';
 import { Swords, Plus, AlertCircle, Link as LinkIcon, Activity } from 'lucide-react';
 import { analyzeGaps, summarizeByCompetitor } from '@/lib/seo-suite/competitors';

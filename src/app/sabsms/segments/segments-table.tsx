@@ -18,7 +18,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator } from '@/components/sabcrm/20ui';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,

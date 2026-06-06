@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody, CardHeader, CardTitle, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, CardHeader, CardTitle, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Badge, cn } from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

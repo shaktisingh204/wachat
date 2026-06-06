@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Globe, Trash2, KeyRound, Copy } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Table, THead, TBody, Tr, Th, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Table, THead, TBody, Tr, Th, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui';
 
 import {
     createPagesenseSite,

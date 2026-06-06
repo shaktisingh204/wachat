@@ -13,7 +13,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { Download, GitMerge, Loader2, X } from 'lucide-react';
 
 import {

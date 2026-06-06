@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Card, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, StatCard } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   Phone,

@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { getPublicGantt } from '@/app/actions/public-gantt.actions';
 import { PublicGanttChart } from './_components/public-gantt-chart';
 import { PdfExportButton } from './_components/pdf-export-button';

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useActionState, useEffect } from 'react';
-import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui';
 import { LoaderCircle, Send, Trash2 } from 'lucide-react';
 import { saveWsIssueComment, deleteWsIssueComment } from '@/app/actions/worksuite/projects.actions';
 import { MarkdownEditor } from './markdown-editor';

@@ -8,7 +8,7 @@
 import * as React from 'react';
 import { GripVertical, Plus, Trash2 } from 'lucide-react';
 
-import { Button, Checkbox, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input } from '@/components/sabcrm/20ui';
 
 export interface ChecklistItem {
   id: string;

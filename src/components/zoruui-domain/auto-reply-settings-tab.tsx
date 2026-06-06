@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Separator } from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import type { WithId,

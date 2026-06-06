@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Checkbox } from '@/components/sabcrm/20ui';
 
 import { createSabConnectManual } from '@/app/actions/sabconnect.actions';
 

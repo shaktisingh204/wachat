@@ -15,7 +15,7 @@ import {
     listMailAccounts,
     listMailDomains,
 } from '@/app/actions/mailbox.actions';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

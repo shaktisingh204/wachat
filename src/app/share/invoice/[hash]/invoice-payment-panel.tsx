@@ -14,7 +14,7 @@
  */
 
 import * as React from 'react';
-import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   recordOfflinePayment,

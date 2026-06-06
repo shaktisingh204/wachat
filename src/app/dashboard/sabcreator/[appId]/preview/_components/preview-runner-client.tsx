@@ -9,7 +9,7 @@
 
 import { useState, useTransition } from 'react';
 
-import { Badge, Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { submitSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type {
   SabcreatorFormDoc,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Popover, PopoverContent, PopoverTrigger, ScrollArea, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Popover, PopoverContent, PopoverTrigger, ScrollArea, Select } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -35,7 +35,7 @@ import {
 
 import * as React from 'react';
 
-import { Calendar } from '@/components/sabcrm/20ui/compat';
+import { Calendar } from '@/components/sabcrm/20ui';
 import { DATE_PRESETS } from '@/components/zoruui-domain/ad-manager/constants';
 
 /* ── Feature lock overlay ──────────────────────────────────────── */

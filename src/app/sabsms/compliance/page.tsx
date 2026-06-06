@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Progress, Switch, Label, Avatar, AvatarImage, AvatarFallback, Table, THead, TBody, Tr, Th, Td, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Progress, Switch, Label, Avatar, AvatarImage, AvatarFallback, Table, THead, TBody, Tr, Th, Td, StatCard } from '@/components/sabcrm/20ui';
 import {
   Download,
   Shield,

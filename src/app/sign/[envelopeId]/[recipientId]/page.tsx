@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input } from '@/components/sabcrm/20ui';
 
 export default function SigningPortalPage() {
   return (

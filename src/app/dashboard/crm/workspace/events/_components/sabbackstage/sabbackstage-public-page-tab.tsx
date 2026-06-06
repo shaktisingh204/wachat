@@ -8,7 +8,7 @@
  */
 
 import * as React from 'react';
-import { Badge, Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import { Copy, Loader2, Save } from 'lucide-react';
 
 import { SabFilePickerButton } from '@/components/sabfiles';

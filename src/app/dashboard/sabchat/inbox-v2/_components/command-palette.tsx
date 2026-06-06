@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui';
 import { SabChatConversation } from "@/lib/rust-client/sabchat";
 
 interface CommandPaletteProps {

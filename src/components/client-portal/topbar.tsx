@@ -10,7 +10,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { LogOut, UserCircle } from 'lucide-react';
 
-import { UserDropdown } from '@/components/sabcrm/20ui/compat';
+import { UserDropdown } from '@/components/sabcrm/20ui';
 
 export interface ClientPortalTopbarProps {
     brandName: string;

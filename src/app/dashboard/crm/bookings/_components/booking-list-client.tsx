@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useRouter,

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
   Pencil } from 'lucide-react';
 

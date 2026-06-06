@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Trash, LoaderCircle, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button, Checkbox } from '@/components/sabcrm/20ui';
 
 export type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 

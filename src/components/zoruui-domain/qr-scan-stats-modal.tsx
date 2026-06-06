@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Skeleton } from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 import { BarChart2, MousePointerClick, Users, Info } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Card, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui';
 import { PublicTaskboardView } from '@/app/actions/public-taskboard.actions';
 
 function formatDate(iso: string | null): string {

@@ -7,7 +7,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui';
 import {
   completeSprint,
   startSprint,

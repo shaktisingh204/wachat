@@ -5,7 +5,7 @@ import {
   SabsmsPageShell,
   SabsmsDataTable,
 } from "@/components/sabsms/page-toolkit";
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox } from '@/components/sabcrm/20ui';
 import { Key, ShieldAlert, Settings, Activity, Upload, Download, Sparkles, MessageSquare, Filter, Code2, ShieldCheck, ListFilter, Globe2 } from "lucide-react";
 
 export default function KeywordsPage() {

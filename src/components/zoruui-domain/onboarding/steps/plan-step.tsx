@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   Check,

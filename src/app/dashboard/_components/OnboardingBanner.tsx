@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Rocket, ArrowRight, CircleCheck, CircleDashed } from "lucide-react";
-import { Button, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, cn } from '@/components/sabcrm/20ui';
 
 const ONBOARDING_STEPS = [
   { key: "profile", label: "Tell us about you" },

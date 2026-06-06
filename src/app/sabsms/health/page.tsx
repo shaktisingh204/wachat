@@ -5,7 +5,7 @@ import {
   Activity, AlertTriangle, CheckCircle2, Globe, List, Power, 
   Server, ShieldAlert, Webhook, Monitor, Zap, Plus, FileText, Settings 
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Card, CardHeader, CardTitle, CardDescription, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td, StatCard, Progress, Switch, Label, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger, Card, CardHeader, CardTitle, CardDescription, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td, StatCard, Progress, Switch, Label, Input, Checkbox } from '@/components/sabcrm/20ui';
 import { SabsmsPageShell, SabsmsRefreshButton } from "@/components/sabsms/page-toolkit";
 import {
   BarChart,

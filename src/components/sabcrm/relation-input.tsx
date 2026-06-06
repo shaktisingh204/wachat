@@ -28,7 +28,7 @@
 import * as React from 'react';
 import { Check, ChevronDown, Minus, Search, X } from 'lucide-react';
 
-import { Badge, Checkbox, Input, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Checkbox, Input, cn } from '@/components/sabcrm/20ui';
 import type { FieldMetadata } from '@/lib/sabcrm/types';
 
 /** A related record id paired with its resolved display label. */

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Badge, Button, Card, CardBody, EmptyState, Label, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, EmptyState, Label, Skeleton } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   Copy,

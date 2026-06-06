@@ -11,7 +11,7 @@ import { notFound, redirect } from 'next/navigation';
 import * as React from 'react';
 import Link from 'next/link';
 import { Receipt } from 'lucide-react';
-import { PageHeader, WaterLoader } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, WaterLoader } from '@/components/sabcrm/20ui';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getBill } from '@/app/actions/crm/bills.actions';

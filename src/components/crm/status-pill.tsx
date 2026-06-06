@@ -1,4 +1,4 @@
-import { Badge, type BadgeProps } from '@/components/sabcrm/20ui/compat';
+import { Badge, type BadgeProps } from '@/components/sabcrm/20ui';
 /**
  * <StatusPill /> — thin convenience wrapper over <Badge> for the
  * recurring `{ label, tone }` shape used across CRM / HRM tables.

@@ -1,6 +1,6 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/sabcrm/20ui/compat';
+import { cn as _zoruCn } from '@/components/sabcrm/20ui';
 void _zoruCn;
 
 import { Gauge } from 'lucide-react';

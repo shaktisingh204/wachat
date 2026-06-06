@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Input, Table, TBody, Td, Th, THead, Tr, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Input, Table, TBody, Td, Th, THead, Tr, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
   Search,
   ShieldAlert,

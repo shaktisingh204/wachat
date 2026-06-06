@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Separator, cn, useToast } from '@/components/sabcrm/20ui';
 import { useEffect, useState, useTransition } from 'react';
 import {
   Folder,

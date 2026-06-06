@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,

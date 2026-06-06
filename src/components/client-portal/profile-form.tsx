@@ -10,12 +10,12 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 import { updateClientProfile } from '@/app/actions/client-portal.actions';
 
 export interface ProfileFormProps {

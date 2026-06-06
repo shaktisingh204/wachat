@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { listBudgets } from '@/app/actions/finance/budgets.actions';
 import { BudgetListClient } from './_components/budgets-list-client';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,4 +1,4 @@
-import { Button, Card, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, StatCard } from '@/components/sabcrm/20ui';
 import {
   Store,
   Package,

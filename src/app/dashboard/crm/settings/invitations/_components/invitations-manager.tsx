@@ -11,7 +11,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, Checkbox, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   Ban,
   CheckCircle2,

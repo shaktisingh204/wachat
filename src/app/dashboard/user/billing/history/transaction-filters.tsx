@@ -1,4 +1,4 @@
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui';
 import { Search, RefreshCw } from 'lucide-react';
 
 export type SortOption = 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc';

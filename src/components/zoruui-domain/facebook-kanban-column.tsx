@@ -1,6 +1,6 @@
 'use client';
 
-import { CardHeader, CardTitle, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { CardHeader, CardTitle, ScrollArea } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import { FacebookKanbanCard } from './facebook-kanban-card';
 import type { WithId, FacebookSubscriber } from '@/lib/definitions';

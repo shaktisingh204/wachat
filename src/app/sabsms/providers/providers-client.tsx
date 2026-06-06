@@ -6,7 +6,7 @@ import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-sh
 import { SabsmsDataTable, SabsmsColumn } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit/sabsms-detail-drawer";
 import { SabsmsFilterBar } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
-import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 import { pingProvidersAction } from "./actions";
 
 export interface ProviderRow {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Trash2, Mail, Pencil, Archive } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
   actionDeleteTransactionalTemplate,
   actionListTransactionalTemplates,

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { FileText, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 

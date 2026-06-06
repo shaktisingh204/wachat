@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
 import { cn as _zoruCn, useState } from 'react';
 import { XMLParser } from 'fast-xml-parser';
 
