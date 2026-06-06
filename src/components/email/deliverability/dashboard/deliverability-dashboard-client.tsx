@@ -13,26 +13,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, XCircle, Clock, AlertCircle, Shield, ShieldOff } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionGetDeliverabilityScore,
   actionListEmailDomains,
@@ -92,7 +73,7 @@ export function DeliverabilityDashboardClient() {
           })),
         );
       } else {
-        zoruToast.error(dRes.error);
+        toast.error(dRes.error);
       }
       if (sRes.ok) {
         setScore(sRes.data?.score ?? null);
@@ -106,19 +87,19 @@ export function DeliverabilityDashboardClient() {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Deliverability dashboard</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Deliverability dashboard</PageTitle>
+          <PageDescription>
             Per-domain reputation, DKIM / SPF / DMARC status, and engagement counters.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" asChild>
             <Link href="/dashboard/email/deliverability">
               Manage domains
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -145,50 +126,50 @@ export function DeliverabilityDashboardClient() {
       ) : (
         <Card>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Domain</ZoruTableHead>
-                <ZoruTableHead>SPF</ZoruTableHead>
-                <ZoruTableHead>DKIM</ZoruTableHead>
-                <ZoruTableHead>DMARC</ZoruTableHead>
-                <ZoruTableHead>Sent</ZoruTableHead>
-                <ZoruTableHead>Open</ZoruTableHead>
-                <ZoruTableHead>Click</ZoruTableHead>
-                <ZoruTableHead>Bounce</ZoruTableHead>
-                <ZoruTableHead>Spam</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Domain</Th>
+                <Th>SPF</Th>
+                <Th>DKIM</Th>
+                <Th>DMARC</Th>
+                <Th>Sent</Th>
+                <Th>Open</Th>
+                <Th>Click</Th>
+                <Th>Bounce</Th>
+                <Th>Spam</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {domains.map((d) => {
                 const c = counters.find((x) => x.domain === d.domain);
                 return (
-                  <ZoruTableRow key={d._id}>
-                    <ZoruTableCell className="font-medium">
+                  <Tr key={d._id}>
+                    <Td className="font-medium">
                       {d.domain}{' '}
                       {d.verified ? (
                         <Badge variant="default">verified</Badge>
                       ) : (
                         <Badge variant="outline">unverified</Badge>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <DnsBadge record={d.spf} />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <DnsBadge record={d.dkim} />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <DnsBadge record={d.dmarc} />
-                    </ZoruTableCell>
-                    <ZoruTableCell>{c?.sentCount ?? 0}</ZoruTableCell>
-                    <ZoruTableCell>{pct(c?.openCount ?? 0, c?.sentCount ?? 0)}</ZoruTableCell>
-                    <ZoruTableCell>{pct(c?.clickCount ?? 0, c?.sentCount ?? 0)}</ZoruTableCell>
-                    <ZoruTableCell>{pct(c?.bounceCount ?? 0, c?.sentCount ?? 0)}</ZoruTableCell>
-                    <ZoruTableCell>{pct(c?.spamCount ?? 0, c?.sentCount ?? 0)}</ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                    <Td>{c?.sentCount ?? 0}</Td>
+                    <Td>{pct(c?.openCount ?? 0, c?.sentCount ?? 0)}</Td>
+                    <Td>{pct(c?.clickCount ?? 0, c?.sentCount ?? 0)}</Td>
+                    <Td>{pct(c?.bounceCount ?? 0, c?.sentCount ?? 0)}</Td>
+                    <Td>{pct(c?.spamCount ?? 0, c?.sentCount ?? 0)}</Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

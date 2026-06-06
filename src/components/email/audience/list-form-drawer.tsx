@@ -1,19 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-  Button,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerFooter,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Input,
-  Label,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, Input, Label, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailList,
   actionUpdateEmailList,
@@ -43,7 +31,7 @@ export function EmailListFormDrawer({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      zoruToast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: 'Name is required', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -58,25 +46,25 @@ export function EmailListFormDrawer({
         : await actionCreateEmailList(payload);
 
       if (!result.ok) {
-        zoruToast({ title: 'Save failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Save failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: isEdit ? 'List updated' : 'List created' });
+      toast({ title: isEdit ? 'List updated' : 'List created' });
       onSaved();
       onOpenChange(false);
     });
   };
 
   return (
-    <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-      <ZoruDrawerContent>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
-          <ZoruDrawerHeader>
-            <ZoruDrawerTitle>{isEdit ? 'Edit list' : 'New list'}</ZoruDrawerTitle>
-            <ZoruDrawerDescription>
+          <DrawerHeader>
+            <DrawerTitle>{isEdit ? 'Edit list' : 'New list'}</DrawerTitle>
+            <DrawerDescription>
               Lists hold subscribers and act as the default audience for campaigns.
-            </ZoruDrawerDescription>
-          </ZoruDrawerHeader>
+            </DrawerDescription>
+          </DrawerHeader>
 
           <div className="flex-1 overflow-y-auto px-6 space-y-4">
             <div className="space-y-2">
@@ -122,7 +110,7 @@ export function EmailListFormDrawer({
             </div>
           </div>
 
-          <ZoruDrawerFooter className="flex flex-row gap-2 justify-end border-t">
+          <DrawerFooter className="flex flex-row gap-2 justify-end border-t">
             <Button
               type="button"
               variant="outline"
@@ -134,9 +122,9 @@ export function EmailListFormDrawer({
             <Button type="submit" disabled={pending}>
               {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Create list'}
             </Button>
-          </ZoruDrawerFooter>
+          </DrawerFooter>
         </form>
-      </ZoruDrawerContent>
-    </ZoruDrawer>
+      </DrawerContent>
+    </Drawer>
   );
 }

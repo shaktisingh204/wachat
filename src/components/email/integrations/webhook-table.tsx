@@ -3,33 +3,7 @@
 import { useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal, Network, Pencil, Send, Trash2 } from 'lucide-react';
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionDeleteEmailWebhook,
   actionTestEmailWebhook,
@@ -59,16 +33,16 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
     startTransition(async () => {
       const result = await actionTestEmailWebhook(id);
       if (!result.ok) {
-        zoruToast({ title: 'Test failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Test failed', description: result.error, variant: 'destructive' });
         return;
       }
       const { status, durationMs, error } = result.data;
       if (error) {
-        zoruToast({ title: `Test errored (${status})`, description: error, variant: 'destructive' });
+        toast({ title: `Test errored (${status})`, description: error, variant: 'destructive' });
       } else if (status >= 200 && status < 300) {
-        zoruToast({ title: `OK ${status} · ${durationMs}ms` });
+        toast({ title: `OK ${status} · ${durationMs}ms` });
       } else {
-        zoruToast({
+        toast({
           title: `Non-2xx ${status}`,
           description: `Took ${durationMs}ms`,
           variant: 'destructive',
@@ -81,10 +55,10 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
     startTransition(async () => {
       const result = await actionDeleteEmailWebhook(id);
       if (!result.ok) {
-        zoruToast({ title: 'Delete failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Delete failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: `Deleted ${url}` });
+      toast({ title: `Deleted ${url}` });
       onChanged();
     });
   };
@@ -92,25 +66,25 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
   return (
     <Card className="overflow-hidden p-0">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Endpoint</ZoruTableHead>
-            <ZoruTableHead>Events</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Last delivery</ZoruTableHead>
-            <ZoruTableHead className="w-[60px]" />
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Endpoint</Th>
+            <Th>Events</Th>
+            <Th>Status</Th>
+            <Th>Last delivery</Th>
+            <Th className="w-[60px]" />
+          </Tr>
+        </THead>
+        <TBody>
           {webhooks.map((w) => (
-            <ZoruTableRow key={w._id}>
-              <ZoruTableCell>
+            <Tr key={w._id}>
+              <Td>
                 <div className="font-medium text-[var(--st-text)]">{w.name ?? '—'}</div>
                 <code className="block max-w-[320px] truncate text-xs text-[var(--st-text-secondary)]">
                   {w.url}
                 </code>
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <div className="flex flex-wrap gap-1">
                   {w.events.slice(0, 3).map((e) => (
                     <Badge key={e} variant="secondary">
@@ -121,8 +95,8 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                     <Badge variant="ghost">+{w.events.length - 3}</Badge>
                   ) : null}
                 </div>
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 {w.active ? (
                   <Badge variant="success">Active</Badge>
                 ) : (
@@ -133,8 +107,8 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                     {w.failureCount} fail
                   </Badge>
                 ) : null}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+              </Td>
+              <Td className="text-sm text-[var(--st-text-secondary)]">
                 {w.lastDeliveryAt ? (
                   <>
                     {formatDistanceToNow(new Date(w.lastDeliveryAt), { addSuffix: true })}
@@ -147,54 +121,54 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                 ) : (
                   'Never'
                 )}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <DropdownMenu>
-                  <ZoruDropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" disabled={pending}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
-                  </ZoruDropdownMenuTrigger>
-                  <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onSelect={() => handleTest(w._id)}>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => handleTest(w._id)}>
                       <Send className="h-4 w-4" /> Send test
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onSelect={() => onEdit(w)}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => onEdit(w)}>
                       <Pencil className="h-4 w-4" /> Edit
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruAlertDialog>
-                      <ZoruAlertDialogTrigger asChild>
-                        <ZoruDropdownMenuItem
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
                           className="text-[var(--st-text)]"
                         >
                           <Trash2 className="h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruAlertDialogTrigger>
-                      <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                          <ZoruAlertDialogTitle>Delete webhook?</ZoruAlertDialogTitle>
-                          <ZoruAlertDialogDescription>
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
+                          <AlertDialogDescription>
                             <code>{w.url}</code> will stop receiving events. This cannot be undone.
-                          </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                          <ZoruAlertDialogAction
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
                             onClick={() => handleDelete(w._id, w.url)}
                           >
                             Delete
-                          </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                      </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
-                  </ZoruDropdownMenuContent>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
                 </DropdownMenu>
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </Card>
   );

@@ -2,12 +2,7 @@
 
 import { Activity, MousePointerClick, Send, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 export interface EmailKpiStripProps {
   sent: number;
@@ -67,16 +62,16 @@ export function EmailKpiStrip({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {tiles.map((t) => (
         <Card key={t.label} className="p-0">
-          <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">{t.label}</ZoruCardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm text-[var(--st-text-secondary)]">{t.label}</CardTitle>
             <t.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <div className="text-2xl text-[var(--st-text)] font-semibold">{t.value}</div>
             {t.delta ? (
               <p className="text-xs text-[var(--st-text-secondary)]">{t.delta}</p>
             ) : null}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>

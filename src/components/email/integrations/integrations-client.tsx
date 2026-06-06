@@ -2,16 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { KeyRound, Network, Plus } from 'lucide-react';
-import {
-  Button,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 import {
   actionListEmailApiKeys,
@@ -39,7 +30,7 @@ export function IntegrationsClient() {
   const fetchKeys = useCallback(async () => {
     const result = await actionListEmailApiKeys();
     if (!result.ok) {
-      zoruToast({ title: 'Failed to load API keys', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load API keys', description: result.error, variant: 'destructive' });
       return;
     }
     setKeys(result.data);
@@ -48,7 +39,7 @@ export function IntegrationsClient() {
   const fetchWebhooks = useCallback(async () => {
     const result = await actionListEmailWebhooks();
     if (!result.ok) {
-      zoruToast({ title: 'Failed to load webhooks', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load webhooks', description: result.error, variant: 'destructive' });
       return;
     }
     setWebhooks(result.data);
@@ -61,17 +52,17 @@ export function IntegrationsClient() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Network className="h-6 w-6" /> Integrations
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             API keys and outbound webhooks that connect the email engine to your stack.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           {pane === 'keys' ? (
             <Button onClick={() => setKeyDialogOpen(true)}>
               <Plus className="h-4 w-4" /> New API key
@@ -86,7 +77,7 @@ export function IntegrationsClient() {
               <Plus className="h-4 w-4" /> New webhook
             </Button>
           )}
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Segmented control — not tabs, per zoruui directive. */}

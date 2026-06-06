@@ -2,17 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type {
   EmailFilterGroup,
   EmailFilterLeaf,
@@ -103,13 +93,13 @@ function FilterGroupEditor({ group, onChange, depth, onRemove }: GroupProps) {
           value={group.combinator}
           onValueChange={(v) => onChange({ ...group, combinator: v as FilterCombinator })}
         >
-          <ZoruSelectTrigger className="w-28">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="AND">all</ZoruSelectItem>
-            <ZoruSelectItem value="OR">any</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="AND">all</SelectItem>
+            <SelectItem value="OR">any</SelectItem>
+          </SelectContent>
         </Select>
         <Badge variant="outline" className="text-xs">
           {group.filters.length} rule{group.filters.length === 1 ? '' : 's'}
@@ -181,32 +171,32 @@ function FilterLeafEditor({ leaf, onChange, onRemove }: LeafProps) {
         value={leaf.field}
         onValueChange={(v) => onChange({ ...leaf, field: v })}
       >
-        <ZoruSelectTrigger className="w-48">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-48">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {FIELD_OPTIONS.map((opt) => (
-            <ZoruSelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select
         value={leaf.op}
         onValueChange={(v) => onChange({ ...leaf, op: v as EmailFilterOp })}
       >
-        <ZoruSelectTrigger className="w-44">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-44">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {OP_OPTIONS.map((opt) => (
-            <ZoruSelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       {needsValue ? (

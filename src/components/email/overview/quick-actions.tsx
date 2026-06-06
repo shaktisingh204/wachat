@@ -2,14 +2,7 @@
 
 import Link from 'next/link';
 import { PlusCircle, Users, Mail, Workflow, ShieldCheck } from 'lucide-react';
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 interface EmailQuickActionsProps {
   accountId?: string;
@@ -27,11 +20,11 @@ export function EmailQuickActions({ accountId }: EmailQuickActionsProps) {
 
   return (
     <Card className="p-0">
-      <ZoruCardHeader>
-        <ZoruCardTitle>Quick actions</ZoruCardTitle>
-        <ZoruCardDescription>Jump straight to what you want to do.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="grid gap-2">
+      <CardHeader>
+        <CardTitle>Quick actions</CardTitle>
+        <CardDescription>Jump straight to what you want to do.</CardDescription>
+      </CardHeader>
+      <CardBody className="grid gap-2">
         {actions.map((a) => (
           <Button
             key={a.href}
@@ -45,7 +38,7 @@ export function EmailQuickActions({ accountId }: EmailQuickActionsProps) {
             </Link>
           </Button>
         ))}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

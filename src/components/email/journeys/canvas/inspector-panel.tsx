@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   EmailSegmentBuilder,
   emptyFilterTree,
@@ -94,12 +84,12 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
               patchData({ trigger: { kind: v as EmailJourneyTriggerKind, config: node.data.trigger?.config ?? {} } })
             }
           >
-            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
               {TRIGGER_KINDS.map((k) => (
-                <ZoruSelectItem key={k} value={k}>{k.replace(/_/g, ' ')}</ZoruSelectItem>
+                <SelectItem key={k} value={k}>{k.replace(/_/g, ' ')}</SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       ) : null}
@@ -150,12 +140,12 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
                 patchData({ waitFor: { value: node.data.waitFor?.value ?? 1, unit: v as 'minutes' | 'hours' | 'days' } })
               }
             >
-              <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
                 {WAIT_UNITS.map((u) => (
-                  <ZoruSelectItem key={u} value={u}>{u}</ZoruSelectItem>
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -183,12 +173,12 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
                 })
               }
             >
-              <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
                 {ACTION_KINDS.map((k) => (
-                  <ZoruSelectItem key={k} value={k}>{k.replace(/_/g, ' ')}</ZoruSelectItem>
+                  <SelectItem key={k} value={k}>{k.replace(/_/g, ' ')}</SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">

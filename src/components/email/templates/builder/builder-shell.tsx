@@ -17,16 +17,7 @@ import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, Eye, Save } from 'lucide-react';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Input,
-  Separator,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Input, Separator, toast } from '@/components/sabcrm/20ui/compat';
 import type {
   EmailBuilderBlock,
   EmailBuilderDocument,
@@ -143,9 +134,9 @@ export function BuilderShell({
         builderJson: doc,
       });
       if (res.ok) {
-        zoruToast({ title: 'Template saved' });
+        toast({ title: 'Template saved' });
       } else {
-        zoruToast({ title: 'Save failed', description: res.error, variant: 'destructive' });
+        toast({ title: 'Save failed', description: res.error, variant: 'destructive' });
       }
     });
   }, [templateId, name, subject, doc]);
@@ -159,7 +150,7 @@ export function BuilderShell({
         builderJson: doc,
       });
       if (!saveRes.ok) {
-        zoruToast({ title: 'Save before preview failed', description: saveRes.error, variant: 'destructive' });
+        toast({ title: 'Save before preview failed', description: saveRes.error, variant: 'destructive' });
         return;
       }
       const res = await actionRenderEmailTemplate(templateId);
@@ -168,7 +159,7 @@ export function BuilderShell({
         setWarnings(res.data.warnings ?? []);
         setPreviewOpen(true);
       } else {
-        zoruToast({ title: 'Render failed', description: res.error, variant: 'destructive' });
+        toast({ title: 'Render failed', description: res.error, variant: 'destructive' });
       }
     });
   }, [templateId, name, subject, doc]);
@@ -226,14 +217,14 @@ export function BuilderShell({
         <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 dark:bg-[var(--st-text)]/30">
           <Alert variant="warning">
             <AlertTriangle className="h-4 w-4" />
-            <ZoruAlertTitle>Renderer warnings</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Renderer warnings</AlertTitle>
+            <AlertDescription>
               <ul className="ml-4 list-disc text-xs">
                 {warnings.map((w, i) => (
                   <li key={`${w}-${i}`}>{w}</li>
                 ))}
               </ul>
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         </div>
       ) : null}

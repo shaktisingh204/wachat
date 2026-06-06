@@ -1,86 +1,222 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Button,
+    IconButton,
+    StatCard,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    TooltipProvider,
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    type BadgeTone,
+} from "@/components/sabcrm/20ui";
+import {
+    ShieldAlert,
+    AlertTriangle,
+    CheckCircle,
+    RadioTower,
+    ShieldCheck,
+    SearchCheck,
+    Eye,
+} from "lucide-react";
+
+type Severity = "Critical" | "High" | "Medium";
+type Status = "Open" | "Investigating" | "Resolved";
+
+interface BreachAlert {
+    id: string;
+    secretName: string;
+    source: string;
+    detectedAt: string;
+    severity: Severity;
+    status: Status;
+}
+
+const SEVERITY_TONE: Record<Severity, BadgeTone> = {
+    Critical: "danger",
+    High: "warning",
+    Medium: "neutral",
+};
+
+const STATUS_TONE: Record<Status, BadgeTone> = {
+    Open: "danger",
+    Investigating: "info",
+    Resolved: "success",
+};
 
 export default function SabVaultBreachAlertsPage() {
-    const alerts = [
-        { id: "1", secretName: "Legacy System Password", source: "HaveIBeenPwned", detectedAt: "2026-06-03 10:15:00", severity: "High", status: "Open" },
-        { id: "2", secretName: "Employee Portal User", source: "Dark Web Scan", detectedAt: "2026-06-02 08:30:00", severity: "Critical", status: "Investigating" },
-        { id: "3", secretName: "Dev Database URL", source: "GitHub Leaks", detectedAt: "2026-05-20 14:00:00", severity: "Medium", status: "Resolved" },
+    const alerts: BreachAlert[] = [
+        { id: "1", secretName: "Legacy System Password", source: "HaveIBeenPwned", detectedAt: "2026-06-03 10:15", severity: "High", status: "Open" },
+        { id: "2", secretName: "Employee Portal User", source: "Dark Web Scan", detectedAt: "2026-06-02 08:30", severity: "Critical", status: "Investigating" },
+        { id: "3", secretName: "Dev Database URL", source: "GitHub Leaks", detectedAt: "2026-05-20 14:00", severity: "Medium", status: "Resolved" },
     ];
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-destructive flex items-center gap-2">
-                        <ShieldAlert className="h-6 w-6" /> Breach Alerts
-                    </h1>
-                    <p className="text-muted-foreground">Monitor leaked secrets and exposed credentials across public sources.</p>
-                </div>
-                <Button variant="destructive">
-                    Scan Now
-                </Button>
-            </div>
+    const openCount = alerts.filter((a) => a.status !== "Resolved").length;
+    const criticalCount = alerts.filter((a) => a.severity === "Critical").length;
+    const resolvedCount = alerts.filter((a) => a.status === "Resolved").length;
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Alerts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Compromised Secret</TableHead>
-                                <TableHead>Source</TableHead>
-                                <TableHead>Detected At</TableHead>
-                                <TableHead>Severity</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {alerts.map((alert) => (
-                                <TableRow key={alert.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center space-x-2">
-                                            <AlertTriangle className={`h-4 w-4 ${alert.severity === "Critical" ? "text-destructive" : "text-amber-500"}`} />
-                                            <span>{alert.secretName}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{alert.source}</TableCell>
-                                    <TableCell className="text-muted-foreground">{alert.detectedAt}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={alert.severity === "Critical" ? "destructive" : alert.severity === "High" ? "destructive" : "secondary"}>
-                                            {alert.severity}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={alert.status === "Resolved" ? "default" : "outline"}>
-                                            {alert.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {alert.status !== "Resolved" && (
-                                            <Button variant="outline" size="sm" className="mr-2">
-                                                <CheckCircle className="mr-2 h-4 w-4" /> Mark Resolved
-                                            </Button>
-                                        )}
-                                        <Button variant="ghost" size="sm">
-                                            Details
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
+    return (
+        <TooltipProvider>
+            <div className="ui20 p-6 space-y-6">
+                <PageHeader>
+                    <PageHeaderHeading>
+                        <PageTitle>
+                            <span className="inline-flex items-center gap-2">
+                                <ShieldAlert className="h-5 w-5 text-[var(--st-danger)]" aria-hidden="true" />
+                                Breach Alerts
+                            </span>
+                        </PageTitle>
+                        <PageDescription>
+                            Monitor leaked secrets and exposed credentials across public sources.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                    <PageActions>
+                        <Button variant="danger" iconLeft={RadioTower}>
+                            Scan Now
+                        </Button>
+                    </PageActions>
+                </PageHeader>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <StatCard
+                        label="Open alerts"
+                        value={openCount}
+                        icon={ShieldAlert}
+                        accent="var(--st-danger)"
+                    />
+                    <StatCard
+                        label="Critical severity"
+                        value={criticalCount}
+                        icon={AlertTriangle}
+                        accent="var(--st-warn)"
+                    />
+                    <StatCard
+                        label="Resolved"
+                        value={resolvedCount}
+                        icon={ShieldCheck}
+                        accent="var(--st-success)"
+                    />
+                </div>
+
+                <Card padding="none">
+                    <CardHeader>
+                        <CardTitle>Recent alerts</CardTitle>
+                        <CardDescription>
+                            Credentials flagged as exposed, newest first.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        {alerts.length === 0 ? (
+                            <EmptyState
+                                icon={SearchCheck}
+                                tone="success"
+                                title="No breaches detected"
+                                description="Your monitored secrets have not appeared in any known leak source. Run a scan to check again."
+                                action={
+                                    <Button variant="primary" iconLeft={RadioTower}>
+                                        Scan Now
+                                    </Button>
+                                }
+                            />
+                        ) : (
+                            <Table hover>
+                                <THead>
+                                    <Tr>
+                                        <Th>Compromised secret</Th>
+                                        <Th>Source</Th>
+                                        <Th>Detected at</Th>
+                                        <Th>Severity</Th>
+                                        <Th>Status</Th>
+                                        <Th align="right">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {alerts.map((alert) => (
+                                        <Tr key={alert.id}>
+                                            <Td>
+                                                <span className="inline-flex items-center gap-2 font-medium text-[var(--st-text)]">
+                                                    <AlertTriangle
+                                                        className={
+                                                            alert.severity === "Critical"
+                                                                ? "h-4 w-4 text-[var(--st-danger)]"
+                                                                : "h-4 w-4 text-[var(--st-warn)]"
+                                                        }
+                                                        aria-hidden="true"
+                                                    />
+                                                    {alert.secretName}
+                                                </span>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)]">{alert.source}</span>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)] tabular-nums">{alert.detectedAt}</span>
+                                            </Td>
+                                            <Td>
+                                                <Badge tone={SEVERITY_TONE[alert.severity]} dot>
+                                                    {alert.severity}
+                                                </Badge>
+                                            </Td>
+                                            <Td>
+                                                <Badge tone={STATUS_TONE[alert.status]} kind="outline">
+                                                    {alert.status}
+                                                </Badge>
+                                            </Td>
+                                            <Td align="right">
+                                                <span className="inline-flex items-center justify-end gap-1">
+                                                    {alert.status !== "Resolved" ? (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <IconButton
+                                                                    label={`Mark "${alert.secretName}" resolved`}
+                                                                    icon={CheckCircle}
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>Mark resolved</TooltipContent>
+                                                        </Tooltip>
+                                                    ) : null}
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <IconButton
+                                                                label={`View details for "${alert.secretName}"`}
+                                                                icon={Eye}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                            />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>View details</TooltipContent>
+                                                    </Tooltip>
+                                                </span>
+                                            </Td>
+                                        </Tr>
+                                    ))}
+                                </TBody>
+                            </Table>
+                        )}
+                    </CardBody>
+                </Card>
+            </div>
+        </TooltipProvider>
     );
 }

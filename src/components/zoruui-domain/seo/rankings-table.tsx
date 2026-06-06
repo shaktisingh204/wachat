@@ -2,15 +2,15 @@
 
 import {
     Table,
-    ZoruTableBody as TableBody,
-    ZoruTableCell as TableCell,
-    ZoruTableHead as TableHead,
-    ZoruTableHeader as TableHeader,
-    ZoruTableRow as TableRow,
+    TBody as TableBody,
+    Td as TableCell,
+    Th as TableHead,
+    THead as TableHeader,
+    Tr as TableRow,
     Badge,
     Button,
-    zoruToast as toast,
-} from "@/components/zoruui";
+    toast,
+} from "@/components/sabcrm/20ui";
 import { Trash2, ExternalLink, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { deleteKeyword } from '@/app/actions/seo-rank.actions';
 import { formatDistanceToNow } from 'date-fns';

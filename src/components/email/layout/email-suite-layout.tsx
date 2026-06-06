@@ -23,10 +23,7 @@ import {
   Users,
   Workflow,
 } from 'lucide-react';
-import {
-  Badge,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { ModuleLayout } from '@/components/zoruui-domain/module-layout';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 import { getEmailSettings } from '@/app/actions/email.actions';

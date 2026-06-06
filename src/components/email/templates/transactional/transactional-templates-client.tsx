@@ -3,26 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Trash2, Mail, Pencil, Archive } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionDeleteTransactionalTemplate,
   actionListTransactionalTemplates,
@@ -42,7 +23,7 @@ export function TransactionalTemplatesClient() {
     if (res.ok) {
       setItems(res.data.items);
     } else {
-      zoruToast.error(res.error);
+      toast.error(res.error);
     }
     setLoading(false);
   }, []);
@@ -55,10 +36,10 @@ export function TransactionalTemplatesClient() {
     startTransition(async () => {
       const r = await actionDeleteTransactionalTemplate(id);
       if (r.ok) {
-        zoruToast.success('Template deleted');
+        toast.success('Template deleted');
         refresh(query);
       } else {
-        zoruToast.error(r.error);
+        toast.error(r.error);
       }
     });
   };
@@ -67,10 +48,10 @@ export function TransactionalTemplatesClient() {
     startTransition(async () => {
       const r = await actionUpdateTransactionalTemplate(item._id, { archived: !item.archived });
       if (r.ok) {
-        zoruToast.success(item.archived ? 'Unarchived' : 'Archived');
+        toast.success(item.archived ? 'Unarchived' : 'Archived');
         refresh(query);
       } else {
-        zoruToast.error(r.error);
+        toast.error(r.error);
       }
     });
   };
@@ -78,21 +59,21 @@ export function TransactionalTemplatesClient() {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Transactional templates</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Transactional templates</PageTitle>
+          <PageDescription>
             Key-addressable templates rendered on demand — password resets, order confirmations, OTPs.
             Distinct from marketing templates.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button asChild>
             <Link href="/dashboard/email/templates/transactional/new">
               <Plus className="mr-2 h-4 w-4" />
               New template
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card className="p-4">
@@ -126,20 +107,20 @@ export function TransactionalTemplatesClient() {
       ) : (
         <Card>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Key</ZoruTableHead>
-                <ZoruTableHead>Subject</ZoruTableHead>
-                <ZoruTableHead>Vars</ZoruTableHead>
-                <ZoruTableHead>Version</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Key</Th>
+                <Th>Subject</Th>
+                <Th>Vars</Th>
+                <Th>Version</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {items.map((item) => (
-                <ZoruTableRow key={item._id}>
-                  <ZoruTableCell className="font-medium">
+                <Tr key={item._id}>
+                  <Td className="font-medium">
                     <Link className="hover:underline" href={`/dashboard/email/templates/transactional/${item._id}`}>
                       {item.name}
                     </Link>
@@ -148,16 +129,16 @@ export function TransactionalTemplatesClient() {
                         Archived
                       </Badge>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <code className="rounded bg-[color:var(--st-bg-muted)] px-1.5 py-0.5 text-xs">
                       {item.key}
                     </code>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="max-w-md truncate">{item.subject}</ZoruTableCell>
-                  <ZoruTableCell>{item.vars?.length ?? 0}</ZoruTableCell>
-                  <ZoruTableCell>v{item.version}</ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="max-w-md truncate">{item.subject}</Td>
+                  <Td>{item.vars?.length ?? 0}</Td>
+                  <Td>v{item.version}</Td>
+                  <Td className="text-right">
                     <Button size="icon" variant="ghost" asChild>
                       <Link href={`/dashboard/email/templates/transactional/${item._id}`}>
                         <Pencil className="h-4 w-4" />
@@ -179,10 +160,10 @@ export function TransactionalTemplatesClient() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

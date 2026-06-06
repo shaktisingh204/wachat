@@ -12,16 +12,7 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionActivateEmailJourney,
   actionCloneEmailJourney,
@@ -45,26 +36,26 @@ interface JourneyListProps {
 export function JourneyList({ journeys, onChanged }: JourneyListProps) {
   const handleActivate = async (j: EmailJourneyDoc) => {
     const r = await actionActivateEmailJourney(j._id);
-    if (!r.ok) { zoruToast({ title: 'Activate failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: `Journey "${j.name}" activated` });
+    if (!r.ok) { toast({ title: 'Activate failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: `Journey "${j.name}" activated` });
     onChanged();
   };
   const handlePause = async (j: EmailJourneyDoc) => {
     const r = await actionPauseEmailJourney(j._id);
-    if (!r.ok) { zoruToast({ title: 'Pause failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: `Journey "${j.name}" paused` });
+    if (!r.ok) { toast({ title: 'Pause failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: `Journey "${j.name}" paused` });
     onChanged();
   };
   const handleClone = async (j: EmailJourneyDoc) => {
     const r = await actionCloneEmailJourney(j._id);
-    if (!r.ok) { zoruToast({ title: 'Clone failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: `Cloned as "${r.data.name}"` });
+    if (!r.ok) { toast({ title: 'Clone failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: `Cloned as "${r.data.name}"` });
     onChanged();
   };
   const handleDelete = async (j: EmailJourneyDoc) => {
     const r = await actionDeleteEmailJourney(j._id);
-    if (!r.ok) { zoruToast({ title: 'Delete failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: 'Journey deleted' });
+    if (!r.ok) { toast({ title: 'Delete failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: 'Journey deleted' });
     onChanged();
   };
 
@@ -90,34 +81,34 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
                 ) : null}
               </div>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" aria-label="Journey actions">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuItem asChild>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
                     <Link href={`/dashboard/email/journeys/${j._id}`}>
                       <Pencil className="h-4 w-4" /> Edit
                     </Link>
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                   {j.status === 'draft' || j.status === 'paused' ? (
-                    <ZoruDropdownMenuItem onSelect={() => handleActivate(j)}>
+                    <DropdownMenuItem onSelect={() => handleActivate(j)}>
                       <Play className="h-4 w-4" /> Activate
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                   ) : null}
                   {j.status === 'active' ? (
-                    <ZoruDropdownMenuItem onSelect={() => handlePause(j)}>
+                    <DropdownMenuItem onSelect={() => handlePause(j)}>
                       <Pause className="h-4 w-4" /> Pause
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                   ) : null}
-                  <ZoruDropdownMenuItem onSelect={() => handleClone(j)}>
+                  <DropdownMenuItem onSelect={() => handleClone(j)}>
                     <Copy className="h-4 w-4" /> Clone
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onSelect={() => handleDelete(j)} className="text-[var(--st-text)]">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleDelete(j)} className="text-[var(--st-text)]">
                     <Trash2 className="h-4 w-4" /> Delete
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
 

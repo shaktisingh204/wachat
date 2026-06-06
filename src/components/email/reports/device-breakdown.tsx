@@ -1,18 +1,7 @@
 'use client';
 
 import { PieChart as PieIcon } from 'lucide-react';
-import {
-  ZORU_CHART_PALETTE,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui/compat';
 import type { EmailDeviceBreakdown } from '@/lib/rust-client/email-reports';
 
 interface DeviceBreakdownProps {
@@ -29,18 +18,18 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <PieIcon className="h-4 w-4" /> {title}
-        </ZoruCardTitle>
-        <ZoruCardDescription>
+        </CardTitle>
+        <CardDescription>
           Share of opens by client device
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         {total > 0 ? (
           <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
-            <ZoruChartContainer height={220}>
+            <ChartContainer height={220}>
               <RechartsPieChart>
                 <Pie
                   data={rows}
@@ -58,9 +47,9 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                     />
                   ))}
                 </Pie>
-                <Tooltip content={<ZoruChartTooltip />} />
+                <Tooltip content={<ChartTooltip />} />
               </RechartsPieChart>
-            </ZoruChartContainer>
+            </ChartContainer>
             <ul className="space-y-1.5 text-sm">
               {rows.map((d, i) => (
                 <li key={d.device} className="flex items-center gap-2">
@@ -84,7 +73,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
             description="Open events with user-agent metadata will populate this chart."
           />
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

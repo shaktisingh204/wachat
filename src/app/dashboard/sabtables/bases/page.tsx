@@ -1,74 +1,191 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Database, Plus, Settings, Activity } from "lucide-react";
+import {
+    Button,
+    IconButton,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    StatCard,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    TooltipProvider,
+} from "@/components/sabcrm/20ui";
+import { Database, Plus, Settings, Archive, HardDrive } from "lucide-react";
+
+type BaseStatus = "Active" | "Archived";
+
+interface Base {
+    id: string;
+    name: string;
+    workspace: string;
+    status: BaseStatus;
+    size: string;
+    tables: number;
+    updated: string;
+}
 
 export default function SabTablesBasesPage() {
-    const bases = [
-        { id: "1", name: "Customer CRM", workspace: "Sales", status: "Active", size: "2.4 MB" },
-        { id: "2", name: "Inventory Tracker", workspace: "Operations", status: "Active", size: "8.1 MB" },
-        { id: "3", name: "Event Planning", workspace: "Marketing", status: "Archived", size: "1.2 MB" },
-        { id: "4", name: "Employee Directory", workspace: "HR", status: "Active", size: "3.5 MB" },
+    const bases: Base[] = [
+        { id: "1", name: "Customer CRM", workspace: "Sales", status: "Active", size: "2.4 MB", tables: 8, updated: "2 hours ago" },
+        { id: "2", name: "Inventory Tracker", workspace: "Operations", status: "Active", size: "8.1 MB", tables: 14, updated: "Yesterday" },
+        { id: "3", name: "Event Planning", workspace: "Marketing", status: "Archived", size: "1.2 MB", tables: 5, updated: "3 weeks ago" },
+        { id: "4", name: "Employee Directory", workspace: "HR", status: "Active", size: "3.5 MB", tables: 6, updated: "4 days ago" },
     ];
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Bases</h1>
-                    <p className="text-muted-foreground">Manage your relational database bases.</p>
-                </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create Base
-                </Button>
-            </div>
+    const activeCount = bases.filter((b) => b.status === "Active").length;
+    const archivedCount = bases.filter((b) => b.status === "Archived").length;
+    const totalTables = bases.reduce((sum, b) => sum + b.tables, 0);
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Bases</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Base Name</TableHead>
-                                <TableHead>Workspace</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Size</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {bases.map((base) => (
-                                <TableRow key={base.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center space-x-2">
-                                            <Database className="h-4 w-4 text-muted-foreground" />
-                                            <span>{base.name}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{base.workspace}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={base.status === "Active" ? "default" : "secondary"}>
-                                            {base.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{base.size}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon">
-                                            <Settings className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
+    return (
+        <TooltipProvider>
+            <div className="ui20 p-6 space-y-6">
+                <PageHeader>
+                    <PageHeaderHeading>
+                        <PageTitle>Bases</PageTitle>
+                        <PageDescription>
+                            Manage your relational database bases across every workspace.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                    <PageActions>
+                        <Button variant="primary" iconLeft={Plus}>
+                            Create base
+                        </Button>
+                    </PageActions>
+                </PageHeader>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard label="Total bases" value={bases.length} icon={Database} />
+                    <StatCard label="Active" value={activeCount} icon={Database} />
+                    <StatCard label="Archived" value={archivedCount} icon={Archive} />
+                    <StatCard label="Tables" value={totalTables} icon={HardDrive} />
+                </div>
+
+                <Card padding="none">
+                    <CardHeader>
+                        <CardTitle>All bases</CardTitle>
+                        <CardDescription>
+                            Every base in your account, with its workspace and storage footprint.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        {bases.length === 0 ? (
+                            <EmptyState
+                                icon={Database}
+                                title="No bases yet"
+                                description="Create your first base to start organizing data into relational tables."
+                                action={
+                                    <Button variant="primary" iconLeft={Plus}>
+                                        Create base
+                                    </Button>
+                                }
+                            />
+                        ) : (
+                            <Table hover>
+                                <THead>
+                                    <Tr>
+                                        <Th>Base name</Th>
+                                        <Th>Workspace</Th>
+                                        <Th>Status</Th>
+                                        <Th align="right">Tables</Th>
+                                        <Th align="right">Size</Th>
+                                        <Th>Last updated</Th>
+                                        <Th align="right">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {bases.map((base) => (
+                                        <Tr key={base.id}>
+                                            <Td>
+                                                <div className="flex items-center gap-2">
+                                                    <Database
+                                                        className="h-4 w-4 text-[var(--st-text-tertiary)]"
+                                                        aria-hidden="true"
+                                                    />
+                                                    <span className="font-medium text-[var(--st-text)]">
+                                                        {base.name}
+                                                    </span>
+                                                </div>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)]">
+                                                    {base.workspace}
+                                                </span>
+                                            </Td>
+                                            <Td>
+                                                <Badge
+                                                    tone={base.status === "Active" ? "success" : "neutral"}
+                                                    dot
+                                                >
+                                                    {base.status}
+                                                </Badge>
+                                            </Td>
+                                            <Td align="right">
+                                                <span className="text-[var(--st-text-secondary)] tabular-nums">
+                                                    {base.tables}
+                                                </span>
+                                            </Td>
+                                            <Td align="right">
+                                                <span className="text-[var(--st-text-secondary)] tabular-nums">
+                                                    {base.size}
+                                                </span>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-tertiary)]">
+                                                    {base.updated}
+                                                </span>
+                                            </Td>
+                                            <Td align="right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <IconButton
+                                                                label={`Settings for ${base.name}`}
+                                                                icon={Settings}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                            />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>Base settings</TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <IconButton
+                                                                label={`Archive ${base.name}`}
+                                                                icon={Archive}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                            />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>Archive base</TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                            </Td>
+                                        </Tr>
+                                    ))}
+                                </TBody>
+                            </Table>
+                        )}
+                    </CardBody>
+                </Card>
+            </div>
+        </TooltipProvider>
     );
 }

@@ -6,12 +6,7 @@
  */
 import { Braces } from 'lucide-react';
 
-import {
-  Button,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
 
 interface MergeTag {
   key: string;
@@ -34,12 +29,12 @@ export interface MergeTagPickerProps {
 export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
   return (
     <Popover>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button type="button" variant="outline" size="sm">
           <Braces /> Merge tag
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent align="start" className="w-64 p-1">
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-1">
         <ul role="listbox" aria-label="Merge tags" className="flex flex-col">
           {TAGS.map((tag) => (
             <li key={tag.key}>
@@ -59,7 +54,7 @@ export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
             </li>
           ))}
         </ul>
-      </ZoruPopoverContent>
+      </PopoverContent>
     </Popover>
   );
 }

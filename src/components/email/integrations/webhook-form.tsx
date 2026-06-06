@@ -2,20 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Check, Copy } from 'lucide-react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Switch,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailWebhook,
   actionUpdateEmailWebhook,
@@ -66,11 +53,11 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
 
   const handleSave = () => {
     if (!url.trim()) {
-      zoruToast({ title: 'URL is required', variant: 'destructive' });
+      toast({ title: 'URL is required', variant: 'destructive' });
       return;
     }
     if (events.length === 0) {
-      zoruToast({ title: 'Pick at least one event', variant: 'destructive' });
+      toast({ title: 'Pick at least one event', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -88,10 +75,10 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
             active,
           });
       if (!result.ok) {
-        zoruToast({ title: 'Save failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Save failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: webhook ? 'Webhook updated' : 'Webhook created' });
+      toast({ title: webhook ? 'Webhook updated' : 'Webhook created' });
       onSaved();
       onOpenChange(false);
     });
@@ -104,21 +91,21 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      zoruToast({ title: 'Copy failed', variant: 'destructive' });
+      toast({ title: 'Copy failed', variant: 'destructive' });
     }
   }, [webhook?.signingSecret]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
             {webhook ? 'Edit webhook' : 'New webhook'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             SabNode will POST signed JSON payloads to this URL on each subscribed event.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -204,15 +191,15 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
           ) : null}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={pending}>
             {webhook ? 'Save changes' : 'Create webhook'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

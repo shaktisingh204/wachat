@@ -13,7 +13,7 @@ import {
     ZoruAlertDialogTitle as AlertDialogTitle,
     ZoruAlertDialogTrigger as AlertDialogTrigger,
     useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { Loader2, Trash2 } from "lucide-react";
 
 interface DeleteButtonProps {

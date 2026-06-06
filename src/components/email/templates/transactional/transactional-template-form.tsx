@@ -11,28 +11,7 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Send, Trash2, Eye } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateTransactionalTemplate,
   actionGetTransactionalTemplate,
@@ -92,7 +71,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
           setTextBody(t.textBody ?? '');
           setVars(t.vars ?? []);
         } else {
-          zoruToast.error(r.error);
+          toast.error(r.error);
         }
         setLoading(false);
       })();
@@ -101,7 +80,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
 
   const handleSave = useCallback(() => {
     if (!name.trim() || !key.trim() || !subject.trim() || !htmlBody.trim()) {
-      zoruToast.error('Name, key, subject and body are required');
+      toast.error('Name, key, subject and body are required');
       return;
     }
     startTransition(async () => {
@@ -119,10 +98,10 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
           vars,
         });
         if (r.ok) {
-          zoruToast.success('Template created');
+          toast.success('Template created');
           router.push(`/dashboard/email/templates/transactional/${r.data._id}`);
         } else {
-          zoruToast.error(r.error);
+          toast.error(r.error);
         }
       } else if (templateId) {
         const r = await actionUpdateTransactionalTemplate(templateId, {
@@ -138,9 +117,9 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
           vars,
         });
         if (r.ok) {
-          zoruToast.success('Template saved');
+          toast.success('Template saved');
         } else {
-          zoruToast.error(r.error);
+          toast.error(r.error);
         }
       }
     });
@@ -151,7 +130,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
 
   const handlePreview = useCallback(() => {
     if (!templateId) {
-      zoruToast.error('Save before previewing');
+      toast.error('Save before previewing');
       return;
     }
     startTransition(async () => {
@@ -161,14 +140,14 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
         setPreviewSubject(r.data.subject);
         setMissing(r.data.missingVars);
       } else {
-        zoruToast.error(r.error);
+        toast.error(r.error);
       }
     });
   }, [previewVars, templateId]);
 
   const handleTestSend = useCallback(() => {
     if (!templateId) {
-      zoruToast.error('Save before sending a test');
+      toast.error('Save before sending a test');
       return;
     }
     const toEmails = testEmails
@@ -176,15 +155,15 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
       .map((s) => s.trim())
       .filter(Boolean);
     if (toEmails.length === 0) {
-      zoruToast.error('Add at least one recipient');
+      toast.error('Add at least one recipient');
       return;
     }
     startTransition(async () => {
       const r = await actionTestSendTransactionalTemplate(templateId, toEmails, previewVars);
       if (r.ok) {
-        zoruToast.success(r.data.note ?? `Queued ${r.data.queued} test sends`);
+        toast.success(r.data.note ?? `Queued ${r.data.queued} test sends`);
       } else {
-        zoruToast.error(r.error);
+        toast.error(r.error);
       }
     });
   }, [previewVars, templateId, testEmails]);
@@ -199,16 +178,16 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             {mode === 'create' ? 'New transactional template' : `Edit: ${name || 'Template'}`}
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Define a `key`, declare merge variables, and write the HTML body. The key is what
             dispatching code uses to address this template.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -216,7 +195,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
           <Button onClick={handleSave} disabled={pending}>
             Save
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -342,16 +321,16 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
                       })
                     }
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                       {KIND_OPTIONS.map((k) => (
-                        <ZoruSelectItem key={k} value={k}>
+                        <SelectItem key={k} value={k}>
                           {k}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
                 <Input

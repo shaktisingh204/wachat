@@ -9,20 +9,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Eye, MousePointerClick, Mailbox, UserMinus, Inbox, Activity } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-  Skeleton,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   actionGetEmailCampaign,
   actionGetEmailCampaignReport,
@@ -106,22 +93,22 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>{campaign.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>{campaign.name}</PageTitle>
+          <PageDescription>
             <Badge variant="outline">{campaign.type}</Badge>{' '}
             <Badge variant="secondary">{campaign.status}</Badge>{' '}
             Subject: {campaign.subject}
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" asChild>
             <Link href="/dashboard/email/campaigns">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to campaigns
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

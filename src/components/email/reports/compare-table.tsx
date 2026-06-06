@@ -1,16 +1,7 @@
 'use client';
 
 import { Scale } from 'lucide-react';
-import {
-  Card,
-  EmptyState,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import type { EmailCompareRow, EmailMetricsTotals } from '@/lib/rust-client/email-reports';
 
 interface CompareTableProps {
@@ -41,35 +32,35 @@ export function CompareTable({ rows }: CompareTableProps) {
   return (
     <Card className="overflow-hidden p-0">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Campaign</ZoruTableHead>
-            <ZoruTableHead className="text-right">Sent</ZoruTableHead>
-            <ZoruTableHead className="text-right">Delivered</ZoruTableHead>
-            <ZoruTableHead className="text-right">Open rate</ZoruTableHead>
-            <ZoruTableHead className="text-right">Click rate</ZoruTableHead>
-            <ZoruTableHead className="text-right">Bounce rate</ZoruTableHead>
-            <ZoruTableHead className="text-right">Unsub rate</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Campaign</Th>
+            <Th className="text-right">Sent</Th>
+            <Th className="text-right">Delivered</Th>
+            <Th className="text-right">Open rate</Th>
+            <Th className="text-right">Click rate</Th>
+            <Th className="text-right">Bounce rate</Th>
+            <Th className="text-right">Unsub rate</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.map((r) => {
             const totals: Partial<EmailMetricsTotals> = r.totals ?? {};
             return (
-              <ZoruTableRow key={r.campaignId}>
-                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+              <Tr key={r.campaignId}>
+                <Td className="font-medium text-[var(--st-text)]">
                   {r.campaignName}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">{fmt(totals.sent)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">{fmt(totals.delivered)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">{pct(totals.openRate)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">{pct(totals.clickRate)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">{pct(totals.bounceRate)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">{pct(totals.unsubscribeRate)}</ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+                <Td className="text-right">{fmt(totals.sent)}</Td>
+                <Td className="text-right">{fmt(totals.delivered)}</Td>
+                <Td className="text-right">{pct(totals.openRate)}</Td>
+                <Td className="text-right">{pct(totals.clickRate)}</Td>
+                <Td className="text-right">{pct(totals.bounceRate)}</Td>
+                <Td className="text-right">{pct(totals.unsubscribeRate)}</Td>
+              </Tr>
             );
           })}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </Card>
   );

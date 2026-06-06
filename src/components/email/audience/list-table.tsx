@@ -3,22 +3,7 @@
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Archive, MoreHorizontal, Pencil, Users } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import type { EmailListDoc } from '@/lib/rust-client/email-audience';
 
 interface EmailListTableProps {
@@ -41,19 +26,19 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
   return (
     <Card className="p-0 overflow-hidden">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Name</ZoruTableHead>
-            <ZoruTableHead>Subscribers</ZoruTableHead>
-            <ZoruTableHead>Default sender</ZoruTableHead>
-            <ZoruTableHead>Created</ZoruTableHead>
-            <ZoruTableHead className="w-[60px]" />
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>Subscribers</Th>
+            <Th>Default sender</Th>
+            <Th>Created</Th>
+            <Th className="w-[60px]" />
+          </Tr>
+        </THead>
+        <TBody>
           {lists.map((list) => (
-            <ZoruTableRow key={list._id}>
-              <ZoruTableCell>
+            <Tr key={list._id}>
+              <Td>
                 <Link
                   href={`/dashboard/email/audience/lists/${list._id}`}
                   className="font-medium text-[var(--st-text)] hover:underline"
@@ -65,41 +50,41 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                     {list.description}
                   </p>
                 ) : null}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <Badge variant="outline">{list.subscriberCount ?? 0}</Badge>
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
+              </Td>
+              <Td className="text-[var(--st-text-secondary)] text-sm">
                 {list.defaultFromEmail ?? '—'}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
+              </Td>
+              <Td className="text-[var(--st-text-secondary)] text-sm">
                 {list.createdAt
                   ? formatDistanceToNow(new Date(list.createdAt), { addSuffix: true })
                   : '—'}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <DropdownMenu>
-                  <ZoruDropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
-                  </ZoruDropdownMenuTrigger>
-                  <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onSelect={() => onEdit(list)}>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => onEdit(list)}>
                       <Pencil className="h-4 w-4" /> Edit
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       onSelect={() => onArchive(list)}
                       className="text-[var(--st-text)]"
                     >
                       <Archive className="h-4 w-4" /> Archive
-                    </ZoruDropdownMenuItem>
-                  </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
                 </DropdownMenu>
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </Card>
   );

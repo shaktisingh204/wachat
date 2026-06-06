@@ -14,15 +14,7 @@ import {
   Undo2,
 } from 'lucide-react';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  ScrollArea,
-  Separator,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, ScrollArea, Separator, cn } from '@/components/sabcrm/20ui/compat';
 import type {
   EmailInboxMessageDoc,
   EmailInboxThreadDoc,
@@ -217,9 +209,9 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
       )}
     >
       <Avatar className="mt-1 h-8 w-8 shrink-0">
-        <ZoruAvatarFallback className="text-[10px]">
+        <AvatarFallback className="text-[10px]">
           {initialsForEmail(message.from?.email)}
-        </ZoruAvatarFallback>
+        </AvatarFallback>
       </Avatar>
       <div
         className={cn(

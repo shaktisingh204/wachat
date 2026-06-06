@@ -29,7 +29,7 @@ import {
   ZoruTabsList as TabsList,
   ZoruTabsTrigger as TabsTrigger,
   ZoruTabsContent as TabsContent,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 
 import { SabFilePickerButton, SabFileUrlInput } from '@/components/sabfiles';
 

@@ -9,17 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Library, Plus, SquarePen } from 'lucide-react';
 
-import {
-  Button,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Skeleton,
-  cn,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Skeleton, cn, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailTemplate,
   actionDeleteEmailTemplate,
@@ -74,7 +64,7 @@ export function TemplatesClient() {
       if (res.ok) {
         router.push(`/dashboard/email/templates/${res.data._id}/builder`);
       } else {
-        zoruToast({ title: 'Could not create template', description: res.error, variant: 'destructive' });
+        toast({ title: 'Could not create template', description: res.error, variant: 'destructive' });
       }
     });
   };
@@ -82,31 +72,31 @@ export function TemplatesClient() {
   const handleDelete = async (t: EmailTemplateDoc) => {
     const res = await actionDeleteEmailTemplate(t._id);
     if (res.ok) {
-      zoruToast({ title: 'Template deleted' });
+      toast({ title: 'Template deleted' });
       reloadMine();
     } else {
-      zoruToast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+      toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
     }
   };
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <SquarePen className="h-7 w-7" /> Email templates
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Build reusable templates with the block editor or fork one from the library.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button type="button" onClick={handleCreate} disabled={createPending}>
             <Plus /> {createPending ? 'Creating…' : 'New template'}
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <SegmentedButton

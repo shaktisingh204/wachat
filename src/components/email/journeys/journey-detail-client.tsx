@@ -12,18 +12,7 @@ import {
   Save,
   Settings,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Skeleton,
-  StatCard,
-  Textarea,
-  cn,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Skeleton, StatCard, Textarea, cn, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionActivateEmailJourney,
   actionGetEmailJourney,
@@ -74,7 +63,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
     setLoading(true);
     const r = await actionGetEmailJourney(journeyId);
     if (!r.ok) {
-      zoruToast({ title: 'Failed to load journey', description: r.error, variant: 'destructive' });
+      toast({ title: 'Failed to load journey', description: r.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -114,8 +103,8 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
         nodes,
         edges,
       });
-      if (!r.ok) { zoruToast({ title: 'Save failed', description: r.error, variant: 'destructive' }); return; }
-      zoruToast({ title: 'Journey saved' });
+      if (!r.ok) { toast({ title: 'Save failed', description: r.error, variant: 'destructive' }); return; }
+      toast({ title: 'Journey saved' });
       setJourney(r.data);
       setDirty(false);
     });
@@ -123,15 +112,15 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
 
   const activate = async () => {
     const r = await actionActivateEmailJourney(journeyId);
-    if (!r.ok) { zoruToast({ title: 'Activate failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: 'Journey activated' });
+    if (!r.ok) { toast({ title: 'Activate failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: 'Journey activated' });
     setJourney(r.data);
   };
 
   const pause = async () => {
     const r = await actionPauseEmailJourney(journeyId);
-    if (!r.ok) { zoruToast({ title: 'Pause failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: 'Journey paused' });
+    if (!r.ok) { toast({ title: 'Pause failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: 'Journey paused' });
     setJourney(r.data);
   };
 
@@ -272,7 +261,7 @@ function ReportTab({ journeyId }: { journeyId: string }) {
       const r = await actionGetEmailJourneyReport(journeyId);
       if (cancelled) return;
       if (!r.ok) {
-        zoruToast({ title: 'Failed to load report', description: r.error, variant: 'destructive' });
+        toast({ title: 'Failed to load report', description: r.error, variant: 'destructive' });
         setLoading(false);
         return;
       }

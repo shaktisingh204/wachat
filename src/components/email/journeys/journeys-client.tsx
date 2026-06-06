@@ -3,26 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { GitBranch, Plus } from 'lucide-react';
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailJourney,
   actionListEmailJourneys,
@@ -40,7 +21,7 @@ export function JourneysClient() {
     setLoading(true);
     const r = await actionListEmailJourneys({ limit: 100 });
     if (!r.ok) {
-      zoruToast({ title: 'Failed to load journeys', description: r.error, variant: 'destructive' });
+      toast({ title: 'Failed to load journeys', description: r.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -53,21 +34,21 @@ export function JourneysClient() {
   return (
     <div className="space-y-8">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <GitBranch className="h-6 w-6" /> Journeys
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Build behavioural &amp; lifecycle journeys with the visual canvas.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New journey
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <section className="space-y-4">
@@ -110,7 +91,7 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
 
   const submit = () => {
     if (!name.trim()) {
-      zoruToast({ title: 'Journey name is required', variant: 'destructive' });
+      toast({ title: 'Journey name is required', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -129,10 +110,10 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
         edges: [],
       });
       if (!r.ok) {
-        zoruToast({ title: 'Create failed', description: r.error, variant: 'destructive' });
+        toast({ title: 'Create failed', description: r.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: 'Journey created as draft' });
+      toast({ title: 'Journey created as draft' });
       setName(''); setDescription('');
       onCreated();
       onOpenChange(false);
@@ -142,11 +123,11 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New journey</ZoruDialogTitle>
-          <ZoruDialogDescription>Start a blank draft. Add steps from the canvas after.</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New journey</DialogTitle>
+          <DialogDescription>Start a blank draft. Add steps from the canvas after.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor="j-name">Name</Label>
@@ -157,11 +138,11 @@ function NewJourneyDialog({ open, onOpenChange, onCreated }: NewJourneyDialogPro
             <Textarea id="j-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
           <Button onClick={submit} disabled={pending}>{pending ? 'Saving…' : 'Create draft'}</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

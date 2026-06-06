@@ -12,7 +12,7 @@ import {
     Popover,
     ZoruPopoverContent as PopoverContent,
     ZoruPopoverTrigger as PopoverTrigger,
-} from "@/components/zoruui"
+} from "@/components/sabcrm/20ui/compat"
 
 interface DatePickerWithRangeProps {
     className?: string

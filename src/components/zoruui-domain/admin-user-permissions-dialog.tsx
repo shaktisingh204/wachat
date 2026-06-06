@@ -19,7 +19,7 @@ import {
     ZoruTabsList as TabsList,
     ZoruTabsTrigger as TabsTrigger,
     Badge,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { ShieldCheck, Check, X, Info } from "lucide-react";
 import { updateUserPermissions } from "@/app/actions/admin.actions";
 import { moduleCategories, permissionActions } from "@/lib/permission-modules";

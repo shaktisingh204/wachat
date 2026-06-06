@@ -3,16 +3,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Send } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import type { WithId, EmailCampaign } from '@/lib/definitions';
 
 interface EmailActivityFeedProps {
@@ -32,11 +23,11 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
 
   return (
     <Card className="p-0">
-      <ZoruCardHeader>
-        <ZoruCardTitle>Recent campaigns</ZoruCardTitle>
-        <ZoruCardDescription>Your most recent sends and drafts.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Recent campaigns</CardTitle>
+        <CardDescription>Your most recent sends and drafts.</CardDescription>
+      </CardHeader>
+      <CardBody>
         {campaigns.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-[var(--st-text-secondary)]">
             <Send className="h-6 w-6" />
@@ -65,12 +56,12 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
             ))}
           </ul>
         )}
-      </ZoruCardContent>
-      <ZoruCardFooter>
+      </CardBody>
+      <CardFooter>
         <Button asChild variant="outline" className="w-full">
           <Link href={`/dashboard/email/campaigns${qs}`}>View all campaigns</Link>
         </Button>
-      </ZoruCardFooter>
+      </CardFooter>
     </Card>
   );
 }

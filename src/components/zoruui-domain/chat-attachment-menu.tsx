@@ -6,7 +6,7 @@ import {
     ZoruDropdownMenuSeparator as DropdownMenuSeparator,
     ZoruDropdownMenuTrigger as DropdownMenuTrigger,
     Button,
-} from "@/components/zoruui"
+} from "@/components/sabcrm/20ui/compat"
 import { Plus, Image as ImageIcon, FileText, ClipboardList, ShoppingBag, IndianRupee } from "lucide-react"
 import type { Project } from "@/lib/definitions"
 import { WaPayIcon } from "./custom-sidebar-components"

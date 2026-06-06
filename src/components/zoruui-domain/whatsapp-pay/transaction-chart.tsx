@@ -8,7 +8,7 @@ import {
   ZoruCardDescription as CardDescription,
   ZoruCardHeader as CardHeader,
   ZoruCardTitle as CardTitle,
-} from "@/components/zoruui"
+} from "@/components/sabcrm/20ui/compat"
 import { DateRange } from "react-day-picker"
 import { format, isWithinInterval, startOfDay, endOfDay, parseISO } from "date-fns"
 

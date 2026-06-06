@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZORU_CHART_PALETTE,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { LineChart } from 'lucide-react';
 import type { EmailTimeseriesPoint } from '@/lib/rust-client/email-reports';
 
@@ -46,15 +35,15 @@ export function OpenClickChart({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <LineChart className="h-4 w-4" /> {title}
-        </ZoruCardTitle>
-        <ZoruCardDescription>{description}</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardBody>
         {hasData ? (
-          <ZoruChartContainer height={280}>
+          <ChartContainer height={280}>
             <RechartsLineChart data={points} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-[var(--st-border)]" />
               <XAxis
@@ -67,7 +56,7 @@ export function OpenClickChart({
                 tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
                 stroke="var(--st-border)"
               />
-              <Tooltip content={<ZoruChartTooltip />} />
+              <Tooltip content={<ChartTooltip />} />
               <Line
                 type="monotone"
                 dataKey="opened"
@@ -86,7 +75,7 @@ export function OpenClickChart({
                 dot={false}
               />
             </RechartsLineChart>
-          </ZoruChartContainer>
+          </ChartContainer>
         ) : (
           <EmptyState
             icon={<LineChart />}
@@ -94,7 +83,7 @@ export function OpenClickChart({
             description="Once mail is sent, opens and clicks will appear here."
           />
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -8,22 +8,7 @@ import {
   ShieldCheck,
   ShieldOff,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCollapsible,
-  ZoruCollapsibleContent,
-  ZoruCollapsibleTrigger,
-  EmptyState,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Collapsible, CollapsibleContent, CollapsibleTrigger, EmptyState, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCheckEmailDomain,
   actionRotateDkim,
@@ -68,10 +53,10 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
     startTransition(async () => {
       const result = await actionCheckEmailDomain(domain);
       if (!result.ok) {
-        zoruToast({ title: 'DNS check failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'DNS check failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: `Checked ${domain}` });
+      toast({ title: `Checked ${domain}` });
       onUpdated();
     });
   };
@@ -80,10 +65,10 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
     startTransition(async () => {
       const result = await actionRotateDkim(domain);
       if (!result.ok) {
-        zoruToast({ title: 'DKIM rotation failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'DKIM rotation failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({
+      toast({
         title: 'DKIM rotated',
         description: `New selector: ${result.data.selector}`,
       });
@@ -94,22 +79,22 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
   return (
     <Card className="overflow-hidden p-0">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Domain</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Records</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Domain</Th>
+            <Th>Status</Th>
+            <Th>Records</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {domains.map((d) => (
-            <ZoruTableRow key={d._id}>
-              <ZoruTableCell colSpan={4} className="p-0">
-                <ZoruCollapsible>
+            <Tr key={d._id}>
+              <Td colSpan={4} className="p-0">
+                <Collapsible>
                   <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-3 px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <ZoruCollapsibleTrigger asChild>
+                      <CollapsibleTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -117,7 +102,7 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                         >
                           <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                         </Button>
-                      </ZoruCollapsibleTrigger>
+                      </CollapsibleTrigger>
                       <span className="font-medium text-[var(--st-text)]">{d.domain}</span>
                     </div>
                     <div>
@@ -156,19 +141,19 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                       </Button>
                     </div>
                   </div>
-                  <ZoruCollapsibleContent>
+                  <CollapsibleContent>
                     <div className="space-y-2 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                       <DnsRecordRow record={d.spf} label="SPF" />
                       <DnsRecordRow record={d.dkim} label={`DKIM${d.dkimSelector ? ` (${d.dkimSelector})` : ''}`} />
                       <DnsRecordRow record={d.dmarc} label="DMARC" />
                       <DnsRecordRow record={d.mx} label="MX" />
                     </div>
-                  </ZoruCollapsibleContent>
-                </ZoruCollapsible>
-              </ZoruTableCell>
-            </ZoruTableRow>
+                  </CollapsibleContent>
+                </Collapsible>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </Card>
   );

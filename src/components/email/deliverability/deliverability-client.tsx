@@ -8,22 +8,7 @@ import {
   RefreshCw,
   ShieldCheck,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionGetDeliverabilityScore,
   actionGetLatestPlacementTest,
@@ -58,13 +43,13 @@ export function DeliverabilityClient() {
     ]);
 
     if (scoreRes.ok) setScore(scoreRes.data);
-    else zoruToast({ title: 'Score unavailable', description: scoreRes.error, variant: 'destructive' });
+    else toast({ title: 'Score unavailable', description: scoreRes.error, variant: 'destructive' });
 
     if (domainsRes.ok) setDomains(domainsRes.data);
-    else zoruToast({ title: 'Failed to load domains', description: domainsRes.error, variant: 'destructive' });
+    else toast({ title: 'Failed to load domains', description: domainsRes.error, variant: 'destructive' });
 
     if (warmupsRes.ok) setWarmups(warmupsRes.data);
-    else zoruToast({ title: 'Failed to load warmups', description: warmupsRes.error, variant: 'destructive' });
+    else toast({ title: 'Failed to load warmups', description: warmupsRes.error, variant: 'destructive' });
 
     if (placementRes.ok) setPlacement(placementRes.data);
     // placement is optional — silent on failure
@@ -80,45 +65,45 @@ export function DeliverabilityClient() {
     startTransition(async () => {
       const result = await actionRunPlacementTest();
       if (!result.ok) {
-        zoruToast({ title: 'Placement test failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Placement test failed', description: result.error, variant: 'destructive' });
         return;
       }
       setPlacement(result.data);
-      zoruToast({ title: 'Placement test completed' });
+      toast({ title: 'Placement test completed' });
     });
   };
 
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <ShieldCheck className="h-6 w-6" /> Deliverability
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Authentication, sender reputation, warmup and inbox placement — at a glance.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" onClick={() => void fetchAll()} disabled={loading}>
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Activity className="h-4 w-4" /> Sender score
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Composite signal across authentication, complaints and bounces.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-col items-center gap-3">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="flex flex-col items-center gap-3">
             {loading ? (
               <Skeleton className="h-[168px] w-[168px] rounded-full" />
             ) : score ? (
@@ -143,19 +128,19 @@ export function DeliverabilityClient() {
             ) : (
               <p className="text-sm text-[var(--st-text-secondary)]">No score available.</p>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card className="lg:col-span-2">
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <ZoruCardTitle>Inbox placement</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle>Inbox placement</CardTitle>
+                <CardDescription>
                   {placement
                     ? `Last run ${new Date(placement.runAt).toLocaleString()}`
                     : 'Run a placement test to see where your mail lands.'}
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
               <Button
                 size="sm"
@@ -165,8 +150,8 @@ export function DeliverabilityClient() {
                 <PlayCircle className="h-4 w-4" /> Run test
               </Button>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             {loading ? (
               <Skeleton className="h-32 w-full" />
             ) : placement ? (
@@ -207,7 +192,7 @@ export function DeliverabilityClient() {
                 No placement data yet.
               </p>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 

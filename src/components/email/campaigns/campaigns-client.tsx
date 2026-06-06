@@ -4,38 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Plus, Send, MoreHorizontal, Trash2, FileText, Mail } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailCampaign,
   actionDeleteEmailCampaign,
@@ -63,7 +32,7 @@ export function EmailCampaignsClient() {
     setLoading(true);
     const r = await actionListEmailCampaigns({ limit: 50 });
     if (!r.ok) {
-      zoruToast({ title: 'Failed to load campaigns', description: r.error, variant: 'destructive' });
+      toast({ title: 'Failed to load campaigns', description: r.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -75,34 +44,34 @@ export function EmailCampaignsClient() {
 
   const handleSend = async (c: EmailCampaignDoc) => {
     const r = await actionSendEmailCampaign(c._id);
-    if (!r.ok) { zoruToast({ title: 'Send failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: `Campaign "${c.name}" queued for delivery` });
+    if (!r.ok) { toast({ title: 'Send failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: `Campaign "${c.name}" queued for delivery` });
     refresh();
   };
 
   const handleDelete = async (c: EmailCampaignDoc) => {
     const r = await actionDeleteEmailCampaign(c._id);
-    if (!r.ok) { zoruToast({ title: 'Delete failed', description: r.error, variant: 'destructive' }); return; }
-    zoruToast({ title: 'Campaign deleted' });
+    if (!r.ok) { toast({ title: 'Delete failed', description: r.error, variant: 'destructive' }); return; }
+    toast({ title: 'Campaign deleted' });
     refresh();
   };
 
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Send className="h-6 w-6" /> Campaigns
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>Compose, schedule and send broadcasts to your audience.</ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageTitle>
+          <PageDescription>Compose, schedule and send broadcasts to your audience.</PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New campaign
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {loading ? (
@@ -117,60 +86,60 @@ export function EmailCampaignsClient() {
       ) : (
         <Card className="p-0 overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Subject</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Sent / Scheduled</ZoruTableHead>
-                <ZoruTableHead className="w-[60px]" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Subject</Th>
+                <Th>Status</Th>
+                <Th>Sent / Scheduled</Th>
+                <Th className="w-[60px]" />
+              </Tr>
+            </THead>
+            <TBody>
               {campaigns.map((c) => (
-                <ZoruTableRow key={c._id}>
-                  <ZoruTableCell>
+                <Tr key={c._id}>
+                  <Td>
                     <Link href={`/dashboard/email/campaigns/${c._id}`} className="font-medium hover:underline">
                       {c.name}
                     </Link>
                     <p className="text-xs text-[var(--st-text-secondary)]">{c.fromName} &lt;{c.fromEmail}&gt;</p>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="truncate max-w-sm">{c.subject}</ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td className="truncate max-w-sm">{c.subject}</Td>
+                  <Td>
                     <Badge variant={STATUS_VARIANTS[c.status] ?? 'outline'}>{c.status}</Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)] text-sm">
                     {c.sentAt
                       ? `Sent ${formatDistanceToNow(new Date(c.sentAt), { addSuffix: true })}`
                       : c.scheduledAt
                         ? `Scheduled ${formatDistanceToNow(new Date(c.scheduledAt), { addSuffix: true })}`
                         : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onSelect={() => handleSend(c)} disabled={c.status !== 'draft'}>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => handleSend(c)} disabled={c.status !== 'draft'}>
                           <Send className="h-4 w-4" /> Send now
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/email/campaigns/${c._id}`}>
                             <FileText className="h-4 w-4" /> Open
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onSelect={() => handleDelete(c)} className="text-[var(--st-text)]">
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleDelete(c)} className="text-[var(--st-text)]">
                           <Trash2 className="h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}
@@ -196,7 +165,7 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
 
   const submit = () => {
     if (!name.trim() || !subject.trim() || !fromEmail.trim()) {
-      zoruToast({ title: 'Name, subject, and from email are required', variant: 'destructive' });
+      toast({ title: 'Name, subject, and from email are required', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -207,8 +176,8 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
         fromEmail: fromEmail.trim(),
         body,
       });
-      if (!r.ok) { zoruToast({ title: 'Create failed', description: r.error, variant: 'destructive' }); return; }
-      zoruToast({ title: 'Campaign created as draft' });
+      if (!r.ok) { toast({ title: 'Create failed', description: r.error, variant: 'destructive' }); return; }
+      toast({ title: 'Campaign created as draft' });
       setName(''); setSubject(''); setFromName(''); setFromEmail(''); setBody('');
       onCreated();
       onOpenChange(false);
@@ -217,11 +186,11 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New campaign</ZoruDialogTitle>
-          <ZoruDialogDescription>Start a draft. You can refine the audience, design and schedule before sending.</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>New campaign</DialogTitle>
+          <DialogDescription>Start a draft. You can refine the audience, design and schedule before sending.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
           <div className="space-y-1">
             <Label htmlFor="c-name">Internal name</Label>
@@ -247,13 +216,13 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
             <p className="text-xs text-[var(--st-text-secondary)]">Use the template builder for richer content. Merge tags: <code>{'{{'} firstName {'}}'}</code>, <code>{'{{'} email {'}}'}</code>, <code>{'{{'} unsubscribeUrl {'}}'}</code>.</p>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
           <Button onClick={submit} disabled={pending}>
             {pending ? 'Saving…' : 'Create draft'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

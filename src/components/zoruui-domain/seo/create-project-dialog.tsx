@@ -10,7 +10,7 @@ import {
   ZoruDialogTitle,
   ZoruDialogTrigger,
   Input,
-  zoruToast as toast,
+  toast,
 } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';

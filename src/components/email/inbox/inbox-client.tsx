@@ -2,12 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  ZoruResizableHandle,
-  ZoruResizablePanel,
-  ZoruResizablePanelGroup,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionBulkUpdateEmailInboxThreads,
   actionGetEmailInboxThread,
@@ -88,7 +83,7 @@ export function EmailInboxClient() {
     const res = await actionListEmailInboxThreads(opts);
     setThreadsLoading(false);
     if (!res.ok) {
-      zoruToast({
+      toast({
         title: 'Failed to load conversations',
         description: res.error,
         variant: 'destructive',
@@ -119,7 +114,7 @@ export function EmailInboxClient() {
     });
     setLoadingMore(false);
     if (!res.ok) {
-      zoruToast({
+      toast({
         title: 'Failed to load more',
         description: res.error,
         variant: 'destructive',
@@ -158,7 +153,7 @@ export function EmailInboxClient() {
       if (cancelled) return;
       setThreadDetailLoading(false);
       if (!res.ok) {
-        zoruToast({
+        toast({
           title: 'Failed to open thread',
           description: res.error,
           variant: 'destructive',
@@ -207,7 +202,7 @@ export function EmailInboxClient() {
       startThreadTransition(async () => {
         const res = await actionUpdateEmailInboxThread(id, body);
         if (!res.ok) {
-          zoruToast({
+          toast({
             title: 'Update failed',
             description: res.error,
             variant: 'destructive',
@@ -265,7 +260,7 @@ export function EmailInboxClient() {
               attachments,
             });
             if (!res.ok) {
-              zoruToast({
+              toast({
                 title: 'Send failed',
                 description: res.error,
                 variant: 'destructive',
@@ -273,7 +268,7 @@ export function EmailInboxClient() {
               resolve();
               return;
             }
-            zoruToast({ title: 'Reply sent' });
+            toast({ title: 'Reply sent' });
             // Refresh detail to pick up the new outbound message.
             const detail = await actionGetEmailInboxThread(activeThread._id, {
               limit: 100,
@@ -325,11 +320,11 @@ export function EmailInboxClient() {
   void actionBulkUpdateEmailInboxThreads;
 
   return (
-    <ZoruResizablePanelGroup
+    <ResizablePanelGroup
       direction="horizontal"
       className="h-full min-h-[640px] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]"
     >
-      <ZoruResizablePanel defaultSize={18} minSize={14} maxSize={28}>
+      <ResizablePanel defaultSize={18} minSize={14} maxSize={28}>
         <FilterRail
           active={filter}
           onActiveChange={(f) => {
@@ -344,9 +339,9 @@ export function EmailInboxClient() {
           labels={knownLabels}
           counts={counts}
         />
-      </ZoruResizablePanel>
-      <ZoruResizableHandle withHandle />
-      <ZoruResizablePanel defaultSize={32} minSize={24} maxSize={50}>
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={32} minSize={24} maxSize={50}>
         <ConversationList
           threads={threads}
           selectedId={selectedId}
@@ -359,9 +354,9 @@ export function EmailInboxClient() {
           onLoadMore={loadMore}
           total={total}
         />
-      </ZoruResizablePanel>
-      <ZoruResizableHandle withHandle />
-      <ZoruResizablePanel defaultSize={50} minSize={30}>
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={50} minSize={30}>
         <ThreadView
           thread={activeThread}
           messages={messages}
@@ -372,7 +367,7 @@ export function EmailInboxClient() {
           onToggleUnread={onToggleUnread}
           composer={composerProps}
         />
-      </ZoruResizablePanel>
-    </ZoruResizablePanelGroup>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 }

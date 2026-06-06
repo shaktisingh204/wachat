@@ -3,13 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailJourney,
   actionListEmailJourneyTemplates,
@@ -27,7 +21,7 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
       const r = await actionListEmailJourneyTemplates();
       if (cancelled) return;
       if (!r.ok) {
-        zoruToast({ title: 'Failed to load templates', description: r.error, variant: 'destructive' });
+        toast({ title: 'Failed to load templates', description: r.error, variant: 'destructive' });
         setTemplates([]);
         return;
       }
@@ -46,10 +40,10 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
         trigger: tpl.trigger,
       });
       if (!r.ok) {
-        zoruToast({ title: 'Could not create from template', description: r.error, variant: 'destructive' });
+        toast({ title: 'Could not create from template', description: r.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: `Journey "${r.data.name}" created from template` });
+      toast({ title: `Journey "${r.data.name}" created from template` });
       onCreated?.();
       router.push(`/dashboard/email/journeys/${r.data._id}`);
     });

@@ -2,33 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Filter, Plus, RefreshCw, Trash2 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailSegment,
   actionDeleteEmailSegment,
@@ -49,7 +23,7 @@ export function EmailSegmentsClient() {
     setLoading(true);
     const result = await actionListEmailSegments();
     if (!result.ok) {
-      zoruToast({ title: 'Failed to load segments', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load segments', description: result.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -62,41 +36,41 @@ export function EmailSegmentsClient() {
   const handleDelete = async (seg: EmailSegmentDoc) => {
     const result = await actionDeleteEmailSegment(seg._id);
     if (!result.ok) {
-      zoruToast({ title: 'Delete failed', description: result.error, variant: 'destructive' });
+      toast({ title: 'Delete failed', description: result.error, variant: 'destructive' });
       return;
     }
-    zoruToast({ title: 'Segment deleted' });
+    toast({ title: 'Segment deleted' });
     await refresh();
   };
 
   const handleRecount = async (seg: EmailSegmentDoc) => {
     const result = await actionRecountEmailSegment(seg._id);
     if (!result.ok) {
-      zoruToast({ title: 'Recount failed', description: result.error, variant: 'destructive' });
+      toast({ title: 'Recount failed', description: result.error, variant: 'destructive' });
       return;
     }
-    zoruToast({ title: `Segment matches ${result.data.matches.toLocaleString()}` });
+    toast({ title: `Segment matches ${result.data.matches.toLocaleString()}` });
     await refresh();
   };
 
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Filter className="h-6 w-6" /> Segments
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Build dynamic groups of subscribers using filters on profile, tags, and engagement.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" /> New segment
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {loading ? (
@@ -114,13 +88,13 @@ export function EmailSegmentsClient() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {segments.map((seg) => (
             <Card key={seg._id} className="p-0">
-              <ZoruCardHeader>
-                <ZoruCardTitle>{seg.name}</ZoruCardTitle>
-                <ZoruCardDescription>
+              <CardHeader>
+                <CardTitle>{seg.name}</CardTitle>
+                <CardDescription>
                   {seg.description ?? `Combinator: ${seg.filter.combinator}, ${seg.filter.filters.length} rule${seg.filter.filters.length === 1 ? '' : 's'}`}
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
                 <div className="flex items-center justify-between">
                   <Badge variant="outline">
                     {seg.cachedCount?.toLocaleString() ?? '—'} matches
@@ -131,15 +105,15 @@ export function EmailSegmentsClient() {
                     </span>
                   ) : null}
                 </div>
-              </ZoruCardContent>
-              <ZoruCardFooter className="gap-2">
+              </CardBody>
+              <CardFooter className="gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleRecount(seg)}>
                   <RefreshCw className="h-3 w-3" /> Recount
                 </Button>
                 <Button variant="ghost" size="sm" className="text-[var(--st-text)] ml-auto" onClick={() => handleDelete(seg)}>
                   <Trash2 className="h-3 w-3" /> Delete
                 </Button>
-              </ZoruCardFooter>
+              </CardFooter>
             </Card>
           ))}
         </div>
@@ -167,7 +141,7 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
     startTransition(async () => {
       const result = await actionPreviewEmailSegment({ filter, sampleSize: 5 });
       if (!result.ok) {
-        zoruToast({ title: 'Preview failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Preview failed', description: result.error, variant: 'destructive' });
         return;
       }
       setPreviewMatches(result.data.matches);
@@ -176,7 +150,7 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      zoruToast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: 'Name is required', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -186,10 +160,10 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
         filter,
       });
       if (!result.ok) {
-        zoruToast({ title: 'Create failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Create failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: 'Segment created' });
+      toast({ title: 'Segment created' });
       onCreated();
       onOpenChange(false);
       setName('');
@@ -201,13 +175,13 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-3xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New segment</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>New segment</DialogTitle>
+          <DialogDescription>
             Filter subscribers by profile, tags, and engagement. Preview the match count before saving.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
           <div className="space-y-2">
@@ -224,7 +198,7 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
           </div>
         </div>
 
-        <ZoruDialogFooter className="flex flex-row items-center gap-2 justify-between">
+        <DialogFooter className="flex flex-row items-center gap-2 justify-between">
           <div className="text-sm text-[var(--st-text-secondary)]">
             {previewMatches !== null ? (
               <Badge variant="outline">{previewMatches.toLocaleString()} matches</Badge>
@@ -238,8 +212,8 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
               {pending ? 'Saving…' : 'Save segment'}
             </Button>
           </div>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

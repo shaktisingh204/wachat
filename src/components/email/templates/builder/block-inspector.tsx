@@ -8,20 +8,7 @@
 import { useRef } from 'react';
 import { ImagePlus, Plus, Trash2 } from 'lucide-react';
 
-import {
-  Button,
-  EmptyState,
-  Input,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type {
   EmailBuilderBlock,
@@ -191,14 +178,14 @@ function AlignSelect({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <ZoruSelectTrigger>
-        <ZoruSelectValue />
-      </ZoruSelectTrigger>
-      <ZoruSelectContent>
-        <ZoruSelectItem value="left">Left</ZoruSelectItem>
-        <ZoruSelectItem value="center">Center</ZoruSelectItem>
-        <ZoruSelectItem value="right">Right</ZoruSelectItem>
-      </ZoruSelectContent>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="left">Left</SelectItem>
+        <SelectItem value="center">Center</SelectItem>
+        <SelectItem value="right">Right</SelectItem>
+      </SelectContent>
     </Select>
   );
 }

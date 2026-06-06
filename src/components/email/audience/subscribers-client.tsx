@@ -2,38 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { Plus, Search, Upload, Users } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailSubscriber,
   actionListEmailLists,
@@ -58,7 +27,7 @@ export function EmailSubscribersClient() {
     setLoading(true);
     const listsResult = await actionListEmailLists({ limit: 100 });
     if (!listsResult.ok) {
-      zoruToast({ title: 'Failed to load lists', description: listsResult.error, variant: 'destructive' });
+      toast({ title: 'Failed to load lists', description: listsResult.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -72,7 +41,7 @@ export function EmailSubscribersClient() {
       status: statusFilter !== 'all' ? (statusFilter as EmailSubscriberDoc['status']) : undefined,
     });
     if (!subsResult.ok) {
-      zoruToast({ title: 'Failed to load subscribers', description: subsResult.error, variant: 'destructive' });
+      toast({ title: 'Failed to load subscribers', description: subsResult.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -88,22 +57,22 @@ export function EmailSubscribersClient() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Users className="h-6 w-6" /> Subscribers
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>Manage every contact across your audience lists.</ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageTitle>
+          <PageDescription>Manage every contact across your audience lists.</PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" disabled>
             <Upload className="h-4 w-4" /> Import CSV
           </Button>
           <Button onClick={() => setCreateOpen(true)} disabled={lists.length === 0}>
             <Plus className="h-4 w-4" /> Add subscriber
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card className="p-4 flex flex-wrap gap-3 items-end">
@@ -122,28 +91,28 @@ export function EmailSubscribersClient() {
         <div className="space-y-2 w-[200px]">
           <Label>List</Label>
           <Select value={selectedListId || 'all'} onValueChange={(v) => { setSelectedListId(v === 'all' ? '' : v); setPage(1); }}>
-            <ZoruSelectTrigger><ZoruSelectValue placeholder="All lists" /></ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All lists</ZoruSelectItem>
+            <SelectTrigger><SelectValue placeholder="All lists" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All lists</SelectItem>
               {lists.map((l) => (
-                <ZoruSelectItem key={l._id} value={l._id}>{l.name}</ZoruSelectItem>
+                <SelectItem key={l._id} value={l._id}>{l.name}</SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="space-y-2 w-[180px]">
           <Label>Status</Label>
           <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="subscribed">Subscribed</ZoruSelectItem>
-              <ZoruSelectItem value="unsubscribed">Unsubscribed</ZoruSelectItem>
-              <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-              <ZoruSelectItem value="bounced">Bounced</ZoruSelectItem>
-              <ZoruSelectItem value="complained">Complained</ZoruSelectItem>
-              <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="subscribed">Subscribed</SelectItem>
+              <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="bounced">Bounced</SelectItem>
+              <SelectItem value="complained">Complained</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </Card>
@@ -159,26 +128,26 @@ export function EmailSubscribersClient() {
       ) : (
         <Card className="p-0 overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Email</ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Tags</ZoruTableHead>
-                <ZoruTableHead>Joined</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Email</Th>
+                <Th>Name</Th>
+                <Th>Status</Th>
+                <Th>Tags</Th>
+                <Th>Joined</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {subscribers.map((s) => (
-                <ZoruTableRow key={s._id}>
-                  <ZoruTableCell className="font-medium text-[var(--st-text)]">{s.email}</ZoruTableCell>
-                  <ZoruTableCell>
+                <Tr key={s._id}>
+                  <Td className="font-medium text-[var(--st-text)]">{s.email}</Td>
+                  <Td>
                     {[s.firstName, s.lastName].filter(Boolean).join(' ') || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant="outline">{s.status}</Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex gap-1 flex-wrap">
                       {(s.tags ?? []).slice(0, 3).map((t) => (
                         <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
@@ -187,13 +156,13 @@ export function EmailSubscribersClient() {
                         <span className="text-xs text-[var(--st-text-secondary)]">+{(s.tags!.length - 3)}</span>
                       ) : null}
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)] text-sm">
                     {new Date(s.createdAt).toLocaleDateString()}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}
@@ -243,7 +212,7 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
 
   const handleSubmit = () => {
     if (!email.trim() || !listId) {
-      zoruToast({ title: 'Email and list are required', variant: 'destructive' });
+      toast({ title: 'Email and list are required', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
@@ -256,10 +225,10 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
         tags: tagArray.length ? tagArray : undefined,
       });
       if (!result.ok) {
-        zoruToast({ title: 'Create failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Create failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: 'Subscriber added' });
+      toast({ title: 'Subscriber added' });
       setEmail(''); setFirstName(''); setLastName(''); setTags('');
       onCreated();
       onOpenChange(false);
@@ -268,11 +237,11 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add subscriber</ZoruDialogTitle>
-          <ZoruDialogDescription>Add a single subscriber to one of your lists.</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add subscriber</DialogTitle>
+          <DialogDescription>Add a single subscriber to one of your lists.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor="sub-email">Email</Label>
@@ -281,10 +250,10 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
           <div className="space-y-1">
             <Label>List</Label>
             <Select value={listId} onValueChange={setListId}>
-              <ZoruSelectTrigger><ZoruSelectValue placeholder="Pick a list" /></ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {lists.map((l) => <ZoruSelectItem key={l._id} value={l._id}>{l.name}</ZoruSelectItem>)}
-              </ZoruSelectContent>
+              <SelectTrigger><SelectValue placeholder="Pick a list" /></SelectTrigger>
+              <SelectContent>
+                {lists.map((l) => <SelectItem key={l._id} value={l._id}>{l.name}</SelectItem>)}
+              </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -302,13 +271,13 @@ function CreateSubscriberDialog({ open, onOpenChange, lists, defaultListId, onCr
             <Input id="sub-tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vip, customer" />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Add subscriber'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

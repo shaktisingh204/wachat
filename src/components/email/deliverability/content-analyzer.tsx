@@ -2,16 +2,7 @@
 
 import { useState } from 'react';
 import { Wand2, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Textarea,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
 
 export function ContentAnalyzer() {
   const [content, setContent] = useState('');
@@ -38,19 +29,19 @@ export function ContentAnalyzer() {
 
   return (
     <Card>
-      <ZoruCardHeader>
+      <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <ZoruCardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2">
               <Wand2 className="h-4 w-4" /> Content Analysis & AI Subjects
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Check your email content for spam triggers and generate catchy subject lines.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      </CardHeader>
+      <CardBody className="space-y-4">
         <Textarea 
           placeholder="Paste your email content or draft subject line here..."
           value={content}
@@ -89,7 +80,7 @@ export function ContentAnalyzer() {
             </div>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

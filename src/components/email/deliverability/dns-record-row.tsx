@@ -2,11 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, toast } from '@/components/sabcrm/20ui/compat';
 import type { DnsRecord, DnsRecordStatus } from '@/lib/rust-client/email-deliverability';
 
 interface DnsRecordRowProps {
@@ -40,9 +36,9 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-      zoruToast({ title: 'Copied to clipboard' });
+      toast({ title: 'Copied to clipboard' });
     } catch {
-      zoruToast({
+      toast({
         title: 'Copy failed',
         description: 'Your browser blocked clipboard access.',
         variant: 'destructive',

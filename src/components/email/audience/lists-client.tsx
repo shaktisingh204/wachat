@@ -2,16 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Users } from 'lucide-react';
-import {
-  Button,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionArchiveEmailList,
   actionListEmailLists,
@@ -30,7 +21,7 @@ export function EmailListsClient() {
     setLoading(true);
     const result = await actionListEmailLists({ limit: 100 });
     if (!result.ok) {
-      zoruToast({ title: 'Failed to load lists', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load lists', description: result.error, variant: 'destructive' });
       setLoading(false);
       return;
     }
@@ -43,33 +34,33 @@ export function EmailListsClient() {
   const handleArchive = useCallback(async (list: EmailListDoc) => {
     const result = await actionArchiveEmailList(list._id);
     if (!result.ok) {
-      zoruToast({ title: 'Archive failed', description: result.error, variant: 'destructive' });
+      toast({ title: 'Archive failed', description: result.error, variant: 'destructive' });
       return;
     }
-    zoruToast({ title: `Archived "${list.name}"` });
+    toast({ title: `Archived "${list.name}"` });
     await fetchLists();
   }, [fetchLists]);
 
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Users className="h-6 w-6" /> Audience lists
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Group subscribers into lists. Each list has its own signup form and default sender.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button
             onClick={() => { setEditing(null); setDrawerOpen(true); }}
           >
             <Plus className="h-4 w-4" /> New list
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {loading ? (

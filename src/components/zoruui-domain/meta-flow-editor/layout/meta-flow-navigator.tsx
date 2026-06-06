@@ -24,7 +24,7 @@ import {
     ZoruDropdownMenuLabel as DropdownMenuLabel,
     ZoruDropdownMenuSeparator as DropdownMenuSeparator,
     ZoruDropdownMenuTrigger as DropdownMenuTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { declarativeFlowComponents } from "@/components/zoruui-domain/meta-flow-templates";
 
 interface MetaFlowNavigatorProps {

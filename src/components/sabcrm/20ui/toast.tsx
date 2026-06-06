@@ -7,23 +7,30 @@
  * (so swipe-to-dismiss, pause-on-hover, duration timers, hotkey focus and the
  * announce/role wiring all come battle-tested) and skinned with 20ui tokens.
  *
- * Wire it once near the app root:
+ * Wire the viewport once near the app root:
  *
  *   <ToastProvider>
  *     <App />
  *     <Toaster />        // the corner viewport
  *   </ToastProvider>
  *
- * Then fire toasts from anywhere below it:
+ * Then fire toasts from ANYWHERE — components, event handlers, async helpers,
+ * server-action callbacks — with the standalone `toast()` (sonner-style, no hook
+ * required):
  *
- *   const { toast } = useToast();
+ *   import { toast } from '@/components/sabcrm/20ui';
  *   toast({ title: 'Lead saved', tone: 'success' });
+ *   toast.error('Could not reach the server');
+ *   toast.success('Template saved');
  *   toast({
  *     title: 'Could not reach the server',
  *     description: 'Check your connection and try again.',
  *     tone: 'danger',
  *     action: { label: 'Retry', onClick: refetch },
  *   });
+ *
+ * The hook still works for parity (`const { toast } = useToast()`) and returns
+ * the same imperative function.
  *
  * Tones (info / success / warning / danger / neutral) each render a left tinted
  * edge + a lucide icon. Danger announces assertively (Radix `type="foreground"`,
@@ -68,29 +75,35 @@ export interface ToastOptions {
   description?: React.ReactNode;
   /** Visual + semantic tone. Defaults to `neutral`. */
   tone?: ToastTone;
+  /**
+   * Back-compat alias for `tone`, accepting shadcn-style variant names. Mapped to
+   * a `tone` when `tone` is not given (`destructive` -> `danger`, etc.). Prefer
+   * `tone` in new code.
+   */
+  variant?:
+    | 'default'
+    | 'destructive'
+    | 'success'
+    | 'warning'
+    | 'info'
+    | 'secondary'
+    | 'outline';
   /** An optional action button. */
   action?: ToastAction;
   /** Auto-dismiss delay in ms. Defaults to 5000 (8000 when an action is present). */
   duration?: number;
 }
 
-/** A live toast in the queue (an id + its options + its open flag). */
-interface ToastRecord extends ToastOptions {
+/** A live toast in the queue. */
+interface ToastRecord {
   id: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  tone: ToastTone;
+  action?: ToastAction;
+  duration?: number;
   open: boolean;
 }
-
-interface ToastContextValue {
-  /** Enqueue a toast. Returns its id so callers can dismiss it early. */
-  toast: (options: ToastOptions) => string;
-  /** Dismiss a specific toast by id (runs its exit animation). */
-  dismiss: (id: string) => void;
-}
-
-const ToastContext = React.createContext<ToastContextValue | null>(null);
-// The list of live toasts lives in its own context so `Toaster` can subscribe
-// to it without re-rendering every consumer that only needs `toast()`.
-const ToastListContext = React.createContext<ToastRecord[]>([]);
 
 const TONE_ICON: Record<ToastTone, LucideIcon> = {
   info: Info,
@@ -103,12 +116,142 @@ const TONE_ICON: Record<ToastTone, LucideIcon> = {
 const DEFAULT_DURATION = 5000;
 const DEFAULT_DURATION_WITH_ACTION = 8000;
 
+/** Maps legacy shadcn `variant` strings onto 20ui tones. */
+const VARIANT_TO_TONE: Record<string, ToastTone> = {
+  default: 'neutral',
+  secondary: 'neutral',
+  outline: 'neutral',
+  destructive: 'danger',
+  error: 'danger',
+  success: 'success',
+  warning: 'warning',
+  info: 'info',
+};
+
+function resolveTone(opts: ToastOptions): ToastTone {
+  if (opts.tone) return opts.tone;
+  if (opts.variant && VARIANT_TO_TONE[opts.variant]) return VARIANT_TO_TONE[opts.variant];
+  return 'neutral';
+}
+
+/* ------------------------------------------------------------------ *
+ * Module-level store
+ *
+ * Toasts live in a tiny external store rather than React state so that the
+ * standalone `toast()` can enqueue from anywhere (outside the React tree) while
+ * the `Toaster` viewport subscribes via `useSyncExternalStore`. This is what
+ * lets `toast()` be a plain importable function instead of a hook.
+ * ------------------------------------------------------------------ */
+
+let records: ToastRecord[] = [];
+const listeners = new Set<() => void>();
 let idSeq = 0;
 
+function emit(): void {
+  for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot(): ToastRecord[] {
+  return records;
+}
+
+function enqueue(options: ToastOptions): string {
+  const id = `u-toast-${++idSeq}`;
+  records = [
+    ...records,
+    {
+      id,
+      title: options.title,
+      description: options.description,
+      tone: resolveTone(options),
+      action: options.action,
+      duration: options.duration,
+      open: true,
+    },
+  ];
+  emit();
+  return id;
+}
+
+function setOpen(id: string, open: boolean): void {
+  // Flip open=false so Radix plays the exit animation; the unmount happens in
+  // onOpenChange once the animation has settled.
+  records = records.map((record) => (record.id === id ? { ...record, open } : record));
+  emit();
+}
+
+function removeRecord(id: string): void {
+  records = records.filter((record) => record.id !== id);
+  emit();
+}
+
+/** Dismiss a specific toast by id (runs its exit animation). */
+function dismiss(id: string): void {
+  setOpen(id, false);
+}
+
+/* ------------------------------------------------------------------ *
+ * Imperative API (sonner-style: callable + tone shortcut methods)
+ * ------------------------------------------------------------------ */
+
+type ToastInput = string | ToastOptions | null | undefined;
+
+function toOptions(input: ToastInput, tone: ToastTone): ToastOptions {
+  if (input == null) {
+    return { title: tone === 'danger' ? 'Something went wrong' : 'Done', tone };
+  }
+  if (typeof input === 'string') return { title: input, tone };
+  return { ...input, tone: input.tone ?? tone };
+}
+
+export interface ToastFn {
+  /** Enqueue a toast. Returns its id so callers can dismiss it early. */
+  (options: ToastOptions): string;
+  success: (input: ToastInput) => string;
+  error: (input: ToastInput) => string;
+  warning: (input: ToastInput) => string;
+  info: (input: ToastInput) => string;
+  neutral: (input: ToastInput) => string;
+  /** Alias for the neutral tone. */
+  message: (input: ToastInput) => string;
+  /** Dismiss a specific toast by id. */
+  dismiss: (id: string) => void;
+}
+
+const toastBase = (options: ToastOptions): string => enqueue(options);
+
 /**
- * Provides the toast queue + `useToast()` hook and the underlying Radix
- * provider. Place it high in the tree; render `<Toaster />` as a child to get
- * the actual on-screen viewport.
+ * The standalone imperative toast. Call it directly or use a tone shortcut:
+ *   toast({ title: 'Saved', tone: 'success' });
+ *   toast.error('Could not save');
+ *   toast.success('Saved');
+ */
+export const toast: ToastFn = Object.assign(toastBase, {
+  success: (input: ToastInput) => enqueue(toOptions(input, 'success')),
+  error: (input: ToastInput) => enqueue(toOptions(input, 'danger')),
+  warning: (input: ToastInput) => enqueue(toOptions(input, 'warning')),
+  info: (input: ToastInput) => enqueue(toOptions(input, 'info')),
+  neutral: (input: ToastInput) => enqueue(toOptions(input, 'neutral')),
+  message: (input: ToastInput) => enqueue(toOptions(input, 'neutral')),
+  dismiss,
+});
+
+/* ------------------------------------------------------------------ *
+ * React surface: provider, viewport, hook
+ * ------------------------------------------------------------------ */
+
+/**
+ * Hosts the Radix toast provider (timers, swipe, hotkey, announce wiring). Place
+ * it high in the tree and render `<Toaster />` as a child for the on-screen
+ * viewport. State lives in the module store, so no context is required to fire a
+ * toast — only to display one.
  */
 export function ToastProvider({
   children,
@@ -124,51 +267,24 @@ export function ToastProvider({
   swipeDirection?: ToastSwipeDirection;
   label?: string;
 }): React.JSX.Element {
-  const [toasts, setToasts] = React.useState<ToastRecord[]>([]);
-
-  const dismiss = React.useCallback((id: string) => {
-    // Flip open=false so Radix plays the exit animation; the unmount happens in
-    // onOpenChange once the animation has settled.
-    setToasts((list) => list.map((t) => (t.id === id ? { ...t, open: false } : t)));
-  }, []);
-
-  const remove = React.useCallback((id: string) => {
-    setToasts((list) => list.filter((t) => t.id !== id));
-  }, []);
-
-  const toast = React.useCallback((options: ToastOptions): string => {
-    const id = `u-toast-${++idSeq}`;
-    setToasts((list) => [...list, { ...options, id, open: true }]);
-    return id;
-  }, []);
-
-  const ctx = React.useMemo<ToastContextValue>(() => ({ toast, dismiss }), [toast, dismiss]);
-
   return (
     <RToast.Provider duration={duration} swipeDirection={swipeDirection} label={label}>
-      <ToastContext.Provider value={ctx}>
-        <ToastListContext.Provider value={toasts}>
-          <RemoveContext.Provider value={remove}>{children}</RemoveContext.Provider>
-        </ToastListContext.Provider>
-      </ToastContext.Provider>
+      {children}
     </RToast.Provider>
   );
 }
 
-// Internal: lets each rendered toast tell the provider to drop it post-exit.
-const RemoveContext = React.createContext<(id: string) => void>(() => {});
-
 /**
  * The on-screen viewport: a fixed corner stack that renders every live toast.
  * Portals to <body> (via Radix) and carries the `ui20 sabcrm-twenty` class so
- * tokens resolve no matter where the trigger fired from.
+ * tokens resolve no matter where the trigger fired from. Subscribes to the
+ * module store via `useSyncExternalStore`.
  */
 export function Toaster({
   className,
   ...rest
 }: React.HTMLAttributes<HTMLOListElement>): React.JSX.Element {
-  const toasts = React.useContext(ToastListContext);
-  const remove = React.useContext(RemoveContext);
+  const toasts = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   return (
     <RToast.Viewport
@@ -177,22 +293,16 @@ export function Toaster({
         .join(' ')}
       {...rest}
     >
-      {toasts.map((t) => (
-        <ToastItem key={t.id} record={t} onRemove={remove} />
+      {toasts.map((record) => (
+        <ToastItem key={record.id} record={record} />
       ))}
     </RToast.Viewport>
   );
 }
 
 /** A single rendered toast row. */
-function ToastItem({
-  record,
-  onRemove,
-}: {
-  record: ToastRecord;
-  onRemove: (id: string) => void;
-}): React.JSX.Element {
-  const { id, title, description, tone = 'neutral', action, duration, open } = record;
+function ToastItem({ record }: { record: ToastRecord }): React.JSX.Element {
+  const { id, title, description, tone, action, duration, open } = record;
   const Icon = TONE_ICON[tone];
   const isDanger = tone === 'danger';
   const resolvedDuration = duration ?? (action ? DEFAULT_DURATION_WITH_ACTION : undefined);
@@ -208,7 +318,7 @@ function ToastItem({
       onOpenChange={(next) => {
         // Fires both on auto-timeout/swipe (next=false) and after the exit
         // animation settles — drop the record once it is fully closed.
-        if (!next) onRemove(id);
+        if (!next) removeRecord(id);
       }}
     >
       <span className="u-toast__edge" aria-hidden="true" />
@@ -240,17 +350,16 @@ function ToastItem({
 }
 
 /**
- * Imperative entry point. Returns `{ toast, dismiss }`:
+ * Imperative entry point, kept for parity with hook-based call sites. Returns
+ * `{ toast, dismiss }` — the same functions as the standalone `toast` export, so
+ * it works whether or not a provider is mounted above the caller (only the
+ * `<Toaster />` viewport needs the provider to render).
+ *
  *   const { toast } = useToast();
  *   toast({ title: 'Saved', tone: 'success' });
- * Must be called inside a `<ToastProvider>`.
  */
-export function useToast(): ToastContextValue {
-  const ctx = React.useContext(ToastContext);
-  if (!ctx) {
-    throw new Error('useToast must be used within a <ToastProvider>.');
-  }
-  return ctx;
+export function useToast(): { toast: ToastFn; dismiss: (id: string) => void } {
+  return { toast, dismiss };
 }
 
 export default ToastProvider;

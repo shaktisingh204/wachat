@@ -17,27 +17,7 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Send } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   actionCreateEmailCampaign,
@@ -128,7 +108,7 @@ export function CampaignWizard() {
         segmentIds: state.segmentIds,
       });
       if (!createRes.ok) {
-        zoruToast.error(createRes.error);
+        toast.error(createRes.error);
         return;
       }
       const id = createRes.data._id;
@@ -136,17 +116,17 @@ export function CampaignWizard() {
       if (state.scheduleMode === 'now') {
         const sendRes = await actionSendEmailCampaign(id);
         if (!sendRes.ok) {
-          zoruToast.error(sendRes.error);
+          toast.error(sendRes.error);
           return;
         }
-        zoruToast.success('Campaign queued for sending');
+        toast.success('Campaign queued for sending');
       } else {
         const sched = await actionScheduleEmailCampaign(id, new Date(state.scheduledAt).toISOString());
         if (!sched.ok) {
-          zoruToast.error(sched.error);
+          toast.error(sched.error);
           return;
         }
-        zoruToast.success(`Campaign scheduled for ${new Date(state.scheduledAt).toLocaleString()}`);
+        toast.success(`Campaign scheduled for ${new Date(state.scheduledAt).toLocaleString()}`);
       }
       router.push('/dashboard/email/campaigns');
     });
@@ -155,12 +135,12 @@ export function CampaignWizard() {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>New email campaign</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>New email campaign</PageTitle>
+          <PageDescription>
             Step {state.step} of 5 — {STEP_LABELS[state.step - 1]}
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <StepperBar current={state.step} />
@@ -484,14 +464,14 @@ function StepSchedule({
         <div className="space-y-2">
           <Label htmlFor="recurring-rule">Cadence</Label>
           <Select value={state.recurringRule} onValueChange={(v) => set('recurringRule', v)}>
-            <ZoruSelectTrigger id="recurring-rule">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-              <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-              <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger id="recurring-rule">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="monthly">Monthly</SelectItem>
+            </SelectContent>
           </Select>
           <p className="text-xs text-[color:var(--st-text-secondary)]">
             Recurring schedules persist on the campaign and run via the email-sender worker.

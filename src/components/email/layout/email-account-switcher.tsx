@@ -1,13 +1,7 @@
 'use client';
 
 import { PlusCircle } from 'lucide-react';
-import {
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 
 interface EmailAccountSwitcherProps {
@@ -24,17 +18,17 @@ export function EmailAccountSwitcher({
   return (
     <div className="px-2">
       <Select value={activeAccount._id.toString()} onValueChange={onChange}>
-        <ZoruSelectTrigger className="w-full">
-          <ZoruSelectValue placeholder="Select account" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent className="max-w-[300px]">
-          <ZoruSelectItem value="back_to_list" className="font-medium text-[var(--st-text-secondary)] mb-1">
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select account" />
+        </SelectTrigger>
+        <SelectContent className="max-w-[300px]">
+          <SelectItem value="back_to_list" className="font-medium text-[var(--st-text-secondary)] mb-1">
             ← All accounts
-          </ZoruSelectItem>
+          </SelectItem>
 
           <div className="max-h-[220px] overflow-y-auto">
             {accounts.map((acc) => (
-              <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>
+              <SelectItem key={acc._id.toString()} value={acc._id.toString()}>
                 <div className="flex flex-col items-start text-left overflow-hidden">
                   <span className="font-semibold text-sm truncate w-full">
                     {acc.fromName || 'Account'}
@@ -43,17 +37,17 @@ export function EmailAccountSwitcher({
                     {acc.fromEmail}
                   </span>
                 </div>
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
           </div>
 
           <div className="h-px bg-[var(--st-border)] my-1" />
-          <ZoruSelectItem value="connect_new" className="text-[var(--st-text)] focus:text-[var(--st-text)] font-medium py-3">
+          <SelectItem value="connect_new" className="text-[var(--st-text)] focus:text-[var(--st-text)] font-medium py-3">
             <div className="flex items-center gap-2 font-semibold">
               <PlusCircle className="h-4 w-4" /> Connect a new account
             </div>
-          </ZoruSelectItem>
-        </ZoruSelectContent>
+          </SelectItem>
+        </SelectContent>
       </Select>
     </div>
   );

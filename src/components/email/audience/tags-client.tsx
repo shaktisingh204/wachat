@@ -2,25 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Tag } from 'lucide-react';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import { actionListEmailTags } from '@/app/actions/email/audience.actions';
 import type { TagWithCount } from '@/lib/rust-client/email-audience';
 
@@ -34,7 +16,7 @@ export function TagsClient() {
       if (res.ok) {
         setTags(res.data.tags);
       } else {
-        zoruToast({ title: 'Failed to load tags', description: res.error, variant: 'destructive' });
+        toast({ title: 'Failed to load tags', description: res.error, variant: 'destructive' });
       }
       setLoading(false);
     })();
@@ -43,24 +25,24 @@ export function TagsClient() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Tag className="h-6 w-6" /> Tags
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Organize subscribers with tags that drive segments and journey triggers.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>All Tags</ZoruCardTitle>
-          <ZoruCardDescription>A list of all tags currently assigned to your audience.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>All Tags</CardTitle>
+          <CardDescription>A list of all tags currently assigned to your audience.</CardDescription>
+        </CardHeader>
+        <CardBody>
           {loading ? (
             <div className="space-y-2">
                <Skeleton className="h-10 w-full" />
@@ -73,23 +55,23 @@ export function TagsClient() {
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tag Name</TableHead>
-                  <TableHead className="w-[200px] text-right">Subscribers</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr>
+                  <Th>Tag Name</Th>
+                  <Th className="w-[200px] text-right">Subscribers</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {tags.map((tag) => (
-                  <TableRow key={tag.name}>
-                    <TableCell className="font-medium">{tag.name}</TableCell>
-                    <TableCell className="text-right tabular-nums">{tag.count}</TableCell>
-                  </TableRow>
+                  <Tr key={tag.name}>
+                    <Td className="font-medium">{tag.name}</Td>
+                    <Td className="text-right tabular-nums">{tag.count}</Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

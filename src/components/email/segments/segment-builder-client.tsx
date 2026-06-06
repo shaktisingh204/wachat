@@ -11,25 +11,7 @@
 import { useCallback, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Sigma } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui/compat';
 import type {
   EmailFilterGroup,
   EmailFilterLeaf,
@@ -89,7 +71,7 @@ export function SegmentBuilderClient() {
 
   const handleSubmit = useCallback(() => {
     if (!name.trim()) {
-      zoruToast.error('Name is required');
+      toast.error('Name is required');
       return;
     }
     startTransition(async () => {
@@ -100,10 +82,10 @@ export function SegmentBuilderClient() {
         filter: tree,
       });
       if (!res.ok) {
-        zoruToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruToast.success('Segment created');
+      toast.success('Segment created');
       router.push('/dashboard/email/audience/segments');
     });
   }, [description, listId, name, router, tree]);
@@ -111,12 +93,12 @@ export function SegmentBuilderClient() {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>New segment</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>New segment</PageTitle>
+          <PageDescription>
             Define a dynamic audience using AND/OR rule groups on contact attributes.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card className="space-y-4 p-6">
@@ -217,13 +199,13 @@ function GroupNode({
     >
       <div className="mb-3 flex items-center gap-2">
         <Select value={group.combinator} onValueChange={(v) => setCombinator(v as FilterCombinator)}>
-          <ZoruSelectTrigger className="w-24">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="AND">AND</ZoruSelectItem>
-            <ZoruSelectItem value="OR">OR</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="w-24">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="AND">AND</SelectItem>
+            <SelectItem value="OR">OR</SelectItem>
+          </SelectContent>
         </Select>
         <span className="text-xs text-[color:var(--st-text-secondary)]">
           {group.combinator === 'AND' ? 'All of the following must match' : 'Any of the following can match'}
@@ -280,28 +262,28 @@ function LeafRow({
   return (
     <div className="flex items-center gap-2 rounded border bg-[color:var(--st-bg)] p-2">
       <Select value={leaf.field} onValueChange={(v) => onChange({ ...leaf, field: v })}>
-        <ZoruSelectTrigger className="w-56">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-56">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {FIELD_SUGGESTIONS.map((f) => (
-            <ZoruSelectItem key={f} value={f}>
+            <SelectItem key={f} value={f}>
               {f}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       <Select value={leaf.op} onValueChange={(v) => onChange({ ...leaf, op: v as EmailFilterOp })}>
-        <ZoruSelectTrigger className="w-40">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="w-40">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {OPS.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       {showValue && (
         <Input

@@ -32,13 +32,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import type {
   EmailJourneyEdge,
   EmailJourneyNode,
@@ -197,21 +191,21 @@ export function JourneyCanvas({
       {!readOnly ? (
         <div className="mt-4">
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Plus className="h-4 w-4" /> Add step
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="center">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
               {ADDABLE_TYPES.map((k) => {
                 const Icon = NODE_META[k].icon;
                 return (
-                  <ZoruDropdownMenuItem key={k} onSelect={() => add(k)}>
+                  <DropdownMenuItem key={k} onSelect={() => add(k)}>
                     <Icon className="h-4 w-4" /> {NODE_META[k].label}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 );
               })}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       ) : null}

@@ -3,14 +3,7 @@
 import * as React from 'react';
 import { Loader2, Search, Star } from 'lucide-react';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Input,
-  ScrollArea,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Input, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
 import type { EmailInboxThreadDoc } from '@/lib/rust-client/email-inbox';
 
 export interface ConversationListProps {
@@ -134,9 +127,9 @@ export function ConversationList({
                     )}
                   >
                     <Avatar className="h-9 w-9 shrink-0">
-                      <ZoruAvatarFallback className="text-[11px]">
+                      <AvatarFallback className="text-[11px]">
                         {initialsFor(t)}
-                      </ZoruAvatarFallback>
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <div className="flex items-center gap-2">
@@ -182,9 +175,9 @@ export function ConversationList({
                         </Badge>
                         {t.assignedTo && (
                           <Avatar className="h-4 w-4">
-                            <ZoruAvatarFallback className="text-[8px]">
+                            <AvatarFallback className="text-[8px]">
                               {t.assignedTo.slice(-2).toUpperCase()}
-                            </ZoruAvatarFallback>
+                            </AvatarFallback>
                           </Avatar>
                         )}
                         {(t.labels ?? []).slice(0, 2).map((l) => (

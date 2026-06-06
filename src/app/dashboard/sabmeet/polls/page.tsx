@@ -1,72 +1,151 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { BarChart, Plus } from "lucide-react";
+import {
+    Button,
+    IconButton,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    StatCard,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    TooltipProvider,
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    type BadgeTone,
+} from "@/components/sabcrm/20ui";
+import { BarChart3, Plus, Eye, Vote, Radio, ListChecks } from "lucide-react";
+
+interface Poll {
+    id: string;
+    question: string;
+    room: string;
+    status: "Active" | "Closed";
+    votes: number;
+}
+
+const STATUS_TONE: Record<Poll["status"], BadgeTone> = {
+    Active: "success",
+    Closed: "neutral",
+};
 
 export default function SabMeetPollsPage() {
-    const polls = [
-        { id: "1", question: "What should we order for lunch?", room: "Team Lunch Sync", status: "Closed", votes: 12 },
-        { id: "2", question: "Feature prioritization for Q4", room: "Product Planning", status: "Active", votes: 8 },
-        { id: "3", question: "Preferred sync time next week?", room: "Design Review", status: "Closed", votes: 5 },
+    const polls: Poll[] = [
+        { id: "1", question: "What should we order for the team lunch sync?", room: "Team Lunch Sync", status: "Closed", votes: 12 },
+        { id: "2", question: "Which features should we prioritize for Q4?", room: "Product Planning", status: "Active", votes: 8 },
+        { id: "3", question: "Preferred sync time for next week?", room: "Design Review", status: "Closed", votes: 5 },
     ];
 
+    const totalPolls = polls.length;
+    const activePolls = polls.filter((p) => p.status === "Active").length;
+    const totalVotes = polls.reduce((sum, p) => sum + p.votes, 0);
+
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Meeting Polls</h1>
-                    <p className="text-muted-foreground">Manage interactive polls across your rooms.</p>
-                </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create Poll
-                </Button>
+        <div className="ui20 p-6 space-y-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Meeting Polls</PageTitle>
+                    <PageDescription>Manage interactive polls across your meeting rooms.</PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button variant="primary" iconLeft={Plus}>
+                        Create Poll
+                    </Button>
+                </PageActions>
+            </PageHeader>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <StatCard label="Total Polls" value={totalPolls} icon={ListChecks} />
+                <StatCard label="Active Polls" value={activePolls} icon={Radio} accent="#2e7d32" />
+                <StatCard label="Total Votes" value={totalVotes} icon={Vote} accent="#2b6ef2" />
             </div>
 
-            <Card>
+            <Card padding="none">
                 <CardHeader>
                     <CardTitle>All Polls</CardTitle>
+                    <CardDescription>Every poll created across your rooms, with live vote counts.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Question</TableHead>
-                                <TableHead>Room</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Votes</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {polls.map((poll) => (
-                                <TableRow key={poll.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center space-x-2">
-                                            <BarChart className="h-4 w-4 text-muted-foreground" />
-                                            <span>{poll.question}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{poll.room}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={poll.status === "Active" ? "default" : "secondary"}>
-                                            {poll.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{poll.votes}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm">
-                                            View Results
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
+                <CardBody>
+                    {polls.length === 0 ? (
+                        <EmptyState
+                            icon={BarChart3}
+                            title="No polls yet"
+                            description="Create your first poll to gather votes from participants during a meeting."
+                            action={
+                                <Button variant="primary" iconLeft={Plus}>
+                                    Create Poll
+                                </Button>
+                            }
+                        />
+                    ) : (
+                        <TooltipProvider>
+                            <Table>
+                                <THead>
+                                    <Tr>
+                                        <Th>Question</Th>
+                                        <Th>Room</Th>
+                                        <Th>Status</Th>
+                                        <Th align="right">Votes</Th>
+                                        <Th align="right">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {polls.map((poll) => (
+                                        <Tr key={poll.id}>
+                                            <Td>
+                                                <div className="flex items-center gap-2">
+                                                    <BarChart3
+                                                        className="h-4 w-4 shrink-0 text-[var(--st-text-tertiary)]"
+                                                        aria-hidden="true"
+                                                    />
+                                                    <span className="font-medium text-[var(--st-text)]">{poll.question}</span>
+                                                </div>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)]">{poll.room}</span>
+                                            </Td>
+                                            <Td>
+                                                <Badge tone={STATUS_TONE[poll.status]} dot={poll.status === "Active"}>
+                                                    {poll.status}
+                                                </Badge>
+                                            </Td>
+                                            <Td align="right">
+                                                <span className="tabular-nums text-[var(--st-text)]">{poll.votes}</span>
+                                            </Td>
+                                            <Td align="right">
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <IconButton
+                                                            label={`View results for "${poll.question}"`}
+                                                            icon={Eye}
+                                                            size="sm"
+                                                        />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>View results</TooltipContent>
+                                                </Tooltip>
+                                            </Td>
+                                        </Tr>
+                                    ))}
+                                </TBody>
+                            </Table>
+                        </TooltipProvider>
+                    )}
+                </CardBody>
             </Card>
         </div>
     );

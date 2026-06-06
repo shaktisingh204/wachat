@@ -3,28 +3,7 @@
 import { useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { KeyRound, Trash2 } from 'lucide-react';
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, EmptyState, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionRevokeEmailApiKey,
   type EmailApiKeyDoc,
@@ -52,10 +31,10 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
     startTransition(async () => {
       const result = await actionRevokeEmailApiKey(id);
       if (!result.ok) {
-        zoruToast({ title: 'Revoke failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Revoke failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: `Revoked "${name}"` });
+      toast({ title: `Revoked "${name}"` });
       onChanged();
     });
   };
@@ -63,44 +42,44 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
   return (
     <Card className="overflow-hidden p-0">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Name</ZoruTableHead>
-            <ZoruTableHead>Key prefix</ZoruTableHead>
-            <ZoruTableHead>Scopes</ZoruTableHead>
-            <ZoruTableHead>Last used</ZoruTableHead>
-            <ZoruTableHead className="w-[80px] text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>Key prefix</Th>
+            <Th>Scopes</Th>
+            <Th>Last used</Th>
+            <Th className="w-[80px] text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {keys.map((k) => (
-            <ZoruTableRow key={k._id}>
-              <ZoruTableCell className="font-medium text-[var(--st-text)]">
+            <Tr key={k._id}>
+              <Td className="font-medium text-[var(--st-text)]">
                 {k.name}
                 {k.revokedAt ? (
                   <Badge variant="destructive" className="ml-2">Revoked</Badge>
                 ) : null}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <code className="rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-xs text-[var(--st-text)]">
                   {k.prefix}…
                 </code>
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <div className="flex flex-wrap gap-1">
                   {k.scopes.map((s) => (
                     <Badge key={s} variant="secondary">{s}</Badge>
                   ))}
                 </div>
-              </ZoruTableCell>
-              <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+              </Td>
+              <Td className="text-sm text-[var(--st-text-secondary)]">
                 {k.lastUsedAt
                   ? formatDistanceToNow(new Date(k.lastUsedAt), { addSuffix: true })
                   : 'Never'}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-right">
-                <ZoruAlertDialog>
-                  <ZoruAlertDialogTrigger asChild>
+              </Td>
+              <Td className="text-right">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -109,29 +88,29 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>Revoke this API key?</ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Revoke this API key?</AlertDialogTitle>
+                      <AlertDialogDescription>
                         Any client using <code>{k.prefix}…</code> will immediately
                         stop working. This cannot be undone.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
                         onClick={() => handleRevoke(k._id, k.name)}
                       >
                         Revoke
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
-              </ZoruTableCell>
-            </ZoruTableRow>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </Card>
   );

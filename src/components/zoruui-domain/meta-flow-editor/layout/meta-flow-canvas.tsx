@@ -5,7 +5,7 @@ import {
     ZoruTabsList as TabsList,
     ZoruTabsTrigger as TabsTrigger,
     Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { MetaFlowPreview } from "@/components/zoruui-domain/meta-flow-preview";
 import { Smartphone, Code } from "lucide-react";
 

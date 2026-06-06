@@ -11,7 +11,7 @@ import {
     ZoruCardFooter as CardFooter,
     ZoruCardHeader as CardHeader,
     ZoruCardTitle as CardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import Image from "next/image";
 import CountdownTimer from "../countdown-timer";
 

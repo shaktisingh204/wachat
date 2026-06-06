@@ -8,14 +8,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Monitor, Moon, Smartphone, Sun } from 'lucide-react';
 
-import {
-  Button,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, cn } from '@/components/sabcrm/20ui/compat';
 
 type DeviceMode = 'desktop' | 'mobile';
 type ColorMode = 'light' | 'dark';
@@ -63,10 +56,10 @@ export function DevicePreview({
   const width = device === 'mobile' ? 390 : 720;
 
   return (
-    <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-      <ZoruDrawerContent className="h-[88vh]">
-        <ZoruDrawerHeader className="flex flex-row items-center justify-between">
-          <ZoruDrawerTitle>Preview</ZoruDrawerTitle>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="h-[88vh]">
+        <DrawerHeader className="flex flex-row items-center justify-between">
+          <DrawerTitle>Preview</DrawerTitle>
           <div className="flex items-center gap-2">
             <ToggleGroup
               value={device}
@@ -85,7 +78,7 @@ export function DevicePreview({
               ]}
             />
           </div>
-        </ZoruDrawerHeader>
+        </DrawerHeader>
 
         {warnings.length > 0 ? (
           <div className="mx-4 mb-2 rounded border border-[var(--st-border)]/50 bg-[var(--st-bg-muted)] px-3 py-2 text-xs text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-white">
@@ -107,8 +100,8 @@ export function DevicePreview({
             style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--st-border)', borderRadius: 8, background: 'var(--st-bg-secondary)' }}
           />
         </div>
-      </ZoruDrawerContent>
-    </ZoruDrawer>
+      </DrawerContent>
+    </Drawer>
   );
 }
 

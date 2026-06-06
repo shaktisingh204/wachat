@@ -1,75 +1,195 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Layers, Plus, Settings, Filter, LayoutGrid } from "lucide-react";
+import {
+    Button,
+    IconButton,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Badge,
+    StatCard,
+    EmptyState,
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    TooltipProvider,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    type BadgeTone,
+} from "@/components/sabcrm/20ui";
+import {
+    Layers,
+    Plus,
+    Settings,
+    Pencil,
+    LayoutGrid,
+    Columns3,
+    Calendar,
+    Table2,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+type ViewType = "Grid" | "Kanban" | "Calendar";
+
+interface SavedView {
+    id: string;
+    name: string;
+    table: string;
+    type: ViewType;
+    base: string;
+}
+
+const VIEW_META: Record<ViewType, { icon: LucideIcon; tone: BadgeTone }> = {
+    Grid: { icon: LayoutGrid, tone: "info" },
+    Kanban: { icon: Columns3, tone: "accent" },
+    Calendar: { icon: Calendar, tone: "success" },
+};
 
 export default function SabTablesViewsPage() {
-    const views = [
+    const views: SavedView[] = [
         { id: "1", name: "All Customers", table: "Contacts", type: "Grid", base: "Customer CRM" },
         { id: "2", name: "Q3 Sales Pipeline", table: "Deals", type: "Kanban", base: "Customer CRM" },
         { id: "3", name: "Low Stock Alerts", table: "Products", type: "Grid", base: "Inventory Tracker" },
         { id: "4", name: "Event Calendar", table: "Schedule", type: "Calendar", base: "Event Planning" },
     ];
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Views</h1>
-                    <p className="text-muted-foreground">Manage views for your database tables.</p>
-                </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create View
-                </Button>
-            </div>
+    const baseCount = new Set(views.map((v) => v.base)).size;
+    const gridCount = views.filter((v) => v.type === "Grid").length;
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Saved Views</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>View Name</TableHead>
-                                <TableHead>Table</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Base</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {views.map((view) => (
-                                <TableRow key={view.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center space-x-2">
-                                            <Layers className="h-4 w-4 text-muted-foreground" />
-                                            <span>{view.name}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{view.table}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className="flex items-center space-x-1 w-fit">
-                                            <LayoutGrid className="h-3 w-3 mr-1" />
-                                            {view.type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{view.base}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon">
-                                            <Settings className="h-4 w-4" />
+    return (
+        <TooltipProvider>
+            <div className="ui20 p-6 space-y-6">
+                <PageHeader>
+                    <PageHeaderHeading>
+                        <PageTitle>Views</PageTitle>
+                        <PageDescription>
+                            Manage saved views for your database tables.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                    <PageActions>
+                        <Button variant="primary" iconLeft={Plus}>
+                            Create View
+                        </Button>
+                    </PageActions>
+                </PageHeader>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <StatCard label="Saved views" value={views.length} icon={Layers} />
+                    <StatCard label="Bases" value={baseCount} icon={Table2} />
+                    <StatCard label="Grid views" value={gridCount} icon={LayoutGrid} />
+                </div>
+
+                <Card padding="none">
+                    <CardHeader className="px-5 pt-5">
+                        <CardTitle>Saved Views</CardTitle>
+                        <CardDescription>
+                            Every view configured across your bases and tables.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="px-0 pb-0">
+                        {views.length === 0 ? (
+                            <div className="px-5 py-6">
+                                <EmptyState
+                                    icon={Layers}
+                                    title="No views yet"
+                                    description="Create a Grid, Kanban, or Calendar view to start organizing your table records."
+                                    action={
+                                        <Button variant="primary" iconLeft={Plus}>
+                                            Create View
                                         </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
+                                    }
+                                />
+                            </div>
+                        ) : (
+                            <Table hover>
+                                <THead>
+                                    <Tr>
+                                        <Th>View Name</Th>
+                                        <Th>Table</Th>
+                                        <Th>Type</Th>
+                                        <Th>Base</Th>
+                                        <Th align="right">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {views.map((view) => {
+                                        const meta = VIEW_META[view.type];
+                                        const TypeIcon = meta.icon;
+                                        return (
+                                            <Tr key={view.id}>
+                                                <Td>
+                                                    <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
+                                                        <Layers
+                                                            className="h-4 w-4 text-[var(--st-text-tertiary)]"
+                                                            aria-hidden="true"
+                                                        />
+                                                        {view.name}
+                                                    </span>
+                                                </Td>
+                                                <Td>
+                                                    <span className="text-[var(--st-text-secondary)]">
+                                                        {view.table}
+                                                    </span>
+                                                </Td>
+                                                <Td>
+                                                    <Badge tone={meta.tone} kind="soft">
+                                                        <TypeIcon
+                                                            className="h-3 w-3"
+                                                            aria-hidden="true"
+                                                        />
+                                                        {view.type}
+                                                    </Badge>
+                                                </Td>
+                                                <Td>
+                                                    <span className="text-[var(--st-text-secondary)]">
+                                                        {view.base}
+                                                    </span>
+                                                </Td>
+                                                <Td align="right">
+                                                    <span className="inline-flex items-center justify-end gap-1">
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <IconButton
+                                                                    label={`Edit ${view.name}`}
+                                                                    icon={Pencil}
+                                                                    size="sm"
+                                                                />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>Edit view</TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <IconButton
+                                                                    label={`Settings for ${view.name}`}
+                                                                    icon={Settings}
+                                                                    size="sm"
+                                                                />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>View settings</TooltipContent>
+                                                        </Tooltip>
+                                                    </span>
+                                                </Td>
+                                            </Tr>
+                                        );
+                                    })}
+                                </TBody>
+                            </Table>
+                        )}
+                    </CardBody>
+                </Card>
+            </div>
+        </TooltipProvider>
     );
 }

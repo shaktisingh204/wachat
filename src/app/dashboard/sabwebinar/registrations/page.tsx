@@ -3,29 +3,64 @@
 import React from "react";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
+  CardDescription,
+  CardBody,
+  StatCard,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Users, Mail, CheckCircle2, Download } from "lucide-react";
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  type BadgeTone,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/sabcrm/20ui";
+import {
+  Users,
+  Mail,
+  CheckCircle2,
+  Clock,
+  CalendarClock,
+  Download,
+} from "lucide-react";
+
+type RegistrationStatus = "Confirmed" | "Waitlisted" | "Attended";
+
+interface Registration {
+  id: string;
+  name: string;
+  email: string;
+  webinar: string;
+  status: RegistrationStatus;
+  date: string;
+}
+
+const STATUS_TONE: Record<RegistrationStatus, BadgeTone> = {
+  Confirmed: "info",
+  Attended: "success",
+  Waitlisted: "warning",
+};
 
 export default function RegistrationsPage() {
-  const registrations = [
+  const registrations: Registration[] = [
     {
       id: "reg_1",
       name: "Alice Johnson",
-      email: "alice@example.com",
+      email: "alice.johnson@northwind.io",
       webinar: "Q3 Product Launch Event",
       status: "Confirmed",
       date: "Oct 01, 2026",
@@ -40,91 +75,152 @@ export default function RegistrationsPage() {
     },
     {
       id: "reg_3",
-      name: "Charlie Brown",
-      email: "charlie@snoopy.com",
+      name: "Priya Nair",
+      email: "priya.nair@brightline.co",
       webinar: "Enterprise Sales Strategy",
       status: "Attended",
       date: "Sep 25, 2026",
     },
     {
       id: "reg_4",
-      name: "Diana Prince",
-      email: "diana@themyscira.gov",
+      name: "Diego Ramirez",
+      email: "diego.ramirez@vantage.dev",
       webinar: "Q3 Product Launch Event",
       status: "Confirmed",
       date: "Oct 03, 2026",
     },
   ];
 
-  return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Registrations</h2>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Export CSV
-          </Button>
-        </div>
-      </div>
+  const total = registrations.length;
+  const confirmed = registrations.filter((r) => r.status === "Confirmed").length;
+  const attended = registrations.filter((r) => r.status === "Attended").length;
+  const waitlisted = registrations.filter((r) => r.status === "Waitlisted").length;
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+  return (
+    <TooltipProvider>
+      <div className="ui20 flex-1 space-y-6 p-4 md:p-8 pt-6">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Registrations</PageTitle>
+            <PageDescription>
+              View and manage attendee registrations across all webinars.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="primary" iconLeft={Download}>
+              Export CSV
+            </Button>
+          </PageActions>
+        </PageHeader>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Total registrations"
+            value={total.toLocaleString()}
+            icon={Users}
+          />
+          <StatCard
+            label="Confirmed"
+            value={confirmed.toLocaleString()}
+            icon={CheckCircle2}
+          />
+          <StatCard
+            label="Attended"
+            value={attended.toLocaleString()}
+            icon={CalendarClock}
+          />
+          <StatCard
+            label="Waitlisted"
+            value={waitlisted.toLocaleString()}
+            icon={Clock}
+          />
+        </div>
+
+        <Card padding="none">
+          <CardHeader>
+            <CardTitle>Recent registrations</CardTitle>
+            <CardDescription>
+              The latest attendees who signed up across your webinars.
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,500</div>
-            <p className="text-xs text-muted-foreground">
-              Across all active webinars
-            </p>
-          </CardContent>
+          <CardBody>
+            {registrations.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No registrations yet"
+                description="When attendees sign up for a webinar, they will appear here."
+                action={
+                  <Button variant="primary" iconLeft={Download}>
+                    Export CSV
+                  </Button>
+                }
+              />
+            ) : (
+              <Table hover>
+                <THead>
+                  <Tr>
+                    <Th>Attendee name</Th>
+                    <Th>Email</Th>
+                    <Th>Webinar</Th>
+                    <Th>Registration date</Th>
+                    <Th>Status</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {registrations.map((reg) => (
+                    <Tr key={reg.id}>
+                      <Td>
+                        <span className="font-medium text-[var(--st-text)]">
+                          {reg.name}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
+                          <Mail
+                            size={14}
+                            aria-hidden="true"
+                            className="text-[var(--st-text-tertiary)]"
+                          />
+                          {reg.email}
+                        </span>
+                      </Td>
+                      <Td>{reg.webinar}</Td>
+                      <Td>
+                        <span className="text-[var(--st-text-secondary)]">
+                          {reg.date}
+                        </span>
+                      </Td>
+                      <Td>
+                        <Badge
+                          tone={STATUS_TONE[reg.status]}
+                          dot
+                          kind="soft"
+                        >
+                          {reg.status}
+                        </Badge>
+                      </Td>
+                      <Td align="right">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <IconButton
+                              label={`Email ${reg.name}`}
+                              icon={Mail}
+                              variant="ghost"
+                              size="sm"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>Email attendee</TooltipContent>
+                        </Tooltip>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
+          </CardBody>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Registrations</CardTitle>
-          <CardDescription>View and manage attendee registrations across all webinars.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Attendee Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Webinar</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {registrations.map((reg) => (
-                <TableRow key={reg.id}>
-                  <TableCell className="font-medium">{reg.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Mail className="mr-2 h-4 w-4" />
-                      {reg.email}
-                    </div>
-                  </TableCell>
-                  <TableCell>{reg.webinar}</TableCell>
-                  <TableCell>{reg.date}</TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      reg.status === "Confirmed" ? "default" :
-                      reg.status === "Attended" ? "secondary" : "outline"
-                    }>
-                      {reg.status === "Attended" && <CheckCircle2 className="mr-1 h-3 w-3" />}
-                      {reg.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+    </TooltipProvider>
   );
 }

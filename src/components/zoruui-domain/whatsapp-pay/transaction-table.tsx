@@ -32,7 +32,7 @@ import {
     ZoruTableHeader as TableHeader,
     ZoruTableRow as TableRow,
     Badge,
-} from "@/components/zoruui"
+} from "@/components/sabcrm/20ui/compat"
 import { format } from "date-fns"
 
 export type PaymentTransaction = {

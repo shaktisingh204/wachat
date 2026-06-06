@@ -2,19 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { AlertTriangle, Check, Copy } from 'lucide-react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCreateEmailApiKey,
   type EmailApiKeyScope,
@@ -66,17 +54,17 @@ export function ApiKeyCreateDialog({
 
   const handleCreate = () => {
     if (!name.trim()) {
-      zoruToast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: 'Name is required', variant: 'destructive' });
       return;
     }
     if (scopes.length === 0) {
-      zoruToast({ title: 'Pick at least one scope', variant: 'destructive' });
+      toast({ title: 'Pick at least one scope', variant: 'destructive' });
       return;
     }
     startTransition(async () => {
       const result = await actionCreateEmailApiKey({ name: name.trim(), scopes });
       if (!result.ok) {
-        zoruToast({ title: 'Create failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Create failed', description: result.error, variant: 'destructive' });
         return;
       }
       setRawKey(result.data.rawKey);
@@ -91,23 +79,23 @@ export function ApiKeyCreateDialog({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      zoruToast({ title: 'Copy failed', variant: 'destructive' });
+      toast({ title: 'Copy failed', variant: 'destructive' });
     }
   }, [rawKey]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
             {rawKey ? 'API key created' : 'New API key'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             {rawKey
               ? 'Copy this key now — you will not be able to see it again.'
               : 'Give the key a label and choose the scopes it can act on.'}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         {rawKey ? (
           <div className="space-y-3">
@@ -130,9 +118,9 @@ export function ApiKeyCreateDialog({
                 {copied ? 'Copied' : 'Copy'}
               </Button>
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button onClick={() => onOpenChange(false)}>Done</Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </div>
         ) : (
           <div className="space-y-4">
@@ -174,17 +162,17 @@ export function ApiKeyCreateDialog({
                 })}
               </div>
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button onClick={handleCreate} disabled={pending}>
                 Create key
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </div>
         )}
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

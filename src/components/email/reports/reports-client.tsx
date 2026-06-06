@@ -2,22 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BarChart3, DollarSign, RefreshCw, TrendingUp } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionCompareCampaigns,
   actionGetAccountReport,
@@ -68,7 +53,7 @@ export function ReportsClient() {
     ]);
     if (acctRes.ok) setAccount(acctRes.data);
     else
-      zoruToast({
+      toast({
         title: 'Failed to load account report',
         description: acctRes.error,
         variant: 'destructive',
@@ -99,21 +84,21 @@ export function ReportsClient() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <BarChart3 className="h-6 w-6" /> Reports
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Account-wide rollup of sends, engagement, devices and revenue.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" onClick={() => void fetchAll()} disabled={loading}>
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {loading ? (
@@ -136,23 +121,23 @@ export function ReportsClient() {
 
           {revenue?.totals ? (
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" /> Revenue attribution
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>
+                    </CardTitle>
+                    <CardDescription>
                       Conversions and revenue tied to email sends.
-                    </ZoruCardDescription>
+                    </CardDescription>
                   </div>
                   <Badge variant="secondary">
                     <TrendingUp className="h-3 w-3" />
                     {formatRevenue(revenue.totals.revenuePerEmail, revenue.totals.currency)} / email
                   </Badge>
                 </div>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              </CardHeader>
+              <CardBody>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                     <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Revenue</p>
@@ -173,7 +158,7 @@ export function ReportsClient() {
                     </p>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : null}
 
@@ -186,9 +171,9 @@ export function ReportsClient() {
         </>
       ) : (
         <Card>
-          <ZoruCardContent className="p-6 text-sm text-[var(--st-text-secondary)]">
+          <CardBody className="p-6 text-sm text-[var(--st-text-secondary)]">
             No report data available yet.
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

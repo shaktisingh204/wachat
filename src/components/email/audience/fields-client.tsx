@@ -2,26 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Database } from 'lucide-react';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Skeleton,
-  Badge,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, Tr, Th, TBody, Td, Skeleton, Badge, toast } from '@/components/sabcrm/20ui/compat';
 import { actionGetEmailFieldSchema } from '@/app/actions/email/audience.actions';
 import type { CustomFieldDef } from '@/lib/rust-client/email-audience';
 
@@ -35,7 +16,7 @@ export function FieldsClient() {
       if (res.ok) {
         setFields(res.data.fields);
       } else {
-        zoruToast({ title: 'Failed to load fields schema', description: res.error, variant: 'destructive' });
+        toast({ title: 'Failed to load fields schema', description: res.error, variant: 'destructive' });
       }
       setLoading(false);
     })();
@@ -44,24 +25,24 @@ export function FieldsClient() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Database className="h-6 w-6" /> Custom Fields
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Manage custom data fields for your subscribers.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Schema Definition</ZoruCardTitle>
-          <ZoruCardDescription>Current custom fields configured for your account.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Schema Definition</CardTitle>
+          <CardDescription>Current custom fields configured for your account.</CardDescription>
+        </CardHeader>
+        <CardBody>
           {loading ? (
             <div className="space-y-2">
                <Skeleton className="h-10 w-full" />
@@ -74,25 +55,25 @@ export function FieldsClient() {
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr>
+                  <Th>Key</Th>
+                  <Th>Type</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {fields.map((field) => (
-                  <TableRow key={field.key}>
-                    <TableCell className="font-mono text-xs">{field.key}</TableCell>
-                    <TableCell>
+                  <Tr key={field.key}>
+                    <Td className="font-mono text-xs">{field.key}</Td>
+                    <Td>
                        <Badge variant="secondary">{field.type}</Badge>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

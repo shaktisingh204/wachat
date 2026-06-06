@@ -13,7 +13,7 @@ import {
     ZoruCollapsibleContent as CollapsibleContent,
     ZoruCollapsibleTrigger as CollapsibleTrigger,
     Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { AlertCircle, CheckCircle, ExternalLink, Bot } from "lucide-react";
 import { SeoPageAudit, SeoPageIssue } from "@/lib/seo/definitions";
 import { useState } from "react";
@@ -67,7 +67,7 @@ import {
     ZoruDialogDescription as DialogDescription,
     ZoruDialogFooter as DialogFooter,
     useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 import { generateMetaTagsAction } from "@/app/actions/seo-ai.actions";
 import { Loader2 } from "lucide-react";
 

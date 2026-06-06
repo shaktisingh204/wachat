@@ -10,16 +10,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { FileText, PenLine, Sparkles, Trash2 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui/compat';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
 function relativeTime(iso?: string): string {
@@ -92,14 +83,14 @@ export function TemplateGrid({
               </Badge>
             ) : null}
           </div>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex-1 text-xs text-[var(--st-text-secondary)]">
+          <CardHeader>
+            <CardTitle className="line-clamp-1 text-sm">{t.name}</CardTitle>
+          </CardHeader>
+          <CardBody className="flex-1 text-xs text-[var(--st-text-secondary)]">
             {t.category ? <span className="mr-2">{t.category}</span> : null}
             <span>Updated {relativeTime(t.updatedAt)}</span>
-          </ZoruCardContent>
-          <ZoruCardFooter className="flex items-center justify-between gap-2">
+          </CardBody>
+          <CardFooter className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
               <Button asChild type="button" variant="outline" size="sm">
                 <Link href={`/dashboard/email/templates/${t._id}/builder`}>
@@ -128,7 +119,7 @@ export function TemplateGrid({
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             ) : null}
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
       ))}
     </div>

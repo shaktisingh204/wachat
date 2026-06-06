@@ -13,6 +13,23 @@ export * from './index';
 // standalone <ZoruToaster/> renders don't break during the migration.
 export { ZoruToaster } from '@/components/sabcrm/20ui/zoru';
 
+// --- Gap fills ---------------------------------------------------------------
+// The bulk `@/components/zoruui` -> compat migration repointed these names here,
+// but compat had not re-exported them, so ~169 files broke at bundle time with
+// "has no exported member". Map each to its real implementation. `CardContent`
+// resolves to the canonical 20ui `CardBody`; the rest bridge to the relocated
+// legacy components until the de-zoru cleanup renames usages to clean 20ui names.
+export { CardBody as CardContent } from './index';
+export {
+  zoruSonnerToast,
+  ZORU_CHART_PALETTE,
+  ZoruProvider,
+  zoruBadgeVariants,
+  ZoruDynamicSelector,
+  SabnodeWaterLoader,
+  SabNodeSidebar,
+} from '@/components/sabcrm/20ui/zoru';
+
 export {
   Accordion as ZoruAccordion,
   AccordionContent as ZoruAccordionContent,

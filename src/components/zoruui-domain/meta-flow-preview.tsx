@@ -15,7 +15,7 @@ import {
     Label,
     ScrollArea,
     cn,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/compat";
 
 /**
  * WhatsApp Flow phone preview — renders every v7.3 component the

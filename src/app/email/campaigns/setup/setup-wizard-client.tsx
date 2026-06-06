@@ -14,7 +14,7 @@ import {
   Input,
   Label,
   Textarea,
-  zoruToast,
+  toast,
   Badge,
   Checkbox,
 } from '@/components/sabcrm/20ui/compat';
@@ -54,7 +54,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
 
   const handleCreate = () => {
     if (!name.trim() || !subject.trim() || !fromEmail.trim()) {
-      zoruToast({ title: 'Missing required fields', variant: 'destructive' });
+      toast({ title: 'Missing required fields', variant: 'destructive' });
       return;
     }
 
@@ -71,11 +71,11 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
       });
 
       if (!res.ok) {
-        zoruToast({ title: 'Failed to create campaign', description: res.error, variant: 'destructive' });
+        toast({ title: 'Failed to create campaign', description: res.error, variant: 'destructive' });
         return;
       }
 
-      zoruToast({ title: 'Campaign created successfully' });
+      toast({ title: 'Campaign created successfully' });
       router.push(`/dashboard/email/campaigns/${res.data._id}`);
     });
   };

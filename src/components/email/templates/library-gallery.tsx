@@ -9,17 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { Copy, FileText, Sparkles } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui/compat';
 import { actionForkLibraryTemplate } from '@/app/actions/email/templates.actions';
 import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
@@ -45,10 +35,10 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
     startTransition(async () => {
       const res = await actionForkLibraryTemplate(template._id);
       if (res.ok) {
-        zoruToast({ title: 'Template added', description: `Forked "${template.name}" into your templates.` });
+        toast({ title: 'Template added', description: `Forked "${template.name}" into your templates.` });
         router.push(`/dashboard/email/templates/${res.data._id}/builder`);
       } else {
-        zoruToast({ title: 'Could not fork', description: res.error, variant: 'destructive' });
+        toast({ title: 'Could not fork', description: res.error, variant: 'destructive' });
       }
     });
   };
@@ -74,13 +64,13 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
               <Sparkles className="h-3 w-3" /> Library
             </Badge>
           </div>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex-1 text-xs text-[var(--st-text-secondary)]">
+          <CardHeader>
+            <CardTitle className="line-clamp-1 text-sm">{t.name}</CardTitle>
+          </CardHeader>
+          <CardBody className="flex-1 text-xs text-[var(--st-text-secondary)]">
             {t.category ?? 'General'}
-          </ZoruCardContent>
-          <ZoruCardFooter>
+          </CardBody>
+          <CardFooter>
             <Button
               type="button"
               size="sm"
@@ -90,7 +80,7 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
             >
               <Copy /> {pending ? 'Forking…' : 'Use'}
             </Button>
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
       ))}
     </div>

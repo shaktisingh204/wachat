@@ -3,21 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Plus, CheckCircle2 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
@@ -31,16 +17,16 @@ export function EmailAccountList({ accounts }: EmailAccountListProps) {
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-4">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Mail className="h-7 w-7" /> Email Suite
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Pick an account to manage, or connect a new sender.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <Button asChild>
           <Link href="/dashboard/email/settings?view=connect">
             <Plus className="h-4 w-4" /> Connect new account
@@ -78,7 +64,7 @@ export function EmailAccountList({ accounts }: EmailAccountListProps) {
                   router.push(`/dashboard/email?accountId=${account._id.toString()}`)
                 }
               >
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="p-3 bg-[var(--st-bg)] rounded-lg">
                       <Icon className="h-5 w-5 text-[var(--st-text)]" />
@@ -87,16 +73,16 @@ export function EmailAccountList({ accounts }: EmailAccountListProps) {
                       <CheckCircle2 className="h-3 w-3" /> Connected
                     </Badge>
                   </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                  <ZoruCardTitle className="truncate">
+                </CardHeader>
+                <CardBody>
+                  <CardTitle className="truncate">
                     {account.fromName || 'Unnamed sender'}
-                  </ZoruCardTitle>
-                  <ZoruCardDescription className="truncate">
+                  </CardTitle>
+                  <CardDescription className="truncate">
                     {account.fromEmail || account.provider}
-                  </ZoruCardDescription>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                  </CardDescription>
+                </CardBody>
+                <CardFooter>
                   <Button
                     asChild
                     variant="outline"
@@ -109,7 +95,7 @@ export function EmailAccountList({ accounts }: EmailAccountListProps) {
                       Open
                     </Link>
                   </Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
             );
           })}

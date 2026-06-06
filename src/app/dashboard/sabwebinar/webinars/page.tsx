@@ -2,33 +2,70 @@
 
 import React from "react";
 import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
+  CardDescription,
+  CardBody,
+  StatCard,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Video, Plus, Calendar, Users, Settings } from "lucide-react";
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  Dot,
+  EmptyState,
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
+import {
+  Video,
+  Plus,
+  Calendar,
+  Users,
+  Settings,
+  CalendarClock,
+  Radio,
+} from "lucide-react";
+
+type WebinarStatus = "Upcoming" | "Live" | "Ended";
+
+interface Webinar {
+  id: string;
+  title: string;
+  status: WebinarStatus;
+  date: string;
+  registrations: number;
+  host: string;
+}
+
+const STATUS_TONE: Record<WebinarStatus, BadgeTone> = {
+  Upcoming: "info",
+  Live: "danger",
+  Ended: "neutral",
+};
 
 export default function WebinarsPage() {
-  const webinars = [
+  const webinars: Webinar[] = [
     {
       id: "web_1",
       title: "Q3 Product Launch Event",
       status: "Upcoming",
       date: "Oct 15, 2026",
       registrations: 450,
-      host: "Jane Doe",
+      host: "Priya Nair",
     },
     {
       id: "web_2",
@@ -36,7 +73,7 @@ export default function WebinarsPage() {
       status: "Live",
       date: "Oct 10, 2026",
       registrations: 1200,
-      host: "John Smith",
+      host: "Marcus Reed",
     },
     {
       id: "web_3",
@@ -48,81 +85,137 @@ export default function WebinarsPage() {
     },
   ];
 
+  const totalWebinars = webinars.length;
+  const liveCount = webinars.filter((w) => w.status === "Live").length;
+  const upcomingCount = webinars.filter((w) => w.status === "Upcoming").length;
+  const totalRegistrations = webinars.reduce(
+    (sum, w) => sum + w.registrations,
+    0,
+  );
+
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Webinars</h2>
-        <div className="flex items-center space-x-2">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Schedule Webinar
+    <div className="ui20 flex-1 space-y-6 p-4 md:p-8 pt-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Webinars</PageTitle>
+          <PageDescription>
+            Schedule, host, and track every live and on-demand session.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
+            Schedule webinar
           </Button>
-        </div>
+        </PageActions>
+      </PageHeader>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total webinars"
+          value={totalWebinars}
+          icon={Video}
+        />
+        <StatCard
+          label="Live now"
+          value={liveCount}
+          icon={Radio}
+          delta={liveCount > 0 ? { value: "On air", tone: "up" } : undefined}
+        />
+        <StatCard
+          label="Upcoming"
+          value={upcomingCount}
+          icon={CalendarClock}
+        />
+        <StatCard
+          label="Total registrations"
+          value={totalRegistrations.toLocaleString()}
+          icon={Users}
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Webinars</CardTitle>
-            <Video className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              +3 from last month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
+      <Card padding="none">
         <CardHeader>
-          <CardTitle>Your Webinars</CardTitle>
-          <CardDescription>Manage and track all your scheduled and past webinars.</CardDescription>
+          <CardTitle>Your webinars</CardTitle>
+          <CardDescription>
+            Manage and track all your scheduled and past webinars.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Host</TableHead>
-                <TableHead>Registrations</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {webinars.map((webinar) => (
-                <TableRow key={webinar.id}>
-                  <TableCell className="font-medium">{webinar.title}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {webinar.date}
-                    </div>
-                  </TableCell>
-                  <TableCell>{webinar.host}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {webinar.registrations}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={webinar.status === "Live" ? "destructive" : webinar.status === "Upcoming" ? "default" : "secondary"}>
-                      {webinar.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+        <CardBody>
+          {webinars.length === 0 ? (
+            <EmptyState
+              icon={Video}
+              title="No webinars yet"
+              description="Schedule your first session to start collecting registrations."
+              action={
+                <Button variant="primary" iconLeft={Plus}>
+                  Schedule webinar
+                </Button>
+              }
+            />
+          ) : (
+            <TooltipProvider>
+              <Table hover>
+                <THead>
+                  <Tr>
+                    <Th>Title</Th>
+                    <Th>Date</Th>
+                    <Th>Host</Th>
+                    <Th align="right">Registrations</Th>
+                    <Th>Status</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {webinars.map((webinar) => (
+                    <Tr key={webinar.id}>
+                      <Td>
+                        <span className="font-medium text-[var(--st-text)]">
+                          {webinar.title}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                          <Calendar
+                            className="h-4 w-4 text-[var(--st-text-tertiary)]"
+                            aria-hidden="true"
+                          />
+                          {webinar.date}
+                        </span>
+                      </Td>
+                      <Td>{webinar.host}</Td>
+                      <Td align="right">
+                        <span className="tabular-nums text-[var(--st-text)]">
+                          {webinar.registrations.toLocaleString()}
+                        </span>
+                      </Td>
+                      <Td>
+                        <Badge tone={STATUS_TONE[webinar.status]}>
+                          {webinar.status === "Live" ? (
+                            <Dot tone="danger" pulse aria-hidden="true" />
+                          ) : null}
+                          {webinar.status}
+                        </Badge>
+                      </Td>
+                      <Td align="right">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <IconButton
+                              icon={Settings}
+                              label={`Manage ${webinar.title}`}
+                              variant="ghost"
+                              size="sm"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>Manage webinar</TooltipContent>
+                        </Tooltip>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </TooltipProvider>
+          )}
+        </CardBody>
       </Card>
     </div>
   );

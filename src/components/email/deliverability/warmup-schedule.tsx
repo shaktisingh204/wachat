@@ -7,17 +7,7 @@ import {
   Play,
   X,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  zoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui/compat';
 import {
   actionUpdateWarmupRun,
   type WarmupRunDoc,
@@ -60,10 +50,10 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
     startTransition(async () => {
       const result = await actionUpdateWarmupRun(id, action);
       if (!result.ok) {
-        zoruToast({ title: 'Warmup update failed', description: result.error, variant: 'destructive' });
+        toast({ title: 'Warmup update failed', description: result.error, variant: 'destructive' });
         return;
       }
-      zoruToast({ title: `Warmup ${action}d` });
+      toast({ title: `Warmup ${action}d` });
       onUpdated();
     });
   };
@@ -78,15 +68,15 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
 
         return (
           <Card key={run._id}>
-            <ZoruCardHeader>
+            <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <ZoruCardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2">
                     <Flame className="h-4 w-4" /> {run.domain}
-                  </ZoruCardTitle>
-                  <ZoruCardDescription>
+                  </CardTitle>
+                  <CardDescription>
                     Day {run.currentDay} of {totalDays} · peak {peakCap.toLocaleString()} / day
-                  </ZoruCardDescription>
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant={statusVariant(run.status)}>{run.status}</Badge>
@@ -122,8 +112,8 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                   ) : null}
                 </div>
               </div>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            </CardHeader>
+            <CardBody>
               <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                 <div
                   className="h-full bg-[var(--st-text)] transition-[width] duration-500"
@@ -156,7 +146,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                   );
                 })}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         );
       })}
