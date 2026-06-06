@@ -31,7 +31,7 @@ export function SabpracticeNav() {
                         className={cn(
                             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                             active
-                                ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-contrast)]'
+                                ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >

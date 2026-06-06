@@ -34,7 +34,7 @@ export function SabopsNav() {
                         className={cn(
                             "rounded-md px-3 py-1.5 text-sm transition-colors whitespace-nowrap",
                             active
-                                ? "bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]"
+                                ? "bg-[var(--st-accent)] text-[var(--st-text-inverted)]"
                                 : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
                         )}
                     >

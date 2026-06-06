@@ -210,7 +210,7 @@ function StepperBar({ current }: { current: WizardState['step'] }) {
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium ${
                 isDone
-                  ? 'border-transparent bg-[color:var(--st-accent)] text-[color:var(--zoru-accent-foreground)]'
+                  ? 'border-transparent bg-[color:var(--st-accent)] text-[color:var(--st-text-inverted)]'
                   : isActive
                     ? 'border-[color:var(--st-accent)] text-[color:var(--st-accent)]'
                     : 'border-[color:var(--st-border)] text-[color:var(--st-text-secondary)]'

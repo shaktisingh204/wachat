@@ -30,7 +30,7 @@ export default function BugTrackerLayout({
         <span className="ml-auto" />
         <Link
           href="/dashboard/sabbugs/new"
-          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--st-accent)] px-3 text-sm font-medium text-[var(--zoru-on-accent)] shadow hover:opacity-90"
+          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--st-accent)] px-3 text-sm font-medium text-[var(--st-text-inverted)] shadow hover:opacity-90"
         >
           + New bug
         </Link>

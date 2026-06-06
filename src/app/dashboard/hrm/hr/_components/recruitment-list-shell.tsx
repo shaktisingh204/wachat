@@ -299,7 +299,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
           className={[
             'inline-flex items-center gap-1 rounded-[calc(var(--st-radius)-2px)] px-2.5 py-1 text-[12px]',
             activeView === v.key
-              ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-xs)]'
+              ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
               : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
           ].join(' ')}
         >

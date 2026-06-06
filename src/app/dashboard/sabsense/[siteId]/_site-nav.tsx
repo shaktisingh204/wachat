@@ -39,7 +39,7 @@ export function PagesenseSiteNav({ siteId }: Props) {
                         className={cn(
                             'rounded-sm px-3 py-1.5 text-sm transition-colors',
                             active
-                                ? 'bg-[color:var(--st-accent)] text-[color:var(--zoru-accent-fg)]'
+                                ? 'bg-[color:var(--st-accent)] text-[color:var(--st-text-inverted)]'
                                 : 'text-[color:var(--st-text-secondary)] hover:bg-[color:var(--st-bg-muted)]',
                         )}
                     >

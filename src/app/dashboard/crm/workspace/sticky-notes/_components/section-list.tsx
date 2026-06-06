@@ -89,7 +89,7 @@ export function SectionList({
                   className={[
                     'group flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm',
                     active
-                      ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]'
+                      ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                       : 'hover:bg-[var(--st-bg-muted)]',
                   ].join(' ')}
                 >

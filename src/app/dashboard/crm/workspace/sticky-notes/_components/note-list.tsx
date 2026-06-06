@@ -197,7 +197,7 @@ export function NoteList({
                   className={[
                     'flex w-full flex-col gap-1 border-b border-[var(--st-border)] px-3 py-2 text-left',
                     active
-                      ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]'
+                      ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                       : 'hover:bg-[var(--st-bg-muted)]',
                   ].join(' ')}
                 >
