@@ -598,9 +598,9 @@ function DeleteDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete the pipeline{' '}
-            <strong style={{ color: 'var(--st-text)' }}>
+            <strong className="text-[var(--st-text)]">
               {pipeline.name || 'Untitled pipeline'}
             </strong>
             ? Its stages will be removed. This cannot be undone.
@@ -835,12 +835,12 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
 
         {isLoadingProject || loading ? (
           <div className="pl-layout">
-            <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+            <div className="st-table-wrap p-[var(--st-space-3)]">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="st-skeleton st-skeleton-row" />
               ))}
             </div>
-            <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+            <div className="st-table-wrap p-[var(--st-space-3)]">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="st-skeleton st-skeleton-row" />
               ))}

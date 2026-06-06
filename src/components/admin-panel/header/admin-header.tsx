@@ -49,8 +49,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
     return (
         <header
-            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-zoru-surface/50 bg-zoru-surface/85 transition-colors duration-500"
-            style={{ borderBottom: '1px solid var(--app-border)' }}
+            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-zoru-surface/50 bg-zoru-surface/85 transition-colors duration-500 border-b border-[var(--app-border)]"
         >
             {/* ── Left ── */}
             <div className="flex items-center gap-2 min-w-0">
@@ -62,13 +61,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
                 {/* App indicator pill */}
                 <div
-                    className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold shrink-0 transition-all duration-500"
-                    style={{
-                        background: 'var(--app-light)',
-                        color: 'var(--app-text)',
-                        border: '1px solid var(--app-border)',
-                        boxShadow: '0 0 10px var(--app-glow)',
-                    }}
+                    className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold shrink-0 transition-all duration-500 bg-[var(--app-light)] text-[var(--app-text)] border border-[var(--app-border)] shadow-[0_0_10px_var(--app-glow)]"
                 >
                     <span className="text-base leading-none">{meta.icon}</span>
                     <span>{meta.label}</span>
@@ -79,8 +72,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                     <div className="hidden md:flex items-center gap-1 min-w-0">
                         <span className="text-zoru-ink-muted/40 text-sm">/</span>
                         <span
-                            className="text-sm font-medium truncate max-w-[140px]"
-                            style={{ color: 'var(--app-text)' }}
+                            className="text-sm font-medium truncate max-w-[140px] text-[var(--app-text)]"
                             title={activeProject.name}
                         >
                             {activeProject.name}
@@ -95,14 +87,12 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
                 {/* User pill */}
                 <div
-                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-zoru-surface/80 hover:bg-zoru-surface transition-colors cursor-pointer"
-                    style={{ border: '1px solid var(--app-border)' }}
+                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-zoru-surface/80 hover:bg-zoru-surface transition-colors cursor-pointer border border-[var(--app-border)]"
                 >
                     <Avatar className="h-7 w-7 shrink-0">
                         <ZoruAvatarImage src={avatarSrc} alt={displayName} />
                         <ZoruAvatarFallback
-                            className="text-xs font-bold"
-                            style={{ background: 'var(--app-light)', color: 'var(--app-text)' }}
+                            className="text-xs font-bold bg-[var(--app-light)] text-[var(--app-text)]"
                         >
                             {initials}
                         </ZoruAvatarFallback>

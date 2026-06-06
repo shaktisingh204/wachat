@@ -123,7 +123,7 @@ function ErrorBanner({ message }: { message: string }): React.JSX.Element {
 
 function RowsSkeleton({ count = 5 }: { count?: number }): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <div className="st-table-wrap p-[var(--st-space-3)]">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
@@ -409,7 +409,7 @@ function DeleteTagDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete the tag{' '}
             <TagChip tag={tag} />? It will be removed from every record it is
             applied to. This cannot be undone.
@@ -455,7 +455,7 @@ function TagRow({
       <td>
         <TagChip tag={tag} />
       </td>
-      <td style={{ color: 'var(--st-text-secondary)' }}>
+      <td className="text-[var(--st-text-secondary)]">
         {count} {count === 1 ? 'record' : 'records'}
       </td>
       <td className="tg-col-actions">

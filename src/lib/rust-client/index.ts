@@ -25,6 +25,26 @@ import { sessionApi } from './session';
 import { templatesApi } from './templates';
 import { usersApi } from './users';
 import { wachatContactsApi } from './wachat-contacts';
+import { wachatCannedMessagesApi } from './wachat-canned-messages';
+import { wachatAiTrainingApi } from './wachat-ai-training';
+import { wachatInteractiveBuilderApi } from './wachat-interactive-builder';
+import { wachatSetupKbApi } from './wachat-setup-kb';
+import { wachatAdsRoadmapApi } from './wachat-ads-roadmap';
+import { wachatQualityHistoryApi } from './wachat-quality-history';
+import { wachatFlowEventsApi } from './wachat-flow-events';
+import { wachatOptOutSettingsApi } from './wachat-opt-out-settings';
+import { wachatAbTestingApi } from './wachat-ab-testing';
+import { wachatContactMergeApi } from './wachat-contact-merge';
+import { wachatAutoReplySettingsApi } from './wachat-auto-reply-settings';
+import { wachatProjectAgentsApi } from './wachat-project-agents';
+import { wachatProjectAttributesApi } from './wachat-project-attributes';
+import { wachatLinkGeneratorApi } from './wachat-link-generator';
+import { wachatWidgetTrackingApi } from './wachat-widget-tracking';
+import { wachatIntegrationsHubApi } from './wachat-integrations-hub';
+import { wachatRazorpayApi } from './wachat-razorpay';
+import { wachatPostGeneratorApi } from './wachat-post-generator';
+import { wachatContactsExportSyncApi } from './wachat-contacts-export-sync';
+import { wachatNumberRoutingApi } from './wachat-number-routing';
 import { sabchatApi } from './sabchat';
 import { sabchatKbApi } from './sabchat-knowledge';
 import { sabchatReportsApi } from './sabchat-reports';
@@ -100,6 +120,26 @@ export const rustClient = {
     session: sessionApi,
     projects: projectsApi,
     wachatContacts: wachatContactsApi,
+    wachatCannedMessages: wachatCannedMessagesApi,
+    wachatAiTraining: wachatAiTrainingApi,
+    wachatInteractiveBuilder: wachatInteractiveBuilderApi,
+    wachatSetupKb: wachatSetupKbApi,
+    wachatAdsRoadmap: wachatAdsRoadmapApi,
+    wachatQualityHistory: wachatQualityHistoryApi,
+    wachatFlowEvents: wachatFlowEventsApi,
+    wachatOptOutSettings: wachatOptOutSettingsApi,
+    wachatAbTesting: wachatAbTestingApi,
+    wachatContactMerge: wachatContactMergeApi,
+    wachatAutoReplySettings: wachatAutoReplySettingsApi,
+    wachatProjectAgents: wachatProjectAgentsApi,
+    wachatProjectAttributes: wachatProjectAttributesApi,
+    wachatLinkGenerator: wachatLinkGeneratorApi,
+    wachatWidgetTracking: wachatWidgetTrackingApi,
+    wachatIntegrationsHub: wachatIntegrationsHubApi,
+    wachatRazorpay: wachatRazorpayApi,
+    wachatPostGenerator: wachatPostGeneratorApi,
+    wachatContactsExportSync: wachatContactsExportSyncApi,
+    wachatNumberRouting: wachatNumberRoutingApi,
     sabchat: sabchatApi,
     sabchatKb: sabchatKbApi,
     sabchatReports: sabchatReportsApi,

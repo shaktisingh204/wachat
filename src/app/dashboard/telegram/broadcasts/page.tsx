@@ -114,7 +114,6 @@ import type {
 //  Constants
 // ---------------------------------------------------------------------------
 
-const ACCENT = 'var(--zoru-ink)';
 const PAGE_SIZE = 25;
 
 const STATUS_OPTIONS: { value: 'all' | BroadcastStatus; label: string }[] = [
@@ -866,9 +865,9 @@ export default function TelegramBroadcastsPage() {
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <PageHeader>
                 <ZoruPageHeading>
-                    <ZoruPageEyebrow style={{ color: ACCENT }}>Telegram</ZoruPageEyebrow>
+                    <ZoruPageEyebrow className="text-[var(--zoru-ink)]">Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
-                        <Megaphone style={{ color: ACCENT }} />
+                        <Megaphone className="text-[var(--zoru-ink)]" />
                         Telegram Broadcasts
                     </ZoruPageTitle>
                     <ZoruPageDescription>
@@ -880,7 +879,7 @@ export default function TelegramBroadcastsPage() {
                     <Button
                         type="button"
                         onClick={openNewComposer}
-                        style={{ backgroundColor: ACCENT, color: 'white' }}
+                        className="bg-[var(--zoru-ink)] text-white"
                     >
                         <Plus /> New broadcast
                     </Button>
@@ -1439,12 +1438,9 @@ function Composer(props: ComposerProps) {
                                     onClick={() => update('audienceKind', k.value)}
                                     className={`rounded-md border px-3 py-2 text-left text-sm transition ${
                                         composer.audienceKind === k.value
-                                            ? 'border-[color:var(--accent)] bg-[color:var(--accent)]/10'
+                                            ? 'border-[var(--zoru-ink)] bg-[var(--zoru-ink)]/10'
                                             : 'border-zoru-border hover:bg-zoru-bg-zoru-surface-2'
                                     }`}
-                                    style={{
-                                        ['--accent' as any]: ACCENT,
-                                    }}
                                 >
                                     {k.label}
                                 </button>
@@ -1874,7 +1870,7 @@ function Composer(props: ComposerProps) {
                             type="button"
                             onClick={onSendNow}
                             disabled={saving}
-                            style={{ backgroundColor: ACCENT, color: 'white' }}
+                            className="bg-[var(--zoru-ink)] text-white"
                         >
                             {saving ? <Loader2 className="animate-spin" /> : <Send />}
                             Save & send now
@@ -1971,7 +1967,7 @@ function DetailDrawer(props: DetailDrawerProps) {
             <ZoruDrawerContent className="max-h-[92vh]">
                 <ZoruDrawerHeader>
                     <ZoruDrawerTitle className="flex items-center gap-2">
-                        <Megaphone style={{ color: ACCENT }} />
+                        <Megaphone className="text-[var(--zoru-ink)]" />
                         {row.name}
                     </ZoruDrawerTitle>
                     <ZoruDrawerDescription>

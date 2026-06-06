@@ -974,28 +974,27 @@ function ResultsSkeleton(): React.JSX.Element {
       {Array.from({ length: 2 }).map((_, i) => (
         <div
           key={i}
-          className="stw-group"
-          style={{ padding: 'var(--st-space-3)' }}
+          className="stw-group p-[var(--st-space-3)]"
         >
           <Skeleton
             height={16}
             width={120}
-            style={{ marginBottom: 'var(--st-space-3)' }}
+            className="mb-[var(--st-space-3)]"
           />
           <Skeleton
             height={28}
             width="100%"
-            style={{ display: 'block', marginTop: 8 }}
+            className="block mt-2"
           />
           <Skeleton
             height={28}
             width="100%"
-            style={{ display: 'block', marginTop: 8 }}
+            className="block mt-2"
           />
           <Skeleton
             height={28}
             width="75%"
-            style={{ display: 'block', marginTop: 8 }}
+            className="block mt-2"
           />
         </div>
       ))}

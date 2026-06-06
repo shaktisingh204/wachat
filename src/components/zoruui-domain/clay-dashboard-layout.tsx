@@ -2992,15 +2992,10 @@ export function ClayDashboardLayout({
               type="button"
               onClick={() => router.push('/dashboard/settings/billing')}
               aria-label={`Plan: ${plan?.name || 'Free'}`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface pl-2 pr-3 text-[12px] font-medium text-zoru-ink transition-colors hover:border-zoru-line"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(236,72,153,0.08) 0%, rgba(236,72,153,0.02) 100%)',
-              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-zoru-line bg-[linear-gradient(180deg,rgba(236,72,153,0.08)_0%,rgba(236,72,153,0.02)_100%)] pl-2 pr-3 text-[12px] font-medium text-zoru-ink transition-colors hover:border-zoru-line"
             >
               <span
-                className="flex h-5 w-5 items-center justify-center rounded-full text-white"
-                style={{ background: 'var(--zoru-ink)' }}
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--zoru-ink)] text-white"
               >
                 <LuStar className="h-3 w-3" strokeWidth={2.5} />
               </span>
@@ -3558,8 +3553,7 @@ function ClayAdManagerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuMegaphone className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3589,8 +3583,7 @@ function ClayInstagramBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuImage className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3620,8 +3613,7 @@ function ClaySabFlowBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuWorkflow className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3651,8 +3643,7 @@ function ClaySettingsBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuSettings className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3680,8 +3671,7 @@ function ClayTeamBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuUsers className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3709,8 +3699,7 @@ function ClayTelegramBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuSend className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3740,8 +3729,7 @@ function ClayMetaBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuGlobe className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3771,8 +3759,7 @@ function ClayUrlShortenerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuLink className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3802,8 +3789,7 @@ function ClayCrmBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuBriefcase className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3833,8 +3819,7 @@ function ClaySabFlowExtraBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuZap className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3864,8 +3849,7 @@ function ClayQrCodeMakerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: 'var(--zoru-ink)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
         >
           <LuQrCode className="h-4 w-4 text-white" strokeWidth={2} />
         </div>

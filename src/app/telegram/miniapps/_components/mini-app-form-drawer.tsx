@@ -30,7 +30,6 @@ import {
 } from '@/app/actions/telegram-extra.actions';
 import type { MiniAppRow, UpsertBody, ThemeParams } from '@/lib/rust-client/telegram-mini-apps';
 
-const ACCENT = '#229ED9';
 const SLUG_RE = /^[a-z0-9_]+$/;
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
@@ -548,7 +547,7 @@ export function MiniAppFormDrawer({
           <Button
             onClick={submit}
             disabled={!canSubmit}
-            style={{ backgroundColor: ACCENT }}
+            className="bg-[#229ED9]"
           >
             {saving ? (
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
