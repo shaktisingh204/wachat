@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from '@/components/sabcrm/20ui';
+import { RotateCcw, TriangleAlert } from "lucide-react";
+import { Button, EmptyState } from "@/components/sabcrm/20ui";
 
 export default function SocialMediaSchedulerError({
   error,
@@ -15,12 +16,18 @@ export default function SocialMediaSchedulerError({
   }, [error]);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-4 p-8">
-      <h2 className="text-xl font-semibold">Something went wrong!</h2>
-      <p className="text-[var(--st-text-secondary)]">{error.message || "Failed to load social media posts data."}</p>
-      <Button onClick={() => reset()} variant="outline">
-        Try again
-      </Button>
+    <div className="flex h-full flex-col items-center justify-center p-8">
+      <EmptyState
+        icon={TriangleAlert}
+        tone="danger"
+        title="Something went wrong"
+        description={error.message || "Failed to load social media posts data."}
+        action={
+          <Button variant="outline" iconLeft={RotateCcw} onClick={() => reset()}>
+            Try again
+          </Button>
+        }
+      />
     </div>
   );
 }

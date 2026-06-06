@@ -2,14 +2,27 @@
  * SabBigin contacts list — simplified vs full CRM contacts.
  *
  * Reuses `getCrmContacts` server action. No custom fields, no segments,
- * no lifecycle filter dropdown — just name / company / email / phone.
+ * no lifecycle filter dropdown. Just name / company / email / phone.
  */
 
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 
-import { Button, Card } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    Card,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 
 import { SabbiginNav } from '../_components/sabbigin-shell';
@@ -33,51 +46,87 @@ export default async function SabbiginContactsPage({ searchParams }: PageProps) 
     const { contacts, total } = await getCrmContacts(page, 25, q || undefined);
 
     return (
-        <EntityListShell
-            title="Contacts"
-            subtitle={`${total.toLocaleString()} contact${total === 1 ? '' : 's'}`}
-            primaryAction={
-                <Button asChild size="sm">
-                    <Link href="/dashboard/sabbigin/contacts/new">
-                        <Plus className="mr-1 h-3.5 w-3.5" />
-                        New contact
+        <div className="ui20 flex w-full flex-col gap-4">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Contacts</PageTitle>
+                    <PageDescription>
+                        {total.toLocaleString()} contact{total === 1 ? '' : 's'}
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    {/* Button has no asChild/Slot, so render the Link with 20ui button classes. */}
+                    <Link
+                        href="/dashboard/sabbigin/contacts/new"
+                        className="u-btn u-btn--primary u-btn--sm"
+                    >
+                        <Plus size={13} aria-hidden="true" />
+                        <span className="u-btn__label">New contact</span>
                     </Link>
-                </Button>
-            }
-        >
+                </PageActions>
+            </PageHeader>
+
             <div className="flex flex-col gap-4">
                 <SabbiginNav active="/dashboard/sabbigin/contacts" />
 
                 {contacts.length === 0 ? (
-                    <Card className="p-6 text-sm text-[var(--st-text-secondary)]">
-                        No contacts yet. Click <strong className="text-[var(--st-text)]">New contact</strong> to add your first one.
+                    <Card padding="none" className="flex min-h-[240px] items-center justify-center">
+                        <EmptyState
+                            icon={Users}
+                            title="No contacts yet"
+                            description="Add your first contact to start building your book."
+                            action={
+                                <Link
+                                    href="/dashboard/sabbigin/contacts/new"
+                                    className="u-btn u-btn--primary u-btn--sm"
+                                >
+                                    <Plus size={13} aria-hidden="true" />
+                                    <span className="u-btn__label">New contact</span>
+                                </Link>
+                            }
+                        />
                     </Card>
                 ) : (
-                    <Card className="overflow-hidden p-0">
-                        <ul className="divide-y divide-[var(--st-border)]">
-                            {contacts.map((c) => {
-                                const id = String(c._id);
-                                return (
-                                    <li key={id}>
-                                        <Link
-                                            href={`/dashboard/sabbigin/contacts/${id}`}
-                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]"
-                                        >
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-[var(--st-text)]">{c.name ?? 'Contact'}</p>
-                                                <p className="truncate text-xs text-[var(--st-text-secondary)]">
-                                                    {c.company ?? '—'} {c.email ? `· ${c.email}` : ''}
-                                                </p>
-                                            </div>
-                                            <p className="shrink-0 text-xs text-[var(--st-text-secondary)]">{c.phone ?? ''}</p>
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                    <Card padding="none" className="overflow-hidden">
+                        <Table density="comfortable" hover>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Company</Th>
+                                    <Th>Email</Th>
+                                    <Th align="right">Phone</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {contacts.map((c) => {
+                                    const id = String(c._id);
+                                    return (
+                                        <Tr key={id}>
+                                            <Td>
+                                                <Link
+                                                    href={`/dashboard/sabbigin/contacts/${id}`}
+                                                    className="block truncate font-medium text-[var(--st-text)] hover:underline"
+                                                >
+                                                    {c.name ?? 'Contact'}
+                                                </Link>
+                                            </Td>
+                                            <Td className="text-[var(--st-text-secondary)]">
+                                                {c.company ?? '-'}
+                                            </Td>
+                                            <Td className="text-[var(--st-text-secondary)]">
+                                                {c.email ?? '-'}
+                                            </Td>
+                                            <Td align="right" className="text-[var(--st-text-secondary)]">
+                                                {c.phone ?? '-'}
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })}
+                            </TBody>
+                        </Table>
                     </Card>
                 )}
             </div>
-        </EntityListShell>
+        </div>
     );
 }

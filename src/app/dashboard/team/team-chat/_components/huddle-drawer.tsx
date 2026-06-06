@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Huddle drawer — mocked voice transport. Shows participant chips, a
+ * Huddle drawer, mocked voice transport. Shows participant chips, a
  * mic-toggle button, and start/join/end controls. The actual audio
  * pipe is out of scope; this is the UI seam for the SabCliq huddles
  * crate to wire up later.
@@ -9,7 +9,16 @@
 import * as React from 'react';
 import { Headphones, Mic, MicOff, PhoneOff, Users } from 'lucide-react';
 
-import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerFooter,
+    Tag,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     startTeamHuddle,
@@ -65,7 +74,7 @@ export function HuddleDrawer({
             toast({
                 title: 'Huddle failed',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     };
@@ -82,7 +91,7 @@ export function HuddleDrawer({
             toast({
                 title: 'Could not end',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     };
@@ -94,14 +103,14 @@ export function HuddleDrawer({
             <DrawerContent className="px-6 pb-6 pt-4">
                 <DrawerHeader>
                     <DrawerTitle className="flex items-center gap-2">
-                        <Headphones className="h-4 w-4" />
+                        <Headphones className="h-4 w-4" aria-hidden="true" />
                         Huddle
                     </DrawerTitle>
                 </DrawerHeader>
 
                 <div className="mt-4 flex flex-col gap-4">
                     <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                        <Users className="h-3.5 w-3.5" />
+                        <Users className="h-3.5 w-3.5" aria-hidden="true" />
                         {huddle
                             ? `${huddle.participantIds.length} participant${huddle.participantIds.length === 1 ? '' : 's'}`
                             : 'No one is huddling yet.'}
@@ -110,16 +119,9 @@ export function HuddleDrawer({
                     {huddle ? (
                         <div className="flex flex-wrap gap-2">
                             {huddle.participantIds.map((id) => (
-                                <span
-                                    key={id}
-                                    className="inline-flex h-7 items-center gap-2 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 text-[11.5px] text-[var(--st-text)]"
-                                >
-                                    <span
-                                        className="h-2 w-2 rounded-full"
-                                        style={{ background: 'var(--st-text)' }}
-                                    />
+                                <Tag key={id} color="var(--st-status-ok)">
                                     {participantNames[id] || id.slice(-6)}
-                                </span>
+                                </Tag>
                             ))}
                         </div>
                     ) : null}
@@ -130,13 +132,9 @@ export function HuddleDrawer({
                                 type="button"
                                 variant={micOn ? 'outline' : 'primary'}
                                 size="md"
+                                iconLeft={micOn ? Mic : MicOff}
                                 onClick={() => setMicOn((v) => !v)}
                             >
-                                {micOn ? (
-                                    <Mic className="h-4 w-4" />
-                                ) : (
-                                    <MicOff className="h-4 w-4" />
-                                )}
                                 {micOn ? 'Mute' : 'Unmute'}
                             </Button>
                         </div>
@@ -149,20 +147,20 @@ export function HuddleDrawer({
                             type="button"
                             variant="outline"
                             size="md"
+                            iconLeft={PhoneOff}
                             onClick={onEnd}
                             disabled={busy}
                         >
-                            <PhoneOff className="h-4 w-4" />
                             End huddle
                         </Button>
                     ) : (
                         <Button
                             type="button"
                             size="md"
+                            iconLeft={Headphones}
                             onClick={onStartOrJoin}
                             disabled={busy || !channelId}
                         >
-                            <Headphones className="h-4 w-4" />
                             {huddle ? 'Join huddle' : 'Start huddle'}
                         </Button>
                     )}

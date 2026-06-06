@@ -1,10 +1,15 @@
 'use client';
 
-import { Button, EmptyState } from '@/components/sabcrm/20ui';
+import * as React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-import * as React from 'react';
-import Link from 'next/link';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
+
+/**
+ * WhatsApp Chatbots error boundary — catches unexpected React render errors
+ * and shows a recoverable 20ui EmptyState instead of the raw Next.js error
+ * page.
+ */
 
 export default function WhatsappChatbotsError({
   error,
@@ -17,29 +22,37 @@ export default function WhatsappChatbotsError({
     console.error('[sabwa] route error', error);
   }, [error]);
 
+  const description =
+    error?.message && error.message.length < 200
+      ? error.message
+      : 'We ran into an issue loading the chatbots page. Try again or head back to overview.';
+
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-      <EmptyState
-        icon={<AlertTriangle />}
-        title="Failed to load WhatsApp Chatbots"
-        description={
-          error?.message?.length && error.message.length < 200
-            ? error.message
-            : 'We ran into an issue loading the chatbots page. Try again or head back to overview.'
-        }
-        action={
-          <div className="flex items-center gap-2">
-            <Button size="md" onClick={() => reset()}>
-              Try again
-            </Button>
-            <Link href="/dashboard/marketing">
-              <Button size="md" variant="outline">
+    <div className="ui20 mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+      <div role="alert" className="flex min-h-[60vh] items-center justify-center">
+        <EmptyState
+          icon={AlertTriangle}
+          tone="danger"
+          title="Failed to load WhatsApp Chatbots"
+          description={description}
+          action={
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="primary" size="md" onClick={() => reset()}>
+                Try again
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  window.location.href = '/dashboard/marketing';
+                }}
+              >
                 Back to Marketing
               </Button>
-            </Link>
-          </div>
-        }
-      />
+            </div>
+          }
+        />
+      </div>
     </div>
   );
 }

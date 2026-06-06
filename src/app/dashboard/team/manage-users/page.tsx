@@ -1,21 +1,73 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  ArrowRight,
-  Check,
-  Clock,
-  Loader,
-  Mail,
-  Plus,
-  RefreshCw,
-  Search,
-  Shield,
-  Trash2,
-  UserPlus,
-  Users,
-  X,
-  } from 'lucide-react';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    Avatar,
+    AvatarFallback,
+    Badge,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    Checkbox,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    SegmentedControl,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    ArrowRight,
+    Check,
+    Clock,
+    Mail,
+    Plus,
+    RefreshCw,
+    Search,
+    Shield,
+    Trash2,
+    UserPlus,
+    Users,
+    X,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -108,11 +160,11 @@ export default function ManageUsersPage() {
             const res = await bulkRemoveAgents(Array.from(selectedMembers));
             setBulkBusy(false);
             if (res.success) {
-                toast({ title: 'Removed', description: `${res.removed ?? 0} projects updated.` });
+                toast.success({ title: 'Removed', description: `${res.removed ?? 0} projects updated.` });
                 setSelectedMembers(new Set());
                 fetchAll();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Error', description: res.error });
             }
         })();
     }, [selectedMembers, toast, fetchAll]);
@@ -124,11 +176,11 @@ export default function ManageUsersPage() {
                 const res = await bulkChangeAgentRole({ agentUserIds: Array.from(selectedMembers), role });
                 setBulkBusy(false);
                 if (res.success) {
-                    toast({ title: 'Roles updated', description: `${res.updated ?? 0} entries updated.` });
+                    toast.success({ title: 'Roles updated', description: `${res.updated ?? 0} entries updated.` });
                     setSelectedMembers(new Set());
                     fetchAll();
                 } else {
-                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                    toast.error({ title: 'Error', description: res.error });
                 }
             })();
         },
@@ -202,13 +254,14 @@ export default function ManageUsersPage() {
                         Invite teammates, assign roles, and manage access across your projects.
                     </PageDescription>
                 </PageHeading>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="md" onClick={fetchAll} disabled={loading}>
-                        {loading ? (
-                            <Loader className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                            <RefreshCw className="h-3.5 w-3.5" />
-                        )}
+                <PageActions>
+                    <Button
+                        variant="outline"
+                        size="md"
+                        iconLeft={RefreshCw}
+                        loading={loading}
+                        onClick={fetchAll}
+                    >
                         Refresh
                     </Button>
                     {canInvite ? (
@@ -224,7 +277,7 @@ export default function ManageUsersPage() {
                             toast={toast}
                         />
                     ) : null}
-                </div>
+                </PageActions>
             </PageHeader>
 
             <StatsRow
@@ -235,18 +288,19 @@ export default function ManageUsersPage() {
             />
 
             {/* Filters */}
-            <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <Card padding="sm" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
                     <Input
                         className="max-w-[320px] flex-1"
-                        leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
+                        iconLeft={Search}
+                        aria-label={tab === 'members' ? 'Search members' : 'Search invitations'}
                         placeholder={tab === 'members' ? 'Search members' : 'Search invitations'}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
                     <div className="w-[160px]">
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by role">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -260,11 +314,17 @@ export default function ManageUsersPage() {
                         </Select>
                     </div>
                 </div>
-                <TabSwitcher
-                    tab={tab}
+                <SegmentedControl<Tab>
+                    aria-label="Switch between members and pending invites"
+                    value={tab}
                     onChange={setTab}
-                    members={members.length}
-                    pending={invites.filter((i) => !i.isExpired && i.status === 'pending').length}
+                    items={[
+                        { value: 'members', label: `Members (${members.length})` },
+                        {
+                            value: 'invites',
+                            label: `Pending (${invites.filter((i) => !i.isExpired && i.status === 'pending').length})`,
+                        },
+                    ]}
                 />
             </Card>
 
@@ -318,78 +378,16 @@ function StatsRow(props: {
     projectsCount: number;
 }) {
     const stats = [
-        { label: 'Active members', value: props.membersCount, icon: <Users className="h-4 w-4" /> },
-        { label: 'Pending invites', value: props.invitesCount, icon: <Mail className="h-4 w-4" /> },
-        { label: 'Expired invites', value: props.expiredCount, icon: <Clock className="h-4 w-4" /> },
-        { label: 'Projects', value: props.projectsCount, icon: <Shield className="h-4 w-4" /> },
-    ];
+        { label: 'Active members', value: props.membersCount, icon: Users },
+        { label: 'Pending invites', value: props.invitesCount, icon: Mail },
+        { label: 'Expired invites', value: props.expiredCount, icon: Clock },
+        { label: 'Projects', value: props.projectsCount, icon: Shield },
+    ] as const;
     return (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((s) => (
-                <Card key={s.label} className="flex items-center gap-3 p-4">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                        {s.icon}
-                    </span>
-                    <div>
-                        <div className="text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                            {s.label}
-                        </div>
-                        <div className="text-[20px] tracking-[-0.01em] text-[var(--st-text)]">
-                            {s.value}
-                        </div>
-                    </div>
-                </Card>
+                <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} />
             ))}
-        </div>
-    );
-}
-
-/* ────────────────────────────────────── TAB SWITCHER ────────────────────────────────── */
-
-function TabSwitcher({
-    tab,
-    onChange,
-    members,
-    pending,
-}: {
-    tab: Tab;
-    onChange: (t: Tab) => void;
-    members: number;
-    pending: number;
-}) {
-    return (
-        <div className="inline-flex rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
-            {([
-                { key: 'members', label: 'Members', count: members },
-                { key: 'invites', label: 'Pending', count: pending },
-            ] as const).map((t) => {
-                const active = tab === t.key;
-                return (
-                    <button
-                        key={t.key}
-                        type="button"
-                        onClick={() => onChange(t.key)}
-                        className={cn(
-                            'inline-flex items-center gap-2 rounded-full px-4 h-8 text-[12.5px] transition-colors',
-                            active
-                                ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm'
-                                : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-                        )}
-                    >
-                        {t.label}
-                        <span
-                            className={cn(
-                                'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10.5px]',
-                                active
-                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
-                                    : 'bg-[var(--st-bg)] text-[var(--st-text-secondary)]',
-                            )}
-                        >
-                            {t.count}
-                        </span>
-                    </button>
-                );
-            })}
         </div>
     );
 }
@@ -426,16 +424,15 @@ function InviteDialog({
             const res = await handleInviteAgent(null, fd);
             setPending(false);
             if (res.message) {
-                toast({ title: 'Invitation sent', description: res.message });
+                toast.success({ title: 'Invitation sent', description: res.message });
                 formRef.current?.reset();
                 setRole('agent');
                 setProjectId('');
                 onInvited();
             } else {
-                toast({
+                toast.error({
                     title: 'Could not invite',
                     description: res.error || 'Please try again.',
-                    variant: 'destructive',
                 });
             }
         })();
@@ -444,38 +441,31 @@ function InviteDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button size="md">
-                    <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
+                <Button variant="primary" size="md" iconLeft={Plus}>
                     Invite member
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Invite a teammate</DialogTitle>
+                    <DialogDescription>
+                        They will receive a branded email with a one-click accept link valid for 7 days.
+                    </DialogDescription>
                 </DialogHeader>
-                <p className="-mt-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                    They&apos;ll receive a branded email with a one-click accept link valid for 7 days.
-                </p>
                 <form ref={formRef} onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                            Email
-                        </label>
+                    <Field label="Email">
                         <Input
                             name="email"
                             type="email"
                             required
                             placeholder="teammate@company.com"
-                            leadingSlot={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
+                            iconLeft={Mail}
                         />
-                    </div>
+                    </Field>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                                Role
-                            </label>
+                        <Field label="Role">
                             <Select value={role} onValueChange={setRole}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Role">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -488,16 +478,13 @@ function InviteDialog({
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
-                                Project
-                            </label>
+                        </Field>
+                        <Field label="Project">
                             <Select
                                 value={projectId || '__all'}
                                 onValueChange={(v) => setProjectId(v === '__all' ? '' : v)}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Project">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -509,7 +496,7 @@ function InviteDialog({
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                     </div>
                     <div className="mt-2 flex items-center justify-end gap-2">
                         <Button
@@ -521,12 +508,13 @@ function InviteDialog({
                         >
                             Cancel
                         </Button>
-                        <Button size="md" type="submit" disabled={pending}>
-                            {pending ? (
-                                <Loader className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                                <UserPlus className="h-3.5 w-3.5" strokeWidth={2.25} />
-                            )}
+                        <Button
+                            variant="primary"
+                            size="md"
+                            type="submit"
+                            iconLeft={UserPlus}
+                            loading={pending}
+                        >
                             Send invitation
                         </Button>
                     </div>
@@ -573,46 +561,52 @@ function MembersTable({
     if (!members.length) {
         return (
             <EmptyState
+                icon={Users}
                 title="No team members yet"
-                body="Invite your first teammate to start collaborating across your projects."
-                icon={<Users className="h-5 w-5" strokeWidth={1.75} />}
+                description="Invite your first teammate to start collaborating across your projects."
             />
         );
     }
     return (
-        <Card className="overflow-hidden p-0">
-            <div className={'grid items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)] ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
-                {canSelect ? (
-                    <SelectCheckbox
-                        aria-label="Select all members"
-                        checked={allChecked}
-                        indeterminate={someChecked}
-                        onChange={(v) => onToggleAll(allIds, v)}
-                    />
-                ) : null}
-                <span>Member</span>
-                <span className="hidden sm:block">Projects & roles</span>
-                <span className="hidden sm:block">Joined on</span>
-                <span className="text-right">Actions</span>
-            </div>
-            <div className="divide-y divide-[var(--st-border)]">
-                {members.map((m) => (
-                    <MemberRow
-                        key={m._id.toString()}
-                        member={m}
-                        projects={projects}
-                        roleOptions={roleOptions}
-                        roleLabel={roleLabel}
-                        canEditRoles={canEditRoles}
-                        canRemove={canRemove}
-                        canSelect={canSelect}
-                        selected={selectedIds.has(m._id.toString())}
-                        onToggleSelect={() => onToggleSelect(m._id.toString())}
-                        onRefresh={onRefresh}
-                        toast={toast}
-                    />
-                ))}
-            </div>
+        <Card padding="none" className="overflow-hidden">
+            <Table>
+                <THead>
+                    <Tr>
+                        {canSelect ? (
+                            <Th width={40} align="center">
+                                <Checkbox
+                                    aria-label="Select all members"
+                                    checked={allChecked}
+                                    indeterminate={someChecked}
+                                    onChange={(e) => onToggleAll(allIds, e.currentTarget.checked)}
+                                />
+                            </Th>
+                        ) : null}
+                        <Th>Member</Th>
+                        <Th className="hidden sm:table-cell">Projects &amp; roles</Th>
+                        <Th className="hidden sm:table-cell">Joined on</Th>
+                        <Th align="right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
+                    {members.map((m) => (
+                        <MemberRow
+                            key={m._id.toString()}
+                            member={m}
+                            projects={projects}
+                            roleOptions={roleOptions}
+                            roleLabel={roleLabel}
+                            canEditRoles={canEditRoles}
+                            canRemove={canRemove}
+                            canSelect={canSelect}
+                            selected={selectedIds.has(m._id.toString())}
+                            onToggleSelect={() => onToggleSelect(m._id.toString())}
+                            onRefresh={onRefresh}
+                            toast={toast}
+                        />
+                    ))}
+                </TBody>
+            </Table>
         </Card>
     );
 }
@@ -653,87 +647,86 @@ function MemberRow({
             const res = await handleRemoveAgent(null as any, fd);
             setRemoving(false);
             if (res.message) {
-                toast({ title: 'Member removed', description: res.message });
+                toast.success({ title: 'Member removed', description: res.message });
                 onRefresh();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Error', description: res.error });
             }
         })();
     };
 
     return (
-        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-[var(--st-bg-muted)]/40' : '')}>
+        <Tr selected={selected}>
             {canSelect ? (
-                <SelectCheckbox
-                    aria-label={`Select ${member.name || member.email}`}
-                    checked={selected}
-                    onChange={onToggleSelect}
-                />
+                <Td align="center">
+                    <Checkbox
+                        aria-label={`Select ${member.name || member.email}`}
+                        checked={selected}
+                        onChange={onToggleSelect}
+                    />
+                </Td>
             ) : null}
-            <div className="flex items-center gap-3 min-w-0">
-                <Avatar name={member.name || member.email} seed={member.email} />
-                <div className="min-w-0">
-                    <div className="truncate text-[13.5px] text-[var(--st-text)]">
-                        {member.name || 'Unnamed member'}
+            <Td>
+                <div className="flex min-w-0 items-center gap-3">
+                    <MemberAvatar name={member.name || member.email} seed={member.email} />
+                    <div className="min-w-0">
+                        <div className="truncate text-[13.5px] text-[var(--st-text)]">
+                            {member.name || 'Unnamed member'}
+                        </div>
+                        <div className="truncate text-[12px] text-[var(--st-text-secondary)]">{member.email}</div>
                     </div>
-                    <div className="truncate text-[12px] text-[var(--st-text-secondary)]">{member.email}</div>
                 </div>
-            </div>
+            </Td>
 
-            <div className="hidden flex-wrap gap-1.5 sm:flex">
-                {roleEntries.length === 0 ? (
-                    <Badge variant="ghost">No project roles</Badge>
-                ) : (
-                    roleEntries.slice(0, 3).map(([project, role]) => {
-                        const projectObj = projects.find((p) => p.name === project);
-                        return (
-                            <ChangeRoleBadge
-                                key={project}
-                                projectName={project}
-                                projectId={projectObj?._id.toString()}
-                                memberId={member._id.toString()}
-                                role={role}
-                                roleOptions={roleOptions}
-                                roleLabel={roleLabel}
-                                canEdit={canEditRoles}
-                                onRefresh={onRefresh}
-                                toast={toast}
-                            />
-                        );
-                    })
-                )}
-                {roleEntries.length > 3 ? (
-                    <Badge variant="ghost">+{roleEntries.length - 3}</Badge>
-                ) : null}
-            </div>
+            <Td className="hidden sm:table-cell">
+                <div className="flex flex-wrap gap-1.5">
+                    {roleEntries.length === 0 ? (
+                        <Badge tone="neutral">No project roles</Badge>
+                    ) : (
+                        roleEntries.slice(0, 3).map(([project, role]) => {
+                            const projectObj = projects.find((p) => p.name === project);
+                            return (
+                                <ChangeRoleBadge
+                                    key={project}
+                                    projectName={project}
+                                    projectId={projectObj?._id.toString()}
+                                    memberId={member._id.toString()}
+                                    role={role}
+                                    roleOptions={roleOptions}
+                                    roleLabel={roleLabel}
+                                    canEdit={canEditRoles}
+                                    onRefresh={onRefresh}
+                                    toast={toast}
+                                />
+                            );
+                        })
+                    )}
+                    {roleEntries.length > 3 ? (
+                        <Badge tone="neutral">+{roleEntries.length - 3}</Badge>
+                    ) : null}
+                </div>
+            </Td>
 
-            <div className="hidden text-[12px] text-[var(--st-text-secondary)] sm:block">
+            <Td className="hidden text-[12px] text-[var(--st-text-secondary)] sm:table-cell">
                 {(member as any).createdAt
                     ? new Date((member as any).createdAt).toLocaleDateString(undefined, {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
                       })
-                    : '—'}
-            </div>
+                    : '-'}
+            </Td>
 
-            <div className="flex justify-end">
+            <Td align="right">
                 {!canRemove ? null : (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
+                            <IconButton
+                                label="Remove member"
+                                icon={removing ? RefreshCw : Trash2}
+                                variant="danger"
                                 disabled={removing}
-                                className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
-                                aria-label="Remove member"
-                            >
-                                {removing ? (
-                                    <Loader className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    <Trash2 className="h-4 w-4" strokeWidth={1.75} />
-                                )}
-                            </Button>
+                            />
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
@@ -749,8 +742,8 @@ function MemberRow({
                         </AlertDialogContent>
                     </AlertDialog>
                 )}
-            </div>
-        </div>
+            </Td>
+        </Tr>
     );
 }
 
@@ -780,10 +773,9 @@ function ChangeRoleBadge({
 
     const saveRole = (next: string) => {
         if (!projectId) {
-            toast({
+            toast.error({
                 title: 'Missing project id',
                 description: 'Refresh the page and try again.',
-                variant: 'destructive',
             });
             return;
         }
@@ -793,38 +785,34 @@ function ChangeRoleBadge({
             setSaving(false);
             setOpen(false);
             if (res.success) {
-                toast({ title: 'Role updated' });
+                toast.success({ title: 'Role updated' });
                 onRefresh();
             } else {
-                toast({
+                toast.error({
                     title: 'Could not update role',
                     description: res.error,
-                    variant: 'destructive',
                 });
             }
         })();
     };
 
+    const label = (
+        <span>
+            <span className="text-[var(--st-text-secondary)]">{projectName}</span>
+            <span className="px-1 text-[var(--st-text-secondary)]">&middot;</span>
+            <span>{roleLabel(role)}</span>
+        </span>
+    );
+
     if (!canEdit) {
-        return (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 h-6 text-[11.5px] text-[var(--st-text)]">
-                <span className="text-[var(--st-text-secondary)]">{projectName}</span>
-                <span className="text-[var(--st-text-secondary)]">·</span>
-                <span>{roleLabel(role)}</span>
-            </span>
-        );
+        return <Badge tone="neutral">{label}</Badge>;
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 h-6 text-[11.5px] text-[var(--st-text)] hover:bg-[var(--st-bg)]"
-                >
-                    <span className="text-[var(--st-text-secondary)]">{projectName}</span>
-                    <span className="text-[var(--st-text-secondary)]">·</span>
-                    <span>{roleLabel(role)}</span>
-                </button>
+                <Button variant="ghost" size="sm">
+                    {label}
+                </Button>
             </DialogTrigger>
             <DialogContent className="max-w-sm">
                 <DialogHeader>
@@ -832,21 +820,16 @@ function ChangeRoleBadge({
                 </DialogHeader>
                 <div className="mt-3 flex flex-col gap-2">
                     {roleOptions.map((r) => (
-                        <button
+                        <Button
                             key={r.value}
-                            type="button"
+                            variant={r.value === role ? 'secondary' : 'ghost'}
                             disabled={saving}
                             onClick={() => saveRole(r.value)}
-                            className={cn(
-                                'flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-[var(--st-bg-muted)]',
-                                r.value === role && 'bg-[var(--st-bg-muted)]/60 border-[var(--st-border-strong)]',
-                            )}
+                            iconRight={r.value === role ? Check : undefined}
+                            className={cn('justify-between', r.value === role && 'is-selected')}
                         >
-                            <span>{r.label}</span>
-                            {r.value === role ? (
-                                <Check className="h-4 w-4 text-[var(--st-text)]" strokeWidth={2.25} />
-                            ) : null}
-                        </button>
+                            {r.label}
+                        </Button>
                     ))}
                 </div>
             </DialogContent>
@@ -873,32 +856,36 @@ function InvitesTable({
     if (!invites.length) {
         return (
             <EmptyState
+                icon={Mail}
                 title="No pending invitations"
-                body="Any open invitations you send will show up here until the recipient accepts."
-                icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
+                description="Any open invitations you send will show up here until the recipient accepts."
             />
         );
     }
     return (
-        <Card className="overflow-hidden p-0">
-            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)] sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
-                <span>Invitee</span>
-                <span className="hidden sm:block">Project</span>
-                <span className="hidden sm:block">Role</span>
-                <span className="hidden sm:block">Expires</span>
-                <span className="text-right">Actions</span>
-            </div>
-            <div className="divide-y divide-[var(--st-border)]">
-                {invites.map((inv) => (
-                    <InviteRow
-                        key={inv._id}
-                        invite={inv}
-                        roleLabel={roleLabel}
-                        onRefresh={onRefresh}
-                        toast={toast}
-                    />
-                ))}
-            </div>
+        <Card padding="none" className="overflow-hidden">
+            <Table>
+                <THead>
+                    <Tr>
+                        <Th>Invitee</Th>
+                        <Th className="hidden sm:table-cell">Project</Th>
+                        <Th className="hidden sm:table-cell">Role</Th>
+                        <Th className="hidden sm:table-cell">Expires</Th>
+                        <Th align="right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
+                    {invites.map((inv) => (
+                        <InviteRow
+                            key={inv._id}
+                            invite={inv}
+                            roleLabel={roleLabel}
+                            onRefresh={onRefresh}
+                            toast={toast}
+                        />
+                    ))}
+                </TBody>
+            </Table>
         </Card>
     );
 }
@@ -921,11 +908,11 @@ function InviteRow({
         setBusy('copy');
         navigator.clipboard.writeText(url).then(
             () => {
-                toast({ title: 'Link copied' });
+                toast.success({ title: 'Link copied' });
                 setTimeout(() => setBusy(false), 600);
             },
             () => {
-                toast({ title: 'Copy failed', variant: 'destructive' });
+                toast.error({ title: 'Copy failed' });
                 setBusy(false);
             },
         );
@@ -937,10 +924,10 @@ function InviteRow({
             const res = await resendInvitation(invite._id);
             setBusy(false);
             if (res.success) {
-                toast({ title: 'Invitation resent', description: res.message });
+                toast.success({ title: 'Invitation resent', description: res.message });
                 onRefresh();
             } else {
-                toast({ title: 'Could not resend', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Could not resend', description: res.error });
             }
         })();
     };
@@ -951,10 +938,10 @@ function InviteRow({
             const res = await revokeInvitation(invite._id);
             setBusy(false);
             if (res.success) {
-                toast({ title: 'Invitation revoked', description: res.message });
+                toast.success({ title: 'Invitation revoked', description: res.message });
                 onRefresh();
             } else {
-                toast({ title: 'Could not revoke', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Could not revoke', description: res.error });
             }
         })();
     };
@@ -962,87 +949,71 @@ function InviteRow({
     const expired = invite.isExpired || invite.status === 'expired';
 
     return (
-        <div className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-4 sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
-            <div className="flex min-w-0 items-center gap-3">
-                <Avatar name={invite.inviteeEmail} seed={invite.inviteeEmail} />
-                <div className="min-w-0">
-                    <div className="truncate text-[13.5px] text-[var(--st-text)]">
-                        {invite.inviteeEmail}
-                    </div>
-                    <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
-                        Invited by {invite.inviterName || invite.inviterEmail || 'you'}
+        <Tr>
+            <Td>
+                <div className="flex min-w-0 items-center gap-3">
+                    <MemberAvatar name={invite.inviteeEmail} seed={invite.inviteeEmail} />
+                    <div className="min-w-0">
+                        <div className="truncate text-[13.5px] text-[var(--st-text)]">
+                            {invite.inviteeEmail}
+                        </div>
+                        <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
+                            Invited by {invite.inviterName || invite.inviterEmail || 'you'}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Td>
 
-            <div className="hidden text-[12.5px] text-[var(--st-text)] sm:block">
-                {invite.projectName || <span className="text-[var(--st-text-secondary)]">All my projects</span>}
-            </div>
-
-            <div className="hidden sm:block">
-                <Badge variant="ghost">{roleLabel(invite.role)}</Badge>
-            </div>
-
-            <div className="hidden sm:block">
-                {expired ? (
-                    <Badge variant="danger">Expired</Badge>
-                ) : (
-                    <Badge variant="warning">{formatExpiresIn(invite.expiresAt)}</Badge>
+            <Td className="hidden text-[12.5px] text-[var(--st-text)] sm:table-cell">
+                {invite.projectName || (
+                    <span className="text-[var(--st-text-secondary)]">All my projects</span>
                 )}
-            </div>
+            </Td>
 
-            <div className="flex items-center justify-end gap-1">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={copyLink}
-                    aria-label="Copy invite link"
-                    title="Copy invite link"
-                    disabled={!!busy}
-                >
-                    {busy === 'copy' ? (
-                        <Check className="h-4 w-4 text-[var(--st-status-ok)]" strokeWidth={2.25} />
-                    ) : (
-                        <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-                    )}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={resend}
-                    aria-label="Resend"
-                    title="Resend email"
-                    disabled={!!busy}
-                >
-                    {busy === 'resend' ? (
-                        <Loader className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <RefreshCw className="h-4 w-4" strokeWidth={1.75} />
-                    )}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={revoke}
-                    aria-label="Revoke"
-                    title="Revoke invitation"
-                    disabled={!!busy}
-                    className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
-                >
-                    {busy === 'revoke' ? (
-                        <Loader className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <X className="h-4 w-4" strokeWidth={1.75} />
-                    )}
-                </Button>
-            </div>
-        </div>
+            <Td className="hidden sm:table-cell">
+                <Badge tone="neutral">{roleLabel(invite.role)}</Badge>
+            </Td>
+
+            <Td className="hidden sm:table-cell">
+                {expired ? (
+                    <Badge tone="danger">Expired</Badge>
+                ) : (
+                    <Badge tone="warning">{formatExpiresIn(invite.expiresAt)}</Badge>
+                )}
+            </Td>
+
+            <Td align="right">
+                <div className="flex items-center justify-end gap-1">
+                    <IconButton
+                        label="Copy invite link"
+                        icon={busy === 'copy' ? Check : ArrowRight}
+                        variant="ghost"
+                        onClick={copyLink}
+                        disabled={!!busy}
+                    />
+                    <IconButton
+                        label="Resend email"
+                        icon={RefreshCw}
+                        variant="ghost"
+                        onClick={resend}
+                        disabled={!!busy}
+                    />
+                    <IconButton
+                        label="Revoke invitation"
+                        icon={X}
+                        variant="danger"
+                        onClick={revoke}
+                        disabled={!!busy}
+                    />
+                </div>
+            </Td>
+        </Tr>
     );
 }
 
 /* ─────────────────────────────────────── HELPERS ────────────────────────────────────── */
 
-function Avatar({ name, seed }: { name: string; seed: string }) {
+function MemberAvatar({ name, seed }: { name: string; seed: string }) {
     const hue = hashHue(seed);
     const initials = (name || '?')
         .split(' ')
@@ -1051,13 +1022,12 @@ function Avatar({ name, seed }: { name: string; seed: string }) {
         .join('')
         .toUpperCase();
     return (
-        <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] text-[12px]"
-            style={{ background: `hsl(${hue} 60% 90%)`, color: `hsl(${hue} 45% 28%)` }}
-            aria-hidden
-        >
-            {initials || '?'}
-        </div>
+        <Avatar data-shape="round" aria-hidden>
+            {/* Deterministic per-user tint is genuinely runtime-computed. */}
+            <AvatarFallback style={{ background: `hsl(${hue} 60% 90%)`, color: `hsl(${hue} 45% 28%)` }}>
+                {initials || '?'}
+            </AvatarFallback>
+        </Avatar>
     );
 }
 
@@ -1069,66 +1039,20 @@ function hashHue(input: string) {
 
 function SkeletonRows() {
     return (
-        <Card className="p-0">
+        <Card padding="none">
             <div className="divide-y divide-[var(--st-border)]">
                 {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center gap-3 px-5 py-4">
-                        <div className="h-9 w-9 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                        <Skeleton circle width={36} />
                         <div className="flex flex-1 flex-col gap-1.5">
-                            <div className="h-3 w-32 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
-                            <div className="h-2.5 w-48 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                            <Skeleton width={128} height={12} radius={9999} />
+                            <Skeleton width={192} height={10} radius={9999} />
                         </div>
-                        <div className="h-6 w-24 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                        <Skeleton width={96} height={24} radius={9999} />
                     </div>
                 ))}
             </div>
         </Card>
-    );
-}
-
-function EmptyState({
-    title,
-    body,
-    icon,
-}: {
-    title: string;
-    body: string;
-    icon: React.ReactNode;
-}) {
-    return (
-        <Card className="flex flex-col items-center gap-3 p-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                {icon}
-            </span>
-            <div className="text-[16px] text-[var(--st-text)]">{title}</div>
-            <div className="max-w-[360px] text-[12.5px] text-[var(--st-text-secondary)]">{body}</div>
-        </Card>
-    );
-}
-
-function SelectCheckbox({
-    checked,
-    indeterminate,
-    onChange,
-    ...rest
-}: {
-    checked: boolean;
-    indeterminate?: boolean;
-    onChange: (v: boolean) => void;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'checked' | 'type'>) {
-    const ref = React.useRef<HTMLInputElement | null>(null);
-    React.useEffect(() => {
-        if (ref.current) ref.current.indeterminate = Boolean(indeterminate && !checked);
-    }, [indeterminate, checked]);
-    return (
-        <input
-            ref={ref}
-            type="checkbox"
-            checked={checked}
-            onChange={(e) => onChange(e.currentTarget.checked)}
-            className="h-4 w-4 shrink-0 cursor-pointer rounded border-[var(--st-border)] accent-[var(--st-text)]"
-            {...rest}
-        />
     );
 }
 
@@ -1152,16 +1076,12 @@ function BulkBar({
     onRemove: () => void;
 }) {
     return (
-        <Card className="flex flex-col gap-3 border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <Card padding="sm" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-                <Badge variant="default">{count} selected</Badge>
-                <button
-                    type="button"
-                    onClick={onClear}
-                    className="text-[12px] text-[var(--st-text)] underline-offset-2 hover:underline"
-                >
+                <Badge tone="accent">{count} selected</Badge>
+                <Button variant="ghost" size="sm" onClick={onClear}>
                     Clear selection
-                </button>
+                </Button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
                 {canEditRoles ? (
@@ -1173,8 +1093,8 @@ function BulkBar({
                                 if (v) onChangeRole(v);
                             }}
                         >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Set role to…" />
+                            <SelectTrigger aria-label="Set role for selected members">
+                                <SelectValue placeholder="Set role to..." />
                             </SelectTrigger>
                             <SelectContent>
                                 {roleOptions.map((r) => (
@@ -1188,15 +1108,13 @@ function BulkBar({
                 ) : null}
                 {canRemove ? (
                     <Button
+                        variant="danger"
                         size="md"
-                        onClick={onRemove}
+                        iconLeft={Trash2}
+                        loading={busy === 'remove'}
                         disabled={!!busy}
+                        onClick={onRemove}
                     >
-                        {busy === 'remove' ? (
-                            <Loader className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
-                        )}
                         Remove from all projects
                     </Button>
                 ) : null}

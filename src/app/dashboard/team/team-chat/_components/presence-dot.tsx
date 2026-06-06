@@ -3,6 +3,11 @@
 /**
  * Small status-dot overlay for an avatar. Colour mirrors Slack's
  * convention: green = online, amber = away, red = dnd, grey = offline.
+ *
+ * 20ui has no dedicated presence primitive, so this is a low-level dot built
+ * on a structural span. Size, colour, and ring are runtime-computed from props,
+ * which is the genuinely-computed exception for inline style; the palette and
+ * ring default use 20ui `--st-*` tokens.
  */
 import * as React from 'react';
 
@@ -15,6 +20,13 @@ const COLOR: Record<PresenceStatus, string> = {
     offline: 'var(--st-text-tertiary)',
 };
 
+const LABEL: Record<PresenceStatus, string> = {
+    online: 'Online',
+    away: 'Away',
+    dnd: 'Do not disturb',
+    offline: 'Offline',
+};
+
 export interface PresenceDotProps {
     status?: PresenceStatus;
     size?: number;
@@ -25,11 +37,12 @@ export interface PresenceDotProps {
 export function PresenceDot({
     status = 'offline',
     size = 8,
-    ringColor = 'var(--zoru-bg, #fff)',
+    ringColor = 'var(--st-bg)',
 }: PresenceDotProps) {
     return (
         <span
-            aria-label={`Presence: ${status}`}
+            role="img"
+            aria-label={`Presence: ${LABEL[status]}`}
             className="inline-block rounded-full"
             style={{
                 width: size,

@@ -12,7 +12,13 @@
 
 import { ObjectId, type WithId } from 'mongodb';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
@@ -102,14 +108,19 @@ export default async function SabbiginPipelinePage() {
     }
 
     return (
-        <EntityListShell
-            title={activePipelineName ?? 'Pipeline'}
-            subtitle="Your single SabBigin pipeline. Drag deals between stages to update."
-        >
-            <div className="flex flex-col gap-4">
-                <SabbiginNav active="/dashboard/sabbigin/pipeline" />
-                <DealKanban deals={deals} stages={stages} currency="INR" />
-            </div>
-        </EntityListShell>
+        <div className="ui20 flex w-full flex-col gap-4">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>SabBigin</PageEyebrow>
+                    <PageTitle>{activePipelineName ?? 'Pipeline'}</PageTitle>
+                    <PageDescription>
+                        Your single SabBigin pipeline. Drag deals between stages to update.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+
+            <SabbiginNav active="/dashboard/sabbigin/pipeline" />
+            <DealKanban deals={deals} stages={stages} currency="INR" />
+        </div>
     );
 }

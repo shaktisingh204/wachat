@@ -1,14 +1,22 @@
 'use client';
 
 /**
- * Bookmarks side-panel — list of "save for later" messages, scoped to
+ * Bookmarks side-panel. List of "save for later" messages, scoped to
  * the calling user. Opens from the sidebar.
  */
 import * as React from 'react';
 import { Bookmark, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui';
+import {
+    EmptyState,
+    IconButton,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     listMyBookmarks,
@@ -47,7 +55,7 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
             toast({
                 title: 'Could not remove bookmark',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -56,28 +64,29 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
 
     return (
         <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-            <SheetContent side="left" className="flex w-[360px] flex-col p-0">
-                <SheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
+            <SheetContent
+                side="left"
+                closeLabel="Close saved messages"
+                className="flex w-[360px] flex-col p-0"
+            >
+                <SheetHeader className="border-b border-[var(--st-border)] px-4 py-3">
                     <SheetTitle className="flex items-center gap-2 text-[13px]">
-                        <Bookmark className="h-3.5 w-3.5" /> Saved messages
+                        <Bookmark className="h-3.5 w-3.5" aria-hidden="true" /> Saved messages
                     </SheetTitle>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
-                        aria-label="Close"
-                    >
-                        <X className="h-4 w-4" />
-                    </button>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-auto bg-[var(--st-bg-muted)]/40 px-3 py-3">
                     {loading ? (
-                        <div className="text-[12px] text-[var(--st-text-secondary)]">Loading…</div>
-                    ) : items.length === 0 ? (
                         <div className="text-[12px] text-[var(--st-text-secondary)]">
-                            No saved messages yet. Hover a message and click the bookmark icon to save it.
+                            Loading saved messages...
                         </div>
+                    ) : items.length === 0 ? (
+                        <EmptyState
+                            size="sm"
+                            icon={Bookmark}
+                            title="No saved messages yet"
+                            description="Hover a message and click the bookmark icon to save it."
+                        />
                     ) : (
                         <ul className="flex flex-col gap-2">
                             {items.map((b) => {
@@ -87,28 +96,25 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
                                 return (
                                     <li
                                         key={b._id}
-                                        className="flex items-start gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                                        className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                                     >
                                         <button
                                             type="button"
                                             onClick={() => onJump(b.channelId, b.messageId)}
-                                            className="flex-1 text-left"
+                                            className="flex-1 rounded-[var(--st-radius)] text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                                         >
                                             <div className="text-[12.5px] text-[var(--st-text)]">{preview}</div>
                                             <div className="mt-1 text-[10.5px] text-[var(--st-text-secondary)]">
                                                 Saved {format(new Date(b.savedAt), 'PP')}
                                             </div>
                                         </button>
-                                        <Button
-                                            type="button"
+                                        <IconButton
+                                            label="Remove bookmark"
+                                            icon={X}
                                             variant="outline"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            aria-label="Remove bookmark"
+                                            size="sm"
                                             onClick={() => onRemove(b.messageId)}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </Button>
+                                        />
                                     </li>
                                 );
                             })}

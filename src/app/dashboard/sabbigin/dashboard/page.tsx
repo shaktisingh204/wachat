@@ -16,7 +16,7 @@ import {
     Trophy,
 } from 'lucide-react';
 
-import { Card } from '@/components/sabcrm/20ui';
+import { StatCard } from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
@@ -55,34 +55,12 @@ export default async function SabbiginDashboardPage() {
                 <SabbiginNav active="/dashboard/sabbigin/dashboard" />
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <Tile label="Deals open" value={openDeals} icon={Handshake} />
-                    <Tile label="Won this month" value={formatCurrency(wonThisMonth)} icon={Trophy} />
-                    <Tile label="Contacts added" value={contactsThisMonth} icon={ContactIcon} />
-                    <Tile label="Activities completed" value={activitiesCompleted} icon={CalendarCheck} />
+                    <StatCard label="Deals open" value={openDeals} icon={Handshake} />
+                    <StatCard label="Won this month" value={formatCurrency(wonThisMonth)} icon={Trophy} />
+                    <StatCard label="Contacts added" value={contactsThisMonth} icon={ContactIcon} />
+                    <StatCard label="Activities completed" value={activitiesCompleted} icon={CalendarCheck} />
                 </div>
             </div>
         </EntityListShell>
-    );
-}
-
-function Tile({
-    label,
-    value,
-    icon: Icon,
-}: {
-    label: string;
-    value: number | string;
-    icon: React.ElementType;
-}) {
-    return (
-        <Card className="p-5">
-            <div className="flex items-start justify-between gap-3">
-                <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">{label}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                    <Icon className="h-4 w-4" strokeWidth={1.75} />
-                </span>
-            </div>
-            <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-[var(--st-text)]">{value}</p>
-        </Card>
     );
 }

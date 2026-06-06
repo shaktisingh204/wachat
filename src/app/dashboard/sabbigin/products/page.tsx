@@ -1,14 +1,24 @@
 /**
- * SabBigin products list — simplified vs full CRM products.
+ * SabBigin products list, simplified vs full CRM products.
  *
  * Reuses the existing `getCrmProducts` server action; renders a single
- * name / SKU / price column. No stock dashboards, no item-type filters,
+ * name / SKU / price table. No stock dashboards, no item-type filters,
  * no per-product KPIs.
  */
 
 import Link from 'next/link';
+import { Package, Plus } from 'lucide-react';
 
-import { Button, Card } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    EmptyState,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 
@@ -38,45 +48,81 @@ export default async function SabbiginProductsPage({ searchParams }: PageProps) 
             title="Products"
             subtitle={`${total.toLocaleString()} product${total === 1 ? '' : 's'}`}
             primaryAction={
-                <Button asChild size="sm" variant="outline">
-                    <Link href="/dashboard/crm/sales-crm/products/new">
-                        New product (full CRM)
-                    </Link>
-                </Button>
+                // Navigation target, so this is a Link styled with the 20ui
+                // button classes. The 20ui Button renders a <button> and cannot
+                // be an anchor, so a styled Link is the correct link-as-button.
+                <Link
+                    href="/dashboard/crm/sales-crm/products/new"
+                    className="u-btn u-btn--outline u-btn--sm"
+                >
+                    <Plus size={13} aria-hidden="true" />
+                    <span className="u-btn__label">New product (full CRM)</span>
+                </Link>
             }
         >
             <div className="flex flex-col gap-4">
                 <SabbiginNav active="/dashboard/sabbigin/products" />
 
                 {products.length === 0 ? (
-                    <Card className="p-6 text-sm text-[var(--st-text-secondary)]">
-                        No products yet. Add your first one from the full CRM (the create form lives there).
+                    <Card padding="none">
+                        <EmptyState
+                            icon={Package}
+                            title="No products yet"
+                            description="Add your first one from the full CRM. The create form lives there."
+                            action={
+                                <Link
+                                    href="/dashboard/crm/sales-crm/products/new"
+                                    className="u-btn u-btn--primary u-btn--sm"
+                                >
+                                    <Plus size={13} aria-hidden="true" />
+                                    <span className="u-btn__label">New product (full CRM)</span>
+                                </Link>
+                            }
+                        />
                     </Card>
                 ) : (
-                    <Card className="overflow-hidden p-0">
-                        <ul className="divide-y divide-[var(--st-border)]">
-                            {products.map((p) => {
-                                const id = String(p._id);
-                                const price = (p as { price?: number; rate?: number }).price ?? (p as { rate?: number }).rate ?? 0;
-                                const sku = (p as { sku?: string }).sku ?? '';
-                                return (
-                                    <li key={id}>
-                                        <Link
-                                            href={`/dashboard/crm/sales-crm/products/${id}`}
-                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]"
-                                        >
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-[var(--st-text)]">{p.name ?? 'Product'}</p>
-                                                <p className="truncate text-xs text-[var(--st-text-secondary)]">{sku || '—'}</p>
-                                            </div>
-                                            <p className="shrink-0 text-sm font-medium text-[var(--st-text)]">
-                                                {formatCurrency(price)}
-                                            </p>
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                    <Card padding="none" className="overflow-hidden">
+                        <Table hover>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>SKU</Th>
+                                    <Th align="right">Price</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {products.map((p) => {
+                                    const id = String(p._id);
+                                    const price =
+                                        (p as { price?: number; rate?: number }).price ??
+                                        (p as { rate?: number }).rate ??
+                                        0;
+                                    const sku = (p as { sku?: string }).sku ?? '';
+                                    return (
+                                        <Tr key={id}>
+                                            <Td>
+                                                <Link
+                                                    href={`/dashboard/crm/sales-crm/products/${id}`}
+                                                    className="font-medium text-[var(--st-text)] hover:underline"
+                                                >
+                                                    {p.name ?? 'Product'}
+                                                </Link>
+                                            </Td>
+                                            <Td>
+                                                <span className="text-[var(--st-text-secondary)]">
+                                                    {sku || 'No SKU'}
+                                                </span>
+                                            </Td>
+                                            <Td align="right">
+                                                <span className="font-medium text-[var(--st-text)]">
+                                                    {formatCurrency(price)}
+                                                </span>
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })}
+                            </TBody>
+                        </Table>
                     </Card>
                 )}
             </div>

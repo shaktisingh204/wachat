@@ -1,18 +1,20 @@
 'use client';
 
 /**
- * Composer overlays — @mention autocomplete + /slash command stub.
- * Wired by the parent: it owns the textarea / Input element and only
+ * Composer overlays. @mention autocomplete + /slash command stub.
+ * Wired by the parent. it owns the textarea / Input element and only
  * delegates suggestion picking + caret manipulation here.
  */
 import * as React from 'react';
 
+import { Button, Card } from '@/components/sabcrm/20ui';
+
 const SLASH_COMMANDS: { name: string; description: string }[] = [
     { name: '/me', description: 'Send a message as an action ("/me is shipping")' },
-    { name: '/remind', description: 'Set a reminder (stub — no-op)' },
+    { name: '/remind', description: 'Set a reminder (stub, no-op)' },
     { name: '/shrug', description: 'Append ¯\\_(ツ)_/¯' },
     { name: '/here', description: 'Notify everyone currently active' },
-    { name: '/poll', description: 'Start a quick poll (stub — no-op)' },
+    { name: '/poll', description: 'Start a quick poll (stub, no-op)' },
 ];
 
 export interface MentionCandidate {
@@ -66,20 +68,24 @@ export function ComposerExtras({
         ).slice(0, 6);
         if (!matches.length) return null;
         return (
-            <PopoverList>
+            <PopoverList label="Slash commands">
                 {matches.map((c) => (
-                    <button
+                    <Button
                         key={c.name}
-                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        block
                         onClick={() => {
                             const before = value.slice(0, trigger.triggerIndex);
                             onPick(`${before}${c.name} `);
                         }}
-                        className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-[var(--st-bg-muted)]"
+                        className="!justify-between gap-3 text-left"
                     >
-                        <span className="font-medium text-[var(--st-text)]">{c.name}</span>
-                        <span className="truncate text-[var(--st-text-secondary)]">{c.description}</span>
-                    </button>
+                        <span className="flex w-full items-center justify-between gap-3">
+                            <span className="font-medium text-[var(--st-text)]">{c.name}</span>
+                            <span className="truncate text-[var(--st-text-secondary)]">{c.description}</span>
+                        </span>
+                    </Button>
                 ))}
             </PopoverList>
         );
@@ -96,29 +102,45 @@ export function ComposerExtras({
     if (!matches.length) return null;
 
     return (
-        <PopoverList>
+        <PopoverList label="Mention someone">
             {matches.map((u) => (
-                <button
+                <Button
                     key={u.id}
-                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    block
                     onClick={() => {
                         const before = value.slice(0, trigger.triggerIndex);
                         onPick(`${before}@${u.name} `);
                     }}
-                    className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-[var(--st-bg-muted)]"
+                    className="!justify-between gap-3 text-left"
                 >
-                    <span className="text-[var(--st-text)]">@{u.name}</span>
-                    <span className="truncate text-[var(--st-text-secondary)]">{u.email}</span>
-                </button>
+                    <span className="flex w-full items-center justify-between gap-3">
+                        <span className="text-[var(--st-text)]">@{u.name}</span>
+                        <span className="truncate text-[var(--st-text-secondary)]">{u.email}</span>
+                    </span>
+                </Button>
             ))}
         </PopoverList>
     );
 }
 
-function PopoverList({ children }: { children: React.ReactNode }) {
+function PopoverList({
+    children,
+    label,
+}: {
+    children: React.ReactNode;
+    label: string;
+}) {
     return (
-        <div className="mb-2 max-h-[200px] overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-md">
+        <Card
+            variant="elevated"
+            padding="none"
+            role="listbox"
+            aria-label={label}
+            className="mb-2 max-h-[200px] overflow-auto p-1"
+        >
             {children}
-        </div>
+        </Card>
     );
 }

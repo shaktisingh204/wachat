@@ -1,20 +1,57 @@
 'use client';
-import { fmtINR } from "@/lib/utils";
 
 import React, { useState } from 'react';
+import { Plus, Pencil, Trash2, Globe, Eye, MousePointerClick, Percent } from 'lucide-react';
+
+import { fmtINR } from '@/lib/utils';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui';
-import { Plus, Edit2, Trash2, Globe, Eye, MousePointerClick, Percent } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td, StatCard, Switch } from '@/components/sabcrm/20ui';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
-import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
-import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  StatCard,
+  Switch,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  Field,
+  Input,
+  Badge,
+  EmptyState,
+  useToast,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  ChartContainer,
+  ChartTooltip,
+  Recharts,
+  CHART_PALETTE,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+} from '@/components/sabcrm/20ui';
+import {
+  createLandingPage,
+  updateLandingPage,
+  deleteLandingPage,
+} from '@/app/actions/marketing/landing-page-builder.actions';
+
+function deltaUp(value: string) {
+  return { value, tone: 'up' as const };
+}
+function deltaDown(value: string) {
+  return { value, tone: 'down' as const };
+}
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -23,34 +60,34 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const { toast } = useToast();
-  
+
   // Form State
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
   const [isPublished, setIsPublished] = useState(false);
 
-  const filteredData = data.filter(item => 
-    JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+  const filteredData = data.filter((item) =>
+    JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
   );
 
   // Metrics computation
   const totalPages = data.length;
   const totalViews = data.reduce((sum, item) => sum + (item.views || 0), 0);
   const totalConversions = data.reduce((sum, item) => sum + (item.conversions || 0), 0);
-  const avgConversionRate = totalViews > 0 ? ((totalConversions / totalViews) * 100).toFixed(1) : 0;
+  const avgConversionRate = totalViews > 0 ? ((totalConversions / totalViews) * 100).toFixed(1) : '0';
 
   const openNew = () => {
     setEditingItem(null);
-    setTitle("");
-    setSlug("");
+    setTitle('');
+    setSlug('');
     setIsPublished(false);
     setIsDialogOpen(true);
   };
 
   const openEdit = (item: any) => {
     setEditingItem(item);
-    setTitle(item.title || "");
-    setSlug(item.slug || "");
+    setTitle(item.title || '');
+    setSlug(item.slug || '');
     setIsPublished(item.isPublished || false);
     setIsDialogOpen(true);
   };
@@ -67,22 +104,22 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
       if (editingItem) {
         const res = await updateLandingPage(editingItem._id, payload);
         if (res.success) {
-          setData(data.map(i => i._id === editingItem._id ? { ...i, ...payload } : i));
-          toast({ title: 'Success', description: 'Record updated successfully.' });
+          setData(data.map((i) => (i._id === editingItem._id ? { ...i, ...payload } : i)));
+          toast.success({ title: 'Record updated successfully.' });
           setIsDialogOpen(false);
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to update record.', variant: 'destructive' });
+          toast.error({ title: 'Update failed', description: res.error || 'Failed to update record.' });
         }
       } else {
         const res = await createLandingPage(payload);
         if (res.success) {
           window.location.reload();
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to create record.', variant: 'destructive' });
+          toast.error({ title: 'Create failed', description: res.error || 'Failed to create record.' });
         }
       }
     } catch (err) {
-      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+      toast.error({ title: 'Something went wrong', description: 'An unexpected error occurred.' });
     } finally {
       setLoading(false);
     }
@@ -90,13 +127,13 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    
+
     const res = await deleteLandingPage(id);
     if (res.success) {
-      setData(data.filter(i => i._id !== id));
-      toast({ title: 'Success', description: 'Record deleted.' });
+      setData(data.filter((i) => i._id !== id));
+      toast.success({ title: 'Record deleted.' });
     } else {
-      toast({ title: 'Error', description: res.error || 'Failed to delete record.', variant: 'destructive' });
+      toast.error({ title: 'Delete failed', description: res.error || 'Failed to delete record.' });
     }
   };
 
@@ -110,8 +147,8 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
 
   const totalSpend = mockChannelData.reduce((sum, item) => sum + item.spend, 0);
   const totalRevenue = mockChannelData.reduce((sum, item) => sum + item.revenue, 0);
-  const overallROI = ((totalRevenue - totalSpend) / totalSpend * 100).toFixed(1);
-  const blendedCPA = totalConversions > 0 ? (totalSpend / totalConversions).toFixed(2) : "0.00";
+  const overallROI = (((totalRevenue - totalSpend) / totalSpend) * 100).toFixed(1);
+  const blendedCPA = totalConversions > 0 ? (totalSpend / totalConversions).toFixed(2) : '0.00';
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -126,30 +163,26 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
             <StatCard
               label="Total Cross-Channel Spend"
               value={fmtINR(totalSpend)}
-              icon={<Globe />}
-              delta={5.2}
-              period="vs last month"
+              icon={Globe}
+              delta={deltaUp('+5.2%')}
             />
             <StatCard
               label="Total Revenue Generated"
               value={fmtINR(totalRevenue)}
-              icon={<MousePointerClick />}
-              delta={12.4}
-              period="vs last month"
+              icon={MousePointerClick}
+              delta={deltaUp('+12.4%')}
             />
             <StatCard
               label="Overall Campaign ROI"
               value={`${overallROI}%`}
-              icon={<Percent />}
-              delta={8.1}
-              period="vs last month"
+              icon={Percent}
+              delta={deltaUp('+8.1%')}
             />
             <StatCard
               label="Blended CPA"
               value={`$${blendedCPA}`}
-              icon={<Eye />}
-              delta={-2.3}
-              period="vs last month"
+              icon={Eye}
+              delta={deltaDown('-2.3%')}
             />
           </div>
 
@@ -163,8 +196,15 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                   <Recharts.BarChart data={mockChannelData}>
                     <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <Recharts.XAxis dataKey="channel" axisLine={false} tickLine={false} />
-                    <Recharts.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
-                    <Recharts.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
+                    <Recharts.YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(val: number) => `$${val / 1000}k`}
+                    />
+                    <Recharts.Tooltip
+                      content={<ChartTooltip />}
+                      cursor={{ fill: 'var(--st-bg-secondary)' }}
+                    />
                     <Recharts.Bar dataKey="revenue" name="Revenue" fill={CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
                     <Recharts.Bar dataKey="spend" name="Spend" fill={CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
                   </Recharts.BarChart>
@@ -183,7 +223,15 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                     <Recharts.XAxis dataKey="channel" axisLine={false} tickLine={false} />
                     <Recharts.YAxis axisLine={false} tickLine={false} />
                     <Recharts.Tooltip content={<ChartTooltip />} />
-                    <Recharts.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                    <Recharts.Line
+                      type="monotone"
+                      dataKey="roi"
+                      name="ROI (%)"
+                      stroke={CHART_PALETTE[0]}
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
                   </Recharts.LineChart>
                 </ChartContainer>
               </CardBody>
@@ -193,145 +241,130 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
 
         <TabsContent value="landing-pages" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Total Landing Pages"
-          value={totalPages}
-          icon={<Globe />}
-          delta={12}
-          period="vs last month"
-        />
-        <StatCard
-          label="Total Views"
-          value={totalViews}
-          icon={<Eye />}
-          delta={24}
-          period="vs last month"
-        />
-        <StatCard
-          label="Total Conversions"
-          value={totalConversions}
-          icon={<MousePointerClick />}
-          delta={18}
-          period="vs last month"
-        />
-        <StatCard
-          label="Avg Conversion Rate"
-          value={`${avgConversionRate}%`}
-          icon={<Percent />}
-          delta={4.5}
-          period="vs last month"
-        />
-      </div>
+            <StatCard label="Total Landing Pages" value={totalPages} icon={Globe} delta={deltaUp('+12%')} />
+            <StatCard label="Total Views" value={totalViews} icon={Eye} delta={deltaUp('+24%')} />
+            <StatCard
+              label="Total Conversions"
+              value={totalConversions}
+              icon={MousePointerClick}
+              delta={deltaUp('+18%')}
+            />
+            <StatCard
+              label="Avg Conversion Rate"
+              value={`${avgConversionRate}%`}
+              icon={Percent}
+              delta={deltaUp('+4.5%')}
+            />
+          </div>
 
-      <EntityListShell
-        title="Landing Pages"
-        subtitle="Manage your Landing Pages and marketing funnels seamlessly."
-        search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
-        primaryAction={
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create New
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">Title</Label>
-                  <Input
-                    id="title"
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="slug" className="text-right">Slug</Label>
-                  <Input
-                    id="slug"
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="isPublished" className="text-right">Published</Label>
-                  <div className="col-span-3 flex items-center h-full">
-                    <Switch
-                      id="isPublished"
-                      checked={isPublished}
-                      onCheckedChange={setIsPublished}
-                    />
+          <EntityListShell
+            title="Landing Pages"
+            subtitle="Manage your Landing Pages and marketing funnels seamlessly."
+            search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
+            primaryAction={
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                    Create New
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <Field label="Title">
+                      <Input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Slug">
+                      <Input
+                        type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Published">
+                      <Switch
+                        checked={isPublished}
+                        onCheckedChange={setIsPublished}
+                        aria-label="Published"
+                      />
+                    </Field>
                   </div>
-                </div>
+                  <DialogFooter>
+                    <Button variant="primary" loading={loading} onClick={handleSave}>
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            }
+          >
+            {filteredData.length === 0 ? (
+              <EmptyState
+                icon={Globe}
+                title="No landing pages yet"
+                description="Create your first landing page to start capturing conversions."
+                action={
+                  <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                    Create New
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th>Title</Th>
+                      <Th>Slug</Th>
+                      <Th>Status</Th>
+                      <Th align="right">Views</Th>
+                      <Th align="right">Conversions</Th>
+                      <Th align="right">Actions</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {filteredData.map((item) => (
+                      <Tr key={item._id}>
+                        <Td>{String(item.title || '')}</Td>
+                        <Td>{String(item.slug || '')}</Td>
+                        <Td>
+                          {item.isPublished ? (
+                            <Badge tone="success">Published</Badge>
+                          ) : (
+                            <Badge tone="neutral">Draft</Badge>
+                          )}
+                        </Td>
+                        <Td align="right">{item.views?.toLocaleString() || 0}</Td>
+                        <Td align="right">{item.conversions?.toLocaleString() || 0}</Td>
+                        <Td align="right">
+                          <div className="flex items-center justify-end gap-2">
+                            <IconButton
+                              label="Edit landing page"
+                              icon={Pencil}
+                              variant="ghost"
+                              onClick={() => openEdit(item)}
+                            />
+                            <IconButton
+                              label="Delete landing page"
+                              icon={Trash2}
+                              variant="ghost"
+                              onClick={() => handleDelete(item._id)}
+                            />
+                          </div>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
               </div>
-              <DialogFooter>
-                <Button disabled={loading} onClick={handleSave}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        }
-      >
-        {filteredData.length === 0 ? (
-          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
-            No records found.
-          </div>
-        ) : (
-          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
-            <Table>
-              <THead>
-                <Tr>
-                  <Th className="capitalize">Title</Th>
-                  <Th className="capitalize">Slug</Th>
-                  <Th className="capitalize">Status</Th>
-                  <Th className="capitalize text-right">Views</Th>
-                  <Th className="capitalize text-right">Conversions</Th>
-                  <Th className="text-right">Actions</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                {filteredData.map((item) => (
-                  <Tr key={item._id}>
-                    <Td>
-                      {String(item.title || '')}
-                    </Td>
-                    <Td>
-                      {String(item.slug || '')}
-                    </Td>
-                    <Td>
-                      {item.isPublished ? (
-                        <Badge variant="success">Published</Badge>
-                      ) : (
-                        <Badge variant="secondary">Draft</Badge>
-                      )}
-                    </Td>
-                    <Td className="text-right">
-                      {item.views?.toLocaleString() || 0}
-                    </Td>
-                    <Td className="text-right">
-                      {item.conversions?.toLocaleString() || 0}
-                    </Td>
-                    <Td className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                        <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                      </Button>
-                    </Td>
-                  </Tr>
-                ))}
-              </TBody>
-            </Table>
-          </div>
-        )}
-      </EntityListShell>
+            )}
+          </EntityListShell>
         </TabsContent>
       </Tabs>
     </div>

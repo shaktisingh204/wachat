@@ -1,17 +1,57 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageDescription, PageHeader, PageHeading, PageTitle, Textarea, useToast, type BadgeProps } from '@/components/sabcrm/20ui';
 import {
-  Calendar,
-  Check,
-  ChevronDown,
-  Flag,
-  Loader,
-  Plus,
-  Search,
-  Trash2,
-  UserPlus,
-  } from 'lucide-react';
+    Badge,
+    type BadgeTone,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageDescription,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    StatCard,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    Calendar,
+    ChevronDown,
+    Flag,
+    Inbox,
+    Plus,
+    Search,
+    Trash2,
+    UserPlus,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -96,7 +136,7 @@ export default function TeamTasksPage() {
             (async () => {
                 const res = await updateTeamTaskStatus(taskId, next);
                 if (!res.success) {
-                    toast({ title: 'Move failed', description: res.error, variant: 'destructive' });
+                    toast({ title: 'Move failed', description: res.error, tone: 'danger' });
                     fetchAll();
                 }
             })();
@@ -110,9 +150,9 @@ export default function TeamTasksPage() {
                 const res = await deleteTeamTask(taskId);
                 if (res.success) {
                     setTasks((prev) => prev.filter((t) => t._id.toString() !== taskId));
-                    toast({ title: 'Task deleted' });
+                    toast.success('Task deleted');
                 } else {
-                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                    toast({ title: 'Error', description: res.error, tone: 'danger' });
                 }
             })();
         },
@@ -126,7 +166,7 @@ export default function TeamTasksPage() {
                 if (res.success) {
                     fetchAll();
                 } else {
-                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                    toast({ title: 'Error', description: res.error, tone: 'danger' });
                 }
             })();
         },
@@ -180,24 +220,29 @@ export default function TeamTasksPage() {
             </PageHeader>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatTile label="Total" value={tasks.length} />
-                <StatTile label="Assigned to me" value={myTaskCount} />
-                <StatTile label="In progress" value={byStatus['In Progress'].length} />
-                <StatTile label="Overdue" value={overdueCount} tone={overdueCount > 0 ? 'red' : 'neutral'} />
+                <StatCard label="Total" value={tasks.length} />
+                <StatCard label="Assigned to me" value={myTaskCount} />
+                <StatCard label="In progress" value={byStatus['In Progress'].length} />
+                <StatCard
+                    label="Overdue"
+                    value={overdueCount}
+                    delta={overdueCount > 0 ? { value: 'Attention', tone: 'down' } : undefined}
+                />
             </div>
 
-            <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-1 items-center gap-3">
+            <Card className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
                     <Input
                         className="max-w-[300px] flex-1"
-                        leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
+                        iconLeft={Search}
                         placeholder="Search tasks"
+                        aria-label="Search tasks"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
-                    <div className="w-[180px]">
+                    <div className="w-full sm:w-[180px]">
                         <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by assignee">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -211,12 +256,12 @@ export default function TeamTasksPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="w-[140px]">
+                    <div className="w-full sm:w-[140px]">
                         <Select
                             value={priorityFilter}
                             onValueChange={(v) => setPriorityFilter(v as 'all' | Priority)}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Filter by priority">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -254,31 +299,13 @@ export default function TeamTasksPage() {
     );
 }
 
-/* ─────────────────────────────────────── STATS ─────────────────────────────────── */
-
-function StatTile({
-    label,
-    value,
-    tone = 'neutral',
-}: {
-    label: string;
-    value: number;
-    tone?: 'red' | 'neutral';
-}) {
-    return (
-        <Card className="flex items-center gap-3 p-4">
-            <div>
-                <div className="text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">{label}</div>
-                <div className="flex items-center gap-2">
-                    <div className="text-[22px] tracking-[-0.01em] text-[var(--st-text)]">{value}</div>
-                    {tone === 'red' && value > 0 ? <Badge variant="danger">Attention</Badge> : null}
-                </div>
-            </div>
-        </Card>
-    );
-}
-
 /* ─────────────────────────────────────── COLUMN ────────────────────────────────── */
+
+const STATUS_TONE: Record<Status, BadgeTone> = {
+    'To-Do': 'neutral',
+    'In Progress': 'warning',
+    Completed: 'success',
+};
 
 function Column({
     status,
@@ -302,11 +329,6 @@ function Column({
     onDelete: (id: string) => void;
 }) {
     const [dropActive, setDropActive] = React.useState(false);
-    const variant: Record<Status, NonNullable<BadgeProps['variant']>> = {
-        'To-Do': 'ghost',
-        'In Progress': 'warning',
-        Completed: 'success',
-    };
 
     return (
         <div
@@ -323,20 +345,25 @@ function Column({
                 if (taskId) onMove(taskId, status);
             }}
             className={
-                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-colors ' +
-                (dropActive ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]/40' : '')
+                'flex min-h-[300px] flex-col gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-colors ' +
+                (dropActive ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]' : '')
             }
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Badge variant={variant[status]}>{status}</Badge>
+                    <Badge tone={STATUS_TONE[status]}>{status}</Badge>
                     <span className="text-[12px] text-[var(--st-text-secondary)]">{tasks.length}</span>
                 </div>
             </div>
 
             {tasks.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] p-6 text-[12.5px] text-[var(--st-text-secondary)]">
-                    Drop tasks here
+                <div className="flex flex-1 items-center justify-center">
+                    <EmptyState
+                        size="sm"
+                        icon={Inbox}
+                        title="No tasks yet"
+                        description="Drop tasks here"
+                    />
                 </div>
             ) : (
                 tasks.map((t) => (
@@ -359,6 +386,12 @@ function Column({
 
 /* ─────────────────────────────────────── CARD ──────────────────────────────────── */
 
+const PRIORITY_TONE: Record<Priority, BadgeTone> = {
+    High: 'danger',
+    Medium: 'warning',
+    Low: 'info',
+};
+
 function TaskCard({
     task,
     assignees,
@@ -379,24 +412,21 @@ function TaskCard({
     onDelete: (id: string) => void;
 }) {
     const id = task._id.toString();
-    const priorityVariant: Record<Priority, NonNullable<BadgeProps['variant']>> = {
-        High: 'danger',
-        Medium: 'warning',
-        Low: 'info',
-    };
 
     const due = task.dueDate ? new Date(task.dueDate as any) : null;
     const overdue = due && task.status !== 'Completed' && due.getTime() < Date.now();
     const isMine = meId && task.assignedTo?.toString() === meId;
 
     return (
-        <div
+        <Card
+            variant="interactive"
+            padding="sm"
             draggable={canEdit}
             onDragStart={(e) => {
                 e.dataTransfer.setData('text/taskId', id);
                 e.dataTransfer.effectAllowed = 'move';
             }}
-            className="flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
+            className="flex flex-col gap-2"
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
@@ -406,29 +436,28 @@ function TaskCard({
                     ) : null}
                 </div>
                 {canDelete ? (
-                    <button
-                        type="button"
+                    <IconButton
+                        label="Delete task"
+                        icon={Trash2}
+                        variant="ghost"
+                        size="sm"
                         onClick={() => onDelete(id)}
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-                        aria-label="Delete task"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                    </button>
+                    />
                 ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
-                <Badge variant={priorityVariant[task.priority]}>
-                    <Flag className="h-3 w-3" strokeWidth={2} />
+                <Badge tone={PRIORITY_TONE[task.priority]}>
+                    <Flag className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
                     {task.priority}
                 </Badge>
                 {due ? (
-                    <Badge variant={overdue ? 'danger' : 'ghost'}>
-                        <Calendar className="h-3 w-3" strokeWidth={2} />
+                    <Badge tone={overdue ? 'danger' : 'neutral'}>
+                        <Calendar className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
                         {due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </Badge>
                 ) : null}
-                {isMine ? <Badge variant="secondary">You</Badge> : null}
+                {isMine ? <Badge tone="accent">You</Badge> : null}
             </div>
 
             <div className="flex items-center justify-between gap-2">
@@ -440,7 +469,7 @@ function TaskCard({
                 />
                 {canEdit ? <StatusMenu status={task.status} onMove={(to) => onMove(id, to)} /> : null}
             </div>
-        </div>
+        </Card>
     );
 }
 
@@ -455,119 +484,77 @@ function AssigneeChip({
     canEdit: boolean;
     onReassign: (v: string | null) => void;
 }) {
-    const [open, setOpen] = React.useState(false);
     const name = task.assigneeName || task.assigneeEmail || 'Unassigned';
     const initial = name.charAt(0).toUpperCase();
+    const current = task.assignedTo?.toString() ?? '__none';
+
     const chip = (
         <span
             className={
-                'inline-flex items-center gap-1.5 rounded-full border px-2 h-6 text-[11.5px] ' +
+                'inline-flex h-6 items-center gap-1.5 rounded-full border px-2 text-[11.5px] ' +
                 (task.assignedTo
-                    ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    ? 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
                     : 'border-dashed border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]')
             }
         >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[9px] text-[var(--st-text)]">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[9px] text-[var(--st-text)]">
                 {task.assignedTo ? initial : '?'}
             </span>
             <span className="max-w-[120px] truncate">{name}</span>
         </span>
     );
+
     if (!canEdit) return chip;
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <button type="button" className="outline-none hover:opacity-90">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-auto p-0">
                     {chip}
-                </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm">
-                <DialogHeader>
-                    <DialogTitle>Assign task</DialogTitle>
-                </DialogHeader>
-                <div className="mt-3 flex max-h-[280px] flex-col gap-1 overflow-auto">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setOpen(false);
-                            onReassign(null);
-                        }}
-                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)]"
-                    >
-                        <span className="text-[var(--st-text-secondary)]">Unassign</span>
-                        {!task.assignedTo ? <Check className="h-3.5 w-3.5" /> : null}
-                    </button>
-                    {assignees.map((a) => {
-                        const active = task.assignedTo?.toString() === a._id;
-                        return (
-                            <button
-                                key={a._id}
-                                type="button"
-                                onClick={() => {
-                                    setOpen(false);
-                                    onReassign(a._id);
-                                }}
-                                className={
-                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ' +
-                                    (active ? 'bg-[var(--st-bg-muted)]/60' : '')
-                                }
-                            >
-                                <span className="flex items-center gap-2">
-                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text)]">
-                                        {a.name.charAt(0).toUpperCase()}
-                                    </span>
-                                    <span>
-                                        <span className="block text-[var(--st-text)]">{a.name}</span>
-                                        <span className="block text-[11px] text-[var(--st-text-secondary)]">{a.email}</span>
-                                    </span>
-                                </span>
-                                {active ? <Check className="h-3.5 w-3.5 text-[var(--st-text)]" /> : null}
-                            </button>
-                        );
-                    })}
-                </div>
-            </DialogContent>
-        </Dialog>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+                <DropdownMenuLabel>Assign task</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                    value={current}
+                    onValueChange={(v) => onReassign(v === '__none' ? null : v)}
+                >
+                    <DropdownMenuRadioItem value="__none">Unassign</DropdownMenuRadioItem>
+                    {assignees.map((a) => (
+                        <DropdownMenuRadioItem key={a._id} value={a._id}>
+                            <span className="flex flex-col">
+                                <span className="text-[var(--st-text)]">{a.name}</span>
+                                <span className="text-[11px] text-[var(--st-text-secondary)]">{a.email}</span>
+                            </span>
+                        </DropdownMenuRadioItem>
+                    ))}
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
 function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) => void }) {
-    const [open, setOpen] = React.useState(false);
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <button
-                    type="button"
-                    className="inline-flex h-6 items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 text-[11.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                >
-                    Move <ChevronDown className="h-3 w-3" />
-                </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xs">
-                <DialogHeader>
-                    <DialogTitle>Move to</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col gap-1">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" iconRight={ChevronDown}>
+                    Move
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Move to</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value={status} onValueChange={(v) => onMove(v as Status)}>
                     {STATUSES.map((s) => (
-                        <button
-                            key={s}
-                            type="button"
-                            onClick={() => {
-                                setOpen(false);
-                                onMove(s);
-                            }}
-                            className={
-                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ' +
-                                (s === status ? 'bg-[var(--st-bg-muted)]/60' : '')
-                            }
-                        >
-                            <span>{s}</span>
-                            {s === status ? <Check className="h-3.5 w-3.5 text-[var(--st-text)]" /> : null}
-                        </button>
+                        <DropdownMenuRadioItem key={s} value={s}>
+                            {s}
+                        </DropdownMenuRadioItem>
                     ))}
-                </div>
-            </DialogContent>
-        </Dialog>
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -604,13 +591,13 @@ function CreateTaskDialog({
             const res = await createTeamTask(null, fd);
             setPending(false);
             if (res.message) {
-                toast({ title: 'Task created' });
+                toast.success('Task created');
                 form.reset();
                 setPriority('Medium');
                 setAssignedTo('');
                 onCreated();
             } else {
-                toast({ title: 'Could not create', description: res.error, variant: 'destructive' });
+                toast({ title: 'Could not create', description: res.error, tone: 'danger' });
             }
         })();
     };
@@ -618,8 +605,7 @@ function CreateTaskDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button size="md">
-                    <Plus className="h-3.5 w-3.5" />
+                <Button variant="primary" size="md" iconLeft={Plus}>
                     New task
                 </Button>
             </DialogTrigger>
@@ -628,20 +614,20 @@ function CreateTaskDialog({
                     <DialogTitle>New task</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
-                    <Field label="Title">
+                    <Field label="Title" required>
                         <Input name="title" required placeholder="Follow up with onboarding leads" />
                     </Field>
                     <Field label="Description (optional)">
                         <Textarea
                             name="description"
                             rows={3}
-                            placeholder="Details, links, acceptance criteria…"
+                            placeholder="Details, links, acceptance criteria."
                         />
                     </Field>
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Priority">
                             <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Priority">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -657,7 +643,7 @@ function CreateTaskDialog({
                     </div>
                     <Field label="Assign to">
                         <Select value={assignedTo || '__none'} onValueChange={(v) => setAssignedTo(v === '__none' ? '' : v)}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Assign to">
                                 <SelectValue placeholder="Unassigned" />
                             </SelectTrigger>
                             <SelectContent>
@@ -670,7 +656,7 @@ function CreateTaskDialog({
                             </SelectContent>
                         </Select>
                     </Field>
-                    <div className="mt-2 flex justify-end gap-2">
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -680,23 +666,13 @@ function CreateTaskDialog({
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" size="md" disabled={pending}>
-                            {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                        <Button type="submit" variant="primary" size="md" loading={pending} iconLeft={UserPlus}>
                             Create task
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
-    );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-        <div className="flex flex-col gap-1.5">
-            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">{label}</label>
-            {children}
-        </div>
     );
 }
 
@@ -704,10 +680,10 @@ function KanbanSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {STATUSES.map((s) => (
-                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
-                    <div className="h-4 w-24 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
-                    <div className="h-16 animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />
-                    <div className="h-16 animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />
+                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                    <div className="h-4 w-24 animate-pulse rounded-full bg-[var(--st-bg-secondary)]" />
+                    <div className="h-16 animate-pulse rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]" />
+                    <div className="h-16 animate-pulse rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]" />
                 </div>
             ))}
         </div>

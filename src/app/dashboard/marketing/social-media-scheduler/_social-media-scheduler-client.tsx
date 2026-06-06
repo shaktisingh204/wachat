@@ -1,16 +1,45 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
+import { Plus, Pencil, Trash2, Wand2, CalendarClock } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui';
-import { Plus, Edit2, Trash2, Wand2, Loader2 } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
-import { createSocialPost, updateSocialPost, deleteSocialPost, suggestOptimizations } from '@/app/actions/marketing/social-media-scheduler.actions';
+import {
+  Button,
+  IconButton,
+  Card,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import {
+  createSocialPost,
+  updateSocialPost,
+  deleteSocialPost,
+  suggestOptimizations,
+} from '@/app/actions/marketing/social-media-scheduler.actions';
+
+const PLATFORM_OPTIONS = ['facebook', 'twitter', 'instagram', 'linkedin'];
+const STATUS_OPTIONS = ['scheduled', 'published', 'failed'];
 
 export function SocialPostClient({ initialData }: { initialData: any[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -18,35 +47,35 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
   const [search, setSearch] = useState('');
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  
-  // Form State
-  const [platform, setPlatform] = useState<any>("");
-  const [content, setContent] = useState<any>("");
-  const [status, setStatus] = useState<any>("");
-  const [scheduledTime, setScheduledTime] = useState<any>("");
-  const [tags, setTags] = useState<string>("");
 
-  const filteredData = initialData.filter(item => 
-    JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+  // Form State
+  const [platform, setPlatform] = useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [tags, setTags] = useState<string>('');
+
+  const filteredData = initialData.filter((item) =>
+    JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
   );
 
   const openNew = () => {
     setEditingItem(null);
-    setPlatform("");
-    setContent("");
-    setStatus("");
-    setScheduledTime("");
-    setTags("");
+    setPlatform('');
+    setContent('');
+    setStatus('');
+    setScheduledTime('');
+    setTags('');
     setIsDialogOpen(true);
   };
 
   const openEdit = (item: any) => {
     setEditingItem(item);
-    setPlatform(item.platform || "");
-    setContent(item.content || "");
-    setStatus(item.status || "");
-    setScheduledTime(item.scheduledTime || "");
-    setTags(item.tags ? item.tags.join(', ') : "");
+    setPlatform(item.platform || '');
+    setContent(item.content || '');
+    setStatus(item.status || '');
+    setScheduledTime(item.scheduledTime || '');
+    setTags(item.tags ? item.tags.join(', ') : '');
     setIsDialogOpen(true);
   };
 
@@ -57,56 +86,56 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
         content,
         status,
         scheduledTime,
-        tags: tags.split(',').map(t => t.trim()).filter(Boolean)
+        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       };
 
       try {
         if (editingItem) {
           const res = await updateSocialPost(editingItem._id, payload);
           if (res.success) {
-            toast({ title: 'Success', description: 'Record updated successfully.' });
+            toast.success('Record updated successfully.');
             setIsDialogOpen(false);
           } else {
-            toast({ title: 'Error', description: res.error || 'Failed to update record.', variant: 'destructive' });
+            toast.error(res.error || 'Failed to update record.');
           }
         } else {
           const res = await createSocialPost(payload);
           if (res.success) {
-            toast({ title: 'Success', description: 'Record created successfully.' });
+            toast.success('Record created successfully.');
             setIsDialogOpen(false);
           } else {
-            toast({ title: 'Error', description: res.error || 'Failed to create record.', variant: 'destructive' });
+            toast.error(res.error || 'Failed to create record.');
           }
         }
       } catch (err) {
-        toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+        toast.error('An unexpected error occurred.');
       }
     });
   };
 
   const handleDelete = (id: string) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    
+
     startTransition(async () => {
       try {
         const res = await deleteSocialPost(id);
         if (res.success) {
-          toast({ title: 'Success', description: 'Record deleted.' });
+          toast.success('Record deleted.');
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to delete record.', variant: 'destructive' });
+          toast.error(res.error || 'Failed to delete record.');
         }
       } catch (err) {
-        toast({ title: 'Error', description: 'Failed to delete record.', variant: 'destructive' });
+        toast.error('Failed to delete record.');
       }
     });
   };
 
   const handleSuggest = () => {
     if (!content || !platform) {
-      toast({ title: 'Notice', description: 'Please enter content and select a platform first.' });
+      toast.info('Please enter content and select a platform first.');
       return;
     }
-    
+
     startTransition(async () => {
       try {
         const res = await suggestOptimizations(content, platform);
@@ -117,12 +146,12 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
           if (res.data.optimalPostingTime) {
             setScheduledTime(res.data.optimalPostingTime);
           }
-          toast({ title: 'Success', description: 'Generated suggestions successfully.' });
+          toast.success('Generated suggestions successfully.');
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to generate suggestions.', variant: 'destructive' });
+          toast.error(res.error || 'Failed to generate suggestions.');
         }
       } catch (err) {
-        toast({ title: 'Error', description: 'An unexpected error occurred during suggestion generation.', variant: 'destructive' });
+        toast.error('An unexpected error occurred during suggestion generation.');
       }
     });
   };
@@ -135,8 +164,7 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
               Create New
             </Button>
           </DialogTrigger>
@@ -144,103 +172,81 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
             <DialogHeader>
               <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="platform" className="text-right">platform</Label>
-                  
-                    <select
-                      id="platform"
-                      value={platform}
-                      onChange={(e) => setPlatform(e.target.value)}
-                      className="col-span-3 flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">Select option</option>
-                      <option value="facebook">facebook</option>
-                      <option value="twitter">twitter</option>
-                      <option value="instagram">instagram</option>
-                      <option value="linkedin">linkedin</option>
-                    </select>
-                  
-                </div>
-              
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="content" className="text-right">content</Label>
-                  
-                    <Input
-                      id="content"
-                      type="text"
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      className="col-span-3"
-                    />
-                  
-                </div>
-              
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">status</Label>
-                  
-                    <select
-                      id="status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      className="col-span-3 flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">Select option</option>
-                      <option value="scheduled">scheduled</option>
-                      <option value="published">published</option>
-                      <option value="failed">failed</option>
-                    </select>
-                  
-                </div>
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="scheduledTime" className="text-right">Scheduled Time</Label>
-                  <div className="col-span-3 flex flex-col gap-2">
-                    <Input
-                      id="scheduledTime"
-                      type="text"
-                      placeholder="e.g. 2023-11-05T14:30:00Z or Tuesday 10:00 AM"
-                      value={scheduledTime}
-                      onChange={(e) => setScheduledTime(e.target.value)}
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="tags" className="text-right">Tags</Label>
-                  <div className="col-span-3 flex flex-col gap-2">
-                    <Input
-                      id="tags"
-                      type="text"
-                      placeholder="Comma-separated tags"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleSuggest} 
-                      disabled={isPending || !content || !platform}
-                      className="w-fit"
-                    >
-                      {isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Wand2 className="mr-2 h-4 w-4" />
-                      )}
-                      Suggest Tags & Time
-                    </Button>
-                  </div>
+            <div className="flex flex-col gap-4 py-2">
+              <Field label="Platform">
+                <Select value={platform} onValueChange={setPlatform}>
+                  <SelectTrigger aria-label="Platform">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PLATFORM_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Content">
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={4}
+                />
+              </Field>
+
+              <Field label="Status">
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger aria-label="Status">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Scheduled Time">
+                <Input
+                  type="text"
+                  placeholder="e.g. 2023-11-05T14:30:00Z or Tuesday 10:00 AM"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                />
+              </Field>
+
+              <Field label="Tags">
+                <div className="flex flex-col gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Comma-separated tags"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    iconLeft={Wand2}
+                    loading={isPending}
+                    onClick={handleSuggest}
+                    disabled={isPending || !content || !platform}
+                    className="w-fit"
+                  >
+                    Suggest Tags &amp; Time
+                  </Button>
                 </div>
-              
+              </Field>
             </div>
+
             <DialogFooter>
-              <Button disabled={isPending} onClick={handleSave}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button variant="primary" loading={isPending} onClick={handleSave}>
                 Save
               </Button>
             </DialogFooter>
@@ -249,65 +255,68 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       }
     >
       {filteredData.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
-          No records found.
-        </div>
+        <EmptyState
+          icon={CalendarClock}
+          title="No records found."
+          description="Create your first scheduled post to get started."
+          action={
+            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+              Create New
+            </Button>
+          }
+        />
       ) : (
-        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+        <Card padding="none" className="overflow-hidden">
           <Table>
             <THead>
               <Tr>
-                <Th className="capitalize">platform</Th>
-                <Th className="capitalize">content</Th>
-                <Th className="capitalize">status</Th>
-                <Th className="capitalize">time</Th>
-                <Th className="capitalize">tags</Th>
-                <Th className="text-right">Actions</Th>
+                <Th className="capitalize">Platform</Th>
+                <Th className="capitalize">Content</Th>
+                <Th className="capitalize">Status</Th>
+                <Th className="capitalize">Time</Th>
+                <Th className="capitalize">Tags</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
               {filteredData.map((item) => (
                 <Tr key={item._id}>
-                  
-                    <Td>
-                      {String(item.platform || '')}
-                    </Td>
-                  
-                  
-                    <Td>
-                      {String(item.content || '')}
-                    </Td>
-                  
-                  
-                    <Td>
-                      {String(item.status || '')}
-                    </Td>
-
-                    <Td>
-                      {String(item.scheduledTime || '')}
-                    </Td>
-
-                    <Td>
-                      <div className="flex flex-wrap gap-1">
-                        {item.tags?.map((tag: string, idx: number) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
-                        ))}
-                      </div>
-                    </Td>
-                  
-                  <Td className="text-right space-x-2">
-                    <Button variant="ghost" size="icon" disabled={isPending} onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
-                    <Button variant="ghost" size="icon" disabled={isPending} onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
+                  <Td>{String(item.platform || '')}</Td>
+                  <Td>{String(item.content || '')}</Td>
+                  <Td>{String(item.status || '')}</Td>
+                  <Td>{String(item.scheduledTime || '')}</Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1">
+                      {item.tags?.map((tag: string, idx: number) => (
+                        <Badge key={idx} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </Td>
+                  <Td align="right">
+                    <div className="flex items-center justify-end gap-1">
+                      <IconButton
+                        label="Edit record"
+                        icon={Pencil}
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() => openEdit(item)}
+                      />
+                      <IconButton
+                        label="Delete record"
+                        icon={Trash2}
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() => handleDelete(item._id)}
+                      />
+                    </div>
                   </Td>
                 </Tr>
               ))}
             </TBody>
           </Table>
-        </div>
+        </Card>
       )}
     </EntityListShell>
   );

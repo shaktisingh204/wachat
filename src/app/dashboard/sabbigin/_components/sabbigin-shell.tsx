@@ -12,7 +12,7 @@ import {
 import { cn } from '@/components/sabcrm/20ui';
 
 /**
- * SabBigin top-nav. Minimal by design — the whole point of SabBigin is a
+ * SabBigin top-nav. Minimal by design. The whole point of SabBigin is a
  * narrower surface than the full Sales CRM module.
  */
 
@@ -42,6 +42,7 @@ export function SabbiginNav({ active }: { active?: string }) {
                     <Link
                         key={href}
                         href={href}
+                        aria-current={isActive ? 'page' : undefined}
                         className={cn(
                             'inline-flex items-center gap-1.5 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors',
                             isActive
@@ -49,7 +50,7 @@ export function SabbiginNav({ active }: { active?: string }) {
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >
-                        <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        <Icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {label}
                     </Link>
                 );

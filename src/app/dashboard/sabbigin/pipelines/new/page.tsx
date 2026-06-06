@@ -1,9 +1,22 @@
 'use client';
 
-import { Button, Card, Input, Label } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 
-import { Trash2, Plus, ArrowLeft, Columns3 } from 'lucide-react';
+import { Trash2, ArrowLeft, Columns3 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 
@@ -44,86 +57,83 @@ export default function NewPipelinePage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link href="/dashboard/sabbigin/pipelines" className="inline-flex items-center gap-2 text-[13px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
-          <ArrowLeft className="h-4 w-4" /> Back to Pipelines
+    <div className="ui20 flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <Link
+          href="/dashboard/sabbigin/pipelines"
+          className="inline-flex w-fit items-center gap-2 text-[13px] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to Pipelines
         </Link>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-[var(--st-text)] flex items-center gap-3">
-          <Columns3 className="h-6 w-6 text-[var(--st-text)]" />
-          Create New Pipeline
-        </h1>
+        <PageHeader bordered={false} compact>
+          <PageHeaderHeading>
+            <PageTitle className="flex items-center gap-3">
+              <Columns3 className="h-6 w-6" aria-hidden="true" />
+              Create New Pipeline
+            </PageTitle>
+          </PageHeaderHeading>
+        </PageHeader>
       </div>
 
       <Card>
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="pipeline-name" className="text-[var(--st-text)]">Pipeline Name</Label>
+        <CardBody className="flex flex-col gap-6">
+          <Field label="Pipeline Name">
             <Input
-              id="pipeline-name"
-              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               value={pipelineName}
               onChange={e => setPipelineName(e.target.value)}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-[var(--st-text)]">Description</Label>
+          </Field>
+          <Field label="Description">
             <Input
-              id="description"
-              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               value={description}
               onChange={e => setDescription(e.target.value)}
             />
-          </div>
-        </div>
+          </Field>
+        </CardBody>
       </Card>
 
       <Card>
-        <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Edit Pipeline Stages</h2>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            {stages.map((stage, index) => (
-              <div key={stage.id} className="flex items-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
-                <div className="flex-1 space-y-1">
-                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-[var(--st-text-secondary)]">Stage Name</Label>
+        <CardHeader>
+          <CardTitle>Edit Pipeline Stages</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            {stages.map(stage => (
+              <div
+                key={stage.id}
+                className="flex items-end gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
+              >
+                <Field label="Stage Name" className="flex-1">
                   <Input
-                    id={`stage-name-${index}`}
-                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                     value={stage.name}
                     onChange={e => handleStageChange(stage.id, 'name', e.target.value)}
                   />
-                </div>
-                <div className="w-32 space-y-1">
-                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-[var(--st-text-secondary)]">Closure Chances (%)</Label>
+                </Field>
+                <Field label="Closure Chances (%)" className="w-32">
                   <Input
-                    id={`stage-chance-${index}`}
                     type="number"
-                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                     value={stage.chance}
                     onChange={e => handleStageChange(stage.id, 'chance', Number(e.target.value))}
                   />
-                </div>
-                <Button
+                </Field>
+                <IconButton
+                  label={`Remove ${stage.name} stage`}
+                  icon={Trash2}
                   variant="ghost"
-                  size="icon"
                   onClick={() => handleRemoveStage(stage.id)}
-                  className="self-end mb-1"
-                >
-                  <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                </Button>
+                />
               </div>
             ))}
           </div>
           <Button variant="outline" onClick={handleAddStage}>
             Add New Stage
           </Button>
-        </div>
-        <div className="mt-6 flex justify-end gap-2">
+        </CardBody>
+        <CardFooter className="flex justify-end gap-2">
           <Button variant="ghost">Cancel</Button>
-          <Button>Save Changes</Button>
-        </div>
+          <Button variant="primary">Save Changes</Button>
+        </CardFooter>
       </Card>
     </div>
   );

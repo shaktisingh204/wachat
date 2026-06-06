@@ -6,7 +6,7 @@
 import * as React from 'react';
 import { SmilePlus } from 'lucide-react';
 
-import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
+import { Button, IconButton, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
 
 const QUICK_EMOJIS = ['👍', '❤️', '🎉', '🙏', '😂', '🔥'];
 const PICKER_EMOJIS = [
@@ -35,63 +35,57 @@ export function ReactionsBar({
             {(reactions ?? []).map((r) => {
                 const mine = !!meId && r.userIds.includes(meId);
                 return (
-                    <button
+                    <Button
                         key={r.emoji}
-                        type="button"
+                        variant={mine ? 'secondary' : 'ghost'}
+                        size="sm"
                         onClick={() => onToggle(r.emoji)}
-                        className={
-                            'inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition-colors ' +
-                            (mine
-                                ? 'border-[var(--st-text)]/40 bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:border-[var(--st-text)]/30')
-                        }
                         aria-pressed={mine}
+                        aria-label={`React with ${r.emoji}, ${r.count} so far`}
+                        className="h-6 gap-1 rounded-[var(--st-radius-full)] px-2 text-[11px]"
                     >
-                        <span>{r.emoji}</span>
+                        <span aria-hidden="true">{r.emoji}</span>
                         <span className="tabular-nums">{r.count}</span>
-                    </button>
+                    </Button>
                 );
             })}
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button
-                        type="button"
+                    <IconButton
+                        label="Add reaction"
+                        icon={SmilePlus}
                         variant="outline"
-                        size="icon"
-                        aria-label="Add reaction"
+                        size="sm"
                         className="h-6 w-6"
-                    >
-                        <SmilePlus className="h-3 w-3" />
-                    </Button>
+                    />
                 </PopoverTrigger>
-                <PopoverContent
-                    align="start"
-                    className="w-[224px] p-2"
-                >
+                <PopoverContent align="start" className="w-[224px] p-2">
                     {!compact ? (
                         <div className="mb-2 flex flex-wrap gap-1">
                             {QUICK_EMOJIS.map((e) => (
-                                <button
+                                <Button
                                     key={e}
-                                    type="button"
+                                    variant="ghost"
                                     onClick={() => onToggle(e)}
-                                    className="h-7 w-7 rounded-md border border-[var(--st-border)] text-[14px] hover:bg-[var(--st-bg-muted)]"
+                                    aria-label={`React with ${e}`}
+                                    className="h-7 w-7 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0 text-[14px]"
                                 >
-                                    {e}
-                                </button>
+                                    <span aria-hidden="true">{e}</span>
+                                </Button>
                             ))}
                         </div>
                     ) : null}
                     <div className="grid grid-cols-6 gap-1">
                         {PICKER_EMOJIS.map((e) => (
-                            <button
+                            <Button
                                 key={e}
-                                type="button"
+                                variant="ghost"
                                 onClick={() => onToggle(e)}
-                                className="h-7 w-7 rounded-md text-[14px] hover:bg-[var(--st-bg-muted)]"
+                                aria-label={`React with ${e}`}
+                                className="h-7 w-7 rounded-[var(--st-radius)] p-0 text-[14px]"
                             >
-                                {e}
-                            </button>
+                                <span aria-hidden="true">{e}</span>
+                            </Button>
                         ))}
                     </div>
                 </PopoverContent>
