@@ -1,14 +1,24 @@
 'use client';
 
 /**
- * Slide-in panel showing a single message + its thread replies.
- * Mounted as a ZoruUI Sheet on the right edge of the chat surface.
+ * Slide-in panel showing a single message and its thread replies.
+ * Mounted as a 20ui Sheet on the right edge of the chat surface.
  */
 import * as React from 'react';
 import { format } from 'date-fns';
-import { Loader, Send, X } from 'lucide-react';
+import { MessagesSquare, Send } from 'lucide-react';
 
-import { Button, Input, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Field,
+    Input,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    Spinner,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
     getMessageThread,
@@ -72,7 +82,7 @@ export function ThreadPanel({
             toast({
                 title: 'Reply failed',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     };
@@ -81,22 +91,21 @@ export function ThreadPanel({
 
     return (
         <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-            <SheetContent side="right" className="flex w-[420px] flex-col p-0">
+            <SheetContent
+                side="right"
+                closeLabel="Close thread"
+                className="flex w-[420px] flex-col p-0"
+            >
                 <SheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
                     <SheetTitle className="text-[13px]">Thread</SheetTitle>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
-                        aria-label="Close thread"
-                    >
-                        <X className="h-4 w-4" />
-                    </button>
                 </SheetHeader>
 
                 <div className="flex-1 space-y-3 overflow-auto bg-[var(--st-bg-muted)]/40 px-4 py-3">
                     {loading || !thread ? (
-                        <div className="text-[12.5px] text-[var(--st-text-secondary)]">Loading…</div>
+                        <div className="flex items-center justify-center gap-2 py-6 text-[12.5px] text-[var(--st-text-secondary)]">
+                            <Spinner size="sm" />
+                            <span>Loading thread.</span>
+                        </div>
                     ) : (
                         <>
                             <ThreadMessage message={thread.root} root meId={meId} />
@@ -115,25 +124,24 @@ export function ThreadPanel({
                 </div>
 
                 <form onSubmit={onSend} className="border-t border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-3">
-                    <div className="flex items-center gap-2">
-                        <Input
-                            placeholder="Reply in thread…"
-                            value={body}
-                            onChange={(e) => setBody(e.target.value)}
-                            disabled={sending}
-                            className="flex-1"
-                        />
+                    <div className="flex items-end gap-2">
+                        <Field label="Reply" className="flex-1">
+                            <Input
+                                placeholder="Reply in thread."
+                                value={body}
+                                onChange={(e) => setBody(e.target.value)}
+                                disabled={sending}
+                            />
+                        </Field>
                         <Button
                             type="submit"
-                            size="icon"
-                            disabled={sending || !body.trim()}
+                            variant="primary"
+                            iconLeft={Send}
+                            loading={sending}
+                            disabled={!body.trim()}
                             aria-label="Send reply"
                         >
-                            {sending ? (
-                                <Loader className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <Send className="h-4 w-4" />
-                            )}
+                            Send
                         </Button>
                     </div>
                 </form>
@@ -155,7 +163,7 @@ function ThreadMessage({
     return (
         <div
             className={
-                'rounded-md border px-3 py-2 text-[13px] ' +
+                'rounded-[var(--st-radius)] border px-3 py-2 text-[13px] ' +
                 (root
                     ? 'border-[var(--st-border)] bg-[var(--st-bg)]'
                     : mine
