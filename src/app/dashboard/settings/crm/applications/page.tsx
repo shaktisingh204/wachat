@@ -1,29 +1,33 @@
 'use client';
 
 /**
- * SabCRM — Applications settings (`/dashboard/settings/crm/applications`), Twenty-style.
+ * SabCRM - Applications settings (`/dashboard/settings/crm/applications`).
  *
- * The Twenty "apps & integrations marketplace" surface, ported to SabNode with
- * an honest accounting of what is actually wired up today.
+ * The apps and integrations marketplace surface, ported to SabNode with an
+ * honest accounting of what is actually wired up today, rebuilt on the 20ui
+ * design system.
  *
- *   1. Marketplace — a responsive grid of integration cards (Slack, Zapier,
- *      Google Workspace, Webhooks, REST API, Logic Functions, …). Each card
- *      shows an icon, a one-line description, an availability chip, and an
- *      action. Where a real settings surface already exists (Webhooks → the
- *      webhooks page, REST API → the API page, Logic Functions → functions,
- *      Workflows → automations) the action is a "Configure" link to that page.
- *      Everything else honestly reads "Coming soon" and is disabled — SabCRM
- *      has no marketplace install engine yet, so we do not pretend it connects.
+ *   1. Marketplace - a responsive grid of integration cards (Slack, Zapier,
+ *      Google Workspace, Webhooks, REST API, Logic Functions and more). Each
+ *      card shows an icon, a one-line description, an availability badge, and an
+ *      action. Where a real settings surface already exists (Webhooks, REST API,
+ *      Logic Functions, Workflows) the action is a "Configure" link to that
+ *      page. Everything else honestly reads "Coming soon" and opens a read-only
+ *      detail dialog. SabCRM has no marketplace install engine yet, so we do not
+ *      pretend it connects.
  *
- *   2. Installed — a localStorage-backed list of placeholder "installed apps".
- *      You can add a named placeholder and remove it; it persists per browser
- *      under a single key. A clearly-labelled note explains these are local
+ *   2. Installed - a localStorage-backed list of placeholder installed apps. You
+ *      can add a named placeholder and remove it; it persists per browser under
+ *      a single key. A clearly labelled note explains these are local
  *      placeholders and that real installation needs the (not-yet-built)
  *      application engine.
  *
+ *   3. Developer - links to the developer surfaces that DO exist today (API
+ *      keys, webhooks, logic functions).
+ *
  * This page is intentionally engine-free: it is pure client UI over existing
- * routes + localStorage, with graceful empty / unavailable states throughout.
- * Twenty look only — `.st-*` classes, no ZoruUI / Tailwind / clay.
+ * routes plus localStorage, with graceful empty and unavailable states
+ * throughout. Pure 20ui: no ZoruUI, no Twenty, no raw control elements.
  */
 
 import * as React from 'react';
@@ -44,7 +48,6 @@ import {
   Info,
   PackageOpen,
   Download,
-  X,
   ShieldCheck,
   Eye,
   Pencil,
@@ -53,19 +56,43 @@ import {
   Lock,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { useSettingsSync } from '../use-settings-sync';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Badge,
+  Callout,
+  EmptyState,
+  Field,
+  Input,
+  Modal,
+  Skeleton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './applications.css';
+import { useSettingsSync } from '../use-settings-sync';
 
 // ---------------------------------------------------------------------------
 // Marketplace catalogue
 //
-// `href` present  → a real existing SabCRM settings surface; card shows
+// `href` present  -> a real existing SabCRM settings surface; card shows
 //                   "Configure" and links there.
-// `href` absent   → not wired up; card shows a disabled "Coming soon".
+// `href` absent   -> not wired up; card shows a disabled "Coming soon".
 // ---------------------------------------------------------------------------
 
 /**
@@ -74,7 +101,7 @@ import './applications.css';
  * Mirrors Twenty's application "Permissions" tab, where each installed app
  * exposes the object/field access and capabilities it requests. SabCRM has no
  * install engine, so these are statically declared per catalogue entry and
- * shown read-only in the app detail drawer.
+ * shown read-only in the app detail dialog.
  */
 interface AppScope {
   id: string;
@@ -92,7 +119,7 @@ interface MarketplaceApp {
   Icon: React.ElementType;
   /** Existing settings route, when one exists. */
   href?: string;
-  /** Permissions/scopes this app requests — surfaced in the detail drawer. */
+  /** Permissions/scopes this app requests - surfaced in the detail dialog. */
   scopes: AppScope[];
 }
 
@@ -198,7 +225,7 @@ const MARKETPLACE_APPS: MarketplaceApp[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Tabs (Twenty: Marketplace / Installed / Developer)
+// Tabs (Marketplace / Installed / Developer)
 // ---------------------------------------------------------------------------
 
 type AppsTabId = 'marketplace' | 'installed' | 'developer';
@@ -210,7 +237,7 @@ const APPS_TABS: { id: AppsTabId; label: string; Icon: React.ElementType }[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Installed apps — localStorage persistence
+// Installed apps - localStorage persistence
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY = 'sabcrm.applications.installed.v1';
@@ -248,7 +275,7 @@ function writeInstalled(apps: InstalledApp[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
   } catch {
-    /* storage unavailable (private mode / quota) — non-fatal */
+    /* storage unavailable (private mode / quota) - non-fatal */
   }
 }
 
@@ -294,154 +321,140 @@ function MarketplaceCard({
   const { Icon } = app;
   const available = Boolean(app.href);
   return (
-    <article className="st-app-card st-app-card--clickable">
-      <button
-        type="button"
-        className="st-app-card__open"
-        onClick={() => onOpen(app)}
-        aria-label={`View ${app.name} details`}
-      >
-        <div className="st-app-card__top">
-          <span className="st-app-card__icon" aria-hidden="true">
-            <Icon size={18} />
+    <Card variant="outlined" className="flex flex-col">
+      <CardBody className="flex items-start gap-3">
+        <span
+          className="flex size-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          aria-hidden="true"
+        >
+          <Icon size={18} />
+        </span>
+        <div className="min-w-0">
+          <span className="block text-sm font-medium text-[var(--st-text)]">
+            {app.name}
           </span>
-          <div className="st-app-card__heading">
-            <span className="st-app-card__name">{app.name}</span>
-            <p className="st-app-card__desc">{app.description}</p>
-          </div>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--st-text-secondary)]">
+            {app.description}
+          </p>
         </div>
-      </button>
-      <div className="st-app-card__footer">
+      </CardBody>
+      <CardFooter className="flex items-center justify-between gap-2">
         {available ? (
-          <span className="st-chip st-chip--available">
-            <span className="st-chip__dot" aria-hidden="true" />
-            <span className="st-chip__label">Available</span>
-          </span>
+          <Badge tone="success" dot>
+            Available
+          </Badge>
         ) : (
-          <span className="st-chip st-chip--soon">
-            <span className="st-chip__dot" aria-hidden="true" />
-            <span className="st-chip__label">Coming soon</span>
-          </span>
+          <Badge tone="neutral" dot>
+            Coming soon
+          </Badge>
         )}
 
-        {available && app.href ? (
-          <Link
-            href={app.href}
-            className="st-btn st-btn--secondary"
-            aria-label={`Configure ${app.name}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Plug size={14} aria-hidden="true" />
-            Configure
-          </Link>
-        ) : (
-          <TwentyButton
-            variant="secondary"
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onOpen(app)}
-            title="View details"
+            title={`View ${app.name} details`}
           >
             Details
-          </TwentyButton>
-        )}
-      </div>
-    </article>
+          </Button>
+          {available && app.href ? (
+            <Link href={app.href} aria-label={`Configure ${app.name}`}>
+              <Button variant="secondary" size="sm" iconLeft={Plug}>
+                Configure
+              </Button>
+            </Link>
+          ) : null}
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// App detail drawer — Twenty's application detail (About + Permissions/Scopes)
+// App detail dialog - application detail (About + Permissions/Scopes)
 // ---------------------------------------------------------------------------
 
-function AppDetailDrawer({
+function AppDetailDialog({
   app,
   onClose,
 }: {
-  app: MarketplaceApp;
+  app: MarketplaceApp | null;
   onClose: () => void;
 }): React.JSX.Element {
-  const { Icon } = app;
-  const available = Boolean(app.href);
+  const available = Boolean(app?.href);
 
-  // Close on Escape, like Twenty's right-hand drawers.
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const footer = app ? (
+    <>
+      {available && app.href ? (
+        <Link href={app.href} aria-label={`Configure ${app.name}`}>
+          <Button variant="primary" iconLeft={Plug}>
+            Configure
+          </Button>
+        </Link>
+      ) : (
+        <Button variant="primary" disabled title="Not available yet">
+          Install
+        </Button>
+      )}
+      <Button variant="secondary" onClick={onClose}>
+        Close
+      </Button>
+    </>
+  ) : null;
 
   return (
-    <div
-      className="st-app-drawer-scrim"
-      role="presentation"
-      onClick={onClose}
+    <Modal
+      open={Boolean(app)}
+      onClose={onClose}
+      title={app?.name ?? ''}
+      description={available ? 'Available integration' : 'Coming soon'}
+      footer={footer}
     >
-      <aside
-        className="st-app-drawer"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${app.name} details`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <header className="st-app-drawer__head">
-          <span className="st-app-drawer__icon" aria-hidden="true">
-            <Icon size={20} />
-          </span>
-          <div className="st-app-drawer__titles">
-            <span className="st-app-drawer__name">{app.name}</span>
-            <span className="st-app-drawer__sub">
-              {available ? 'Available integration' : 'Coming soon'}
-            </span>
-          </div>
-          <button
-            type="button"
-            className="st-app-drawer__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} aria-hidden="true" />
-          </button>
-        </header>
-
-        <div className="st-app-drawer__body">
+      {app ? (
+        <div className="flex flex-col gap-5">
           <section>
-            <h3 className="st-app-drawer__section-title">
+            <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               <Info size={12} aria-hidden="true" />
               About
             </h3>
-            <p className="st-app-drawer__desc">{app.description}</p>
+            <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
+              {app.description}
+            </p>
           </section>
 
           <section>
-            <h3 className="st-app-drawer__section-title">
+            <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               <ShieldCheck size={12} aria-hidden="true" />
-              Permissions &amp; scopes
+              Permissions & scopes
             </h3>
             {app.scopes.length === 0 ? (
-              <p className="st-app-drawer__desc">
+              <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
                 This app does not request any data access.
               </p>
             ) : (
-              <div className="st-scope-list">
+              <div className="mt-3 flex flex-col gap-2">
                 {app.scopes.map((scope) => {
                   const { Icon: ScopeIcon } = scope;
                   return (
-                    <div className="st-scope-row" key={scope.id}>
+                    <div
+                      className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
+                      key={scope.id}
+                    >
                       <ScopeIcon
-                        className="st-scope-row__icon"
+                        className="mt-0.5 shrink-0 text-[var(--st-text-tertiary)]"
                         size={15}
                         aria-hidden="true"
                       />
-                      <div className="st-scope-row__text">
-                        <span className="st-scope-row__label">
+                      <div className="min-w-0 flex-1">
+                        <span className="block text-sm font-medium text-[var(--st-text)]">
                           {scope.label}
                         </span>
-                        <span className="st-scope-row__desc">
+                        <span className="block text-xs text-[var(--st-text-secondary)]">
                           {scope.description}
                         </span>
                       </div>
-                      <span className="st-scope-row__access">
+                      <span className="shrink-0 text-xs font-medium text-[var(--st-text-tertiary)]">
                         {scope.access}
                       </span>
                     </div>
@@ -452,42 +465,39 @@ function AppDetailDrawer({
           </section>
 
           {!available ? (
-            <div className="st-apps-callout">
-              <Lock
-                className="st-apps-callout__icon"
-                size={14}
-                aria-hidden="true"
-              />
-              <span>
-                This integration isn&apos;t connectable yet — the marketplace
-                install engine hasn&apos;t shipped. The scopes above are what it
-                will request once available.
-              </span>
-            </div>
+            <Callout tone="warning" icon={Lock}>
+              This integration is not connectable yet. The marketplace install
+              engine has not shipped. The scopes above are what it will request
+              once available.
+            </Callout>
           ) : null}
         </div>
+      ) : null}
+    </Modal>
+  );
+}
 
-        <footer className="st-app-drawer__footer">
-          {available && app.href ? (
-            <Link
-              href={app.href}
-              className="st-btn st-btn--primary"
-              aria-label={`Configure ${app.name}`}
-            >
-              <Plug size={14} aria-hidden="true" />
-              Configure
-            </Link>
-          ) : (
-            <TwentyButton variant="primary" disabled title="Not available yet">
-              Install
-            </TwentyButton>
-          )}
-          <TwentyButton variant="secondary" onClick={onClose}>
-            Close
-          </TwentyButton>
-        </footer>
-      </aside>
-    </div>
+// ---------------------------------------------------------------------------
+// Section heading helper
+// ---------------------------------------------------------------------------
+
+function SectionHeading({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+      <span
+        className="flex size-6 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+        aria-hidden="true"
+      >
+        <Icon size={15} />
+      </span>
+      {children}
+    </h2>
   );
 }
 
@@ -520,98 +530,86 @@ function InstalledSection({
   );
 
   return (
-    <section className="st-apps-section">
-      <div className="st-apps-section__head">
-        <h2 className="st-apps-section__title">
-          <span className="st-apps-section__title-icon" aria-hidden="true">
-            <PackageOpen size={15} />
-          </span>
-          Installed
-        </h2>
-      </div>
-      <p className="st-apps-section__desc">
-        Apps you&apos;ve added to this workspace.
+    <section className="flex flex-col gap-4">
+      <SectionHeading icon={PackageOpen}>Installed</SectionHeading>
+      <p className="text-sm text-[var(--st-text-secondary)]">
+        Apps you have added to this workspace.
       </p>
 
-      <div className="st-apps-callout">
-        <Info className="st-apps-callout__icon" size={14} aria-hidden="true" />
-        <span>
-          These are local placeholders stored only in this browser — real
-          installation needs the application engine, which isn&apos;t wired up
-          yet. Use this to sketch out which integrations you plan to run.
-        </span>
-      </div>
+      <Callout tone="info" icon={Info}>
+        These are local placeholders stored only in this browser. Real
+        installation needs the application engine, which is not wired up yet.
+        Use this to sketch out which integrations you plan to run.
+      </Callout>
 
-      <form className="st-installed-add" onSubmit={submit}>
-        <input
-          className="st-input"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name a placeholder app (e.g. Internal Billing Sync)"
-          aria-label="Placeholder app name"
-          maxLength={80}
-        />
-        <TwentyButton
+      <form className="flex items-end gap-2" onSubmit={submit}>
+        <Field label="Placeholder app name" className="flex-1">
+          <Input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name a placeholder app (e.g. Internal Billing Sync)"
+            maxLength={80}
+          />
+        </Field>
+        <Button
           type="submit"
           variant="primary"
-          icon={Plus}
+          iconLeft={Plus}
           disabled={name.trim().length === 0}
         >
           Add
-        </TwentyButton>
+        </Button>
       </form>
 
       {apps.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <PackageOpen size={20} />
-          </span>
-          <h2 className="st-empty__title">No apps installed</h2>
-          <p className="st-empty__desc">
-            Add a placeholder above, or connect an integration from the
-            marketplace.
-          </p>
-        </div>
+        <EmptyState
+          icon={PackageOpen}
+          title="No apps installed"
+          description="Add a placeholder above, or connect an integration from the marketplace."
+        />
       ) : (
-        <div className="st-table-wrap">
-          <table className="st-table">
-            <thead>
-              <tr>
-                <th>App</th>
-                <th>Added</th>
-                <th aria-label="Actions" />
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>App</Th>
+                <Th>Added</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {apps.map((app) => (
-                <tr key={app.id} className="st-row">
-                  <td>
-                    <div className="st-installed__meta">
-                      <span className="st-installed__name">{app.name}</span>
-                      <span className="st-installed__time">
+                <Tr key={app.id}>
+                  <Td>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-[var(--st-text)]">
+                        {app.name}
+                      </span>
+                      <span className="text-xs text-[var(--st-text-tertiary)]">
                         Placeholder app
                       </span>
                     </div>
-                  </td>
-                  <td className="text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {formatInstalledAt(app.installedAt)}
-                  </td>
-                  <td className="st-cell-actions">
-                    <TwentyButton
+                  </Td>
+                  <Td align="right">
+                    <Button
                       variant="ghost"
-                      icon={Trash2}
-                      className="st-btn--danger"
+                      size="sm"
+                      iconLeft={Trash2}
+                      className="text-[var(--st-danger)]"
                       onClick={() => onRemove(app.id)}
                       title="Remove placeholder app"
                     >
                       Remove
-                    </TwentyButton>
-                  </td>
-                </tr>
+                    </Button>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
       )}
     </section>
@@ -619,9 +617,9 @@ function InstalledSection({
 }
 
 // ---------------------------------------------------------------------------
-// Developer section — Twenty's "Developer" tab (app registrations / dev access).
-// SabCRM has no application-registration engine, so this honestly points at the
-// developer surfaces that DO exist: API keys and webhooks.
+// Developer section - links to the developer surfaces that DO exist:
+// API keys, webhooks and logic functions. SabCRM has no application-registration
+// engine, so we are honest about that.
 // ---------------------------------------------------------------------------
 
 const DEVELOPER_LINKS: {
@@ -659,62 +657,50 @@ const DEVELOPER_LINKS: {
 
 function DeveloperSection(): React.JSX.Element {
   return (
-    <section
-      className="st-apps-section mt-0"
-      role="tabpanel"
-      id="apps-panel-developer"
-      aria-labelledby="apps-tab-developer"
-    >
-      <div className="st-apps-section__head">
-        <h2 className="st-apps-section__title">
-          <span className="st-apps-section__title-icon" aria-hidden="true">
-            <Code2 size={15} />
-          </span>
-          Developer
-        </h2>
-      </div>
-      <p className="st-apps-section__desc">
+    <section className="flex flex-col gap-4">
+      <SectionHeading icon={Code2}>Developer</SectionHeading>
+      <p className="text-sm text-[var(--st-text-secondary)]">
         Build your own integrations against SabCRM. Registering full marketplace
-        apps isn&apos;t available yet, but these developer surfaces are live.
+        apps is not available yet, but these developer surfaces are live.
       </p>
 
-      <div className="st-apps-callout">
-        <Info className="st-apps-callout__icon" size={14} aria-hidden="true" />
-        <span>
-          Custom application registration (manifests, OAuth clients, scoped
-          install) needs the application engine, which isn&apos;t wired up yet.
-        </span>
-      </div>
+      <Callout tone="info" icon={Info}>
+        Custom application registration (manifests, OAuth clients, scoped
+        install) needs the application engine, which is not wired up yet.
+      </Callout>
 
-      <div className="st-apps-grid">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {DEVELOPER_LINKS.map((link) => {
           const { Icon } = link;
           return (
-            <article className="st-app-card" key={link.id}>
-              <div className="st-app-card__top">
-                <span className="st-app-card__icon" aria-hidden="true">
+            <Card key={link.id} variant="outlined" className="flex flex-col">
+              <CardBody className="flex items-start gap-3">
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+                  aria-hidden="true"
+                >
                   <Icon size={18} />
                 </span>
-                <div className="st-app-card__heading">
-                  <span className="st-app-card__name">{link.name}</span>
-                  <p className="st-app-card__desc">{link.description}</p>
+                <div className="min-w-0">
+                  <span className="block text-sm font-medium text-[var(--st-text)]">
+                    {link.name}
+                  </span>
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--st-text-secondary)]">
+                    {link.description}
+                  </p>
                 </div>
-              </div>
-              <div className="st-app-card__footer">
-                <span className="st-chip st-chip--available">
-                  <span className="st-chip__dot" aria-hidden="true" />
-                  <span className="st-chip__label">Available</span>
-                </span>
-                <Link
-                  href={link.href}
-                  className="st-btn st-btn--secondary"
-                  aria-label={`Open ${link.name}`}
-                >
-                  <Plug size={14} aria-hidden="true" />
-                  Open
+              </CardBody>
+              <CardFooter className="flex items-center justify-between gap-2">
+                <Badge tone="success" dot>
+                  Available
+                </Badge>
+                <Link href={link.href} aria-label={`Open ${link.name}`}>
+                  <Button variant="secondary" size="sm" iconLeft={Plug}>
+                    Open
+                  </Button>
                 </Link>
-              </div>
-            </article>
+              </CardFooter>
+            </Card>
           );
         })}
       </div>
@@ -727,6 +713,8 @@ function DeveloperSection(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
+  const { toast } = useToast();
+
   // Hydrate from localStorage after mount to keep SSR output deterministic.
   const [installed, setInstalled] = React.useState<InstalledApp[]>([]);
   const [hydrated, setHydrated] = React.useState(false);
@@ -744,35 +732,43 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
     writeInstalled(sync.remote);
   }, [sync.phase, sync.remote]);
 
-  const handleAdd = React.useCallback((name: string) => {
-    setInstalled((prev) => {
-      const next: InstalledApp[] = [
-        {
-          id:
-            typeof crypto !== 'undefined' && 'randomUUID' in crypto
-              ? crypto.randomUUID()
-              : `app_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-          name,
-          installedAt: new Date().toISOString(),
-        },
-        ...prev,
-      ];
-      writeInstalled(next);
-      void sync.save(next);
-      return next;
-    });
-  }, [sync]);
+  const handleAdd = React.useCallback(
+    (name: string) => {
+      setInstalled((prev) => {
+        const next: InstalledApp[] = [
+          {
+            id:
+              typeof crypto !== 'undefined' && 'randomUUID' in crypto
+                ? crypto.randomUUID()
+                : `app_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            name,
+            installedAt: new Date().toISOString(),
+          },
+          ...prev,
+        ];
+        writeInstalled(next);
+        void sync.save(next);
+        return next;
+      });
+      toast.success(`Added "${name}"`);
+    },
+    [sync, toast],
+  );
 
-  const handleRemove = React.useCallback((id: string) => {
-    setInstalled((prev) => {
-      const next = prev.filter((a) => a.id !== id);
-      writeInstalled(next);
-      void sync.save(next);
-      return next;
-    });
-  }, [sync]);
+  const handleRemove = React.useCallback(
+    (id: string) => {
+      setInstalled((prev) => {
+        const next = prev.filter((a) => a.id !== id);
+        writeInstalled(next);
+        void sync.save(next);
+        return next;
+      });
+      toast.success('Placeholder app removed');
+    },
+    [sync, toast],
+  );
 
-  // Active tab (Twenty: Marketplace / Installed / Developer) + detail drawer.
+  // Active tab (Marketplace / Installed / Developer) + detail dialog.
   const [activeTab, setActiveTab] = React.useState<AppsTabId>('marketplace');
   const [detailApp, setDetailApp] = React.useState<MarketplaceApp | null>(null);
 
@@ -783,108 +779,82 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
   const closeDetail = React.useCallback(() => setDetailApp(null), []);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Applications" icon={Blocks} />
-        <p className="st-settings__intro">
-          Connect SabCRM to the tools you already use. Some integrations link to
-          an existing settings page; others are on the roadmap and read
-          &ldquo;Coming soon&rdquo; until the marketplace engine ships.
-        </p>
+    <div className="ui20 mx-auto flex w-full max-w-5xl flex-col gap-6 p-[var(--st-space-6)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>
+            <span className="inline-flex items-center gap-2">
+              <Blocks size={20} aria-hidden="true" />
+              Applications
+            </span>
+          </PageTitle>
+          <PageDescription>
+            Connect SabCRM to the tools you already use. Some integrations link
+            to an existing settings page; others are on the roadmap and read
+            "Coming soon" until the marketplace engine ships.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {/* ---- Tab list ---- */}
-        <div className="st-apps-tabs" role="tablist" aria-label="Applications">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as AppsTabId)}
+      >
+        <TabsList aria-label="Applications">
           {APPS_TABS.map((tab) => {
             const { Icon } = tab;
-            const isActive = activeTab === tab.id;
             return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                id={`apps-tab-${tab.id}`}
-                aria-selected={isActive}
-                aria-controls={`apps-panel-${tab.id}`}
-                className={`st-apps-tab${isActive ? ' is-active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <span className="st-apps-tab__icon" aria-hidden="true">
-                  <Icon size={15} />
+              <TabsTrigger key={tab.id} value={tab.id}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon size={15} aria-hidden="true" />
+                  {tab.label}
                 </span>
-                {tab.label}
-              </button>
+              </TabsTrigger>
             );
           })}
-        </div>
+        </TabsList>
 
         {/* ---- Marketplace tab ---- */}
-        {activeTab === 'marketplace' ? (
-          <section
-            className="st-apps-section mt-0"
-            role="tabpanel"
-            id="apps-panel-marketplace"
-            aria-labelledby="apps-tab-marketplace"
-          >
-            <p className="st-apps-section__desc">
-              Browse available apps and integrations. Select a card to review the
-              permissions it requests. &ldquo;Available&rdquo; cards open a
-              working settings surface; the rest are coming soon.
-            </p>
+        <TabsContent value="marketplace" className="flex flex-col gap-4">
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            Browse available apps and integrations. Select a card to review the
+            permissions it requests. "Available" cards open a working settings
+            surface; the rest are coming soon.
+          </p>
 
-            <div className="st-apps-grid">
-              {MARKETPLACE_APPS.map((app) => (
-                <MarketplaceCard key={app.id} app={app} onOpen={openDetail} />
-              ))}
-            </div>
-          </section>
-        ) : null}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {MARKETPLACE_APPS.map((app) => (
+              <MarketplaceCard key={app.id} app={app} onOpen={openDetail} />
+            ))}
+          </div>
+        </TabsContent>
 
         {/* ---- Installed tab ---- */}
-        {activeTab === 'installed' ? (
-          <div
-            role="tabpanel"
-            id="apps-panel-installed"
-            aria-labelledby="apps-tab-installed"
-          >
-            {hydrated ? (
-              <InstalledSection
-                apps={installed}
-                onAdd={handleAdd}
-                onRemove={handleRemove}
-              />
-            ) : (
-              <section className="st-apps-section mt-0">
-                <div className="st-apps-section__head">
-                  <h2 className="st-apps-section__title">
-                    <span
-                      className="st-apps-section__title-icon"
-                      aria-hidden="true"
-                    >
-                      <PackageOpen size={15} />
-                    </span>
-                    Installed
-                  </h2>
-                </div>
-                <div
-                  className="st-table-wrap p-[var(--st-space-3)]"
-                >
-                  <div className="st-skeleton st-skeleton-row" />
-                  <div className="st-skeleton st-skeleton-row" />
-                </div>
-              </section>
-            )}
-          </div>
-        ) : null}
+        <TabsContent value="installed">
+          {hydrated ? (
+            <InstalledSection
+              apps={installed}
+              onAdd={handleAdd}
+              onRemove={handleRemove}
+            />
+          ) : (
+            <section className="flex flex-col gap-4">
+              <SectionHeading icon={PackageOpen}>Installed</SectionHeading>
+              <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-[var(--st-space-3)]">
+                <Skeleton height={20} />
+                <Skeleton height={20} />
+              </div>
+            </section>
+          )}
+        </TabsContent>
 
         {/* ---- Developer tab ---- */}
-        {activeTab === 'developer' ? (
+        <TabsContent value="developer">
           <DeveloperSection />
-        ) : null}
-      </div>
+        </TabsContent>
+      </Tabs>
 
-      {detailApp ? (
-        <AppDetailDrawer app={detailApp} onClose={closeDetail} />
-      ) : null}
+      <AppDetailDialog app={detailApp} onClose={closeDetail} />
     </div>
   );
 }

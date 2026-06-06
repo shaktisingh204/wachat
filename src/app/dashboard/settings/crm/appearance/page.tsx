@@ -1,29 +1,50 @@
 'use client';
 
 /**
- * SabCRM — Appearance settings (`/dashboard/settings/crm/appearance`), Twenty-style.
+ * SabCRM - Appearance settings (`/dashboard/settings/crm/appearance`).
  *
  * Local, device-scoped display controls:
- *   - Theme   — Light / Dark / System. Toggles `st-theme-dark` on the SabCRM
+ *   - Theme   - Light / Dark / System. Toggles `st-theme-dark` on the SabCRM
  *               frame root (handled inside `useCrmPrefs`); 'system' follows the
  *               OS `prefers-color-scheme` and live-updates.
- *   - Density — Comfortable / Compact. Compact toggles `st-density-compact` on
+ *   - Density - Comfortable / Compact. Compact toggles `st-density-compact` on
  *               the SabCRM frame root (handled inside `useCrmPrefs`) to tighten
  *               table + section rhythm immediately.
- *   - Language — display-only select (English only for now).
+ *   - Language - display-only select (English only for now).
  *
  * All choices persist to BOTH the gated CRM settings document on the backend
- * (via `useSettingsSync('appearance', …)` → the `getCrmSettingsTw` /
+ * (via `useSettingsSync('appearance', ...)` -> the `getCrmSettingsTw` /
  * `updateCrmSettingsTw` server actions) AND the local `useCrmPrefs` cache, so a
  * chosen theme follows the user across devices while the page never blocks. When
  * the Rust settings engine is down the page degrades to the device-local cache
  * and shows an "offline" note. Each change fires a lightweight toast.
+ *
+ * Pure 20ui: PageHeader, Card, SegmentedControl, Field, Select compound, Alert.
  */
 
 import * as React from 'react';
 import { Palette, Sun, Moon, Monitor } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  SegmentedControl,
+  type SegmentedItem,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Alert,
+} from '@/components/sabcrm/20ui';
 import { useToast } from '@/hooks/use-toast';
 import {
   useCrmPrefs,
@@ -31,10 +52,6 @@ import {
   type CrmDensity,
 } from '../use-crm-prefs';
 import { useSettingsSync } from '../use-settings-sync';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import '../profile/profile.css';
 
 /** The appearance slice persisted under the `'appearance'` settings key. */
 interface AppearanceSlice {
@@ -58,56 +75,13 @@ function coerceAppearance(raw: unknown): Partial<AppearanceSlice> | null {
   return Object.keys(out).length > 0 ? out : null;
 }
 
-interface SegmentOption<T extends string> {
-  value: T;
-  label: string;
-  icon?: React.ElementType;
-  disabled?: boolean;
-}
-
-function Segment<T extends string>({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: {
-  value: T;
-  options: SegmentOption<T>[];
-  onChange: (next: T) => void;
-  ariaLabel: string;
-}): React.JSX.Element {
-  return (
-    <div className="st-segment" role="group" aria-label={ariaLabel}>
-      {options.map((opt) => {
-        const Icon = opt.icon;
-        const active = opt.value === value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            className={`st-segment__btn${active ? ' is-active' : ''}`}
-            aria-pressed={active}
-            disabled={opt.disabled}
-            onClick={() => {
-              if (!opt.disabled && !active) onChange(opt.value);
-            }}
-          >
-            {Icon ? <Icon size={14} aria-hidden="true" /> : null}
-            {opt.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-const THEME_OPTIONS: SegmentOption<CrmTheme>[] = [
+const THEME_OPTIONS: ReadonlyArray<SegmentedItem<CrmTheme>> = [
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'dark', label: 'Dark', icon: Moon },
   { value: 'system', label: 'System', icon: Monitor },
 ];
 
-const DENSITY_OPTIONS: SegmentOption<CrmDensity>[] = [
+const DENSITY_OPTIONS: ReadonlyArray<SegmentedItem<CrmDensity>> = [
   { value: 'comfortable', label: 'Comfortable' },
   { value: 'compact', label: 'Compact' },
 ];
@@ -188,76 +162,86 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
   );
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Appearance" icon={Palette} />
-        <p className="st-settings__intro">
-          Personalize how SabCRM looks for you. Saved to your workspace so your
-          theme follows you across devices.
-          {sync.phase === 'offline' ? (
-            <span className="st-form-status st-form-status--err" style={{ display: 'block', marginTop: 4 }}>
-              The settings service is offline — changes are kept on this device
-              for now.
-            </span>
-          ) : null}
-        </p>
+    <div className="ui20 mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <Palette size={20} aria-hidden="true" />
+            Appearance
+          </PageTitle>
+          <PageDescription>
+            Personalize how SabCRM looks for you. Saved to your workspace so your
+            theme follows you across devices.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        <div className="st-section">
-          <div className="st-section__head">
-            <h2 className="st-section__title">Theme</h2>
-            <p className="st-section__hint">
-              Choose a light or dark theme, or let System follow your OS
-              preference.
-            </p>
-          </div>
-          <Segment
-            ariaLabel="Theme"
+      {sync.phase === 'offline' ? (
+        <Alert tone="warning" title="Settings service offline">
+          Your changes are kept on this device for now and will sync once the
+          service is back.
+        </Alert>
+      ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Theme</CardTitle>
+          <CardDescription>
+            Choose a light or dark theme, or let System follow your OS
+            preference.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <SegmentedControl
+            aria-label="Theme"
             value={prefs.theme}
-            options={THEME_OPTIONS}
+            items={THEME_OPTIONS}
             onChange={handleTheme}
           />
-        </div>
+        </CardBody>
+      </Card>
 
-        <div className="st-section">
-          <div className="st-section__head">
-            <h2 className="st-section__title">Density</h2>
-            <p className="st-section__hint">
-              Control how much spacing tables and lists use.
-            </p>
-          </div>
-          <Segment
-            ariaLabel="Density"
+      <Card>
+        <CardHeader>
+          <CardTitle>Density</CardTitle>
+          <CardDescription>
+            Control how much spacing tables and lists use.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <SegmentedControl
+            aria-label="Density"
             value={prefs.density}
-            options={DENSITY_OPTIONS}
+            items={DENSITY_OPTIONS}
             onChange={handleDensity}
           />
-        </div>
+        </CardBody>
+      </Card>
 
-        <div className="st-section">
-          <div className="st-section__head">
-            <h2 className="st-section__title">Language</h2>
-            <p className="st-section__hint">
-              The language used across the SabCRM interface.
-            </p>
-          </div>
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="crm-language">
-              Display language
-            </label>
-            <select
-              id="crm-language"
-              className="st-select st-select--inline"
-              value={prefs.language}
-              onChange={(e) => handleLanguage(e.target.value)}
-            >
-              <option value="en">English</option>
-            </select>
-            <span className="st-field__help">
-              More languages are coming soon.
-            </span>
-          </div>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Language</CardTitle>
+          <CardDescription>
+            The language used across the SabCRM interface.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <Field
+            id="crm-language"
+            label="Display language"
+            help="More languages are coming soon."
+          >
+            <Select value={prefs.language} onValueChange={handleLanguage}>
+              <SelectTrigger id="crm-language" aria-label="Display language">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </CardBody>
+      </Card>
     </div>
   );
 }

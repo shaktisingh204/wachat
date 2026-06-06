@@ -1,35 +1,37 @@
 'use client';
 
 /**
- * SabCRM — Record Layout settings (`/dashboard/settings/crm/page-layouts`),
- * Twenty-style.
+ * SabCRM - Record Layout settings (`/dashboard/settings/crm/page-layouts`).
  *
- * Configure the tabs + widgets shown on each object's record page — the
+ * Configure the tabs + widgets shown on each object's record page, the
  * SabNode-native re-implementation of Twenty's page-layout editor
- * (tabs → widgets, see `docs/twenty-review/08-front-record-show-activities.md`).
+ * (tabs -> widgets, see `docs/twenty-review/08-front-record-show-activities.md`).
  *
  * Layout:
  *   - Left rail: the object selector. Objects come from `listSabcrmObjectsTw`;
  *     picking one loads its saved layout via `getPageLayoutTw(object)`.
- *   - Right column: the editor. A vertical list of TABS — each can be renamed,
+ *   - Right column: the editor. A vertical list of TABS, each can be renamed,
  *     reordered (up/down) and removed; each tab holds an ordered list of
  *     WIDGETS that can be added (via a type picker), renamed, reordered and
  *     removed.
  *
  * Persistence:
  *   - `savePageLayoutTw(object, tabs)` writes the working draft.
- *   - `resetPageLayoutTw(object)` clears overrides → server default.
+ *   - `resetPageLayoutTw(object)` clears overrides -> server default.
  *   - When an object has no stored layout, a sensible default is seeded
  *     locally (Fields tab + Notes / Tasks / Activity) so the editor is never
  *     empty.
  *
- * Every action independently re-runs the session → project → RBAC → plan
+ * Every action independently re-runs the session -> project -> RBAC -> plan
  * pipeline server-side, so the page fails closed. States: skeletons while
  * objects / layout load, "no project" notice, empty object list, error
  * banners, and graceful degradation when the engine is unreachable.
  *
  * This is a client page: it imports only the server-action contract (no
  * `server-only` modules) and keeps all layout structure in React state.
+ *
+ * Pure 20ui: every control is a 20ui primitive, colour comes from `--st-*`
+ * tokens scoped under the page's `.ui20` root.
  */
 
 import * as React from 'react';
@@ -41,7 +43,6 @@ import {
   ChevronUp,
   ChevronDown,
   GripVertical,
-  X,
   Save,
   RotateCcw,
   // widget-type glyphs
@@ -56,7 +57,21 @@ import {
   Globe,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Button,
+  IconButton,
+  Input,
+  Badge,
+  Modal,
+  Alert,
+  EmptyState,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-twenty.actions';
 import {
@@ -65,10 +80,6 @@ import {
   resetPageLayoutTw,
 } from '@/app/actions/sabcrm-page-layouts.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './page-layouts.css';
 
 // ---------------------------------------------------------------------------
 // Wire shapes
@@ -109,7 +120,7 @@ interface PageLayout {
 }
 
 // ---------------------------------------------------------------------------
-// Widget catalog — type → label, description and glyph for the picker + rows.
+// Widget catalog: type -> label, description and glyph for the picker + rows.
 // ---------------------------------------------------------------------------
 
 interface WidgetTypeInfo {
@@ -121,7 +132,7 @@ interface WidgetTypeInfo {
 const WIDGET_TYPES: Record<WidgetType, WidgetTypeInfo> = {
   FIELDS: {
     label: 'Fields',
-    desc: 'Grouped block of record fields — the classic details panel.',
+    desc: 'Grouped block of record fields, the classic details panel.',
     Icon: AlignLeft,
   },
   NOTES: {
@@ -156,7 +167,7 @@ const WIDGET_TYPES: Record<WidgetType, WidgetTypeInfo> = {
   },
   GRAPH: {
     label: 'Graph',
-    desc: 'Data-viz chart (bar / line / pie / number).',
+    desc: 'Data-viz chart (bar, line, pie, number).',
     Icon: BarChart3,
   },
   IFRAME: {
@@ -281,59 +292,52 @@ function moveItem<T>(arr: T[], index: number, delta: number): T[] {
 // ---------------------------------------------------------------------------
 
 interface TypePickerProps {
+  open: boolean;
   onPick: (type: WidgetType) => void;
   onClose: () => void;
 }
 
-function TypePicker({ onPick, onClose }: TypePickerProps): React.JSX.Element {
+function TypePicker({ open, onPick, onClose }: TypePickerProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Add widget"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Add widget"
+      description="Pick a widget type to append to this tab."
+      size="md"
     >
-      <div className="st-dialog" style={{ maxWidth: 560 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Add widget</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <div className="stpl-typegrid">
-            {WIDGET_TYPE_ORDER.map((type) => {
-              const info = WIDGET_TYPES[type];
-              const { Icon } = info;
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  className="stpl-typecard"
-                  onClick={() => onPick(type)}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {WIDGET_TYPE_ORDER.map((type) => {
+          const info = WIDGET_TYPES[type];
+          const { Icon } = info;
+          return (
+            <Button
+              key={type}
+              variant="outline"
+              onClick={() => onPick(type)}
+              className="!h-auto items-start !justify-start gap-3 !p-3 text-left"
+            >
+              <span className="flex w-full items-start gap-3">
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
                 >
-                  <span className="stpl-typecard__icon" aria-hidden="true">
-                    <Icon size={18} />
+                  <Icon size={18} />
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-sm font-medium text-[var(--st-text)]">
+                    {info.label}
                   </span>
-                  <span>
-                    <span className="stpl-typecard__name">{info.label}</span>
-                    <span className="stpl-typecard__desc">{info.desc}</span>
+                  <span className="whitespace-normal text-xs font-normal leading-snug text-[var(--st-text-secondary)]">
+                    {info.desc}
                   </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                </span>
+              </span>
+            </Button>
+          );
+        })}
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -361,53 +365,51 @@ function WidgetRow({
   const info = WIDGET_TYPES[widget.type];
   const { Icon } = info;
   return (
-    <div className="stpl-widget">
-      <span className="stpl-widget__grip" aria-hidden="true">
+    <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
+      <span className="cursor-grab text-[var(--st-text-tertiary)]" aria-hidden="true">
         <GripVertical size={14} />
       </span>
-      <span className="stpl-widget__badge" aria-hidden="true" title={info.label}>
+      <span
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+        aria-hidden="true"
+        title={info.label}
+      >
         <Icon size={15} />
       </span>
-      <div className="stpl-widget__body">
-        <span className="stpl-widget__type">{info.label}</span>
-        <input
-          className="stpl-widget__titleinput"
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+          {info.label}
+        </span>
+        <Input
+          inputSize="sm"
           value={widget.title}
           aria-label="Widget title"
           onChange={(e) => onRename(widget.id, e.target.value)}
           placeholder={info.label}
         />
       </div>
-      <div className="stpl-widget__actions">
-        <button
-          type="button"
-          className="stpl-iconbtn"
+      <div className="flex shrink-0 items-center gap-1">
+        <IconButton
+          label="Move widget up"
+          icon={ChevronUp}
+          size="sm"
           onClick={() => onMove(widget.id, -1)}
           disabled={index === 0}
-          aria-label="Move widget up"
-          title="Move up"
-        >
-          <ChevronUp size={15} />
-        </button>
-        <button
-          type="button"
-          className="stpl-iconbtn"
+        />
+        <IconButton
+          label="Move widget down"
+          icon={ChevronDown}
+          size="sm"
           onClick={() => onMove(widget.id, 1)}
           disabled={index === total - 1}
-          aria-label="Move widget down"
-          title="Move down"
-        >
-          <ChevronDown size={15} />
-        </button>
-        <button
-          type="button"
-          className="stpl-iconbtn stpl-iconbtn--danger"
+        />
+        <IconButton
+          label="Remove widget"
+          icon={Trash2}
+          size="sm"
+          variant="danger"
           onClick={() => onRemove(widget.id)}
-          aria-label="Remove widget"
-          title="Remove widget"
-        >
-          <Trash2 size={15} />
-        </button>
+        />
       </div>
     </div>
   );
@@ -443,59 +445,55 @@ function TabCard({
   onRemoveWidget,
 }: TabCardProps): React.JSX.Element {
   return (
-    <div className="stpl-tab">
-      <div className="stpl-tab__head">
-        <span className="stpl-tab__grip" aria-hidden="true">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+      <div className="flex items-center gap-2">
+        <span className="cursor-grab text-[var(--st-text-tertiary)]" aria-hidden="true">
           <GripVertical size={15} />
         </span>
-        <input
-          className="stpl-titleinput"
-          value={tab.title}
-          aria-label="Tab title"
-          onChange={(e) => onRenameTab(tab.id, e.target.value)}
-          placeholder="Tab title"
-        />
-        <span className="stpl-tab__count">
+        <div className="min-w-0 flex-1">
+          <Input
+            inputSize="sm"
+            value={tab.title}
+            aria-label="Tab title"
+            onChange={(e) => onRenameTab(tab.id, e.target.value)}
+            placeholder="Tab title"
+          />
+        </div>
+        <span className="shrink-0 whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
           {tab.widgets.length} widget{tab.widgets.length !== 1 ? 's' : ''}
         </span>
-        <button
-          type="button"
-          className="stpl-iconbtn"
-          onClick={() => onMoveTab(tab.id, -1)}
-          disabled={index === 0}
-          aria-label="Move tab up"
-          title="Move tab up"
-        >
-          <ChevronUp size={15} />
-        </button>
-        <button
-          type="button"
-          className="stpl-iconbtn"
-          onClick={() => onMoveTab(tab.id, 1)}
-          disabled={index === total - 1}
-          aria-label="Move tab down"
-          title="Move tab down"
-        >
-          <ChevronDown size={15} />
-        </button>
-        <button
-          type="button"
-          className="stpl-iconbtn stpl-iconbtn--danger"
-          onClick={() => onRemoveTab(tab.id)}
-          disabled={total <= 1}
-          aria-label="Remove tab"
-          title={total <= 1 ? 'A layout needs at least one tab' : 'Remove tab'}
-        >
-          <Trash2 size={15} />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <IconButton
+            label="Move tab up"
+            icon={ChevronUp}
+            size="sm"
+            onClick={() => onMoveTab(tab.id, -1)}
+            disabled={index === 0}
+          />
+          <IconButton
+            label="Move tab down"
+            icon={ChevronDown}
+            size="sm"
+            onClick={() => onMoveTab(tab.id, 1)}
+            disabled={index === total - 1}
+          />
+          <IconButton
+            label={total <= 1 ? 'A layout needs at least one tab' : 'Remove tab'}
+            icon={Trash2}
+            size="sm"
+            variant="danger"
+            onClick={() => onRemoveTab(tab.id)}
+            disabled={total <= 1}
+          />
+        </div>
       </div>
 
       {tab.widgets.length === 0 ? (
-        <div className="stpl-widgets-empty">
-          No widgets yet — add one to fill this tab.
-        </div>
+        <p className="mt-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-4 text-center text-sm text-[var(--st-text-secondary)]">
+          No widgets yet. Add one to fill this tab.
+        </p>
       ) : (
-        <div className="stpl-widgets">
+        <div className="mt-3 flex flex-col gap-2">
           {tab.widgets.map((w, wi) => (
             <WidgetRow
               key={w.id}
@@ -510,10 +508,10 @@ function TabCard({
         </div>
       )}
 
-      <div className="stpl-addwidget">
-        <TwentyButton variant="secondary" icon={Plus} onClick={() => onAddWidget(tab.id)}>
+      <div className="mt-3">
+        <Button variant="secondary" iconLeft={Plus} onClick={() => onAddWidget(tab.id)}>
           Add widget
-        </TwentyButton>
+        </Button>
       </div>
     </div>
   );
@@ -525,15 +523,15 @@ function TabCard({
 
 function EditorSkeleton(): React.JSX.Element {
   return (
-    <div className="stpl-shell">
-      <div className="stpl-rail">
+    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <div className="flex flex-col gap-2">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="stpl-skel stpl-skel--rail" />
+          <Skeleton key={i} height={34} radius={6} />
         ))}
       </div>
-      <div>
-        <div className="stpl-skel stpl-skel--card" />
-        <div className="stpl-skel stpl-skel--card" />
+      <div className="flex flex-col gap-4">
+        <Skeleton height={140} radius={10} />
+        <Skeleton height={140} radius={10} />
       </div>
     </div>
   );
@@ -545,6 +543,7 @@ function EditorSkeleton(): React.JSX.Element {
 
 export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   // Object list
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
@@ -561,11 +560,8 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [resetting, setResetting] = React.useState(false);
-  const [saveMsg, setSaveMsg] = React.useState<{ kind: 'ok' | 'error'; text: string } | null>(
-    null,
-  );
 
-  // Add-widget dialog → which tab to append to
+  // Add-widget dialog -> which tab to append to
   const [pickerTabId, setPickerTabId] = React.useState<string | null>(null);
 
   // ----- Loaders -----
@@ -589,29 +585,27 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
     }
   }, []);
 
-  const loadLayout = React.useCallback(
-    async (projectId: string, slug: string) => {
-      setLayoutLoading(true);
-      setLayoutError(null);
-      setSaveMsg(null);
-      setDirty(false);
-      try {
-        const res = await getPageLayoutTw(slug, projectId);
-        if (res.ok) {
-          setLayout(normalizeLayout(slug, res.data));
-        } else {
-          setLayoutError(res.error);
-          setLayout(null);
-        }
-      } catch {
-        setLayoutError('This object’s layout could not be loaded. The service may be unavailable.');
+  const loadLayout = React.useCallback(async (projectId: string, slug: string) => {
+    setLayoutLoading(true);
+    setLayoutError(null);
+    setDirty(false);
+    try {
+      const res = await getPageLayoutTw(slug, projectId);
+      if (res.ok) {
+        setLayout(normalizeLayout(slug, res.data));
+      } else {
+        setLayoutError(res.error);
         setLayout(null);
-      } finally {
-        setLayoutLoading(false);
       }
-    },
-    [],
-  );
+    } catch {
+      setLayoutError(
+        "This object's layout could not be loaded. The service may be unavailable.",
+      );
+      setLayout(null);
+    } finally {
+      setLayoutLoading(false);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (isLoadingProject) return;
@@ -630,14 +624,10 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   // ----- Layout mutators (all immutable, all flag dirty) -----
 
   /** Apply a transform to the working tabs and mark the draft dirty. */
-  const mutateTabs = React.useCallback(
-    (fn: (tabs: LayoutTab[]) => LayoutTab[]) => {
-      setLayout((prev) => (prev ? { ...prev, tabs: fn(prev.tabs) } : prev));
-      setDirty(true);
-      setSaveMsg(null);
-    },
-    [],
-  );
+  const mutateTabs = React.useCallback((fn: (tabs: LayoutTab[]) => LayoutTab[]) => {
+    setLayout((prev) => (prev ? { ...prev, tabs: fn(prev.tabs) } : prev));
+    setDirty(true);
+  }, []);
 
   const handleAddTab = React.useCallback(() => {
     mutateTabs((tabs) => [
@@ -733,54 +723,44 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   const handleSave = React.useCallback(async () => {
     if (!activeProjectId || !selectedSlug || !layout) return;
     setSaving(true);
-    setSaveMsg(null);
     try {
       const res = await savePageLayoutTw(selectedSlug, layout.tabs, activeProjectId);
       if (res.ok) {
         setDirty(false);
-        setSaveMsg({ kind: 'ok', text: 'Layout saved.' });
+        toast.success('Layout saved.');
         // Re-normalise from whatever the server echoes back, when provided.
         if (res.data) setLayout(normalizeLayout(selectedSlug, res.data));
       } else {
-        setSaveMsg({ kind: 'error', text: res.error });
+        toast.error(res.error);
       }
     } catch {
-      setSaveMsg({
-        kind: 'error',
-        text: 'Failed to save the layout. The service may be unavailable.',
-      });
+      toast.error('Failed to save the layout. The service may be unavailable.');
     } finally {
       setSaving(false);
     }
-  }, [activeProjectId, selectedSlug, layout]);
+  }, [activeProjectId, selectedSlug, layout, toast]);
 
   const handleReset = React.useCallback(async () => {
     if (!activeProjectId || !selectedSlug) return;
     setResetting(true);
-    setSaveMsg(null);
     try {
-      // `resetPageLayoutTw` clears the override and reports `{ ok }` — it does
+      // `resetPageLayoutTw` clears the override and reports `{ ok }`. It does
       // not echo the layout, so re-fetch the now-default layout to show it.
       const res = await resetPageLayoutTw(selectedSlug, activeProjectId);
       if (res.ok) {
         const after = await getPageLayoutTw(selectedSlug, activeProjectId);
-        setLayout(
-          normalizeLayout(selectedSlug, after.ok ? after.data : null),
-        );
+        setLayout(normalizeLayout(selectedSlug, after.ok ? after.data : null));
         setDirty(false);
-        setSaveMsg({ kind: 'ok', text: 'Layout reset to default.' });
+        toast.success('Layout reset to default.');
       } else {
-        setSaveMsg({ kind: 'error', text: res.error });
+        toast.error(res.error);
       }
     } catch {
-      setSaveMsg({
-        kind: 'error',
-        text: 'Failed to reset the layout. The service may be unavailable.',
-      });
+      toast.error('Failed to reset the layout. The service may be unavailable.');
     } finally {
       setResetting(false);
     }
-  }, [activeProjectId, selectedSlug]);
+  }, [activeProjectId, selectedSlug, toast]);
 
   // ----- Derived -----
 
@@ -794,103 +774,102 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Record Layout" icon={LayoutPanelTop} />
-        <p className="st-settings__intro">
-          Configure the tabs and widgets that appear on each object&apos;s record
-          page. Pick an object, then arrange its tabs and the widgets inside
-          them. Changes apply to every record of that object.
-        </p>
+    <div className="ui20 min-h-full bg-[var(--st-bg)] px-6 py-6 text-[var(--st-text)]">
+      <div className="mx-auto w-full max-w-5xl">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Record Layout</PageTitle>
+            <PageDescription>
+              Configure the tabs and widgets that appear on each object&apos;s record
+              page. Pick an object, then arrange its tabs and the widgets inside them.
+              Changes apply to every record of that object.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
         {isLoadingProject || objectsLoading ? (
           <EditorSkeleton />
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to configure its record layouts.
-            </p>
+          <div className="mt-8">
+            <EmptyState
+              icon={AlertTriangle}
+              tone="warning"
+              title="No project selected"
+              description="Select a project to configure its record layouts."
+            />
           </div>
         ) : objectsError ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{objectsError}</span>
-          </div>
+          <Alert tone="danger" icon={AlertTriangle} className="mt-6">
+            {objectsError}
+          </Alert>
         ) : objects.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <LayoutPanelTop size={20} />
-            </span>
-            <h2 className="st-empty__title">No objects found</h2>
-            <p className="st-empty__desc">
-              This workspace has no CRM objects yet, or they could not be loaded.
-            </p>
+          <div className="mt-8">
+            <EmptyState
+              icon={LayoutPanelTop}
+              title="No objects found"
+              description="This workspace has no CRM objects yet, or they could not be loaded."
+            />
           </div>
         ) : (
-          <div className="stpl-shell">
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
             {/* Object selector rail */}
-            <nav className="stpl-rail" aria-label="Objects">
-              <span className="stpl-rail__label">Objects</span>
-              {objects.map((obj) => (
-                <button
-                  key={obj.slug}
-                  type="button"
-                  className={
-                    'stpl-obj' + (obj.slug === selectedSlug ? ' is-active' : '')
-                  }
-                  onClick={() => setSelectedSlug(obj.slug)}
-                  aria-current={obj.slug === selectedSlug ? 'true' : undefined}
-                >
-                  <span className="stpl-obj__icon" aria-hidden="true">
-                    <LayoutPanelTop size={15} />
-                  </span>
-                  <span className="stpl-obj__label">{obj.labelPlural}</span>
-                </button>
-              ))}
+            <nav className="flex flex-col gap-1" aria-label="Objects">
+              <span className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                Objects
+              </span>
+              {objects.map((obj) => {
+                const active = obj.slug === selectedSlug;
+                return (
+                  <Button
+                    key={obj.slug}
+                    variant={active ? 'secondary' : 'ghost'}
+                    iconLeft={LayoutPanelTop}
+                    block
+                    className="justify-start"
+                    onClick={() => setSelectedSlug(obj.slug)}
+                    aria-current={active ? 'true' : undefined}
+                  >
+                    {obj.labelPlural}
+                  </Button>
+                );
+              })}
             </nav>
 
             {/* Editor */}
-            <div className="stpl-editor">
+            <div className="min-w-0">
               {layoutLoading ? (
-                <>
-                  <div className="stpl-skel stpl-skel--card" />
-                  <div className="stpl-skel stpl-skel--card" />
-                </>
-              ) : layoutError ? (
-                <div className="st-banner">
-                  <AlertTriangle className="st-banner__icon" size={16} />
-                  <span>{layoutError}</span>
+                <div className="flex flex-col gap-4">
+                  <Skeleton height={140} radius={10} />
+                  <Skeleton height={140} radius={10} />
                 </div>
+              ) : layoutError ? (
+                <Alert tone="danger" icon={AlertTriangle}>
+                  {layoutError}
+                </Alert>
               ) : layout ? (
                 <>
-                  <div className="stpl-editor__head">
+                  <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="stpl-editor__title">
+                      <h2 className="text-base font-semibold text-[var(--st-text)]">
                         {selectedObject?.labelSingular ?? selectedSlug} record page
                       </h2>
-                      <p className="stpl-editor__sub">
+                      <p className="mt-0.5 text-sm text-[var(--st-text-secondary)]">
                         {layout.tabs.length} tab
-                        {layout.tabs.length !== 1 ? 's' : ''} ·{' '}
-                        {layout.tabs.reduce((n, t) => n + t.widgets.length, 0)}{' '}
-                        widget
+                        {layout.tabs.length !== 1 ? 's' : ''} ,{' '}
+                        {layout.tabs.reduce((n, t) => n + t.widgets.length, 0)} widget
                         {layout.tabs.reduce((n, t) => n + t.widgets.length, 0) !== 1
                           ? 's'
                           : ''}
                       </p>
                     </div>
                     {dirty ? (
-                      <span className="stpl-dirty">
-                        <span className="stpl-dirty__dot" aria-hidden="true" />
+                      <Badge tone="warning" dot>
                         Unsaved changes
-                      </span>
+                      </Badge>
                     ) : null}
                   </div>
 
-                  <div className="stpl-tabs">
+                  <div className="flex flex-col gap-4">
                     {layout.tabs.map((tab, ti) => (
                       <TabCard
                         key={tab.id}
@@ -908,71 +887,55 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
                     ))}
                   </div>
 
-                  <TwentyButton
-                    className="stpl-addtab"
-                    variant="secondary"
-                    icon={Plus}
-                    onClick={handleAddTab}
-                  >
-                    Add tab
-                  </TwentyButton>
+                  <div className="mt-4">
+                    <Button variant="secondary" iconLeft={Plus} onClick={handleAddTab}>
+                      Add tab
+                    </Button>
+                  </div>
 
                   {/* Sticky save bar */}
-                  <div className="stpl-savebar">
-                    {saveMsg ? (
-                      <span
-                        className={
-                          'stpl-savebar__msg ' +
-                          (saveMsg.kind === 'error' ? 'is-error' : 'is-ok')
-                        }
-                      >
-                        {saveMsg.text}
-                      </span>
-                    ) : (
-                      <span className="stpl-savebar__msg is-ok">
-                        {dirty
-                          ? 'You have unsaved changes.'
-                          : 'All changes saved.'}
-                      </span>
-                    )}
-                    <TwentyButton
+                  <div className="sticky bottom-0 mt-6 flex flex-wrap items-center gap-3 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
+                    <span className="mr-auto text-sm text-[var(--st-text-secondary)]">
+                      {dirty ? 'You have unsaved changes.' : 'All changes saved.'}
+                    </span>
+                    <Button
                       variant="secondary"
-                      icon={RotateCcw}
+                      iconLeft={RotateCcw}
                       onClick={handleReset}
+                      loading={resetting}
                       disabled={busy}
                       title="Discard overrides and restore the default layout"
                     >
-                      {resetting ? 'Resetting…' : 'Reset to default'}
-                    </TwentyButton>
-                    <TwentyButton
+                      Reset to default
+                    </Button>
+                    <Button
                       variant="primary"
-                      icon={Save}
+                      iconLeft={Save}
                       onClick={handleSave}
+                      loading={saving}
                       disabled={busy || !dirty}
                     >
-                      {saving ? 'Saving…' : 'Save layout'}
-                    </TwentyButton>
+                      Save layout
+                    </Button>
                   </div>
                 </>
               ) : (
-                <div className="st-empty">
-                  <span className="st-empty__icon">
-                    <LayoutPanelTop size={20} />
-                  </span>
-                  <h2 className="st-empty__title">Select an object</h2>
-                  <p className="st-empty__desc">
-                    Choose an object from the list to edit its record layout.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={LayoutPanelTop}
+                  title="Select an object"
+                  description="Choose an object from the list to edit its record layout."
+                />
               )}
             </div>
           </div>
         )}
       </div>
 
-      {pickerTabId ? (
-        <TypePicker onPick={handleAddWidget} onClose={() => setPickerTabId(null)} />
-      ) : null}
+      <TypePicker
+        open={pickerTabId != null}
+        onPick={handleAddWidget}
+        onClose={() => setPickerTabId(null)}
+      />
     </div>
   );
 }

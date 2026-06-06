@@ -6,7 +6,20 @@ import { getAccountHomeData } from "@/app/actions/home.actions";
 import { getSession } from "@/app/actions/user.actions";
 import { getOnboardingState } from "@/app/actions/onboarding-flow.actions";
 
-import { Button, Badge, StatCard, EmptyState } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
 import {
   MessageSquare,
   Users,
@@ -20,11 +33,11 @@ import {
   TrendingUp,
   Inbox,
   Globe2,
-  Layers,
   Database,
   Workflow,
   Mail,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { HomeMotionShell } from "./_components/home-motion-shell";
 
 export const metadata = {
@@ -48,13 +61,21 @@ const QUICK_LAUNCH: Array<{
   { name: "Sites", href: "/dashboard/website-builder", dot: "bg-fuchsia-500", ring: "ring-fuchsia-200", hint: "Web Builder" },
 ];
 
-function broadcastBadgeTone(status: string): "green" | "amber" | "red" | "neutral" {
+function broadcastBadgeTone(status: string): BadgeTone {
   const s = status.toLowerCase();
-  if (s === "completed" || s === "sent" || s === "delivered") return "green";
-  if (s === "scheduled" || s === "queued" || s === "processing") return "amber";
-  if (s === "failed" || s === "cancelled") return "red";
+  if (s === "completed" || s === "sent" || s === "delivered") return "success";
+  if (s === "scheduled" || s === "queued" || s === "processing") return "warning";
+  if (s === "failed" || s === "cancelled") return "danger";
   return "neutral";
 }
+
+type KpiTile = {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+  period: string;
+  delta?: { text: string; tone: "up" | "neutral" };
+};
 
 export default async function HomePage() {
   const [data, session, obState] = await Promise.all([
@@ -81,143 +102,161 @@ export default async function HomePage() {
     onboarding && onboarding.status !== "complete"
       ? Math.max(0, Math.min(100, Number((onboarding as { progress?: number }).progress ?? 0)))
       : 0;
+  const onboardingFill = onboardingPct || 12;
+
+  const kpis: KpiTile[] = [
+    {
+      label: "Messages",
+      value: stats.totalMessages.toLocaleString(),
+      icon: MessageSquare,
+      period: "last 24h vs prior",
+      delta:
+        messageDelta !== undefined
+          ? { text: `${messageDelta >= 0 ? "+" : ""}${messageDelta}%`, tone: messageDelta >= 0 ? "up" : "neutral" }
+          : undefined,
+    },
+    {
+      label: "Delivery",
+      value: `${deliveryRate}%`,
+      icon: Activity,
+      period: stats.totalSent > 0 ? `${stats.totalSent.toLocaleString()} sent` : "no sends yet",
+    },
+    {
+      label: "Contacts",
+      value: stats.totalContacts.toLocaleString(),
+      icon: Users,
+      period: "added 7d",
+      delta: velocity.contactsLast7d > 0 ? { text: `+${velocity.contactsLast7d}`, tone: "up" } : undefined,
+    },
+    {
+      label: "Deals",
+      value: stats.totalDeals.toLocaleString(),
+      icon: Briefcase,
+      period: "win rate",
+      delta: dealsWonRate > 0 ? { text: `${dealsWonRate}% won`, tone: "up" } : undefined,
+    },
+    {
+      label: "Active Flows",
+      value: stats.activeFlows.toLocaleString(),
+      icon: Workflow,
+      period: `${stats.totalFlows.toLocaleString()} total`,
+    },
+    {
+      label: "Pipeline",
+      value: `${data.currency} ${stats.pipelineValue.toLocaleString()}`,
+      icon: TrendingUp,
+      period: `${stats.totalLeads.toLocaleString()} leads`,
+    },
+  ];
 
   return (
     <HomeMotionShell>
-      <div className="mx-auto w-full max-w-[1400px] px-6 pt-6 pb-12 space-y-4">
-        {/* Hero ribbon - slim, flat surface with soft inner border */}
-        <section
-          aria-label="Welcome"
-          className="rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-[0_1px_0_0_rgb(0_0_0_/_0.02)]"
-        >
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-              <div className="min-w-0">
-                <h1 className="truncate text-lg font-semibold tracking-tight text-[var(--st-text)]">
-                  Good to see you, {userName}
-                </h1>
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  Here is what is moving across your workspace today.
-                </p>
+      <div className="ui20 mx-auto w-full max-w-[1400px] px-6 pt-6 pb-12 space-y-4">
+        {/* Hero ribbon */}
+        <Card variant="outlined" padding="md" aria-label="Welcome">
+          <PageHeader bordered={false} compact>
+            <PageHeaderHeading>
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                <PageTitle>Good to see you, {userName}</PageTitle>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="neutral" className="rounded-full px-2.5 py-0.5 text-[11px] font-medium">
-                {stats.planName || "Free"} plan
-              </Badge>
-              <Badge tone="obsidian" className="rounded-full px-2.5 py-0.5 text-[11px] font-medium">
+              <PageDescription>
+                Here is what is moving across your workspace today.
+              </PageDescription>
+            </PageHeaderHeading>
+            <PageActions>
+              <Badge tone="neutral">{stats.planName || "Free"} plan</Badge>
+              <Badge tone="neutral" kind="solid">
                 {stats.credits.toLocaleString()} credits
               </Badge>
-              <Button
-                size="sm"
-                className="h-8 rounded-full px-3 text-[12px] font-medium active:scale-[0.97]"
-                asChild
-              >
-                <Link href="/dashboard/sabflow">
-                  <Zap className="mr-1.5 h-3.5 w-3.5" /> Open SabFlow
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
+              <Link href="/dashboard/sabflow" className="u-btn u-btn--primary u-btn--sm">
+                <Zap size={13} aria-hidden="true" />
+                <span className="u-btn__label">Open SabFlow</span>
+              </Link>
+            </PageActions>
+          </PageHeader>
+        </Card>
 
         {/* Onboarding strip */}
         {onboarding && onboarding.status !== "complete" && (
-          <section
-            aria-label="Onboarding"
-            className="rounded-2xl border border-amber-200 bg-amber-50/60 px-5 py-4"
-          >
+          <Card variant="outlined" padding="md" aria-label="Onboarding">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-amber-600 ring-1 ring-amber-200">
-                  <Rocket className="h-4 w-4" />
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-warn)]"
+                  aria-hidden="true"
+                >
+                  <Rocket size={16} />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-900">Finish your setup</p>
-                  <p className="mt-0.5 text-xs text-zinc-600">
+                  <p className="text-sm font-semibold text-[var(--st-text)]">Finish your setup</p>
+                  <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                     A few steps left before SabNode is fully tuned for you.
                   </p>
                 </div>
               </div>
               <div className="flex w-full items-center gap-3 md:w-72">
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-amber-100">
+                <div
+                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--st-bg-secondary)]"
+                  role="progressbar"
+                  aria-label="Onboarding progress"
+                  aria-valuenow={onboardingFill}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
                   <div
-                    className="h-full rounded-full bg-amber-500 transition-transform"
-                    style={{ width: `${onboardingPct || 12}%` }}
+                    className="h-full rounded-full bg-[var(--st-warn)]"
+                    style={{ width: `${onboardingFill}%` }}
                   />
                 </div>
-                <span className="font-mono text-[11px] text-amber-700">{onboardingPct || 12}%</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
-                  asChild
-                >
-                  <Link href="/dashboard/onboarding">Continue</Link>
-                </Button>
+                <span className="font-mono text-[11px] text-[var(--st-warn)]">{onboardingFill}%</span>
+                <Link href="/dashboard/onboarding" className="u-btn u-btn--outline u-btn--sm">
+                  <span className="u-btn__label">Continue</span>
+                </Link>
               </div>
             </div>
-          </section>
+          </Card>
         )}
 
         {/* KPI strip - 6 tiles */}
         <section aria-label="KPIs" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          <StatCard
-            label="Messages"
-            value={stats.totalMessages.toLocaleString()}
-            icon={<MessageSquare />}
-            delta={messageDelta}
-            period="last 24h vs prior"
-          />
-          <StatCard
-            label="Delivery"
-            value={`${deliveryRate}%`}
-            icon={<Activity />}
-            period={stats.totalSent > 0 ? `${stats.totalSent.toLocaleString()} sent` : "no sends yet"}
-          />
-          <StatCard
-            label="Contacts"
-            value={stats.totalContacts.toLocaleString()}
-            icon={<Users />}
-            delta={velocity.contactsLast7d > 0 ? velocity.contactsLast7d : undefined}
-            formatDelta={(d) => `+${d}`}
-            period="added 7d"
-          />
-          <StatCard
-            label="Deals"
-            value={stats.totalDeals.toLocaleString()}
-            icon={<Briefcase />}
-            delta={dealsWonRate > 0 ? dealsWonRate : undefined}
-            formatDelta={(d) => `${d}% won`}
-            period="win rate"
-          />
-          <StatCard
-            label="Active Flows"
-            value={stats.activeFlows.toLocaleString()}
-            icon={<Workflow />}
-            period={`${stats.totalFlows.toLocaleString()} total`}
-          />
-          <StatCard
-            label="Pipeline"
-            value={`${data.currency} ${stats.pipelineValue.toLocaleString()}`}
-            icon={<TrendingUp />}
-            period={`${stats.totalLeads.toLocaleString()} leads`}
-          />
+          {kpis.map((k) => {
+            const Icon = k.icon;
+            return (
+              <Card key={k.label} variant="outlined" padding="md">
+                <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                  <Icon size={15} aria-hidden="true" />
+                  <span className="text-[11px] font-medium uppercase tracking-wide">{k.label}</span>
+                </div>
+                <p className="mt-1.5 text-xl font-semibold tracking-tight text-[var(--st-text)]">
+                  {k.value}
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  {k.delta && (
+                    <span
+                      className={`text-[11px] font-medium ${
+                        k.delta.tone === "up" ? "text-[var(--st-status-ok)]" : "text-[var(--st-text-tertiary)]"
+                      }`}
+                    >
+                      {k.delta.text}
+                    </span>
+                  )}
+                  <span className="text-[11px] text-[var(--st-text-tertiary)]">{k.period}</span>
+                </div>
+              </Card>
+            );
+          })}
         </section>
 
         {/* Quick launch */}
-        <section
-          aria-label="Quick launch"
-          className="rounded-2xl border border-zinc-200 bg-white px-4 py-3"
-        >
+        <Card variant="outlined" padding="md" aria-label="Quick launch">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Quick launch</h2>
+            <h2 className="text-sm font-semibold tracking-tight text-[var(--st-text)]">Quick launch</h2>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-0.5 text-[11px] font-medium text-zinc-500 hover:text-zinc-900"
+              className="inline-flex items-center gap-0.5 text-[11px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             >
-              All modules <ArrowRight className="h-3 w-3" />
+              All modules <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
@@ -225,101 +264,94 @@ export default async function HomePage() {
               <Link
                 key={m.name}
                 href={m.href}
-                className="group rounded-xl border border-zinc-200 bg-white px-3 py-2.5 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+                className="group rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2.5 transition-colors hover:border-[var(--st-border-strong)] active:scale-[0.97]"
               >
                 <div className="flex items-center gap-2">
                   <span
-                    aria-hidden
-                    className={`inline-flex h-2 w-2 rounded-full ${m.dot} ring-2 ${m.ring} ring-offset-1 ring-offset-white`}
+                    aria-hidden="true"
+                    className={`inline-flex h-2 w-2 rounded-full ${m.dot} ring-2 ${m.ring} ring-offset-1`}
                   />
-                  <span className="text-[13px] font-semibold text-zinc-900">{m.name}</span>
+                  <span className="text-[13px] font-semibold text-[var(--st-text)]">{m.name}</span>
                 </div>
-                <p className="mt-1 text-[11px] text-zinc-500">{m.hint}</p>
+                <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">{m.hint}</p>
               </Link>
             ))}
           </div>
-        </section>
+        </Card>
 
         {/* Two-column main grid */}
         <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           {/* Recent broadcasts - spans 2 */}
-          <div className="rounded-2xl border border-zinc-200 bg-white lg:col-span-2">
-            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+          <Card variant="outlined" padding="none" className="lg:col-span-2">
+            <CardHeader className="flex items-center justify-between gap-2">
               <div>
-                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Recent broadcasts</h2>
-                <p className="mt-0.5 text-[11px] text-zinc-500">Latest sends across your channels</p>
+                <CardTitle>Recent broadcasts</CardTitle>
+                <CardDescription>Latest sends across your channels</CardDescription>
               </div>
               <Link
                 href="/dashboard/sabcampaigns"
-                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                className="inline-flex items-center gap-0.5 rounded-[var(--st-radius)] px-2 py-1 text-[11px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
               >
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRight size={12} aria-hidden="true" />
               </Link>
-            </header>
+            </CardHeader>
             <div>
               {recentBroadcasts.length === 0 ? (
                 <div className="p-4">
                   <EmptyState
-                    compact
-                    icon={<Megaphone />}
+                    size="sm"
+                    icon={Megaphone}
                     title="No broadcasts yet"
                     description="Create your first campaign to reach your audience."
                     action={
-                      <Button
-                        size="sm"
-                        className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
-                        asChild
-                      >
-                        <Link href="/dashboard/sabcampaigns">Create broadcast</Link>
-                      </Button>
+                      <Link href="/dashboard/sabcampaigns" className="u-btn u-btn--primary u-btn--sm">
+                        <span className="u-btn__label">Create broadcast</span>
+                      </Link>
                     }
                   />
                 </div>
               ) : (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-[var(--st-border)]">
                   {recentBroadcasts.slice(0, 6).map((b) => {
                     const successRate = pct(b.successCount, b.totalContacts);
                     const trendingUp = successRate >= 80;
                     return (
                       <li
                         key={b._id}
-                        className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-zinc-50/60"
+                        className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--st-bg-secondary)]"
                       >
                         <span
-                          aria-hidden
+                          aria-hidden="true"
                           className={`inline-flex h-1.5 w-1.5 shrink-0 rounded-full ${
-                            trendingUp ? "bg-emerald-500" : "bg-zinc-300"
+                            trendingUp ? "bg-emerald-500" : "bg-[var(--st-text-tertiary)]"
                           }`}
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-medium text-zinc-900">{b.name}</p>
-                          <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zinc-500">
-                            <Badge
-                              tone={broadcastBadgeTone(b.status)}
-                              className="rounded-full px-1.5 py-0 text-[10px] uppercase tracking-wide"
-                            >
+                          <p className="truncate text-[13px] font-medium text-[var(--st-text)]">{b.name}</p>
+                          <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
+                            <Badge tone={broadcastBadgeTone(b.status)} className="uppercase tracking-wide">
                               {b.status}
                             </Badge>
                             <span>{new Date(b.createdAt).toLocaleDateString()}</span>
                             {b.projectName && (
                               <>
-                                <span aria-hidden>·</span>
+                                <span aria-hidden="true">·</span>
                                 <span className="truncate">{b.projectName}</span>
                               </>
                             )}
                           </div>
                         </div>
                         <div className="hidden shrink-0 text-right sm:block">
-                          <p className="font-mono text-[12px] font-medium text-zinc-900">
+                          <p className="font-mono text-[12px] font-medium text-[var(--st-text)]">
                             {b.successCount.toLocaleString()}
-                            <span className="text-zinc-400"> / {b.totalContacts.toLocaleString()}</span>
+                            <span className="text-[var(--st-text-tertiary)]"> / {b.totalContacts.toLocaleString()}</span>
                           </p>
                           <p
                             className={`inline-flex items-center gap-0.5 text-[11px] ${
-                              trendingUp ? "text-emerald-600" : "text-zinc-500"
+                              trendingUp ? "text-[var(--st-status-ok)]" : "text-[var(--st-text-secondary)]"
                             }`}
                           >
-                            <ArrowUpRight className="h-3 w-3" /> {successRate}%
+                            <ArrowUpRight size={12} aria-hidden="true" /> {successRate}%
                           </p>
                         </div>
                       </li>
@@ -328,27 +360,27 @@ export default async function HomePage() {
                 </ul>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* Recent activity */}
-          <div className="rounded-2xl border border-zinc-200 bg-white">
-            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+          <Card variant="outlined" padding="none">
+            <CardHeader className="flex items-center justify-between gap-2">
               <div>
-                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Activity</h2>
-                <p className="mt-0.5 text-[11px] text-zinc-500">Your team in real time</p>
+                <CardTitle>Activity</CardTitle>
+                <CardDescription>Your team in real time</CardDescription>
               </div>
               <Link
                 href="/dashboard/crm/activity"
-                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                className="inline-flex items-center gap-0.5 rounded-[var(--st-radius)] px-2 py-1 text-[11px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
               >
-                Feed <ArrowRight className="h-3 w-3" />
+                Feed <ArrowRight size={12} aria-hidden="true" />
               </Link>
-            </header>
+            </CardHeader>
             {recentActivity.length === 0 ? (
               <div className="p-4">
                 <EmptyState
-                  compact
-                  icon={<Inbox />}
+                  size="sm"
+                  icon={Inbox}
                   title="All quiet for now"
                   description="Activity will appear here as your team works."
                 />
@@ -356,22 +388,22 @@ export default async function HomePage() {
             ) : (
               <ol className="relative px-4 py-3">
                 <span
-                  aria-hidden
-                  className="absolute left-[26px] top-4 bottom-4 w-px bg-zinc-100"
+                  aria-hidden="true"
+                  className="absolute left-[26px] top-4 bottom-4 w-px bg-[var(--st-border)]"
                 />
                 {recentActivity.slice(0, 6).map((a) => {
                   const monogram = a.userName.substring(0, 2).toUpperCase();
                   return (
                     <li key={a._id} className="relative flex items-start gap-3 py-2">
-                      <span className="relative z-10 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white ring-4 ring-white">
+                      <span className="relative z-10 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--st-text)] text-[10px] font-semibold text-[var(--st-bg)] ring-4 ring-[var(--st-bg)]">
                         {monogram}
                       </span>
                       <div className="min-w-0 flex-1 pt-1">
-                        <p className="text-[13px] leading-tight text-zinc-900">
+                        <p className="text-[13px] leading-tight text-[var(--st-text)]">
                           <span className="font-semibold">{a.userName}</span>{" "}
-                          <span className="text-zinc-600">{a.action}</span>
+                          <span className="text-[var(--st-text-secondary)]">{a.action}</span>
                         </p>
-                        <p className="mt-0.5 text-[11px] text-zinc-400">
+                        <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">
                           {new Date(a.createdAt).toLocaleString()}
                         </p>
                       </div>
@@ -380,45 +412,45 @@ export default async function HomePage() {
                 })}
               </ol>
             )}
-          </div>
+          </Card>
         </section>
 
         {/* Bottom utility row */}
         <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2 text-zinc-500">
-              <Database className="h-3.5 w-3.5" />
+          <Card variant="outlined" padding="md">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <Database size={14} aria-hidden="true" />
               <span className="text-[11px] font-medium uppercase tracking-wide">Library</span>
             </div>
-            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+            <p className="mt-1 font-mono text-xl font-semibold text-[var(--st-text)]">
               {stats.totalLibraryTemplates.toLocaleString()}
             </p>
-            <p className="mt-0.5 text-[11px] text-zinc-500">templates available</p>
-          </div>
-          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2 text-zinc-500">
-              <Globe2 className="h-3.5 w-3.5" />
+            <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">templates available</p>
+          </Card>
+          <Card variant="outlined" padding="md">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <Globe2 size={14} aria-hidden="true" />
               <span className="text-[11px] font-medium uppercase tracking-wide">SEO Projects</span>
             </div>
-            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+            <p className="mt-1 font-mono text-xl font-semibold text-[var(--st-text)]">
               {stats.totalSeoProjects.toLocaleString()}
             </p>
-            <p className="mt-0.5 text-[11px] text-zinc-500">
+            <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               {stats.totalSeoAudits.toLocaleString()} audits run
             </p>
-          </div>
-          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2 text-zinc-500">
-              <Mail className="h-3.5 w-3.5" />
+          </Card>
+          <Card variant="outlined" padding="md">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <Mail size={14} aria-hidden="true" />
               <span className="text-[11px] font-medium uppercase tracking-wide">Email</span>
             </div>
-            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+            <p className="mt-1 font-mono text-xl font-semibold text-[var(--st-text)]">
               {stats.totalEmailCampaigns.toLocaleString()}
             </p>
-            <p className="mt-0.5 text-[11px] text-zinc-500">
+            <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               {stats.totalEmailContacts.toLocaleString()} contacts
             </p>
-          </div>
+          </Card>
         </section>
       </div>
     </HomeMotionShell>

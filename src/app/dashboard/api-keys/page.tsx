@@ -1,6 +1,38 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Table,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -43,7 +75,7 @@ export default function ApiKeysPage() {
     startTransition(async () => {
       const res = await getApiKeys(projectId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast.error({ title: 'Error', description: res.error });
         return;
       }
       setKeys(res.keys ?? []);
@@ -59,10 +91,10 @@ export default function ApiKeysPage() {
     startMutateTransition(async () => {
       const res = await createApiKey(projectId, newName.trim());
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast.error({ title: 'Error', description: res.error });
         return;
       }
-      toast({ title: 'Key created', description: res.message });
+      toast.success({ title: 'Key created', description: res.message });
       if (res.key) setNewlyCreatedKey(res.key);
       setNewName('');
       setShowCreate(false);
@@ -73,7 +105,7 @@ export default function ApiKeysPage() {
   const handleCopy = async (key: string, id: string) => {
     await navigator.clipboard.writeText(key);
     setCopiedId(id);
-    toast({ title: 'Copied', description: 'API key copied to clipboard.' });
+    toast.success({ title: 'Copied', description: 'API key copied to clipboard.' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -87,18 +119,19 @@ export default function ApiKeysPage() {
     startMutateTransition(async () => {
       const res = await revokeApiKey(keyId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast.error({ title: 'Error', description: res.error });
         return;
       }
-      toast({ title: 'Revoked', description: 'API key has been revoked.' });
+      toast.success({ title: 'Revoked', description: 'API key has been revoked.' });
       fetchData();
     });
   };
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
+      <div className="flex min-h-[300px] items-center justify-center" role="status">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <span className="sr-only">Loading API keys</span>
       </div>
     );
   }
@@ -117,131 +150,133 @@ export default function ApiKeysPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <PageHeader>
-          <PageHeading>
-            <PageTitle>API keys</PageTitle>
-            <PageDescription>
-              Manage API keys for programmatic access to WhatsApp APIs.
-            </PageDescription>
-          </PageHeading>
-        </PageHeader>
-        <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="h-3.5 w-3.5" /> Create new key
-        </Button>
-      </div>
+      <PageHeader>
+        <PageHeading>
+          <PageTitle>API keys</PageTitle>
+          <PageDescription>
+            Manage API keys for programmatic access to WhatsApp APIs.
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
+          <Button size="sm" iconLeft={Plus} onClick={() => setShowCreate(true)}>
+            Create new key
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {showCreate && (
-        <Card className="p-5">
-          <h2 className="mb-3 text-[15px] text-[var(--st-text)]">New API key</h2>
-          <div className="flex max-w-md gap-3">
-            <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              placeholder="Key name (e.g. Production)"
-              className="flex-1"
-            />
-            <Button size="sm" onClick={handleCreate} disabled={!newName.trim() || isMutating}>
-              Create
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setShowCreate(false)}>
-              Cancel
-            </Button>
-          </div>
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle>New API key</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="flex max-w-md items-end gap-3">
+              <Field label="Key name" className="flex-1">
+                <Input
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                  placeholder="e.g. Production"
+                />
+              </Field>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={handleCreate}
+                disabled={!newName.trim() || isMutating}
+              >
+                Create
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowCreate(false)}>
+                Cancel
+              </Button>
+            </div>
+          </CardBody>
         </Card>
       )}
 
       {newlyCreatedKey && (
-        <Alert variant="success">
-          <Key className="h-4 w-4" />
+        <Alert tone="success" icon={Key}>
           <AlertTitle>New key created</AlertTitle>
           <AlertDescription>
-            Copy it now — it will not be shown in full again.
+            Copy it now. It will not be shown in full again.
             <code className="mt-1 block break-all font-mono text-xs">{newlyCreatedKey}</code>
             <Button
               size="sm"
               variant="outline"
+              iconLeft={Copy}
               className="mt-2"
               onClick={() => {
                 handleCopy(newlyCreatedKey, 'new');
                 setNewlyCreatedKey(null);
               }}
             >
-              <Copy className="h-3.5 w-3.5" />
               Copy key
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
-      <Alert variant="warning">
-        <ShieldAlert className="h-4 w-4" />
+      <Alert tone="warning" icon={ShieldAlert}>
         <AlertDescription>
           Keep your API keys secure. Do not share them in public repositories or client-side code.
         </AlertDescription>
       </Alert>
 
       {keys.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--st-border)] text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-                <th className="px-5 py-3">Name</th>
-                <th className="px-5 py-3">Key</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Created</th>
-                <th className="px-5 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card padding="none" className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Key</Th>
+                <Th>Status</Th>
+                <Th>Created</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {keys.map((k) => (
-                <tr key={k._id} className="border-b border-[var(--st-border)] last:border-0">
-                  <td className="px-5 py-3 text-sm text-[var(--st-text)]">{k.name}</td>
-                  <td className="px-5 py-3 font-mono text-sm text-[var(--st-text)]">{maskKey(k.key)}</td>
-                  <td className="px-5 py-3">
-                    <Badge variant={k.isActive ? 'success' : 'danger'}>
+                <Tr key={k._id}>
+                  <Td className="text-[var(--st-text)]">{k.name}</Td>
+                  <Td className="font-mono text-[var(--st-text)]">{maskKey(k.key)}</Td>
+                  <Td>
+                    <Badge tone={k.isActive ? 'success' : 'danger'}>
                       {k.isActive ? 'Active' : 'Revoked'}
                     </Badge>
-                  </td>
-                  <td className="px-5 py-3 text-xs text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">
                     {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '-'}
-                  </td>
-                  <td className="px-5 py-3 text-right">
+                  </Td>
+                  <Td align="right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="icon-sm"
+                      <IconButton
+                        label={copiedId === k._id ? 'Copied' : 'Copy key'}
+                        icon={copiedId === k._id ? Check : Copy}
                         variant="ghost"
+                        size="sm"
                         onClick={() => handleCopy(k.key, k._id)}
-                        aria-label="Copy"
-                      >
-                        {copiedId === k._id ? (
-                          <Check className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                      </Button>
+                      />
                       {k.isActive && (
-                        <Button
-                          size="icon-sm"
+                        <IconButton
+                          label="Revoke key"
+                          icon={Trash2}
                           variant="ghost"
+                          size="sm"
                           onClick={() => handleRevoke(k._id, k.name || 'Unnamed')}
                           disabled={isMutating}
-                          aria-label="Revoke"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
-                        </Button>
+                        />
                       )}
                     </div>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </Card>
       ) : (
         <EmptyState
-          icon={<Key className="h-12 w-12" />}
+          icon={Key}
           title="No API keys yet"
           description="Create one to get started."
         />

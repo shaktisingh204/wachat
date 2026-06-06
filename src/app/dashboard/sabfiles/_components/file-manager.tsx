@@ -2,16 +2,59 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ChevronRight, Loader2, Upload, FolderPlus, Folder, X } from 'lucide-react';
+import {
+    Download,
+    File as FileIcon,
+    FileText,
+    FolderPlus,
+    Folder,
+    Image as ImageIcon,
+    Link2,
+    MoreHorizontal,
+    Pencil,
+    Star,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-react';
 
-import { Card, CardBody, Button, Progress, useToast, cn, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui';
-import { FilesPage, type FileEntity } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Menu,
+    MenuItem,
+    MenuSeparator,
+    Progress,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 import {
     confirmUpload,
     createFolder,
-    createShare,
     getDownloadUrl,
     presignUpload,
     renameNode,
@@ -34,25 +77,52 @@ interface FileManagerProps {
     initialBreadcrumb: SabfilesBreadcrumbEntry[];
 }
 
-function Breadcrumb({ crumbs }: { crumbs: SabfilesBreadcrumbEntry[] }) {
+function formatBytes(bytes?: number): string {
+    if (bytes == null || Number.isNaN(bytes)) return '-';
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+    const value = bytes / 1024 ** i;
+    return `${value.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+function formatDate(value?: string): string {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function nodeIcon(node: SabfilesNode) {
+    if (node.type === 'folder') return Folder;
+    if (node.mime?.startsWith('image/')) return ImageIcon;
+    if (node.mime?.startsWith('text/') || node.mime === 'application/pdf') return FileText;
+    return FileIcon;
+}
+
+function FilesBreadcrumb({ crumbs }: { crumbs: SabfilesBreadcrumbEntry[] }) {
     return (
-        <nav className="flex flex-wrap items-center gap-1 text-sm text-[var(--st-text-secondary)]">
-            {crumbs.map((c, i) => {
-                const last = i === crumbs.length - 1;
-                const href = c.id ? `/dashboard/sabfiles/folder/${c.id}` : '/dashboard/sabfiles';
-                return (
-                    <React.Fragment key={`${c.id ?? 'root'}-${i}`}>
-                        {last ? (
-                            <span className="font-medium text-[var(--st-text)]">{c.name}</span>
-                        ) : (
-                            <Link href={href} className="hover:text-[var(--st-text)] hover:underline">
-                                {c.name}
-                            </Link>
-                        )}
-                        {!last && <ChevronRight className="h-4 w-4" />}
-                    </React.Fragment>
-                );
-            })}
+        <nav aria-label="Folder path" className="text-sm">
+            <BreadcrumbList>
+                {crumbs.map((c, i) => {
+                    const last = i === crumbs.length - 1;
+                    const href = c.id ? `/dashboard/sabfiles/folder/${c.id}` : '/dashboard/sabfiles';
+                    return (
+                        <React.Fragment key={`${c.id ?? 'root'}-${i}`}>
+                            <BreadcrumbItem>
+                                {last ? (
+                                    <BreadcrumbPage>{c.name}</BreadcrumbPage>
+                                ) : (
+                                    <BreadcrumbLink asChild>
+                                        <Link href={href}>{c.name}</Link>
+                                    </BreadcrumbLink>
+                                )}
+                            </BreadcrumbItem>
+                            {!last ? <BreadcrumbSeparator /> : null}
+                        </React.Fragment>
+                    );
+                })}
+            </BreadcrumbList>
         </nav>
     );
 }
@@ -70,14 +140,16 @@ function UploadDock({
     const inFlight = tasks.filter((t) => t.status === 'uploading' || t.status === 'queued').length;
     return (
         <div className="fixed bottom-24 right-6 z-40 w-[360px] max-w-[calc(100vw-3rem)]">
-            <Card className="border-[var(--st-text)]/20 shadow-[var(--st-shadow-lg)]">
+            <Card variant="elevated" padding="none">
                 <CardBody className="p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-medium text-[var(--st-text)]">
+                        <span className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
                             Uploads ({tasks.length})
-                            {inFlight > 0 && (
-                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
-                            )}
+                            {inFlight > 0 ? (
+                                <Badge tone="info" kind="soft">
+                                    {inFlight} active
+                                </Badge>
+                            ) : null}
                         </span>
                         <Button variant="ghost" size="sm" onClick={onClear}>
                             Clear
@@ -87,20 +159,24 @@ function UploadDock({
                         {tasks.map((t) => (
                             <li key={t.id} className="flex flex-col gap-1">
                                 <div className="flex items-center justify-between gap-2 text-xs">
-                                    <span className="truncate">{t.file.name}</span>
-                                    <button
-                                        type="button"
-                                        aria-label="Dismiss"
-                                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                                    <span className="truncate text-[var(--st-text)]">{t.file.name}</span>
+                                    <IconButton
+                                        label="Dismiss upload"
+                                        icon={X}
+                                        size="sm"
+                                        variant="ghost"
                                         onClick={() => onDismiss(t.id)}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </button>
+                                    />
                                 </div>
                                 {t.status === 'error' ? (
-                                    <span className="text-[11px] text-[var(--st-text)]">{t.error}</span>
+                                    <span className="text-[11px] text-[var(--st-danger)]">{t.error}</span>
                                 ) : (
-                                    <Progress value={t.progress} className="h-1" />
+                                    <Progress
+                                        value={t.progress}
+                                        size="sm"
+                                        tone={t.status === 'done' ? 'success' : 'accent'}
+                                        aria-label={`Upload progress for ${t.file.name}`}
+                                    />
                                 )}
                             </li>
                         ))}
@@ -111,45 +187,115 @@ function UploadDock({
     );
 }
 
+function FileRow({
+    node,
+    onRename,
+    onStar,
+    onDownload,
+    onCopyLink,
+    onDelete,
+}: {
+    node: SabfilesNode;
+    onRename: () => void;
+    onStar: () => void;
+    onDownload: () => void;
+    onCopyLink: () => void;
+    onDelete: () => void;
+}) {
+    const Icon = nodeIcon(node);
+    const isFolder = node.type === 'folder';
+    return (
+        <Tr>
+            <Td>
+                <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                        <Icon size={18} aria-hidden="true" />
+                    </span>
+                    {isFolder ? (
+                        <Link
+                            href={`/dashboard/sabfiles/folder/${node.id}`}
+                            className="truncate text-left font-medium text-[var(--st-text)] hover:underline"
+                        >
+                            {node.name}
+                        </Link>
+                    ) : (
+                        <span className="truncate font-medium text-[var(--st-text)]">{node.name}</span>
+                    )}
+                    {node.starred ? (
+                        <Badge tone="warning" kind="soft" dot>
+                            Starred
+                        </Badge>
+                    ) : null}
+                    {node.shareToken ? (
+                        <Badge tone="info" kind="soft">
+                            Shared
+                        </Badge>
+                    ) : null}
+                </div>
+            </Td>
+            <Td align="right" className="text-[var(--st-text-secondary)]">
+                {isFolder ? '-' : formatBytes(node.size)}
+            </Td>
+            <Td align="right" className="text-[var(--st-text-secondary)]">
+                {formatDate(node.updatedAt)}
+            </Td>
+            <Td align="right">
+                <Menu
+                    align="end"
+                    label={`Actions for ${node.name}`}
+                    trigger={
+                        <IconButton label={`Actions for ${node.name}`} icon={MoreHorizontal} variant="ghost" size="sm" />
+                    }
+                >
+                    <MenuItem icon={Pencil} onSelect={onRename}>
+                        Rename
+                    </MenuItem>
+                    <MenuItem icon={Star} onSelect={onStar}>
+                        {node.starred ? 'Remove star' : 'Add star'}
+                    </MenuItem>
+                    {!isFolder ? (
+                        <MenuItem icon={Download} onSelect={onDownload}>
+                            Download
+                        </MenuItem>
+                    ) : null}
+                    {node.shareToken ? (
+                        <MenuItem icon={Link2} onSelect={onCopyLink}>
+                            Copy share link
+                        </MenuItem>
+                    ) : null}
+                    <MenuSeparator />
+                    <MenuItem icon={Trash2} danger onSelect={onDelete}>
+                        Move to trash
+                    </MenuItem>
+                </Menu>
+            </Td>
+        </Tr>
+    );
+}
+
 export function FileManager({
     parentId,
     initialNodes,
     initialBreadcrumb,
 }: FileManagerProps) {
-    const router = useRouter();
     const { toast } = useToast();
 
     const [nodes, setNodes] = React.useState<SabfilesNode[]>(initialNodes);
     const [uploads, setUploads] = React.useState<UploadTask[]>([]);
-    
-    // New folder dialog state
+
+    // New folder dialog state.
     const [showNewFolder, setShowNewFolder] = React.useState(false);
     const [newFolderName, setNewFolderName] = React.useState('');
 
-    // Mapping SabfilesNode to FileEntity
-    const zoruFiles: FileEntity[] = React.useMemo(() => {
-        return nodes.map((n) => ({
-            id: n.id,
-            name: n.name,
-            mime: n.type === 'folder' ? undefined : n.mime || undefined,
-            isFolder: n.type === 'folder',
-            size: n.type === 'folder' ? undefined : n.size || undefined,
-            modified: n.updatedAt ? new Date(n.updatedAt) : undefined,
-            url: n.url || undefined,
-            thumbnailUrl: n.type === 'file' && n.mime?.startsWith('image/') ? n.url : undefined,
-            starred: n.starred,
-            shareToken: n.shareToken || undefined,
-        }));
-    }, [nodes]);
+    // Inline rename dialog state.
+    const [renameTarget, setRenameTarget] = React.useState<SabfilesNode | null>(null);
+    const [renameValue, setRenameValue] = React.useState('');
 
-    // R2 Upload logic
+    // R2 upload logic - drives the SabFiles backend via presigned PUT.
     const startUpload = React.useCallback(
         async (file: File): Promise<void> => {
             const taskId = `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-            setUploads((u) => [
-                ...u,
-                { id: taskId, file, progress: 0, status: 'queued' },
-            ]);
+            setUploads((u) => [...u, { id: taskId, file, progress: 0, status: 'queued' }]);
 
             const presign = await presignUpload({
                 name: file.name,
@@ -161,7 +307,7 @@ export function FileManager({
                 setUploads((u) =>
                     u.map((t) => (t.id === taskId ? { ...t, status: 'error', error: presign.error } : t)),
                 );
-                toast({ title: 'Upload failed', description: presign.error, variant: 'destructive' });
+                toast.error({ title: 'Upload failed', description: presign.error });
                 return;
             }
 
@@ -182,7 +328,11 @@ export function FileManager({
                     if (xhr.status >= 200 && xhr.status < 300) resolve(true);
                     else {
                         setUploads((u) =>
-                            u.map((t) => (t.id === taskId ? { ...t, status: 'error', error: `Storage returned ${xhr.status}` } : t)),
+                            u.map((t) =>
+                                t.id === taskId
+                                    ? { ...t, status: 'error', error: `Storage returned ${xhr.status}` }
+                                    : t,
+                            ),
                         );
                         resolve(false);
                     }
@@ -209,7 +359,7 @@ export function FileManager({
                 setUploads((u) =>
                     u.map((t) => (t.id === taskId ? { ...t, status: 'error', error: res.error } : t)),
                 );
-                toast({ title: 'Upload failed', description: res.error, variant: 'destructive' });
+                toast.error({ title: 'Upload failed', description: res.error });
                 return;
             }
             setUploads((u) => u.map((t) => (t.id === taskId ? { ...t, status: 'done', progress: 100 } : t)));
@@ -218,12 +368,11 @@ export function FileManager({
         [parentId, toast],
     );
 
-    // Callbacks for FilesPage
     const handleUpload = React.useCallback(
         (files: File[]) => {
             for (const f of files) void startUpload(f);
         },
-        [startUpload]
+        [startUpload],
     );
 
     const handleNewFolderSubmit = React.useCallback(async () => {
@@ -231,91 +380,92 @@ export function FileManager({
         if (!name) return;
         const res = await createFolder(parentId, name);
         if ('error' in res) {
-            toast({ title: 'Could not create folder', description: res.error, variant: 'destructive' });
+            toast.error({ title: 'Could not create folder', description: res.error });
             return;
         }
         setNodes((curr) => [res.node, ...curr]);
         setShowNewFolder(false);
         setNewFolderName('');
-        toast({ title: 'Folder created', description: name });
+        toast.success({ title: 'Folder created', description: name });
     }, [newFolderName, parentId, toast]);
 
-    const handleRename = React.useCallback(async (file: FileEntity, newName: string) => {
-        const res = await renameNode(file.id, newName, parentId);
-        if ('error' in res) {
-            toast({ title: 'Rename failed', description: res.error, variant: 'destructive' });
-            return;
-        }
-        setNodes((curr) => curr.map((n) => (n.id === file.id ? res.node : n)));
-    }, [parentId, toast]);
-
-    const handleDelete = React.useCallback(async (files: FileEntity[]) => {
-        const ids = files.map(f => f.id);
-        const res = await trashNodes(ids, parentId);
-        if ('error' in res) {
-            toast({ title: 'Move-to-trash failed', description: res.error, variant: 'destructive' });
-            return;
-        }
-        setNodes((curr) => curr.filter((n) => !ids.includes(n.id)));
-        toast({ title: `${ids.length} item(s) moved to trash` });
-    }, [parentId, toast]);
-
-    const handleStar = React.useCallback(async (file: FileEntity, star: boolean) => {
-        const res = await starNodes([file.id], star, parentId);
-        if ('error' in res) {
-            toast({ title: 'Action failed', description: res.error, variant: 'destructive' });
-            return;
-        }
-        setNodes((curr) => curr.map((n) => (n.id === file.id ? { ...n, starred: star } : n)));
-    }, [parentId, toast]);
-
-    const handleDownload = React.useCallback(async (file: FileEntity) => {
-        const res = await getDownloadUrl(file.id);
-        if ('error' in res) {
-            toast({ title: 'Download failed', description: res.error, variant: 'destructive' });
-            return;
-        }
-        window.open(res.url, '_blank', 'noopener,noreferrer');
-    }, [toast]);
-
-    const handleShareInvite = React.useCallback(
-        // We reuse this as a trigger to create a public link in sabfiles context
-        // since ZoruFileShareDialog handles public link vs invites. 
-        // For sabfiles, we just call createShare.
-        async (file: FileEntity, email: string, access: "viewer" | "editor") => {
-            // Placeholder: implement real sharing if needed. Sabfiles currently uses generic createShare.
-            toast({ title: 'Invite sent (placeholder)', description: `To ${email}` });
-        },
-        [toast]
-    );
-
-    const handleCopyShareLink = React.useCallback(
-        (url: string) => {
-            navigator.clipboard?.writeText(url).then(
-                () => toast({ title: 'Link copied' }),
-                () => toast({ title: 'Copy failed', variant: 'destructive' })
-            );
-        },
-        [toast]
-    );
-
-    const handleNavigateFolder = React.useCallback(
-        (file: FileEntity) => {
-            router.push(`/dashboard/sabfiles/folder/${file.id}`);
-        },
-        [router]
-    );
-
-    const shareUrlFor = React.useCallback((file: FileEntity) => {
-        if (!file.shareToken) return undefined;
-        return typeof window !== 'undefined'
-            ? `${window.location.origin}/share/${file.shareToken}`
-            : `/share/${file.shareToken}`;
+    const openRename = React.useCallback((node: SabfilesNode) => {
+        setRenameTarget(node);
+        setRenameValue(node.name);
     }, []);
 
+    const handleRenameSubmit = React.useCallback(async () => {
+        if (!renameTarget) return;
+        const name = renameValue.trim();
+        if (!name || name === renameTarget.name) {
+            setRenameTarget(null);
+            return;
+        }
+        const res = await renameNode(renameTarget.id, name, parentId);
+        if ('error' in res) {
+            toast.error({ title: 'Rename failed', description: res.error });
+            return;
+        }
+        setNodes((curr) => curr.map((n) => (n.id === renameTarget.id ? res.node : n)));
+        setRenameTarget(null);
+        toast.success('Renamed');
+    }, [renameTarget, renameValue, parentId, toast]);
+
+    const handleDelete = React.useCallback(
+        async (node: SabfilesNode) => {
+            const res = await trashNodes([node.id], parentId);
+            if ('error' in res) {
+                toast.error({ title: 'Move-to-trash failed', description: res.error });
+                return;
+            }
+            setNodes((curr) => curr.filter((n) => n.id !== node.id));
+            toast.success('1 item moved to trash');
+        },
+        [parentId, toast],
+    );
+
+    const handleStar = React.useCallback(
+        async (node: SabfilesNode) => {
+            const next = !node.starred;
+            const res = await starNodes([node.id], next, parentId);
+            if ('error' in res) {
+                toast.error({ title: 'Action failed', description: res.error });
+                return;
+            }
+            setNodes((curr) => curr.map((n) => (n.id === node.id ? { ...n, starred: next } : n)));
+        },
+        [parentId, toast],
+    );
+
+    const handleDownload = React.useCallback(
+        async (node: SabfilesNode) => {
+            const res = await getDownloadUrl(node.id);
+            if ('error' in res) {
+                toast.error({ title: 'Download failed', description: res.error });
+                return;
+            }
+            window.open(res.url, '_blank', 'noopener,noreferrer');
+        },
+        [toast],
+    );
+
+    const handleCopyLink = React.useCallback(
+        (node: SabfilesNode) => {
+            if (!node.shareToken) return;
+            const url =
+                typeof window !== 'undefined'
+                    ? `${window.location.origin}/share/${node.shareToken}`
+                    : `/share/${node.shareToken}`;
+            navigator.clipboard?.writeText(url).then(
+                () => toast.success('Link copied'),
+                () => toast.error('Copy failed'),
+            );
+        },
+        [toast],
+    );
+
+    // Drag-and-drop overlay logic.
     const [isDragging, setIsDragging] = React.useState(false);
-    
-    // Drag & Drop overlay logic
     const onDragOver = React.useCallback((e: React.DragEvent) => {
         if (e.dataTransfer.types.includes('Files')) {
             e.preventDefault();
@@ -333,7 +483,7 @@ export function FileManager({
                 handleUpload(Array.from(e.dataTransfer.files));
             }
         },
-        [handleUpload]
+        [handleUpload],
     );
 
     return (
@@ -343,32 +493,62 @@ export function FileManager({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <Breadcrumb crumbs={initialBreadcrumb} />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <FilesBreadcrumb crumbs={initialBreadcrumb} />
+                <div className="flex items-center gap-2">
+                    <Button variant="secondary" iconLeft={FolderPlus} onClick={() => setShowNewFolder(true)}>
+                        New folder
+                    </Button>
+                    <SabFileToFileButton variant="default" onPickFile={(file) => startUpload(file)}>
+                        <span className="inline-flex items-center gap-2">
+                            <Upload size={14} aria-hidden="true" />
+                            Upload
+                        </span>
+                    </SabFileToFileButton>
+                </div>
+            </div>
 
-            <FilesPage
-                files={zoruFiles}
-                onUpload={handleUpload}
-                onNewFolder={() => setShowNewFolder(true)}
-                onRename={handleRename}
-                onDelete={handleDelete}
-                onStar={handleStar}
-                onDownload={handleDownload}
-                onShareInvite={handleShareInvite}
-                onCopyShareLink={handleCopyShareLink}
-                onNavigateFolder={handleNavigateFolder}
-                shareUrlFor={shareUrlFor}
-                empty={
-                    <Card className="flex flex-col items-center justify-center gap-3 p-12 text-center bg-transparent border-0 shadow-none">
-                        <Folder className="h-12 w-12 text-[var(--st-text-secondary)]" />
-                        <div>
-                            <div className="text-base font-medium text-[var(--st-text)]">This folder is empty</div>
-                            <div className="text-sm text-[var(--st-text-secondary)]">
-                                Drop files anywhere on this page, or upload to get started.
-                            </div>
-                        </div>
-                    </Card>
-                }
-            />
+            {nodes.length === 0 ? (
+                <Card variant="ghost" padding="lg">
+                    <EmptyState
+                        icon={Folder}
+                        title="This folder is empty"
+                        description="Drop files anywhere on this page, or use Upload to add your first file."
+                    />
+                </Card>
+            ) : (
+                <Card padding="none">
+                    <Table hover>
+                        <THead>
+                            <Tr>
+                                <Th>Name</Th>
+                                <Th align="right" width={120}>
+                                    Size
+                                </Th>
+                                <Th align="right" width={140}>
+                                    Modified
+                                </Th>
+                                <Th align="right" width={64}>
+                                    <span className="sr-only">Actions</span>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {nodes.map((node) => (
+                                <FileRow
+                                    key={node.id}
+                                    node={node}
+                                    onRename={() => openRename(node)}
+                                    onStar={() => void handleStar(node)}
+                                    onDownload={() => void handleDownload(node)}
+                                    onCopyLink={() => handleCopyLink(node)}
+                                    onDelete={() => void handleDelete(node)}
+                                />
+                            ))}
+                        </TBody>
+                    </Table>
+                </Card>
+            )}
 
             <UploadDock
                 tasks={uploads}
@@ -384,34 +564,64 @@ export function FileManager({
                             Name your folder. Folder names must be unique inside a parent.
                         </DialogDescription>
                     </DialogHeader>
-                    <Input
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="Untitled folder"
-                        autoFocus
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') void handleNewFolderSubmit();
-                        }}
-                    />
+                    <Field label="Folder name">
+                        <Input
+                            value={newFolderName}
+                            onChange={(e) => setNewFolderName(e.target.value)}
+                            placeholder="Untitled folder"
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') void handleNewFolderSubmit();
+                            }}
+                        />
+                    </Field>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setShowNewFolder(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleNewFolderSubmit} disabled={!newFolderName.trim()}>
+                        <Button variant="primary" onClick={handleNewFolderSubmit} disabled={!newFolderName.trim()}>
                             Create
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
-            {isDragging && (
-                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-text)]/40 bg-[var(--st-bg)]/80 backdrop-blur">
+            <Dialog open={renameTarget != null} onOpenChange={(open) => !open && setRenameTarget(null)}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Rename</DialogTitle>
+                        <DialogDescription>Give this item a new name.</DialogDescription>
+                    </DialogHeader>
+                    <Field label="Name">
+                        <Input
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            placeholder="New name"
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') void handleRenameSubmit();
+                            }}
+                        />
+                    </Field>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setRenameTarget(null)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" onClick={handleRenameSubmit} disabled={!renameValue.trim()}>
+                            Save
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {isDragging ? (
+                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-accent)] bg-[var(--st-bg)]/80 backdrop-blur">
                     <div className="flex flex-col items-center gap-2 text-[var(--st-text)]">
-                        <Upload className="h-8 w-8" />
+                        <Upload className="h-8 w-8" aria-hidden="true" />
                         <span className="text-base font-medium">Drop to upload</span>
                     </div>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }

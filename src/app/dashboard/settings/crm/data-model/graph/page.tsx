@@ -1,21 +1,21 @@
 'use client';
 
 /**
- * SabCRM — Data model GRAPH (`/dashboard/settings/crm/data-model/graph`).
+ * SabCRM - Data model GRAPH (`/dashboard/settings/crm/data-model/graph`).
  *
- * A Twenty-style entity-relationship diagram of the whole CRM schema: every
- * object is laid out as a card-node on a circle and every RELATION field is
- * drawn as a directed SVG edge between two objects, labelled with the relation
- * kind (MANY_TO_ONE / ONE_TO_MANY).
+ * A 20ui entity-relationship diagram of the whole CRM schema: every object is
+ * laid out as a card-node on a circle and every RELATION field is drawn as a
+ * directed SVG edge between two objects, labelled with the relation kind
+ * (MANY_TO_ONE / ONE_TO_MANY).
  *
  * Architecture (dependency-free, no graph lib):
  *   - We load the object catalogue with the same gated server action the
  *     sibling Data Model page uses (`listObjectsTw`) so this view sees exactly
  *     the objects the active project can.
- *   - Layout is a deterministic circle: N objects → N points evenly spaced on
- *     a ring sized to the count. Self-relations get a small loop.
+ *   - Layout is a deterministic circle: N objects produce N points evenly
+ *     spaced on a ring sized to the count. Self-relations get a small loop.
  *   - The canvas is one positioned box. Underneath sits a single inline <svg>
- *     EDGE LAYER (cubic-Bézier curves + arrowheads + kind labels). On top sit
+ *     EDGE LAYER (cubic-Bezier curves + arrowheads + kind labels). On top sit
  *     absolutely-positioned <Link> card-nodes (icon + label + field count),
  *     sharing the same pixel space so a node sits exactly on its edge endpoint.
  *   - Hovering a node dims everything else and lights its edges + neighbours.
@@ -23,16 +23,29 @@
  *
  * The Rust engine behind the action may be DOWN; the action returns an
  * `ActionResult`, so the page degrades to loading / empty / error states and
- * never crashes. NO ZoruUI / Tailwind / clay — Twenty look only (`.st-*` kit +
- * `.dmg-*` from the sibling `./graph.css`). Auth / RBAC / project context are
- * enforced by the parent `../../../layout.tsx`; the action re-runs the gate.
+ * never crashes. Pure 20ui: the page chrome uses 20ui primitives; the bespoke
+ * ER-diagram canvas (`.dmg-*` in `./graph.css`) has no design-system analogue,
+ * so it draws on 20ui `--st-*` tokens scoped under `.ui20`. Auth / RBAC /
+ * project context are enforced by the parent layout; the action re-runs the gate.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Database, GitBranch, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Database, GitBranch, ArrowLeft } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import {
+  Button,
+  Card,
+  Alert,
+  EmptyState,
+  Skeleton,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
@@ -57,9 +70,9 @@ interface LaidOutNode {
   pos: Point;
 }
 
-/** A directed relation edge between two objects (or an object → itself). */
+/** A directed relation edge between two objects (or an object to itself). */
 interface Edge {
-  /** Unique id (sourceSlug · fieldKey). */
+  /** Unique id (sourceSlug + fieldKey). */
   id: string;
   sourceSlug: string;
   targetSlug: string;
@@ -76,7 +89,7 @@ const KIND_LABEL: Record<Edge['kind'], string> = {
 
 /**
  * Lay objects out on a circle. The radius grows with the object count so that
- * cards never overlap — circumference must fit N cards of width ~NODE_W.
+ * cards never overlap - circumference must fit N cards of width ~NODE_W.
  */
 function layoutCircle(objects: ObjectMetadata[]): {
   nodes: LaidOutNode[];
@@ -109,7 +122,7 @@ function layoutCircle(objects: ObjectMetadata[]): {
   const cy = size / 2;
 
   const nodes: LaidOutNode[] = objects.map((object, i) => {
-    // Start at the top (−90°) and go clockwise.
+    // Start at the top (-90 degrees) and go clockwise.
     const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
     return {
       object,
@@ -148,8 +161,8 @@ function collectEdges(
 }
 
 /**
- * Build a cubic-Bézier path between two points with a gentle outward bow so
- * that parallel edges (and bidirectional pairs) don't perfectly overlap. The
+ * Build a cubic-Bezier path between two points with a gentle outward bow so
+ * that parallel edges (and bidirectional pairs) do not perfectly overlap. The
  * `bow` factor offsets the control points perpendicular to the line.
  */
 function curvePath(a: Point, b: Point, bow: number): string {
@@ -166,7 +179,7 @@ function curvePath(a: Point, b: Point, bow: number): string {
   return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
 }
 
-/** Point on a quadratic Bézier at parameter t (for label placement). */
+/** Point on a quadratic Bezier at parameter t (for label placement). */
 function quadPoint(a: Point, ctrl: Point, b: Point, t: number): Point {
   const mt = 1 - t;
   return {
@@ -194,36 +207,27 @@ function shortenToward(from: Point, to: Point, by: number): Point {
 }
 
 // ---------------------------------------------------------------------------
-// Shared bits
+// Legend
 // ---------------------------------------------------------------------------
-
-function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
-}
 
 function Legend() {
   return (
     <div className="dmg-legend" aria-label="Diagram legend">
       <span className="dmg-legend__item">
-        <span className="dmg-legend__swatch dmg-legend__swatch--standard" />
+        <span className="dmg-legend__swatch dmg-legend__swatch--standard" aria-hidden="true" />
         Standard object
       </span>
       <span className="dmg-legend__item">
-        <span className="dmg-legend__swatch dmg-legend__swatch--custom" />
+        <span className="dmg-legend__swatch dmg-legend__swatch--custom" aria-hidden="true" />
         Custom object
       </span>
       <span className="dmg-legend__item">
-        <span className="dmg-legend__line dmg-legend__line--m1" />
-        Many&nbsp;→&nbsp;one (N:1)
+        <span className="dmg-legend__line dmg-legend__line--m1" aria-hidden="true" />
+        Many to one (N:1)
       </span>
       <span className="dmg-legend__item">
-        <span className="dmg-legend__line dmg-legend__line--1m" />
-        One&nbsp;→&nbsp;many (1:N)
+        <span className="dmg-legend__line dmg-legend__line--1m" aria-hidden="true" />
+        One to many (1:N)
       </span>
     </div>
   );
@@ -255,10 +259,11 @@ function GraphNode({
       ]
         .filter(Boolean)
         .join(' ')}
+      // Node coordinates are computed at runtime from the circle layout.
       style={{ left: pos.x, top: pos.y }}
-      title={`${object.labelPlural} — ${fieldCount} field${
+      title={`${object.labelPlural} - ${fieldCount} field${
         fieldCount === 1 ? '' : 's'
-      } · open data model`}
+      }, open data model`}
       onMouseEnter={() => onHover(object.slug)}
       onMouseLeave={() => onHover(null)}
       onFocus={() => onHover(object.slug)}
@@ -283,6 +288,7 @@ function GraphNode({
 // ---------------------------------------------------------------------------
 
 export default function DataModelGraphPage(): React.JSX.Element {
+  const router = useRouter();
   const { activeProjectId } = useProject();
 
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
@@ -362,7 +368,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
         const b = posBySlug.get(edge.targetSlug);
         if (!a || !b) return;
 
-        // Self-relation → loop.
+        // Self-relation becomes a loop.
         if (edge.sourceSlug === edge.targetSlug) {
           const loopR = 34 + idx * 12;
           const top: Point = { x: a.x, y: a.y - NODE_H / 2 };
@@ -392,7 +398,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
         const labelCtrl = controlPoint(start, endRaw, bow);
         const labelPos = quadPoint(start, labelCtrl, endRaw, 0.5);
 
-        // Arrowhead angle = tangent at the curve's end (control → endpoint).
+        // Arrowhead angle = tangent at the curve's end (control to endpoint).
         const ang = Math.atan2(endRaw.y - labelCtrl.y, endRaw.x - labelCtrl.x);
         out.push({
           edge,
@@ -424,75 +430,89 @@ export default function DataModelGraphPage(): React.JSX.Element {
   // ---- Render -------------------------------------------------------------
 
   const header = (
-    <TwentyPageHeader
-      title="Data model graph"
-      icon={GitBranch}
-      actions={
-        <Link href="/dashboard/settings/crm/data-model" className="st-btn st-btn--secondary">
-          <ArrowLeft size={14} aria-hidden="true" />
+    <PageHeader>
+      <PageHeaderHeading>
+        <PageTitle>Data model graph</PageTitle>
+        <PageDescription>
+          Every CRM object and the relations drawn between them.
+        </PageDescription>
+      </PageHeaderHeading>
+      <PageActions>
+        <Button
+          variant="secondary"
+          iconLeft={ArrowLeft}
+          onClick={() => router.push('/dashboard/settings/crm/data-model')}
+        >
           Back to data model
-        </Link>
-      }
-    />
+        </Button>
+      </PageActions>
+    </PageHeader>
   );
 
   if (error) {
     return (
-      <div className="st-page">
+      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
         {header}
-        <ErrorBanner message={error} />
+        <Alert tone="danger" title="Could not load the data model graph">
+          {error}
+        </Alert>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="st-page">
+      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
         {header}
-        <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="st-skeleton st-skeleton-row" />
-          ))}
-        </div>
+        <Card padding="md">
+          <div className="flex flex-col gap-[var(--st-space-3)]">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} height={14} radius={6} />
+            ))}
+          </div>
+        </Card>
       </div>
     );
   }
 
   if (objects.length === 0) {
     return (
-      <div className="st-page">
+      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
         {header}
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <GitBranch size={20} />
-          </span>
-          <h2 className="st-empty__title">No objects to graph</h2>
-          <p className="st-empty__desc">
-            Once you create objects in the data model, they&apos;ll appear here
-            as nodes with their relations drawn between them.
-          </p>
-          <Link href="/dashboard/settings/crm/data-model" className="st-btn st-btn--primary">
-            Open data model
-          </Link>
-        </div>
+        <EmptyState
+          icon={GitBranch}
+          title="No objects to graph"
+          description="Once you create objects in the data model, they will appear here as nodes with their relations drawn between them."
+          action={
+            <Button
+              variant="primary"
+              onClick={() => router.push('/dashboard/settings/crm/data-model')}
+            >
+              Open data model
+            </Button>
+          }
+        />
       </div>
     );
   }
 
   return (
-    <div className="st-page">
+    <div className="ui20 flex flex-col gap-[var(--st-space-3)]">
       {header}
 
-      <div className="dmg-toolbar">
-        <span className="dmg-stat">
-          <span className="dmg-stat__num">{objects.length}</span>
+      <div className="flex flex-wrap items-center gap-[var(--st-space-3)]">
+        <span className="inline-flex items-baseline gap-1.5 text-[length:var(--st-font-size-sm)] text-[var(--st-text-secondary)]">
+          <span className="font-semibold text-[var(--st-text)]">
+            {objects.length}
+          </span>
           {objects.length === 1 ? 'object' : 'objects'}
         </span>
-        <span className="dmg-stat">
-          <span className="dmg-stat__num">{edges.length}</span>
+        <span className="inline-flex items-baseline gap-1.5 text-[length:var(--st-font-size-sm)] text-[var(--st-text-secondary)]">
+          <span className="font-semibold text-[var(--st-text)]">
+            {edges.length}
+          </span>
           {edges.length === 1 ? 'relation' : 'relations'}
         </span>
-        <span className="dmg-toolbar__spacer" />
       </div>
 
       <Legend />
@@ -501,6 +521,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
         <div
           className="dmg-canvas"
           data-hover={hovered ?? undefined}
+          // Canvas size is computed at runtime from the circle layout.
           style={{ width, height }}
         >
           {/* ----- Edge layer (single inline SVG) ----- */}
@@ -529,7 +550,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
               const head = 8;
               const a1 = arrow.angle + Math.PI - 0.4;
               const a2 = arrow.angle + Math.PI + 0.4;
-              const label = `${KIND_LABEL[edge.kind]} · ${edge.fieldLabel}`;
+              const label = `${KIND_LABEL[edge.kind]} - ${edge.fieldLabel}`;
               const labelW = label.length * 5.6 + 10;
 
               return (
@@ -538,7 +559,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
                   className={`dmg-edge-group${active ? ' is-active' : ''}`}
                 >
                   <title>
-                    {`${edge.sourceSlug} → ${edge.targetSlug} (${edge.kind}) via ${edge.fieldLabel}`}
+                    {`${edge.sourceSlug} to ${edge.targetSlug} (${edge.kind}) via ${edge.fieldLabel}`}
                   </title>
                   <path className={cls} d={path} />
                   {/* arrowhead */}

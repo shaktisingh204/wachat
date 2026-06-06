@@ -1,25 +1,28 @@
 'use client';
 
 /**
- * SabCRM — API Playground settings (`/dashboard/settings/crm/playground`), Twenty-style.
+ * SabCRM - API Playground settings (`/dashboard/settings/crm/playground`).
  *
  * An in-app tester for the headless REST record API
  * (`/api/sabcrm/:objectSlug[/:recordId]`). It lets an operator pick a method
  * (list / get one / create / update / delete), an object, an optional record
  * id, and an optional JSON body, then EXECUTES the equivalent call and shows
- * the JSON response in a pretty panel — alongside the matching REST path hint
+ * the JSON response in a pretty panel, alongside the matching REST path hint
  * (e.g. `GET /api/sabcrm/people`) for documentation.
  *
  * Execution does NOT touch the public route or expose any API key client-side.
- * Instead it runs through the same admin-gated server actions that the Twenty
+ * Instead it runs through the same admin-gated server actions that the record
  * UI uses ({@link listSabcrmRecordsTw} / {@link getSabcrmRecordTw} /
  * {@link createSabcrmRecordTw} / {@link updateSabcrmRecordTw} /
- * {@link deleteSabcrmRecordTw}). Each re-runs the session → project → RBAC →
- * plan pipeline, so the tester is exactly as privileged as the caller — never
- * more — and the REST path is shown purely as copyable documentation.
+ * {@link deleteSabcrmRecordTw}). Each re-runs the session, project, RBAC and
+ * plan pipeline, so the tester is exactly as privileged as the caller, never
+ * more, and the REST path is shown purely as copyable documentation.
  *
- * Project scope comes from `useProject()`. States: object catalogue skeleton,
+ * Project scope comes from `useProject()`. States: object catalogue loading,
  * "no project" notice, error banner, per-send loading + result/error panel.
+ *
+ * Pure 20ui: PageHeader, Card, Field, Input, Textarea, Select (Radix compound),
+ * Button, Alert, EmptyState and Badge from `@/components/sabcrm/20ui`.
  */
 
 import * as React from 'react';
@@ -28,11 +31,32 @@ import {
   Play,
   Copy,
   Check,
-  AlertTriangle,
   ChevronRight,
+  AlertTriangle,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Button,
+  Alert,
+  EmptyState,
+  Badge,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import {
@@ -43,10 +67,6 @@ import {
   deleteSabcrmRecordTw,
 } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './playground.css';
 
 // ---------------------------------------------------------------------------
 // Method catalogue
@@ -68,11 +88,11 @@ interface MethodSpec {
 }
 
 const METHODS: MethodSpec[] = [
-  { value: 'list', label: 'GET — list records', verb: 'GET', needsRecordId: false, needsBody: false },
-  { value: 'getOne', label: 'GET — one record', verb: 'GET', needsRecordId: true, needsBody: false },
-  { value: 'create', label: 'POST — create', verb: 'POST', needsRecordId: false, needsBody: true },
-  { value: 'update', label: 'PATCH — update', verb: 'PATCH', needsRecordId: true, needsBody: true },
-  { value: 'delete', label: 'DELETE — delete', verb: 'DELETE', needsRecordId: true, needsBody: false },
+  { value: 'list', label: 'GET - list records', verb: 'GET', needsRecordId: false, needsBody: false },
+  { value: 'getOne', label: 'GET - one record', verb: 'GET', needsRecordId: true, needsBody: false },
+  { value: 'create', label: 'POST - create', verb: 'POST', needsRecordId: false, needsBody: true },
+  { value: 'update', label: 'PATCH - update', verb: 'PATCH', needsRecordId: true, needsBody: true },
+  { value: 'delete', label: 'DELETE - delete', verb: 'DELETE', needsRecordId: true, needsBody: false },
 ];
 
 function methodSpec(method: Method): MethodSpec {
@@ -121,14 +141,14 @@ function CopyButton({ value, label }: { value: string; label: string }): React.J
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* clipboard unavailable — no-op */
+      /* clipboard unavailable, no-op */
     }
   }, [value]);
 
   return (
-    <TwentyButton variant="ghost" icon={copied ? Check : Copy} onClick={copy}>
+    <Button variant="ghost" iconLeft={copied ? Check : Copy} onClick={copy}>
       {copied ? 'Copied' : label}
-    </TwentyButton>
+    </Button>
   );
 }
 
@@ -267,175 +287,182 @@ export default function SabcrmApiPlaygroundPage(): React.JSX.Element {
   const noProject = !isLoadingProject && !activeProjectId;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="API Playground" icon={FlaskConical} />
-        <p className="st-settings__intro">
-          Test the SabCRM REST record API without leaving the app. Pick a method
-          and object, then <strong>Send</strong> to execute the equivalent call
-          through your own session — no API key is exposed here. The endpoint
-          hint shows the matching REST path for use with a key.
-        </p>
+    <div className="ui20 mx-auto w-full max-w-3xl px-6 py-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>API Playground</PageTitle>
+          <PageDescription>
+            Test the SabCRM REST record API without leaving the app. Pick a
+            method and object, then Send to execute the equivalent call through
+            your own session. No API key is exposed here. The endpoint hint shows
+            the matching REST path for use with a key.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {loadError ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{loadError}</span>
-          </div>
-        ) : null}
+      {loadError ? (
+        <Alert tone="danger" className="mt-6">
+          {loadError}
+        </Alert>
+      ) : null}
 
-        {noProject ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to test its records API.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="st-pg-builder">
+      {noProject ? (
+        <div className="mt-6">
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to test its records API."
+          />
+        </div>
+      ) : (
+        <div className="mt-6 flex flex-col gap-5">
+          {/* Request builder */}
+          <Card padding="lg">
+            <CardHeader>
+              <CardTitle>Build a request</CardTitle>
+            </CardHeader>
+            <CardBody className="flex flex-col gap-5">
               {/* Method + object + record id */}
-              <div className="st-pg-row">
-                <div className="st-pg-field st-pg-field--method">
-                  <label className="st-pg-field__label" htmlFor="pg-method">
-                    Method
-                  </label>
-                  <select
-                    id="pg-method"
-                    className="st-select"
-                    value={method}
-                    onChange={(e) => setMethod(e.target.value as Method)}
-                  >
-                    {METHODS.map((m) => (
-                      <option key={m.value} value={m.value}>
-                        {m.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Method">
+                  <Select value={method} onValueChange={(v) => setMethod(v as Method)}>
+                    <SelectTrigger aria-label="Method">
+                      <SelectValue placeholder="Pick a method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {METHODS.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-                <div className="st-pg-field">
-                  <label className="st-pg-field__label" htmlFor="pg-object">
-                    Object
-                  </label>
-                  <select
-                    id="pg-object"
-                    className="st-select"
+                <Field label="Object">
+                  <Select
                     value={object}
-                    onChange={(e) => setObject(e.target.value)}
+                    onValueChange={setObject}
                     disabled={objectsLoading || objects.length === 0}
                   >
-                    {objects.length === 0 ? (
-                      <option value="">
-                        {objectsLoading ? 'Loading…' : 'No objects'}
-                      </option>
-                    ) : (
-                      objects.map((o) => (
-                        <option key={o.slug} value={o.slug}>
+                    <SelectTrigger aria-label="Object">
+                      <SelectValue
+                        placeholder={objectsLoading ? 'Loading objects' : 'No objects'}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {objects.map((o) => (
+                        <SelectItem key={o.slug} value={o.slug}>
                           {o.labelPlural} ({o.slug})
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
 
                 {spec.needsRecordId ? (
-                  <div className="st-pg-field">
-                    <label className="st-pg-field__label" htmlFor="pg-record-id">
-                      Record id
-                    </label>
-                    <input
-                      id="pg-record-id"
-                      className="st-input"
+                  <Field label="Record id">
+                    <Input
                       value={recordId}
                       onChange={(e) => setRecordId(e.target.value)}
-                      placeholder="e.g. 9f3c…"
+                      placeholder="e.g. 9f3c..."
                       spellCheck={false}
                       autoComplete="off"
                     />
-                  </div>
+                  </Field>
                 ) : null}
               </div>
 
               {/* JSON body editor */}
               {spec.needsBody ? (
-                <div className="st-pg-field">
-                  <label className="st-pg-field__label" htmlFor="pg-body">
-                    Request body (JSON)
-                  </label>
-                  <textarea
-                    id="pg-body"
-                    className="st-textarea st-pg-code"
+                <Field
+                  label="Request body (JSON)"
+                  help={
+                    <>
+                      A JSON object of field values. A{' '}
+                      <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 py-0.5 text-[var(--st-text-secondary)]">
+                        {'{ "data": { ... } }'}
+                      </code>{' '}
+                      envelope is also accepted, mirroring the REST route.
+                    </>
+                  }
+                >
+                  <Textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
+                    rows={8}
                     spellCheck={false}
                     placeholder={'{\n  "name": "Acme Inc."\n}'}
+                    className="font-mono text-[13px]"
                   />
-                  <span className="st-pg-field__hint">
-                    A JSON object of field values. A <code>{'{ "data": { … } }'}</code>{' '}
-                    envelope is also accepted, mirroring the REST route.
-                  </span>
-                </div>
+                </Field>
               ) : null}
 
               {/* Endpoint hint */}
-              <div className="st-pg-field">
-                <span className="st-pg-field__label">Equivalent REST request</span>
-                <div className="st-pg-endpoint">
-                  <span className="st-pg-method-tag">{spec.verb}</span>
-                  <span>{endpoint}</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-[13px] font-medium text-[var(--st-text)]">
+                  Equivalent REST request
+                </span>
+                <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-[13px] text-[var(--st-text)]">
+                  <Badge tone="accent" kind="solid">
+                    {spec.verb}
+                  </Badge>
+                  <span className="truncate">{endpoint}</span>
                 </div>
-                <span className="st-pg-field__hint">
+                <span className="text-xs text-[var(--st-text-tertiary)]">
                   With an API key:{' '}
-                  <code>{`curl -H "Authorization: Bearer <key>" ${spec.verb !== 'GET' ? `-X ${spec.verb} ` : ''}${endpoint}`}</code>
+                  <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 py-0.5 text-[var(--st-text-secondary)]">
+                    {`curl -H "Authorization: Bearer <key>" ${spec.verb !== 'GET' ? `-X ${spec.verb} ` : ''}${endpoint}`}
+                  </code>
                 </span>
               </div>
 
               {/* Actions */}
-              <div className="st-pg-actions">
-                <TwentyButton
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
                   variant="primary"
-                  icon={Play}
+                  iconLeft={Play}
                   onClick={send}
+                  loading={running}
                   disabled={running || objectsLoading || !object}
                 >
-                  {running ? 'Sending…' : 'Send'}
-                </TwentyButton>
+                  {running ? 'Sending' : 'Send'}
+                </Button>
                 <CopyButton value={`${spec.verb} ${endpoint}`} label="Copy path" />
               </div>
-            </div>
+            </CardBody>
+          </Card>
 
-            {/* Response panel */}
-            <div className="st-pg-result">
-              <div className="st-pg-result__head">
-                <span className="st-pg-result__title">
-                  <ChevronRight size={14} aria-hidden="true" />
-                  Response
-                </span>
-                {result ? (
-                  <span
-                    className={`st-pg-status ${result.ok ? 'st-pg-status--ok' : 'st-pg-status--fail'}`}
-                  >
-                    {result.ok ? 'Success' : 'Error'}
-                  </span>
-                ) : null}
-              </div>
-              {running ? (
-                <div className="st-pg-placeholder">Running request…</div>
-              ) : result ? (
-                <pre className="st-pg-pre">{result.body}</pre>
-              ) : (
-                <div className="st-pg-placeholder">
-                  Send a request to see the JSON response here.
-                </div>
-              )}
+          {/* Response panel */}
+          <Card padding="none">
+            <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--st-text)]">
+                <ChevronRight size={14} aria-hidden="true" />
+                Response
+              </span>
+              {result ? (
+                <Badge tone={result.ok ? 'success' : 'danger'}>
+                  {result.ok ? 'Success' : 'Error'}
+                </Badge>
+              ) : null}
             </div>
-          </>
-        )}
-      </div>
+            {running ? (
+              <p className="px-4 py-8 text-center text-sm text-[var(--st-text-tertiary)]">
+                Running request...
+              </p>
+            ) : result ? (
+              <pre className="max-h-[28rem] overflow-auto px-4 py-3 font-mono text-[13px] leading-relaxed text-[var(--st-text)]">
+                {result.body}
+              </pre>
+            ) : (
+              <p className="px-4 py-8 text-center text-sm text-[var(--st-text-tertiary)]">
+                Send a request to see the JSON response here.
+              </p>
+            )}
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

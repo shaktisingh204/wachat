@@ -1,17 +1,17 @@
 'use client';
 
 /**
- * Loyalty programs — Deep list page.
+ * Loyalty programs - Deep list page.
  *
- *   • KPI strip  (total members · points outstanding · top-tier members · redemption rate)
- *   • Filters row (status select · date range · clear)
- *   • Bulk action bar (delete · set status · export selected)
- *   • Programs table (EntityRowLink on the name cell)
- *   • Pagination via <PaginationBar />
+ *   - KPI strip  (total members, points outstanding, top-tier members, redemption rate)
+ *   - Filters row (status select, date range, clear)
+ *   - Bulk action bar (delete, set status, export selected)
+ *   - Programs table (EntityRowLink on the name cell)
+ *   - Pagination via <PaginationBar />
  */
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { DateRange } from 'react-day-picker';
 import {
@@ -26,7 +26,32 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  type BadgeTone,
+  Button,
+  Card,
+  Checkbox,
+  DateRangePicker,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -41,6 +66,7 @@ import {
 } from '@/app/actions/crm-loyalty.actions';
 
 const PER_PAGE = 20;
+const NEW_PROGRAM_HREF = '/dashboard/sabthrive/loyalty/new';
 
 const EMPTY_KPIS: CrmLoyaltyKpis = {
   totalMembers: 0,
@@ -69,28 +95,27 @@ function getId(p: AnyLoyaltyProgram, idx: number): string {
     : (p._id as { toString(): string } | undefined)?.toString?.() ?? String(idx);
 }
 
-function getStatusVariant(
-  status?: string,
-): 'success' | 'warning' | 'danger' | 'ghost' {
+function getStatusTone(status?: string): BadgeTone {
   const s = (status || '').toLowerCase();
   if (s === 'active') return 'success';
-  if (s === 'draft' || s === 'pending') return 'ghost';
+  if (s === 'draft' || s === 'pending') return 'neutral';
   if (s === 'cancelled' || s === 'voided') return 'danger';
   return 'warning';
 }
 
 function formatPointsRate(value: number | undefined | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  if (typeof value !== 'number' || Number.isNaN(value)) return '-';
   return value.toLocaleString();
 }
 
 function formatExpiryRule(days: number | undefined | null): string {
-  if (typeof days !== 'number' || Number.isNaN(days)) return '—';
+  if (typeof days !== 'number' || Number.isNaN(days)) return '-';
   if (days <= 0) return 'Never expires';
   return `${days.toLocaleString()} days`;
 }
 
 export default function SalesLoyaltyPage(): React.JSX.Element {
+  const router = useRouter();
   const { toast } = useToast();
 
   const [rows, setRows] = React.useState<AnyLoyaltyProgram[]>([]);
@@ -180,16 +205,15 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
       if (selected.size === 0) return;
       const res = await bulkLoyaltyAction(Array.from(selected), op, payload);
       if (res.success) {
-        toast({
-          title: `${res.processed} program${res.processed === 1 ? '' : 's'} updated`,
-        });
+        toast.success(
+          `${res.processed} program${res.processed === 1 ? '' : 's'} updated`,
+        );
         setSelected(new Set());
         fetchData();
       } else {
-        toast({
+        toast.error({
           title: 'Bulk action failed',
           description: res.error,
-          variant: 'destructive',
         });
       }
     },
@@ -271,13 +295,15 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         search={{
           value: searchInput,
           onChange: handleSearchChange,
-          placeholder: 'Search by program name…',
+          placeholder: 'Search by program name...',
         }}
         primaryAction={
-          <Button asChild>
-            <Link href="/dashboard/sabthrive/loyalty/new">
-              <Plus className="h-4 w-4" /> New program
-            </Link>
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => router.push(NEW_PROGRAM_HREF)}
+          >
+            New program
           </Button>
         }
         filters={
@@ -290,7 +316,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                   setPage(1);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Filter by status">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -309,7 +335,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                   setDateRange(r);
                   setPage(1);
                 }}
-                placeholder="Created between…"
+                placeholder="Created between..."
               />
             </div>
             {hasActiveFilters ? (
@@ -319,16 +345,16 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4" /> Export
+                <Button variant="outline" size="sm" iconLeft={Download}>
+                  Export
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => exportFile('csv')}>
-                  <FileText className="h-4 w-4" /> CSV
+                  <FileText className="h-4 w-4" aria-hidden="true" /> CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => exportFile('xlsx')}>
-                  <FileSpreadsheet className="h-4 w-4" /> XLSX
+                  <FileSpreadsheet className="h-4 w-4" aria-hidden="true" /> XLSX
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -361,20 +387,20 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
               </DropdownMenu>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4" /> Export selected
+                  <Button variant="outline" size="sm" iconLeft={Download}>
+                    Export selected
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => exportFile('csv')}>
-                    <FileText className="h-4 w-4" /> CSV
+                    <FileText className="h-4 w-4" aria-hidden="true" /> CSV
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => exportFile('xlsx')}>
-                    <FileSpreadsheet className="h-4 w-4" /> XLSX
+                    <FileSpreadsheet className="h-4 w-4" aria-hidden="true" /> XLSX
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+              <Button variant="danger" size="sm" onClick={() => setDeleteOpen(true)}>
                 Delete
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
@@ -385,18 +411,20 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         }
         empty={
           !isPending && rows.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 p-4">
-              <Award className="h-8 w-8 text-[var(--st-text-secondary)]" />
-              <h3 className="text-base font-medium text-[var(--st-text)]">No loyalty programs yet</h3>
-              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
-                Launch your first program to reward repeat customers.
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/sabthrive/loyalty/new">
-                  <Plus className="h-4 w-4" /> New program
-                </Link>
-              </Button>
-            </div>
+            <EmptyState
+              icon={Award}
+              title="No loyalty programs yet"
+              description="Launch your first program to reward repeat customers."
+              action={
+                <Button
+                  variant="primary"
+                  iconLeft={Plus}
+                  onClick={() => router.push(NEW_PROGRAM_HREF)}
+                >
+                  New program
+                </Button>
+              }
+            />
           ) : null
         }
         loading={isPending && rows.length === 0}
@@ -417,33 +445,32 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
             <StatCard
               label="Total members"
               value={kpis.totalMembers.toLocaleString()}
-              icon={<Users />}
+              icon={Users}
             />
             <StatCard
               label="Points outstanding"
               value={kpis.pointsOutstanding.toLocaleString()}
-              icon={<Coins />}
+              icon={Coins}
             />
             <StatCard
               label="Top-tier members"
               value={kpis.topTierMembers.toLocaleString()}
-              icon={<Crown />}
+              icon={Crown}
             />
             <StatCard
               label="Redemption rate"
               value={`${kpis.redemptionRate.toLocaleString()}%`}
-              icon={<RefreshCcw />}
+              icon={RefreshCcw}
             />
           </div>
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-lg">
+            <div className="overflow-x-auto rounded-[var(--st-radius)]">
               <Table>
                 <THead>
                   <Tr className="border-[var(--st-border)] hover:bg-transparent">
                     <Th className="w-10">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
@@ -463,7 +490,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                         colSpan={6}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
-                        {isPending ? 'Loading…' : 'No loyalty programs match these filters.'}
+                        {isPending ? 'Loading...' : 'No loyalty programs match these filters.'}
                       </Td>
                     </Tr>
                   ) : (
@@ -474,8 +501,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                       return (
                         <Tr key={id} className="border-[var(--st-border)]">
                           <Td>
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               aria-label={`Select ${p.name ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
@@ -496,7 +522,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                             {formatExpiryRule(p.expiryDays)}
                           </Td>
                           <Td>
-                            <Badge variant={getStatusVariant(p.status)}>
+                            <Badge tone={getStatusTone(p.status)}>
                               {p.status || 'draft'}
                             </Badge>
                           </Td>

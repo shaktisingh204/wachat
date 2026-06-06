@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabCRM — Data Model admin (client interactivity).
+ * SabCRM - Data Model admin (client interactivity).
  *
  * The runtime metadata-engine console. Lets an admin:
  *   - browse every object the active project can see (standard + custom),
@@ -10,12 +10,12 @@
  *   - define a relation field between two objects (with reciprocal).
  *
  * All mutations go through the gated server actions in
- * `@/app/actions/sabcrm.actions` (session → project → RBAC → plan). The server
+ * `@/app/actions/sabcrm.actions` (session, project, RBAC, plan). The server
  * returns the resolved {@link ObjectMetadata}, which we hold in local state so
  * the UI reflects each change without a full reload; `router.refresh()` keeps
  * the rest of the app (object nav, record tables) consistent.
  *
- * Standard objects are immutable except for *adding* fields — the engine
+ * Standard objects are immutable except for *adding* fields. The engine
  * rejects edits to their identity and standard/system fields, and this UI
  * mirrors those guards so disabled controls never hit a server error.
  */
@@ -34,7 +34,36 @@ import {
   X,
 } from 'lucide-react';
 
-import { Button, Input, Textarea, Label, Switch, Badge, Separator, EmptyState, Card, CardHeader, CardTitle, CardDescription, CardBody, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, IconPicker, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Label,
+  Field,
+  Switch,
+  Badge,
+  Separator,
+  EmptyState,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  IconPicker,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   createCustomObjectAction,
   addFieldAction,
@@ -62,7 +91,7 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
   { value: 'CURRENCY', label: 'Currency' },
   { value: 'BOOLEAN', label: 'Boolean' },
   { value: 'DATE', label: 'Date' },
-  { value: 'DATE_TIME', label: 'Date & time' },
+  { value: 'DATE_TIME', label: 'Date and time' },
   { value: 'EMAIL', label: 'Email' },
   { value: 'PHONE', label: 'Phone' },
   { value: 'LINK', label: 'Link' },
@@ -191,10 +220,11 @@ export function DataModelClient({
           <Button
             type="button"
             size="sm"
+            variant="primary"
+            iconLeft={Plus}
             onClick={() => setCreateOpen(true)}
             className="shrink-0"
           >
-            <Plus className="mr-1.5 h-4 w-4" />
             New object
           </Button>
         </div>
@@ -202,7 +232,7 @@ export function DataModelClient({
         {customObjects.length === 0 ? (
           <EmptyState
             title="No custom objects yet"
-            description="Create an object to model data that the standard CRM objects don't cover."
+            description="Create an object to model data that the standard CRM objects do not cover."
           />
         ) : (
           <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 p-0">
@@ -258,9 +288,9 @@ export function DataModelClient({
           setCreateOpen(false);
           setOpenSlug(created.slug);
           router.refresh();
-          toast({
+          toast.success({
             title: 'Object created',
-            description: `“${created.labelPlural}” is ready.`,
+            description: `"${created.labelPlural}" is ready.`,
           });
         }}
       />
@@ -312,7 +342,9 @@ function ObjectSummaryCard({
               Standard
             </Badge>
           ) : (
-            <Badge className="shrink-0 text-[10px]">Custom</Badge>
+            <Badge tone="accent" className="shrink-0 text-[10px]">
+              Custom
+            </Badge>
           )}
         </div>
         <CardDescription className="font-mono text-[11px]">
@@ -406,16 +438,15 @@ function CreateObjectDialog({
         onCreated(res.data);
       } else {
         setError(res.error);
-        toast({
+        toast.error({
           title: 'Could not create object',
           description: res.error,
-          variant: 'destructive',
         });
       }
     } catch {
       const msg = 'Something went wrong creating the object.';
       setError(msg);
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      toast.error({ title: 'Error', description: msg });
     } finally {
       setSaving(false);
     }
@@ -428,39 +459,39 @@ function CreateObjectDialog({
           <DialogHeader>
             <DialogTitle>New custom object</DialogTitle>
             <DialogDescription>
-              A “Name” text field is added automatically as the record title.
+              A "Name" text field is added automatically as the record title.
               You can add more fields after creating the object.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-1.5">
-                <Label htmlFor="dm-singular">Singular label</Label>
+              <Field label="Singular label">
                 <Input
-                  id="dm-singular"
                   value={labelSingular}
                   onChange={(e) => setLabelSingular(e.target.value)}
                   placeholder="Ticket"
                   autoComplete="off"
                 />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="dm-plural">Plural label</Label>
+              </Field>
+              <Field label="Plural label">
                 <Input
-                  id="dm-plural"
                   value={labelPlural}
                   onChange={(e) => onPluralChange(e.target.value)}
                   placeholder="Tickets"
                   autoComplete="off"
                 />
-              </div>
+              </Field>
             </div>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="dm-slug">Slug</Label>
+            <Field
+              label="Slug"
+              help="Lowercase kebab-case. Used in URLs and storage; cannot be changed later."
+              error={
+                slugTaken ? 'An object with this slug already exists.' : undefined
+              }
+            >
               <Input
-                id="dm-slug"
                 value={slug}
                 onChange={(e) => {
                   setSlugTouched(true);
@@ -469,37 +500,25 @@ function CreateObjectDialog({
                 placeholder="support-tickets"
                 className="font-mono"
                 autoComplete="off"
-                aria-invalid={slugTaken}
               />
-              <p className="text-[11px] text-[var(--st-text-secondary)]">
-                Lowercase kebab-case. Used in URLs and storage; cannot be changed
-                later.
-              </p>
-              {slugTaken ? (
-                <p className="text-[11px] text-[var(--zoru-danger,#e5484d)]">
-                  An object with this slug already exists.
-                </p>
-              ) : null}
-            </div>
+            </Field>
 
             <div className="grid gap-1.5">
               <Label>Icon</Label>
               <IconPicker value={icon} onChange={setIcon} />
             </div>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="dm-desc">Description (optional)</Label>
+            <Field label="Description (optional)">
               <Textarea
-                id="dm-desc"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What does this object represent?"
                 rows={2}
               />
-            </div>
+            </Field>
 
             {error ? (
-              <p className="text-xs text-[var(--zoru-danger,#e5484d)]">{error}</p>
+              <p className="text-xs text-[var(--st-danger)]">{error}</p>
             ) : null}
           </div>
 
@@ -512,10 +531,12 @@ function CreateObjectDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!canSubmit}>
-              {saving ? (
-                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-              ) : null}
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              disabled={!canSubmit}
+            >
               Create object
             </Button>
           </DialogFooter>
@@ -621,7 +642,7 @@ function ManageObjectDialog({
     [standardKeySet],
   );
 
-  // Custom-field keys (in current order) — the exact set/order the engine's
+  // Custom-field keys (in current order). The exact set/order the engine's
   // `reorderFields` permutes. Standard fields always render first in code order.
   const customFieldKeys = object.fields
     .filter((f) => isCustomField(f))
@@ -633,12 +654,11 @@ function ManageObjectDialog({
       const res = await removeFieldAction(object.slug, fieldKey, projectId);
       if (res.ok) {
         onObjectChanged(res.data);
-        toast({ title: 'Field removed' });
+        toast.success({ title: 'Field removed' });
       } else {
-        toast({
+        toast.error({
           title: 'Could not remove field',
           description: res.error,
-          variant: 'destructive',
         });
       }
     } finally {
@@ -661,10 +681,9 @@ function ManageObjectDialog({
       if (res.ok) {
         onObjectChanged(res.data);
       } else {
-        toast({
+        toast.error({
           title: 'Could not reorder',
           description: res.error,
-          variant: 'destructive',
         });
       }
     } finally {
@@ -691,7 +710,7 @@ function ManageObjectDialog({
           </div>
           <DialogDescription>
             <span className="font-mono">{object.slug}</span>
-            {' · '}
+            {' . '}
             Manage the fields and relations for this object.
           </DialogDescription>
         </DialogHeader>
@@ -702,24 +721,25 @@ function ManageObjectDialog({
               <Button
                 type="button"
                 size="sm"
+                variant="primary"
+                iconLeft={Plus}
                 onClick={() => setMode({ kind: 'add' })}
               >
-                <Plus className="mr-1.5 h-4 w-4" />
                 Add field
               </Button>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
+                iconLeft={Link2}
                 onClick={() => setMode({ kind: 'relation' })}
                 disabled={allObjects.length < 1}
               >
-                <Link2 className="mr-1.5 h-4 w-4" />
                 Add relation
               </Button>
             </div>
 
-            <div className="mt-3 max-h-[55vh] overflow-y-auto rounded-md border border-[var(--st-border)]">
+            <div className="mt-3 max-h-[55vh] overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <ul className="list-none divide-y divide-[var(--st-border)] p-0">
                 {object.fields.map((field) => {
                   const isCustom = isCustomField(field);
@@ -746,16 +766,19 @@ function ManageObjectDialog({
                             </Badge>
                           ) : null}
                           {field.system ? (
-                            <Lock className="h-3 w-3 text-[var(--st-text-secondary)]" />
+                            <Lock
+                              className="h-3 w-3 text-[var(--st-text-secondary)]"
+                              aria-hidden="true"
+                            />
                           ) : null}
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           <span className="font-mono">{field.key}</span>
-                          <span aria-hidden>·</span>
+                          <span aria-hidden="true">.</span>
                           <span>{fieldTypeLabel(field.type)}</span>
                           {field.type === 'RELATION' && field.relation ? (
                             <>
-                              <span aria-hidden>→</span>
+                              <span aria-hidden="true">to</span>
                               <span className="font-mono">
                                 {field.relation.targetObject}
                               </span>
@@ -767,42 +790,39 @@ function ManageObjectDialog({
                       <div className="flex shrink-0 items-center gap-1">
                         {isCustom ? (
                           <>
-                            <Button
+                            <IconButton
                               type="button"
-                              size="icon"
+                              icon={ArrowUp}
+                              label={`Move ${field.label} up`}
                               variant="ghost"
-                              aria-label={`Move ${field.label} up`}
+                              size="sm"
                               disabled={customIdx <= 0 || busy}
                               onClick={() => handleReorder(field.key, -1)}
-                            >
-                              <ArrowUp className="h-4 w-4" />
-                            </Button>
-                            <Button
+                            />
+                            <IconButton
                               type="button"
-                              size="icon"
+                              icon={ArrowDown}
+                              label={`Move ${field.label} down`}
                               variant="ghost"
-                              aria-label={`Move ${field.label} down`}
+                              size="sm"
                               disabled={
                                 customIdx < 0 ||
                                 customIdx >= customFieldKeys.length - 1 ||
                                 busy
                               }
                               onClick={() => handleReorder(field.key, 1)}
-                            >
-                              <ArrowDown className="h-4 w-4" />
-                            </Button>
-                            <Button
+                            />
+                            <IconButton
                               type="button"
-                              size="icon"
+                              icon={Pencil}
+                              label={`Edit ${field.label}`}
                               variant="ghost"
-                              aria-label={`Edit ${field.label}`}
+                              size="sm"
                               disabled={busy}
                               onClick={() =>
                                 setMode({ kind: 'edit', fieldKey: field.key })
                               }
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            />
                             <Button
                               type="button"
                               size="icon"
@@ -812,9 +832,12 @@ function ManageObjectDialog({
                               onClick={() => handleRemove(field.key)}
                             >
                               {busy ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2
+                                  className="h-4 w-4 animate-spin"
+                                  aria-hidden="true"
+                                />
                               ) : (
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                               )}
                             </Button>
                           </>
@@ -841,7 +864,7 @@ function ManageObjectDialog({
             onSaved={(next) => {
               onObjectChanged(next);
               setMode({ kind: 'list' });
-              toast({ title: 'Field added' });
+              toast.success({ title: 'Field added' });
             }}
           />
         ) : null}
@@ -856,7 +879,7 @@ function ManageObjectDialog({
             onSaved={(next) => {
               onObjectChanged(next);
               setMode({ kind: 'list' });
-              toast({ title: 'Field updated' });
+              toast.success({ title: 'Field updated' });
             }}
           />
         ) : null}
@@ -870,7 +893,7 @@ function ManageObjectDialog({
             onSaved={(updated) => {
               onObjectsChanged(updated);
               setMode({ kind: 'list' });
-              toast({ title: 'Relation created' });
+              toast.success({ title: 'Relation created' });
             }}
           />
         ) : null}
@@ -980,10 +1003,9 @@ function FieldForm({
           onSaved(res.data);
         } else {
           setError(res.error);
-          toast({
+          toast.error({
             title: 'Could not update field',
             description: res.error,
-            variant: 'destructive',
           });
         }
       } else {
@@ -1003,17 +1025,16 @@ function FieldForm({
           onSaved(res.data);
         } else {
           setError(res.error);
-          toast({
+          toast.error({
             title: 'Could not add field',
             description: res.error,
-            variant: 'destructive',
           });
         }
       }
     } catch {
       const msg = 'Something went wrong saving the field.';
       setError(msg);
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      toast.error({ title: 'Error', description: msg });
     } finally {
       setSaving(false);
     }
@@ -1022,20 +1043,24 @@ function FieldForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <div className="grid gap-1.5">
-          <Label htmlFor="ff-label">Label</Label>
+        <Field label="Label">
           <Input
-            id="ff-label"
             value={draft.label}
             onChange={(e) => onLabelChange(e.target.value)}
             placeholder="Priority"
             autoComplete="off"
           />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ff-key">Key</Label>
+        </Field>
+        <Field
+          label="Key"
+          help={
+            editing ? 'The key is immutable once a field exists.' : undefined
+          }
+          error={
+            keyConflict ? 'A field with this key already exists.' : undefined
+          }
+        >
           <Input
-            id="ff-key"
             value={draft.key}
             onChange={(e) => {
               setKeyTouched(true);
@@ -1045,29 +1070,25 @@ function FieldForm({
             className="font-mono"
             autoComplete="off"
             disabled={editing}
-            aria-invalid={keyConflict}
           />
-          {editing ? (
-            <p className="text-[11px] text-[var(--st-text-secondary)]">
-              The key is immutable once a field exists.
-            </p>
-          ) : keyConflict ? (
-            <p className="text-[11px] text-[var(--zoru-danger,#e5484d)]">
-              A field with this key already exists.
-            </p>
-          ) : null}
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="grid gap-1.5">
-          <Label htmlFor="ff-type">Type</Label>
+        <Field
+          label="Type"
+          help={
+            editing
+              ? 'Type cannot change. Remove and re-add to switch types.'
+              : undefined
+          }
+        >
           <Select
             value={draft.type}
             onValueChange={(value) => set('type', value as FieldType)}
             disabled={editing}
           >
-            <SelectTrigger id="ff-type">
+            <SelectTrigger aria-label="Field type">
               <SelectValue placeholder="Choose a type" />
             </SelectTrigger>
             <SelectContent>
@@ -1078,12 +1099,7 @@ function FieldForm({
               ))}
             </SelectContent>
           </Select>
-          {editing ? (
-            <p className="text-[11px] text-[var(--st-text-secondary)]">
-              Type can&apos;t change. Remove and re-add to switch types.
-            </p>
-          ) : null}
-        </div>
+        </Field>
         <div className="grid gap-1.5">
           <Label>Icon (optional)</Label>
           <IconPicker
@@ -1093,22 +1109,25 @@ function FieldForm({
         </div>
       </div>
 
-      <div className="grid gap-1.5">
-        <Label htmlFor="ff-desc">Description (optional)</Label>
+      <Field label="Description (optional)">
         <Textarea
-          id="ff-desc"
           value={draft.description}
           onChange={(e) => set('description', e.target.value)}
           rows={2}
         />
-      </div>
+      </Field>
 
       {needsOptions ? (
-        <div className="grid gap-2 rounded-md border border-[var(--st-border)] p-3">
+        <div className="grid gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <div className="flex items-center justify-between">
             <Label>Options</Label>
-            <Button type="button" size="sm" variant="outline" onClick={addOption}>
-              <Plus className="mr-1 h-3.5 w-3.5" />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              iconLeft={Plus}
+              onClick={addOption}
+            >
               Add option
             </Button>
           </div>
@@ -1126,6 +1145,7 @@ function FieldForm({
                       updateOption(index, { label: e.target.value })
                     }
                     placeholder="Label"
+                    aria-label={`Option ${index + 1} label`}
                     className="flex-1"
                     autoComplete="off"
                   />
@@ -1135,18 +1155,18 @@ function FieldForm({
                       updateOption(index, { value: e.target.value })
                     }
                     placeholder="value"
+                    aria-label={`Option ${index + 1} value`}
                     className="flex-1 font-mono"
                     autoComplete="off"
                   />
-                  <Button
+                  <IconButton
                     type="button"
-                    size="icon"
+                    icon={X}
+                    label={`Remove option ${index + 1}`}
                     variant="ghost"
-                    aria-label="Remove option"
+                    size="sm"
                     onClick={() => removeOption(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  />
                 </li>
               ))}
             </ul>
@@ -1155,31 +1175,25 @@ function FieldForm({
       ) : null}
 
       <div className="grid grid-cols-3 gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <Switch
-            checked={draft.required}
-            onCheckedChange={(checked) => set('required', checked)}
-          />
-          Required
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <Switch
-            checked={draft.inTable}
-            onCheckedChange={(checked) => set('inTable', checked)}
-          />
-          In table
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <Switch
-            checked={draft.isLabel}
-            onCheckedChange={(checked) => set('isLabel', checked)}
-          />
-          Title field
-        </label>
+        <Switch
+          checked={draft.required}
+          onCheckedChange={(checked) => set('required', checked)}
+          label="Required"
+        />
+        <Switch
+          checked={draft.inTable}
+          onCheckedChange={(checked) => set('inTable', checked)}
+          label="In table"
+        />
+        <Switch
+          checked={draft.isLabel}
+          onCheckedChange={(checked) => set('isLabel', checked)}
+          label="Title field"
+        />
       </div>
 
       {error ? (
-        <p className="text-xs text-[var(--zoru-danger,#e5484d)]">{error}</p>
+        <p className="text-xs text-[var(--st-danger)]">{error}</p>
       ) : null}
 
       <DialogFooter>
@@ -1191,8 +1205,12 @@ function FieldForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={!canSubmit}>
-          {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+        <Button
+          type="submit"
+          variant="primary"
+          loading={saving}
+          disabled={!canSubmit}
+        >
           {editing ? 'Save changes' : 'Add field'}
         </Button>
       </DialogFooter>
@@ -1286,16 +1304,15 @@ function RelationForm({
         onSaved(updated);
       } else {
         setError(res.error);
-        toast({
+        toast.error({
           title: 'Could not create relation',
           description: res.error,
-          variant: 'destructive',
         });
       }
     } catch {
       const msg = 'Something went wrong creating the relation.';
       setError(msg);
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      toast.error({ title: 'Error', description: msg });
     } finally {
       setSaving(false);
     }
@@ -1310,10 +1327,9 @@ function RelationForm({
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="grid gap-1.5">
-          <Label htmlFor="rf-target">Target object</Label>
+        <Field label="Target object">
           <Select value={targetObject} onValueChange={onTargetChange}>
-            <SelectTrigger id="rf-target">
+            <SelectTrigger aria-label="Target object">
               <SelectValue placeholder="Choose object" />
             </SelectTrigger>
             <SelectContent>
@@ -1324,33 +1340,37 @@ function RelationForm({
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="rf-kind">Cardinality</Label>
+        </Field>
+        <Field label="Cardinality">
           <Select
             value={kind}
             onValueChange={(value) => onKindChange(value as FieldRelation['kind'])}
           >
-            <SelectTrigger id="rf-kind">
+            <SelectTrigger aria-label="Cardinality">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MANY_TO_ONE">
-                Many {object.labelPlural.toLowerCase()} → one
+                Many {object.labelPlural.toLowerCase()} to one
               </SelectItem>
               <SelectItem value="ONE_TO_MANY">
-                One {object.labelSingular.toLowerCase()} → many
+                One {object.labelSingular.toLowerCase()} to many
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="grid gap-1.5">
-          <Label htmlFor="rf-key">Field key</Label>
+        <Field
+          label="Field key"
+          error={
+            keyConflict
+              ? 'A field with this key already exists on this object.'
+              : undefined
+          }
+        >
           <Input
-            id="rf-key"
             value={fieldKey}
             onChange={(e) => {
               setKeyTouched(true);
@@ -1359,38 +1379,29 @@ function RelationForm({
             placeholder="company"
             className="font-mono"
             autoComplete="off"
-            aria-invalid={keyConflict}
           />
-          {keyConflict ? (
-            <p className="text-[11px] text-[var(--zoru-danger,#e5484d)]">
-              A field with this key already exists on this object.
-            </p>
-          ) : null}
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="rf-label">Field label</Label>
+        </Field>
+        <Field label="Field label">
           <Input
-            id="rf-label"
             value={forwardLabel}
             onChange={(e) => setForwardLabel(e.target.value)}
             placeholder={target?.labelSingular ?? 'Related'}
             autoComplete="off"
           />
-        </div>
+        </Field>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <Switch
-          checked={makeInverse}
-          onCheckedChange={setMakeInverse}
-          disabled={targetObject === object.slug}
-        />
-        Create a reciprocal field on{' '}
-        {target ? target.labelPlural : 'the target'}
-      </label>
+      <Switch
+        checked={makeInverse}
+        onCheckedChange={setMakeInverse}
+        disabled={targetObject === object.slug}
+        label={`Create a reciprocal field on ${
+          target ? target.labelPlural : 'the target'
+        }`}
+      />
 
       {error ? (
-        <p className="text-xs text-[var(--zoru-danger,#e5484d)]">{error}</p>
+        <p className="text-xs text-[var(--st-danger)]">{error}</p>
       ) : null}
 
       <DialogFooter>
@@ -1402,8 +1413,12 @@ function RelationForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={!canSubmit}>
-          {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+        <Button
+          type="submit"
+          variant="primary"
+          loading={saving}
+          disabled={!canSubmit}
+        >
           Create relation
         </Button>
       </DialogFooter>

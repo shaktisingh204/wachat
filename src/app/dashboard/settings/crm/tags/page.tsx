@@ -1,40 +1,61 @@
 'use client';
 
 /**
- * SabCRM — Tags settings (`/dashboard/settings/crm/tags`), Twenty-style.
+ * SabCRM - Tags settings (`/dashboard/settings/crm/tags`).
  *
- * A single surface that lists the workspace's tags as Twenty-style coloured
- * chips, each with a name and a record-count placeholder. From here a user can:
+ * A single surface that lists the workspace's tags as coloured chips, each with
+ * a name and a record-count. From here a user can:
  *
- *   - "New tag"      → name + colour from the fixed Twenty palette → createTagTw
- *   - edit a tag     → rename / recolour in place                  → updateTagTw
- *   - delete a tag   → confirm, then remove                        → deleteTagTw
+ *   - "New tag"      -> name + colour from the fixed palette -> createTagTw
+ *   - edit a tag     -> rename / recolour in place           -> updateTagTw
+ *   - delete a tag   -> confirm, then remove                 -> deleteTagTw
  *
  * Mutations go through the gated server actions in
  * `@/app/actions/sabcrm-tags.actions`, each of which independently re-runs the
- * session → project → RBAC → plan pipeline server-side, so the page fails
+ * session -> project -> RBAC -> plan pipeline server-side, so the page fails
  * closed. The CRM engine may be DOWN; every call returns an `ActionResult`, so
  * the page degrades to loading / empty / error states and never crashes.
  *
  * Auth / RBAC / project context are enforced by the parent `../../layout.tsx`;
- * the actions re-run the full gate. NO ZoruUI / Tailwind / clay here — Twenty
- * look only (the shared `.st-*` kit + the sibling `./tags.css`).
+ * the actions re-run the full gate. Pure 20ui design system throughout.
  */
 
 import * as React from 'react';
 import {
-  Tag,
+  Tag as TagIcon,
   Tags as TagsIcon,
   Plus,
-  AlertTriangle,
-  Loader2,
-  X,
   Check,
   Pencil,
   Trash2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Tag,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Field,
+  Input,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Modal,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listTagsTw,
@@ -42,9 +63,6 @@ import {
   updateTagTw,
   deleteTagTw,
 } from '@/app/actions/sabcrm-tags.actions';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import './tags.css';
 
 // ---------------------------------------------------------------------------
 // Tag wire shape
@@ -64,12 +82,11 @@ interface CrmTag {
 }
 
 // ---------------------------------------------------------------------------
-// Twenty tag-colour palette
+// Tag-colour palette
 //
-// `token` is what we persist (a `--zoru-*` name, to stay consistent with the
-// seeded schema) and `swatch` is the literal hex painted in the picker / chip —
-// this page renders under the `.sabcrm-twenty` scope where `--zoru-*` vars are
-// NOT in scope, so the swatch must be a concrete colour.
+// `token` is what we persist (a `--st-*` style name, to stay consistent with
+// the seeded schema) and `swatch` is the literal hex painted in the picker /
+// chip - the chip dot uses a runtime-computed user-picked colour.
 // ---------------------------------------------------------------------------
 
 interface PaletteColor {
@@ -79,16 +96,16 @@ interface PaletteColor {
 }
 
 const TAG_PALETTE: ReadonlyArray<PaletteColor> = [
-  { name: 'Green', token: '--zoru-green', swatch: '#3dab5a' },
-  { name: 'Turquoise', token: '--zoru-turquoise', swatch: '#21b8a6' },
-  { name: 'Sky', token: '--zoru-sky', swatch: '#5db4e3' },
-  { name: 'Blue', token: '--zoru-blue', swatch: '#3b7ae4' },
-  { name: 'Purple', token: '--zoru-purple', swatch: '#9b51e0' },
-  { name: 'Pink', token: '--zoru-pink', swatch: '#e052b0' },
-  { name: 'Red', token: '--zoru-red', swatch: '#e0484e' },
-  { name: 'Orange', token: '--zoru-orange', swatch: '#f0883e' },
-  { name: 'Yellow', token: '--zoru-yellow', swatch: '#e0c64a' },
-  { name: 'Gray', token: '--zoru-gray', swatch: '#8c8c8c' },
+  { name: 'Green', token: '--tag-green', swatch: '#3dab5a' },
+  { name: 'Turquoise', token: '--tag-turquoise', swatch: '#21b8a6' },
+  { name: 'Sky', token: '--tag-sky', swatch: '#5db4e3' },
+  { name: 'Blue', token: '--tag-blue', swatch: '#3b7ae4' },
+  { name: 'Purple', token: '--tag-purple', swatch: '#9b51e0' },
+  { name: 'Pink', token: '--tag-pink', swatch: '#e052b0' },
+  { name: 'Red', token: '--tag-red', swatch: '#e0484e' },
+  { name: 'Orange', token: '--tag-orange', swatch: '#f0883e' },
+  { name: 'Yellow', token: '--tag-yellow', swatch: '#e0c64a' },
+  { name: 'Gray', token: '--tag-gray', swatch: '#8c8c8c' },
 ];
 
 const DEFAULT_TAG_COLOR = TAG_PALETTE[0].token;
@@ -98,7 +115,7 @@ function swatchFor(color: string | undefined): string {
   if (!color) return TAG_PALETTE[0].swatch;
   const match = TAG_PALETTE.find((c) => c.token === color);
   if (match) return match.swatch;
-  // Already a hex / concrete colour → paint as-is, else fall back.
+  // Already a hex / concrete colour -> paint as-is, else fall back.
   return /^#|^rgb|^hsl/.test(color) ? color : TAG_PALETTE[0].swatch;
 }
 
@@ -109,44 +126,7 @@ function colorName(color: string | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
-// Shared bits
-// ---------------------------------------------------------------------------
-
-function ErrorBanner({ message }: { message: string }): React.JSX.Element {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={16} />
-      <span>{message}</span>
-    </div>
-  );
-}
-
-function RowsSkeleton({ count = 5 }: { count?: number }): React.JSX.Element {
-  return (
-    <div className="st-table-wrap p-[var(--st-space-3)]">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
-      ))}
-    </div>
-  );
-}
-
-/** A coloured tag chip — swatch dot + name. */
-function TagChip({ tag }: { tag: CrmTag }): React.JSX.Element {
-  return (
-    <span className="st-chip tg-chip">
-      <span
-        className="st-chip__dot"
-        style={{ background: swatchFor(tag.color) }}
-        aria-hidden="true"
-      />
-      <span className="st-chip__label">{tag.name}</span>
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Colour-swatch picker — Twenty style popover
+// Colour-swatch picker - 20ui Popover
 // ---------------------------------------------------------------------------
 
 function ColorPicker({
@@ -157,66 +137,66 @@ function ColorPicker({
   onChange: (token: string) => void;
 }): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
 
   return (
-    <div className="tg-color" ref={ref}>
-      <button
-        type="button"
-        className="tg-color__trigger"
-        aria-label={`Pick tag colour (current: ${colorName(value)})`}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          aria-label={`Pick tag colour (current: ${colorName(value)})`}
+        >
+          <span
+            className="inline-block h-3.5 w-3.5 rounded-full"
+            style={{ background: swatchFor(value) }}
+            aria-hidden="true"
+          />
+          <span>{colorName(value)}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="p-2"
+        role="listbox"
+        aria-label="Tag colours"
       >
-        <span
-          className="tg-swatch"
-          style={{ background: swatchFor(value) }}
-          aria-hidden="true"
-        />
-        <span className="tg-color__name">{colorName(value)}</span>
-      </button>
-      {open ? (
-        <div className="tg-color__pop" role="listbox" aria-label="Tag colours">
+        <div className="grid grid-cols-5 gap-1">
           {TAG_PALETTE.map((c) => (
-            <button
+            <Button
               key={c.token}
-              type="button"
+              variant="ghost"
+              size="sm"
               role="option"
               aria-selected={c.token === value}
-              className="tg-color__cell"
+              aria-label={c.name}
               title={c.name}
+              className="relative h-8 w-8 justify-center p-0"
               onClick={() => {
                 onChange(c.token);
                 setOpen(false);
               }}
             >
               <span
-                className="tg-swatch tg-swatch--lg"
+                className="inline-block h-5 w-5 rounded-full"
                 style={{ background: c.swatch }}
                 aria-hidden="true"
               />
               {c.token === value ? (
-                <Check className="tg-color__check" size={12} />
+                <Check
+                  size={12}
+                  className="absolute text-[var(--st-text-inverted)]"
+                  aria-hidden="true"
+                />
               ) : null}
-            </button>
+            </Button>
           ))}
         </div>
-      ) : null}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Tag dialog — create a new tag OR edit an existing one
+// Tag dialog - create a new tag OR edit an existing one
 // ---------------------------------------------------------------------------
 
 interface TagDialogProps {
@@ -255,11 +235,7 @@ function TagDialog({
       setError(null);
       try {
         const res = editing
-          ? await updateTagTw(
-              editing.id,
-              { name: trimmed, color },
-              projectId,
-            )
+          ? await updateTagTw(editing.id, { name: trimmed, color }, projectId)
           : await createTagTw({ name: trimmed, color }, projectId);
         if (res.ok) {
           onSaved(res.data as CrmTag);
@@ -276,93 +252,63 @@ function TagDialog({
   );
 
   return (
-    <div
-      className="st-dialog-overlay"
-      role="presentation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      size="sm"
+      title={editing ? 'Edit tag' : 'New tag'}
+      description={
+        editing
+          ? 'Rename or recolour this tag. Changes apply everywhere it is used.'
+          : 'Name the tag and pick a colour from the palette.'
+      }
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="tag-dialog-form"
+            variant="primary"
+            loading={saving}
+            disabled={!canSubmit}
+          >
+            {editing ? 'Save changes' : 'Create tag'}
+          </Button>
+        </>
+      }
     >
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={editing ? `Edit tag ${editing.name}` : 'New tag'}
-        style={{ maxWidth: 440 }}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">
-              {editing ? 'Edit tag' : 'New tag'}
-            </h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+      <form id="tag-dialog-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Field
+          label="Name"
+          required
+          error={nameTaken ? 'A tag with this name already exists.' : undefined}
+        >
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Lead"
+            autoComplete="off"
+            autoFocus
+          />
+        </Field>
 
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="tag-name">
-                Name<span className="st-field__req">*</span>
-              </label>
-              <input
-                id="tag-name"
-                className="st-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Lead"
-                autoComplete="off"
-                autoFocus
-                aria-invalid={nameTaken}
-              />
-              {nameTaken ? (
-                <span className="st-form-error">
-                  A tag with this name already exists.
-                </span>
-              ) : null}
-            </div>
+        <Field label="Colour">
+          <ColorPicker value={color} onChange={setColor} />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Colour</span>
-              <ColorPicker value={color} onChange={setColor} />
-            </div>
+        <Field label="Preview">
+          <Tag color={swatchFor(color)}>{trimmed || 'Tag name'}</Tag>
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Preview</span>
-              <TagChip
-                tag={{
-                  id: '__preview__',
-                  name: trimmed || 'Tag name',
-                  color,
-                  createdAt: '',
-                }}
-              />
-            </div>
-
-            {error ? <ErrorBanner message={error} /> : null}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </TwentyButton>
-            <button
-              type="submit"
-              className="st-btn st-btn--primary"
-              disabled={!canSubmit}
-            >
-              {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              {editing ? 'Save changes' : 'Create tag'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? (
+          <Alert tone="danger" title="Could not save">
+            {error}
+          </Alert>
+        ) : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -384,53 +330,31 @@ function DeleteTagDialog({
   onConfirm,
 }: DeleteTagDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="presentation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Delete tag"
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete tag</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Delete the tag{' '}
-            <TagChip tag={tag} />? It will be removed from every record it is
-            applied to. This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+    <Modal
+      open
+      onClose={onCancel}
+      size="sm"
+      title="Delete tag"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <button
-            type="button"
-            className="st-btn st-btn--secondary st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? <Loader2 size={14} className="st-spin" /> : null}
+          </Button>
+          <Button variant="danger" loading={busy} onClick={onConfirm}>
             Delete tag
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 flex flex-wrap items-center gap-1.5 text-[var(--st-text-secondary)]">
+        <span>Delete the tag</span>
+        <Tag color={swatchFor(tag.color)}>{tag.name}</Tag>
+        <span>
+          ? It will be removed from every record it is applied to. This cannot be
+          undone.
+        </span>
+      </p>
+    </Modal>
   );
 }
 
@@ -451,36 +375,34 @@ function TagRow({
 }): React.JSX.Element {
   const count = typeof tag.recordCount === 'number' ? tag.recordCount : 0;
   return (
-    <tr className="st-row">
-      <td>
-        <TagChip tag={tag} />
-      </td>
-      <td className="text-[var(--st-text-secondary)]">
+    <Tr>
+      <Td>
+        <Tag color={swatchFor(tag.color)}>{tag.name}</Tag>
+      </Td>
+      <Td className="text-[var(--st-text-secondary)]">
         {count} {count === 1 ? 'record' : 'records'}
-      </td>
-      <td className="tg-col-actions">
-        <button
-          type="button"
-          className="tg-iconbtn"
-          aria-label={`Edit tag ${tag.name}`}
-          title={`Edit ${tag.name}`}
-          disabled={busy}
-          onClick={() => onEdit(tag)}
-        >
-          <Pencil size={14} />
-        </button>
-        <button
-          type="button"
-          className="tg-iconbtn tg-iconbtn--danger"
-          aria-label={`Delete tag ${tag.name}`}
-          title={`Delete ${tag.name}`}
-          disabled={busy}
-          onClick={() => onDelete(tag)}
-        >
-          {busy ? <Loader2 size={14} className="st-spin" /> : <Trash2 size={14} />}
-        </button>
-      </td>
-    </tr>
+      </Td>
+      <Td align="right">
+        <div className="flex items-center justify-end gap-1">
+          <IconButton
+            label={`Edit tag ${tag.name}`}
+            icon={Pencil}
+            size="sm"
+            disabled={busy}
+            onClick={() => onEdit(tag)}
+          />
+          <IconButton
+            label={`Delete tag ${tag.name}`}
+            icon={Trash2}
+            size="sm"
+            variant="danger"
+            loading={busy}
+            disabled={busy}
+            onClick={() => onDelete(tag)}
+          />
+        </div>
+      </Td>
+    </Tr>
   );
 }
 
@@ -490,11 +412,11 @@ function TagRow({
 
 export default function SabcrmTagsSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [tags, setTags] = React.useState<CrmTag[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [mutationError, setMutationError] = React.useState<string | null>(null);
 
   // Dialog / row state
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -545,116 +467,119 @@ export default function SabcrmTagsSettingsPage(): React.JSX.Element {
 
   // ----- Mutations -----
 
-  const handleSaved = React.useCallback((tag: CrmTag) => {
-    setTags((prev) => {
-      const exists = prev.some((t) => t.id === tag.id);
-      return exists
-        ? prev.map((t) => (t.id === tag.id ? { ...t, ...tag } : t))
-        : [...prev, tag];
-    });
-    setDialogOpen(false);
-    setEditing(null);
-  }, []);
+  const handleSaved = React.useCallback(
+    (tag: CrmTag) => {
+      setTags((prev) => {
+        const exists = prev.some((t) => t.id === tag.id);
+        return exists
+          ? prev.map((t) => (t.id === tag.id ? { ...t, ...tag } : t))
+          : [...prev, tag];
+      });
+      setDialogOpen(false);
+      setEditing(null);
+      toast.success('Tag saved');
+    },
+    [toast],
+  );
 
   const confirmDelete = React.useCallback(async () => {
     if (!deleteTarget || !activeProjectId) return;
     setDeleting(true);
-    setMutationError(null);
     try {
       const res = await deleteTagTw(deleteTarget.id, activeProjectId);
       if (res.ok) {
         setTags((prev) => prev.filter((t) => t.id !== deleteTarget.id));
         setDeleteTarget(null);
+        toast.success('Tag deleted');
       } else {
-        setMutationError(res.error);
         setDeleteTarget(null);
+        toast.error(res.error);
       }
     } catch {
-      setMutationError('Failed to delete the tag. The service may be unavailable.');
       setDeleteTarget(null);
+      toast.error('Failed to delete the tag. The service may be unavailable.');
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId]);
+  }, [deleteTarget, activeProjectId, toast]);
 
   const openCreate = React.useCallback(() => {
     setEditing(null);
-    setMutationError(null);
     setDialogOpen(true);
   }, []);
 
   const openEdit = React.useCallback((tag: CrmTag) => {
     setEditing(tag);
-    setMutationError(null);
     setDialogOpen(true);
   }, []);
 
   // ----- Render -----
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Tags"
-          icon={TagsIcon}
-          actions={
-            activeProjectId ? (
-              <TwentyButton
+    <div className="ui20">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 p-[var(--st-space-6,1.5rem)]">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Tags</PageTitle>
+            <PageDescription>
+              Tags label and group records across SabCRM. Create a tag, pick a
+              colour from the palette, then apply it to any record. Renaming or
+              recolouring a tag updates it everywhere it&apos;s used.
+            </PageDescription>
+          </PageHeaderHeading>
+          {activeProjectId ? (
+            <PageActions>
+              <Button
                 variant="primary"
-                icon={Plus}
+                iconLeft={Plus}
                 onClick={openCreate}
                 disabled={loading || !!error}
               >
                 New tag
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Tags label and group records across SabCRM. Create a tag, pick a colour
-          from the palette, then apply it to any record. Renaming or recolouring a
-          tag updates it everywhere it&apos;s used.
-        </p>
-
-        {mutationError ? <ErrorBanner message={mutationError} /> : null}
+              </Button>
+            </PageActions>
+          ) : null}
+        </PageHeader>
 
         {isLoadingProject || loading ? (
-          <RowsSkeleton />
+          <div className="flex flex-col gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} height={40} radius={6} />
+            ))}
+          </div>
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">Select a project to manage its tags.</p>
-          </div>
+          <EmptyState
+            icon={TagsIcon}
+            title="No project selected"
+            description="Select a project to manage its tags."
+          />
         ) : error ? (
-          <ErrorBanner message={error} />
+          <Alert tone="danger" title="Could not load tags">
+            {error}
+          </Alert>
         ) : sortedTags.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <Tag size={20} />
-            </span>
-            <h2 className="st-empty__title">No tags yet</h2>
-            <p className="st-empty__desc">
-              Create your first tag to start labelling and grouping records.
-            </p>
-            <TwentyButton variant="primary" icon={Plus} onClick={openCreate}>
-              New tag
-            </TwentyButton>
-          </div>
+          <EmptyState
+            icon={TagIcon}
+            title="No tags yet"
+            description="Create your first tag to start labelling and grouping records."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                New tag
+              </Button>
+            }
+          />
         ) : (
           <>
-            <div className="st-table-wrap">
-              <table className="st-table">
-                <thead>
-                  <tr>
-                    <th>Tag</th>
-                    <th>Usage</th>
-                    <th className="tg-col-actions" aria-label="Actions" />
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Tag</Th>
+                    <Th>Usage</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {sortedTags.map((tag) => (
                     <TagRow
                       key={tag.id}
@@ -664,10 +589,10 @@ export default function SabcrmTagsSettingsPage(): React.JSX.Element {
                       onDelete={setDeleteTarget}
                     />
                   ))}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
-            <p className="st-footnote">
+            <p className="m-0 text-sm text-[var(--st-text-tertiary)]">
               {sortedTags.length} tag{sortedTags.length !== 1 ? 's' : ''}
             </p>
           </>

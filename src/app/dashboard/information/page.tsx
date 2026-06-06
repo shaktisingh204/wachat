@@ -1,28 +1,52 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Badge, Separator, Button, Input, Checkbox, useToast } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Skeleton,
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    Badge,
+    type BadgeTone,
+    Separator,
+    Button,
+    IconButton,
+    Input,
+    Field,
+    Checkbox,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
 import { AlertCircle, Banknote, Briefcase, Download, Plus, Search, Trash, Edit, Save, X, FileText } from 'lucide-react';
 
-import React, { useEffect, useState, useTransition, useMemo, useCallback, useRef, Suspense } from 'react';
+import React, { useEffect, useState, useTransition, useMemo, useRef, Suspense } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 import { fmtDate as formatDate } from '@/lib/utils';
 
-class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { hasError: boolean, error: any }> {
-    constructor(props: any) {
+class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { hasError: boolean; error: unknown }> {
+    constructor(props: { fallback: React.ReactNode; children: React.ReactNode }) {
         super(props);
         this.state = { hasError: false, error: null };
     }
-    static getDerivedStateFromError(error: any) {
+    static getDerivedStateFromError(error: unknown) {
         return { hasError: true, error };
     }
-    componentDidCatch(error: any, errorInfo: any) {
-        console.error("ErrorBoundary caught an error", error, errorInfo);
+    componentDidCatch(error: unknown, errorInfo: unknown) {
+        console.error('ErrorBoundary caught an error', error, errorInfo);
     }
     render() {
         if (this.state.hasError) {
@@ -34,7 +58,7 @@ class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; childre
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b py-3 gap-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-[var(--st-border)] py-3 gap-2">
             <dt className="text-[var(--st-text-secondary)]">{label}</dt>
             <dd className="font-semibold text-left sm:text-right">{value}</dd>
         </div>
@@ -78,7 +102,7 @@ function LoadingSkeleton() {
     );
 }
 
-// === Information Records Section (Enhancement: Virtualized, Suspense, Bulk Actions, Export) ===
+// === Information Records Section (virtualized, Suspense, bulk actions, export) ===
 
 type InfoRecord = { id: string; key: string; value: string; updatedAt: number };
 
@@ -89,7 +113,7 @@ function generateDummyRecords(): InfoRecord[] {
             id: `rec-${i}`,
             key: `Project Setting ${i}`,
             value: `Value associated with setting ${i}`,
-            updatedAt: Date.now() - Math.floor(Math.random() * 10000000)
+            updatedAt: Date.now() - Math.floor(Math.random() * 10000000),
         });
     }
     return records;
@@ -114,7 +138,7 @@ function fetchRecordsSuspense() {
 function InfoRecordForm({
     initialData,
     onSubmit,
-    onCancel
+    onCancel,
 }: {
     initialData?: { key: string; value: string };
     onSubmit: (data: { key: string; value: string }) => Promise<void>;
@@ -133,27 +157,29 @@ function InfoRecordForm({
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 w-full items-start sm:items-center">
-            <Input 
-                placeholder="Key" 
-                value={key} 
-                onChange={e => setKey(e.target.value)} 
-                required
-                className="w-full sm:w-1/3"
-            />
-            <Input 
-                placeholder="Value" 
-                value={value} 
-                onChange={e => setValue(e.target.value)} 
-                required
-                className="w-full sm:w-1/2"
-            />
+            <Field className="w-full sm:w-1/3">
+                <Input
+                    placeholder="Key"
+                    aria-label="Record key"
+                    value={key}
+                    onChange={e => setKey(e.target.value)}
+                    required
+                />
+            </Field>
+            <Field className="w-full sm:w-1/2">
+                <Input
+                    placeholder="Value"
+                    aria-label="Record value"
+                    value={value}
+                    onChange={e => setValue(e.target.value)}
+                    required
+                />
+            </Field>
             <div className="flex gap-2 w-full sm:w-auto">
-                <Button type="submit" disabled={isPending} size="sm">
-                    {isPending ? 'Saving...' : <Save className="w-4 h-4" />}
+                <Button type="submit" variant="primary" size="sm" loading={isPending} iconLeft={Save} aria-label="Save record">
+                    {isPending ? 'Saving' : null}
                 </Button>
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} size="sm">
-                    <X className="w-4 h-4" />
-                </Button>
+                <IconButton type="button" variant="outline" size="sm" icon={X} label="Cancel" onClick={onCancel} disabled={isPending} />
             </div>
         </form>
     );
@@ -179,7 +205,7 @@ function InformationRecordsSection() {
                 newRecords[randomIndex] = {
                     ...record,
                     value: record.value.includes('(Updated via WebSocket)') ? record.value.replace(' (Updated via WebSocket)', '') : record.value + ' (Updated via WebSocket)',
-                    updatedAt: Date.now()
+                    updatedAt: Date.now(),
                 };
                 return newRecords;
             });
@@ -194,8 +220,8 @@ function InformationRecordsSection() {
 
     const filteredRecords = useMemo(() => {
         const lowerSearch = search.toLowerCase();
-        return records.filter(r => 
-            r.key.toLowerCase().includes(lowerSearch) || 
+        return records.filter(r =>
+            r.key.toLowerCase().includes(lowerSearch) ||
             r.value.toLowerCase().includes(lowerSearch)
         );
     }, [records, search]);
@@ -211,7 +237,7 @@ function InformationRecordsSection() {
 
     const handleBulkDelete = () => {
         if (selectedIds.size === 0) return;
-        
+
         // Optimistic UI update
         const idsToDelete = new Set(selectedIds);
         setRecords(prev => prev.filter(r => !idsToDelete.has(r.id)));
@@ -226,7 +252,7 @@ function InformationRecordsSection() {
                     id: `rec-new-${Date.now()}`,
                     key: data.key,
                     value: data.value,
-                    updatedAt: Date.now()
+                    updatedAt: Date.now(),
                 };
                 setRecords(prev => [newRecord, ...prev]);
                 setIsAdding(false);
@@ -265,8 +291,8 @@ function InformationRecordsSection() {
     };
 
     const exportCSV = () => {
-        const header = "Key,Value,Last Updated\n";
-        const csv = filteredRecords.map(r => `"${r.key.replace(/"/g, '""')}","${r.value.replace(/"/g, '""')}","${formatDate(r.updatedAt)}"`).join("\n");
+        const header = 'Key,Value,Last Updated\n';
+        const csv = filteredRecords.map(r => `"${r.key.replace(/"/g, '""')}","${r.value.replace(/"/g, '""')}","${formatDate(r.updatedAt)}"`).join('\n');
         const blob = new Blob([header + csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -282,38 +308,38 @@ function InformationRecordsSection() {
             head: [['Key', 'Value', 'Last Updated']],
             body: filteredRecords.map(r => [r.key, r.value, formatDate(r.updatedAt)]),
         });
-        doc.save("information_export.pdf");
+        doc.save('information_export.pdf');
     };
 
     return (
-        <Card className="flex flex-col h-[600px]">
-            <CardHeader className="shrink-0 border-b pb-4">
+        <Card padding="none" className="flex flex-col h-[600px]">
+            <CardHeader className="shrink-0 border-b border-[var(--st-border)] p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <CardTitle>Additional Information</CardTitle>
                         <CardDescription>Manage key-value metadata for this project. Showing {filteredRecords.length} records.</CardDescription>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" size="sm" onClick={exportCSV} title="Export CSV"><Download className="w-4 h-4 mr-1" /> CSV</Button>
-                        <Button variant="outline" size="sm" onClick={exportPDF} title="Export PDF"><FileText className="w-4 h-4 mr-1" /> PDF</Button>
-                        <Button size="sm" onClick={() => setIsAdding(true)}><Plus className="w-4 h-4 mr-1" /> Add New</Button>
+                        <Button variant="outline" size="sm" onClick={exportCSV} iconLeft={Download}>CSV</Button>
+                        <Button variant="outline" size="sm" onClick={exportPDF} iconLeft={FileText}>PDF</Button>
+                        <Button variant="primary" size="sm" onClick={() => setIsAdding(true)} iconLeft={Plus}>Add New</Button>
                     </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center justify-between">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-                        <Input 
-                            placeholder="Filter records..." 
+                    <Field className="w-full sm:w-64">
+                        <Input
+                            placeholder="Filter records..."
+                            aria-label="Filter records"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8"
+                            iconLeft={Search}
                         />
-                    </div>
+                    </Field>
                     {selectedIds.size > 0 && (
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
-                            <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-                                <Trash className="w-4 h-4 mr-1" /> Delete Selected
+                            <Button variant="danger" size="sm" onClick={handleBulkDelete} iconLeft={Trash}>
+                                Delete Selected
                             </Button>
                         </div>
                     )}
@@ -321,12 +347,12 @@ function InformationRecordsSection() {
             </CardHeader>
             <CardBody className="flex-1 overflow-hidden p-0 relative">
                 {/* Header row */}
-                <div className="flex items-center border-b bg-[var(--st-bg-muted)]/50 p-3 sticky top-0 z-10 text-sm font-medium">
+                <div className="flex items-center border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3 sticky top-0 z-10 text-sm font-medium">
                     <div className="w-[50px] flex justify-center">
-                        <Checkbox 
-                            checked={filteredRecords.length > 0 && selectedIds.size === filteredRecords.length} 
-                            onCheckedChange={toggleSelectAll} 
-                            aria-label="Select all"
+                        <Checkbox
+                            checked={filteredRecords.length > 0 && selectedIds.size === filteredRecords.length}
+                            onChange={toggleSelectAll}
+                            aria-label="Select all records"
                         />
                     </div>
                     <div className="flex-1">Key</div>
@@ -334,23 +360,20 @@ function InformationRecordsSection() {
                     <div className="w-[150px] hidden sm:block">Last Updated</div>
                     <div className="w-[100px] text-right">Actions</div>
                 </div>
-                
+
                 {isAdding && (
-                    <div className="p-3 border-b bg-[var(--st-bg-muted)]/20">
-                        <InfoRecordForm 
-                            onSubmit={handleAdd} 
-                            onCancel={() => setIsAdding(false)} 
+                    <div className="p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/20">
+                        <InfoRecordForm
+                            onSubmit={handleAdd}
+                            onCancel={() => setIsAdding(false)}
                         />
                     </div>
                 )}
 
-                <div ref={parentRef} className="h-full overflow-auto p-2" style={{ height: 'calc(100% - 45px)' }}>
+                <div ref={parentRef} className="overflow-auto p-2 h-[calc(100%-45px)]">
                     <div
-                        style={{
-                            height: `${rowVirtualizer.getTotalSize()}px`,
-                            width: '100%',
-                            position: 'relative',
-                        }}
+                        className="relative w-full"
+                        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
                     >
                         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                             const record = filteredRecords[virtualRow.index];
@@ -360,23 +383,23 @@ function InformationRecordsSection() {
                             return (
                                 <div
                                     key={record.id}
-                                    className="absolute top-0 left-0 w-full flex items-center border-b p-2 group hover:bg-[var(--st-bg-muted)]/30 transition-colors"
+                                    className="absolute top-0 left-0 w-full flex items-center border-b border-[var(--st-border)] p-2 group hover:bg-[var(--st-bg-muted)]/30 transition-colors"
                                     style={{
                                         height: `${virtualRow.size}px`,
                                         transform: `translateY(${virtualRow.start}px)`,
                                     }}
                                 >
                                     <div className="w-[50px] flex justify-center shrink-0">
-                                        <Checkbox 
-                                            checked={isSelected} 
-                                            onCheckedChange={() => toggleSelect(record.id)} 
+                                        <Checkbox
+                                            checked={isSelected}
+                                            onChange={() => toggleSelect(record.id)}
                                             aria-label={`Select ${record.key}`}
                                         />
                                     </div>
-                                    
+
                                     {isEditing ? (
                                         <div className="flex-1 px-2">
-                                            <InfoRecordForm 
+                                            <InfoRecordForm
                                                 initialData={record}
                                                 onSubmit={(data) => handleEdit(record.id, data)}
                                                 onCancel={() => setEditingId(null)}
@@ -390,9 +413,7 @@ function InformationRecordsSection() {
                                                 {formatDate(record.updatedAt)}
                                             </div>
                                             <div className="w-[100px] flex justify-end gap-1 px-2 shrink-0">
-                                                <Button variant="ghost" size="icon" onClick={() => setEditingId(record.id)}>
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
+                                                <IconButton variant="ghost" size="sm" icon={Edit} label={`Edit ${record.key}`} onClick={() => setEditingId(record.id)} />
                                             </div>
                                         </>
                                     )}
@@ -418,14 +439,14 @@ export default function ProjectInformationPage() {
 
     useEffect(() => {
         if (isClient) {
-            document.title = "Project Information | Wachat";
+            document.title = 'Project Information | Wachat';
             const storedProjectId = localStorage.getItem('activeProjectId');
             if (storedProjectId) {
                 getProjectById(storedProjectId).then(data => {
                     setProject(data);
-                }).catch(err => {
+                }).catch(() => {
                     toast({
-                        variant: 'destructive',
+                        tone: 'danger',
                         title: 'Error Fetching Project',
                         description: 'Failed to load project details.',
                     });
@@ -438,12 +459,12 @@ export default function ProjectInformationPage() {
         }
     }, [isClient, toast]);
 
-    const getReviewStatusVariant = (status?: string) => {
-        if (!status) return 'outline';
+    const getReviewStatusTone = (status?: string): BadgeTone => {
+        if (!status) return 'neutral';
         const lowerStatus = status.toLowerCase();
-        if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'default';
-        if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'secondary';
-        return 'destructive';
+        if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'success';
+        if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'neutral';
+        return 'danger';
     };
 
     if (!isClient || loading) {
@@ -453,12 +474,13 @@ export default function ProjectInformationPage() {
     if (!project) {
         return (
             <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Project Information</h1>
-                    <p className="text-[var(--st-text-secondary)]">General and technical details about your project.</p>
-                </div>
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                <PageHeader>
+                    <PageHeaderHeading>
+                        <PageTitle>Project Information</PageTitle>
+                        <PageDescription>General and technical details about your project.</PageDescription>
+                    </PageHeaderHeading>
+                </PageHeader>
+                <Alert tone="danger" icon={AlertCircle}>
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>
                         Please select a project from the main dashboard page to see its information.
@@ -473,16 +495,18 @@ export default function ProjectInformationPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Project Information</h1>
-                <p className="text-[var(--st-text-secondary)]">General and technical details for "{project.name}".</p>
-            </div>
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Project Information</PageTitle>
+                    <PageDescription>General and technical details for &quot;{project.name}&quot;.</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Briefcase className="h-5 w-5" />
+                            <Briefcase className="h-5 w-5" aria-hidden="true" />
                             General Details
                         </CardTitle>
                     </CardHeader>
@@ -491,9 +515,9 @@ export default function ProjectInformationPage() {
                             <InfoRow label="Project Name" value={project.name} />
                             <InfoRow label="WABA ID" value={<span className="font-mono text-sm break-all">{project.wabaId}</span>} />
                             <InfoRow label="Project ID" value={<span className="font-mono text-sm break-all">{project._id.toString()}</span>} />
-                            <InfoRow label="Created At" value={formatDate(project.createdAt as any)} />
+                            <InfoRow label="Created At" value={formatDate(project.createdAt as never)} />
                             <InfoRow label="Account Review" value={
-                                <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
+                                <Badge tone={getReviewStatusTone(project.reviewStatus)} className="capitalize">
                                     {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
                                 </Badge>
                             } />
@@ -513,7 +537,7 @@ export default function ProjectInformationPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Banknote className="h-5 w-5" />
+                            <Banknote className="h-5 w-5" aria-hidden="true" />
                             Payment Configuration
                         </CardTitle>
                         <CardDescription>Details for payment integrations received via webhook.</CardDescription>
@@ -524,28 +548,29 @@ export default function ProjectInformationPage() {
                                 <InfoRow label="Provider Name" value={<span className="capitalize">{paymentConfig.provider_name}</span>} />
                                 <InfoRow label="Configuration Name" value={paymentConfig.configuration_name} />
                                 <InfoRow label="Provider MID" value={<span className="font-mono text-sm break-all">{paymentConfig.provider_mid}</span>} />
-                                <InfoRow label="Status" value={<Badge variant={paymentConfig.status === 'Needs_Testing' ? 'secondary' : 'default'}>{paymentConfig.status}</Badge>} />
+                                <InfoRow label="Status" value={<Badge tone={paymentConfig.status === 'Needs_Testing' ? 'neutral' : 'success'}>{paymentConfig.status}</Badge>} />
                                 <InfoRow label="Last Updated" value={formatDate(paymentConfig.updated_timestamp * 1000)} />
                             </dl>
                         ) : (
-                            <div className="text-center text-[var(--st-text-secondary)] py-8">
-                                <p>No payment configuration data received for this project yet.</p>
-                            </div>
+                            <EmptyState
+                                icon={Banknote}
+                                title="No payment configuration"
+                                description="No payment configuration data received for this project yet."
+                            />
                         )}
                     </CardBody>
                 </Card>
             </div>
 
             <ErrorBoundary fallback={
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                <Alert tone="danger" icon={AlertCircle}>
                     <AlertTitle>Error Loading Information</AlertTitle>
                     <AlertDescription>There was a problem loading the project metadata records.</AlertDescription>
                 </Alert>
             }>
                 <Suspense fallback={
-                    <Card className="p-8 flex justify-center items-center h-[600px]">
-                        <div className="flex flex-col items-center gap-4">
+                    <Card className="flex justify-center items-center h-[600px]">
+                        <div className="flex flex-col items-center gap-4 w-full">
                             <Skeleton className="h-8 w-64" />
                             <Skeleton className="h-64 w-full mt-4" />
                         </div>

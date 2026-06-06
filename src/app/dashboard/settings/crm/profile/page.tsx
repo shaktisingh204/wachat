@@ -1,33 +1,49 @@
 'use client';
 
 /**
- * SabCRM — Profile settings (`/dashboard/settings/crm/profile`), Twenty-style.
+ * SabCRM - Profile settings (`/dashboard/settings/crm/profile`).
  *
  * Shows the current user's identity (avatar + name + email) and an editable
  * form for the display name. Edits persist to BOTH the gated CRM settings
- * document on the backend (via `useSettingsSync('profile', …)` → the
+ * document on the backend (via `useSettingsSync('profile', ...)` -> the
  * `getCrmSettingsTw` / `updateCrmSettingsTw` server actions) AND the local
  * `useCrmPrefs` cache, so a saved name follows the user across devices yet the
  * page never blocks: when the Rust settings engine is down it degrades to the
  * device-local cache and reports an "offline" status inline.
  *
- * Source-of-truth order on load: server slice (if present) → local cache →
+ * Source-of-truth order on load: server slice (if present), local cache,
  * session user. The form seeds from whichever resolves first and never clobbers
  * an in-progress edit.
+ *
+ * UI: pure 20ui design system.
  */
 
 import * as React from 'react';
 import { UserRound } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyAvatar, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Button,
+  Avatar,
+  Alert,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { useCrmPrefs } from '../use-crm-prefs';
 import { useSettingsSync, type SyncOutcome } from '../use-settings-sync';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './profile.css';
 
 /** The profile slice persisted under the `'profile'` settings key. */
 interface ProfileSlice {
@@ -88,6 +104,7 @@ export default function SabcrmProfileSettingsPage(): React.JSX.Element {
         outcome === 'saved'
           ? 'Your display name has been updated for your workspace.'
           : 'The settings service is unavailable, so your name was saved on this device only.',
+      variant: outcome === 'saved' ? 'success' : 'default',
     });
   }, [name, email, setPrefs, sync, toast]);
 
@@ -99,100 +116,91 @@ export default function SabcrmProfileSettingsPage(): React.JSX.Element {
   const canSave = dirty && name.trim().length > 0 && !saving;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Profile" icon={UserRound} />
-        <p className="st-settings__intro">
-          Your personal display details within SabCRM. Saved to your workspace so
-          they follow you across devices.
-          {sync.phase === 'offline' ? (
-            <span className="st-form-status st-form-status--err" style={{ display: 'block', marginTop: 4 }}>
-              The settings service is offline — changes are kept on this device
-              for now.
-            </span>
-          ) : null}
-        </p>
+    <div className="ui20">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageTitle>Profile</PageTitle>
+            <PageDescription>
+              Your personal display details within SabCRM. Saved to your
+              workspace so they follow you across devices.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
-        <div className="st-profile-identity">
-          <TwentyAvatar
+        {sync.phase === 'offline' ? (
+          <Alert tone="warning" title="Settings service offline">
+            Changes are kept on this device for now.
+          </Alert>
+        ) : null}
+
+        <div className="flex items-center gap-4">
+          <Avatar
             name={effectiveName || 'You'}
             src={sessionUser?.image ?? undefined}
             size="lg"
           />
-          <div className="st-profile-identity__text">
-            <span className="st-profile-identity__name">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-base font-semibold text-[var(--st-text)]">
               {effectiveName || 'Your name'}
             </span>
             {email ? (
-              <span className="st-profile-identity__email">{email}</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">
+                {email}
+              </span>
             ) : null}
           </div>
         </div>
 
-        <div className="st-section">
-          <div className="st-section__head">
-            <h2 className="st-section__title">Name</h2>
-            <p className="st-section__hint">The name shown across SabCRM.</p>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Name</CardTitle>
+            <CardDescription>The name shown across SabCRM.</CardDescription>
+          </CardHeader>
 
           <form
-            className="st-form"
             onSubmit={(e) => {
               e.preventDefault();
               if (canSave) handleSave();
             }}
           >
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="crm-profile-name">
-                Display name
-              </label>
-              <input
-                id="crm-profile-name"
-                className="st-input"
-                type="text"
-                value={name}
-                placeholder={sessionName || 'Enter your name'}
-                autoComplete="name"
-                onChange={(e) => {
-                  setName(e.target.value);
-                  setDirty(true);
-                }}
-              />
-            </div>
+            <CardBody className="flex flex-col gap-4">
+              <Field label="Display name">
+                <Input
+                  type="text"
+                  value={name}
+                  placeholder={sessionName || 'Enter your name'}
+                  autoComplete="name"
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setDirty(true);
+                  }}
+                />
+              </Field>
 
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="crm-profile-email">
-                Email
-              </label>
-              <input
-                id="crm-profile-email"
-                className="st-input"
-                type="email"
-                value={email}
-                readOnly
-                disabled
-              />
-              <span className="st-field__help">
-                Email is managed by your SabNode account and cannot be changed
-                here.
-              </span>
-            </div>
+              <Field
+                label="Email"
+                help="Email is managed by your SabNode account and cannot be changed here."
+              >
+                <Input type="email" value={email} readOnly disabled />
+              </Field>
+            </CardBody>
 
-            <div className="st-form-actions">
-              <TwentyButton variant="primary" type="submit" disabled={!canSave}>
-                {saving ? 'Saving…' : 'Save'}
-              </TwentyButton>
-              <TwentyButton
+            <CardFooter className="flex items-center gap-2">
+              <Button variant="primary" type="submit" disabled={!canSave} loading={saving}>
+                {saving ? 'Saving' : 'Save'}
+              </Button>
+              <Button
                 variant="ghost"
                 type="button"
                 onClick={handleReset}
                 disabled={!dirty}
               >
                 Cancel
-              </TwentyButton>
-            </div>
+              </Button>
+            </CardFooter>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );

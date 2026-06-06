@@ -1,25 +1,24 @@
 'use client';
 
 /**
- * SabCRM — Webhooks settings (`/dashboard/settings/crm/webhooks`), Twenty-style.
+ * SabCRM - Webhooks settings (`/dashboard/settings/crm/webhooks`).
  *
- * Mirrors Twenty CRM's "Settings → Developers → Webhooks" surface on the
- * SabNode stack. Lists the active project's outbound webhook subscriptions
- * (url, events, status) and supports create / edit / delete / rotate-secret
- * through the admin-gated server actions. Each action independently re-runs the
- * session → project → RBAC (`sabcrm:admin`) → plan pipeline, so the page fails
- * closed even when the layout guard passes.
+ * Lists the active project's outbound webhook subscriptions (url, events,
+ * status) and supports create / edit / delete / rotate-secret through the
+ * admin-gated server actions. Each action independently re-runs the
+ * session -> project -> RBAC (`sabcrm:admin`) -> plan pipeline, so the page
+ * fails closed even when the layout guard passes.
  *
  * Project scope comes from `useProject()`. States: skeleton while project /
  * data load, "no project" notice, empty list, error banner, and graceful
- * degradation when the backend is unreachable.
+ * degradation when the backend is unreachable. Built entirely on the 20ui
+ * design system.
  */
 
 import * as React from 'react';
 import {
   Webhook as WebhookIcon,
   Plus,
-  X,
   Copy,
   Check,
   AlertTriangle,
@@ -36,7 +35,29 @@ import {
   CheckSquare,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  Button,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Modal,
+  Field,
+  Input,
+  Checkbox,
+  Badge,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listWebhooksAction,
@@ -50,11 +71,6 @@ import type {
   CreateWebhookInput,
   UpdateWebhookPatch,
 } from '@/app/actions/sabcrm.actions.types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './webhooks-log.css';
-import './webhook-events.css';
 
 // ---------------------------------------------------------------------------
 // Event catalogue
@@ -102,14 +118,14 @@ const EVENT_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------------------
-// Fine-grained event-type matrix (object × action)
+// Fine-grained event-type matrix (object x action)
 //
 // The backend's `events` field is a flat `SabcrmWebhookEvent[]` constrained to
 // a *closed* 4-value vocabulary (`record.created|updated|deleted`,
-// `activity.created`) — see `@/lib/sabcrm/webhook-events`. SabCRM's record
+// `activity.created`) - see `@/lib/sabcrm/webhook-events`. SabCRM's record
 // events are object-agnostic: one `record.created` fires for every standard
-// object. So we present a familiar Twenty-style per-object × action checklist
-// for fine-grained selection, then map each selected cell onto the actual
+// object. So we present a familiar per-object x action checklist for
+// fine-grained selection, then map each selected cell onto the actual
 // delivered event the action accepts (deduplicated). This keeps the UI
 // granular while emitting exactly what `normaliseEvents` will validate.
 // ---------------------------------------------------------------------------
@@ -151,7 +167,7 @@ function cellId(objectKey: string, action: EventAction): CellId {
 }
 
 /**
- * Whether a given object × action cell exists. Notes / Tasks are
+ * Whether a given object x action cell exists. Notes / Tasks are
  * activity-style objects with no first-class "updated" feed event, so those
  * cells are rendered as not-applicable.
  */
@@ -229,11 +245,18 @@ function CopyValue({ value }: { value: string }): React.JSX.Element {
     }
   }, [value]);
   return (
-    <div className="st-secret__value">
-      <code className="st-secret__code">{value}</code>
-      <TwentyButton variant="secondary" icon={copied ? Check : Copy} onClick={copy}>
+    <div className="flex items-center gap-2">
+      <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 font-mono text-[13px] text-[var(--st-text)]">
+        {value}
+      </code>
+      <Button
+        variant="secondary"
+        size="sm"
+        iconLeft={copied ? Check : Copy}
+        onClick={copy}
+      >
         {copied ? 'Copied' : 'Copy'}
-      </TwentyButton>
+      </Button>
     </div>
   );
 }
@@ -245,13 +268,13 @@ function CopyValue({ value }: { value: string }): React.JSX.Element {
 interface WebhookFormState {
   url: string;
   description: string;
-  /** Fine-grained object × action cell selection. */
+  /** Fine-grained object x action cell selection. */
   cells: Set<CellId>;
   active: boolean;
 }
 
 // ---------------------------------------------------------------------------
-// Grouped (object × action) event-type selector
+// Grouped (object x action) event-type selector
 // ---------------------------------------------------------------------------
 
 interface EventMatrixProps {
@@ -295,79 +318,64 @@ function EventMatrix({ cells, onChange }: EventMatrixProps): React.JSX.Element {
   const selectedEvents = React.useMemo(() => cellsToEvents(cells), [cells]);
 
   return (
-    <div
-      className="st-whev"
-      style={
-        { '--st-whev-cols': EVENT_ACTIONS.length } as React.CSSProperties
-      }
-    >
-      <div className="st-whev__toolbar">
-        <label className="st-whev__all">
-          <input
-            type="checkbox"
-            className="st-whev__cb"
-            checked={allSelected}
-            onChange={toggleAll}
-          />
-          All events
-        </label>
-        <span className="st-whev__count">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-3 py-2.5">
+        <Checkbox
+          checked={allSelected}
+          onChange={toggleAll}
+          label="All events"
+        />
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {cells.size === 0
             ? 'No events selected'
-            : `${cells.size} selected · ${selectedEvents.length} delivered event${
+            : `${cells.size} selected, ${selectedEvents.length} delivered event${
                 selectedEvents.length === 1 ? '' : 's'
               }`}
         </span>
       </div>
 
-      <div className="st-whev__grid">
-        <span
-          className="st-whev__colhead st-whev__colhead--spacer"
-          aria-hidden="true"
-        />
+      <div className="grid grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] items-center gap-x-3 gap-y-1.5 px-3 py-2.5">
+        <span aria-hidden="true" />
         {EVENT_ACTIONS.map((a) => (
-          <span key={a.key} className="st-whev__colhead">
+          <span
+            key={a.key}
+            className="text-center text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]"
+          >
             {a.label}
           </span>
         ))}
 
         {STANDARD_OBJECTS.map((obj) => {
           const Icon = obj.icon;
+          const objChecked = EVENT_ACTIONS.filter((a) =>
+            cellApplies(obj, a.key),
+          ).every((a) => cells.has(cellId(obj.key, a.key)));
           return (
             <React.Fragment key={obj.key}>
-              <label
-                className="st-whev__rowlabel"
+              <Checkbox
+                checked={objChecked}
+                onChange={() => toggleObject(obj)}
                 title={`Select all ${obj.label} events`}
-              >
-                <input
-                  type="checkbox"
-                  className="st-whev__cb"
-                  checked={EVENT_ACTIONS.filter((a) =>
-                    cellApplies(obj, a.key),
-                  ).every((a) => cells.has(cellId(obj.key, a.key)))}
-                  onChange={() => toggleObject(obj)}
-                />
-                <span className="st-whev__rowlabel-icon" aria-hidden="true">
-                  <Icon size={14} />
-                </span>
-                {obj.label}
-              </label>
+                label={
+                  <span className="inline-flex items-center gap-1.5 text-[var(--st-text)]">
+                    <span
+                      className="text-[var(--st-text-secondary)]"
+                      aria-hidden="true"
+                    >
+                      <Icon size={14} />
+                    </span>
+                    {obj.label}
+                  </span>
+                }
+              />
               {EVENT_ACTIONS.map((a) => {
                 if (!cellApplies(obj, a.key)) {
-                  return (
-                    <span
-                      key={a.key}
-                      className="st-whev__cell st-whev__cell--na"
-                      aria-hidden="true"
-                    />
-                  );
+                  return <span key={a.key} aria-hidden="true" />;
                 }
                 const id = cellId(obj.key, a.key);
                 return (
-                  <span key={a.key} className="st-whev__cell">
-                    <input
-                      type="checkbox"
-                      className="st-whev__cb"
+                  <span key={a.key} className="flex justify-center">
+                    <Checkbox
                       aria-label={`${obj.label} ${a.label}`}
                       checked={cells.has(id)}
                       onChange={() => toggleCell(id)}
@@ -380,19 +388,19 @@ function EventMatrix({ cells, onChange }: EventMatrixProps): React.JSX.Element {
         })}
       </div>
 
-      <p className="st-whev__hint">
-        {selectedEvents.length === 0 ? (
-          'Pick the object events to forward. SabCRM delivers object-agnostic events, so selections map to: '
-        ) : (
-          'Delivered events: '
-        )}
+      <p className="border-t border-[var(--st-border)] px-3 py-2.5 text-xs leading-relaxed text-[var(--st-text-secondary)]">
+        {selectedEvents.length === 0
+          ? 'Pick the object events to forward. SabCRM delivers object-agnostic events, so selections map to: '
+          : 'Delivered events: '}
         {(selectedEvents.length === 0
           ? EVENT_META.map((e) => e.value)
           : selectedEvents
         ).map((v, i) => (
           <React.Fragment key={v}>
             {i > 0 ? ' ' : ''}
-            <code>{v}</code>
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[var(--st-text)]">
+              {v}
+            </code>
           </React.Fragment>
         ))}
       </p>
@@ -413,6 +421,7 @@ function WebhookDialog({
   onClose,
   onSaved,
 }: WebhookDialogProps): React.JSX.Element {
+  const { toast } = useToast();
   const [form, setForm] = React.useState<WebhookFormState>(() => ({
     url: existing?.url ?? '',
     description: existing?.description ?? '',
@@ -456,6 +465,7 @@ function WebhookDialog({
           const res = await updateWebhookAction(existing._id, patch, projectId);
           if (res.ok) {
             onSaved(res.data);
+            toast.success('Webhook updated.');
             onClose();
           } else {
             setError(res.error);
@@ -473,6 +483,7 @@ function WebhookDialog({
             if (res.data.secret) {
               setCreatedSecret(res.data.secret);
             } else {
+              toast.success('Webhook created.');
               onClose();
             }
           } else {
@@ -485,132 +496,99 @@ function WebhookDialog({
         setSubmitting(false);
       }
     },
-    [form, existing, submitting, projectId, onSaved, onClose],
+    [form, existing, submitting, projectId, onSaved, onClose, toast],
   );
 
-  return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={existing ? 'Edit webhook' : 'Create webhook'}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !createdSecret) onClose();
-      }}
-    >
-      <div className="st-dialog" style={{ maxWidth: 520 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            {createdSecret
-              ? 'Webhook created'
-              : existing
-                ? 'Edit webhook'
-                : 'New webhook'}
-          </h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
+  if (createdSecret) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Webhook created"
+        size="md"
+        footer={
+          <Button variant="primary" onClick={onClose}>
+            Done
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium text-[var(--st-text)]">
+            Signing secret
+          </span>
+          <CopyValue value={createdSecret} />
+          <span className="text-xs text-[var(--st-text-secondary)]">
+            Use this secret to verify the signature on incoming deliveries. It
+            is shown only once, so copy it now.
+          </span>
         </div>
+      </Modal>
+    );
+  }
 
-        {createdSecret ? (
-          <>
-            <div className="st-dialog__body">
-              <div className="st-secret">
-                <span className="st-secret__label">Signing secret</span>
-                <CopyValue value={createdSecret} />
-                <span className="st-secret__hint">
-                  Use this secret to verify the signature on incoming
-                  deliveries. It is shown only once — copy it now.
-                </span>
-              </div>
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="primary" onClick={onClose}>
-                Done
-              </TwentyButton>
-            </div>
-          </>
-        ) : (
-          <form onSubmit={submit}>
-            <div className="st-dialog__body">
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="wh-url">
-                  Destination URL
-                  <span className="st-field__req" aria-hidden="true">
-                    *
-                  </span>
-                </label>
-                <input
-                  id="wh-url"
-                  className="st-input"
-                  type="url"
-                  value={form.url}
-                  onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-                  placeholder="https://example.com/webhooks/sabcrm"
-                  autoFocus
-                />
-              </div>
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={existing ? 'Edit webhook' : 'New webhook'}
+      size="md"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="webhook-form"
+            variant="primary"
+            loading={submitting}
+          >
+            {existing ? 'Save changes' : 'Create webhook'}
+          </Button>
+        </>
+      }
+    >
+      <form id="webhook-form" onSubmit={submit} className="flex flex-col gap-4">
+        <Field label="Destination URL" required>
+          <Input
+            type="url"
+            value={form.url}
+            onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+            placeholder="https://example.com/webhooks/sabcrm"
+            autoFocus
+          />
+        </Field>
 
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="wh-desc">
-                  Description
-                </label>
-                <input
-                  id="wh-desc"
-                  className="st-input"
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, description: e.target.value }))
-                  }
-                  placeholder="Optional label"
-                  maxLength={120}
-                />
-              </div>
+        <Field label="Description">
+          <Input
+            value={form.description}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, description: e.target.value }))
+            }
+            placeholder="Optional label"
+            maxLength={120}
+          />
+        </Field>
 
-              <div className="st-field">
-                <span className="st-field__label">
-                  Events
-                  <span className="st-field__req" aria-hidden="true">
-                    *
-                  </span>
-                </span>
-                <EventMatrix cells={form.cells} onChange={setCells} />
-              </div>
+        <Field label="Events" required>
+          <EventMatrix cells={form.cells} onChange={setCells} />
+        </Field>
 
-              <label className="st-checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={form.active}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, active: e.target.checked }))
-                  }
-                />
-                Active — deliver events to this endpoint
-              </label>
+        <Checkbox
+          checked={form.active}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, active: e.target.checked }))
+          }
+          label="Active - deliver events to this endpoint"
+        />
 
-              {error ? <p className="st-form-error">{error}</p> : null}
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
-                Cancel
-              </TwentyButton>
-              <TwentyButton type="submit" variant="primary" disabled={submitting}>
-                {submitting
-                  ? 'Saving…'
-                  : existing
-                    ? 'Save changes'
-                    : 'Create webhook'}
-              </TwentyButton>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        {error ? (
+          <Alert tone="danger" icon={AlertTriangle}>
+            {error}
+          </Alert>
+        ) : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -632,49 +610,28 @@ function DeleteDialog({
   onConfirm,
 }: DeleteDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete webhook"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete webhook</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Delete the subscription to{' '}
-            <strong className="text-[var(--st-text)]">{sub.url}</strong>? Events
-            will no longer be delivered. This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+    <Modal
+      open
+      onClose={onCancel}
+      title="Delete webhook"
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Deleting…' : 'Delete webhook'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button variant="danger" onClick={onConfirm} loading={busy}>
+            Delete webhook
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 text-[var(--st-text-secondary)]">
+        Delete the subscription to{' '}
+        <strong className="text-[var(--st-text)]">{sub.url}</strong>? Events
+        will no longer be delivered. This cannot be undone.
+      </p>
+    </Modal>
   );
 }
 
@@ -690,62 +647,42 @@ function RotatedSecretDialog({
   onClose: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="New signing secret"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      title="New signing secret"
+      size="sm"
+      footer={
+        <Button variant="primary" onClick={onClose}>
+          Done
+        </Button>
+      }
     >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">New signing secret</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <div className="st-secret">
-            <span className="st-secret__label">Signing secret</span>
-            <CopyValue value={secret} />
-            <span className="st-secret__hint">
-              The previous secret is now invalid. Update your endpoint with this
-              value — it is shown only once.
-            </span>
-          </div>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="primary" onClick={onClose}>
-            Done
-          </TwentyButton>
-        </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-[var(--st-text)]">
+          Signing secret
+        </span>
+        <CopyValue value={secret} />
+        <span className="text-xs text-[var(--st-text-secondary)]">
+          The previous secret is now invalid. Update your endpoint with this
+          value, it is shown only once.
+        </span>
       </div>
-    </div>
+    </Modal>
   );
 }
 
 // ---------------------------------------------------------------------------
 // Recent deliveries dialog
 //
-// The backend does not (yet) expose a per-delivery log array — there is no
-// `deliveries` / `recentDeliveries` / `logs` field on `WebhookSubscription`, and
-// no "send test" / "ping" server action in `sabcrm.actions`. What it *does*
+// The backend does not (yet) expose a per-delivery log array - there is no
+// `deliveries` / `recentDeliveries` / `logs` field on `WebhookSubscription`,
+// and no "send test" / "ping" server action in `sabcrm.actions`. What it *does*
 // carry is a single last-delivery summary (`lastDeliveryAt`, `lastStatus`,
 // `lastError`, `failureCount`). We render that summary as one delivery entry
 // when present, and otherwise show a tidy "No deliveries yet" empty state.
 //
-// Because no test-delivery action exists, this view stays honestly read-only:
-// we do NOT render a "Send test" button that fakes a queued delivery — that
-// would imply a side-effect that never happens. Instead we surface a short,
-// clearly-labelled notice that test delivery isn't available yet. If a real
-// `testWebhookAction` / `pingWebhookAction` lands later, wire the button here.
+// Because no test-delivery action exists, this view stays honestly read-only.
 // ---------------------------------------------------------------------------
 
 /** Formats an ISO timestamp into a short, locale-aware label; falls back to the raw value. */
@@ -781,116 +718,106 @@ function DeliveriesDialog({
   const success = isSuccessStatus(sub.lastStatus);
 
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Recent deliveries"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      title="Recent deliveries"
+      size="lg"
+      footer={
+        <Button variant="primary" onClick={onClose}>
+          Done
+        </Button>
+      }
     >
-      <div className="st-dialog" style={{ maxWidth: 540 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Recent deliveries</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="st-dialog__body">
-          <div className="st-whlog__target">
-            <span className="st-whlog__target-url">{sub.url}</span>
-            {sub.description ? (
-              <span className="st-whlog__target-desc">{sub.description}</span>
-            ) : null}
-          </div>
-
-          <div className="st-whlog__heading">
-            <span>Deliveries</span>
-            {hasDelivery ? (
-              <span className="st-whlog__count">last attempt</span>
-            ) : null}
-          </div>
-
-          {hasDelivery ? (
-            <ul className="st-whlog__list">
-              <li className="st-whlog__item">
-                <span
-                  className={`st-chip ${success ? 'st-chip--ok' : 'st-chip--err'}`}
-                  title={success ? 'Succeeded' : 'Failed'}
-                >
-                  <span className="st-chip__dot" aria-hidden="true" />
-                  <span className="st-chip__label">
-                    {success ? 'Success' : 'Failed'}
-                  </span>
-                </span>
-                <div className="st-whlog__item-main">
-                  <span className="st-whlog__item-event">
-                    {sub.events.map((e) => EVENT_LABEL[e] ?? e).join(', ')}
-                  </span>
-                  <span className="st-whlog__item-meta">
-                    {typeof sub.lastStatus === 'number' ? (
-                      <code>HTTP {sub.lastStatus}</code>
-                    ) : (
-                      <code>no response</code>
-                    )}
-                    <span aria-hidden="true">·</span>
-                    <span>{formatDeliveryTime(sub.lastDeliveryAt as string)}</span>
-                    {sub.failureCount > 0 ? (
-                      <>
-                        <span aria-hidden="true">·</span>
-                        <span>
-                          {sub.failureCount} consecutive failure
-                          {sub.failureCount === 1 ? '' : 's'}
-                        </span>
-                      </>
-                    ) : null}
-                  </span>
-                  {!success && sub.lastError ? (
-                    <span className="st-whlog__item-error">{sub.lastError}</span>
-                  ) : null}
-                </div>
-              </li>
-            </ul>
-          ) : (
-            <div className="st-whlog__empty">
-              <span className="st-whlog__empty-icon">
-                <Inbox size={18} />
-              </span>
-              <span className="st-whlog__empty-title">No deliveries yet</span>
-              <span className="st-whlog__empty-desc">
-                Once an event matching this subscription fires, the most recent
-                delivery attempt and its response will appear here.
-              </span>
-            </div>
-          )}
-
-          <div className="st-whlog__note" role="note">
-            <Info className="st-whlog__note-icon" size={14} aria-hidden="true" />
-            <span>
-              SabCRM records the most recent delivery attempt per subscription.
-              <span className="st-whlog__note-stub">
-                Sending a manual test delivery isn&rsquo;t available yet — this
-                view updates automatically the next time a subscribed event
-                fires.
-              </span>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-mono text-sm text-[var(--st-text)]">
+            {sub.url}
+          </span>
+          {sub.description ? (
+            <span className="text-xs text-[var(--st-text-secondary)]">
+              {sub.description}
             </span>
-          </div>
+          ) : null}
         </div>
 
-        <div className="st-dialog__footer st-whlog__footer">
-          <TwentyButton variant="primary" onClick={onClose}>
-            Done
-          </TwentyButton>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-[var(--st-text)]">
+            Deliveries
+          </span>
+          {hasDelivery ? (
+            <span className="text-xs text-[var(--st-text-tertiary)]">
+              last attempt
+            </span>
+          ) : null}
+        </div>
+
+        {hasDelivery ? (
+          <ul className="m-0 flex list-none flex-col gap-3 p-0">
+            <li className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+              <Badge tone={success ? 'success' : 'danger'} dot>
+                {success ? 'Success' : 'Failed'}
+              </Badge>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="text-sm text-[var(--st-text)]">
+                  {sub.events.map((e) => EVENT_LABEL[e] ?? e).join(', ')}
+                </span>
+                <span className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  {typeof sub.lastStatus === 'number' ? (
+                    <code className="font-mono">HTTP {sub.lastStatus}</code>
+                  ) : (
+                    <code className="font-mono">no response</code>
+                  )}
+                  <span aria-hidden="true">-</span>
+                  <span>
+                    {formatDeliveryTime(sub.lastDeliveryAt as string)}
+                  </span>
+                  {sub.failureCount > 0 ? (
+                    <>
+                      <span aria-hidden="true">-</span>
+                      <span>
+                        {sub.failureCount} consecutive failure
+                        {sub.failureCount === 1 ? '' : 's'}
+                      </span>
+                    </>
+                  ) : null}
+                </span>
+                {!success && sub.lastError ? (
+                  <span className="text-xs text-[var(--st-danger)]">
+                    {sub.lastError}
+                  </span>
+                ) : null}
+              </div>
+            </li>
+          </ul>
+        ) : (
+          <EmptyState
+            icon={Inbox}
+            size="sm"
+            title="No deliveries yet"
+            description="Once an event matching this subscription fires, the most recent delivery attempt and its response will appear here."
+          />
+        )}
+
+        <div
+          className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-xs text-[var(--st-text-secondary)]"
+          role="note"
+        >
+          <Info
+            className="mt-0.5 shrink-0 text-[var(--st-text-tertiary)]"
+            size={14}
+            aria-hidden="true"
+          />
+          <span>
+            SabCRM records the most recent delivery attempt per subscription.{' '}
+            <span className="block text-[var(--st-text-tertiary)]">
+              Sending a manual test delivery is not available yet. This view
+              updates automatically the next time a subscribed event fires.
+            </span>
+          </span>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -900,9 +827,9 @@ function DeliveriesDialog({
 
 function WebhooksSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap p-[var(--st-space-3)]">
+    <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={44} radius={8} />
       ))}
     </div>
   );
@@ -914,6 +841,7 @@ function WebhooksSkeleton(): React.JSX.Element {
 
 export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [hooks, setHooks] = React.useState<WebhookSubscription[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -974,6 +902,7 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
       if (res.ok) {
         setHooks((prev) => prev.filter((h) => h._id !== deleteTarget._id));
         setDeleteTarget(null);
+        toast.success('Webhook deleted.');
       } else {
         setError(res.error);
         setDeleteTarget(null);
@@ -984,7 +913,7 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId]);
+  }, [deleteTarget, activeProjectId, toast]);
 
   const rotate = React.useCallback(
     async (sub: WebhookSubscription) => {
@@ -1019,139 +948,142 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Webhooks"
-          icon={WebhookIcon}
-          actions={
-            activeProjectId ? (
-              <TwentyButton variant="primary" icon={Plus} onClick={openCreate}>
+    <div className="ui20">
+      <div className="mx-auto flex max-w-5xl flex-col gap-5 p-6">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Webhooks</PageTitle>
+            <PageDescription>
+              Send a POST request to a destination URL whenever a record is
+              created, updated, or deleted. Managing webhooks requires the{' '}
+              <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[var(--st-text)]">
+                sabcrm:admin
+              </code>{' '}
+              capability.
+            </PageDescription>
+          </PageHeaderHeading>
+          {activeProjectId ? (
+            <PageActions>
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
                 New webhook
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Send a POST request to a destination URL whenever a record is created,
-          updated, or deleted. Managing webhooks requires the{' '}
-          <code>sabcrm:admin</code> capability.
-        </p>
+              </Button>
+            </PageActions>
+          ) : null}
+        </PageHeader>
 
         {error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
+          <Alert
+            tone="danger"
+            icon={AlertTriangle}
+            onClose={() => setError(null)}
+          >
+            {error}
+          </Alert>
         ) : null}
 
         {isLoadingProject || loading ? (
           <WebhooksSkeleton />
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to manage its webhook subscriptions.
-            </p>
-          </div>
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to manage its webhook subscriptions."
+          />
         ) : hooks.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <WebhookIcon size={20} />
-            </span>
-            <h2 className="st-empty__title">No webhooks yet</h2>
-            <p className="st-empty__desc">
-              Create a subscription to forward CRM events to an external
-              endpoint.
-            </p>
-            <TwentyButton variant="secondary" icon={Plus} onClick={openCreate}>
-              New webhook
-            </TwentyButton>
-          </div>
+          <EmptyState
+            icon={WebhookIcon}
+            title="No webhooks yet"
+            description="Create a subscription to forward CRM events to an external endpoint."
+            action={
+              <Button variant="secondary" iconLeft={Plus} onClick={openCreate}>
+                New webhook
+              </Button>
+            }
+          />
         ) : (
-          <div className="st-table-wrap">
-            <table className="st-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Events</th>
-                  <th>Status</th>
-                  <th aria-label="Actions" />
-                </tr>
-              </thead>
-              <tbody>
+          <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Endpoint</Th>
+                  <Th>Events</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {hooks.map((sub) => (
-                  <tr key={sub._id} className="st-row">
-                    <td>
-                      <span className="st-mono">{sub.url}</span>
+                  <Tr key={sub._id}>
+                    <Td>
+                      <span className="font-mono text-[var(--st-text)]">
+                        {sub.url}
+                      </span>
                       {sub.description ? (
-                        <div className="st-identity__sub">{sub.description}</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">
+                          {sub.description}
+                        </div>
                       ) : null}
-                    </td>
-                    <td>
-                      <div className="st-chip-row">
+                    </Td>
+                    <Td>
+                      <div className="flex flex-wrap gap-1.5">
                         {sub.events.map((e) => (
-                          <span key={e} className="st-chip">
-                            <span className="st-chip__label">
-                              {EVENT_LABEL[e] ?? e}
-                            </span>
-                          </span>
+                          <Badge key={e} tone="neutral">
+                            {EVENT_LABEL[e] ?? e}
+                          </Badge>
                         ))}
                       </div>
-                    </td>
-                    <td>
-                      <span
-                        className={`st-chip ${sub.active ? 'st-chip--ok' : 'st-chip--off'}`}
-                      >
-                        <span className="st-chip__dot" aria-hidden="true" />
-                        <span className="st-chip__label">
-                          {sub.active ? 'Active' : 'Disabled'}
-                        </span>
-                      </span>
-                    </td>
-                    <td className="st-cell-actions">
-                      <TwentyButton
-                        variant="ghost"
-                        icon={Activity}
-                        onClick={() => setDeliveriesTarget(sub)}
-                        title="View recent deliveries"
-                      >
-                        Deliveries
-                      </TwentyButton>
-                      <TwentyButton
-                        variant="ghost"
-                        icon={RefreshCw}
-                        onClick={() => rotate(sub)}
-                        disabled={rotatingId === sub._id}
-                        title="Rotate signing secret"
-                      >
-                        {rotatingId === sub._id ? 'Rotating…' : 'Rotate'}
-                      </TwentyButton>
-                      <TwentyButton
-                        variant="ghost"
-                        icon={Pencil}
-                        onClick={() => openEdit(sub)}
-                        title="Edit webhook"
-                      >
-                        Edit
-                      </TwentyButton>
-                      <TwentyButton
-                        variant="ghost"
-                        icon={Trash2}
-                        className="st-btn--danger"
-                        onClick={() => setDeleteTarget(sub)}
-                        title="Delete webhook"
-                      >
-                        Delete
-                      </TwentyButton>
-                    </td>
-                  </tr>
+                    </Td>
+                    <Td>
+                      <Badge tone={sub.active ? 'success' : 'neutral'} dot>
+                        {sub.active ? 'Active' : 'Disabled'}
+                      </Badge>
+                    </Td>
+                    <Td align="right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Activity}
+                          onClick={() => setDeliveriesTarget(sub)}
+                          title="View recent deliveries"
+                        >
+                          Deliveries
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={RefreshCw}
+                          onClick={() => rotate(sub)}
+                          loading={rotatingId === sub._id}
+                          title="Rotate signing secret"
+                        >
+                          Rotate
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Pencil}
+                          onClick={() => openEdit(sub)}
+                          title="Edit webhook"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          iconLeft={Trash2}
+                          onClick={() => setDeleteTarget(sub)}
+                          title="Delete webhook"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </div>
         )}
       </div>

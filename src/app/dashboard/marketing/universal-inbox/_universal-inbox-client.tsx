@@ -9,7 +9,6 @@ import {
   MoreVertical,
   BarChart,
   Activity,
-  Users,
   Megaphone,
   Target,
   Link as LinkIcon,
@@ -57,6 +56,11 @@ export function UniversalInboxClient({
     }
   };
 
+  const handleSelectMessage = (msg: any) => {
+    setSelectedMessage(msg);
+    if (!msg.isRead) handleMarkAsRead(msg._id);
+  };
+
   const handleSendReply = async () => {
     if (!reply.trim() || !selectedMessage) return;
     const newMsg = {
@@ -89,32 +93,41 @@ export function UniversalInboxClient({
               <EmptyState icon={MessageCircle} title="No messages yet" description="Conversations from every channel will land here." size="sm" />
             </div>
           ) : (
-            messages.map((msg) => (
-              <button
-                key={msg._id}
-                type="button"
-                aria-pressed={selectedMessage?._id === msg._id}
-                onClick={() => {
-                  setSelectedMessage(msg);
-                  if (!msg.isRead) handleMarkAsRead(msg._id);
-                }}
-                className={`block w-full cursor-pointer border-b border-[var(--st-border)] p-4 text-left transition-colors hover:bg-[var(--st-bg-secondary)] ${
-                  selectedMessage?._id === msg._id ? 'bg-[var(--st-bg-secondary)]' : ''
-                } ${!msg.isRead ? 'font-medium' : ''}`}
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar name={msg.senderId} size="md" shape="round" />
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="truncate text-sm text-[var(--st-text)]">{msg.senderId}</span>
-                      <span className="text-xs text-[var(--st-text-secondary)]">{fmtDate(msg.createdAt)}</span>
+            messages.map((msg) => {
+              const isSelected = selectedMessage?._id === msg._id;
+              return (
+                <Card
+                  key={msg._id}
+                  variant="interactive"
+                  padding="md"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  onClick={() => handleSelectMessage(msg)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelectMessage(msg);
+                    }
+                  }}
+                  className={`w-full rounded-none border-x-0 border-t-0 border-b transition-colors hover:bg-[var(--st-bg-secondary)] ${
+                    isSelected ? 'bg-[var(--st-bg-secondary)]' : ''
+                  } ${!msg.isRead ? 'font-medium' : ''}`}
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <Avatar name={msg.senderId} size="md" shape="round" />
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="truncate text-sm text-[var(--st-text)]">{msg.senderId}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">{fmtDate(msg.createdAt)}</span>
+                      </div>
+                      <p className="truncate text-xs text-[var(--st-text-secondary)]">{msg.content}</p>
                     </div>
-                    <p className="truncate text-xs text-[var(--st-text-secondary)]">{msg.content}</p>
+                    {!msg.isRead && <Dot tone="accent" aria-label="Unread" />}
                   </div>
-                  {!msg.isRead && <Dot tone="accent" aria-label="Unread" />}
-                </div>
-              </button>
-            ))
+                </Card>
+              );
+            })
           )}
         </div>
       </div>

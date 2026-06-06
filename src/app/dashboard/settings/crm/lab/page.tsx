@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * SabCRM — Lab settings (`/dashboard/settings/crm/lab`), Twenty-style.
+ * SabCRM - Lab settings (`/dashboard/settings/crm/lab`), pure 20ui.
  *
- * A list of opt-in experimental feature toggles ("Lab"), in the spirit of
- * Twenty's experimental-features panel. Each row pairs a Twenty-style switch
- * with a label, a short description, and a "Beta" chip. Choices persist to
- * `localStorage` via `useLabFlags` — there is no backend, so these are honest
+ * A list of opt-in experimental feature toggles ("Lab"). Each row pairs a 20ui
+ * Switch with a label, a short description, and a "Beta" badge. Choices persist
+ * to `localStorage` via `useLabFlags`, there is no backend, so these are honest
  * device-local UI preferences and gate nothing server-side.
  *
  * States: a skeleton until the flags hydrate from storage (avoids an SSR flash
@@ -16,59 +15,39 @@
 import * as React from 'react';
 import { FlaskConical, RotateCcw } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Switch,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useToast } from '@/hooks/use-toast';
 import { LAB_FLAGS, useLabFlags, type LabFlagId } from './use-lab-flags';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import '../profile/profile.css';
-import './lab.css';
-
 // ---------------------------------------------------------------------------
-// Twenty switch — native <button role="switch"> for accessibility.
-// ---------------------------------------------------------------------------
-
-interface SwitchProps {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-  disabled?: boolean;
-}
-
-function Switch({ checked, onChange, label, disabled }: SwitchProps): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      className="st-switch"
-      disabled={disabled}
-      onClick={onChange}
-    >
-      <span className="st-switch__knob" aria-hidden="true" />
-    </button>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Loading skeleton — mirrors the flag-row rhythm.
+// Loading skeleton - mirrors the flag-row rhythm.
 // ---------------------------------------------------------------------------
 
 function ListSkeleton(): React.JSX.Element {
   return (
-    <div className="st-lab-list" aria-hidden="true">
+    <div className="flex flex-col gap-px" aria-hidden="true">
       {LAB_FLAGS.map((flag) => (
-        <div key={flag.id} className="st-lab-row">
-          <div className="st-lab-row__text">
-            <div
-              className="st-skeleton"
-              style={{ width: 180, height: 14, marginBottom: 8 }}
-            />
-            <div className="st-skeleton" style={{ width: 320, height: 12, maxWidth: '100%' }} />
+        <div
+          key={flag.id}
+          className="flex items-center justify-between gap-4 border-b border-[var(--st-border)] py-4 last:border-b-0"
+        >
+          <div className="flex min-w-0 flex-col gap-2">
+            <Skeleton width={180} height={14} />
+            <Skeleton width={320} height={12} className="max-w-full" />
           </div>
-          <div className="st-skeleton" style={{ width: 34, height: 18, borderRadius: 999 }} />
+          <Skeleton width={34} height={18} radius={999} />
         </div>
       ))}
     </div>
@@ -105,65 +84,93 @@ export default function SabcrmLabSettingsPage(): React.JSX.Element {
   }, [enabledCount, resetAll, toast]);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Lab" icon={FlaskConical} />
-        <p className="st-settings__intro">
-          Try out experimental SabCRM features before they ship. These are early
-          and may change or be removed.
-        </p>
+    <div className="ui20">
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-8">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>
+              <span className="inline-flex items-center gap-2">
+                <FlaskConical
+                  size={18}
+                  className="text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                />
+                Lab
+              </span>
+            </PageTitle>
+            <PageDescription>
+              Try out experimental SabCRM features before they ship. These are
+              early and may change or be removed.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
-        <div className="st-lab-note">
-          <FlaskConical className="st-lab-note__icon" size={15} aria-hidden="true" />
-          <span>
-            Every toggle here is a local UI preference, saved in this browser
-            only. Nothing is enabled for your teammates and no server setting
-            changes — clearing your browser data resets them.
-          </span>
-        </div>
+        <Card variant="outlined" padding="md">
+          <CardBody className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
+            <FlaskConical
+              size={15}
+              className="mt-0.5 shrink-0 text-[var(--st-accent)]"
+              aria-hidden="true"
+            />
+            <span>
+              Every toggle here is a local UI preference, saved in this browser
+              only. Nothing is enabled for your teammates and no server setting
+              changes. Clearing your browser data resets them.
+            </span>
+          </CardBody>
+        </Card>
 
         {!hydrated ? (
           <ListSkeleton />
         ) : (
           <>
-            <div className="st-lab-list">
+            <div className="flex flex-col">
               {LAB_FLAGS.map((flag) => {
                 const checked = flags[flag.id];
                 return (
-                  <div key={flag.id} className="st-lab-row">
-                    <div className="st-lab-row__text">
-                      <div className="st-lab-row__head">
-                        <span className="st-lab-row__label">{flag.label}</span>
-                        <span className="st-chip st-chip--beta">Beta</span>
+                  <div
+                    key={flag.id}
+                    className="flex items-center justify-between gap-4 border-b border-[var(--st-border)] py-4 last:border-b-0"
+                  >
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[var(--st-text)]">
+                          {flag.label}
+                        </span>
+                        <Badge tone="accent" kind="soft">
+                          Beta
+                        </Badge>
                       </div>
-                      <p className="st-lab-row__desc">{flag.description}</p>
+                      <p className="text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
+                        {flag.description}
+                      </p>
                     </div>
                     <Switch
                       checked={checked}
-                      onChange={() => handleToggle(flag.id, flag.label)}
-                      label={`Toggle ${flag.label}`}
+                      onCheckedChange={() => handleToggle(flag.id, flag.label)}
+                      aria-label={`Toggle ${flag.label}`}
                     />
                   </div>
                 );
               })}
             </div>
 
-            <div className="st-lab-foot">
-              <span className="st-lab-foot__summary">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[13px] text-[var(--st-text-secondary)]">
                 {enabledCount === 0
                   ? 'No experimental features enabled.'
                   : `${enabledCount} experimental feature${
                       enabledCount !== 1 ? 's' : ''
                     } enabled.`}
               </span>
-              <TwentyButton
+              <Button
                 variant="secondary"
-                icon={RotateCcw}
+                iconLeft={RotateCcw}
                 onClick={handleReset}
                 disabled={enabledCount === 0}
               >
                 Reset all
-              </TwentyButton>
+              </Button>
             </div>
           </>
         )}

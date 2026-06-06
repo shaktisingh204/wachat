@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * SabCRM — Billing & Plan settings (`/dashboard/settings/crm/billing`), Twenty-style.
+ * SabCRM - Billing & Plan settings (`/dashboard/settings/crm/billing`).
  *
- * SabCRM billing is PLAN-BASED on top of SabNode's existing plan system — there
+ * SabCRM billing is PLAN-BASED on top of SabNode's existing plan system - there
  * is NO Stripe / no metered billing here. Plan changes and payment are handled
  * centrally in the SabNode workspace (`/dashboard/billing`); this page is a
  * read-only, redirect-out view of where the active project stands today.
@@ -13,25 +13,27 @@
  *   project is on the implicit free / default tier and we say so honestly.
  *
  * Cards rendered:
- *   1. Current plan — name, price + currency (or "Free"), appCategory chip and
+ *   1. Current plan - name, price + currency (or "Free"), appCategory chip and
  *      an "Active" badge. Falls back to a "No plan / default" state.
- *   2. SabCRM entitlement — confirms SabCRM is included, sourced from
+ *   2. SabCRM entitlement - confirms SabCRM is included, sourced from
  *      `sabcrmPlanFeature` (id/name/icon/defaultEnabled) in `@/lib/plans`.
- *   3. Usage vs limits — live record total (sum of `countSabcrmRecordsTw`
+ *   3. Usage vs limits - live record total (sum of `countSabcrmRecordsTw`
  *      across standard objects) and member count, each metered against the
- *      relevant plan limit (records → nominal ceiling, members → agentLimit).
- *   4. Available plans — public CRM / All-In-One plans from `getPlans()`, each
+ *      relevant plan limit (records -> nominal ceiling, members -> agentLimit).
+ *   4. Available plans - public CRM / All-In-One plans from `getPlans()`, each
  *      with key limits and an "Upgrade" button that links to SabNode billing.
  *      The plan matching the current one is marked "Current" instead.
  *
  * Everything degrades gracefully: skeletons while loading, a "no project"
  * notice, and an error banner if a data source is unavailable. The record /
- * member ceilings are NOMINAL display meters — actual enforcement lives in the
+ * member ceilings are NOMINAL display meters - actual enforcement lives in the
  * SabNode plan/credit layer.
+ *
+ * UI: pure 20ui design system (`@/components/sabcrm/20ui`).
  */
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   CreditCard,
   CheckCircle2,
@@ -42,7 +44,24 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  Badge,
+  Button,
+  Progress,
+  Skeleton,
+  Alert,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { sabcrmPlanFeature, planFeatureMap } from '@/lib/plans';
 import type { PlanFeaturePermissions } from '@/lib/definitions';
@@ -54,10 +73,6 @@ import {
 import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './billing.css';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -75,8 +90,7 @@ const RECORDS_CEILING = 100_000;
 
 /**
  * Feature keys (subset of `PlanFeaturePermissions`) most relevant to a SabCRM
- * user, surfaced as benefit rows when enabled on the current plan. Mirrors
- * Twenty's `SubscriptionBenefit` list of what the plan includes.
+ * user, surfaced as benefit rows when enabled on the current plan.
  */
 const CRM_FEATURE_KEYS: readonly (keyof PlanFeaturePermissions)[] = [
   'crmDashboard',
@@ -104,7 +118,7 @@ function fmtNumber(n: number): string {
   }
 }
 
-/** "₹499 / mo" style price, or "Free" when there is no price. */
+/** "INR 499" style price, or "Free" when there is no price. */
 function fmtPrice(price: number | undefined, currency: string | undefined): string {
   if (!price || price <= 0) return 'Free';
   const cur = (currency || '').trim();
@@ -128,6 +142,13 @@ function meterTone(used: number, limit: number): MeterTone {
   return 'ok';
 }
 
+/** Map the local meter tone onto a 20ui Progress tone. */
+function progressTone(tone: MeterTone): 'accent' | 'warning' | 'danger' {
+  if (tone === 'over') return 'danger';
+  if (tone === 'warn') return 'warning';
+  return 'accent';
+}
+
 // ---------------------------------------------------------------------------
 // Async data states
 // ---------------------------------------------------------------------------
@@ -143,45 +164,35 @@ type PlansState =
   | { status: 'error' };
 
 // ---------------------------------------------------------------------------
-// Usage meter (progress bar + labels)
+// Usage meter (Progress bar + labels)
 // ---------------------------------------------------------------------------
 
 function UsageMeter({ used, limit }: { used: number; limit: number }): React.JSX.Element {
   const pct = clampPct(used, limit);
   const tone = meterTone(used, limit);
   const pctLabel = Math.round((used / limit) * 100);
-
-  const fillClass =
+  const pctToneClass =
     tone === 'over'
-      ? 'st-usage-bar__fill st-usage-bar__fill--over'
+      ? 'text-[var(--st-danger)]'
       : tone === 'warn'
-        ? 'st-usage-bar__fill st-usage-bar__fill--warn'
-        : 'st-usage-bar__fill';
-  const pctClass =
-    tone === 'over'
-      ? 'st-usage-meter__pct st-usage-meter__pct--over'
-      : tone === 'warn'
-        ? 'st-usage-meter__pct st-usage-meter__pct--warn'
-        : 'st-usage-meter__pct';
+        ? 'text-[var(--st-warn)]'
+        : 'text-[var(--st-text-secondary)]';
 
   return (
-    <div className="st-usage-meter">
-      <div
-        className="st-usage-bar"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={limit}
-        aria-valuenow={used}
+    <div className="mt-2 flex flex-col gap-1.5">
+      <Progress
+        value={pct * 100}
+        tone={progressTone(tone)}
+        size="sm"
+        label={`${fmtNumber(used)} of ${fmtNumber(limit)} used`}
         aria-label={`${fmtNumber(used)} of ${fmtNumber(limit)} used`}
-      >
-        <span className={fillClass} style={{ width: `${pct * 100}%` }} />
-      </div>
-      <div className="st-usage-meter__row">
-        <span className={pctClass}>
-          {Number.isFinite(pctLabel) ? `${pctLabel}%` : '—'}
-          {tone === 'over' ? ' · over limit' : ''}
+      />
+      <div className="flex items-center justify-between text-xs">
+        <span className={`font-medium ${pctToneClass}`}>
+          {Number.isFinite(pctLabel) ? `${pctLabel}%` : '0%'}
+          {tone === 'over' ? ' . over limit' : ''}
         </span>
-        <span className="st-usage-meter__limit">of {fmtNumber(limit)}</span>
+        <span className="text-[var(--st-text-tertiary)]">of {fmtNumber(limit)}</span>
       </div>
     </div>
   );
@@ -205,34 +216,43 @@ function UsageCard({
   limitLabel: string;
 }): React.JSX.Element {
   return (
-    <div className="st-stat-card">
-      <div className="st-stat-card__head">
-        <span className="st-stat-card__icon" aria-hidden="true">
+    <Card variant="outlined" padding="md">
+      <div className="mb-2 flex items-center gap-2">
+        <span
+          className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
+          aria-hidden="true"
+        >
           <Icon size={15} />
         </span>
-        <span className="st-stat-card__label" title={label}>
+        <span className="text-sm font-medium text-[var(--st-text)]" title={label}>
           {label}
         </span>
       </div>
 
       {state.status === 'loading' ? (
-        <span className="st-skel-line st-skel-line--value" aria-hidden="true" />
+        <Skeleton width={96} height={28} radius={6} />
       ) : state.status === 'error' ? (
-        <span className="st-stat-card__value-error">Unavailable</span>
+        <span className="text-2xl font-semibold text-[var(--st-text-tertiary)]">
+          Unavailable
+        </span>
       ) : (
-        <span className="st-stat-card__value">{fmtNumber(state.count)}</span>
+        <span className="text-2xl font-semibold text-[var(--st-text)]">
+          {fmtNumber(state.count)}
+        </span>
       )}
 
-      <span className="st-billing-card__sub">{limitLabel}</span>
+      <span className="mt-1 block text-xs text-[var(--st-text-secondary)]">
+        {limitLabel}
+      </span>
 
       {state.status === 'ready' ? (
         <UsageMeter used={state.count} limit={limit} />
       ) : (
-        <div className="st-usage-meter" aria-hidden="true">
-          <span className="st-skel-line st-skel-line--bar" />
+        <div className="mt-3">
+          <Skeleton width="100%" height={8} radius={999} />
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -247,66 +267,75 @@ function PlanCard({
   plan: WithId<Plan>;
   isCurrent: boolean;
 }): React.JSX.Element {
+  const router = useRouter();
+
   return (
-    <div className={`st-plan-card${isCurrent ? ' st-plan-card--current' : ''}`}>
-      <div className="st-plan-card__head">
-        <span className="st-plan-card__name">{plan.name}</span>
-        {isCurrent ? (
-          <span className="st-plan-card__current-tag">Current</span>
-        ) : null}
-      </div>
+    <Card variant={isCurrent ? 'elevated' : 'outlined'} padding="md">
+      <CardHeader className="flex items-center justify-between gap-2">
+        <CardTitle>{plan.name}</CardTitle>
+        {isCurrent ? <Badge tone="accent">Current</Badge> : null}
+      </CardHeader>
 
-      <div className="st-plan-card__price">
-        <span className="st-plan-card__price-value">
-          {fmtPrice(plan.price, plan.currency)}
-        </span>
-        {plan.price && plan.price > 0 ? (
-          <span className="st-plan-card__price-unit">/ mo</span>
-        ) : null}
-      </div>
-
-      {plan.appCategory ? (
-        <div className="st-plan-card__chip">
-          <TwentyChip label={plan.appCategory} />
+      <CardBody>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-semibold text-[var(--st-text)]">
+            {fmtPrice(plan.price, plan.currency)}
+          </span>
+          {plan.price && plan.price > 0 ? (
+            <span className="text-sm text-[var(--st-text-secondary)]">/ mo</span>
+          ) : null}
         </div>
-      ) : null}
 
-      <ul className="st-plan-card__limits">
-        <li>
-          <span className="st-plan-card__limit-label">Projects</span>
-          <span className="st-plan-card__limit-value">
-            {fmtNumber(plan.projectLimit ?? 0)}
-          </span>
-        </li>
-        <li>
-          <span className="st-plan-card__limit-label">Members</span>
-          <span className="st-plan-card__limit-value">
-            {fmtNumber(plan.agentLimit ?? 0)}
-          </span>
-        </li>
-        <li>
-          <span className="st-plan-card__limit-label">Custom roles</span>
-          <span className="st-plan-card__limit-value">
-            {fmtNumber(plan.customRoleLimit ?? 0)}
-          </span>
-        </li>
-      </ul>
+        {plan.appCategory ? (
+          <div className="mt-2">
+            <Badge tone="neutral">{plan.appCategory}</Badge>
+          </div>
+        ) : null}
 
-      {isCurrent ? (
-        <button type="button" className="st-btn st-btn--secondary st-plan-card__cta" disabled>
-          <CheckCircle2 size={14} aria-hidden="true" />
-          Current plan
-        </button>
-      ) : (
-        <Link
-          href={SABNODE_BILLING_HREF}
-          className="st-btn st-btn--primary st-plan-card__cta"
-        >
-          <ArrowUpRight size={14} aria-hidden="true" />
-          Upgrade
-        </Link>
-      )}
-    </div>
+        <ul className="mt-3 flex flex-col gap-2 border-t border-[var(--st-border)] pt-3">
+          <li className="flex items-center justify-between text-sm">
+            <span className="text-[var(--st-text-secondary)]">Projects</span>
+            <span className="font-medium text-[var(--st-text)]">
+              {fmtNumber(plan.projectLimit ?? 0)}
+            </span>
+          </li>
+          <li className="flex items-center justify-between text-sm">
+            <span className="text-[var(--st-text-secondary)]">Members</span>
+            <span className="font-medium text-[var(--st-text)]">
+              {fmtNumber(plan.agentLimit ?? 0)}
+            </span>
+          </li>
+          <li className="flex items-center justify-between text-sm">
+            <span className="text-[var(--st-text-secondary)]">Custom roles</span>
+            <span className="font-medium text-[var(--st-text)]">
+              {fmtNumber(plan.customRoleLimit ?? 0)}
+            </span>
+          </li>
+        </ul>
+      </CardBody>
+
+      <CardFooter>
+        {isCurrent ? (
+          <Button
+            variant="secondary"
+            block
+            disabled
+            iconLeft={CheckCircle2}
+          >
+            Current plan
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            block
+            iconLeft={ArrowUpRight}
+            onClick={() => router.push(SABNODE_BILLING_HREF)}
+          >
+            Upgrade
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -315,11 +344,12 @@ function PlanCard({
 // ---------------------------------------------------------------------------
 
 export default function SabcrmBillingSettingsPage(): React.JSX.Element {
+  const router = useRouter();
   const { activeProjectId, isLoadingProject, sessionUser } = useProject();
 
   const currentPlan = sessionUser?.plan ?? null;
 
-  // Usage — total records across standard objects + member count.
+  // Usage - total records across standard objects + member count.
   const [recordsState, setRecordsState] = React.useState<CountState>({
     status: 'loading',
   });
@@ -436,146 +466,184 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Billing & Plan" icon={CreditCard} />
-        <p className="st-settings__intro">
-          SabCRM runs on your SabNode plan. This page shows your current plan and
-          usage. Plans and payment are managed in your SabNode workspace billing.
-        </p>
+    <div className="ui20 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabCRM</PageEyebrow>
+          <PageTitle>
+            <span className="inline-flex items-center gap-2">
+              <CreditCard size={18} aria-hidden="true" />
+              Billing &amp; Plan
+            </span>
+          </PageTitle>
+          <PageDescription>
+            SabCRM runs on your SabNode plan. This page shows your current plan
+            and usage. Plans and payment are managed in your SabNode workspace
+            billing.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
+      <div className="mt-6 flex flex-col gap-8">
         {isLoadingProject ? (
-          <div className="st-billing-grid">
-            <div className="st-stat-card st-stat-card--skeleton" aria-hidden="true">
-              <span className="st-skel-line st-skel-line--label" />
-              <span className="st-skel-line st-skel-line--value" />
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Card variant="outlined" padding="md">
+              <Skeleton width={120} height={14} radius={6} />
+              <div className="mt-3">
+                <Skeleton width={160} height={24} radius={6} />
+              </div>
+            </Card>
           </div>
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to view its plan and usage.
-            </p>
-          </div>
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to view its plan and usage."
+          />
         ) : (
           <>
             {/* ---- Current plan + SabCRM entitlement ---- */}
-            <section className="st-billing-section">
-              <div className="st-billing-grid st-billing-grid--two">
-                {/* Current plan card */}
-                <div className="st-billing-card st-billing-card--plan">
-                  <div className="st-billing-card__head">
-                    <span className="st-billing-card__eyebrow">Current plan</span>
-                    {currentPlan ? (
-                      <span className="st-billing-badge">Active</span>
-                    ) : (
-                      <span className="st-billing-badge st-billing-badge--muted">
-                        Default
-                      </span>
-                    )}
-                  </div>
+            <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {/* Current plan card */}
+              <Card variant="outlined" padding="md">
+                <CardHeader className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                    Current plan
+                  </span>
+                  {currentPlan ? (
+                    <Badge tone="success" dot>
+                      Active
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">Default</Badge>
+                  )}
+                </CardHeader>
 
+                <CardBody>
                   {currentPlan ? (
                     <>
-                      <span className="st-billing-card__plan-name">
+                      <span className="block text-lg font-semibold text-[var(--st-text)]">
                         {currentPlan.name}
                       </span>
-                      <div className="st-billing-card__price">
-                        <span className="st-billing-card__price-value">
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="text-xl font-semibold text-[var(--st-text)]">
                           {fmtPrice(currentPlan.price, currentPlan.currency)}
                         </span>
                         {currentPlan.price && currentPlan.price > 0 ? (
-                          <span className="st-billing-card__price-unit">/ mo</span>
+                          <span className="text-sm text-[var(--st-text-secondary)]">
+                            / mo
+                          </span>
                         ) : null}
                       </div>
                       {currentPlan.appCategory ? (
-                        <div className="st-billing-card__chip">
-                          <TwentyChip label={currentPlan.appCategory} />
+                        <div className="mt-2">
+                          <Badge tone="neutral">{currentPlan.appCategory}</Badge>
                         </div>
                       ) : null}
                     </>
                   ) : (
                     <>
-                      <span className="st-billing-card__plan-name">
+                      <span className="block text-lg font-semibold text-[var(--st-text)]">
                         No plan / default
                       </span>
-                      <div className="st-billing-card__price">
-                        <span className="st-billing-card__price-value">Free</span>
+                      <div className="mt-1">
+                        <span className="text-xl font-semibold text-[var(--st-text)]">
+                          Free
+                        </span>
                       </div>
-                      <p className="st-billing-card__sub">
-                        This project is on the default tier. Choose a plan below to
-                        unlock higher limits.
+                      <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
+                        This project is on the default tier. Choose a plan below
+                        to unlock higher limits.
                       </p>
                     </>
                   )}
+                </CardBody>
 
-                  <Link
-                    href={SABNODE_BILLING_HREF}
-                    className="st-btn st-btn--secondary st-billing-card__manage"
+                <CardFooter>
+                  <Button
+                    variant="secondary"
+                    iconRight={ArrowUpRight}
+                    onClick={() => router.push(SABNODE_BILLING_HREF)}
                   >
                     Manage in SabNode
-                    <ArrowUpRight size={14} aria-hidden="true" />
-                  </Link>
-                </div>
+                  </Button>
+                </CardFooter>
+              </Card>
 
-                {/* SabCRM entitlement card */}
-                <div className="st-billing-card st-billing-card--entitlement">
-                  <div className="st-billing-card__head">
-                    <span className="st-billing-card__eyebrow">Entitlement</span>
-                    <span className="st-billing-badge">Included</span>
-                  </div>
-                  <div className="st-entitlement-row">
-                    <span className="st-entitlement-row__icon" aria-hidden="true">
+              {/* SabCRM entitlement card */}
+              <Card variant="outlined" padding="md">
+                <CardHeader className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                    Entitlement
+                  </span>
+                  <Badge tone="success">Included</Badge>
+                </CardHeader>
+
+                <CardBody>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
+                      aria-hidden="true"
+                    >
                       <EntitlementIcon size={16} />
                     </span>
-                    <div className="st-entitlement-row__body">
-                      <span className="st-entitlement-row__name">
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <span className="text-sm font-medium text-[var(--st-text)]">
                         {sabcrmPlanFeature.name}
                       </span>
-                      <span className="st-entitlement-row__meta">
+                      <span className="text-xs text-[var(--st-text-secondary)]">
                         {sabcrmPlanFeature.defaultEnabled
                           ? 'Included on all plans'
                           : 'Not included on this plan'}
                       </span>
                     </div>
                     {sabcrmPlanFeature.defaultEnabled ? (
-                      <span className="st-entitlement-row__check" aria-hidden="true">
+                      <span
+                        className="text-[var(--st-status-ok)]"
+                        aria-hidden="true"
+                      >
                         <CheckCircle2 size={16} />
                       </span>
                     ) : null}
                   </div>
-                </div>
-              </div>
+                </CardBody>
+              </Card>
             </section>
 
             {/* ---- Plan features (what this plan includes) ---- */}
             {enabledFeatures.length > 0 ? (
-              <section className="st-billing-section">
-                <div className="st-billing-section__head">
-                  <h2 className="st-billing-section__title">
+              <section className="flex flex-col gap-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <h2 className="text-base font-semibold text-[var(--st-text)]">
                     What&rsquo;s included
                   </h2>
-                  <span className="st-billing-section__hint">
+                  <span className="text-xs text-[var(--st-text-secondary)]">
                     CRM features on your plan
                   </span>
                 </div>
-                <ul className="st-benefits">
+                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {enabledFeatures.map((feature) => {
                     const FeatureIcon = feature.icon;
                     return (
-                      <li key={feature.id} className="st-benefit">
-                        <span className="st-benefit__check" aria-hidden="true">
+                      <li
+                        key={feature.id}
+                        className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                      >
+                        <span
+                          className="text-[var(--st-status-ok)]"
+                          aria-hidden="true"
+                        >
                           {FeatureIcon ? (
-                            <FeatureIcon size={12} />
+                            <FeatureIcon size={14} />
                           ) : (
-                            <CheckCircle2 size={12} />
+                            <CheckCircle2 size={14} />
                           )}
                         </span>
-                        <span className="st-benefit__label" title={feature.name}>
+                        <span
+                          className="truncate text-sm text-[var(--st-text)]"
+                          title={feature.name}
+                        >
                           {feature.name}
                         </span>
                       </li>
@@ -586,20 +654,22 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
             ) : null}
 
             {/* ---- Usage vs limits ---- */}
-            <section className="st-billing-section">
-              <div className="st-billing-section__head">
-                <h2 className="st-billing-section__title">Usage</h2>
-                <span className="st-billing-section__hint">
-                  Display meters — limits are enforced by your plan
+            <section className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="text-base font-semibold text-[var(--st-text)]">
+                  Usage
+                </h2>
+                <span className="text-xs text-[var(--st-text-secondary)]">
+                  Display meters. Limits are enforced by your plan.
                 </span>
               </div>
-              <div className="st-billing-grid">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <UsageCard
                   label="Total records"
                   icon={Database}
                   state={recordsState}
                   limit={RECORDS_CEILING}
-                  limitLabel={`Across standard objects · ${fmtNumber(
+                  limitLabel={`Across standard objects . ${fmtNumber(
                     RECORDS_CEILING,
                   )} ceiling`}
                 />
@@ -610,56 +680,51 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
                   limit={memberLimit}
                   limitLabel={
                     currentPlan?.agentLimit
-                      ? `Plan seat limit · ${fmtNumber(memberLimit)}`
-                      : `Nominal limit · ${fmtNumber(memberLimit)}`
+                      ? `Plan seat limit . ${fmtNumber(memberLimit)}`
+                      : `Nominal limit . ${fmtNumber(memberLimit)}`
                   }
                 />
               </div>
             </section>
 
             {/* ---- Available plans ---- */}
-            <section className="st-billing-section">
-              <div className="st-billing-section__head">
-                <h2 className="st-billing-section__title">Available plans</h2>
-                <span className="st-billing-section__hint">
+            <section className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="text-base font-semibold text-[var(--st-text)]">
+                  Available plans
+                </h2>
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   CRM &amp; All-In-One plans
                 </span>
               </div>
 
               {plansState.status === 'loading' ? (
-                <div className="st-billing-grid st-billing-grid--plans">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="st-plan-card st-plan-card--skeleton"
-                      aria-hidden="true"
-                    >
-                      <span className="st-skel-line st-skel-line--label" />
-                      <span className="st-skel-line st-skel-line--value" />
-                      <span className="st-skel-line st-skel-line--bar" />
-                    </div>
+                    <Card key={i} variant="outlined" padding="md">
+                      <Skeleton width={120} height={14} radius={6} />
+                      <div className="mt-3">
+                        <Skeleton width={90} height={22} radius={6} />
+                      </div>
+                      <div className="mt-4">
+                        <Skeleton width="100%" height={8} radius={999} />
+                      </div>
+                    </Card>
                   ))}
                 </div>
               ) : plansState.status === 'error' ? (
-                <div className="st-banner">
-                  <AlertTriangle className="st-banner__icon" size={16} />
-                  <span>
-                    Plans could not be loaded. You can still manage billing in your
-                    SabNode workspace.
-                  </span>
-                </div>
+                <Alert tone="warning" icon={AlertTriangle}>
+                  Plans could not be loaded. You can still manage billing in your
+                  SabNode workspace.
+                </Alert>
               ) : plansState.plans.length === 0 ? (
-                <div className="st-empty">
-                  <span className="st-empty__icon">
-                    <Sparkles size={20} />
-                  </span>
-                  <h2 className="st-empty__title">No upgrade plans available</h2>
-                  <p className="st-empty__desc">
-                    There are no public CRM or All-In-One plans to show right now.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Sparkles}
+                  title="No upgrade plans available"
+                  description="There are no public CRM or All-In-One plans to show right now."
+                />
               ) : (
-                <div className="st-billing-grid st-billing-grid--plans">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {plansState.plans.map((plan) => (
                     <PlanCard
                       key={plan._id.toString()}
@@ -674,7 +739,7 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
               )}
             </section>
 
-            <p className="st-billing-note">
+            <p className="text-xs text-[var(--st-text-tertiary)]">
               Plans and payment are managed in your SabNode workspace billing.
               Changes made there apply to SabCRM automatically.
             </p>

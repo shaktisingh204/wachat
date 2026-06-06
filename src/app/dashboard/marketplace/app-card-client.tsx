@@ -1,7 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Badge, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, useToast } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Badge,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Button,
+  IconButton,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import type { App, AppPricing } from "@/lib/marketplace";
@@ -23,7 +40,7 @@ function PriceBadge({ pricing }: { pricing: AppPricing }) {
       : null;
   return (
     <Badge variant="outline" className="whitespace-nowrap">
-      {formatted ? `${formatted} · ${label}` : label}
+      {formatted ? `${formatted} - ${label}` : label}
     </Badge>
   );
 }
@@ -44,14 +61,14 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
       toast({
         title: "App installed",
         description: `${app.manifest.name} has been successfully installed.`,
-        variant: "default",
+        tone: "success",
       });
       router.refresh(); // Refresh data like installCount and isInstalled status
     } catch (err: any) {
       toast({
         title: "Install failed",
         description: err.message || "An error occurred during installation.",
-        variant: "destructive",
+        tone: "danger",
       });
     } finally {
       setInstalling(false);
@@ -67,14 +84,14 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
       toast({
         title: "Rating submitted",
         description: `Thank you for rating ${app.manifest.name}.`,
-        variant: "default",
+        tone: "success",
       });
       router.refresh();
     } catch (err: any) {
       toast({
         title: "Failed to submit rating",
         description: err.message || "An error occurred.",
-        variant: "destructive",
+        tone: "danger",
       });
     } finally {
       setSubmittingRating(false);
@@ -84,73 +101,81 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="group focus:outline-none text-left h-full w-full">
-          <Card interactive className="h-full flex flex-col">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  {app.manifest.iconUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={app.manifest.iconUrl}
-                      alt=""
-                      className="h-10 w-10 rounded-md border border-[var(--st-border)] object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-base font-semibold text-[var(--st-text-secondary)]">
-                      {app.manifest.name.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex flex-col">
-                    <CardTitle className="text-base">
-                      {app.manifest.name}
-                    </CardTitle>
-                    <span className="text-xs text-[var(--st-text-secondary)]">
-                      by {app.manifest.publisher.name}
-                    </span>
-                  </div>
-                </div>
-                <PriceBadge pricing={app.manifest.pricing} />
-              </div>
-            </CardHeader>
-            <CardBody className="flex flex-col gap-3 flex-grow">
-              {app.manifest.description ? (
-                <CardDescription className="line-clamp-3">
-                  {app.manifest.description}
-                </CardDescription>
-              ) : (
-                <CardDescription className="italic text-[var(--st-text-secondary)]">
-                  No description provided.
-                </CardDescription>
-              )}
-              <div className="flex flex-wrap gap-1.5 mt-auto">
-                {app.manifest.categories.slice(0, 3).map((cat) => (
-                  <Badge key={cat} variant="secondary" className="text-[10px]">
-                    {cat}
-                  </Badge>
-                ))}
-              </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
-                <div className="flex items-center gap-2">
-                  <span>v{app.manifest.version}</span>
-                  <span>•</span>
-                  <span>
-                    {app.installCount.toLocaleString()} install{app.installCount === 1 ? "" : "s"}
-                  </span>
-                </div>
-                {app.averageRating !== null && app.averageRating !== undefined && (
-                  <div className="flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-[var(--st-warn)] text-[var(--st-warn)]" />
-                    <span>{app.averageRating.toFixed(1)}</span>
-                    <span className="text-[var(--st-text-secondary)]/70">({app.reviewCount})</span>
+        <Card
+          variant="interactive"
+          role="button"
+          tabIndex={0}
+          aria-label={`View details for ${app.manifest.name}`}
+          className="group h-full flex flex-col text-left cursor-pointer"
+        >
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {app.manifest.iconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={app.manifest.iconUrl}
+                    alt=""
+                    className="h-10 w-10 rounded-md border border-[var(--st-border)] object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-base font-semibold text-[var(--st-text-secondary)]">
+                    {app.manifest.name.slice(0, 1).toUpperCase()}
                   </div>
                 )}
+                <div className="flex flex-col">
+                  <CardTitle className="text-base">{app.manifest.name}</CardTitle>
+                  <span className="text-xs text-[var(--st-text-secondary)]">
+                    by {app.manifest.publisher.name}
+                  </span>
+                </div>
               </div>
-            </CardBody>
-          </Card>
-        </button>
+              <PriceBadge pricing={app.manifest.pricing} />
+            </div>
+          </CardHeader>
+          <CardBody className="flex flex-col gap-3 flex-grow">
+            {app.manifest.description ? (
+              <CardDescription className="line-clamp-3">
+                {app.manifest.description}
+              </CardDescription>
+            ) : (
+              <CardDescription className="italic text-[var(--st-text-secondary)]">
+                No description provided.
+              </CardDescription>
+            )}
+            <div className="flex flex-wrap gap-1.5 mt-auto">
+              {app.manifest.categories.slice(0, 3).map((cat) => (
+                <Badge key={cat} variant="secondary" className="text-[10px]">
+                  {cat}
+                </Badge>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+              <div className="flex items-center gap-2">
+                <span>v{app.manifest.version}</span>
+                <span aria-hidden="true">-</span>
+                <span>
+                  {app.installCount.toLocaleString()} install
+                  {app.installCount === 1 ? "" : "s"}
+                </span>
+              </div>
+              {app.averageRating !== null && app.averageRating !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Star
+                    className="w-3 h-3 fill-[var(--st-warn)] text-[var(--st-warn)]"
+                    aria-hidden="true"
+                  />
+                  <span>{app.averageRating.toFixed(1)}</span>
+                  <span className="text-[var(--st-text-secondary)]/70">
+                    ({app.reviewCount})
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
       </DialogTrigger>
-      
+
       <DialogContent>
         <DialogHeader>
           <div className="flex items-center gap-4 mb-4">
@@ -162,7 +187,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                 className="h-16 w-16 rounded-lg border border-[var(--st-border)] object-cover"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-2xl font-semibold text-[var(--st-text-secondary)]">
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-2xl font-semibold text-[var(--st-text-secondary)]">
                 {app.manifest.name.slice(0, 1).toUpperCase()}
               </div>
             )}
@@ -172,8 +197,13 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                 <span>by {app.manifest.publisher.name}</span>
                 {app.averageRating !== null && app.averageRating !== undefined && (
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-[var(--st-warn)] text-[var(--st-warn)]" />
-                    <span className="font-medium text-[var(--st-text)]">{app.averageRating.toFixed(1)}</span>
+                    <Star
+                      className="w-4 h-4 fill-[var(--st-warn)] text-[var(--st-warn)]"
+                      aria-hidden="true"
+                    />
+                    <span className="font-medium text-[var(--st-text)]">
+                      {app.averageRating.toFixed(1)}
+                    </span>
                     <span>({app.reviewCount} reviews)</span>
                   </div>
                 )}
@@ -184,10 +214,10 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
             {app.manifest.description || "No description provided."}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="py-4 space-y-4">
           <div>
-            <h4 className="text-sm font-medium mb-2">Categories</h4>
+            <h4 className="text-sm font-medium mb-2 text-[var(--st-text)]">Categories</h4>
             <div className="flex flex-wrap gap-2">
               {app.manifest.categories.map((cat) => (
                 <Badge key={cat} variant="secondary">
@@ -196,9 +226,9 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               ))}
             </div>
           </div>
-          <div className="flex justify-between items-center bg-[var(--st-bg-secondary)] p-3 rounded-lg border border-[var(--st-border)]">
+          <div className="flex justify-between items-center bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
             <div>
-              <div className="text-sm font-medium">Pricing</div>
+              <div className="text-sm font-medium text-[var(--st-text)]">Pricing</div>
               <div className="text-sm text-[var(--st-text-secondary)] capitalize">
                 {app.manifest.pricing.type.replace("-", " ")}
               </div>
@@ -207,27 +237,31 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
           </div>
 
           {isInstalled && (
-            <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-lg border border-[var(--st-border)]">
-              <div className="text-sm font-medium">Rate this App</div>
-              <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    disabled={submittingRating}
-                    onMouseEnter={() => setHoverRating(star)}
-                    onClick={() => handleRate(star)}
-                    className="focus:outline-none transition-colors"
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        (hoverRating || rating) >= star
-                          ? "fill-[var(--st-warn)] text-[var(--st-warn)]"
-                          : "text-[var(--st-border)]"
-                      }`}
+            <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <div className="text-sm font-medium text-[var(--st-text)]">Rate this App</div>
+              <div
+                className="flex items-center gap-1"
+                onMouseLeave={() => setHoverRating(0)}
+              >
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const active = (hoverRating || rating) >= star;
+                  return (
+                    <IconButton
+                      key={star}
+                      icon={Star}
+                      size="sm"
+                      label={`Rate ${star} star${star === 1 ? "" : "s"}`}
+                      disabled={submittingRating}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onClick={() => handleRate(star)}
+                      className={
+                        active
+                          ? "[&>svg]:fill-[var(--st-warn)] [&>svg]:text-[var(--st-warn)]"
+                          : "[&>svg]:text-[var(--st-border)]"
+                      }
                     />
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -237,13 +271,13 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
             <span>{app.installCount.toLocaleString()} total installs</span>
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={installing}>
             Close
           </Button>
           {!isInstalled ? (
-            <Button onClick={handleInstall} disabled={installing}>
+            <Button variant="primary" onClick={handleInstall} disabled={installing} loading={installing}>
               {installing ? "Installing..." : "Install App"}
             </Button>
           ) : (

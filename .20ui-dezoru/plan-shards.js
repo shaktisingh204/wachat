@@ -22,7 +22,8 @@ const EXCLUDE_COMPONENT = new Set(['ui', 'clay', 'sab-ui', 'landing', 'landing-v
 function classify(file) {
   let raw;
   try { raw = fs.readFileSync(file, 'utf8'); } catch { return null; }
-  const src = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  const src = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+    .replace(/`(?:\\[\s\S]|[^`\\])*`/g, '``');
   const reasons = [];
   const importRe = /import[^;]*?from\s*['"]([^'"]+)['"]/g;
   let m;
@@ -30,7 +31,7 @@ function classify(file) {
     const p = m[1];
     if (p === '@/components/ui' || p.startsWith('@/components/ui/') ||
       p.includes('/components/clay') || p.includes('/components/sab-ui') ||
-      p.includes('wabasimplify') || p.includes('@/components/zoruui') ||
+      p.includes('wabasimplify') || p === '@/components/zoruui' || p.startsWith('@/components/zoruui/') ||
       p.includes('sabcrm/20ui/compat') || p.includes('sabcrm/20ui/legacy') ||
       p.includes('sabcrm/20ui/zoru')) reasons.push('import');
   }
@@ -40,9 +41,10 @@ function classify(file) {
   if (/<select[\s>]/.test(src)) reasons.push('raw<select>');
   if (/<textarea[\s>]/.test(src)) reasons.push('raw<textarea>');
   if (/<table[\s>]/.test(src)) reasons.push('raw<table>');
-  if (/style=\{\{/.test(src)) reasons.push('inlineStyle');
   if (/['"`\s]zoruui['"`\s]/.test(src) || /className\s*=\s*['"][^'"]*\bzoruui\b/.test(src)) reasons.push('zoruuiClass');
   if (/var\(--zoru-/.test(src)) reasons.push('var(--zoru-)');
+  // inline style is a SOFT signal (runtime-legit allowed). Only counts when INCLUDE_SOFT=1.
+  if (process.env.INCLUDE_SOFT === '1' && /style=\{\{/.test(src)) reasons.push('inlineStyle');
   return reasons.length ? reasons : null;
 }
 

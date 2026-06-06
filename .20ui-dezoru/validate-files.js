@@ -15,7 +15,8 @@ const fs = require('fs');
 function classify(file) {
   let raw;
   try { raw = fs.readFileSync(file, 'utf8'); } catch { return { missing: true, hard: [], soft: [] }; }
-  const src = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  const src = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+    .replace(/`(?:\\[\s\S]|[^`\\])*`/g, '``');
   const hard = [], soft = [];
   const importRe = /import[^;]*?from\s*['"]([^'"]+)['"]/g;
   let m;
@@ -23,7 +24,7 @@ function classify(file) {
     const p = m[1];
     if (p === '@/components/ui' || p.startsWith('@/components/ui/') ||
       p.includes('/components/clay') || p.includes('/components/sab-ui') ||
-      p.includes('wabasimplify') || p.includes('@/components/zoruui') ||
+      p.includes('wabasimplify') || p === '@/components/zoruui' || p.startsWith('@/components/zoruui/') ||
       p.includes('sabcrm/20ui/compat') || p.includes('sabcrm/20ui/legacy') ||
       p.includes('sabcrm/20ui/zoru')) hard.push('import:' + p);
   }

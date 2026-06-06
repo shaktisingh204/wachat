@@ -1,15 +1,35 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState } from 'react';
-import { Check,
-  CircleAlert,
-  Copy,
-  Plus,
-  Trash2,
-  Webhook } from 'lucide-react';
+  Alert,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { useEffect, useState } from 'react';
+import { Check, Copy, Plus, Trash2, Webhook } from 'lucide-react';
 
 import { useT } from '@/lib/i18n/client';
 
@@ -68,7 +88,7 @@ export default function WebhooksPage() {
             </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <PageHeader>
+                <PageHeader bordered={false}>
                     <PageHeading>
                         <PageTitle>{t('settings.webhooks.title')}</PageTitle>
                         <PageDescription>
@@ -80,17 +100,15 @@ export default function WebhooksPage() {
             </div>
 
             {rows.length === 0 ? (
-                <Card className="p-6 py-10 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                        <Webhook className="h-5 w-5" />
-                    </div>
-                    <p className="text-sm text-[var(--st-text)]">{t('settings.webhooks.empty.title')}</p>
-                    <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-                        {t('settings.webhooks.empty.description')}
-                    </p>
+                <Card>
+                    <EmptyState
+                        icon={Webhook}
+                        title={t('settings.webhooks.empty.title')}
+                        description={t('settings.webhooks.empty.description')}
+                    />
                 </Card>
             ) : (
-                <Card className="p-0">
+                <Card padding="none">
                     <ul className="divide-y divide-[var(--st-border)]">
                         {rows.map((w) => (
                             <WebhookRowItem
@@ -104,21 +122,11 @@ export default function WebhooksPage() {
                 </Card>
             )}
 
-            <Card className="p-6">
-                <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                        <CircleAlert className="h-4 w-4" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-[var(--st-text)]">{t('settings.webhooks.verify.title')}</p>
-                        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-                            {t('settings.webhooks.verify.before')}
-                            <code className="mx-1 rounded bg-[var(--st-bg-muted)] px-1">X-SabNode-Signature</code>
-                            {t('settings.webhooks.verify.after')}
-                        </p>
-                    </div>
-                </div>
-            </Card>
+            <Alert tone="info" title={t('settings.webhooks.verify.title')}>
+                {t('settings.webhooks.verify.before')}
+                <code className="mx-1 rounded bg-[var(--st-bg-secondary)] px-1">X-SabNode-Signature</code>
+                {t('settings.webhooks.verify.after')}
+            </Alert>
         </div>
     );
 }
@@ -130,13 +138,20 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     const [selected, setSelected] = useState<Set<string>>(new Set(['message.received']));
     const { toast } = useToast();
 
+    const toggleEvent = (ev: string, on: boolean) => {
+        const next = new Set(selected);
+        if (on) next.add(ev);
+        else next.delete(ev);
+        setSelected(next);
+    };
+
     const handleSave = () => {
         if (!/^https:\/\//.test(url)) {
-            toast({ title: t('settings.webhooks.toast.urlInvalid'), variant: 'destructive' });
+            toast.error(t('settings.webhooks.toast.urlInvalid'));
             return;
         }
         if (selected.size === 0) {
-            toast({ title: t('settings.webhooks.toast.pickEvent'), variant: 'destructive' });
+            toast.error(t('settings.webhooks.toast.pickEvent'));
             return;
         }
         onAdd({
@@ -155,8 +170,7 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm">
-                    <Plus className="h-4 w-4" />
+                <Button variant="primary" size="sm" iconLeft={Plus}>
                     {t('settings.webhooks.addWebhook')}
                 </Button>
             </DialogTrigger>
@@ -168,49 +182,33 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-2">
-                    <div>
-                        <Label className="mb-1.5 block text-xs">
-                            {t('settings.webhooks.dialog.endpointUrl')}
-                        </Label>
+                    <Field label={t('settings.webhooks.dialog.endpointUrl')}>
                         <Input
+                            type="url"
                             placeholder={t('settings.webhooks.dialog.endpointPlaceholder')}
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
-                    </div>
-                    <div>
-                        <Label className="mb-1.5 block text-xs">{t('settings.webhooks.dialog.events')}</Label>
-                        <div className="flex flex-wrap gap-2">
-                            {ALL_EVENTS.map((ev) => {
-                                const on = selected.has(ev);
-                                return (
-                                    <button
-                                        key={ev}
-                                        type="button"
-                                        onClick={() => {
-                                            const next = new Set(selected);
-                                            if (on) next.delete(ev);
-                                            else next.add(ev);
-                                            setSelected(next);
-                                        }}
-                                        className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                                            on
-                                                ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
-                                                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
-                                        }`}
-                                    >
-                                        {ev}
-                                    </button>
-                                );
-                            })}
+                    </Field>
+                    <Field label={t('settings.webhooks.dialog.events')}>
+                        <div className="flex flex-col gap-2">
+                            {ALL_EVENTS.map((ev) => (
+                                <Checkbox
+                                    key={ev}
+                                    size="sm"
+                                    label={ev}
+                                    checked={selected.has(ev)}
+                                    onChange={(e) => toggleEvent(ev, e.target.checked)}
+                                />
+                            ))}
                         </div>
-                    </div>
+                    </Field>
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         {t('action.cancel')}
                     </Button>
-                    <Button size="sm" onClick={handleSave}>
+                    <Button variant="primary" size="sm" onClick={handleSave}>
                         {t('action.create')}
                     </Button>
                 </DialogFooter>
@@ -244,26 +242,24 @@ function WebhookRowItem({
                 <div className="flex items-center gap-2">
                     <p className="truncate text-sm text-[var(--st-text)]">{row.url}</p>
                     {row.active ? (
-                        <Badge variant="success">{t('settings.webhooks.status.active')}</Badge>
+                        <Badge tone="success">{t('settings.webhooks.status.active')}</Badge>
                     ) : (
-                        <Badge variant="ghost">{t('settings.webhooks.status.paused')}</Badge>
+                        <Badge tone="neutral">{t('settings.webhooks.status.paused')}</Badge>
                     )}
                 </div>
                 <p className="mt-1 truncate text-xs text-[var(--st-text-secondary)]">
-                    {row.events.join(', ')} · {t('settings.webhooks.row.secret')}{' '}
-                    <code className="rounded bg-[var(--st-bg-muted)] px-1">{row.secret.slice(0, 8)}…</code>
+                    {row.events.join(', ')}, {t('settings.webhooks.row.secret')}{' '}
+                    <code className="rounded bg-[var(--st-bg-secondary)] px-1">{row.secret.slice(0, 8)}...</code>
                 </p>
             </div>
             <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={copySecret}>
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                <Button variant="ghost" size="sm" iconLeft={copied ? Check : Copy} onClick={copySecret}>
                     {copied ? t('settings.webhooks.row.copied') : t('settings.webhooks.row.copySecret')}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={onToggle}>
                     {row.active ? t('settings.webhooks.row.pause') : t('settings.webhooks.row.resume')}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={onRemove}>
-                    <Trash2 className="h-4 w-4" />
+                <Button variant="ghost" size="sm" iconLeft={Trash2} onClick={onRemove}>
                     {t('settings.webhooks.row.remove')}
                 </Button>
             </div>

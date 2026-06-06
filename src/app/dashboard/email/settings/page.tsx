@@ -9,8 +9,11 @@ import {
   CardDescription,
   CardFooter,
   Button,
+  IconButton,
   Field,
+  Input,
   Textarea,
+  Checkbox,
   Switch,
   Badge,
   Skeleton,
@@ -28,11 +31,12 @@ import {
   useEffect,
   useState,
   useActionState,
-  type ComponentType } from 'react';
+  type ComponentType,
+  type SVGProps } from 'react';
 import { useSearchParams,
   useRouter } from "next/navigation";
-import { CrmSmtpForm } from '@/components/zoruui-domain/crm-smtp-form';
-import { AlertCircle,
+import {
+  AlertCircle,
   Mail,
   FileText,
   Settings,
@@ -43,21 +47,151 @@ import { AlertCircle,
   ArrowLeft,
   Trash2,
   CheckCircle,
+  Server,
+  Copy,
+  Check,
   Save } from 'lucide-react';
 import { getEmailSettings,
   saveEmailComplianceSettings,
   disconnectEmailSettings } from '@/app/actions/email.actions';
+import { saveCrmEmailSettings } from '@/app/actions/crm-email.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { EmailSettings as CrmEmailSettings,
   User,
   WithId } from '@/lib/definitions';
-import { GoogleIcon,
-  OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
-import { ModuleLayout } from '@/components/zoruui-domain/module-layout';
-import { ModuleSidebar } from '@/components/zoruui-domain/module-sidebar';
-import { CodeBlock } from '@/components/zoruui-domain/code-block';
 import { useFormStatus } from 'react-dom';
 import { EmailSuiteLayout } from '@/components/email/layout';
+
+/* ------------------------------------------------------------------ icons */
+/* Brand glyphs inlined locally so this page imports zero design-system or
+ * domain pieces from outside the 20ui surface. Decorative by default; callers
+ * may pass aria props. */
+
+function GoogleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg role="img" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.08-2.58 1.98-4.48 1.98-3.79 0-7.17-3.22-7.17-7.22s3.38-7.22 7.17-7.22c2.23 0 3.63.92 4.48 1.75l2.72-2.72C19.62 3.39 16.67 2 12.48 2 7.01 2 2.56 6.18 2.56 12s4.45 10 9.92 10c2.79 0 5.1-1 6.88-2.84 1.92-1.92 2.58-4.75 2.58-7.17 0-.66-.07-1.32-.19-1.98z" />
+    </svg>
+  );
+}
+
+function OutlookIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" {...props}>
+      <path fill="currentColor" d="M228 64a12 12 0 0 0-12 12v56a12 12 0 0 1-12 12H76a12 12 0 0 1-12-12V88h60.46a12 12 0 0 0 10.7-5.83l24-40A12 12 0 0 0 148.46 28H104a12 12 0 0 0-10.7 5.83l-32 53.33A12 12 0 0 0 64 96H28a12 12 0 0 0-12 12v68a12 12 0 0 0 12 12h188a12 12 0 0 0 12-12v-56a12 12 0 0 1 12-12h12a12 12 0 0 0 0-24zm-12 92H28v-68h36v20a12 12 0 0 0 12 12h140z" />
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ CodeBlock */
+/* A copy-to-clipboard code surface built on 20ui tokens + IconButton. */
+
+function CodeBlock({ code, wrap }: { code: string; language?: string; wrap?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success('Copied to clipboard.');
+    });
+  };
+
+  return (
+    <div className="relative rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-4 font-mono text-sm">
+      <span className="absolute right-2 top-2">
+        <IconButton
+          label={copied ? 'Copied' : 'Copy code'}
+          icon={copied ? Check : Copy}
+          variant="ghost"
+          size="sm"
+          onClick={onCopy}
+        />
+      </span>
+      <pre className={wrap ? 'whitespace-pre-wrap break-all overflow-hidden pr-8' : 'overflow-x-auto pr-8'}>
+        <code className="text-[var(--st-text)]">{code.trim()}</code>
+      </pre>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ SmtpForm */
+/* Pure-20ui custom-SMTP form. Posts to the same saveCrmEmailSettings action and
+ * uses the same FormData field names (fromName, fromEmail, smtpHost, smtpPort,
+ * smtpUser, smtpPass, smtpSecure) so behaviour is unchanged. */
+
+function SmtpSubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="primary" loading={pending} iconLeft={Save}>
+      Save SMTP Configuration
+    </Button>
+  );
+}
+
+const smtpInitialState: { message?: string; error?: string } = { message: undefined, error: undefined };
+
+function SmtpForm({ settings }: { settings: WithId<CrmEmailSettings> | CrmEmailSettings | null }) {
+  const [state, formAction] = useActionState(saveCrmEmailSettings, smtpInitialState);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (state.message) toast.success(state.message);
+    if (state.error) toast.error(state.error);
+  }, [state, toast]);
+
+  return (
+    <form action={formAction}>
+      <Card padding="none">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Server className="h-5 w-5" aria-hidden="true" />
+            Custom SMTP
+          </CardTitle>
+          <CardDescription>
+            Connect your own SMTP server to send emails. This gives you full control over your email delivery.
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="From Name">
+              <Input name="fromName" defaultValue={settings?.fromName} placeholder="e.g. SabNode Support" required />
+            </Field>
+            <Field label="From Email">
+              <Input name="fromEmail" type="email" defaultValue={settings?.fromEmail} placeholder="e.g. support@yourdomain.com" required />
+            </Field>
+          </div>
+          <Separator />
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="SMTP Host">
+              <Input name="smtpHost" defaultValue={settings?.smtp?.host} placeholder="smtp.example.com" required />
+            </Field>
+            <Field label="SMTP Port">
+              <Input name="smtpPort" type="number" defaultValue={settings?.smtp?.port ?? 587} required />
+            </Field>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="SMTP Username">
+              <Input name="smtpUser" defaultValue={settings?.smtp?.user} required />
+            </Field>
+            <Field label="SMTP Password">
+              <Input name="smtpPass" type="password" defaultValue={settings?.smtp?.pass} required />
+            </Field>
+          </div>
+          <Checkbox
+            name="smtpSecure"
+            defaultChecked={settings?.smtp?.secure !== false}
+            label="Use SSL/TLS Encryption"
+          />
+        </CardBody>
+        <CardFooter>
+          <SmtpSubmitButton />
+        </CardFooter>
+      </Card>
+    </form>
+  );
+}
 
 function PageSkeleton() {
     return (
@@ -88,7 +222,7 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
         <form action={formAction}>
             <Card padding="none">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance and Unsubscribe</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" aria-hidden="true" />Compliance and Unsubscribe</CardTitle>
                     <CardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</CardDescription>
                 </CardHeader>
                 <CardBody className="space-y-4">
@@ -104,7 +238,7 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
                         label="Physical Mailing Address"
                         help="Required by CAN-SPAM for all commercial emails."
                     >
-                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g. 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
+                        <Textarea name="physicalAddress" placeholder="e.g. 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
                     </Field>
                 </CardBody>
                 <CardFooter>
@@ -135,7 +269,7 @@ function DeliverabilityTab() {
     return (
         <Card padding="none">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Domain Authentication</CardTitle>
+                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" aria-hidden="true" />Domain Authentication</CardTitle>
                 <CardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain&apos;s DNS settings.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-6">
@@ -167,7 +301,7 @@ function IntegrationsTab({ userId }: { userId: string }) {
         <div className="space-y-6">
             <Card padding="none">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API and Webhooks</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" aria-hidden="true" />API and Webhooks</CardTitle>
                     <CardDescription>Programmatically interact with your email data.</CardDescription>
                 </CardHeader>
                 <CardBody className="space-y-4">
@@ -201,7 +335,6 @@ interface OnboardingCardProps {
 }
 
 function OnboardingCard({ title, description, icon: Icon, href, features }: OnboardingCardProps) {
-    const router = useRouter();
     return (
         <Card variant="interactive" padding="none" className="h-full flex flex-col">
             <CardHeader>
@@ -232,13 +365,21 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: Onbo
                     </Button>
                 ) : (
                     <div className="w-full mt-4">
-                        <CrmSmtpForm settings={null} />
+                        <SmtpForm settings={null} />
                     </div>
                 )}
             </CardFooter>
         </Card>
     )
 }
+
+const SETTINGS_NAV = [
+    { value: 'email', label: 'Configuration', icon: Settings },
+    { value: 'templates', label: 'Templates', icon: FileText },
+    { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
+    { value: 'deliverability', label: 'Deliverability', icon: BarChart3 },
+    { value: 'integrations', label: 'Other Integrations', icon: Zap },
+] as const;
 
 function EmailSettingsPageContent() {
     const searchParams = useSearchParams();
@@ -291,7 +432,7 @@ function EmailSettingsPageContent() {
                     <PageHeading>
                         <PageTitle>
                             <span className="inline-flex items-center gap-3">
-                                <Mail className="h-7 w-7" /> Email Suite
+                                <Mail className="h-7 w-7" aria-hidden="true" /> Email Suite
                             </span>
                         </PageTitle>
                         <PageDescription>Manage your connected email accounts.</PageDescription>
@@ -331,7 +472,7 @@ function EmailSettingsPageContent() {
                                         <span className="p-3 bg-[var(--st-bg-secondary)] rounded-full" aria-hidden="true">
                                             <Icon className="h-6 w-6 text-[var(--st-text)]" />
                                         </span>
-                                        <Badge tone="success" className="inline-flex items-center"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
+                                        <Badge tone="success" className="inline-flex items-center"><CheckCircle className="h-3 w-3 mr-1" aria-hidden="true" /> Active</Badge>
                                     </div>
                                     <CardTitle className="pt-4 truncate">{account.fromName || 'Unnamed Account'}</CardTitle>
                                     <CardDescription className="truncate">{account.fromEmail}</CardDescription>
@@ -388,11 +529,11 @@ function EmailSettingsPageContent() {
                         <Card padding="lg">
                             <div className="flex flex-col justify-center gap-4">
                                 <div className="flex items-center gap-3 mb-2 text-[var(--st-text)]">
-                                    <Mail className="h-6 w-6" /> Custom SMTP
+                                    <Mail className="h-6 w-6" aria-hidden="true" /> Custom SMTP
                                 </div>
                                 <p className="text-sm text-[var(--st-text-secondary)] mb-4">Connect any email provider via SMTP/IMAP credentials.</p>
                                 <div className="flex-grow">
-                                    <CrmSmtpForm settings={null} />
+                                    <SmtpForm settings={null} />
                                 </div>
                             </div>
                         </Card>
@@ -424,26 +565,34 @@ function EmailSettingsPageContent() {
                     }}>
                         Back
                     </Button>
-                    <span className="text-[var(--st-text-secondary)]">/</span>
+                    <span className="text-[var(--st-text-secondary)]" aria-hidden="true">/</span>
                     <span className="text-[var(--st-text)]">{currentSettings?.fromEmail}</span>
                 </div>
 
-                <ModuleLayout
-                    sidebar={
-                        <ModuleSidebar
-                            title="Email Settings"
-                            activeValue={activeTab}
-                            onValueChange={setActiveTab}
-                            items={[
-                                { value: 'email', label: 'Configuration', icon: Settings },
-                                { value: 'templates', label: 'Templates', icon: FileText },
-                                { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
-                                { value: 'deliverability', label: 'Deliverability', icon: BarChart3 },
-                                { value: 'integrations', label: 'Other Integrations', icon: Zap },
-                            ]}
-                        />
-                    }
-                >
+                <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-6 items-start h-full">
+                    <aside className="hidden md:block sticky top-0 h-full overflow-y-auto pr-4 border-r border-[var(--st-border)]">
+                        <nav className="flex flex-col gap-2" aria-label="Email settings">
+                            <div className="px-4 py-2 mb-2">
+                                <h2 className="text-lg text-[var(--st-text)]">Email Settings</h2>
+                            </div>
+                            {SETTINGS_NAV.map((item) => {
+                                const isActive = activeTab === item.value;
+                                return (
+                                    <Button
+                                        key={item.value}
+                                        variant={isActive ? 'secondary' : 'ghost'}
+                                        iconLeft={item.icon}
+                                        className="justify-start w-full"
+                                        aria-current={isActive ? 'page' : undefined}
+                                        onClick={() => setActiveTab(item.value)}
+                                    >
+                                        {item.label}
+                                    </Button>
+                                );
+                            })}
+                        </nav>
+                    </aside>
+                    <main className="flex-1 overflow-visible min-w-0">
                     {activeTab === 'email' && currentSettings && (
                         <div className="space-y-6">
                             <Card padding="none">
@@ -484,7 +633,7 @@ function EmailSettingsPageContent() {
                                     <Separator />
                                     <div className="mt-6">
                                         <h3 className="text-lg mb-4 text-[var(--st-text)]">SMTP Configuration</h3>
-                                        <CrmSmtpForm settings={currentSettings} />
+                                        <SmtpForm settings={currentSettings} />
                                     </div>
                                 </>
                             )}
@@ -518,7 +667,8 @@ function EmailSettingsPageContent() {
                     {activeTab === 'integrations' && (
                         <IntegrationsTab userId={user.id} />
                     )}
-                </ModuleLayout>
+                    </main>
+                </div>
             </div>
         </EmailSuiteLayout>
     );

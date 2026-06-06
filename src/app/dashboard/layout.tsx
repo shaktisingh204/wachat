@@ -9,10 +9,10 @@ import { getCachedSession,
 import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
 
 /**
- * /dashboard layout — the SabNode account dashboard, on ZoruUI.
+ * /dashboard layout - the SabNode account dashboard, on the 20ui shell.
  *
  * Server Component: checks session, redirects unauthenticated users,
- * then wraps children in `SabHomeShell` (zoruui sidebar + header +
+ * then wraps children in `SabHomeShell` (sidebar + header +
  * bottom-anchored dock). The vertical app rail and the URL-synced
  * multi-tab strip are both intentionally absent.
  *
@@ -46,7 +46,7 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
-  // Always fetch projects — both for the onboarding gate AND to seed
+  // Always fetch projects, both for the onboarding gate AND to seed
   // the ProjectProvider so every /dashboard/* page can call useProject()
   // without crashing.
   const projects = (await getCachedProjects()) || [];
@@ -61,7 +61,7 @@ export default async function DashboardLayout({
   // `locale` cookie set by the client provider, the user's saved
   // `language` preference, and falls back to English. Hydrating this on
   // the server means RSC and the first client render agree on which
-  // dictionary to use — no hydration flash on translated strings.
+  // dictionary to use, no hydration flash on translated strings.
   const locale = await getCurrentLocale();
 
   // session.user.credits is keyed by channel; collapse to a single

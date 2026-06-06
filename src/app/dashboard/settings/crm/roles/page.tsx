@@ -1,40 +1,38 @@
 'use client';
 
 /**
- * SabCRM — Roles & Permissions settings (`/dashboard/settings/crm/roles`),
- * Twenty-faithful.
+ * SabCRM - Roles & Permissions settings (`/dashboard/settings/crm/roles`).
  *
- * A two-pane "Roles" screen in Twenty's Settings visual language:
+ * A two-pane "Roles" screen:
  *   - LEFT pane lists every role for the active project (name, member count,
  *     default badge) with a "New role" action.
  *   - RIGHT pane is the editor for the selected role:
- *       · editable name + description (saved via `updateRoleTw`),
- *       · a permission matrix — Twenty toggle rows for each capability key,
+ *       . editable name + description (saved via `updateRoleTw`),
+ *       . a permission matrix - toggle rows for each capability key,
  *         persisted with `updateRoleTw({ permissions })`,
- *       · Twenty permission depth (parallel role-shape additions):
- *           - a **Defaults** card of workspace-wide CRUD grants
+ *       . permission depth (parallel role-shape additions):
+ *           - a Defaults card of workspace-wide CRUD grants
  *             (`updateRoleTw({ defaults })`),
- *           - an **Objects** matrix of per-object tri-state Read/Update/Delete/
+ *           - an Objects matrix of per-object tri-state Read/Update/Delete/
  *             Destroy overrides (`updateRoleTw({ objectPermissions })`),
- *           - a **Fields** editor (pick object → per-field Read/Edit tri-state,
+ *           - a Fields editor (pick object, per-field Read/Edit tri-state,
  *             `updateRoleTw({ fieldPermissions })`),
- *           - a **Capabilities** checklist of settings/tool permission flags
+ *           - a Capabilities checklist of settings/tool permission flags
  *             (`updateRoleTw({ permissionFlags })`),
  *         all sourcing the object/field catalogue from `listSabcrmObjectsTw`,
- *       · a member roster (from `listMembersAction`) where each row toggles
+ *       . a member roster (from `listMembersAction`) where each row toggles
  *         assignment to this role via `setRoleMemberTw`, with assigned members
- *         surfaced as TwentyAvatar chips,
- *       · delete (confirm) for non-default roles.
+ *         surfaced as Avatar chips,
+ *       . delete (confirm) for non-default roles.
  *
  * Every mutation goes through the gated server actions in
- * `@/app/actions/sabcrm-roles.actions` (session → project → RBAC → plan), which
+ * `@/app/actions/sabcrm-roles.actions` (session, project, RBAC, plan), which
  * wrap the roles engine. That engine may be DOWN; each call returns an
  * `ActionResult`, so the page degrades to loading / empty / error states and
  * never crashes. Auth / RBAC / project context are enforced by the parent
  * `../../layout.tsx`; the actions independently re-run the full gate.
  *
- * Twenty look only (`.st-*` kit + the sibling `./roles.css`). No ZoruUI /
- * Tailwind / clay.
+ * Pure 20ui design system (`@/components/sabcrm/20ui`).
  */
 
 import * as React from 'react';
@@ -42,8 +40,6 @@ import {
   Plus,
   Shield,
   ShieldCheck,
-  AlertTriangle,
-  Loader2,
   Trash2,
   Check,
   X,
@@ -59,14 +55,47 @@ import {
   Workflow,
   Webhook,
   Lock,
-  ChevronDown,
+  Minus,
 } from 'lucide-react';
 
 import {
-  TwentyPageHeader,
-  TwentyButton,
-  TwentyAvatar,
-} from '@/components/sabcrm/twenty';
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Switch,
+  Checkbox,
+  Badge,
+  Avatar,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Spinner,
+  Modal,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import {
@@ -79,10 +108,6 @@ import {
 import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { CrmMember } from '@/lib/sabcrm/members.server';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './roles.css';
 
 // ---------------------------------------------------------------------------
 // Role shape (mirrors the `sabcrm-roles.actions` payload).
@@ -120,7 +145,7 @@ interface CrmRole {
   permissions: string[];
   memberIds: string[];
   isDefault?: boolean;
-  /** Twenty permission depth (added in parallel; may be absent on old docs). */
+  /** Permission depth (added in parallel; may be absent on old docs). */
   defaults?: RoleDefaults;
   objectPermissions?: ObjectPermission[];
   fieldPermissions?: FieldPermission[];
@@ -145,7 +170,7 @@ function fromTri(t: TriState): boolean | undefined {
 }
 
 // ---------------------------------------------------------------------------
-// Permission catalogue — the fixed set of capability keys a role can grant.
+// Permission catalogue - the fixed set of capability keys a role can grant.
 // ---------------------------------------------------------------------------
 
 interface PermissionInfo {
@@ -189,7 +214,7 @@ const PERMISSIONS: ReadonlyArray<PermissionInfo> = [
 ];
 
 // ---------------------------------------------------------------------------
-// Defaults — workspace-wide fallback CRUD grants (Twenty "Defaults" card).
+// Defaults - workspace-wide fallback CRUD grants.
 // ---------------------------------------------------------------------------
 
 interface DefaultInfo {
@@ -227,7 +252,7 @@ const DEFAULTS: ReadonlyArray<DefaultInfo> = [
 ];
 
 // ---------------------------------------------------------------------------
-// Object-permission matrix — the four CRUD columns, each a tri-state cell.
+// Object-permission matrix - the four CRUD columns, each a tri-state cell.
 // ---------------------------------------------------------------------------
 
 interface CrudColumn {
@@ -243,14 +268,14 @@ const CRUD_COLUMNS: ReadonlyArray<CrudColumn> = [
   { key: 'destroy', label: 'Destroy', Icon: X },
 ];
 
-/** Field-permission columns — Twenty exposes only read + edit at the field level. */
+/** Field-permission columns - read + edit only at the field level. */
 const FIELD_COLUMNS: ReadonlyArray<CrudColumn> = [
   { key: 'read', label: 'Read', Icon: Eye },
   { key: 'update', label: 'Edit', Icon: Pencil },
 ];
 
 // ---------------------------------------------------------------------------
-// Capability flags — Twenty's settings + tool permission flags checklist.
+// Capability flags - the settings + tool permission flags checklist.
 // ---------------------------------------------------------------------------
 
 interface FlagInfo {
@@ -315,45 +340,47 @@ const PERMISSION_FLAGS: ReadonlyArray<FlagInfo> = [
 // Shared bits
 // ---------------------------------------------------------------------------
 
-function ErrorBanner({ message }: { message: string }): React.JSX.Element {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
-}
-
 /** Inline saving / saved / error status shown beside a block head. */
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 function SaveStatus({ state }: { state: SaveState }): React.JSX.Element | null {
   if (state === 'saving') {
     return (
-      <span className="rp-status rp-status--saving">
-        <Loader2 size={13} className="st-spin" aria-hidden="true" /> Saving…
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+        <Spinner size={13} label="Saving" /> Saving
       </span>
     );
   }
   if (state === 'saved') {
     return (
-      <span className="rp-status rp-status--saved">
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--st-status-ok)]">
         <Check size={13} aria-hidden="true" /> Saved
       </span>
     );
   }
   if (state === 'error') {
     return (
-      <span className="rp-status rp-status--error">
-        <AlertTriangle size={13} aria-hidden="true" /> Not saved
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--st-danger)]">
+        <X size={13} aria-hidden="true" /> Not saved
       </span>
     );
   }
   return null;
 }
 
+/** A loading skeleton stack for a pane. */
+function PaneSkeleton({ rows }: { rows: number }): React.JSX.Element {
+  return (
+    <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-[var(--st-space-3)]">
+      {Array.from({ length: rows }).map((_, i) => (
+        <Skeleton key={i} height={18} radius={6} />
+      ))}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
-// Left pane — role list
+// Left pane - role list
 // ---------------------------------------------------------------------------
 
 interface RoleListProps {
@@ -372,52 +399,68 @@ function RoleList({
   creating,
 }: RoleListProps): React.JSX.Element {
   return (
-    <nav className="rp-list" aria-label="Roles">
-      <div className="rp-list__head">
-        <h2 className="rp-list__heading">Roles</h2>
-        <TwentyButton
+    <nav className="flex flex-col gap-2" aria-label="Roles">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">Roles</h2>
+        <Button
           variant="secondary"
-          icon={Plus}
+          size="sm"
+          iconLeft={Plus}
           onClick={onNew}
-          disabled={creating}
+          loading={creating}
         >
           New role
-        </TwentyButton>
+        </Button>
       </div>
-      <div className="rp-list__body">
+      <div className="flex flex-col gap-1">
         {roles.length === 0 ? (
-          <p className="rp-list__empty">No roles yet.</p>
+          <p className="px-1 py-2 text-sm text-[var(--st-text-tertiary)]">
+            No roles yet.
+          </p>
         ) : (
           roles.map((role) => {
             const active = role.id === activeId;
             const count = role.memberIds.length;
             return (
-              <button
+              <Button
                 key={role.id}
-                type="button"
-                className={`rp-item${active ? ' active' : ''}`}
+                variant={active ? 'outline' : 'ghost'}
+                block
                 aria-current={active ? 'true' : undefined}
                 onClick={() => onSelect(role.id)}
+                className={[
+                  'h-auto !justify-start gap-2.5 px-3 py-2 text-left',
+                  active
+                    ? '!border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                    : '',
+                ].join(' ')}
               >
-                <span className="rp-item__icon" aria-hidden="true">
-                  {role.isDefault ? (
-                    <ShieldCheck size={15} />
-                  ) : (
-                    <Shield size={15} />
-                  )}
-                </span>
-                <span className="rp-item__body">
-                  <span className="rp-item__name">
-                    {role.name}
+                <span className="flex w-full items-center gap-2.5">
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                    aria-hidden="true"
+                  >
                     {role.isDefault ? (
-                      <span className="rp-badge rp-badge--default">Default</span>
-                    ) : null}
+                      <ShieldCheck size={15} />
+                    ) : (
+                      <Shield size={15} />
+                    )}
                   </span>
-                  <span className="rp-item__meta">
-                    {count} member{count !== 1 ? 's' : ''}
+                  <span className="flex min-w-0 flex-col">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-[var(--st-text)]">
+                      <span className="truncate">{role.name}</span>
+                      {role.isDefault ? (
+                        <Badge tone="accent" kind="soft">
+                          Default
+                        </Badge>
+                      ) : null}
+                    </span>
+                    <span className="text-xs text-[var(--st-text-tertiary)]">
+                      {count} member{count !== 1 ? 's' : ''}
+                    </span>
                   </span>
                 </span>
-              </button>
+              </Button>
             );
           })
         )}
@@ -427,7 +470,7 @@ function RoleList({
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — role editor: name + description block
+// Right pane - role editor: name + description block
 // ---------------------------------------------------------------------------
 
 interface IdentityBlockProps {
@@ -441,6 +484,7 @@ function IdentityBlock({
   projectId,
   onSaved,
 }: IdentityBlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [name, setName] = React.useState(role.name);
   const [description, setDescription] = React.useState(role.description ?? '');
   const [state, setState] = React.useState<SaveState>('idle');
@@ -470,28 +514,26 @@ function IdentityBlock({
     if (res.ok) {
       setState('saved');
       onSaved(res.data);
+      toast.success('Role details saved');
     } else {
       setState('error');
       setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Role details">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">Details</h3>
-          <p className="rp-block__sub">The role&apos;s name and description.</p>
+          <CardTitle>Details</CardTitle>
+          <CardDescription>The role&apos;s name and description.</CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
-        <div className="st-field">
-          <span className="st-field__label">
-            Name<span className="st-field__req">*</span>
-          </span>
-          <input
-            className="st-input"
+      </CardHeader>
+      <CardBody className="flex flex-col gap-4">
+        <Field label="Name" required error={error ?? undefined}>
+          <Input
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -501,11 +543,9 @@ function IdentityBlock({
             autoComplete="off"
             disabled={role.isDefault}
           />
-        </div>
-        <div className="st-field">
-          <span className="st-field__label">Description</span>
-          <textarea
-            className="st-textarea"
+        </Field>
+        <Field label="Description">
+          <Textarea
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
@@ -514,28 +554,24 @@ function IdentityBlock({
             placeholder="What this role is allowed to do."
             rows={2}
           />
-        </div>
-        {error ? <p className="st-form-error">{error}</p> : null}
+        </Field>
         <div>
-          <button
-            type="button"
-            className="st-btn st-btn--primary"
+          <Button
+            variant="primary"
             disabled={!canSave}
+            loading={state === 'saving'}
             onClick={handleSave}
           >
-            {state === 'saving' ? (
-              <Loader2 size={14} className="st-spin" aria-hidden="true" />
-            ) : null}
             Save changes
-          </button>
+          </Button>
         </div>
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — permission matrix
+// Right pane - permission matrix
 // ---------------------------------------------------------------------------
 
 interface PermissionBlockProps {
@@ -549,8 +585,8 @@ function PermissionBlock({
   projectId,
   onSaved,
 }: PermissionBlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [state, setState] = React.useState<SaveState>('idle');
-  const [error, setError] = React.useState<string | null>(null);
   const [busyKey, setBusyKey] = React.useState<string | null>(null);
 
   const granted = React.useMemo(
@@ -566,7 +602,6 @@ function PermissionBlock({
 
     setBusyKey(key);
     setState('saving');
-    setError(null);
     const res = await updateRoleTw(
       role.id,
       { permissions: Array.from(nextPerms) },
@@ -578,75 +613,75 @@ function PermissionBlock({
       onSaved(res.data);
     } else {
       setState('error');
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Permissions">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">Permissions</h3>
-          <p className="rp-block__sub">
+          <CardTitle>Permissions</CardTitle>
+          <CardDescription>
             Capabilities granted to everyone with this role.
-          </p>
+          </CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
+      </CardHeader>
+      <CardBody className="flex flex-col gap-3">
         {role.isDefault ? (
-          <p className="rp-block__sub">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             The default role&apos;s permissions are managed by the system and
             cannot be edited.
           </p>
         ) : null}
-        <div className="rp-matrix" role="group" aria-label="Permission matrix">
+        <div
+          className="flex flex-col gap-1"
+          role="group"
+          aria-label="Permission matrix"
+        >
           {PERMISSIONS.map((perm) => {
             const { Icon } = perm;
             const checked = granted.has(perm.key);
             const busy = busyKey === perm.key;
             const disabled = role.isDefault || busy;
             return (
-              <label
+              <div
                 key={perm.key}
-                className={`rp-perm${disabled ? ' rp-perm--disabled' : ''}`}
+                className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2.5"
               >
-                <span className="rp-perm__icon" aria-hidden="true">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                >
                   <Icon size={15} />
                 </span>
-                <span className="rp-perm__body">
-                  <span className="rp-perm__label">{perm.label}</span>
-                  <span className="rp-perm__key">{perm.key}</span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-sm font-medium text-[var(--st-text)]">
+                    {perm.label}
+                  </span>
+                  <span className="font-mono text-xs text-[var(--st-text-tertiary)]">
+                    {perm.key}
+                  </span>
                 </span>
-                {busy ? (
-                  <Loader2
-                    size={14}
-                    className="st-spin text-[var(--st-text-tertiary)]"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                <span className="rp-switch">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={disabled}
-                    onChange={(e) => handleToggle(perm.key, e.target.checked)}
-                    aria-label={perm.label}
-                  />
-                  <span className="rp-switch__track" aria-hidden="true" />
-                </span>
-              </label>
+                {busy ? <Spinner size={14} label="Saving" /> : null}
+                <Switch
+                  checked={checked}
+                  disabled={disabled}
+                  onCheckedChange={(value) => handleToggle(perm.key, value)}
+                  aria-label={perm.label}
+                />
+              </div>
             );
           })}
         </div>
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — Defaults card (workspace-wide fallback CRUD grants)
+// Right pane - Defaults card (workspace-wide fallback CRUD grants)
 // ---------------------------------------------------------------------------
 
 interface BlockProps {
@@ -660,8 +695,8 @@ function DefaultsBlock({
   projectId,
   onSaved,
 }: BlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [state, setState] = React.useState<SaveState>('idle');
-  const [error, setError] = React.useState<string | null>(null);
   const [busyKey, setBusyKey] = React.useState<string | null>(null);
 
   const defaults = role.defaults ?? {};
@@ -673,7 +708,6 @@ function DefaultsBlock({
     if (role.isDefault) return;
     setBusyKey(key);
     setState('saving');
-    setError(null);
     const res = await updateRoleTw(
       role.id,
       { defaults: { ...defaults, [key]: next } },
@@ -685,70 +719,70 @@ function DefaultsBlock({
       onSaved(res.data as CrmRole);
     } else {
       setState('error');
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Defaults">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">Defaults</h3>
-          <p className="rp-block__sub">
-            Workspace-wide grants this role falls back to when no object or
-            field override applies.
-          </p>
+          <CardTitle>Defaults</CardTitle>
+          <CardDescription>
+            Workspace-wide grants this role falls back to when no object or field
+            override applies.
+          </CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
+      </CardHeader>
+      <CardBody className="flex flex-col gap-3">
         {role.isDefault ? (
-          <p className="rp-block__sub">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             The default role&apos;s grants are managed by the system.
           </p>
         ) : null}
-        <div className="rp-matrix" role="group" aria-label="Default grants">
+        <div
+          className="flex flex-col gap-1"
+          role="group"
+          aria-label="Default grants"
+        >
           {DEFAULTS.map((d) => {
             const { Icon } = d;
             const checked = defaults[d.key] === true;
             const busy = busyKey === d.key;
             const disabled = role.isDefault || busy;
             return (
-              <label
+              <div
                 key={d.key}
-                className={`rp-perm${disabled ? ' rp-perm--disabled' : ''}`}
+                className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2.5"
               >
-                <span className="rp-perm__icon" aria-hidden="true">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                >
                   <Icon size={15} />
                 </span>
-                <span className="rp-perm__body">
-                  <span className="rp-perm__label">{d.label}</span>
-                  <span className="rp-perm__desc">{d.desc}</span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-sm font-medium text-[var(--st-text)]">
+                    {d.label}
+                  </span>
+                  <span className="text-xs text-[var(--st-text-tertiary)]">
+                    {d.desc}
+                  </span>
                 </span>
-                {busy ? (
-                  <Loader2
-                    size={14}
-                    className="st-spin text-[var(--st-text-tertiary)]"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                <span className="rp-switch">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={disabled}
-                    onChange={(e) => handleToggle(d.key, e.target.checked)}
-                    aria-label={d.label}
-                  />
-                  <span className="rp-switch__track" aria-hidden="true" />
-                </span>
-              </label>
+                {busy ? <Spinner size={14} label="Saving" /> : null}
+                <Switch
+                  checked={checked}
+                  disabled={disabled}
+                  onCheckedChange={(value) => handleToggle(d.key, value)}
+                  aria-label={d.label}
+                />
+              </div>
             );
           })}
         </div>
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -765,16 +799,22 @@ interface TriCellProps {
 }
 
 const TRI_ORDER: ReadonlyArray<TriState> = ['default', 'allow', 'deny'];
-const TRI_GLYPH: Record<TriState, React.ReactNode> = {
-  default: <span className="rp-tri__dash" aria-hidden="true" />,
-  allow: <Check size={13} aria-hidden="true" />,
-  deny: <X size={13} aria-hidden="true" />,
-};
 const TRI_NEXT_LABEL: Record<TriState, string> = {
   default: 'Default',
   allow: 'Allow',
   deny: 'Deny',
 };
+const TRI_TONE: Record<TriState, string> = {
+  default: 'text-[var(--st-text-tertiary)] border-[var(--st-border)]',
+  allow: 'text-[var(--st-status-ok)] border-[var(--st-status-ok)]',
+  deny: 'text-[var(--st-danger)] border-[var(--st-danger)]',
+};
+
+function TriGlyph({ value }: { value: TriState }): React.JSX.Element {
+  if (value === 'allow') return <Check size={13} aria-hidden="true" />;
+  if (value === 'deny') return <X size={13} aria-hidden="true" />;
+  return <Minus size={13} aria-hidden="true" />;
+}
 
 function TriCell({
   value,
@@ -789,25 +829,22 @@ function TriCell({
     onChange(TRI_ORDER[(idx + 1) % TRI_ORDER.length]!);
   };
   return (
-    <button
-      type="button"
-      className={`rp-tri rp-tri--${value}${disabled ? ' rp-tri--disabled' : ''}`}
+    <Button
+      variant="outline"
+      size="sm"
       onClick={cycle}
       disabled={disabled}
       aria-label={`${label}: ${TRI_NEXT_LABEL[value]}`}
       title={TRI_NEXT_LABEL[value]}
+      className={['h-7 w-7 !p-0', TRI_TONE[value]].join(' ')}
     >
-      {busy ? (
-        <Loader2 size={12} className="st-spin" aria-hidden="true" />
-      ) : (
-        TRI_GLYPH[value]
-      )}
-    </button>
+      {busy ? <Spinner size={12} label="Saving" /> : <TriGlyph value={value} />}
+    </Button>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — Object-permission matrix (per object, tri-state CRUD)
+// Right pane - Object-permission matrix (per object, tri-state CRUD)
 // ---------------------------------------------------------------------------
 
 interface ObjectFieldBlockProps extends BlockProps {
@@ -824,8 +861,8 @@ function ObjectPermissionBlock({
   objectsLoading,
   objectsError,
 }: ObjectFieldBlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [state, setState] = React.useState<SaveState>('idle');
-  const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
 
   const byObject = React.useMemo(() => {
@@ -857,7 +894,6 @@ function ObjectPermissionBlock({
 
     setBusy(`${object}:${column}`);
     setState('saving');
-    setError(null);
     const res = await updateRoleTw(
       role.id,
       { objectPermissions: nextList },
@@ -869,95 +905,86 @@ function ObjectPermissionBlock({
       onSaved(res.data as CrmRole);
     } else {
       setState('error');
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Object permissions">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">
-            <Boxes
-              size={15}
-              aria-hidden="true"
-              style={{ verticalAlign: '-2px', marginRight: 6 }}
-            />
+          <CardTitle className="flex items-center gap-1.5">
+            <Boxes size={15} aria-hidden="true" />
             Objects
-          </h3>
-          <p className="rp-block__sub">
-            Override the defaults per object. Each cell cycles Default → Allow →
+          </CardTitle>
+          <CardDescription>
+            Override the defaults per object. Each cell cycles Default, Allow,
             Deny.
-          </p>
+          </CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
+      </CardHeader>
+      <CardBody>
         {objectsLoading ? (
-          <div className="st-table-wrap p-[var(--st-space-3)]">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
-            ))}
-          </div>
+          <PaneSkeleton rows={4} />
         ) : objectsError ? (
-          <ErrorBanner message={objectsError} />
+          <Alert tone="danger" title="Could not load objects">
+            {objectsError}
+          </Alert>
         ) : objects.length === 0 ? (
-          <p className="rp-block__sub">No objects in this project yet.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            No objects in this project yet.
+          </p>
         ) : (
-          <div className="rp-grid-wrap">
-            <table className="rp-grid" role="grid">
-              <thead>
-                <tr>
-                  <th scope="col" className="rp-grid__obj">
-                    Object
-                  </th>
-                  {CRUD_COLUMNS.map((c) => (
-                    <th key={c.key} scope="col" className="rp-grid__col">
-                      {c.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {objects.map((obj) => {
-                  const op = byObject.get(obj.slug);
-                  return (
-                    <tr key={obj.slug}>
-                      <th scope="row" className="rp-grid__obj">
-                        {obj.labelPlural || obj.labelSingular || obj.slug}
-                      </th>
-                      {CRUD_COLUMNS.map((c) => {
-                        const tri = toTri(op?.[c.key]);
-                        const cellBusy = busy === `${obj.slug}:${c.key}`;
-                        return (
-                          <td key={c.key} className="rp-grid__cell">
-                            <TriCell
-                              value={tri}
-                              disabled={role.isDefault}
-                              busy={cellBusy}
-                              label={`${obj.labelSingular || obj.slug} ${c.label}`}
-                              onChange={(next) =>
-                                handleChange(obj.slug, c.key, next)
-                              }
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <Table density="compact" hover={false}>
+            <THead>
+              <Tr>
+                <Th>Object</Th>
+                {CRUD_COLUMNS.map((c) => (
+                  <Th key={c.key} align="center">
+                    {c.label}
+                  </Th>
+                ))}
+              </Tr>
+            </THead>
+            <TBody>
+              {objects.map((obj) => {
+                const op = byObject.get(obj.slug);
+                return (
+                  <Tr key={obj.slug}>
+                    <Td>
+                      {obj.labelPlural || obj.labelSingular || obj.slug}
+                    </Td>
+                    {CRUD_COLUMNS.map((c) => {
+                      const tri = toTri(op?.[c.key]);
+                      const cellBusy = busy === `${obj.slug}:${c.key}`;
+                      return (
+                        <Td key={c.key} align="center">
+                          <TriCell
+                            value={tri}
+                            disabled={role.isDefault}
+                            busy={cellBusy}
+                            label={`${obj.labelSingular || obj.slug} ${c.label}`}
+                            onChange={(next) =>
+                              handleChange(obj.slug, c.key, next)
+                            }
+                          />
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                );
+              })}
+            </TBody>
+          </Table>
         )}
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — Field-permission editor (pick object → per-field read/edit)
+// Right pane - Field-permission editor (pick object, per-field read/edit)
 // ---------------------------------------------------------------------------
 
 function FieldPermissionBlock({
@@ -968,8 +995,8 @@ function FieldPermissionBlock({
   objectsLoading,
   objectsError,
 }: ObjectFieldBlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [state, setState] = React.useState<SaveState>('idle');
-  const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [picked, setPicked] = React.useState<string>('');
 
@@ -1019,7 +1046,6 @@ function FieldPermissionBlock({
 
     setBusy(`${field}:${column}`);
     setState('saving');
-    setError(null);
     const res = await updateRoleTw(
       role.id,
       { fieldPermissions: nextList },
@@ -1031,128 +1057,122 @@ function FieldPermissionBlock({
       onSaved(res.data as CrmRole);
     } else {
       setState('error');
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Field permissions">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">
-            <Columns3
-              size={15}
-              aria-hidden="true"
-              style={{ verticalAlign: '-2px', marginRight: 6 }}
-            />
+          <CardTitle className="flex items-center gap-1.5">
+            <Columns3 size={15} aria-hidden="true" />
             Fields
-          </h3>
-          <p className="rp-block__sub">
+          </CardTitle>
+          <CardDescription>
             Restrict read or edit access to individual fields of an object.
-          </p>
+          </CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
+      </CardHeader>
+      <CardBody className="flex flex-col gap-4">
         {objectsLoading ? (
-          <div className="st-table-wrap p-[var(--st-space-3)]">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
-            ))}
-          </div>
+          <PaneSkeleton rows={4} />
         ) : objectsError ? (
-          <ErrorBanner message={objectsError} />
+          <Alert tone="danger" title="Could not load objects">
+            {objectsError}
+          </Alert>
         ) : objects.length === 0 ? (
-          <p className="rp-block__sub">No objects in this project yet.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            No objects in this project yet.
+          </p>
         ) : (
           <>
-            <div className="st-field">
-              <span className="st-field__label">Object</span>
-              <div className="rp-select">
-                <select
-                  className="st-input"
-                  value={picked}
-                  onChange={(e) => {
-                    setPicked(e.target.value);
-                    setState('idle');
-                  }}
-                  aria-label="Pick an object to edit field permissions"
-                >
+            <Field label="Object">
+              <Select
+                value={picked}
+                onValueChange={(value) => {
+                  setPicked(value);
+                  setState('idle');
+                }}
+              >
+                <SelectTrigger aria-label="Pick an object to edit field permissions">
+                  <SelectValue placeholder="Select an object" />
+                </SelectTrigger>
+                <SelectContent>
                   {objects.map((o) => (
-                    <option key={o.slug} value={o.slug}>
+                    <SelectItem key={o.slug} value={o.slug}>
                       {o.labelPlural || o.labelSingular || o.slug}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <ChevronDown
-                  size={15}
-                  className="rp-select__chev"
-                  aria-hidden="true"
-                />
-              </div>
-            </div>
+                </SelectContent>
+              </Select>
+            </Field>
 
             {activeObject && activeObject.fields.length > 0 ? (
-              <div className="rp-grid-wrap">
-                <table className="rp-grid" role="grid">
-                  <thead>
-                    <tr>
-                      <th scope="col" className="rp-grid__obj">
-                        Field
-                      </th>
-                      {FIELD_COLUMNS.map((c) => (
-                        <th key={c.key} scope="col" className="rp-grid__col">
-                          {c.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeObject.fields.map((f) => {
-                      const fp = byField.get(f.key);
-                      return (
-                        <tr key={f.key}>
-                          <th scope="row" className="rp-grid__obj">
-                            {f.label || f.key}
-                            <span className="rp-grid__fieldkey">{f.key}</span>
-                          </th>
-                          {FIELD_COLUMNS.map((c) => {
-                            const col = c.key as 'read' | 'update';
-                            const tri = toTri(fp?.[col]);
-                            const cellBusy = busy === `${f.key}:${col}`;
-                            return (
-                              <td key={c.key} className="rp-grid__cell">
-                                <TriCell
-                                  value={tri}
-                                  disabled={role.isDefault}
-                                  busy={cellBusy}
-                                  label={`${f.label || f.key} ${c.label}`}
-                                  onChange={(next) =>
-                                    handleChange(f.key, col, next)
-                                  }
-                                />
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <Table density="compact" hover={false}>
+                <THead>
+                  <Tr>
+                    <Th>Field</Th>
+                    {FIELD_COLUMNS.map((c) => (
+                      <Th key={c.key} align="center">
+                        {c.label}
+                      </Th>
+                    ))}
+                  </Tr>
+                </THead>
+                <TBody>
+                  {activeObject.fields.map((f) => {
+                    const fp = byField.get(f.key);
+                    return (
+                      <Tr key={f.key}>
+                        <Td>
+                          <span className="flex flex-col">
+                            <span className="text-[var(--st-text)]">
+                              {f.label || f.key}
+                            </span>
+                            <span className="font-mono text-xs text-[var(--st-text-tertiary)]">
+                              {f.key}
+                            </span>
+                          </span>
+                        </Td>
+                        {FIELD_COLUMNS.map((c) => {
+                          const col = c.key as 'read' | 'update';
+                          const tri = toTri(fp?.[col]);
+                          const cellBusy = busy === `${f.key}:${col}`;
+                          return (
+                            <Td key={c.key} align="center">
+                              <TriCell
+                                value={tri}
+                                disabled={role.isDefault}
+                                busy={cellBusy}
+                                label={`${f.label || f.key} ${c.label}`}
+                                onChange={(next) =>
+                                  handleChange(f.key, col, next)
+                                }
+                              />
+                            </Td>
+                          );
+                        })}
+                      </Tr>
+                    );
+                  })}
+                </TBody>
+              </Table>
             ) : (
-              <p className="rp-block__sub">This object has no fields.</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                This object has no fields.
+              </p>
             )}
           </>
         )}
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — Capabilities checklist (Twenty permission flags)
+// Right pane - Capabilities checklist (permission flags)
 // ---------------------------------------------------------------------------
 
 function CapabilityBlock({
@@ -1160,8 +1180,8 @@ function CapabilityBlock({
   projectId,
   onSaved,
 }: BlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [state, setState] = React.useState<SaveState>('idle');
-  const [error, setError] = React.useState<string | null>(null);
   const [busyKey, setBusyKey] = React.useState<string | null>(null);
 
   const granted = React.useMemo(
@@ -1177,7 +1197,6 @@ function CapabilityBlock({
 
     setBusyKey(key);
     setState('saving');
-    setError(null);
     const res = await updateRoleTw(
       role.id,
       { permissionFlags: Array.from(set) },
@@ -1189,35 +1208,35 @@ function CapabilityBlock({
       onSaved(res.data as CrmRole);
     } else {
       setState('error');
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Capabilities">
-      <div className="rp-block__head">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="rp-block__title">
-            <ToggleRight
-              size={15}
-              aria-hidden="true"
-              style={{ verticalAlign: '-2px', marginRight: 6 }}
-            />
+          <CardTitle className="flex items-center gap-1.5">
+            <ToggleRight size={15} aria-hidden="true" />
             Capabilities
-          </h3>
-          <p className="rp-block__sub">
+          </CardTitle>
+          <CardDescription>
             Settings and tools this role can access across the workspace.
-          </p>
+          </CardDescription>
         </div>
         <SaveStatus state={state} />
-      </div>
-      <div className="rp-block__body">
+      </CardHeader>
+      <CardBody className="flex flex-col gap-3">
         {role.isDefault ? (
-          <p className="rp-block__sub">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             The default role&apos;s capabilities are managed by the system.
           </p>
         ) : null}
-        <div className="rp-caps" role="group" aria-label="Capability flags">
+        <div
+          className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+          role="group"
+          aria-label="Capability flags"
+        >
           {PERMISSION_FLAGS.map((flag) => {
             const { Icon } = flag;
             const checked = granted.has(flag.key);
@@ -1226,45 +1245,52 @@ function CapabilityBlock({
             return (
               <label
                 key={flag.key}
-                className={`rp-cap${disabled ? ' rp-cap--disabled' : ''}${
-                  checked ? ' rp-cap--on' : ''
-                }`}
+                className={[
+                  'flex cursor-pointer items-start gap-3 rounded-[var(--st-radius)] border px-3 py-2.5 transition-colors',
+                  checked
+                    ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft,var(--st-bg-secondary))]'
+                    : 'border-[var(--st-border)]',
+                  disabled ? 'cursor-not-allowed opacity-60' : '',
+                ].join(' ')}
               >
-                <span className="rp-cap__check">
-                  <input
-                    type="checkbox"
+                {busy ? (
+                  <span className="mt-0.5">
+                    <Spinner size={14} label="Saving" />
+                  </span>
+                ) : (
+                  <Checkbox
+                    className="mt-0.5"
                     checked={checked}
                     disabled={disabled}
                     onChange={(e) => handleToggle(flag.key, e.target.checked)}
                     aria-label={flag.label}
                   />
-                  <span className="rp-cap__box" aria-hidden="true">
-                    {busy ? (
-                      <Loader2 size={11} className="st-spin" />
-                    ) : checked ? (
-                      <Check size={11} />
-                    ) : null}
-                  </span>
-                </span>
-                <span className="rp-cap__icon" aria-hidden="true">
+                )}
+                <span
+                  className="mt-0.5 text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                >
                   <Icon size={15} />
                 </span>
-                <span className="rp-cap__body">
-                  <span className="rp-cap__label">{flag.label}</span>
-                  <span className="rp-cap__desc">{flag.desc}</span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-sm font-medium text-[var(--st-text)]">
+                    {flag.label}
+                  </span>
+                  <span className="text-xs text-[var(--st-text-tertiary)]">
+                    {flag.desc}
+                  </span>
                 </span>
               </label>
             );
           })}
         </div>
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — member assignment
+// Right pane - member assignment
 // ---------------------------------------------------------------------------
 
 interface MemberBlockProps {
@@ -1284,8 +1310,8 @@ function MemberBlock({
   projectId,
   onSaved,
 }: MemberBlockProps): React.JSX.Element {
+  const { toast } = useToast();
   const [busyId, setBusyId] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
 
   const assigned = React.useMemo(
     () => new Set(role.memberIds),
@@ -1302,7 +1328,6 @@ function MemberBlock({
     next: boolean,
   ): Promise<void> => {
     setBusyId(member.userId);
-    setError(null);
     const res = await setRoleMemberTw(
       role.id,
       member.userId,
@@ -1313,34 +1338,33 @@ function MemberBlock({
     if (res.ok) {
       onSaved(res.data);
     } else {
-      setError(res.error);
+      toast.error(res.error);
     }
   };
 
   return (
-    <section className="rp-block" aria-label="Members">
-      <div className="rp-block__head">
-        <div>
-          <h3 className="rp-block__title">Members</h3>
-          <p className="rp-block__sub">
-            {assigned.size} member{assigned.size !== 1 ? 's' : ''} assigned to
-            this role.
-          </p>
-        </div>
-      </div>
-      <div className="rp-block__body">
+    <Card variant="outlined" padding="none">
+      <CardHeader>
+        <CardTitle>Members</CardTitle>
+        <CardDescription>
+          {assigned.size} member{assigned.size !== 1 ? 's' : ''} assigned to this
+          role.
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="flex flex-col gap-4">
         {/* Assigned-member chips. */}
-        <div className="rp-assigned">
+        <div className="flex flex-wrap items-center gap-2">
           {assignedMembers.length === 0 ? (
-            <span className="rp-assigned__empty">No members assigned yet.</span>
+            <span className="text-sm text-[var(--st-text-tertiary)]">
+              No members assigned yet.
+            </span>
           ) : (
             assignedMembers.map((m) => (
-              <span key={m.userId} className="rp-assigned__chip">
-                <TwentyAvatar
-                  name={m.name.trim() || m.email}
-                  src={m.image}
-                  size="sm"
-                />
+              <span
+                key={m.userId}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-0.5 pe-2.5 ps-1 text-sm text-[var(--st-text)]"
+              >
+                <Avatar name={m.name.trim() || m.email} src={m.image} size="sm" />
                 {m.name.trim() || m.email}
               </span>
             ))
@@ -1349,17 +1373,21 @@ function MemberBlock({
 
         {/* Roster: assign / unassign. */}
         {membersLoading ? (
-          <div className="st-table-wrap p-[var(--st-space-3)]">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
-            ))}
-          </div>
+          <PaneSkeleton rows={3} />
         ) : membersError ? (
-          <ErrorBanner message={membersError} />
+          <Alert tone="danger" title="Could not load members">
+            {membersError}
+          </Alert>
         ) : members.length === 0 ? (
-          <p className="rp-block__sub">No workspace members found.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            No workspace members found.
+          </p>
         ) : (
-          <div className="rp-roster" role="group" aria-label="Assign members">
+          <div
+            className="flex flex-col gap-1"
+            role="group"
+            aria-label="Assign members"
+          >
             {members.map((m) => {
               const isAssigned = assigned.has(m.userId);
               const busy = busyId === m.userId;
@@ -1367,42 +1395,39 @@ function MemberBlock({
               return (
                 <label
                   key={m.userId}
-                  className={`rp-member${busy ? ' rp-member--busy' : ''}`}
+                  className={[
+                    'flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2',
+                    busy ? 'opacity-60' : 'cursor-pointer',
+                  ].join(' ')}
                 >
-                  <span className="rp-member__check">
-                    <input
-                      type="checkbox"
-                      checked={isAssigned}
-                      disabled={busy}
-                      onChange={(e) => handleToggle(m, e.target.checked)}
-                      aria-label={`Assign ${name} to ${role.name}`}
-                    />
-                  </span>
-                  <TwentyAvatar name={name} src={m.image} size="sm" />
-                  <span className="rp-member__body">
-                    <span className="rp-member__name">
+                  <Checkbox
+                    checked={isAssigned}
+                    disabled={busy}
+                    onChange={(e) => handleToggle(m, e.target.checked)}
+                    aria-label={`Assign ${name} to ${role.name}`}
+                  />
+                  <Avatar name={name} src={m.image} size="sm" />
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-[var(--st-text)]">
                       {name}
                       {m.isOwner ? (
-                        <span className="st-owner-tag">(owner)</span>
+                        <span className="text-xs text-[var(--st-text-tertiary)]">
+                          (owner)
+                        </span>
                       ) : null}
                     </span>
-                    <span className="rp-member__email">{m.email}</span>
+                    <span className="text-xs text-[var(--st-text-tertiary)]">
+                      {m.email}
+                    </span>
                   </span>
-                  {busy ? (
-                    <Loader2
-                      size={14}
-                      className="st-spin rp-member__spin"
-                      aria-hidden="true"
-                    />
-                  ) : null}
+                  {busy ? <Spinner size={14} label="Saving" /> : null}
                 </label>
               );
             })}
           </div>
         )}
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -1423,6 +1448,7 @@ function DeleteDialog({
   onClose,
   onDeleted,
 }: DeleteDialogProps): React.JSX.Element {
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -1432,61 +1458,49 @@ function DeleteDialog({
     const res = await deleteRoleTw(role.id, projectId ?? undefined);
     setBusy(false);
     if (res.ok) {
+      toast.success(`${role.name} deleted`);
       onDeleted(role.id);
     } else {
       setError(res.error);
+      toast.error(res.error);
     }
   };
 
+  const memberCount = role.memberIds.length;
+
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Delete ${role.name}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete role</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Delete <strong className="text-[var(--st-text)]">{role.name}</strong>?
-            Its {role.memberIds.length} member
-            {role.memberIds.length !== 1 ? 's' : ''} will lose the permissions
-            this role grants. This cannot be undone.
-          </p>
-          {error ? <ErrorBanner message={error} /> : null}
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onClose} disabled={busy}>
+    <Modal
+      open
+      onClose={onClose}
+      title="Delete role"
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <button
-            type="button"
-            className="st-btn st-btn--danger"
+          </Button>
+          <Button
+            variant="danger"
+            iconLeft={Trash2}
             onClick={handleDelete}
-            disabled={busy}
+            loading={busy}
           >
-            {busy ? (
-              <Loader2 size={14} className="st-spin" aria-hidden="true" />
-            ) : (
-              <Trash2 size={14} aria-hidden="true" />
-            )}
             Delete role
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 text-sm text-[var(--st-text-secondary)]">
+        Delete <strong className="text-[var(--st-text)]">{role.name}</strong>? Its{' '}
+        {memberCount} member{memberCount !== 1 ? 's' : ''} will lose the
+        permissions this role grants. This cannot be undone.
+      </p>
+      {error ? (
+        <Alert tone="danger" className="mt-3">
+          {error}
+        </Alert>
+      ) : null}
+    </Modal>
   );
 }
 
@@ -1633,77 +1647,78 @@ export default function RolesPage(): React.JSX.Element {
     }
   }, [activeProjectId]);
 
-  const handleDeleted = React.useCallback(
-    (id: string) => {
-      setDeleteOpen(false);
-      setRoles((prev) => {
-        const next = prev.filter((r) => r.id !== id);
-        setActiveId((cur) =>
-          cur === id ? (next.length > 0 ? next[0]!.id : null) : cur,
-        );
-        return next;
-      });
-    },
-    [],
-  );
+  const handleDeleted = React.useCallback((id: string) => {
+    setDeleteOpen(false);
+    setRoles((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      setActiveId((cur) =>
+        cur === id ? (next.length > 0 ? next[0]!.id : null) : cur,
+      );
+      return next;
+    });
+  }, []);
 
   // ---- Render -------------------------------------------------------------
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader title="Roles & Permissions" icon={Shield} />
-      <p className="st-settings__intro">
-        Define roles, the permissions they grant, and which workspace members
-        belong to each. Roles are scoped to the active project.
-      </p>
+    <div className="ui20 flex flex-col gap-5 p-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Roles & Permissions</PageTitle>
+          <PageDescription>
+            Define roles, the permissions they grant, and which workspace members
+            belong to each. Roles are scoped to the active project.
+          </PageDescription>
+        </PageHeaderHeading>
+        {activeProjectId && roles.length > 0 ? (
+          <PageActions>
+            <Button
+              variant="secondary"
+              iconLeft={Plus}
+              onClick={handleNewRole}
+              loading={creating}
+            >
+              New role
+            </Button>
+          </PageActions>
+        ) : null}
+      </PageHeader>
 
       {isLoadingProject || loading ? (
-        <div className="rp-layout">
-          <div className="st-table-wrap p-[var(--st-space-3)]">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
-            ))}
-          </div>
-          <div className="st-table-wrap p-[var(--st-space-3)]">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
+          <PaneSkeleton rows={5} />
+          <PaneSkeleton rows={6} />
         </div>
       ) : !activeProjectId ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <AlertTriangle size={20} />
-          </span>
-          <h2 className="st-empty__title">No project selected</h2>
-          <p className="st-empty__desc">
-            Select a project to manage its roles and permissions.
-          </p>
-        </div>
+        <EmptyState
+          icon={Shield}
+          title="No project selected"
+          description="Select a project to manage its roles and permissions."
+        />
       ) : error ? (
-        <ErrorBanner message={error} />
+        <Alert tone="danger" title="Could not load roles">
+          {error}
+        </Alert>
       ) : roles.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Database size={20} />
-          </span>
-          <h2 className="st-empty__title">No roles yet</h2>
-          <p className="st-empty__desc">
-            Create your first role to grant scoped permissions to members.
-          </p>
-          <TwentyButton
-            variant="primary"
-            icon={Plus}
-            onClick={handleNewRole}
-            disabled={creating}
-          >
-            New role
-          </TwentyButton>
-        </div>
+        <EmptyState
+          icon={Database}
+          title="No roles yet"
+          description="Create your first role to grant scoped permissions to members."
+          action={
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={handleNewRole}
+              loading={creating}
+            >
+              New role
+            </Button>
+          }
+        />
       ) : (
         <>
-          {createError ? <ErrorBanner message={createError} /> : null}
-          <div className="rp-layout">
+          {createError ? <Alert tone="danger">{createError}</Alert> : null}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
             <RoleList
               roles={roles}
               activeId={activeId}
@@ -1716,9 +1731,9 @@ export default function RolesPage(): React.JSX.Element {
             />
 
             {activeRole ? (
-              <div className="rp-detail">
-                <div className="rp-detail__head">
-                  <h2 className="rp-detail__title">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--st-text)]">
                     {activeRole.isDefault ? (
                       <ShieldCheck size={18} aria-hidden="true" />
                     ) : (
@@ -1726,20 +1741,20 @@ export default function RolesPage(): React.JSX.Element {
                     )}
                     {activeRole.name}
                     {activeRole.isDefault ? (
-                      <span className="rp-badge rp-badge--default">Default</span>
+                      <Badge tone="accent" kind="soft">
+                        Default
+                      </Badge>
                     ) : null}
                   </h2>
                   {!activeRole.isDefault ? (
-                    <div className="rp-detail__actions">
-                      <button
-                        type="button"
-                        className="st-btn st-btn--ghost st-btn--danger"
-                        onClick={() => setDeleteOpen(true)}
-                      >
-                        <Trash2 size={14} aria-hidden="true" />
-                        Delete
-                      </button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={Trash2}
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      Delete
+                    </Button>
                   ) : null}
                 </div>
 
@@ -1794,7 +1809,7 @@ export default function RolesPage(): React.JSX.Element {
                 />
               </div>
             ) : (
-              <div className="rp-detail__placeholder">
+              <div className="flex items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-8 text-sm text-[var(--st-text-tertiary)]">
                 Select a role to edit its permissions and members.
               </div>
             )}

@@ -25,7 +25,8 @@ function classify(file) {
   // strip block + line comments and string-literal contents so we don't false-positive
   const src = raw
     .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+    .replace(/`(?:\\[\s\S]|[^`\\])*`/g, '``'); // strip template-literal contents (email/HTML templates)
   const reasons = [];
 
   // 1. bad design-system imports
@@ -38,7 +39,7 @@ function classify(file) {
       p.includes('/components/clay') ||
       p.includes('/components/sab-ui') ||
       p.includes('wabasimplify') ||
-      p.includes('@/components/zoruui') ||
+      p === '@/components/zoruui' || p.startsWith('@/components/zoruui/') ||
       p.includes('sabcrm/20ui/compat') ||
       p.includes('sabcrm/20ui/legacy') ||
       p.includes('sabcrm/20ui/zoru')

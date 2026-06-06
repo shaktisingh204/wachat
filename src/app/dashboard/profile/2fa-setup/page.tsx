@@ -1,10 +1,33 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { LoaderCircle, Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import { Mail, ShieldCheck, ShieldOff, Smartphone, History } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator, Badge } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Input,
+  Field,
+  Separator,
+  Badge,
+  SegmentedControl,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   disable2fa,
   disableEmail2fa,
@@ -21,6 +44,11 @@ import {
 } from '@/app/actions/two-fa.actions';
 
 type TabKey = 'email' | 'totp';
+
+const TAB_ITEMS = [
+  { value: 'email' as const, label: 'Email', icon: Mail },
+  { value: 'totp' as const, label: 'Authenticator app', icon: Smartphone },
+];
 
 export default function TwoFactorSetupPage() {
   const [status, setStatus] = useState<TwoFactorStatus | null>(null);
@@ -52,23 +80,25 @@ export default function TwoFactorSetupPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Two-factor authentication</h1>
-        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
-          Add an extra step to your sign-in to keep your account safe.
-        </p>
-      </header>
+      <PageHeader bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle>Two-factor authentication</PageTitle>
+          <PageDescription>
+            Add an extra step to your sign-in to keep your account safe.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <Card>
         <CardBody className="flex items-start justify-between gap-4 p-4">
           <div className="flex items-start gap-3">
             {isEnabled ? (
-              <ShieldCheck className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
+              <ShieldCheck className="mt-0.5 h-5 w-5 text-[var(--st-status-ok)]" aria-hidden="true" />
             ) : (
-              <ShieldOff className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
+              <ShieldOff className="mt-0.5 h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
             )}
             <div>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium text-[var(--st-text)]">
                 {isEnabled ? '2FA is enabled' : '2FA is not enabled'}
               </p>
               <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
@@ -81,31 +111,17 @@ export default function TwoFactorSetupPage() {
           {isEnabled ? (
             <DisableButton onDone={refresh} />
           ) : (
-            <Badge variant="outline">Disabled</Badge>
+            <Badge tone="neutral" kind="outline">Disabled</Badge>
           )}
         </CardBody>
       </Card>
 
-      <div className="inline-flex rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-        <button
-          type="button"
-          onClick={() => setTab('email')}
-          className={`inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm transition ${
-            tab === 'email' ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow' : 'text-[var(--st-text-secondary)]'
-          }`}
-        >
-          <Mail className="h-4 w-4" /> Email
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('totp')}
-          className={`inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm transition ${
-            tab === 'totp' ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow' : 'text-[var(--st-text-secondary)]'
-          }`}
-        >
-          <Smartphone className="h-4 w-4" /> Authenticator app
-        </button>
-      </div>
+      <SegmentedControl
+        items={TAB_ITEMS}
+        value={tab}
+        onChange={(v) => setTab(v)}
+        aria-label="Two-factor method"
+      />
 
       {tab === 'email' ? (
         <EmailPanel status={status} onChanged={refresh} />
@@ -113,46 +129,77 @@ export default function TwoFactorSetupPage() {
         <TotpPanel status={status} onChanged={refresh} />
       )}
 
-      
       {isEnabled ? <BackupCodesPanel status={status} /> : null}
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Security Audit Log</CardTitle>
+          <CardTitle className="text-base">Security audit log</CardTitle>
         </CardHeader>
         <CardBody>
           {loginAttempts.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No recent login attempts found.</p>
+            <EmptyState
+              icon={History}
+              title="No recent login attempts"
+              description="Sign-in activity will appear here as it happens."
+              size="sm"
+            />
           ) : (
-            <div className="space-y-4">
-              {loginAttempts.map((attempt) => (
-                <div key={attempt._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--st-border)] pb-4 last:border-0 last:pb-0">
-                  <div>
-                    <p className="text-sm font-medium flex items-center gap-2">
-                      {attempt.ip}
-                      <Badge variant={attempt.status === 'success' ? 'default' : attempt.status === 'pending_2fa' ? 'outline' : 'destructive'}>
-                        {attempt.status === 'success' ? 'Success' : attempt.status === 'pending_2fa' ? '2FA Pending' : 'Failed'}
-                      </Badge>
-                    </p>
-                    <p className="text-xs text-[var(--st-text-secondary)] truncate max-w-sm mt-1" title={attempt.userAgent}>
-                      {attempt.userAgent}
-                    </p>
-                  </div>
-                  <div className="text-xs text-[var(--st-text-secondary)] sm:text-right whitespace-nowrap">
-                    {fmtDate(attempt.createdAt)}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Table density="compact" hover>
+              <THead>
+                <Tr>
+                  <Th>IP address</Th>
+                  <Th>Device</Th>
+                  <Th align="right">When</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {loginAttempts.map((attempt) => (
+                  <Tr key={attempt._id}>
+                    <Td>
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[var(--st-text)]">{attempt.ip}</span>
+                        <Badge
+                          tone={
+                            attempt.status === 'success'
+                              ? 'success'
+                              : attempt.status === 'pending_2fa'
+                                ? 'warning'
+                                : 'danger'
+                          }
+                        >
+                          {attempt.status === 'success'
+                            ? 'Success'
+                            : attempt.status === 'pending_2fa'
+                              ? '2FA pending'
+                              : 'Failed'}
+                        </Badge>
+                      </span>
+                    </Td>
+                    <Td truncate>
+                      <span
+                        className="block max-w-xs truncate text-xs text-[var(--st-text-secondary)]"
+                        title={attempt.userAgent}
+                      >
+                        {attempt.userAgent}
+                      </span>
+                    </Td>
+                    <Td align="right">
+                      <span className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
+                        {fmtDate(attempt.createdAt)}
+                      </span>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
           )}
         </CardBody>
       </Card>
-
     </div>
   );
 }
 
-/* ────────────────────── Email panel ────────────────────── */
+/* Email panel */
 
 function EmailPanel({
   status,
@@ -161,48 +208,41 @@ function EmailPanel({
   status: TwoFactorStatus | null;
   onChanged: () => void;
 }) {
+  const { toast } = useToast();
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
   const [pending, startTx] = useTransition();
   const isMine = status?.method === 'email' && status.enabled;
 
   const onSend = () => {
-    setErr(null);
-    setMsg(null);
     startTx(async () => {
       const r = await enableEmail2fa();
       if (r.ok) {
         setSent(true);
-        setMsg(`Code sent to ${status?.email ?? 'your inbox'}.`);
-      } else setErr(r.error ?? 'Failed to send code.');
+        toast.success(`Code sent to ${status?.email ?? 'your inbox'}.`);
+      } else toast.error(r.error ?? 'Failed to send code.');
     });
   };
 
   const onVerify = () => {
-    setErr(null);
-    setMsg(null);
     startTx(async () => {
       const r = await verifyEmail2faCode(code);
       if (r.ok) {
-        setMsg('Email 2FA enabled.');
+        toast.success('Email 2FA enabled.');
         setCode('');
         setSent(false);
         onChanged();
-      } else setErr(r.error ?? 'Verification failed.');
+      } else toast.error(r.error ?? 'Verification failed.');
     });
   };
 
   const onDisable = () => {
-    setErr(null);
-    setMsg(null);
     startTx(async () => {
       const r = await disableEmail2fa();
       if (r.ok) {
-        setMsg('Email 2FA disabled.');
+        toast.success('Email 2FA disabled.');
         onChanged();
-      } else setErr(r.error ?? 'Failed to disable.');
+      } else toast.error(r.error ?? 'Failed to disable.');
     });
   };
 
@@ -218,51 +258,43 @@ function EmailPanel({
         </p>
 
         {isMine ? (
-          <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3">
-            <p className="text-sm">Email 2FA is currently active.</p>
-            <Button variant="outline" onClick={onDisable} disabled={pending}>
-              {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+            <p className="text-sm text-[var(--st-text)]">Email 2FA is currently active.</p>
+            <Button variant="outline" onClick={onDisable} loading={pending}>
               Disable
             </Button>
           </div>
         ) : (
           <>
             <div className="flex flex-wrap items-end gap-3">
-              <Button onClick={onSend} disabled={pending}>
-                {pending && !sent ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+              <Button variant="primary" onClick={onSend} loading={pending && !sent}>
                 {sent ? 'Resend code' : 'Send verification code'}
               </Button>
             </div>
             {sent ? (
-              <div className="space-y-2">
-                <Label htmlFor="email-code">Enter the 6-digit code</Label>
+              <Field label="Enter the 6-digit code">
                 <div className="flex gap-2">
                   <Input
-                    id="email-code"
                     inputMode="numeric"
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="123456"
                   />
-                  <Button onClick={onVerify} disabled={pending || code.length !== 6}>
-                    {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                    Verify & enable
+                  <Button variant="primary" onClick={onVerify} loading={pending} disabled={code.length !== 6}>
+                    Verify and enable
                   </Button>
                 </div>
-              </div>
+              </Field>
             ) : null}
           </>
         )}
-
-        {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
-        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </CardBody>
     </Card>
   );
 }
 
-/* ────────────────────── TOTP panel ────────────────────── */
+/* TOTP panel */
 
 function TotpPanel({
   status,
@@ -271,35 +303,30 @@ function TotpPanel({
   status: TwoFactorStatus | null;
   onChanged: () => void;
 }) {
+  const { toast } = useToast();
   const [setup, setSetup] = useState<
     { secret: string; qrUrl: string; backupCodes: string[] } | null
   >(null);
   const [code, setCode] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
   const [pending, startTx] = useTransition();
   const isMine = status?.method === 'totp' && status.enabled;
 
   const onStart = () => {
-    setErr(null);
-    setMsg(null);
     startTx(async () => {
       const r = await generateAuthenticator2faSecret();
       if (r.ok && r.data) setSetup(r.data);
-      else setErr(r.error ?? 'Failed to start setup.');
+      else toast.error(r.error ?? 'Failed to start setup.');
     });
   };
 
   const onVerify = () => {
-    setErr(null);
-    setMsg(null);
     startTx(async () => {
       const r = await verifyAuthenticator2faSetup(code);
       if (r.ok) {
-        setMsg('Authenticator 2FA enabled. Store your backup codes safely.');
+        toast.success('Authenticator 2FA enabled. Store your backup codes safely.');
         setCode('');
         onChanged();
-      } else setErr(r.error ?? 'Verification failed.');
+      } else toast.error(r.error ?? 'Verification failed.');
     });
   };
 
@@ -315,13 +342,12 @@ function TotpPanel({
         </p>
 
         {isMine ? (
-          <p className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3 text-sm">
+          <p className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
             Authenticator 2FA is currently active. Use the disable button at the top
             to remove it (requires password).
           </p>
         ) : !setup ? (
-          <Button onClick={onStart} disabled={pending}>
-            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button variant="primary" onClick={onStart} loading={pending}>
             Set up authenticator
           </Button>
         ) : (
@@ -333,47 +359,44 @@ function TotpPanel({
                 alt="Scan this QR with your authenticator app"
                 width={200}
                 height={200}
-                className="rounded border border-[var(--st-border)] bg-white p-2"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white p-2"
               />
               <div className="space-y-2">
-                <p className="text-sm">
+                <p className="text-sm text-[var(--st-text)]">
                   Scan the QR or enter this code manually in your authenticator app:
                 </p>
-                <code className="block rounded bg-[var(--st-bg)] px-3 py-2 text-sm font-mono">
+                <code className="block rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-sm text-[var(--st-text)]">
                   {setup.secret}
                 </code>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="totp-code">Enter the 6-digit code from the app</Label>
+            <Field label="Enter the 6-digit code from the app">
               <div className="flex gap-2">
                 <Input
-                  id="totp-code"
                   inputMode="numeric"
                   maxLength={6}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="123456"
                 />
-                <Button onClick={onVerify} disabled={pending || code.length !== 6}>
-                  {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                  Verify & enable
+                <Button variant="primary" onClick={onVerify} loading={pending} disabled={code.length !== 6}>
+                  Verify and enable
                 </Button>
               </div>
-            </div>
+            </Field>
 
             <Separator />
 
             <div>
-              <p className="text-sm font-medium">Backup codes</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Backup codes</p>
               <p className="text-xs text-[var(--st-text-secondary)]">
-                Save these somewhere safe — each one works once if you lose access to
+                Save these somewhere safe. Each one works once if you lose access to
                 your authenticator app.
               </p>
               <div className="mt-2 grid grid-cols-2 gap-2 font-mono text-sm">
                 {setup.backupCodes.map((c) => (
-                  <code key={c} className="rounded bg-[var(--st-bg)] px-2 py-1">
+                  <code key={c} className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-[var(--st-text)]">
                     {c}
                   </code>
                 ))}
@@ -381,28 +404,26 @@ function TotpPanel({
             </div>
           </div>
         )}
-
-        {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
-        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </CardBody>
     </Card>
   );
 }
 
-/* ────────────────────── Backup codes ────────────────────── */
+/* Backup codes */
 
 function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
+  const { toast } = useToast();
   const [codes, setCodes] = useState<string[] | null>(null);
   const [pending, startTx] = useTransition();
-  const [err, setErr] = useState<string | null>(null);
   const remaining = status?.backupCodesRemaining ?? 0;
 
   const onRegen = () => {
-    setErr(null);
     startTx(async () => {
       const r = await regenerateBackupCodes();
-      if (r.ok && r.data) setCodes(r.data.codes);
-      else setErr(r.error ?? 'Failed.');
+      if (r.ok && r.data) {
+        setCodes(r.data.codes);
+        toast.success('New backup codes generated.');
+      } else toast.error(r.error ?? 'Failed.');
     });
   };
 
@@ -416,42 +437,40 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
           You have <strong>{remaining}</strong> unused backup code{remaining === 1 ? '' : 's'}.
           Regenerating will invalidate any existing codes.
         </p>
-        <Button variant="outline" onClick={onRegen} disabled={pending}>
-          {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+        <Button variant="outline" onClick={onRegen} loading={pending}>
           Regenerate codes
         </Button>
         {codes ? (
           <div className="grid grid-cols-2 gap-2 font-mono text-sm">
             {codes.map((c) => (
-              <code key={c} className="rounded bg-[var(--st-bg)] px-2 py-1">
+              <code key={c} className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-[var(--st-text)]">
                 {c}
               </code>
             ))}
           </div>
         ) : null}
-        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </CardBody>
     </Card>
   );
 }
 
-/* ────────────────────── Disable button ────────────────────── */
+/* Disable button */
 
 function DisableButton({ onDone }: { onDone: () => void }) {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [pwd, setPwd] = useState('');
-  const [err, setErr] = useState<string | null>(null);
   const [pending, startTx] = useTransition();
 
   const onSubmit = () => {
-    setErr(null);
     startTx(async () => {
       const r = await disable2fa(pwd);
       if (r.ok) {
         setOpen(false);
         setPwd('');
+        toast.success('Two-factor authentication disabled.');
         onDone();
-      } else setErr(r.error ?? 'Failed to disable.');
+      } else toast.error(r.error ?? 'Failed to disable.');
     });
   };
 
@@ -464,21 +483,20 @@ function DisableButton({ onDone }: { onDone: () => void }) {
   }
   return (
     <div className="flex items-center gap-2">
-      <Input
-        type="password"
-        placeholder="Confirm password"
-        value={pwd}
-        onChange={(e) => setPwd(e.target.value)}
-        className="w-56"
-      />
-      <Button onClick={onSubmit} disabled={pending || !pwd}>
-        {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+      <Field label="Confirm password" className="w-56">
+        <Input
+          type="password"
+          placeholder="Confirm password"
+          value={pwd}
+          onChange={(e) => setPwd(e.target.value)}
+        />
+      </Field>
+      <Button variant="primary" onClick={onSubmit} loading={pending} disabled={!pwd}>
         Confirm
       </Button>
-      <Button variant="ghost" onClick={() => { setOpen(false); setErr(null); }}>
+      <Button variant="ghost" onClick={() => setOpen(false)}>
         Cancel
       </Button>
-      {err ? <span className="text-xs text-[var(--st-text)]">{err}</span> : null}
     </div>
   );
 }

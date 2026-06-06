@@ -192,8 +192,8 @@ export function HeatmapsClient({
                 </CardHeader>
                 <CardBody>
                     <div
-                        className="relative mx-auto overflow-hidden rounded-[var(--st-radius)] border border-[color:var(--st-border)] bg-[color:var(--st-bg-secondary)]"
-                        style={{ width, aspectRatio: '4 / 3' }}
+                        className="relative mx-auto aspect-[4/3] overflow-hidden rounded-[var(--st-radius)] border border-[color:var(--st-border)] bg-[color:var(--st-bg-secondary)]"
+                        style={{ width }}
                     >
                         {/* Stub screenshot. TODO: real screenshot service. */}
                         {site.screenshotUrl ? (

@@ -1,31 +1,31 @@
 'use client';
 
 /**
- * SabCRM — Usage & Limits settings (`/dashboard/settings/crm/usage`), Twenty-style.
+ * SabCRM - Usage & Limits settings (`/dashboard/settings/crm/usage`), 20ui.
  *
  * A read-only dashboard of how much of the workspace this project is using,
  * scoped to the active project via `useProject()`:
  *
- *   1. Records by object — one Twenty stat card per STANDARD object, showing
- *      its live record count (`countSabcrmRecordsTw(slug)`) and a progress bar
- *      measuring that count against a nominal per-object plan ceiling. Cards
- *      load independently so one slow/failed count never blocks the rest.
+ *   1. Records by object - one 20ui Card per STANDARD object, showing its live
+ *      record count (`countSabcrmRecordsTw(slug)`) and a Progress meter measuring
+ *      that count against a nominal per-object plan ceiling. Cards load
+ *      independently so one slow/failed count never blocks the rest.
  *
- *   2. Totals summary — an aggregate stat card: total records across every
- *      standard object measured against the combined ceiling, plus the count
- *      of objects tracked.
+ *   2. Totals summary - an aggregate Card: total records across every standard
+ *      object measured against the combined ceiling, plus the count of objects
+ *      tracked and the workspace member count.
  *
- *   3. Workspace — a single card with the member count (`listMembersAction`)
- *      measured against a nominal seat ceiling.
+ *   3. Workspace - member count (`listMembersAction`) measured against a nominal
+ *      seat ceiling.
  *
  * The object catalogue comes from `listSabcrmObjectsTw`; counts and the member
- * roster each re-run the session → project → RBAC → plan pipeline server-side,
- * so the page fails closed. States: skeleton cards while objects/counts load,
- * a "no project" notice, an error banner when the catalogue can't load, and
- * graceful per-card degradation when an individual count is unavailable.
+ * roster each re-run the session, project, RBAC, plan pipeline server-side, so
+ * the page fails closed. States: skeleton cards while objects/counts load, a
+ * "no project" EmptyState, an Alert when the catalogue can't load, and graceful
+ * per-card degradation when an individual count is unavailable.
  *
  * NOTE: the limits here are NOMINAL display ceilings for the usage meters, not
- * an enforced quota — enforcement lives server-side in the plan/credit layer.
+ * an enforced quota. Enforcement lives server-side in the plan/credit layer.
  */
 
 import * as React from 'react';
@@ -37,7 +37,21 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Progress,
+  Badge,
+  Skeleton,
+  Alert,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -46,12 +60,8 @@ import {
 import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './usage.css';
-
 // ---------------------------------------------------------------------------
-// Nominal display ceilings (NOT enforced quotas — see the file header).
+// Nominal display ceilings (NOT enforced quotas - see the file header).
 // ---------------------------------------------------------------------------
 
 /** Nominal per-object record ceiling used for the usage meters. */
@@ -72,17 +82,17 @@ function fmtNumber(n: number): string {
   }
 }
 
-/** Clamps a usage fraction to [0, 1] for the bar width. */
+/** Clamps a usage fraction to [0, 100] for the bar value. */
 function clampPct(used: number, limit: number): number {
   if (limit <= 0) return 0;
-  const pct = used / limit;
+  const pct = (used / limit) * 100;
   if (!Number.isFinite(pct) || pct < 0) return 0;
-  return pct > 1 ? 1 : pct;
+  return pct > 100 ? 100 : pct;
 }
 
 type MeterTone = 'ok' | 'warn' | 'over';
 
-/** Tone bucket for the bar + percent label: <75% ok, <100% warn, ≥100% over. */
+/** Tone bucket for the bar + percent label: <75% ok, <100% warn, >=100% over. */
 function meterTone(used: number, limit: number): MeterTone {
   if (limit <= 0) return 'ok';
   const ratio = used / limit;
@@ -90,6 +100,18 @@ function meterTone(used: number, limit: number): MeterTone {
   if (ratio >= 0.75) return 'warn';
   return 'ok';
 }
+
+/** Map the meter tone to a 20ui Progress/Badge tone. */
+const PROGRESS_TONE: Record<MeterTone, 'accent' | 'warning' | 'danger'> = {
+  ok: 'accent',
+  warn: 'warning',
+  over: 'danger',
+};
+const BADGE_TONE: Record<MeterTone, 'accent' | 'warning' | 'danger'> = {
+  ok: 'accent',
+  warn: 'warning',
+  over: 'danger',
+};
 
 // ---------------------------------------------------------------------------
 // Per-object count state
@@ -101,7 +123,7 @@ type CountState =
   | { status: 'error' };
 
 // ---------------------------------------------------------------------------
-// Usage meter (progress bar + labels)
+// Usage meter (Progress bar + labels)
 // ---------------------------------------------------------------------------
 
 function UsageMeter({
@@ -115,37 +137,20 @@ function UsageMeter({
   const tone = meterTone(used, limit);
   const pctLabel = Math.round((used / limit) * 100);
 
-  const fillClass =
-    tone === 'over'
-      ? 'st-usage-bar__fill st-usage-bar__fill--over'
-      : tone === 'warn'
-        ? 'st-usage-bar__fill st-usage-bar__fill--warn'
-        : 'st-usage-bar__fill';
-  const pctClass =
-    tone === 'over'
-      ? 'st-usage-meter__pct st-usage-meter__pct--over'
-      : tone === 'warn'
-        ? 'st-usage-meter__pct st-usage-meter__pct--warn'
-        : 'st-usage-meter__pct';
-
   return (
-    <div className="st-usage-meter">
-      <div
-        className="st-usage-bar"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={limit}
-        aria-valuenow={used}
+    <div className="mt-3 flex flex-col gap-2">
+      <Progress
+        value={pct}
+        tone={PROGRESS_TONE[tone]}
+        size="sm"
         aria-label={`${fmtNumber(used)} of ${fmtNumber(limit)} used`}
-      >
-        <span className={fillClass} style={{ width: `${pct * 100}%` }} />
-      </div>
-      <div className="st-usage-meter__row">
-        <span className={pctClass}>
-          {Number.isFinite(pctLabel) ? `${pctLabel}%` : '—'}
-          {tone === 'over' ? ' · over limit' : ''}
-        </span>
-        <span className="st-usage-meter__limit">
+      />
+      <div className="flex items-center justify-between gap-2">
+        <Badge tone={BADGE_TONE[tone]} kind="soft">
+          {Number.isFinite(pctLabel) ? `${pctLabel}%` : '0%'}
+          {tone === 'over' ? ' over limit' : ''}
+        </Badge>
+        <span className="text-xs text-[var(--st-text-tertiary)]">
           of {fmtNumber(limit)}
         </span>
       </div>
@@ -162,62 +167,68 @@ interface StatCardProps {
   icon: React.ElementType;
   state: CountState;
   limit: number;
-  summary?: boolean;
 }
 
-function StatCard({
+function UsageStatCard({
   label,
   icon: Icon,
   state,
   limit,
-  summary = false,
 }: StatCardProps): React.JSX.Element {
   return (
-    <div className={`st-stat-card${summary ? ' st-stat-card--summary' : ''}`}>
-      <div className="st-stat-card__head">
-        <span className="st-stat-card__icon" aria-hidden="true">
+    <Card variant="outlined" padding="md">
+      <CardHeader className="flex items-center gap-2">
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+          aria-hidden="true"
+        >
           <Icon size={15} />
         </span>
-        <span className="st-stat-card__label" title={label}>
+        <CardTitle className="truncate text-sm" title={label}>
           {label}
-        </span>
-      </div>
+        </CardTitle>
+      </CardHeader>
 
-      {state.status === 'loading' ? (
-        <span className="st-skel-line st-skel-line--value" aria-hidden="true" />
-      ) : state.status === 'error' ? (
-        <span className="st-stat-card__value-error">Unavailable</span>
-      ) : (
-        <span className="st-stat-card__value">{fmtNumber(state.count)}</span>
-      )}
+      <CardBody className="pt-1">
+        {state.status === 'loading' ? (
+          <Skeleton width={96} height={28} radius={6} />
+        ) : state.status === 'error' ? (
+          <span className="text-2xl font-semibold text-[var(--st-text-tertiary)]">
+            Unavailable
+          </span>
+        ) : (
+          <span className="text-2xl font-semibold text-[var(--st-text)]">
+            {fmtNumber(state.count)}
+          </span>
+        )}
 
-      {state.status === 'ready' ? (
-        <UsageMeter used={state.count} limit={limit} />
-      ) : (
-        <div className="st-usage-meter" aria-hidden="true">
-          <span className="st-skel-line st-skel-line--bar" />
-        </div>
-      )}
-    </div>
+        {state.status === 'ready' ? (
+          <UsageMeter used={state.count} limit={limit} />
+        ) : (
+          <div className="mt-3" aria-hidden="true">
+            <Skeleton width="100%" height={6} radius={999} />
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 }
 
 /** Pure skeleton card for the initial catalogue load. */
 function SkeletonCard(): React.JSX.Element {
   return (
-    <div
-      className="st-stat-card st-stat-card--skeleton"
-      aria-hidden="true"
-    >
-      <div className="st-stat-card__head">
-        <span className="st-stat-card__icon" />
-        <span className="st-skel-line st-skel-line--label" />
-      </div>
-      <span className="st-skel-line st-skel-line--value" />
-      <div className="st-usage-meter">
-        <span className="st-skel-line st-skel-line--bar" />
-      </div>
-    </div>
+    <Card variant="outlined" padding="md" aria-hidden="true">
+      <CardHeader className="flex items-center gap-2">
+        <Skeleton width={28} height={28} radius={6} />
+        <Skeleton width={120} height={14} radius={4} />
+      </CardHeader>
+      <CardBody className="pt-1">
+        <Skeleton width={96} height={28} radius={6} />
+        <div className="mt-3">
+          <Skeleton width="100%" height={6} radius={999} />
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -352,54 +363,58 @@ export default function SabcrmUsageSettingsPage(): React.JSX.Element {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Usage & Limits" icon={Gauge} />
-        <p className="st-settings__intro">
-          How much of this workspace your project is using. Each object tracks
-          its record count against a nominal plan ceiling. These meters are for
-          visibility — actual limits are enforced by your plan.
-        </p>
+    <div className="ui20">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8">
+        <PageHeader bordered>
+          <PageHeaderHeading>
+            <PageTitle className="flex items-center gap-2">
+              <Gauge size={18} aria-hidden="true" />
+              Usage and limits
+            </PageTitle>
+            <PageDescription>
+              How much of this workspace your project is using. Each object
+              tracks its record count against a nominal plan ceiling. These
+              meters are for visibility, actual limits are enforced by your plan.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
         {isLoadingProject ? (
-          <section className="st-usage-section">
-            <div className="st-usage-grid">
+          <section className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           </section>
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to view its usage and limits.
-            </p>
-          </div>
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to view its usage and limits."
+          />
         ) : objectsError ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{objectsError}</span>
-          </div>
+          <Alert tone="danger" icon={AlertTriangle} title="Usage unavailable">
+            {objectsError}
+          </Alert>
         ) : (
           <>
             {/* ---- Totals summary ---- */}
-            <section className="st-usage-section">
-              <div className="st-usage-section__head">
-                <h2 className="st-usage-section__title">Summary</h2>
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">
+                  Summary
+                </h2>
               </div>
-              <div className="st-usage-grid">
-                <StatCard
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <UsageStatCard
                   label="Total records"
                   icon={Database}
                   state={totalsState}
                   limit={totalLimit > 0 ? totalLimit : PER_OBJECT_LIMIT}
-                  summary
                 />
-                <StatCard
+                <UsageStatCard
                   label="Objects tracked"
                   icon={Layers}
                   state={
@@ -408,48 +423,43 @@ export default function SabcrmUsageSettingsPage(): React.JSX.Element {
                       : { status: 'ready', count: objects.length }
                   }
                   limit={Math.max(objects.length, 1)}
-                  summary
                 />
-                <StatCard
+                <UsageStatCard
                   label="Workspace members"
                   icon={Users}
                   state={memberState}
                   limit={MEMBER_LIMIT}
-                  summary
                 />
               </div>
             </section>
 
             {/* ---- Records by object ---- */}
-            <section className="st-usage-section">
-              <div className="st-usage-section__head">
-                <h2 className="st-usage-section__title">Records by object</h2>
-                <span className="st-usage-section__hint">
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">
+                  Records by object
+                </h2>
+                <span className="text-xs text-[var(--st-text-tertiary)]">
                   Limit {fmtNumber(PER_OBJECT_LIMIT)} per object
                 </span>
               </div>
 
               {objectsLoading ? (
-                <div className="st-usage-grid">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <SkeletonCard key={i} />
                   ))}
                 </div>
               ) : objects.length === 0 ? (
-                <div className="st-empty">
-                  <span className="st-empty__icon">
-                    <Database size={20} />
-                  </span>
-                  <h2 className="st-empty__title">No objects to report</h2>
-                  <p className="st-empty__desc">
-                    This workspace has no standard objects, or object metadata
-                    could not be loaded.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Database}
+                  title="No objects to report"
+                  description="This workspace has no standard objects, or object metadata could not be loaded."
+                />
               ) : (
-                <div className="st-usage-grid">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {objects.map((obj) => (
-                    <StatCard
+                    <UsageStatCard
                       key={obj.slug}
                       label={obj.labelPlural}
                       icon={Database}

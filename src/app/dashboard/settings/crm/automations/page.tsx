@@ -1,56 +1,54 @@
 'use client';
 
 /**
- * SabCRM Settings — Workflows (`/dashboard/settings/crm/automations`), Twenty-style.
+ * SabCRM Settings - Workflows (`/dashboard/settings/crm/automations`).
  *
- * A Twenty-faithful WORKFLOW builder: a vertical "flow" of a single trigger
- * followed by ordered steps. The left pane lists every workflow (name, enabled
- * toggle, trigger summary); the right pane is the builder for the selected one:
+ * A WORKFLOW builder: a vertical "flow" of a single trigger followed by ordered
+ * steps. The left pane lists every workflow (name, enabled toggle, trigger
+ * summary); the right pane is the builder for the selected one:
  *
- *   - Trigger card  → event select + object select.
- *   - Steps flow    → connector-linked cards, each with a small per-type config
- *                     form (create_task / send_notification / update_field /
- *                     webhook / filter / if_else / find_records / upsert_record).
- *                     Add (type picker), remove, and reorder (up/down).
+ *   - Trigger card  -> event select + object select.
+ *   - Steps flow    -> connector-linked cards, each with a small per-type config
+ *                      form (create_task / send_notification / update_field /
+ *                      webhook / filter / if_else / find_records / upsert_record).
+ *                      Add (type picker), remove, and reorder (up/down).
  *
  * Advanced authoring layered on top:
- *   - Variable picker  → text inputs carry a `{{}}` button that inserts
- *                        `{{trigger.…}}` / `{{record.…}}` / `{{steps.<id>.…}}`
- *                        tokens chosen from a grouped dropdown (`VarInput`).
- *   - Diagram view     → a "Builder" / "Diagram" toggle renders the trigger +
- *                        steps as a read-only vertical flowchart (pure CSS/SVG
- *                        connectors) with True/Else branch hints for if_else.
- *   - Run history      → `listWorkflowRunsTw(id)` lists past runs with a status
- *                        chip, relative started/finished times, and expandable
- *                        per-step status; refreshed after every Run-now.
+ *   - Variable picker  -> text inputs carry a `{{}}` button that inserts
+ *                         `{{trigger...}}` / `{{record...}}` / `{{steps.<id>...}}`
+ *                         tokens chosen from a grouped dropdown.
+ *   - Diagram view     -> a "Builder" / "Diagram" toggle renders the trigger +
+ *                         steps as a read-only vertical flowchart with True/Else
+ *                         branch hints for if_else.
+ *   - Run history      -> `listWorkflowRunsTw(id)` lists past runs with a status
+ *                         badge, relative started/finished times, and expandable
+ *                         per-step status; refreshed after every Run-now.
  *
  * Wired to the workflows engine through the gated server actions in
  * `@/app/actions/sabcrm-workflows.actions` (list / get / create / update /
  * delete), `runWorkflowNowTw` (manual run) and `listWorkflowRunsTw` (history).
  * Object + field pickers read `listObjectsTw` from
- * `@/app/actions/sabcrm-objects.actions`. The engine may be DOWN at dev time —
+ * `@/app/actions/sabcrm-objects.actions`. The engine may be DOWN at dev time -
  * every call is normalised to `{ ok, ... }` and the UI degrades to graceful
  * loading / empty / error states and never crashes.
  *
- * Twenty visual language only (`.st-*` from sabcrm-twenty.css + new `wf-*`
- * classes in `./workflows.css`, `./run-now.css` and `./workflow-advanced.css`).
- * No ZoruUI, no Tailwind. The `.sabcrm-twenty` scope is applied by
- * TwentyAppFrame. Auth / project / RBAC guards are enforced upstream by the
- * layout and re-checked inside each server action.
+ * Pure 20ui: PageHeader, Card, Button, IconButton, Switch, SegmentedControl,
+ * Alert, Badge, EmptyState, Skeleton, AlertDialog. The shared trigger -> action
+ * editor (`AutomationBuilder`) is the only non-primitive composed here. Auth /
+ * project / RBAC guards are enforced upstream by the layout and re-checked
+ * inside each server action.
  */
 
 import * as React from 'react';
 import {
   Zap,
   Plus,
-  X,
   AlertTriangle,
   ClipboardList,
   Bell,
   Webhook,
   PenLine,
   Workflow as WorkflowIcon,
-  Save,
   Play,
   Loader2,
   Check,
@@ -67,12 +65,42 @@ import {
   Share2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton, AutomationBuilder } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Button,
+  IconButton,
+  Switch,
+  SegmentedControl,
+  type SegmentedItem,
+  Alert,
+  Badge,
+  type BadgeTone,
+  EmptyState,
+  Skeleton,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/sabcrm/20ui';
+import { AutomationBuilder } from '@/components/sabcrm/twenty';
 import type {
   AutomationDraft,
   AutomationStep,
 } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
+import { useToast } from '@/hooks/use-toast';
 import {
   listWorkflowsTw,
   getWorkflowTw,
@@ -84,12 +112,6 @@ import { runWorkflowNowTw } from '@/app/actions/sabcrm-runtime.actions';
 import { listWorkflowRunsTw } from '@/app/actions/sabcrm-workflow-runs.actions';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './workflows.css';
-import './run-now.css';
-import './workflow-advanced.css';
 
 // ---------------------------------------------------------------------------
 // Local types (mirrors the workflow shape exposed by the engine actions; kept
@@ -257,7 +279,7 @@ function statusBucket(status: RunStatus): 'ok' | 'fail' | 'run' | 'wait' {
   return 'wait';
 }
 
-const STATUS_ICON: Record<'ok' | 'fail' | 'run' | 'wait', React.ComponentType<{ size?: number }>> = {
+const STATUS_ICON: Record<'ok' | 'fail' | 'run' | 'wait', React.ComponentType<{ size?: number; className?: string }>> = {
   ok: CircleCheck,
   fail: CircleX,
   run: Loader2,
@@ -269,6 +291,13 @@ const STATUS_LABEL: Record<'ok' | 'fail' | 'run' | 'wait', string> = {
   fail: 'Failed',
   run: 'Running',
   wait: 'Pending',
+};
+
+const STATUS_TONE: Record<'ok' | 'fail' | 'run' | 'wait', BadgeTone> = {
+  ok: 'success',
+  fail: 'danger',
+  run: 'info',
+  wait: 'neutral',
 };
 
 // ---------------------------------------------------------------------------
@@ -290,31 +319,55 @@ function DiagramNode({
   index,
 }: {
   icon: React.ComponentType<{ size?: number }>;
-  kind: 'trigger' | 'step';
+  kind: 'trigger' | 'step' | 'end';
   title: string;
-  subtitle: string;
+  subtitle?: string;
   index?: number;
 }): React.JSX.Element {
+  const accent =
+    kind === 'trigger'
+      ? 'border-[var(--st-accent)] text-[var(--st-accent)]'
+      : kind === 'end'
+        ? 'border-[var(--st-status-ok)] text-[var(--st-status-ok)]'
+        : 'border-[var(--st-border)] text-[var(--st-text-secondary)]';
   return (
-    <div className={`wf-dnode wf-dnode--${kind}`}>
-      <span className="wf-dnode__icon">
+    <div className="flex w-full max-w-sm items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
+      <span
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border bg-[var(--st-bg)] ${accent}`}
+        aria-hidden="true"
+      >
         <Icon size={15} />
       </span>
-      <span className="wf-dnode__text">
-        <span className="wf-dnode__title">
-          {typeof index === 'number' ? <span className="wf-dnode__num">{index + 1}</span> : null}
+      <span className="flex min-w-0 flex-col">
+        <span className="flex items-center gap-1.5 text-sm font-medium text-[var(--st-text)]">
+          {typeof index === 'number' ? (
+            <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-border)] px-1 text-[10px] font-semibold text-[var(--st-text-secondary)]">
+              {index + 1}
+            </span>
+          ) : null}
           {title}
         </span>
-        <span className="wf-dnode__sub">{subtitle}</span>
+        {subtitle ? (
+          <span className="truncate text-xs text-[var(--st-text-secondary)]">{subtitle}</span>
+        ) : null}
       </span>
     </div>
   );
 }
 
-/** Read-only, pure-CSS vertical flowchart. IF_ELSE shows True/Else branch hints. */
+/** A vertical connector between diagram nodes. */
+function DiagramConnector(): React.JSX.Element {
+  return <span className="h-5 w-px bg-[var(--st-border)]" aria-hidden="true" />;
+}
+
+/** Read-only vertical flowchart. IF_ELSE shows True/Else branch hints. */
 function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
   return (
-    <div className="wf-diagram" role="img" aria-label="Workflow flow diagram">
+    <div
+      className="flex flex-col items-center gap-0 py-2"
+      role="img"
+      aria-label="Workflow flow diagram"
+    >
       <DiagramNode
         icon={Zap}
         kind="trigger"
@@ -323,8 +376,10 @@ function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
       />
       {draft.steps.length === 0 ? (
         <>
-          <span className="wf-dconn" aria-hidden="true" />
-          <div className="wf-dempty">No steps — this trigger runs nothing yet.</div>
+          <DiagramConnector />
+          <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-4 py-3 text-sm text-[var(--st-text-tertiary)]">
+            No steps. This trigger runs nothing yet.
+          </div>
         </>
       ) : (
         draft.steps.map((step, i) => {
@@ -338,7 +393,7 @@ function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
               : meta.blurb;
           return (
             <React.Fragment key={step.id}>
-              <span className="wf-dconn" aria-hidden="true" />
+              <DiagramConnector />
               <DiagramNode
                 icon={meta.icon}
                 kind="step"
@@ -347,12 +402,15 @@ function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
                 subtitle={subtitle}
               />
               {step.type === 'if_else' ? (
-                <div className="wf-dbranch" aria-hidden="true">
-                  <span className="wf-dbranch__leg wf-dbranch__leg--true">
-                    <span className="wf-dbranch__label">True</span>
+                <div
+                  className="flex w-full max-w-sm items-center justify-around pt-1"
+                  aria-hidden="true"
+                >
+                  <span className="rounded-full bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-status-ok)]">
+                    True
                   </span>
-                  <span className="wf-dbranch__leg wf-dbranch__leg--else">
-                    <span className="wf-dbranch__label">Else</span>
+                  <span className="rounded-full bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text-tertiary)]">
+                    Else
                   </span>
                 </div>
               ) : null}
@@ -360,15 +418,8 @@ function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
           );
         })
       )}
-      <span className="wf-dconn wf-dconn--end" aria-hidden="true" />
-      <div className="wf-dnode wf-dnode--end">
-        <span className="wf-dnode__icon">
-          <Check size={14} />
-        </span>
-        <span className="wf-dnode__text">
-          <span className="wf-dnode__title">End</span>
-        </span>
-      </div>
+      <DiagramConnector />
+      <DiagramNode icon={Check} kind="end" title="End" />
     </div>
   );
 }
@@ -377,14 +428,18 @@ function DiagramView({ draft }: { draft: Workflow }): React.JSX.Element {
 // Run history panel
 // ---------------------------------------------------------------------------
 
-function RunStatusChip({ status }: { status: RunStatus }): React.JSX.Element {
+function RunStatusBadge({ status }: { status: RunStatus }): React.JSX.Element {
   const bucket = statusBucket(status);
   const Icon = STATUS_ICON[bucket];
   return (
-    <span className={`wf-runstat wf-runstat--${bucket}`} title={STATUS_LABEL[bucket]}>
-      <Icon size={12} className={bucket === 'run' ? 'wf-run__spin' : undefined} aria-hidden="true" />
+    <Badge tone={STATUS_TONE[bucket]} kind="soft">
+      <Icon
+        size={12}
+        className={bucket === 'run' ? 'animate-spin' : undefined}
+        aria-hidden="true"
+      />
       {STATUS_LABEL[bucket]}
-    </span>
+    </Badge>
   );
 }
 
@@ -409,83 +464,99 @@ function RunHistory({
     });
 
   return (
-    <div className="wf-runs">
-      <div className="wf-runs__head">
-        <span className="wf-runs__title">
+    <Card padding="none" className="overflow-hidden">
+      <CardHeader className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-2.5">
+        <CardTitle className="flex items-center gap-1.5 text-sm">
           <History size={13} aria-hidden="true" />
           Run history
-        </span>
-        <button
-          type="button"
-          className="wf-icon-btn"
+        </CardTitle>
+        <IconButton
+          label="Refresh run history"
+          icon={RefreshCw}
+          size="sm"
           onClick={onRefresh}
           disabled={loading}
-          aria-label="Refresh run history"
-          title="Refresh"
-        >
-          <RefreshCw size={14} className={loading ? 'wf-run__spin' : undefined} />
-        </button>
-      </div>
-      <div className="wf-runs__body">
+          className={loading ? 'animate-spin' : undefined}
+        />
+      </CardHeader>
+      <CardBody className="p-0">
         {error ? (
-          <div className="wf-runs__empty">{error}</div>
+          <p className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">{error}</p>
         ) : loading && runs.length === 0 ? (
-          <div className="wf-runs__empty">Loading runs…</div>
+          <p className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
+            Loading runs.
+          </p>
         ) : runs.length === 0 ? (
-          <div className="wf-runs__empty">No runs yet. Use “Run now” to fire this workflow.</div>
+          <p className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No runs yet. Use "Run now" to fire this workflow.
+          </p>
         ) : (
-          runs.map((run) => {
-            const isOpen = expanded.has(run.id);
-            const started = relativeTimeFrom(run.startedAt);
-            const finished = relativeTimeFrom(run.finishedAt);
-            return (
-              <div key={run.id} className="wf-runrow">
-                <button
-                  type="button"
-                  className="wf-runrow__head"
-                  aria-expanded={isOpen}
-                  onClick={() => toggle(run.id)}
-                >
-                  <span className={`wf-runrow__caret${isOpen ? ' is-open' : ''}`} aria-hidden="true">
-                    <ChevronRight size={14} />
-                  </span>
-                  <RunStatusChip status={run.status} />
-                  <span className="wf-runrow__meta">
-                    {started ? `Started ${started}` : 'Started —'}
-                    {finished ? ` · Finished ${finished}` : ''}
-                  </span>
-                  <span className="wf-runrow__count">
-                    {run.steps.length} {run.steps.length === 1 ? 'step' : 'steps'}
-                  </span>
-                </button>
-                {isOpen ? (
-                  <div className="wf-runrow__steps">
-                    {run.steps.length === 0 ? (
-                      <div className="wf-runstep wf-runstep--none">No step records.</div>
-                    ) : (
-                      run.steps.map((s, i) => (
-                        <div key={s.id || i} className="wf-runstep">
-                          <span className="wf-runstep__num">{i + 1}</span>
-                          <span className="wf-runstep__type">
-                            {STEP_META[s.type as StepType]?.label ?? s.type}
-                          </span>
-                          <RunStatusChip status={s.status} />
-                          {s.error ? (
-                            <span className="wf-runstep__error" title={s.error}>
-                              {s.error}
-                            </span>
-                          ) : null}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })
+          <ul className="divide-y divide-[var(--st-border)]">
+            {runs.map((run) => {
+              const isOpen = expanded.has(run.id);
+              const started = relativeTimeFrom(run.startedAt);
+              const finished = relativeTimeFrom(run.finishedAt);
+              return (
+                <li key={run.id}>
+                  <Button
+                    variant="ghost"
+                    block
+                    aria-expanded={isOpen}
+                    onClick={() => toggle(run.id)}
+                    className="!justify-start gap-2.5 rounded-none px-4 py-2.5 text-left [&>.u-btn__label]:flex [&>.u-btn__label]:w-full [&>.u-btn__label]:items-center [&>.u-btn__label]:gap-2.5"
+                  >
+                    <ChevronRight
+                      size={14}
+                      className={`shrink-0 text-[var(--st-text-tertiary)] transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                      aria-hidden="true"
+                    />
+                    <RunStatusBadge status={run.status} />
+                    <span className="flex-1 truncate text-xs text-[var(--st-text-secondary)]">
+                      {started ? `Started ${started}` : 'Started recently'}
+                      {finished ? ` . Finished ${finished}` : ''}
+                    </span>
+                    <span className="shrink-0 text-xs text-[var(--st-text-tertiary)]">
+                      {run.steps.length} {run.steps.length === 1 ? 'step' : 'steps'}
+                    </span>
+                  </Button>
+                  {isOpen ? (
+                    <div className="bg-[var(--st-bg-secondary)] px-4 py-2">
+                      {run.steps.length === 0 ? (
+                        <p className="py-1 text-xs text-[var(--st-text-tertiary)]">
+                          No step records.
+                        </p>
+                      ) : (
+                        <ul className="flex flex-col gap-1.5">
+                          {run.steps.map((s, i) => (
+                            <li key={s.id || i} className="flex items-center gap-2 text-xs">
+                              <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-border)] px-1 text-[10px] font-semibold text-[var(--st-text-secondary)]">
+                                {i + 1}
+                              </span>
+                              <span className="text-[var(--st-text)]">
+                                {STEP_META[s.type as StepType]?.label ?? s.type}
+                              </span>
+                              <RunStatusBadge status={s.status} />
+                              {s.error ? (
+                                <span
+                                  className="truncate text-[var(--st-danger)]"
+                                  title={s.error}
+                                >
+                                  {s.error}
+                                </span>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
         )}
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -507,6 +578,11 @@ interface BuilderProps {
   onDelete: () => void;
   onRun: () => void;
 }
+
+const VIEW_OPTIONS: ReadonlyArray<SegmentedItem<'builder' | 'diagram'>> = [
+  { value: 'builder', label: 'Builder', icon: LayoutList },
+  { value: 'diagram', label: 'Diagram', icon: Share2 },
+];
 
 function Builder({
   draft,
@@ -551,89 +627,56 @@ function Builder({
     });
 
   return (
-    <div className="wf-builder">
+    <div className="flex flex-col gap-4">
       {/* Run controls + view toggle (page-level extras around the shared editor). */}
-      <div className="wf-builder__bar">
-        <div className="wf-viewtoggle" role="tablist" aria-label="View mode">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === 'builder'}
-            className={`wf-viewtoggle__btn${view === 'builder' ? ' is-active' : ''}`}
-            onClick={() => setView('builder')}
-          >
-            <LayoutList size={13} aria-hidden="true" />
-            Builder
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === 'diagram'}
-            className={`wf-viewtoggle__btn${view === 'diagram' ? ' is-active' : ''}`}
-            onClick={() => setView('diagram')}
-          >
-            <Share2 size={13} aria-hidden="true" />
-            Diagram
-          </button>
-        </div>
-        <span className="wf-builder__spacer" />
+      <div className="flex flex-wrap items-center gap-3">
+        <SegmentedControl
+          items={VIEW_OPTIONS}
+          value={view}
+          onChange={setView}
+          size="sm"
+          aria-label="View mode"
+        />
+        <span className="flex-1" />
         {dirty ? (
-          <span className="wf-dirty">Unsaved changes</span>
+          <Badge tone="warning" kind="soft">
+            Unsaved changes
+          </Badge>
         ) : (
-          <span className="wf-saved">Saved</span>
+          <Badge tone="success" kind="soft">
+            Saved
+          </Badge>
         )}
         {lastRun ? (
-          <span className="wf-run__last" title="Last run">
-            <span className="wf-run__last-icon" aria-hidden="true">
-              <History size={12} />
-            </span>
+          <span
+            className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]"
+            title="Last run"
+          >
+            <History size={12} aria-hidden="true" />
             Last run: {lastRun}
           </span>
         ) : null}
-        <span className="wf-run">
-          <TwentyButton
-            variant="secondary"
-            icon={running ? undefined : Play}
-            disabled={!runnable || running}
-            onClick={onRun}
-            title={
-              runnable
-                ? 'Run this workflow now'
-                : 'Save your changes before running'
-            }
-            aria-busy={running}
-          >
-            {running ? (
-              <>
-                <Loader2 size={14} className="wf-run__spin" aria-hidden="true" />
-                Running…
-              </>
-            ) : (
-              'Run now'
-            )}
-          </TwentyButton>
-          {runNote ? (
-            <span
-              className={`wf-run__note wf-run__note--${runNote.kind === 'ok' ? 'ok' : 'err'}`}
-              role="status"
-              aria-live="polite"
-              title={runNote.message}
-            >
-              <span className="wf-run__note-icon" aria-hidden="true">
-                {runNote.kind === 'ok' ? (
-                  <Check size={12} />
-                ) : (
-                  <AlertTriangle size={12} />
-                )}
-              </span>
-              {runNote.message}
-            </span>
-          ) : null}
-        </span>
+        <Button
+          variant="secondary"
+          size="sm"
+          iconLeft={running ? undefined : Play}
+          loading={running}
+          disabled={!runnable || running}
+          onClick={onRun}
+          title={runnable ? 'Run this workflow now' : 'Save your changes before running'}
+        >
+          {running ? 'Running' : 'Run now'}
+        </Button>
       </div>
 
+      {runNote ? (
+        <Alert tone={runNote.kind === 'ok' ? 'success' : 'danger'}>{runNote.message}</Alert>
+      ) : null}
+
       {view === 'diagram' ? (
-        <DiagramView draft={draft} />
+        <Card padding="lg">
+          <DiagramView draft={draft} />
+        </Card>
       ) : (
         <AutomationBuilder
           value={{
@@ -682,43 +725,35 @@ function DeleteDialog({
   onConfirm,
 }: DeleteDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete workflow"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
+    <AlertDialog
+      open
+      onOpenChange={(next) => {
+        if (!next && !busy) onCancel();
       }}
     >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete workflow</h2>
-          <button type="button" className="st-dialog__close" onClick={onCancel} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Delete <strong style={{ color: 'var(--st-text)' }}>{workflow.name || 'this workflow'}</strong>?
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete workflow</AlertDialogTitle>
+          <AlertDialogDescription>
+            Delete <strong className="text-[var(--st-text)]">{workflow.name || 'this workflow'}</strong>?
             Its trigger will stop firing and its steps will no longer run. This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            intent="danger"
             disabled={busy}
+            onClick={(e) => {
+              e.preventDefault();
+              onConfirm();
+            }}
           >
-            {busy ? 'Deleting…' : 'Delete workflow'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+            {busy ? 'Deleting' : 'Delete workflow'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -728,9 +763,9 @@ function DeleteDialog({
 
 function ListSkeleton(): React.JSX.Element {
   return (
-    <div className="wf-list-skel">
+    <div className="flex flex-col gap-2 p-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={52} radius="var(--st-radius)" />
       ))}
     </div>
   );
@@ -742,6 +777,7 @@ function ListSkeleton(): React.JSX.Element {
 
 export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [workflows, setWorkflows] = React.useState<Workflow[]>([]);
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
@@ -833,7 +869,7 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
     [activeProjectId],
   );
 
-  // -- Select a workflow → fetch its full detail (steps/trigger) ----------
+  // -- Select a workflow -> fetch its full detail (steps/trigger) ----------
   const select = React.useCallback(
     async (workflow: Workflow) => {
       setSelectedId(workflow.id);
@@ -915,6 +951,7 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
         setBaseline(saved);
         setDraft(saved);
         setWorkflows((prev) => prev.map((w) => (w.id === saved.id ? saved : w)));
+        toast.success('Workflow saved');
       } else {
         setError(res.error);
       }
@@ -923,7 +960,7 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
     } finally {
       setSaving(false);
     }
-  }, [activeProjectId, draft, saving]);
+  }, [activeProjectId, draft, saving, toast]);
 
   // -- Toggle enabled (persists immediately, optimistic) ------------------
   const handleToggleEnabled = React.useCallback(
@@ -979,6 +1016,7 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
           setBaseline(null);
         }
         setDeleteTarget(null);
+        toast.success('Workflow deleted');
       } else {
         setError(res.error);
         setDeleteTarget(null);
@@ -989,7 +1027,7 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId, selectedId]);
+  }, [deleteTarget, activeProjectId, selectedId, toast]);
 
   // -- Run now (manual one-off execution of a saved workflow) -------------
   const handleRunNow = React.useCallback(
@@ -1034,157 +1072,167 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
   const enabledCount = workflows.filter((w) => w.enabled).length;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Workflows"
-          icon={WorkflowIcon}
-          actions={
-            activeProjectId ? (
-              <TwentyButton
-                variant="primary"
-                icon={Plus}
-                onClick={() => void handleCreate()}
-                disabled={creating}
-              >
-                {creating ? 'Creating…' : 'New workflow'}
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Build event-driven workflows: a trigger fires when a CRM record changes,
-          then runs an ordered list of steps. Managing workflows requires the{' '}
-          <code>sabcrm:admin</code> capability.
-          {workflows.length > 0 ? (
-            <>
-              {' '}
-              {enabledCount} of {workflows.length}{' '}
-              {workflows.length === 1 ? 'workflow' : 'workflows'} enabled.
-            </>
-          ) : null}
-        </p>
-
-        {error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
-        ) : null}
-
-        {isLoadingProject || loading ? (
-          <div className="wf-layout">
-            <div className="wf-list">
-              <ListSkeleton />
-            </div>
-            <div className="wf-placeholder">
-              <WorkflowIcon className="wf-placeholder__icon" size={22} />
-              <span>Loading workflows…</span>
-            </div>
-          </div>
-        ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">Select a project to manage its workflows.</p>
-          </div>
-        ) : workflows.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <WorkflowIcon size={20} />
-            </span>
-            <h2 className="st-empty__title">No workflows yet</h2>
-            <p className="st-empty__desc">
-              Create your first workflow to automatically run steps — create tasks,
-              send notifications, update fields, or call webhooks — when CRM events occur.
-            </p>
-            <TwentyButton
-              variant="secondary"
-              icon={Plus}
+    <div className="ui20 mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <WorkflowIcon size={20} aria-hidden="true" />
+            Workflows
+          </PageTitle>
+          <PageDescription>
+            Build event-driven workflows: a trigger fires when a CRM record changes,
+            then runs an ordered list of steps. Managing workflows requires the{' '}
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-[0.85em] text-[var(--st-text)]">
+              sabcrm:admin
+            </code>{' '}
+            capability.
+            {workflows.length > 0 ? (
+              <>
+                {' '}
+                {enabledCount} of {workflows.length}{' '}
+                {workflows.length === 1 ? 'workflow' : 'workflows'} enabled.
+              </>
+            ) : null}
+          </PageDescription>
+        </PageHeaderHeading>
+        {activeProjectId ? (
+          <PageActions>
+            <Button
+              variant="primary"
+              iconLeft={Plus}
               onClick={() => void handleCreate()}
-              disabled={creating}
+              loading={creating}
+            >
+              {creating ? 'Creating' : 'New workflow'}
+            </Button>
+          </PageActions>
+        ) : null}
+      </PageHeader>
+
+      {error ? (
+        <Alert tone="danger" icon={AlertTriangle}>
+          {error}
+        </Alert>
+      ) : null}
+
+      {isLoadingProject || loading ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr]">
+          <Card padding="none" className="overflow-hidden">
+            <ListSkeleton />
+          </Card>
+          <EmptyState
+            icon={WorkflowIcon}
+            title="Loading workflows."
+            description="Fetching your event-driven workflows."
+          />
+        </div>
+      ) : !activeProjectId ? (
+        <EmptyState
+          icon={AlertTriangle}
+          tone="warning"
+          title="No project selected"
+          description="Select a project to manage its workflows."
+        />
+      ) : workflows.length === 0 ? (
+        <EmptyState
+          icon={WorkflowIcon}
+          title="No workflows yet"
+          description="Create your first workflow to automatically run steps - create tasks, send notifications, update fields, or call webhooks - when CRM events occur."
+          action={
+            <Button
+              variant="secondary"
+              iconLeft={Plus}
+              onClick={() => void handleCreate()}
+              loading={creating}
             >
               New workflow
-            </TwentyButton>
-          </div>
-        ) : (
-          <div className="wf-layout">
-            {/* Left: list */}
-            <div className="wf-list">
-              <div className="wf-list__head">
-                <span>Workflows</span>
-                <span>{workflows.length}</span>
-              </div>
-              <div className="wf-list__scroll">
-                {workflows.map((w) => (
-                  <button
-                    key={w.id}
-                    type="button"
-                    className={`wf-list__item${w.id === selectedId ? ' is-active' : ''}`}
-                    onClick={() => void select(w)}
-                  >
-                    <span className="wf-list__name">
-                      <span className="wf-list__name-text">{w.name || 'Untitled workflow'}</span>
-                      <span
-                        className={`st-switch${w.enabled ? ' is-on' : ''}`}
-                        role="switch"
-                        tabIndex={0}
-                        aria-checked={w.enabled}
-                        aria-label={w.enabled ? 'Disable workflow' : 'Enable workflow'}
-                        title={w.enabled ? 'Enabled' : 'Disabled'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handleToggleEnabled(w);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            void handleToggleEnabled(w);
-                          }
-                        }}
-                      />
-                    </span>
-                    <span className="wf-list__trigger">{triggerSummary(w.trigger)}</span>
-                    {relativeTimeFrom(w.lastRunAt) ? (
-                      <span className="wf-list__lastrun">Last run: {relativeTimeFrom(w.lastRunAt)}</span>
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-            </div>
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr]">
+          {/* Left: list */}
+          <Card padding="none" className="overflow-hidden self-start">
+            <CardHeader className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-2.5">
+              <CardTitle className="text-sm">Workflows</CardTitle>
+              <Badge tone="neutral" kind="soft">
+                {workflows.length}
+              </Badge>
+            </CardHeader>
+            <CardBody className="max-h-[60vh] overflow-y-auto p-2">
+              <ul className="flex flex-col gap-1">
+                {workflows.map((w) => {
+                  const active = w.id === selectedId;
+                  const last = relativeTimeFrom(w.lastRunAt);
+                  return (
+                    <li key={w.id} className="relative">
+                      <Button
+                        variant="ghost"
+                        block
+                        onClick={() => void select(w)}
+                        className={`!justify-start rounded-[var(--st-radius)] border px-3 py-2.5 pr-12 text-left [&>.u-btn__label]:flex [&>.u-btn__label]:w-full [&>.u-btn__label]:flex-col [&>.u-btn__label]:items-start [&>.u-btn__label]:gap-1 ${
+                          active
+                            ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                            : 'border-transparent hover:bg-[var(--st-bg-secondary)]'
+                        }`}
+                      >
+                        <span className="w-full truncate text-sm font-medium text-[var(--st-text)]">
+                          {w.name || 'Untitled workflow'}
+                        </span>
+                        <span className="w-full truncate text-xs text-[var(--st-text-secondary)]">
+                          {triggerSummary(w.trigger)}
+                        </span>
+                        {last ? (
+                          <span className="text-xs text-[var(--st-text-tertiary)]">
+                            Last run: {last}
+                          </span>
+                        ) : null}
+                      </Button>
+                      <span className="absolute right-3 top-3">
+                        <Switch
+                          checked={w.enabled}
+                          size="sm"
+                          aria-label={w.enabled ? 'Disable workflow' : 'Enable workflow'}
+                          title={w.enabled ? 'Enabled' : 'Disabled'}
+                          onCheckedChange={() => void handleToggleEnabled(w)}
+                        />
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </CardBody>
+          </Card>
 
-            {/* Right: builder */}
-            {draft && baseline ? (
-              <Builder
-                draft={draft}
-                baseline={baseline}
-                objects={objects}
-                saving={saving}
-                deleting={deleting && deleteTarget?.id === draft.id}
-                running={running}
-                runNote={runNote}
-                runs={runs}
-                runsLoading={runsLoading}
-                runsError={runsError}
-                onRefreshRuns={() => void loadRuns(draft.id)}
-                onChange={setDraft}
-                onSave={() => void handleSave()}
-                onToggleEnabled={() => void handleToggleEnabled(draft)}
-                onDelete={() => setDeleteTarget(draft)}
-                onRun={() => void handleRunNow(draft)}
-              />
-            ) : (
-              <div className="wf-placeholder">
-                <WorkflowIcon className="wf-placeholder__icon" size={22} />
-                <span>Select a workflow to edit, or create a new one.</span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+          {/* Right: builder */}
+          {draft && baseline ? (
+            <Builder
+              draft={draft}
+              baseline={baseline}
+              objects={objects}
+              saving={saving}
+              deleting={deleting && deleteTarget?.id === draft.id}
+              running={running}
+              runNote={runNote}
+              runs={runs}
+              runsLoading={runsLoading}
+              runsError={runsError}
+              onRefreshRuns={() => void loadRuns(draft.id)}
+              onChange={setDraft}
+              onSave={() => void handleSave()}
+              onToggleEnabled={() => void handleToggleEnabled(draft)}
+              onDelete={() => setDeleteTarget(draft)}
+              onRun={() => void handleRunNow(draft)}
+            />
+          ) : (
+            <EmptyState
+              icon={WorkflowIcon}
+              title="No workflow selected"
+              description="Select a workflow to edit, or create a new one."
+            />
+          )}
+        </div>
+      )}
 
       {deleteTarget ? (
         <DeleteDialog

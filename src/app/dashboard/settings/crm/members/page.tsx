@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * SabCRM — Members settings (`/dashboard/settings/crm/members`), Twenty-style.
+ * SabCRM - Members settings (`/dashboard/settings/crm/members`).
  *
  * Two stacked surfaces, both scoped to the active project via `useProject()`:
  *
- *   1. Members roster — list of the workspace's members, each row showing
+ *   1. Members roster - list of the workspace's members, each row showing
  *      avatar, name + email, workspace role, the derived SabCRM capability
  *      chip, and an inline SabCRM-role select. Data comes from
  *      `listMembersAction`; the per-member role is derived from each role's
@@ -14,22 +14,24 @@
  *      from reassignment. Each non-owner row also exposes a Remove action;
  *      because there is no SabCRM member-removal server action, that opens a
  *      dialog explaining removal is a SabNode workspace operation
- *      (Settings → Team) — the page degrades gracefully rather than calling a
+ *      (Settings, Team) - the page degrades gracefully rather than calling a
  *      missing backend.
  *
- *   2. Pending invitations — the Twenty-style member INVITATION flow. An
- *      "Invite member" button opens a dialog (email + role select) that calls
- *      `createInviteTw`. The section below the roster lists pending invites
+ *   2. Pending invitations - the member INVITATION flow. An "Invite member"
+ *      button opens a dialog (email + role select) that calls `createInviteTw`.
+ *      The section below the roster lists pending invites
  *      (`listInvitesTw({ status: 'pending' })`) with email, role, status chip,
  *      invited-at, and Revoke / Delete actions. Because there is no email
- *      delivery yet — and no consuming acceptance route for the token — each
+ *      delivery yet - and no consuming acceptance route for the token - each
  *      invite surfaces its token as a copyable invite CODE (not a URL),
  *      clearly labelled as such; the in-app acceptance flow is still coming.
  *
- * Every action independently re-runs the session → project → RBAC → plan
- * pipeline server-side, so the page fails closed. States: skeleton while the
- * project / data load, "no project" notice, empty roster, error banner, and
- * graceful degradation when the engine is unreachable.
+ * Every action independently re-runs the session, project, RBAC, plan pipeline
+ * server-side, so the page fails closed. States: skeleton while the project /
+ * data load, "no project" notice, empty roster, error banner, and graceful
+ * degradation when the engine is unreachable.
+ *
+ * UI: pure 20ui (`@/components/sabcrm/20ui`).
  */
 
 import * as React from 'react';
@@ -41,16 +43,47 @@ import {
   AlertTriangle,
   UserPlus,
   UserMinus,
-  Mail,
   MailX,
-  X,
   Copy,
   Check,
   Trash2,
-  Info,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyAvatar, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Avatar,
+  Badge,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
+  Input,
+  Alert,
+  Callout,
+  EmptyState,
+  Skeleton,
+  Modal,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
+
 import { useProject } from '@/context/project-context';
 import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { CrmMember, CrmMemberRole } from '@/lib/sabcrm/members.server';
@@ -62,10 +95,6 @@ import {
 } from '@/app/actions/sabcrm-invites.actions';
 import { listRolesTw, setRoleMemberTw } from '@/app/actions/sabcrm-roles.actions';
 import type { SabcrmRustRole } from '@/lib/rust-client/sabcrm-roles';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './invites.css';
 
 // ---------------------------------------------------------------------------
 // Invite wire shape
@@ -102,6 +131,10 @@ const CAPABILITY_INFO: Record<CrmMemberRole, CapabilityInfo> = {
   view: { label: 'Viewer', Icon: Eye },
 };
 
+// No specific role option uses an empty string under the hood; Radix Select does
+// not accept empty-string item values, so the "no role" choice carries this id.
+const NO_ROLE_VALUE = '__none__';
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -126,8 +159,8 @@ function formatInvitedAt(iso: string): string {
 /**
  * Returns the raw invite token as the shareable invite code.
  *
- * There is no `/sabcrm/invite/<token>` route — SabCRM invite tokens have no
- * consuming acceptance route yet — so this deliberately surfaces the token
+ * There is no `/sabcrm/invite/<token>` route - SabCRM invite tokens have no
+ * consuming acceptance route yet - so this deliberately surfaces the token
  * itself as a copyable code rather than fabricating a dead URL.
  */
 function inviteCodeFromToken(token: string): string {
@@ -135,51 +168,53 @@ function inviteCodeFromToken(token: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Capability chip — TwentyChip only renders an optional color dot, so this
-// wraps the base `.st-chip` markup to prepend the capability icon.
+// Capability chip - a Badge with the capability icon.
 // ---------------------------------------------------------------------------
 
 function CapabilityChip({ role }: { role: CrmMemberRole }): React.JSX.Element {
   const cap = CAPABILITY_INFO[role];
   const { Icon } = cap;
   return (
-    <span className="st-chip">
+    <Badge tone="neutral" className="gap-1">
       <Icon size={12} aria-hidden="true" />
-      <span className="st-chip__label">{cap.label}</span>
-    </span>
+      {cap.label}
+    </Badge>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Copyable value — shared by the dialog success state and each invite row.
+// Copyable value - shared by the dialog success state and each invite row.
 // Copies the invite CODE (the token), not a URL.
 // ---------------------------------------------------------------------------
 
 function CopyCodeButton({ value }: { value: string }): React.JSX.Element {
+  const { toast } = useToast();
   const [copied, setCopied] = React.useState(false);
   const copy = React.useCallback(async () => {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
+      toast.success('Invite code copied');
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* clipboard unavailable */
+      toast.error('Could not copy. Clipboard is unavailable.');
     }
-  }, [value]);
+  }, [value, toast]);
   return (
-    <TwentyButton
+    <Button
       variant="secondary"
-      icon={copied ? Check : Copy}
+      size="sm"
+      iconLeft={copied ? Check : Copy}
       onClick={copy}
       title="Copy invite code"
     >
       {copied ? 'Copied' : 'Copy'}
-    </TwentyButton>
+    </Button>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Invite dialog — email + role select → createInviteTw
+// Invite dialog - email + role select -> createInviteTw
 // ---------------------------------------------------------------------------
 
 interface InviteDialogProps {
@@ -198,10 +233,10 @@ function InviteDialog({
   onCreated,
 }: InviteDialogProps): React.JSX.Element {
   const [email, setEmail] = React.useState('');
-  const [roleId, setRoleId] = React.useState('');
+  const [roleId, setRoleId] = React.useState<string>(NO_ROLE_VALUE);
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  // The created invite's link, surfaced once on success.
+  // The created invite, surfaced once on success.
   const [created, setCreated] = React.useState<CrmInvite | null>(null);
 
   const submit = React.useCallback(
@@ -221,7 +256,8 @@ function InviteDialog({
       setSubmitting(true);
       setError(null);
       try {
-        const res = await createInviteTw(trimmed, roleId || undefined, projectId);
+        const resolvedRole = roleId === NO_ROLE_VALUE ? undefined : roleId;
+        const res = await createInviteTw(trimmed, resolvedRole, projectId);
         if (res.ok) {
           const invite = res.data as CrmInvite;
           onCreated(invite);
@@ -238,130 +274,107 @@ function InviteDialog({
     [email, roleId, projectId, submitting, onCreated],
   );
 
-  return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Invite member"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="st-dialog" style={{ maxWidth: 480 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            {created ? 'Invitation created' : 'Invite member'}
-          </h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
+  if (created) {
+    const code = inviteCodeFromToken(created.token);
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Invitation created"
+        size="sm"
+        footer={
+          <Button variant="primary" onClick={onClose}>
+            Done
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field label={`Invite code for ${created.email}`}>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 font-mono text-[13px] text-[var(--st-text)]">
+                {code}
+              </code>
+              <CopyCodeButton value={code} />
+            </div>
+          </Field>
+          <p className="m-0 text-[13px] text-[var(--st-text-secondary)]">
+            Email delivery is not wired up yet, and the in-app acceptance flow is
+            still coming. For now, copy this invite code and share it with{' '}
+            {created.email} yourself. Once the acceptance flow ships, they will be
+            able to redeem the code to join the workspace.
+          </p>
         </div>
+      </Modal>
+    );
+  }
 
-        {created ? (
-          <>
-            <div className="st-dialog__body">
-              <div className="st-secret">
-                <span className="st-secret__label">
-                  Invite code for {created.email}
-                </span>
-                <div className="st-invite-link__row">
-                  <code className="st-secret__code">
-                    {inviteCodeFromToken(created.token)}
-                  </code>
-                  <CopyCodeButton value={inviteCodeFromToken(created.token)} />
-                </div>
-                <span className="st-secret__hint">
-                  Email delivery isn&apos;t wired up yet, and the in-app
-                  acceptance flow is still coming. For now, copy this invite code
-                  and share it with {created.email} yourself — once the
-                  acceptance flow ships, they&apos;ll be able to redeem the code
-                  to join the workspace.
-                </span>
-              </div>
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="primary" onClick={onClose}>
-                Done
-              </TwentyButton>
-            </div>
-          </>
-        ) : (
-          <form onSubmit={submit}>
-            <div className="st-dialog__body">
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="inv-email">
-                  Email address
-                  <span className="st-field__req" aria-hidden="true">
-                    *
-                  </span>
-                </label>
-                <input
-                  id="inv-email"
-                  className="st-input"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="teammate@example.com"
-                  autoFocus
-                />
-              </div>
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Invite member"
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="invite-member-form"
+            variant="primary"
+            loading={submitting}
+          >
+            {submitting ? 'Creating' : 'Create invitation'}
+          </Button>
+        </>
+      }
+    >
+      <form id="invite-member-form" onSubmit={submit} className="flex flex-col gap-4">
+        <Field label="Email address" required>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="teammate@example.com"
+            autoFocus
+          />
+        </Field>
 
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="inv-role">
-                  Role
-                </label>
-                <select
-                  id="inv-role"
-                  className="st-select"
-                  value={roleId}
-                  onChange={(e) => setRoleId(e.target.value)}
-                  disabled={rolesError}
-                >
-                  <option value="">No specific role (default access)</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-                {rolesError ? (
-                  <p className="st-form-error">
-                    Roles could not be loaded — the invite will use default
-                    access.
-                  </p>
-                ) : null}
-              </div>
+        <Field
+          label="Role"
+          error={
+            rolesError
+              ? 'Roles could not be loaded. The invite will use default access.'
+              : undefined
+          }
+        >
+          <Select value={roleId} onValueChange={setRoleId} disabled={rolesError}>
+            <SelectTrigger aria-label="Invite role">
+              <SelectValue placeholder="No specific role (default access)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_ROLE_VALUE}>
+                No specific role (default access)
+              </SelectItem>
+              {roles.map((role) => (
+                <SelectItem key={role.id} value={role.id}>
+                  {role.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-              <div className="st-invite-callout">
-                <Info className="st-invite-callout__icon" size={14} aria-hidden="true" />
-                <span>
-                  Email delivery isn&apos;t wired up yet and the in-app
-                  acceptance flow is still coming. After creating the invitation
-                  you&apos;ll get an invite code to share with the person
-                  yourself.
-                </span>
-              </div>
+        <Callout tone="info">
+          Email delivery is not wired up yet and the in-app acceptance flow is
+          still coming. After creating the invitation you will get an invite code
+          to share with the person yourself.
+        </Callout>
 
-              {error ? <p className="st-form-error">{error}</p> : null}
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
-                Cancel
-              </TwentyButton>
-              <TwentyButton type="submit" variant="primary" disabled={submitting}>
-                {submitting ? 'Creating…' : 'Create invitation'}
-              </TwentyButton>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -383,55 +396,34 @@ function DeleteInviteDialog({
   onConfirm,
 }: DeleteInviteDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete invitation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete invitation</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Delete the invitation for{' '}
-            <strong className="text-[var(--st-text)]">{invite.email}</strong>?
-            The invite code will stop working and the record is removed. This
-            cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+    <Modal
+      open
+      onClose={onCancel}
+      title="Delete invitation"
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Deleting…' : 'Delete invitation'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button variant="danger" onClick={onConfirm} loading={busy}>
+            {busy ? 'Deleting' : 'Delete invitation'}
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 text-[var(--st-text-secondary)]">
+        Delete the invitation for{' '}
+        <strong className="text-[var(--st-text)]">{invite.email}</strong>? The
+        invite code will stop working and the record is removed. This cannot be
+        undone.
+      </p>
+    </Modal>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Member role select — inline per-member SabCRM role assignment.
+// Member role select - inline per-member SabCRM role assignment.
 //
 // A member's current SabCRM role is the role whose `memberIds` contains the
 // member's userId. Changing the selection unassigns the member from their
@@ -456,7 +448,7 @@ function MemberRoleSelect({
   busy,
   onChange,
 }: MemberRoleSelectProps): React.JSX.Element {
-  // Owners always retain full access — their role is not reassignable here.
+  // Owners always retain full access - their role is not reassignable here.
   if (member.isOwner) {
     return <span className="text-[var(--st-text-tertiary)]">Owner (full access)</span>;
   }
@@ -466,30 +458,37 @@ function MemberRoleSelect({
       : 'No role assigned';
     return <span className="text-[var(--st-text-secondary)]">{name}</span>;
   }
+  const value = currentRoleId || NO_ROLE_VALUE;
   return (
-    <select
-      className="st-select"
-      style={{ maxWidth: 200 }}
-      value={currentRoleId}
+    <Select
+      value={value}
       disabled={busy}
-      aria-label={`SabCRM role for ${member.name.trim() || member.email}`}
-      onChange={(e) => onChange(member, currentRoleId, e.target.value)}
+      onValueChange={(next) =>
+        onChange(member, currentRoleId, next === NO_ROLE_VALUE ? '' : next)
+      }
     >
-      <option value="">No role assigned</option>
-      {roles.map((role) => (
-        <option key={role.id} value={role.id}>
-          {role.name}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger
+        className="max-w-[200px]"
+        aria-label={`SabCRM role for ${member.name.trim() || member.email}`}
+      >
+        <SelectValue placeholder="No role assigned" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={NO_ROLE_VALUE}>No role assigned</SelectItem>
+        {roles.map((role) => (
+          <SelectItem key={role.id} value={role.id}>
+            {role.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
 // ---------------------------------------------------------------------------
 // Remove-member confirmation
 //
-// Twenty removes a member from the workspace behind a confirmation modal. There
-// is no SabCRM member-removal server action yet, so this dialog degrades
+// There is no SabCRM member-removal server action yet, so this dialog degrades
 // gracefully: it explains that removal is managed centrally in SabNode
 // workspace settings and offers no destructive call.
 // ---------------------------------------------------------------------------
@@ -504,46 +503,28 @@ function RemoveMemberDialog({
   onCancel,
 }: RemoveMemberDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Remove member"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
+    <Modal
+      open
+      onClose={onCancel}
+      title="Remove member from workspace"
+      size="sm"
+      footer={
+        <Button variant="primary" onClick={onCancel}>
+          Got it
+        </Button>
+      }
     >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Remove member from workspace</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Removing{' '}
-            <strong className="text-[var(--st-text)]">
-              {member.name.trim() || member.email}
-            </strong>{' '}
-            from the workspace is managed centrally in SabNode workspace settings
-            (Settings → Team), alongside billing and access. Open Team settings
-            there to remove this person; their SabCRM access is revoked
-            automatically once they leave the workspace.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="primary" onClick={onCancel}>
-            Got it
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+      <p className="m-0 text-[var(--st-text-secondary)]">
+        Removing{' '}
+        <strong className="text-[var(--st-text)]">
+          {member.name.trim() || member.email}
+        </strong>{' '}
+        from the workspace is managed centrally in SabNode workspace settings
+        (Settings, Team), alongside billing and access. Open Team settings there
+        to remove this person; their SabCRM access is revoked automatically once
+        they leave the workspace.
+      </p>
+    </Modal>
   );
 }
 
@@ -553,9 +534,9 @@ function RemoveMemberDialog({
 
 function RowsSkeleton({ count = 4 }: { count?: number }): React.JSX.Element {
   return (
-    <div className="st-table-wrap p-[var(--st-space-3)]">
+    <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={44} radius={8} />
       ))}
     </div>
   );
@@ -585,112 +566,115 @@ function PendingInvites({
   onRequestDelete,
 }: PendingInvitesProps): React.JSX.Element {
   return (
-    <section className="st-invites">
-      <div className="st-invites__head">
-        <h2 className="st-invites__title">
-          <span className="st-invites__title-icon" aria-hidden="true">
-            <Mail size={15} />
-          </span>
-          Pending invitations
-        </h2>
-      </div>
-      <p className="st-invites__desc">
-        People invited to this workspace who haven&apos;t joined yet. Email
-        delivery isn&apos;t wired up and the in-app acceptance flow is still
-        coming — share each invite code below yourself in the meantime.
-      </p>
+    <Card padding="none" className="mt-6 overflow-hidden">
+      <CardHeader>
+        <CardTitle>Pending invitations</CardTitle>
+        <CardDescription>
+          People invited to this workspace who have not joined yet. Email
+          delivery is not wired up and the in-app acceptance flow is still
+          coming. Share each invite code below yourself in the meantime.
+        </CardDescription>
+      </CardHeader>
 
       {loading ? (
-        <RowsSkeleton count={2} />
+        <CardBody>
+          <RowsSkeleton count={2} />
+        </CardBody>
       ) : error ? (
-        <div className="st-banner">
-          <AlertTriangle className="st-banner__icon" size={16} />
-          <span>{error}</span>
-        </div>
+        <CardBody>
+          <Alert tone="danger">{error}</Alert>
+        </CardBody>
       ) : invites.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <MailX size={20} />
-          </span>
-          <h2 className="st-empty__title">No pending invitations</h2>
-          <p className="st-empty__desc">
-            Invite a member to add their invitation here.
-          </p>
-        </div>
+        <CardBody>
+          <EmptyState
+            icon={MailX}
+            title="No pending invitations"
+            description="Invite a member to add their invitation here."
+          />
+        </CardBody>
       ) : (
-        <div className="st-table-wrap">
-          <table className="st-table">
-            <thead>
-              <tr>
-                <th>Invitee</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Invite code</th>
-                <th aria-label="Actions" />
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-x-auto">
+          <Table className="w-full">
+            <THead>
+              <Tr>
+                <Th>Invitee</Th>
+                <Th>Role</Th>
+                <Th>Status</Th>
+                <Th>Invite code</Th>
+                <Th align="right" aria-label="Actions">
+                  <span className="sr-only">Actions</span>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {invites.map((invite) => {
                 const code = inviteCodeFromToken(invite.token);
                 const roleName = invite.roleId
                   ? roleNameById.get(invite.roleId) ?? 'Unknown role'
                   : 'Default access';
                 return (
-                  <tr key={invite.id} className="st-row">
-                    <td>
-                      <span className="st-invite-meta__email">{invite.email}</span>
-                      <span className="st-invite-meta__time">
-                        Invited {formatInvitedAt(invite.createdAt)}
-                      </span>
-                    </td>
-                    <td className="text-[var(--st-text-secondary)]">{roleName}</td>
-                    <td>
-                      <span className="st-chip st-chip--pending">
-                        <span className="st-chip__dot" aria-hidden="true" />
-                        <span className="st-chip__label">Pending</span>
-                      </span>
-                    </td>
-                    <td>
-                      <div className="st-invite-link">
-                        <span className="st-invite-link__label">
+                  <Tr key={invite.id}>
+                    <Td>
+                      <div className="flex flex-col">
+                        <span className="text-[var(--st-text)]">{invite.email}</span>
+                        <span className="text-xs text-[var(--st-text-tertiary)]">
+                          Invited {formatInvitedAt(invite.createdAt)}
+                        </span>
+                      </div>
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">{roleName}</Td>
+                    <Td>
+                      <Badge tone="warning" dot>
+                        Pending
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-[var(--st-text-tertiary)]">
                           Share manually
                         </span>
-                        <div className="st-invite-link__row">
-                          <code className="st-invite-link__value" title={code}>
+                        <div className="flex items-center gap-2">
+                          <code
+                            className="max-w-[160px] truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 font-mono text-xs text-[var(--st-text)]"
+                            title={code}
+                          >
                             {code}
                           </code>
                           <CopyCodeButton value={code} />
                         </div>
                       </div>
-                    </td>
-                    <td className="st-cell-actions">
-                      <TwentyButton
-                        variant="ghost"
-                        icon={MailX}
-                        onClick={() => onRevoke(invite)}
-                        disabled={revokingId === invite.id}
-                        title="Revoke invitation"
-                      >
-                        {revokingId === invite.id ? 'Revoking…' : 'Revoke'}
-                      </TwentyButton>
-                      <TwentyButton
-                        variant="ghost"
-                        icon={Trash2}
-                        className="st-btn--danger"
-                        onClick={() => onRequestDelete(invite)}
-                        title="Delete invitation"
-                      >
-                        Delete
-                      </TwentyButton>
-                    </td>
-                  </tr>
+                    </Td>
+                    <Td align="right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={MailX}
+                          onClick={() => onRevoke(invite)}
+                          disabled={revokingId === invite.id}
+                          title="Revoke invitation"
+                        >
+                          {revokingId === invite.id ? 'Revoking' : 'Revoke'}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          iconLeft={Trash2}
+                          onClick={() => onRequestDelete(invite)}
+                          title="Delete invitation"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -700,6 +684,7 @@ function PendingInvites({
 
 export default function SabcrmMembersSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   // Roster
   const [members, setMembers] = React.useState<CrmMember[]>([]);
@@ -721,14 +706,14 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
   const [deleteTarget, setDeleteTarget] = React.useState<CrmInvite | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  // Member role assignment — optimistic userId→roleId map, plus the userId
+  // Member role assignment - optimistic userId->roleId map, plus the userId
   // whose role is mid-flight (disables that row's select).
   const [memberRoleByUser, setMemberRoleByUser] = React.useState<
     Record<string, string>
   >({});
   const [roleUpdatingFor, setRoleUpdatingFor] = React.useState<string | null>(null);
 
-  // Remove-member dialog target (graceful — no destructive backend action yet).
+  // Remove-member dialog target (graceful - no destructive backend action yet).
   const [removeTarget, setRemoveTarget] = React.useState<CrmMember | null>(null);
 
   // ----- Loaders -----
@@ -834,6 +819,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
         if (res.ok) {
           // Revoked invites leave the pending list.
           setInvites((prev) => prev.filter((i) => i.id !== invite.id));
+          toast.success('Invitation revoked');
         } else {
           setInvitesError(res.error);
         }
@@ -843,7 +829,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
         setRevokingId(null);
       }
     },
-    [activeProjectId],
+    [activeProjectId, toast],
   );
 
   const confirmDelete = React.useCallback(async () => {
@@ -854,6 +840,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
       if (res.ok) {
         setInvites((prev) => prev.filter((i) => i.id !== deleteTarget.id));
         setDeleteTarget(null);
+        toast.success('Invitation deleted');
       } else {
         setInvitesError(res.error);
         setDeleteTarget(null);
@@ -864,7 +851,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId]);
+  }, [deleteTarget, activeProjectId, toast]);
 
   // ----- Member role assignment -----
 
@@ -888,6 +875,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
         }
         // Resync roles so memberIds stay authoritative.
         await loadRoles(activeProjectId);
+        toast.success('Member role updated');
       } catch (e) {
         setMemberRoleByUser((prev) => ({ ...prev, [userId]: fromRoleId }));
         setError(
@@ -899,150 +887,153 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
         setRoleUpdatingFor(null);
       }
     },
-    [activeProjectId, loadRoles],
+    [activeProjectId, loadRoles, toast],
   );
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Members"
-          icon={Users}
-          actions={
-            activeProjectId ? (
-              <TwentyButton
-                variant="primary"
-                icon={UserPlus}
-                onClick={() => setInviteOpen(true)}
-              >
-                Invite member
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Workspace members and their SabCRM access level. Roles are managed
-          centrally in the SabNode workspace settings (Settings → Team). Invite
-          new people below — invitations surface a code to share until email
-          delivery and the in-app acceptance flow are available.
-        </p>
+    <div className="ui20 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Members</PageTitle>
+          <PageDescription>
+            Workspace members and their SabCRM access level. Roles are managed
+            centrally in the SabNode workspace settings (Settings, Team). Invite
+            new people below. Invitations surface a code to share until email
+            delivery and the in-app acceptance flow are available.
+          </PageDescription>
+        </PageHeaderHeading>
+        {activeProjectId ? (
+          <PageActions>
+            <Button
+              variant="primary"
+              iconLeft={UserPlus}
+              onClick={() => setInviteOpen(true)}
+            >
+              Invite member
+            </Button>
+          </PageActions>
+        ) : null}
+      </PageHeader>
 
+      <div className="mt-6">
         {isLoadingProject || loading ? (
           <RowsSkeleton />
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to view its members.
-            </p>
-          </div>
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to view its members."
+          />
         ) : error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
+          <Alert tone="danger" title="Could not load members">
+            {error}
+          </Alert>
         ) : members.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <Users size={20} />
-            </span>
-            <h2 className="st-empty__title">No members found</h2>
-            <p className="st-empty__desc">
-              This workspace has no members, or member data could not be loaded.
-            </p>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="No members found"
+            description="This workspace has no members, or member data could not be loaded."
+          />
         ) : (
           <>
-            <div className="st-table-wrap">
-              <table className="st-table">
-                <thead>
-                  <tr>
-                    <th>Member</th>
-                    <th>Workspace role</th>
-                    <th>SabCRM access</th>
-                    <th>SabCRM role</th>
-                    <th aria-label="Actions" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((member) => (
-                    <tr key={member.userId} className="st-row">
-                      <td>
-                        <div className="st-identity">
-                          <TwentyAvatar
-                            name={member.name.trim() || member.email}
-                            src={member.image}
-                            size="sm"
-                          />
-                          <div className="st-identity__text">
-                            <span className="st-identity__name">
-                              {member.name.trim() || member.email}
-                              {member.isOwner ? (
-                                <span className="st-owner-tag">(owner)</span>
-                              ) : null}
-                            </span>
-                            <span className="st-identity__sub">{member.email}</span>
+            <Card padding="none" className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table className="w-full">
+                  <THead>
+                    <Tr>
+                      <Th>Member</Th>
+                      <Th>Workspace role</Th>
+                      <Th>SabCRM access</Th>
+                      <Th>SabCRM role</Th>
+                      <Th align="right" aria-label="Actions">
+                        <span className="sr-only">Actions</span>
+                      </Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {members.map((member) => (
+                      <Tr key={member.userId}>
+                        <Td>
+                          <div className="flex items-center gap-3">
+                            <Avatar
+                              name={member.name.trim() || member.email}
+                              src={member.image}
+                              size="sm"
+                            />
+                            <div className="flex flex-col">
+                              <span className="flex items-center gap-1.5 text-[var(--st-text)]">
+                                {member.name.trim() || member.email}
+                                {member.isOwner ? (
+                                  <span className="text-xs text-[var(--st-text-tertiary)]">
+                                    (owner)
+                                  </span>
+                                ) : null}
+                              </span>
+                              <span className="text-xs text-[var(--st-text-tertiary)]">
+                                {member.email}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="capitalize text-[var(--st-text-secondary)]">
-                        {member.projectRole}
-                      </td>
-                      <td>
-                        <CapabilityChip role={member.crmRole} />
-                      </td>
-                      <td>
-                        <MemberRoleSelect
-                          member={member}
-                          roles={roles}
-                          rolesError={rolesError}
-                          currentRoleId={memberRoleByUser[member.userId] ?? ''}
-                          busy={roleUpdatingFor === member.userId}
-                          onChange={handleRoleChange}
-                        />
-                      </td>
-                      <td className="st-cell-actions">
-                        {member.isOwner ? null : (
-                          <TwentyButton
-                            variant="ghost"
-                            icon={UserMinus}
-                            className="st-btn--danger"
-                            onClick={() => setRemoveTarget(member)}
-                            title="Remove member"
-                          >
-                            Remove
-                          </TwentyButton>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="st-footnote">
-              {members.length} member{members.length !== 1 ? 's' : ''} — {adminCount}{' '}
+                        </Td>
+                        <Td className="capitalize text-[var(--st-text-secondary)]">
+                          {member.projectRole}
+                        </Td>
+                        <Td>
+                          <CapabilityChip role={member.crmRole} />
+                        </Td>
+                        <Td>
+                          <MemberRoleSelect
+                            member={member}
+                            roles={roles}
+                            rolesError={rolesError}
+                            currentRoleId={memberRoleByUser[member.userId] ?? ''}
+                            busy={roleUpdatingFor === member.userId}
+                            onChange={handleRoleChange}
+                          />
+                        </Td>
+                        <Td align="right">
+                          {member.isOwner ? null : (
+                            <div className="flex justify-end">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                iconLeft={UserMinus}
+                                onClick={() => setRemoveTarget(member)}
+                                title="Remove member"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          )}
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </div>
+            </Card>
+            <p className="mt-3 text-sm text-[var(--st-text-tertiary)]">
+              {members.length} member{members.length !== 1 ? 's' : ''}, {adminCount}{' '}
               admin{adminCount !== 1 ? 's' : ''}, {managerCount} manager
               {managerCount !== 1 ? 's' : ''}, {viewerCount} viewer
               {viewerCount !== 1 ? 's' : ''}
             </p>
           </>
         )}
-
-        {activeProjectId ? (
-          <PendingInvites
-            invites={invites}
-            loading={invitesLoading}
-            error={invitesError}
-            roleNameById={roleNameById}
-            revokingId={revokingId}
-            onRevoke={handleRevoke}
-            onRequestDelete={setDeleteTarget}
-          />
-        ) : null}
       </div>
+
+      {activeProjectId ? (
+        <PendingInvites
+          invites={invites}
+          loading={invitesLoading}
+          error={invitesError}
+          roleNameById={roleNameById}
+          revokingId={revokingId}
+          onRevoke={handleRevoke}
+          onRequestDelete={setDeleteTarget}
+        />
+      ) : null}
 
       {inviteOpen && activeProjectId ? (
         <InviteDialog

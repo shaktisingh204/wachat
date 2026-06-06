@@ -1,43 +1,59 @@
 'use client';
 
 /**
- * SabCRM — General workspace settings (`/dashboard/settings/crm/general`), Twenty-style.
+ * SabCRM - General workspace settings (`/dashboard/settings/crm/general`).
  *
- * A small Twenty form for the workspace-level CRM preferences kept as a
- * free-form key/value settings object:
- *   - `workspaceName` — display name for the CRM workspace
- *   - `iconEmoji`     — short emoji/string used as the workspace icon
- *   - `defaultObject` — the object the CRM lands on by default
+ * A small form for the workspace-level CRM preferences kept as a free-form
+ * key/value settings object:
+ *   - `workspaceName` - display name for the CRM workspace
+ *   - `iconEmoji`     - short emoji/string used as the workspace icon
+ *   - `defaultObject` - the object the CRM lands on by default
  *
- * Loaded via `getCrmSettingsTw()` and persisted via `updateCrmSettingsTw(patch)`
- * (free-form record contract — see `@/app/actions/sabcrm-settings.actions`).
- * The Save button is dirty-tracked: it stays disabled until a field changes and
- * re-disables once a save lands. Success / error is shown inline next to it.
+ * Loaded via `getCrmSectionTw('general')` and persisted via
+ * `updateCrmSectionTw('general', patch)` (free-form record contract - see
+ * `@/app/actions/sabcrm-settings.actions`). The Save button is dirty-tracked: it
+ * stays disabled until a field changes and re-disables once a save lands.
+ * Success / error is surfaced through the 20ui toast layer.
  *
- * States: skeleton while loading, error banner if the load fails (engine down),
- * and graceful coercion of unknown/empty values to sensible defaults so the
- * form always renders something editable.
+ * States: skeleton while loading, an Alert if the load fails (engine down), and
+ * graceful coercion of unknown/empty values to sensible defaults so the form
+ * always renders something editable.
  *
- * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope); all
- * visuals come from the `.st-*` Twenty design system + this page's `general.css`.
- * No ZoruUI / Tailwind / clay.
+ * Pure 20ui: every control comes from `@/components/sabcrm/20ui`. The enclosing
+ * settings shell establishes the `ui20 sabcrm-twenty` scope, so all `--st-*` /
+ * `--u-*` tokens resolve here.
  */
 
 import * as React from 'react';
-import { Settings, AlertTriangle } from 'lucide-react';
+import { Settings, Building2 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardBody,
+  Field,
+  Input,
+  Button,
+  Badge,
+  Alert,
+  Skeleton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   getCrmSectionTw,
   updateCrmSectionTw,
 } from '@/app/actions/sabcrm-settings.actions';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './general.css';
-
 // ---------------------------------------------------------------------------
-// Form shape — a typed view over the free-form settings object.
+// Form shape - a typed view over the free-form settings object.
 // ---------------------------------------------------------------------------
 
 const DEFAULT_OBJECTS = [
@@ -86,19 +102,16 @@ function formsEqual(a: GeneralForm, b: GeneralForm): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Loading skeleton — mirrors the field stack.
+// Loading skeleton - mirrors the field stack.
 // ---------------------------------------------------------------------------
 
 function GeneralSkeleton(): React.JSX.Element {
   return (
-    <div className="st-general-form" aria-hidden="true">
+    <div className="flex flex-col gap-[var(--st-space-4)]" aria-hidden="true">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="st-field">
-          <div
-            className="st-skeleton"
-            style={{ width: 120, height: 12 }}
-          />
-          <div className="st-skeleton" style={{ height: 28 }} />
+        <div key={i} className="flex flex-col gap-[var(--st-space-2)]">
+          <Skeleton width={120} height={12} />
+          <Skeleton height={32} />
         </div>
       ))}
     </div>
@@ -110,6 +123,8 @@ function GeneralSkeleton(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 export default function SabcrmGeneralSettingsPage(): React.JSX.Element {
+  const { toast } = useToast();
+
   const [saved, setSaved] = React.useState<GeneralForm>(EMPTY_FORM);
   const [form, setForm] = React.useState<GeneralForm>(EMPTY_FORM);
 
@@ -117,9 +132,6 @@ export default function SabcrmGeneralSettingsPage(): React.JSX.Element {
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
   const [saving, setSaving] = React.useState(false);
-  const [status, setStatus] = React.useState<
-    { kind: 'ok' | 'err'; message: string } | null
-  >(null);
 
   // Initial load.
   React.useEffect(() => {
@@ -160,7 +172,6 @@ export default function SabcrmGeneralSettingsPage(): React.JSX.Element {
 
   function patch<K extends keyof GeneralForm>(key: K, value: GeneralForm[K]): void {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setStatus(null);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -168,7 +179,6 @@ export default function SabcrmGeneralSettingsPage(): React.JSX.Element {
     if (!dirty || saving) return;
 
     setSaving(true);
-    setStatus(null);
 
     const next: GeneralForm = {
       workspaceName: form.workspaceName.trim(),
@@ -190,132 +200,132 @@ export default function SabcrmGeneralSettingsPage(): React.JSX.Element {
           echoed && Object.keys(echoed).length > 0 ? persisted : next;
         setSaved(resolved);
         setForm(resolved);
-        setStatus({ kind: 'ok', message: 'Saved.' });
+        toast.success('Settings saved.');
       } else {
-        setStatus({ kind: 'err', message: res.error });
+        toast.error(res.error);
       }
     } catch {
-      setStatus({
-        kind: 'err',
-        message: 'Could not save. The service may be unavailable.',
-      });
+      toast.error('Could not save. The service may be unavailable.');
     } finally {
       setSaving(false);
     }
   }
 
+  const iconPreview = form.iconEmoji.trim() || '🏢';
+
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="General" icon={Settings} />
-        <p className="st-settings__intro">
-          Workspace-level preferences for your CRM — its display name, icon, and
-          the object you land on by default.
-        </p>
+    <div className="flex flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>
+            <span className="inline-flex items-center gap-[var(--st-space-2)]">
+              <Settings size={18} aria-hidden="true" />
+              General
+            </span>
+          </PageTitle>
+          <PageDescription>
+            Workspace-level preferences for your CRM. Its display name, icon, and
+            the object you land on by default.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {loading ? (
-          <GeneralSkeleton />
-        ) : loadError ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{loadError}</span>
-          </div>
-        ) : (
-          <form className="st-general-form" onSubmit={handleSubmit}>
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="gen-workspace-name">
-                Workspace name
-              </label>
-              <input
-                id="gen-workspace-name"
-                className="st-input"
-                type="text"
-                value={form.workspaceName}
-                onChange={(e) => patch('workspaceName', e.target.value)}
-                placeholder="My CRM workspace"
-                maxLength={120}
-                autoComplete="off"
-              />
-              <span className="st-field__help">
-                Shown across the CRM as the name of this workspace.
-              </span>
-            </div>
-
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="gen-icon">
-                Icon
-              </label>
-              <div className="st-icon-field">
-                <span className="st-icon-preview" aria-hidden="true">
-                  {form.iconEmoji.trim() || '🏢'}
-                </span>
-                <input
-                  id="gen-icon"
-                  className="st-input"
+      {loading ? (
+        <Card>
+          <CardBody>
+            <GeneralSkeleton />
+          </CardBody>
+        </Card>
+      ) : loadError ? (
+        <Alert tone="danger" title="Could not load settings">
+          {loadError}
+        </Alert>
+      ) : (
+        <Card>
+          <CardBody>
+            <form
+              className="flex max-w-[520px] flex-col gap-[var(--st-space-5)]"
+              onSubmit={handleSubmit}
+            >
+              <Field
+                label="Workspace name"
+                help="Shown across the CRM as the name of this workspace."
+              >
+                <Input
                   type="text"
-                  value={form.iconEmoji}
-                  onChange={(e) => patch('iconEmoji', e.target.value)}
-                  placeholder="🏢"
-                  maxLength={8}
+                  value={form.workspaceName}
+                  onChange={(e) => patch('workspaceName', e.target.value)}
+                  placeholder="My CRM workspace"
+                  maxLength={120}
                   autoComplete="off"
                 />
-              </div>
-              <span className="st-field__help">
-                An emoji or short string used as the workspace icon.
-              </span>
-            </div>
+              </Field>
 
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="gen-default-object">
-                Default object
-              </label>
-              <select
-                id="gen-default-object"
-                className="st-select"
-                value={form.defaultObject}
-                onChange={(e) =>
-                  patch('defaultObject', e.target.value as DefaultObject)
-                }
+              <Field
+                label="Icon"
+                help="An emoji or short string used as the workspace icon."
               >
-                {DEFAULT_OBJECTS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <span className="st-field__help">
-                The object opened by default when entering the CRM.
-              </span>
-            </div>
+                <div className="flex items-center gap-[var(--st-space-3)]">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-lg leading-none"
+                    aria-hidden="true"
+                  >
+                    {iconPreview}
+                  </span>
+                  <Input
+                    type="text"
+                    value={form.iconEmoji}
+                    onChange={(e) => patch('iconEmoji', e.target.value)}
+                    placeholder="🏢"
+                    maxLength={8}
+                    autoComplete="off"
+                  />
+                </div>
+              </Field>
 
-            <div className="st-general-actions">
-              <TwentyButton
-                type="submit"
-                variant="primary"
-                disabled={!dirty || saving}
+              <Field
+                label="Default object"
+                help="The object opened by default when entering the CRM."
               >
-                {saving ? 'Saving…' : 'Save'}
-              </TwentyButton>
-              {status ? (
-                <span
-                  className={`st-form-status ${
-                    status.kind === 'ok'
-                      ? 'st-form-status--ok'
-                      : 'st-form-status--err'
-                  }`}
-                  role="status"
+                <Select
+                  value={form.defaultObject}
+                  onValueChange={(value) =>
+                    patch('defaultObject', value as DefaultObject)
+                  }
                 >
-                  {status.message}
-                </span>
-              ) : dirty ? (
-                <span className="st-form-status" style={{ color: 'var(--st-text-tertiary)' }}>
-                  Unsaved changes
-                </span>
-              ) : null}
-            </div>
-          </form>
-        )}
-      </div>
+                  <SelectTrigger aria-label="Default object">
+                    <SelectValue placeholder="Choose an object" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEFAULT_OBJECTS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <div className="flex items-center gap-[var(--st-space-3)]">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  iconLeft={Building2}
+                  loading={saving}
+                  disabled={!dirty || saving}
+                >
+                  {saving ? 'Saving' : 'Save'}
+                </Button>
+                {dirty && !saving ? (
+                  <Badge tone="warning" kind="soft" dot>
+                    Unsaved changes
+                  </Badge>
+                ) : null}
+              </div>
+            </form>
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 }

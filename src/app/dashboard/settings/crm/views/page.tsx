@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * SabCRM Settings — Saved Views (`/dashboard/settings/crm/views`), Twenty-style.
+ * SabCRM Settings - Saved Views (`/dashboard/settings/crm/views`).
  *
  * Presents every saved view in the active project, grouped by object. Each
- * group is a Twenty-style table listing the view name, its kind (table / board)
- * as a chip, and a default star. Within each row, users with the `sabcrm:manage`
+ * group is a 20ui table listing the view name, its kind (table / board) as a
+ * badge, and a default star. Within each row, users with the `sabcrm:manage`
  * capability can:
  *   - Rename a view inline (saveViewAction update path)
  *   - Mark a view as the object default (setDefaultViewAction)
@@ -13,11 +13,10 @@
  *
  * All mutations go through the gated server actions in
  * `src/app/actions/sabcrm.actions.ts`; the gate re-runs
- * session → project → RBAC → plan → Mongo so direct API access fails closed.
+ * session -> project -> RBAC -> plan -> Mongo so direct API access fails closed.
  * Auth / onboarding guards are enforced upstream by `../../layout.tsx`.
  *
- * Twenty visual language only (`.st-*` + views-automations.css). No ZoruUI,
- * no Tailwind. The `.sabcrm-twenty` scope is applied by TwentyAppFrame.
+ * Pure 20ui design system (`@/components/sabcrm/20ui`).
  */
 
 import * as React from 'react';
@@ -30,11 +29,38 @@ import {
   X,
   Table2,
   Columns3,
-  AlertTriangle,
-  Loader2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Badge,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Card,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listObjectsAction,
@@ -45,10 +71,6 @@ import {
 } from '@/app/actions/sabcrm.actions';
 import type { SavedView } from '@/app/actions/sabcrm.actions.types';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import '../views-automations.css';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -90,42 +112,43 @@ function RenameRow({ initial, saving, onSave, onCancel }: RenameRowProps): React
 
   return (
     <form
-      className="st-rename"
+      className="flex items-center gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         commit();
       }}
     >
-      <input
-        ref={inputRef}
-        className="st-cell-input"
-        value={name}
-        disabled={saving}
-        aria-label="New view name"
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') onCancel();
-        }}
-      />
-      <button
+      <Field label="New view name" className="flex-1 [&>.u-field__label]:sr-only">
+        <Input
+          ref={inputRef}
+          inputSize="sm"
+          value={name}
+          disabled={saving}
+          aria-label="New view name"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') onCancel();
+          }}
+        />
+      </Field>
+      <Button
         type="submit"
-        className="st-icon-btn"
-        disabled={saving || !name.trim()}
+        size="sm"
+        variant="primary"
+        iconLeft={Check}
         aria-label="Save name"
-        title="Save"
-      >
-        {saving ? <Loader2 className="st-spin" size={14} /> : <Check size={14} />}
-      </button>
-      <button
+        title="Save name"
+        loading={saving}
+        disabled={!name.trim()}
+      />
+      <IconButton
         type="button"
-        className="st-icon-btn"
+        size="sm"
+        icon={X}
+        label="Cancel rename"
         disabled={saving}
         onClick={onCancel}
-        aria-label="Cancel rename"
-        title="Cancel"
-      >
-        <X size={14} />
-      </button>
+      />
     </form>
   );
 }
@@ -163,8 +186,8 @@ function ViewRow({
   const kindLabel = view.kind === 'board' ? 'Board' : 'Table';
 
   return (
-    <tr className="st-row">
-      <td>
+    <Tr>
+      <Td>
         {isRenaming ? (
           <RenameRow
             initial={view.name}
@@ -173,80 +196,79 @@ function ViewRow({
             onCancel={onRenameCancel}
           />
         ) : (
-          <span className="st-name-cell">
-            <button
-              type="button"
-              className={`st-star${view.isDefault ? ' is-default' : ''}`}
-              disabled={mutating || view.isDefault}
+          <span className="flex items-center gap-2">
+            <Button
+              size="sm"
+              iconLeft={Star}
+              variant={view.isDefault ? 'primary' : 'ghost'}
               aria-label={view.isDefault ? 'Default view' : 'Set as default'}
               title={view.isDefault ? 'Default view' : 'Set as default'}
+              loading={mutating}
+              disabled={view.isDefault}
               onClick={() => onSetDefault(view._id)}
-            >
-              {mutating ? (
-                <Loader2 className="st-spin" size={14} />
-              ) : (
-                <Star size={14} fill={view.isDefault ? 'currentColor' : 'none'} />
-              )}
-            </button>
-            <span className="st-name-cell__text st-cell-link">{view.name}</span>
+            />
+            <span className="font-medium text-[var(--st-text)]">{view.name}</span>
             {view.userId ? (
-              <span className="st-chip">
-                <span className="st-chip__label">Private</span>
-              </span>
+              <Badge tone="neutral" kind="soft">
+                Private
+              </Badge>
             ) : null}
           </span>
         )}
-      </td>
-      <td>
-        <span className="st-chip">
-          <KindIcon className="st-name-cell__icon" size={12} aria-hidden="true" />
-          <span className="st-chip__label">{kindLabel}</span>
-        </span>
-      </td>
-      <td>
+      </Td>
+      <Td>
+        <Badge tone="neutral" kind="soft">
+          <KindIcon size={12} aria-hidden="true" />
+          {kindLabel}
+        </Badge>
+      </Td>
+      <Td>
         {view.isDefault ? (
-          <span className="st-chip st-chip--ok">
-            <span className="st-chip__dot" aria-hidden="true" />
-            <span className="st-chip__label">Default</span>
-          </span>
+          <Badge tone="success" kind="soft" dot>
+            Default
+          </Badge>
         ) : (
-          <span className="st-muted">—</span>
+          <span className="text-[var(--st-text-tertiary)]">-</span>
         )}
-      </td>
-      <td className="st-cell-actions">
+      </Td>
+      <Td align="right">
         {!isRenaming ? (
-          <>
-            <a
-              className="st-btn st-btn--ghost"
-              href={`/sabcrm/${objectSlug}`}
+          <span className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={Eye}
+              onClick={() => {
+                window.location.href = `/sabcrm/${objectSlug}`;
+              }}
               title="Open records"
             >
-              <Eye size={14} aria-hidden="true" />
               Open
-            </a>
-            <TwentyButton
+            </Button>
+            <Button
               variant="ghost"
-              icon={Pencil}
+              size="sm"
+              iconLeft={Pencil}
               disabled={mutating}
               onClick={() => onStartRename(view._id)}
               title="Rename view"
             >
               Rename
-            </TwentyButton>
-            <TwentyButton
-              variant="ghost"
-              icon={Trash2}
-              className="st-btn--danger"
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              iconLeft={Trash2}
               disabled={mutating}
               onClick={() => onDelete(view)}
               title="Delete view"
             >
               Delete
-            </TwentyButton>
-          </>
+            </Button>
+          </span>
         ) : null}
-      </td>
-    </tr>
+      </Td>
+    </Tr>
   );
 }
 
@@ -263,48 +285,40 @@ interface DeleteDialogProps {
 
 function DeleteDialog({ view, busy, onCancel, onConfirm }: DeleteDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete view"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
+    <AlertDialog
+      open
+      onOpenChange={(next) => {
+        if (!next && !busy) onCancel();
       }}
     >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete view</h2>
-          <button type="button" className="st-dialog__close" onClick={onCancel} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Delete <strong style={{ color: 'var(--st-text)' }}>{view.name}</strong>? Its filters,
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete view</AlertDialogTitle>
+          <AlertDialogDescription>
+            Delete <strong className="text-[var(--st-text)]">{view.name}</strong>? Its filters,
             sort, and layout will be permanently removed. Records are not affected.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            intent="danger"
             disabled={busy}
+            onClick={(e) => {
+              e.preventDefault();
+              onConfirm();
+            }}
           >
-            {busy ? 'Deleting…' : 'Delete view'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+            {busy ? 'Deleting...' : 'Delete view'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 // ---------------------------------------------------------------------------
-// One object group (a Twenty table of that object's views)
+// One object group (a table of that object's views)
 // ---------------------------------------------------------------------------
 
 interface ObjectGroupBlockProps {
@@ -393,57 +407,62 @@ function ObjectGroupBlock({ group, projectId, onViewsChange }: ObjectGroupBlockP
   }, [deleteTarget, group, projectId, onViewsChange]);
 
   return (
-    <section className="st-group">
-      <div className="st-group__head">
-        <h2 className="st-group__title">{group.object.labelPlural}</h2>
-        <span className="st-group__count">
+    <Card variant="outlined" padding="none" className="overflow-hidden">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--st-border)]">
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">{group.object.labelPlural}</h2>
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {group.views.length} {group.views.length === 1 ? 'view' : 'views'}
         </span>
-        <span className="st-group__spacer" />
-        <a className="st-btn st-btn--secondary" href={`/sabcrm/${group.object.slug}`}>
+        <span className="flex-1" />
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            window.location.href = `/sabcrm/${group.object.slug}`;
+          }}
+        >
           Open records
-        </a>
+        </Button>
       </div>
 
       {error ? (
-        <div className="st-banner">
-          <AlertTriangle className="st-banner__icon" size={16} />
-          <span>{error}</span>
+        <div className="px-4 pt-3">
+          <Alert tone="danger" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </div>
       ) : null}
 
-      <div className="st-table-wrap">
-        <table className="st-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Kind</th>
-              <th>Default</th>
-              <th aria-label="Actions" />
-            </tr>
-          </thead>
-          <tbody>
-            {group.views.map((view) => (
-              <ViewRow
-                key={view._id}
-                view={view}
-                objectSlug={group.object.slug}
-                isRenaming={renamingId === view._id}
-                renameSaving={renameSaving}
-                mutating={mutatingId === view._id}
-                onStartRename={(id) => {
-                  setRenamingId(id);
-                  setError(null);
-                }}
-                onRenameSave={handleRenameSave}
-                onRenameCancel={() => setRenamingId(null)}
-                onSetDefault={handleSetDefault}
-                onDelete={setDeleteTarget}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table density="comfortable" hover>
+        <THead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>Kind</Th>
+            <Th>Default</Th>
+            <Th align="right" aria-label="Actions" />
+          </Tr>
+        </THead>
+        <TBody>
+          {group.views.map((view) => (
+            <ViewRow
+              key={view._id}
+              view={view}
+              objectSlug={group.object.slug}
+              isRenaming={renamingId === view._id}
+              renameSaving={renameSaving}
+              mutating={mutatingId === view._id}
+              onStartRename={(id) => {
+                setRenamingId(id);
+                setError(null);
+              }}
+              onRenameSave={handleRenameSave}
+              onRenameCancel={() => setRenamingId(null)}
+              onSetDefault={handleSetDefault}
+              onDelete={setDeleteTarget}
+            />
+          ))}
+        </TBody>
+      </Table>
 
       {deleteTarget ? (
         <DeleteDialog
@@ -453,7 +472,7 @@ function ObjectGroupBlock({ group, projectId, onViewsChange }: ObjectGroupBlockP
           onConfirm={confirmDelete}
         />
       ) : null}
-    </section>
+    </Card>
   );
 }
 
@@ -463,11 +482,11 @@ function ObjectGroupBlock({ group, projectId, onViewsChange }: ObjectGroupBlockP
 
 function ViewsSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <Card variant="outlined" padding="md" className="flex flex-col gap-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={44} radius={8} />
       ))}
-    </div>
+    </Card>
   );
 }
 
@@ -527,54 +546,55 @@ export default function SabcrmViewsSettingsPage(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Views" icon={Eye} />
-        <p className="st-settings__intro">
-          Manage every saved view across your CRM objects. Rename a view, mark one
-          as the object default, or delete views you no longer need. Records are
-          never affected.
-        </p>
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Views</PageTitle>
+          <PageDescription>
+            Manage every saved view across your CRM objects. Rename a view, mark one
+            as the object default, or delete views you no longer need. Records are
+            never affected.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions />
+      </PageHeader>
 
-        {error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
-        ) : null}
+      {error ? (
+        <Alert tone="danger" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      ) : null}
 
-        {isLoadingProject || loading ? (
-          <ViewsSkeleton />
-        ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">Select a project to manage its saved views.</p>
-          </div>
-        ) : groups.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <Eye size={20} />
-            </span>
-            <h2 className="st-empty__title">No saved views yet</h2>
-            <p className="st-empty__desc">
-              Save a view from any object&rsquo;s toolbar to persist its filters,
-              sort, and layout. Saved views appear here for management.
-            </p>
-          </div>
-        ) : (
-          groups.map((group) => (
+      {isLoadingProject || loading ? (
+        <ViewsSkeleton />
+      ) : !activeProjectId ? (
+        <Card variant="outlined" padding="lg">
+          <EmptyState
+            icon={Eye}
+            title="No project selected"
+            description="Select a project to manage its saved views."
+          />
+        </Card>
+      ) : groups.length === 0 ? (
+        <Card variant="outlined" padding="lg">
+          <EmptyState
+            icon={Eye}
+            title="No saved views yet"
+            description="Save a view from any object's toolbar to persist its filters, sort, and layout. Saved views appear here for management."
+          />
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-5">
+          {groups.map((group) => (
             <ObjectGroupBlock
               key={group.object.slug}
               group={group}
               projectId={activeProjectId}
               onViewsChange={handleViewsChange}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

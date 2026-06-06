@@ -1,35 +1,33 @@
 'use client';
 
 /**
- * SabCRM — Import & Export (`/dashboard/settings/crm/import-export`), Twenty-style.
+ * SabCRM - Import & Export (`/dashboard/settings/crm/import-export`).
  *
- * A self-written Twenty-faithful rebuild using the shared `.st-*` kit
- * (`src/styles/sabcrm-twenty.css`), the reports extras (`reports-twenty.css`),
- * and the page-local wizard extras (`./import-wizard.css`). No ZoruUI /
- * Tailwind / clay in the page chrome — the ONLY ZoruUI piece is the
- * `<SabFileToFileButton>` widget, used to satisfy the project-wide SabFiles
- * policy (every file input must come from the SabFiles library / upload; never
- * a free-text URL paste).
+ * Pure 20ui rebuild. UI primitives come ONLY from `@/components/sabcrm/20ui`
+ * (Button / Card / Table / Field / Select / Badge / Alert / EmptyState /
+ * StatCard / Spinner / PageHeader / DropdownMenu) and file input comes from
+ * SabFiles (`<SabFileToFileButton>`), per the project-wide SabFiles policy.
  *
- * The import side is a Twenty-style 4-step IMPORT WIZARD:
+ * The import side is a 4-step IMPORT WIZARD:
  *
- *   1. Object & file   — choose the target object, then pick a CSV via SabFiles
+ *   1. Object & file   - choose the target object, then pick a CSV via SabFiles
  *                        (parsed client-side with PapaParse).
- *   2. Map columns     — CSV header → object-field select, pre-filled from
+ *   2. Map columns     - CSV header to object-field select, pre-filled from
  *                        `buildColumnMappingSuggestionsAction`. RELATION fields
- *                        are also mappable here (Twenty's "connect on import"):
- *                        a relation column resolves each CSV value to an
- *                        EXISTING related record and stores its id. Each
- *                        relation row gets a "match by" sub-select naming which
- *                        field of the target object to match on.
- *   3. Preview         — `validateImportMappingAction` gives blocking issues;
- *                        we add soft warnings + a sample-rows preview table and
- *                        a row-count / mapped-column readout. For every relation
- *                        column we probe a sample of distinct values through
- *                        `searchRecordsForPickerAction` and show ✓ found / ✗ not
- *                        found per value plus an overall connect-coverage badge.
- *   4. Import          — `importRecordsAction` runs the (non-relation) batch,
- *                        then — best-effort — we resolve each created record's
+ *                        are also mappable here (connect-on-import): a relation
+ *                        column resolves each CSV value to an EXISTING related
+ *                        record and stores its id. Each relation row gets a
+ *                        "match by" sub-select naming which field of the target
+ *                        object to match on.
+ *   3. Preview         - `validateImportMappingAction` gives blocking issues;
+ *                        we add soft warnings plus a sample-rows preview table
+ *                        and a row-count / mapped-column readout. For every
+ *                        relation column we probe a sample of distinct values
+ *                        through `searchRecordsForPickerAction` and show
+ *                        found / not-found per value plus an overall coverage
+ *                        badge.
+ *   4. Import          - `importRecordsAction` runs the (non-relation) batch,
+ *                        then - best-effort - we resolve each created record's
  *                        relation values via `searchRecordsForPickerAction` and
  *                        patch the matched id onto the record with
  *                        `updateRecordAction`. We render a success / partial /
@@ -41,13 +39,10 @@
  * connect is performed client-side: import the flat fields first, then connect
  * relations onto the freshly-created records by id.
  *
- * Export keeps its own Twenty CSV/XLSX dropdown (`exportRecordsAction` →
- * `downloadCsv` / `downloadXlsx`) and is unaffected by the wizard.
- *
  * Auth / onboarding / RBACGuard are enforced by the parent SabCRM `layout.tsx`;
  * each action re-runs the full gate, so the page fails closed into an inline
  * error state. Every step traps its own errors so one failed action never wedges
- * the wizard — the user can retry or step back.
+ * the wizard - the user can retry or step back.
  */
 
 import * as React from 'react';
@@ -94,18 +89,50 @@ import type {
   ExportRecordsResult,
 } from '@/lib/sabcrm/import-export.server';
 
-import '../../../../sabcrm/reports/reports-twenty.css';
-import './import-wizard.css';
-import './relation-map.css';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  Alert,
+  EmptyState,
+  StatCard,
+  Skeleton,
+  Spinner,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 // ---------------------------------------------------------------------------
 // Field-type gating: which fields can be imported from a spreadsheet.
 //
 // FLAT fields (everything except RELATION + FILE) flow through the normal
 // server import (`importRecordsAction`). RELATION fields are NOT importable as
-// flat values — but they CAN be "connected" on import (Twenty-style) by
-// matching each CSV value to an existing related record and storing its id.
-// FILE fields stay excluded (they need real uploads, not ids).
+// flat values - but they CAN be "connected" on import by matching each CSV
+// value to an existing related record and storing its id. FILE fields stay
+// excluded (they need real uploads, not ids).
 // ---------------------------------------------------------------------------
 
 function importableFields(object: ObjectMetadata): FieldMetadata[] {
@@ -115,7 +142,7 @@ function importableFields(object: ObjectMetadata): FieldMetadata[] {
 }
 
 /**
- * RELATION fields that point at a known target object — the ones eligible for
+ * RELATION fields that point at a known target object - the ones eligible for
  * connect-on-import. ONE_TO_MANY back-references are excluded (they are owned
  * by the other side and not settable as a single id from a flat file).
  */
@@ -133,7 +160,7 @@ function connectableRelationFields(object: ObjectMetadata): FieldMetadata[] {
  * Fields of a relation's TARGET object that a CSV value can be matched against
  * in the "match by" sub-control. We surface human-readable text-like fields
  * (the resolver itself searches the target's label field, but exposing the
- * choice mirrors Twenty's connect UX and lets the user document intent).
+ * choice lets the user document intent).
  */
 function matchByFields(target: ObjectMetadata | null): FieldMetadata[] {
   if (!target) return [];
@@ -176,7 +203,7 @@ function parseCsv(text: string): { headers: string[]; rows: RawRow[] } {
 }
 
 // ---------------------------------------------------------------------------
-// Relation connect — resolve a CSV value to an existing related-record id.
+// Relation connect - resolve a CSV value to an existing related-record id.
 //
 // `searchRecordsForPickerAction` does a contains-style search on the target
 // object's label field. To make a connect deterministic we prefer an EXACT
@@ -228,14 +255,14 @@ async function resolveRelationValue(
     );
     if (res.ok) match = pickMatch(value, res.data);
   } catch {
-    // best-effort — leave as a miss
+    // best-effort - leave as a miss
   }
   cache.set(key, match);
   return match;
 }
 
 // ---------------------------------------------------------------------------
-// Import wizard state machine — a linear 4-step flow.
+// Import wizard state machine - a linear 4-step flow.
 //   1 = object + file pick   2 = map columns   3 = preview   4 = import summary
 // ---------------------------------------------------------------------------
 
@@ -269,7 +296,7 @@ interface RelationProbe {
   sampled: number;
   /** How many sampled values resolved to an existing record. */
   matched: number;
-  /** A capped list of sampled value → match outcomes for display. */
+  /** A capped list of sampled value to match outcomes for display. */
   samples: Array<{ value: string; match: RelationMatch }>;
   /** True while the probe is running. */
   loading: boolean;
@@ -291,7 +318,7 @@ interface RelationConnectResult {
 const RELATION_PROBE_SAMPLE = 8;
 
 // ---------------------------------------------------------------------------
-// Export control (Twenty-styled dropdown) — unchanged, keeps export working.
+// Export control (20ui dropdown) - keeps export working.
 // ---------------------------------------------------------------------------
 
 function ExportControl({
@@ -301,29 +328,16 @@ function ExportControl({
   object: ObjectMetadata;
   projectId?: string;
 }): React.JSX.Element {
-  const [open, setOpen] = React.useState(false);
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState(false);
-  const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
 
   const run = React.useCallback(
     async (format: 'csv' | 'xlsx') => {
-      setOpen(false);
       setBusy(true);
-      setMsg(null);
       try {
         const res = await exportRecordsAction({ object: object.slug }, projectId);
         if (!res.ok) {
-          setMsg({ ok: false, text: res.error });
+          toast.error(res.error);
           return;
         }
         const data = res.data as ExportRecordsResult;
@@ -333,105 +347,100 @@ function ExportControl({
         } else {
           await downloadXlsx(filename, data.headers, data.rows, object.labelPlural);
         }
-        setMsg({
-          ok: true,
-          text: `Exported ${data.rows.length} ${object.labelPlural.toLowerCase()}.`,
-        });
+        toast.success(
+          `Exported ${data.rows.length} ${object.labelPlural.toLowerCase()}.`,
+        );
       } catch (e) {
-        setMsg({
-          ok: false,
-          text: e instanceof Error ? e.message : 'Export failed.',
-        });
+        toast.error(e instanceof Error ? e.message : 'Export failed.');
       } finally {
         setBusy(false);
       }
     },
-    [object, projectId],
+    [object, projectId, toast],
   );
 
   return (
-    <div className="flex items-center gap-[var(--st-space-3)]">
-      <div ref={ref} className="relative">
-        <button
-          type="button"
-          className="st-btn st-btn--secondary"
-          onClick={() => setOpen((v) => !v)}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="secondary"
+          loading={busy}
+          iconLeft={busy ? undefined : Download}
+          iconRight={ChevronDown}
           disabled={busy}
-          aria-haspopup="menu"
-          aria-expanded={open}
         >
-          {busy ? (
-            <span className="st-spinner" aria-hidden="true" />
-          ) : (
-            <Download size={14} aria-hidden="true" />
-          )}
-          {busy ? 'Exporting…' : 'Export'}
-          <ChevronDown size={14} aria-hidden="true" />
-        </button>
-        {open && (
-          <div
-            role="menu"
-            className="absolute top-[calc(100%+4px)] right-0 z-20 min-w-[160px] p-1 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] shadow-[var(--st-shadow-pop)]"
-          >
-            <button
-              type="button"
-              role="menuitem"
-              className="st-btn st-btn--ghost w-full justify-start"
-              onClick={() => void run('csv')}
-            >
-              Export as CSV
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="st-btn st-btn--ghost w-full justify-start"
-              onClick={() => void run('xlsx')}
-            >
-              Export as Excel
-            </button>
-          </div>
-        )}
-      </div>
-      {msg && (
-        <span
-          className={`${msg.ok ? 'st-pill' : 'st-iox-issue'} m-0`}
-        >
-          {msg.text}
-        </span>
-      )}
-    </div>
+          {busy ? 'Exporting' : 'Export'}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onSelect={() => void run('csv')}>
+          Export as CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void run('xlsx')}>
+          Export as Excel
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Step indicator — Twenty-style numbered stepper with connector rails.
+// Step indicator - numbered stepper with connector rails.
 // ---------------------------------------------------------------------------
 
 function StepIndicator({ step }: { step: WizardStep }): React.JSX.Element {
   const steps: WizardStep[] = [1, 2, 3, 4];
   return (
-    <div className="st-iw-steps" aria-label="Import progress">
-      {steps.map((s, i) => (
-        <React.Fragment key={s}>
-          {i > 0 && (
-            <span
-              className={`st-iw-step__rail ${s <= step ? 'is-filled' : ''}`}
-              aria-hidden="true"
-            />
-          )}
-          <div
-            className={`st-iw-step ${
-              s === step ? 'is-active' : s < step ? 'is-done' : ''
-            }`}
-            aria-current={s === step ? 'step' : undefined}
-          >
-            <span className="st-iw-step__dot">
-              {s < step ? <CheckCircle2 size={15} aria-hidden="true" /> : s}
-            </span>
-            <span className="st-iw-step__label">{STEP_LABELS[s]}</span>
-          </div>
-        </React.Fragment>
-      ))}
+    <div
+      className="flex items-center gap-[var(--st-space-2)] flex-wrap mb-[var(--st-space-4)]"
+      aria-label="Import progress"
+    >
+      {steps.map((s, i) => {
+        const state = s === step ? 'active' : s < step ? 'done' : 'todo';
+        return (
+          <React.Fragment key={s}>
+            {i > 0 && (
+              <span
+                className={`h-px w-6 ${
+                  s <= step
+                    ? 'bg-[var(--st-accent)]'
+                    : 'bg-[var(--st-border)]'
+                }`}
+                aria-hidden="true"
+              />
+            )}
+            <div
+              className="flex items-center gap-[var(--st-space-2)]"
+              aria-current={s === step ? 'step' : undefined}
+            >
+              <span
+                className={`grid place-items-center h-6 w-6 rounded-full text-[12px] font-semibold border ${
+                  state === 'active'
+                    ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)] border-[var(--st-accent)]'
+                    : state === 'done'
+                      ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)] border-[var(--st-accent-soft)]'
+                      : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)] border-[var(--st-border)]'
+                }`}
+              >
+                {state === 'done' ? (
+                  <CheckCircle2 size={15} aria-hidden="true" />
+                ) : (
+                  s
+                )}
+              </span>
+              <span
+                className={`text-[13px] ${
+                  state === 'todo'
+                    ? 'text-[var(--st-text-tertiary)]'
+                    : 'text-[var(--st-text)] font-medium'
+                }`}
+              >
+                {STEP_LABELS[s]}
+              </span>
+            </div>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -452,7 +461,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   const [step, setStep] = React.useState<WizardStep>(1);
   const [parsed, setParsed] = React.useState<ParsedFile | null>(null);
   const [mapping, setMapping] = React.useState<ColumnMapping>({});
-  // RELATION fields mapped for connect-on-import: relation field key → entry.
+  // RELATION fields mapped for connect-on-import: relation field key to entry.
   // Kept SEPARATE from `mapping` because the server import path skips relation
   // columns; we connect them client-side after the flat import.
   const [relationMap, setRelationMap] = React.useState<
@@ -555,7 +564,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     [resetWizard],
   );
 
-  // ---- Step 1 — file picked (via SabFiles) → parse CSV --------------------
+  // ---- Step 1 - file picked (via SabFiles) to parse CSV -------------------
   const handleFile = React.useCallback(
     async (file: File) => {
       if (!selectedObject) return;
@@ -589,7 +598,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
         setStepError('The file has headers but no data rows.');
         return;
       }
-      // Successful parse — store the file but stay on step 1 so the user can
+      // Successful parse - store the file but stay on step 1 so the user can
       // confirm the picked file before advancing.
       setParsed({ name: file.name, headers, rows });
       setMapping({});
@@ -611,7 +620,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     setRelationResults([]);
   }, []);
 
-  // ---- Advance from step 1 → 2: fetch suggested mapping -------------------
+  // ---- Advance from step 1 to 2: fetch suggested mapping ------------------
   const goToMapping = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
     setStepError(null);
@@ -755,7 +764,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     [parsed, relationMap, activeProjectId],
   );
 
-  // ---- Advance from step 2 → 3: server-validate the mapping ---------------
+  // ---- Advance from step 2 to 3: server-validate the mapping --------------
   const goToPreview = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
     setStepError(null);
@@ -784,8 +793,8 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
   // ---- Auto-probe connect coverage when entering the preview step ---------
   // For each relation field that has a column mapping but no probe yet, kick
-  // off a sample resolution so the user sees ✓/✗ coverage without a manual
-  // click. Re-probing on demand is also available from each coverage card.
+  // off a sample resolution so the user sees coverage without a manual click.
+  // Re-probing on demand is also available from each coverage card.
   React.useEffect(() => {
     if (step !== 3) return;
     for (const field of relationFields) {
@@ -798,17 +807,17 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, relationMap, relationFields]);
 
-  // ---- Step 4 — commit the import ----------------------------------------
+  // ---- Step 4 - commit the import ----------------------------------------
   //
   // Two passes:
   //   1. Flat import via `importRecordsAction` (non-relation fields). This
   //      returns one result row per input row, IN ORDER, with the created
   //      record (+ id) for successes.
-  //   2. Connect pass — best-effort. For every created record we resolve each
+  //   2. Connect pass - best-effort. For every created record we resolve each
   //      mapped relation cell to an existing related-record id and patch it on
   //      via `updateRecordAction`. Unresolved values are skipped (left unset)
   //      and counted so the summary can show connect coverage. A connect
-  //      failure NEVER fails the row — the record is already imported.
+  //      failure NEVER fails the row - the record is already imported.
   const handleImport = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
     setStepError(null);
@@ -919,7 +928,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   const blockingIssues = issues;
 
   // Soft, client-side warnings: importable fields with no mapping, and CSV
-  // columns that won't be imported. These do NOT block the import.
+  // columns that will not be imported. These do NOT block the import.
   const warnings = React.useMemo<string[]>(() => {
     if (!parsed) return [];
     const out: string[] = [];
@@ -929,7 +938,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
         `${unmappedFields.length} field(s) are not mapped and will use their default value (if any): ${unmappedFields
           .map((f) => f.label)
           .slice(0, 6)
-          .join(', ')}${unmappedFields.length > 6 ? '…' : ''}.`,
+          .join(', ')}${unmappedFields.length > 6 ? '...' : ''}.`,
       );
     }
     const usedHeaders = new Set(Object.values(mapping));
@@ -939,7 +948,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       out.push(
         `${ignoredHeaders.length} CSV column(s) are not mapped and will be ignored: ${ignoredHeaders
           .slice(0, 6)
-          .join(', ')}${ignoredHeaders.length > 6 ? '…' : ''}.`,
+          .join(', ')}${ignoredHeaders.length > 6 ? '...' : ''}.`,
       );
     }
     return out;
@@ -948,7 +957,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   // Count of relation fields wired up for connect-on-import.
   const relationMappedCount = Object.keys(relationMap).length;
 
-  // Relation fields that are actually mapped, with their entry — used in the
+  // Relation fields that are actually mapped, with their entry - used in the
   // preview-step coverage section.
   const mappedRelations = React.useMemo(
     () =>
@@ -974,176 +983,167 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
   // ---- Render -------------------------------------------------------------
   return (
-    <div className="st-page">
-      <Link href="/dashboard/settings/crm" className="st-back">
+    <div className="ui20 sabcrm-twenty max-w-[920px] mx-auto px-[var(--st-space-4)] py-[var(--st-space-5)] flex flex-col gap-[var(--st-space-4)]">
+      <Link
+        href="/dashboard/settings/crm"
+        className="inline-flex items-center gap-1 text-[13px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] w-fit"
+      >
+        <ChevronLeft size={14} aria-hidden="true" />
         Settings
       </Link>
 
-      <header className="st-page-header">
-        <span className="st-page-header__icon" aria-hidden="true">
-          <Database size={16} />
-        </span>
-        <h1 className="st-page-header__title">Import &amp; Export</h1>
-      </header>
-
-      <p className="st-muted mb-[var(--st-space-4)]">
-        Bulk-load records into any object from a CSV file, or export an
-        object&apos;s records back out. Pick an object to begin — imports run
-        through a guided 4-step wizard.
-      </p>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Import &amp; Export</PageTitle>
+          <PageDescription>
+            Bulk-load records into any object from a CSV file, or export an
+            object&apos;s records back out. Pick an object to begin - imports run
+            through a guided 4-step wizard.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       {error && (
-        <div className="st-banner" role="alert">
-          <AlertTriangle className="st-banner__icon" size={16} aria-hidden="true" />
-          <span>{error}</span>
-        </div>
+        <Alert tone="danger" title="Could not load objects">
+          {error}
+        </Alert>
       )}
 
       {/* Object selector */}
-      <div className="st-section">
-        <div className="st-section__head">
-          <div className="st-section__head-text">
-            <h2 className="st-section__title">Target object</h2>
-            <p className="st-section__desc">
-              Choose which object import and export operate on.
-            </p>
-          </div>
-        </div>
-        <div className="st-section__body">
+      <Card padding="none">
+        <CardHeader>
+          <CardTitle>Target object</CardTitle>
+          <CardDescription>
+            Choose which object import and export operate on.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {loading ? (
-            <div className="st-skeleton st-skeleton-row" style={{ maxWidth: 320 }} />
+            <Skeleton width={320} height={36} />
           ) : objects.length === 0 && !error ? (
-            <div className="st-empty">
-              <span className="st-empty__icon" aria-hidden="true">
-                <Database size={20} />
-              </span>
-              <h3 className="st-empty__title">No objects available</h3>
-              <p className="st-empty__desc">
-                This project has no CRM objects to import into or export from yet.
-              </p>
-            </div>
+            <EmptyState
+              icon={Database}
+              title="No objects available"
+              description="This project has no CRM objects to import into or export from yet."
+            />
           ) : (
-            <div className="st-field" style={{ maxWidth: 320 }}>
-              <label className="st-field__label" htmlFor="iox-object">
-                Object
-              </label>
-              <select
-                id="iox-object"
-                className="st-select"
-                value={selectedSlug}
-                onChange={(e) => handleObjectChange(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select an object…
-                </option>
-                {objects.map((o) => (
-                  <option key={o.slug} value={o.slug}>
-                    {o.labelPlural}
-                  </option>
-                ))}
-              </select>
+            <div className="max-w-[320px]">
+              <Field label="Object">
+                <Select value={selectedSlug} onValueChange={handleObjectChange}>
+                  <SelectTrigger aria-label="Object">
+                    <SelectValue placeholder="Select an object" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {objects.map((o) => (
+                      <SelectItem key={o.slug} value={o.slug}>
+                        {o.labelPlural}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
           )}
-        </div>
-      </div>
+        </CardBody>
+      </Card>
 
       {selectedObject && (
         <>
           {/* Export */}
-          <div className="st-section">
-            <div className="st-section__head">
-              <div className="st-section__head-text">
-                <h2 className="st-section__title">
+          <Card padding="none">
+            <CardHeader className="flex flex-wrap items-start justify-between gap-[var(--st-space-3)]">
+              <div>
+                <CardTitle>
                   Export {selectedObject.labelPlural.toLowerCase()}
-                </h2>
-                <p className="st-section__desc">
+                </CardTitle>
+                <CardDescription>
                   Download this object&apos;s records as a CSV or Excel file.
-                </p>
+                </CardDescription>
               </div>
-              <div className="st-section__head-actions">
-                <ExportControl
-                  object={selectedObject}
-                  projectId={activeProjectId ?? undefined}
-                />
-              </div>
-            </div>
-          </div>
+              <ExportControl
+                object={selectedObject}
+                projectId={activeProjectId ?? undefined}
+              />
+            </CardHeader>
+          </Card>
 
           {/* Import wizard */}
-          <div className="st-section">
-            <div className="st-section__head">
-              <div className="st-section__head-text">
-                <h2 className="st-section__title">
+          <Card padding="none">
+            <CardHeader className="flex flex-wrap items-start justify-between gap-[var(--st-space-3)]">
+              <div>
+                <CardTitle>
                   Import {selectedObject.labelPlural.toLowerCase()}
-                </h2>
-                <p className="st-section__desc">
+                </CardTitle>
+                <CardDescription>
                   A guided 4-step wizard: choose a file, map columns, preview, and
                   import.
-                </p>
+                </CardDescription>
               </div>
               {(step !== 1 || parsed) && (
-                <div className="st-section__head-actions">
-                  <button
-                    type="button"
-                    className="st-btn st-btn--ghost"
-                    onClick={resetWizard}
-                  >
-                    <RotateCcw size={14} aria-hidden="true" />
-                    Start over
-                  </button>
-                </div>
+                <Button variant="ghost" iconLeft={RotateCcw} onClick={resetWizard}>
+                  Start over
+                </Button>
               )}
-            </div>
+            </CardHeader>
 
-            <div className="st-section__body">
+            <CardBody>
               <StepIndicator step={step} />
 
               {stepError && (
-                <div
-                  className="st-iox-issue mb-[var(--st-space-3)]"
-                  role="alert"
-                >
-                  <AlertTriangle size={14} aria-hidden="true" />
-                  <span>{stepError}</span>
+                <div className="mb-[var(--st-space-3)]">
+                  <Alert tone="danger">{stepError}</Alert>
                 </div>
               )}
 
-              {/* ---- Step 1 — object confirmed + file pick ---- */}
+              {/* ---- Step 1 - object confirmed + file pick ---- */}
               {step === 1 && (
-                <div className="st-iw-body">
+                <div className="flex flex-col gap-[var(--st-space-4)]">
                   <div>
-                    <h3 className="st-iw-step-title">Choose a CSV file</h3>
-                    <p className="st-iw-step-hint">
+                    <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
+                      Choose a CSV file
+                    </h3>
+                    <p className="text-[13px] text-[var(--st-text-secondary)] mt-1">
                       Importing into{' '}
-                      <strong>{selectedObject.labelPlural}</strong>. Pick a CSV
-                      from your SabFiles library or upload a new one.
+                      <strong className="text-[var(--st-text)]">
+                        {selectedObject.labelPlural}
+                      </strong>
+                      . Pick a CSV from your SabFiles library or upload a new one.
                     </p>
                   </div>
 
                   {parsed ? (
-                    <div className="st-iw-file">
-                      <FileText size={18} aria-hidden="true" />
-                      <div className="st-iw-file__meta">
-                        <span className="st-iw-file__name">{parsed.name}</span>
-                        <span className="st-iw-file__sub">
-                          {parsed.rows.length} row(s) · {parsed.headers.length}{' '}
+                    <div className="flex items-center gap-[var(--st-space-3)] p-[var(--st-space-3)] border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                      <FileText
+                        size={18}
+                        className="text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-[13px] font-medium text-[var(--st-text)] truncate">
+                          {parsed.name}
+                        </span>
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
+                          {parsed.rows.length} row(s), {parsed.headers.length}{' '}
                           column(s)
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        className="st-btn st-btn--ghost st-iw-file__clear"
+                      <Button
+                        variant="ghost"
+                        iconLeft={X}
                         onClick={clearFile}
                         aria-label="Remove file"
                       >
-                        <X size={14} aria-hidden="true" />
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ) : (
-                    <div className="st-iox-drop">
-                      <Upload size={22} aria-hidden="true" />
-                      <p className="st-muted m-0">
+                    <div className="flex flex-col items-center gap-[var(--st-space-3)] p-[var(--st-space-5)] border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-center">
+                      <Upload
+                        size={22}
+                        className="text-[var(--st-text-tertiary)]"
+                        aria-hidden="true"
+                      />
+                      <p className="text-[13px] text-[var(--st-text-secondary)] m-0">
                         Pick a CSV file from your SabFiles library or upload a new
                         one.
                       </p>
@@ -1157,305 +1157,308 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                     </div>
                   )}
 
-                  <div className="st-iw-nav">
+                  <div className="flex items-center justify-between gap-[var(--st-space-3)]">
                     <span />
-                    <div className="st-iw-nav__right">
-                      <button
-                        type="button"
-                        className="st-btn st-btn--primary"
-                        onClick={() => void goToMapping()}
-                        disabled={!parsed || validating}
-                      >
-                        {validating ? (
-                          <span className="st-spinner" aria-hidden="true" />
-                        ) : null}
-                        Next: map columns
-                        <ChevronRight size={14} aria-hidden="true" />
-                      </button>
-                    </div>
+                    <Button
+                      variant="primary"
+                      iconRight={ChevronRight}
+                      loading={validating}
+                      onClick={() => void goToMapping()}
+                      disabled={!parsed || validating}
+                    >
+                      Next: map columns
+                    </Button>
                   </div>
                 </div>
               )}
 
-              {/* ---- Step 2 — map columns ---- */}
+              {/* ---- Step 2 - map columns ---- */}
               {step === 2 && parsed && (
-                <div className="st-iw-body">
+                <div className="flex flex-col gap-[var(--st-space-4)]">
                   <div>
-                    <h3 className="st-iw-step-title">Map columns to fields</h3>
-                    <p className="st-iw-step-hint">
+                    <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
+                      Map columns to fields
+                    </h3>
+                    <p className="text-[13px] text-[var(--st-text-secondary)] mt-1">
                       We pre-filled likely matches. Map each{' '}
                       {selectedObject.labelSingular.toLowerCase()} field to a CSV
                       column, or leave it as <em>Skip</em>.
                       {relationFields.length > 0 && (
                         <>
                           {' '}
-                          Relation fields can be <strong>connected</strong> to
-                          existing records by matching a CSV value.
+                          Relation fields can be{' '}
+                          <strong className="text-[var(--st-text)]">
+                            connected
+                          </strong>{' '}
+                          to existing records by matching a CSV value.
                         </>
                       )}
                     </p>
                   </div>
 
-                  <div className="st-pill">
-                    <CheckCircle2 size={14} aria-hidden="true" />
-                    <span>
-                      {parsed.name} — {parsed.rows.length} row(s),{' '}
-                      {parsed.headers.length} column(s) · {mappedCount} field(s)
-                      mapped
-                      {relationMappedCount > 0 &&
-                        ` · ${relationMappedCount} relation(s) to connect`}
-                    </span>
-                  </div>
+                  <Badge tone="success" dot>
+                    {parsed.name} - {parsed.rows.length} row(s),{' '}
+                    {parsed.headers.length} column(s), {mappedCount} field(s)
+                    mapped
+                    {relationMappedCount > 0 &&
+                      ` , ${relationMappedCount} relation(s) to connect`}
+                  </Badge>
 
-                  <div className="st-table-wrap">
-                    <table className="st-table">
-                      <thead>
-                        <tr>
-                          <th>Field</th>
-                          <th>Type</th>
-                          <th>CSV column</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                  <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">
+                    <Table density="compact">
+                      <THead>
+                        <Tr>
+                          <Th>Field</Th>
+                          <Th>Type</Th>
+                          <Th>CSV column</Th>
+                        </Tr>
+                      </THead>
+                      <TBody>
                         {fields.map((f) => (
-                          <tr className="st-row" key={f.key}>
-                            <td>
+                          <Tr key={f.key}>
+                            <Td>
                               {f.label}
                               {f.required && (
-                                <span className="st-field__req"> *</span>
+                                <span
+                                  className="text-[var(--st-danger)]"
+                                  aria-hidden="true"
+                                >
+                                  {' '}
+                                  *
+                                </span>
                               )}
-                            </td>
-                            <td className="st-cell-muted">{f.type}</td>
-                            <td>
-                              <select
-                                className="st-select"
-                                aria-label={`CSV column for ${f.label}`}
+                            </Td>
+                            <Td className="text-[var(--st-text-secondary)]">
+                              {f.type}
+                            </Td>
+                            <Td>
+                              <Select
                                 value={mapping[f.key] ?? ''}
-                                onChange={(e) =>
-                                  setFieldColumn(f.key, e.target.value)
+                                onValueChange={(v) =>
+                                  setFieldColumn(f.key, v === '__skip__' ? '' : v)
                                 }
                               >
-                                <option value="">— Skip —</option>
-                                {parsed.headers.map((h) => (
-                                  <option key={h} value={h}>
-                                    {h}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                          </tr>
+                                <SelectTrigger
+                                  aria-label={`CSV column for ${f.label}`}
+                                >
+                                  <SelectValue placeholder="Skip" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="__skip__">Skip</SelectItem>
+                                  {parsed.headers.map((h) => (
+                                    <SelectItem key={h} value={h}>
+                                      {h}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </Td>
+                          </Tr>
                         ))}
-                      </tbody>
-                    </table>
+                      </TBody>
+                    </Table>
                   </div>
 
                   {/* ---- Relation connect mapping ---- */}
                   {relationFields.length > 0 && (
-                    <div>
-                      <h3
-                        className="st-iw-step-title flex items-center gap-[6px]"
-                      >
+                    <div className="flex flex-col gap-[var(--st-space-2)]">
+                      <h3 className="text-[15px] font-semibold text-[var(--st-text)] flex items-center gap-[6px]">
                         <Link2 size={14} aria-hidden="true" />
                         Connect relations
                       </h3>
-                      <p className="st-iw-step-hint">
+                      <p className="text-[13px] text-[var(--st-text-secondary)]">
                         Map a CSV column to a relation to link each row to an{' '}
-                        <strong>existing</strong> record. Choose which field of the
-                        related object to match the column&apos;s values against.
+                        <strong className="text-[var(--st-text)]">existing</strong>{' '}
+                        record. Choose which field of the related object to match
+                        the column&apos;s values against.
                       </p>
-                      <div className="st-table-wrap">
-                        <table className="st-table">
-                          <thead>
-                            <tr>
-                              <th>Relation</th>
-                              <th>Links to</th>
-                              <th>CSV column</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                      <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">
+                        <Table density="compact">
+                          <THead>
+                            <Tr>
+                              <Th>Relation</Th>
+                              <Th>Links to</Th>
+                              <Th>CSV column</Th>
+                            </Tr>
+                          </THead>
+                          <TBody>
                             {relationFields.map((f) => {
                               const target = targetFor(f);
                               const entry = relationMap[f.key];
                               const choices = matchByFields(target);
                               return (
-                                <tr className="st-row" key={f.key}>
-                                  <td>
+                                <Tr key={f.key}>
+                                  <Td>
                                     {f.label}
                                     {f.required && (
-                                      <span className="st-field__req"> *</span>
+                                      <span
+                                        className="text-[var(--st-danger)]"
+                                        aria-hidden="true"
+                                      >
+                                        {' '}
+                                        *
+                                      </span>
                                     )}
-                                  </td>
-                                  <td className="st-cell-muted">
+                                  </Td>
+                                  <Td className="text-[var(--st-text-secondary)]">
                                     {target
                                       ? target.labelPlural
-                                      : f.relation?.targetObject ?? '—'}
-                                  </td>
-                                  <td>
-                                    <select
-                                      className="st-select"
-                                      value={entry?.header ?? ''}
-                                      onChange={(e) =>
-                                        setRelationColumn(f, e.target.value)
-                                      }
-                                    >
-                                      <option value="">— Skip —</option>
-                                      {parsed.headers.map((h) => (
-                                        <option key={h} value={h}>
-                                          {h}
-                                        </option>
-                                      ))}
-                                    </select>
-                                    {entry?.header && (
-                                      <div className="st-rc-matchby">
-                                        <span className="st-rc-matchby__label">
-                                          Match by
-                                        </span>
-                                        <select
-                                          className="st-select"
-                                          value={entry.matchBy}
-                                          onChange={(e) =>
-                                            setRelationMatchBy(
-                                              f.key,
-                                              e.target.value,
-                                            )
-                                          }
-                                          aria-label={`Match ${f.label} by`}
+                                      : f.relation?.targetObject ?? '-'}
+                                  </Td>
+                                  <Td>
+                                    <div className="flex flex-col gap-[var(--st-space-2)]">
+                                      <Select
+                                        value={entry?.header ?? ''}
+                                        onValueChange={(v) =>
+                                          setRelationColumn(
+                                            f,
+                                            v === '__skip__' ? '' : v,
+                                          )
+                                        }
+                                      >
+                                        <SelectTrigger
+                                          aria-label={`CSV column for ${f.label}`}
                                         >
-                                          {choices.map((c) => (
-                                            <option key={c.key} value={c.key}>
-                                              {c.label}
-                                            </option>
+                                          <SelectValue placeholder="Skip" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="__skip__">
+                                            Skip
+                                          </SelectItem>
+                                          {parsed.headers.map((h) => (
+                                            <SelectItem key={h} value={h}>
+                                              {h}
+                                            </SelectItem>
                                           ))}
-                                        </select>
-                                      </div>
-                                    )}
-                                  </td>
-                                </tr>
+                                        </SelectContent>
+                                      </Select>
+                                      {entry?.header && (
+                                        <Field label="Match by">
+                                          <Select
+                                            value={entry.matchBy}
+                                            onValueChange={(v) =>
+                                              setRelationMatchBy(f.key, v)
+                                            }
+                                          >
+                                            <SelectTrigger
+                                              aria-label={`Match ${f.label} by`}
+                                            >
+                                              <SelectValue placeholder="Match by" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {choices.map((c) => (
+                                                <SelectItem
+                                                  key={c.key}
+                                                  value={c.key}
+                                                >
+                                                  {c.label}
+                                                </SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        </Field>
+                                      )}
+                                    </div>
+                                  </Td>
+                                </Tr>
                               );
                             })}
-                          </tbody>
-                        </table>
+                          </TBody>
+                        </Table>
                       </div>
                     </div>
                   )}
 
-                  <div className="st-iw-nav">
-                    <button
-                      type="button"
-                      className="st-btn st-btn--ghost"
+                  <div className="flex items-center justify-between gap-[var(--st-space-3)]">
+                    <Button
+                      variant="ghost"
+                      iconLeft={ChevronLeft}
                       onClick={() => {
                         setStepError(null);
                         setStep(1);
                       }}
                     >
-                      <ChevronLeft size={14} aria-hidden="true" />
                       Back
-                    </button>
-                    <div className="st-iw-nav__right">
-                      <button
-                        type="button"
-                        className="st-btn st-btn--primary"
-                        onClick={() => void goToPreview()}
-                        disabled={mappedCount === 0 || validating}
-                      >
-                        {validating ? (
-                          <span className="st-spinner" aria-hidden="true" />
-                        ) : null}
-                        Next: preview
-                        <ChevronRight size={14} aria-hidden="true" />
-                      </button>
-                    </div>
+                    </Button>
+                    <Button
+                      variant="primary"
+                      iconRight={ChevronRight}
+                      loading={validating}
+                      onClick={() => void goToPreview()}
+                      disabled={mappedCount === 0 || validating}
+                    >
+                      Next: preview
+                    </Button>
                   </div>
                 </div>
               )}
 
-              {/* ---- Step 3 — preview + validate ---- */}
+              {/* ---- Step 3 - preview + validate ---- */}
               {step === 3 && parsed && (
-                <div className="st-iw-body">
+                <div className="flex flex-col gap-[var(--st-space-4)]">
                   <div>
-                    <h3 className="st-iw-step-title">Preview &amp; validate</h3>
-                    <p className="st-iw-step-hint">
+                    <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
+                      Preview &amp; validate
+                    </h3>
+                    <p className="text-[13px] text-[var(--st-text-secondary)] mt-1">
                       Review what will be imported. Fix any blocking issues before
                       continuing.
                     </p>
                   </div>
 
-                  <div className="st-iw-stats">
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{parsed.rows.length}</div>
-                      <div className="st-iw-stat__cap">Rows to import</div>
-                    </div>
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{mappedCount}</div>
-                      <div className="st-iw-stat__cap">Mapped columns</div>
-                    </div>
+                  <div className="grid gap-[var(--st-space-3)] grid-cols-2 sm:grid-cols-4">
+                    <StatCard label="Rows to import" value={parsed.rows.length} />
+                    <StatCard label="Mapped columns" value={mappedCount} />
                     {relationMappedCount > 0 && (
-                      <div className="st-iw-stat">
-                        <div className="st-iw-stat__num">
-                          {relationMappedCount}
-                        </div>
-                        <div className="st-iw-stat__cap">Relations to connect</div>
-                      </div>
+                      <StatCard
+                        label="Relations to connect"
+                        value={relationMappedCount}
+                      />
                     )}
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{blockingIssues.length}</div>
-                      <div className="st-iw-stat__cap">Blocking issues</div>
-                    </div>
+                    <StatCard
+                      label="Blocking issues"
+                      value={blockingIssues.length}
+                    />
                   </div>
 
                   {/* Blocking issues */}
                   {blockingIssues.length > 0 && (
-                    <div className="st-iw-issues st-iw-issues--error">
-                      <div className="st-iw-issues__head">
-                        <AlertTriangle size={13} aria-hidden="true" />
-                        Blocking issues
-                      </div>
-                      {blockingIssues.map((iss, i) => (
-                        <div className="st-iox-issue" key={i}>
-                          <AlertTriangle size={14} aria-hidden="true" />
-                          <span>{iss.message}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <Alert tone="danger" title="Blocking issues">
+                      <ul className="list-disc pl-4 flex flex-col gap-1">
+                        {blockingIssues.map((iss, i) => (
+                          <li key={i}>{iss.message}</li>
+                        ))}
+                      </ul>
+                    </Alert>
                   )}
 
                   {/* Soft warnings */}
                   {warnings.length > 0 && (
-                    <div className="st-iw-issues st-iw-issues--warn">
-                      <div className="st-iw-issues__head">
-                        <AlertTriangle size={13} aria-hidden="true" />
-                        Warnings
-                      </div>
-                      {warnings.map((w, i) => (
-                        <div className="st-iw-warn-row" key={i}>
-                          <AlertTriangle size={14} aria-hidden="true" />
-                          <span>{w}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <Alert tone="warning" title="Warnings">
+                      <ul className="list-disc pl-4 flex flex-col gap-1">
+                        {warnings.map((w, i) => (
+                          <li key={i}>{w}</li>
+                        ))}
+                      </ul>
+                    </Alert>
                   )}
 
                   {blockingIssues.length === 0 && (
-                    <div className="st-iw-ok">
-                      <CheckCircle2 size={15} aria-hidden="true" />
-                      <span>
-                        No blocking issues — ready to import {parsed.rows.length}{' '}
-                        row(s).
-                      </span>
-                    </div>
+                    <Alert tone="success">
+                      No blocking issues - ready to import {parsed.rows.length}{' '}
+                      row(s).
+                    </Alert>
                   )}
 
                   {/* ---- Relation connect coverage ---- */}
                   {mappedRelations.length > 0 && (
-                    <div>
-                      <p
-                        className="st-iw-step-hint mb-[6px] flex items-center gap-[6px]"
-                      >
+                    <div className="flex flex-col gap-[var(--st-space-2)]">
+                      <p className="text-[13px] text-[var(--st-text-secondary)] flex items-center gap-[6px]">
                         <Link2 size={13} aria-hidden="true" />
-                        Relation connect coverage — a sample of distinct values is
+                        Relation connect coverage - a sample of distinct values is
                         matched against existing records.
                       </p>
-                      <div className="st-rc-coverage">
+                      <div className="grid gap-[var(--st-space-3)] sm:grid-cols-2">
                         {mappedRelations.map(({ field, entry }) => {
                           const target = targetFor(field);
                           const probe = relationProbes[field.key];
@@ -1470,63 +1473,61 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                                   ? ('none' as const)
                                   : ('partial' as const);
                           return (
-                            <div className="st-rc-card" key={field.key}>
-                              <div className="st-rc-card__head">
-                                <span className="st-rc-card__title">
+                            <div
+                              className="border border-[var(--st-border)] rounded-[var(--st-radius)] p-[var(--st-space-3)] bg-[var(--st-bg-secondary)] flex flex-col gap-[var(--st-space-2)]"
+                              key={field.key}
+                            >
+                              <div className="flex items-start justify-between gap-[var(--st-space-2)]">
+                                <span className="flex items-center gap-[6px] text-[13px] font-medium text-[var(--st-text)]">
                                   <Link2 size={13} aria-hidden="true" />
                                   {field.label}
-                                  <span className="st-rc-card__sub">
-                                    {entry.header} →{' '}
+                                  <span className="text-[12px] font-normal text-[var(--st-text-secondary)]">
+                                    {entry.header} to{' '}
                                     {target?.labelPlural ??
                                       field.relation?.targetObject}
                                   </span>
                                 </span>
                                 {probe?.loading ? (
-                                  <span
-                                    className="st-rc-badge gap-[6px]"
-                                  >
-                                    <span
-                                      className="st-spinner"
-                                      aria-hidden="true"
-                                    />
-                                    Checking…
-                                  </span>
+                                  <Badge tone="neutral">
+                                    <span className="inline-flex items-center gap-[6px]">
+                                      <Spinner size="sm" label="Checking" />
+                                      Checking
+                                    </span>
+                                  </Badge>
                                 ) : badge ? (
-                                  <span
-                                    className={`st-rc-badge st-rc-badge--${badge}`}
+                                  <Badge
+                                    tone={
+                                      badge === 'ok'
+                                        ? 'success'
+                                        : badge === 'none'
+                                          ? 'danger'
+                                          : 'warning'
+                                    }
                                   >
-                                    {badge === 'ok' ? (
-                                      <CheckCircle2
-                                        size={12}
-                                        aria-hidden="true"
-                                      />
-                                    ) : (
-                                      <AlertTriangle
-                                        size={12}
-                                        aria-hidden="true"
-                                      />
-                                    )}
                                     {matched}/{sampled} matched
-                                  </span>
+                                  </Badge>
                                 ) : null}
                               </div>
                               {probe && !probe.loading ? (
                                 probe.samples.length === 0 ? (
-                                  <div className="st-rc-empty">
+                                  <p className="text-[12px] text-[var(--st-text-tertiary)] m-0">
                                     No non-empty values found in this column to
                                     match.
-                                  </div>
+                                  </p>
                                 ) : (
                                   <>
-                                    <div className="st-rc-samples">
+                                    <div className="flex flex-col gap-1">
                                       {probe.samples.map((s, si) => (
-                                        <div className="st-rc-sample" key={si}>
+                                        <div
+                                          className="flex items-center gap-[6px] text-[12px]"
+                                          key={si}
+                                        >
                                           <span
-                                            className={`st-rc-sample__icon ${
+                                            className={
                                               s.match.id
-                                                ? 'st-rc-sample__icon--ok'
-                                                : 'st-rc-sample__icon--miss'
-                                            }`}
+                                                ? 'text-[var(--st-status-ok)]'
+                                                : 'text-[var(--st-danger)]'
+                                            }
                                             aria-hidden="true"
                                           >
                                             {s.match.id ? (
@@ -1536,59 +1537,54 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                                             )}
                                           </span>
                                           <span
-                                            className="st-rc-sample__val"
+                                            className="text-[var(--st-text)] truncate max-w-[120px]"
                                             title={s.value}
                                           >
                                             {s.value}
                                           </span>
                                           <ArrowRight
                                             size={12}
-                                            className="st-rc-sample__arrow"
+                                            className="text-[var(--st-text-tertiary)] shrink-0"
                                             aria-hidden="true"
                                           />
                                           {s.match.id ? (
                                             <span
-                                              className="st-rc-sample__hit"
+                                              className="text-[var(--st-text-secondary)] truncate"
                                               title={s.match.label ?? undefined}
                                             >
                                               {s.match.label}
                                             </span>
                                           ) : (
-                                            <span className="st-rc-sample__hit st-rc-sample__hit--miss">
+                                            <span className="text-[var(--st-danger)]">
                                               not found
                                             </span>
                                           )}
                                         </div>
                                       ))}
                                     </div>
-                                    <div className="st-rc-card__foot">
-                                      <span>
+                                    <div className="flex items-center justify-between gap-[var(--st-space-2)] pt-[var(--st-space-2)] border-t border-[var(--st-border)]">
+                                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         {matched === sampled
                                           ? 'All sampled values connect.'
                                           : `${
                                               sampled - matched
-                                            } of ${sampled} sampled value(s) had no match — those rows import without this link.`}
+                                            } of ${sampled} sampled value(s) had no match - those rows import without this link.`}
                                       </span>
-                                      <button
-                                        type="button"
-                                        className="st-btn st-btn--ghost"
-                                        onClick={() =>
-                                          void probeRelation(field)
-                                        }
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        iconLeft={RotateCcw}
+                                        onClick={() => void probeRelation(field)}
                                       >
-                                        <RotateCcw
-                                          size={12}
-                                          aria-hidden="true"
-                                        />
                                         Re-check
-                                      </button>
+                                      </Button>
                                     </div>
                                   </>
                                 )
                               ) : !probe ? (
-                                <div className="st-rc-empty">
-                                  Checking connect coverage…
-                                </div>
+                                <p className="text-[12px] text-[var(--st-text-tertiary)] m-0">
+                                  Checking connect coverage
+                                </p>
                               ) : null}
                             </div>
                           );
@@ -1598,195 +1594,199 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                   )}
 
                   {/* Sample rows */}
-                  <div>
-                    <p className="st-iw-step-hint mb-[6px]">
+                  <div className="flex flex-col gap-[var(--st-space-2)]">
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">
                       Sample of the first {sampleRows.length} mapped row(s):
                     </p>
                     {mappedPairs.length === 0 ? (
-                      <p className="st-muted m-0">
-                        No columns are mapped yet — go back and map at least one
+                      <p className="text-[13px] text-[var(--st-text-secondary)] m-0">
+                        No columns are mapped yet - go back and map at least one
                         field.
                       </p>
                     ) : (
-                      <div className="st-iw-preview">
-                        <table>
-                          <thead>
-                            <tr>
+                      <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-auto">
+                        <Table density="compact">
+                          <THead>
+                            <Tr>
                               {mappedPairs.map(({ field, header }) => (
-                                <th key={field.key}>
+                                <Th key={field.key}>
                                   {field.label}
-                                  <span className="st-iw-preview__src">
-                                    ← {header}
+                                  <span className="block text-[11px] font-normal text-[var(--st-text-tertiary)]">
+                                    from {header}
                                   </span>
-                                </th>
+                                </Th>
                               ))}
-                            </tr>
-                          </thead>
-                          <tbody>
+                            </Tr>
+                          </THead>
+                          <TBody>
                             {sampleRows.map((row, ri) => (
-                              <tr key={ri}>
+                              <Tr key={ri}>
                                 {mappedPairs.map(({ field, header }) => {
                                   const v = row[header] ?? '';
                                   return (
-                                    <td
+                                    <Td
                                       key={field.key}
-                                      className={v ? undefined : 'is-empty'}
+                                      className={
+                                        v
+                                          ? undefined
+                                          : 'text-[var(--st-text-tertiary)]'
+                                      }
                                       title={v || undefined}
                                     >
-                                      {v || '—'}
-                                    </td>
+                                      {v || '-'}
+                                    </Td>
                                   );
                                 })}
-                              </tr>
+                              </Tr>
                             ))}
-                          </tbody>
-                        </table>
+                          </TBody>
+                        </Table>
                       </div>
                     )}
                   </div>
 
-                  <div className="st-iw-nav">
-                    <button
-                      type="button"
-                      className="st-btn st-btn--ghost"
+                  <div className="flex items-center justify-between gap-[var(--st-space-3)]">
+                    <Button
+                      variant="ghost"
+                      iconLeft={ChevronLeft}
                       onClick={() => {
                         setStepError(null);
                         setStep(2);
                       }}
                     >
-                      <ChevronLeft size={14} aria-hidden="true" />
                       Back
-                    </button>
-                    <div className="st-iw-nav__right">
-                      <button
-                        type="button"
-                        className="st-btn st-btn--primary"
-                        onClick={() => void handleImport()}
-                        disabled={
-                          importing ||
-                          mappedCount === 0 ||
-                          blockingIssues.length > 0
-                        }
-                      >
-                        {importing ? (
-                          <span className="st-spinner" aria-hidden="true" />
-                        ) : (
-                          <Upload size={14} aria-hidden="true" />
-                        )}
-                        {importing
-                          ? relationMappedCount > 0
-                            ? 'Importing & connecting…'
-                            : 'Importing…'
-                          : relationMappedCount > 0
-                            ? `Import ${parsed.rows.length} row(s) & connect`
-                            : `Import ${parsed.rows.length} row(s)`}
-                      </button>
-                    </div>
+                    </Button>
+                    <Button
+                      variant="primary"
+                      loading={importing}
+                      iconLeft={importing ? undefined : Upload}
+                      onClick={() => void handleImport()}
+                      disabled={
+                        importing ||
+                        mappedCount === 0 ||
+                        blockingIssues.length > 0
+                      }
+                    >
+                      {importing
+                        ? relationMappedCount > 0
+                          ? 'Importing & connecting'
+                          : 'Importing'
+                        : relationMappedCount > 0
+                          ? `Import ${parsed.rows.length} row(s) & connect`
+                          : `Import ${parsed.rows.length} row(s)`}
+                    </Button>
                   </div>
                 </div>
               )}
 
-              {/* ---- Step 4 — import summary ---- */}
+              {/* ---- Step 4 - import summary ---- */}
               {step === 4 && result && (
-                <div className="st-iw-body">
+                <div className="flex flex-col gap-[var(--st-space-4)]">
                   {(() => {
                     const allOk = result.failed === 0 && result.succeeded > 0;
                     const allFail =
                       result.succeeded === 0 && result.failed > 0;
-                    const cls = allOk
-                      ? 'st-iw-result-banner--ok'
+                    const tone = allOk
+                      ? ('success' as const)
                       : allFail
-                        ? 'st-iw-result-banner--fail'
-                        : 'st-iw-result-banner--partial';
-                    const Icon = allOk ? CheckCircle2 : AlertTriangle;
+                        ? ('danger' as const)
+                        : ('warning' as const);
                     const text = allOk
                       ? `Imported all ${result.succeeded} record(s) successfully.`
                       : allFail
-                        ? `Import failed — none of the ${result.total} row(s) were imported.`
+                        ? `Import failed - none of the ${result.total} row(s) were imported.`
                         : `Imported ${result.succeeded} of ${result.total} row(s); ${result.failed} failed.`;
-                    return (
-                      <div className={`st-iw-result-banner ${cls}`} role="status">
-                        <Icon size={16} aria-hidden="true" />
-                        <span>{text}</span>
-                      </div>
-                    );
+                    return <Alert tone={tone}>{text}</Alert>;
                   })()}
 
-                  <div className="st-iw-stats">
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{result.total}</div>
-                      <div className="st-iw-stat__cap">Processed</div>
-                    </div>
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{result.succeeded}</div>
-                      <div className="st-iw-stat__cap">Imported</div>
-                    </div>
-                    <div className="st-iw-stat">
-                      <div className="st-iw-stat__num">{result.failed}</div>
-                      <div className="st-iw-stat__cap">Failed</div>
-                    </div>
+                  <div className="grid gap-[var(--st-space-3)] grid-cols-3">
+                    <StatCard label="Processed" value={result.total} />
+                    <StatCard label="Imported" value={result.succeeded} />
+                    <StatCard label="Failed" value={result.failed} />
                   </div>
 
                   {/* Relation connect readout (best-effort) */}
                   {relationMappedCount > 0 &&
                     (importing ? (
-                      <div className="st-rc-result">
-                        <div className="st-rc-result__head">
+                      <Card variant="ghost" padding="md">
+                        <div className="flex items-center gap-[6px] text-[13px] font-medium text-[var(--st-text)] mb-[var(--st-space-2)]">
                           <Link2 size={13} aria-hidden="true" />
                           Connecting relations
                         </div>
-                        <div className="st-rc-result__row">
-                          <span className="st-spinner" aria-hidden="true" />
+                        <div className="flex items-center gap-[var(--st-space-2)] text-[13px] text-[var(--st-text-secondary)]">
+                          <Spinner size="sm" label="Connecting relations" />
                           <span>
                             Matching relation values to existing records and
-                            linking them…
+                            linking them.
                           </span>
                         </div>
-                      </div>
+                      </Card>
                     ) : relationResults.length > 0 ? (
-                      <div className="st-rc-result">
-                        <div className="st-rc-result__head">
+                      <Card variant="outlined" padding="md">
+                        <div className="flex items-center gap-[6px] text-[13px] font-medium text-[var(--st-text)] mb-[var(--st-space-2)]">
                           <Link2 size={13} aria-hidden="true" />
                           Relation connect (best-effort)
                         </div>
-                        {relationResults.map((r) => (
-                          <div className="st-rc-result__row" key={r.fieldKey}>
-                            {r.unmatched === 0 ? (
-                              <CheckCircle2 size={14} aria-hidden="true" />
-                            ) : (
-                              <AlertTriangle size={14} aria-hidden="true" />
-                            )}
-                            <span>
-                              <strong>{r.label}</strong>: connected{' '}
-                              {r.connected} of {r.attempted} row(s)
-                              {r.unmatched > 0 && (
-                                <span className="st-rc-result__miss">
-                                  {' '}
-                                  · {r.unmatched} value(s) had no match (left
-                                  unlinked)
-                                </span>
+                        <div className="flex flex-col gap-[var(--st-space-2)]">
+                          {relationResults.map((r) => (
+                            <div
+                              className="flex items-start gap-[var(--st-space-2)] text-[13px] text-[var(--st-text-secondary)]"
+                              key={r.fieldKey}
+                            >
+                              {r.unmatched === 0 ? (
+                                <CheckCircle2
+                                  size={14}
+                                  className="text-[var(--st-status-ok)] shrink-0 mt-[2px]"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                <AlertTriangle
+                                  size={14}
+                                  className="text-[var(--st-warn)] shrink-0 mt-[2px]"
+                                  aria-hidden="true"
+                                />
                               )}
-                              .
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                              <span>
+                                <strong className="text-[var(--st-text)]">
+                                  {r.label}
+                                </strong>
+                                : connected {r.connected} of {r.attempted} row(s)
+                                {r.unmatched > 0 && (
+                                  <span className="text-[var(--st-warn)]">
+                                    {' '}
+                                    , {r.unmatched} value(s) had no match (left
+                                    unlinked)
+                                  </span>
+                                )}
+                                .
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
                     ) : null)}
 
                   {result.failed > 0 && (
-                    <div>
-                      <p className="st-iw-step-hint mb-[6px]">
+                    <div className="flex flex-col gap-[var(--st-space-2)]">
+                      <p className="text-[13px] text-[var(--st-text-secondary)]">
                         Per-row failures (first 50):
                       </p>
-                      <div className="st-iw-failures">
+                      <div className="flex flex-col gap-[var(--st-space-2)]">
                         {result.rows
                           .map((r, idx) => ({ r, idx }))
                           .filter((x) => !x.r.ok)
                           .slice(0, 50)
                           .map(({ r, idx }) =>
                             !r.ok ? (
-                              <div className="st-iox-issue" key={idx}>
-                                <AlertTriangle size={14} aria-hidden="true" />
+                              <div
+                                key={idx}
+                                className="flex items-start gap-[var(--st-space-2)] text-[13px] text-[var(--st-danger)] p-[var(--st-space-2)] border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-danger-soft)]"
+                              >
+                                <AlertTriangle
+                                  size={14}
+                                  className="shrink-0 mt-[2px]"
+                                  aria-hidden="true"
+                                />
                                 <span>
                                   Row {idx + 1}: {r.errors.join('; ')}
                                 </span>
@@ -1797,29 +1797,24 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                     </div>
                   )}
 
-                  <div className="st-iw-nav">
-                    <button
-                      type="button"
-                      className="st-btn st-btn--secondary"
+                  <div className="flex items-center justify-between gap-[var(--st-space-3)]">
+                    <Button
+                      variant="secondary"
+                      iconLeft={RotateCcw}
                       onClick={resetWizard}
                     >
-                      <RotateCcw size={14} aria-hidden="true" />
                       Import another file
-                    </button>
-                    <div className="st-iw-nav__right">
-                      <Link
-                        href={`/sabcrm/${selectedObject.slug}`}
-                        className="st-btn st-btn--ghost"
-                      >
+                    </Button>
+                    <Link href={`/sabcrm/${selectedObject.slug}`}>
+                      <Button variant="ghost" iconRight={ChevronRight}>
                         View {selectedObject.labelPlural.toLowerCase()}
-                        <ChevronRight size={14} aria-hidden="true" />
-                      </Link>
-                    </div>
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               )}
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         </>
       )}
     </div>

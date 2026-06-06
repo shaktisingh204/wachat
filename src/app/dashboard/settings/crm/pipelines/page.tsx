@@ -1,29 +1,28 @@
 'use client';
 
 /**
- * SabCRM — Pipelines settings (`/dashboard/settings/crm/pipelines`), Twenty-style.
+ * SabCRM - Pipelines settings (`/dashboard/settings/crm/pipelines`).
  *
- * Twenty's "Sales pipelines" editor. A two-pane layout:
+ * The sales-pipelines editor. A two-pane layout:
  *
- *   LEFT  — the list of pipelines this project owns. Each row shows the
+ *   LEFT  - the list of pipelines this project owns. Each row shows the
  *           pipeline name, its stage count, and a "Default" badge on the one
  *           pipeline marked default. A "New" button at the top creates one.
  *
- *   RIGHT — the editor for the selected pipeline: its name, the object it runs
+ *   RIGHT - the editor for the selected pipeline: its name, the object it runs
  *           on, an ordered list of stages (each a label + colour-swatch picker,
  *           with add / remove / reorder-by-arrows), and a "Set as default"
  *           toggle. Save persists via `updatePipelineTw` (existing) or
  *           `createPipelineTw` (new, unsaved) drafts. Delete removes it.
  *
  * Mutations go through the gated server actions in
- * `@/app/actions/sabcrm-pipelines.actions` (session → project → RBAC → plan),
+ * `@/app/actions/sabcrm-pipelines.actions` (session -> project -> RBAC -> plan),
  * which return a typed `ActionResult`, so the page degrades to loading / empty
  * / error states and never crashes when the engine is unreachable.
  *
- * Twenty look only — the shared `.st-*` kit (`src/styles/sabcrm-twenty.css`)
- * plus the page-local `./pipelines.css`. NO ZoruUI / Tailwind / clay. Auth /
- * RBAC / project context are enforced by the parent `../../layout.tsx`; every
- * action independently re-runs the full gate. The colour-swatch picker and the
+ * Pure 20ui: every control comes from `@/components/sabcrm/20ui`. Auth / RBAC /
+ * project context are enforced by the parent `../../layout.tsx`; every action
+ * independently re-runs the full gate. The colour-swatch picker and the
  * arrow-based reorder mirror the Data Model SELECT-option editor.
  */
 
@@ -32,9 +31,7 @@ import {
   Plus,
   Workflow,
   AlertTriangle,
-  Loader2,
   Trash2,
-  X,
   Check,
   ArrowUp,
   ArrowDown,
@@ -42,7 +39,40 @@ import {
   GripVertical,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Switch,
+  Badge,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listPipelinesTw,
@@ -51,8 +81,6 @@ import {
   updatePipelineTw,
   deletePipelineTw,
 } from '@/app/actions/sabcrm-pipelines.actions';
-
-import './pipelines.css';
 
 // ---------------------------------------------------------------------------
 // Wire shapes
@@ -66,7 +94,7 @@ import './pipelines.css';
 interface PipelineStage {
   id: string;
   label: string;
-  /** A `--zoru-*` token (or hex); optional on the wire, defaulted in the UI. */
+  /** A `--st-*` token (or hex); optional on the wire, defaulted in the UI. */
   color?: string;
 }
 
@@ -78,7 +106,7 @@ interface Pipeline {
   isDefault?: boolean;
 }
 
-/** Input for create/update — `id` is server-assigned for new pipelines. */
+/** Input for create/update - `id` is server-assigned for new pipelines. */
 interface PipelineInput {
   name: string;
   object: string;
@@ -87,12 +115,11 @@ interface PipelineInput {
 }
 
 // ---------------------------------------------------------------------------
-// Twenty stage-colour palette
+// Stage-colour palette
 //
-// Same fixed palette the Data Model option editor paints. `token` is what we
-// persist (a `--zoru-*` name, consistent with the seeded schema) and `swatch`
-// is the literal hex we paint — this page renders under `.sabcrm-twenty` where
-// `--zoru-*` vars are NOT in scope, so the swatch must be concrete.
+// A fixed palette for stage swatches. `token` is what we persist (a stable
+// name, consistent with the seeded schema) and `swatch` is the literal hex we
+// paint - the swatch must be concrete since these tokens are not in scope here.
 // ---------------------------------------------------------------------------
 
 interface PaletteColor {
@@ -102,16 +129,16 @@ interface PaletteColor {
 }
 
 const STAGE_PALETTE: ReadonlyArray<PaletteColor> = [
-  { name: 'Gray', token: '--zoru-gray', swatch: '#8c8c8c' },
-  { name: 'Blue', token: '--zoru-blue', swatch: '#3b7ae4' },
-  { name: 'Sky', token: '--zoru-sky', swatch: '#5db4e3' },
-  { name: 'Turquoise', token: '--zoru-turquoise', swatch: '#21b8a6' },
-  { name: 'Green', token: '--zoru-green', swatch: '#3dab5a' },
-  { name: 'Yellow', token: '--zoru-yellow', swatch: '#e0c64a' },
-  { name: 'Orange', token: '--zoru-orange', swatch: '#f0883e' },
-  { name: 'Red', token: '--zoru-red', swatch: '#e0484e' },
-  { name: 'Pink', token: '--zoru-pink', swatch: '#e052b0' },
-  { name: 'Purple', token: '--zoru-purple', swatch: '#9b51e0' },
+  { name: 'Gray', token: 'stage-gray', swatch: '#8c8c8c' },
+  { name: 'Blue', token: 'stage-blue', swatch: '#3b7ae4' },
+  { name: 'Sky', token: 'stage-sky', swatch: '#5db4e3' },
+  { name: 'Turquoise', token: 'stage-turquoise', swatch: '#21b8a6' },
+  { name: 'Green', token: 'stage-green', swatch: '#3dab5a' },
+  { name: 'Yellow', token: 'stage-yellow', swatch: '#e0c64a' },
+  { name: 'Orange', token: 'stage-orange', swatch: '#f0883e' },
+  { name: 'Red', token: 'stage-red', swatch: '#e0484e' },
+  { name: 'Pink', token: 'stage-pink', swatch: '#e052b0' },
+  { name: 'Purple', token: 'stage-purple', swatch: '#9b51e0' },
 ];
 
 const DEFAULT_STAGE_COLOR = STAGE_PALETTE[0].token;
@@ -125,9 +152,9 @@ function swatchFor(color: string | undefined): string {
 }
 
 /**
- * Objects a pipeline can run on (Twenty ships pipelines on these). The values
- * are the plural object slugs the Rust engine uses — `"opportunities"` is the
- * server-side default — so a created pipeline's `object` round-trips cleanly.
+ * Objects a pipeline can run on. The values are the plural object slugs the
+ * Rust engine uses - `"opportunities"` is the server-side default - so a
+ * created pipeline's `object` round-trips cleanly.
  */
 const PIPELINE_OBJECTS: ReadonlyArray<{ value: string; label: string }> = [
   { value: 'opportunities', label: 'Opportunities' },
@@ -153,10 +180,10 @@ function newDraft(): Pipeline {
     name: 'New pipeline',
     object: PIPELINE_OBJECTS[0].value,
     stages: [
-      { id: tempId(), label: 'New', color: '--zoru-gray' },
-      { id: tempId(), label: 'In progress', color: '--zoru-blue' },
-      { id: tempId(), label: 'Won', color: '--zoru-green' },
-      { id: tempId(), label: 'Lost', color: '--zoru-red' },
+      { id: tempId(), label: 'New', color: 'stage-gray' },
+      { id: tempId(), label: 'In progress', color: 'stage-blue' },
+      { id: tempId(), label: 'Won', color: 'stage-green' },
+      { id: tempId(), label: 'Lost', color: 'stage-red' },
     ],
     isDefault: false,
   };
@@ -179,20 +206,7 @@ function pipelineEquals(a: Pipeline, b: Pipeline): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Shared bits
-// ---------------------------------------------------------------------------
-
-function ErrorBanner({ message }: { message: string }): React.JSX.Element {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Colour-swatch picker (popover) — mirrors the Data Model option editor.
+// Colour-swatch picker (popover) - mirrors the Data Model option editor.
 // ---------------------------------------------------------------------------
 
 function ColorPicker({
@@ -203,65 +217,61 @@ function ColorPicker({
   onChange: (token: string) => void;
 }): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
 
   return (
-    <div className="pl-color" ref={ref}>
-      <button
-        type="button"
-        className="pl-color__trigger"
-        aria-label="Pick stage colour"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span
-          className="pl-swatch"
-          style={{ background: swatchFor(value) }}
-          aria-hidden="true"
-        />
-      </button>
-      {open ? (
-        <div className="pl-color__pop" role="listbox" aria-label="Colours">
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="secondary"
+          aria-label="Pick stage colour"
+          className="!size-8 shrink-0 !p-0"
+        >
+          <span
+            className="block size-4 rounded-full"
+            style={{ background: swatchFor(value) }}
+            aria-hidden="true"
+          />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-[var(--st-space-2)]">
+        <div
+          role="listbox"
+          aria-label="Colours"
+          className="grid grid-cols-5 gap-[var(--st-space-1)]"
+        >
           {STAGE_PALETTE.map((c) => (
-            <button
+            <Button
               key={c.token}
-              type="button"
+              variant="ghost"
               role="option"
               aria-selected={c.token === value}
-              className="pl-color__cell"
+              aria-label={c.name}
               title={c.name}
+              className="!size-7 !p-0"
               onClick={() => {
                 onChange(c.token);
                 setOpen(false);
               }}
             >
               <span
-                className="pl-swatch pl-swatch--lg"
+                className="grid size-5 place-items-center rounded-full"
                 style={{ background: c.swatch }}
                 aria-hidden="true"
-              />
-              {c.token === value ? (
-                <Check className="pl-color__check" size={12} />
-              ) : null}
-            </button>
+              >
+                {c.token === value ? (
+                  <Check size={12} className="text-white" aria-hidden="true" />
+                ) : null}
+              </span>
+            </Button>
           ))}
         </div>
-      ) : null}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Stages editor — ordered rows of swatch + label, with add/remove/reorder.
+// Stages editor - ordered rows of swatch + label, with add/remove/reorder.
 // ---------------------------------------------------------------------------
 
 function StagesEditor({
@@ -288,80 +298,76 @@ function StagesEditor({
   };
 
   const add = () => {
-    onChange([
-      ...stages,
-      { id: tempId(), label: '', color: DEFAULT_STAGE_COLOR },
-    ]);
+    onChange([...stages, { id: tempId(), label: '', color: DEFAULT_STAGE_COLOR }]);
   };
 
   return (
-    <div className="pl-field">
-      <span className="st-field__label">Stages</span>
-      <div className="pl-stages">
+    <div className="flex flex-col gap-[var(--st-space-2)]">
+      <span className="text-[13px] font-medium text-[var(--st-text)]">Stages</span>
+      <div className="flex flex-col gap-[var(--st-space-2)]">
         {stages.length === 0 ? (
-          <p className="pl-stages__empty">
+          <p className="m-0 text-[13px] text-[var(--st-text-secondary)]">
             No stages yet. Add one to start the pipeline.
           </p>
         ) : (
           stages.map((stage, idx) => (
-            <div className="pl-stage" key={stage.id}>
-              <span className="pl-stage__grip" aria-hidden="true">
+            <div className="flex items-center gap-[var(--st-space-2)]" key={stage.id}>
+              <span className="text-[var(--st-text-tertiary)]" aria-hidden="true">
                 <GripVertical size={14} />
               </span>
               <ColorPicker
                 value={stage.color || DEFAULT_STAGE_COLOR}
                 onChange={(token) => update(idx, { color: token })}
               />
-              <input
-                className="st-input pl-stage__label"
-                value={stage.label}
-                placeholder={`Stage ${idx + 1}`}
-                autoComplete="off"
-                aria-label={`Stage ${idx + 1} label`}
-                onChange={(e) => update(idx, { label: e.target.value })}
-              />
-              <div className="pl-stage__order">
-                <button
-                  type="button"
-                  className="pl-iconbtn"
-                  aria-label="Move stage up"
+              <div className="min-w-0 flex-1">
+                <Input
+                  value={stage.label}
+                  placeholder={`Stage ${idx + 1}`}
+                  autoComplete="off"
+                  aria-label={`Stage ${idx + 1} label`}
+                  onChange={(e) => update(idx, { label: e.target.value })}
+                />
+              </div>
+              <div className="flex items-center gap-[var(--st-space-1)]">
+                <IconButton
+                  icon={ArrowUp}
+                  label="Move stage up"
+                  variant="ghost"
+                  size="sm"
                   disabled={idx === 0}
                   onClick={() => move(idx, -1)}
-                >
-                  <ArrowUp size={13} />
-                </button>
-                <button
-                  type="button"
-                  className="pl-iconbtn"
-                  aria-label="Move stage down"
+                />
+                <IconButton
+                  icon={ArrowDown}
+                  label="Move stage down"
+                  variant="ghost"
+                  size="sm"
                   disabled={idx === stages.length - 1}
                   onClick={() => move(idx, 1)}
-                >
-                  <ArrowDown size={13} />
-                </button>
+                />
               </div>
-              <button
-                type="button"
-                className="pl-iconbtn pl-iconbtn--danger"
-                aria-label={`Remove stage ${stage.label || idx + 1}`}
+              <IconButton
+                icon={Trash2}
+                label={`Remove stage ${stage.label || idx + 1}`}
+                variant="danger"
+                size="sm"
                 onClick={() => remove(idx)}
-              >
-                <Trash2 size={14} />
-              </button>
+              />
             </div>
           ))
         )}
-        <button type="button" className="pl-stages__add" onClick={add}>
-          <Plus size={14} />
-          Add stage
-        </button>
+        <div>
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
+            Add stage
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Left pane — pipeline list
+// Left pane - pipeline list
 // ---------------------------------------------------------------------------
 
 function PipelineList({
@@ -377,39 +383,51 @@ function PipelineList({
   onSelect: (id: string) => void;
 }): React.JSX.Element {
   return (
-    <nav className="pl-list" aria-label="Pipelines">
+    <nav className="flex flex-col gap-[var(--st-space-1)]" aria-label="Pipelines">
       {pipelines.map((p) => {
         const id = p.id || '';
         const active = id === activeId || (p.id === '' && activeId === '');
         const dirty = dirtyId !== null && dirtyId === id;
         return (
-          <button
+          <Button
             key={p.id || 'draft'}
-            type="button"
-            className={`pl-item${active ? ' active' : ''}`}
+            variant="ghost"
+            block
             aria-current={active ? 'true' : undefined}
             onClick={() => onSelect(id)}
+            className={[
+              '!h-auto justify-start whitespace-normal !px-[var(--st-space-3)] !py-[var(--st-space-2)] border [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:items-center [&_.u-btn__label]:gap-[var(--st-space-2)] [&_.u-btn__label]:overflow-visible',
+              active
+                ? '!border-[var(--st-accent)] !bg-[var(--st-bg-secondary)]'
+                : '!border-[var(--st-border)] !bg-[var(--st-bg)]',
+            ].join(' ')}
           >
-            <span className="pl-item__icon" aria-hidden="true">
+            <span className="text-[var(--st-text-secondary)]" aria-hidden="true">
               <Workflow size={15} />
             </span>
-            <span className="pl-item__body">
-              <span className="pl-item__label">
+            <span className="flex min-w-0 flex-1 flex-col text-left">
+              <span className="flex items-center gap-[var(--st-space-1)] truncate text-[13px] font-medium text-[var(--st-text)]">
                 {p.name || 'Untitled pipeline'}
                 {dirty ? (
-                  <span className="pl-item__dirty" title="Unsaved changes" />
+                  <span
+                    className="inline-block size-1.5 rounded-full bg-[var(--st-accent)]"
+                    title="Unsaved changes"
+                    aria-hidden="true"
+                  />
                 ) : null}
               </span>
-              <span className="pl-item__meta">
-                {p.stages.length}{' '}
-                {p.stages.length === 1 ? 'stage' : 'stages'} ·{' '}
+              <span className="truncate text-[12px] font-normal text-[var(--st-text-tertiary)]">
+                {p.stages.length} {p.stages.length === 1 ? 'stage' : 'stages'}
+                {' . '}
                 {objectLabel(p.object)}
               </span>
             </span>
             {p.isDefault ? (
-              <span className="pl-item__badge">Default</span>
+              <Badge tone="accent" kind="soft">
+                Default
+              </Badge>
             ) : null}
-          </button>
+          </Button>
         );
       })}
     </nav>
@@ -417,7 +435,7 @@ function PipelineList({
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — pipeline editor
+// Right pane - pipeline editor
 // ---------------------------------------------------------------------------
 
 interface EditorProps {
@@ -452,111 +470,109 @@ function PipelineEditor({
   const nameValid = draft.name.trim().length > 0;
   const canSave = dirty && nameValid && stagesValid && !saving && !deleting;
 
+  const knownObject = PIPELINE_OBJECTS.some((o) => o.value === draft.object);
+
   return (
-    <section className="pl-editor" aria-label="Pipeline editor">
-      <div className="pl-editor__head">
-        <div className="pl-editor__title-wrap">
-          <h2 className="pl-editor__title">
+    <Card variant="outlined" padding="none" aria-label="Pipeline editor">
+      <div className="flex items-center justify-between gap-[var(--st-space-3)] border-b border-[var(--st-border)] px-[var(--st-space-4)] py-[var(--st-space-3)]">
+        <div className="flex min-w-0 items-center gap-[var(--st-space-2)]">
+          <h2 className="m-0 flex items-center gap-[var(--st-space-2)] truncate text-[15px] font-semibold text-[var(--st-text)]">
             <Workflow size={18} aria-hidden="true" />
             {isNew ? 'New pipeline' : original.name}
           </h2>
           {draft.isDefault ? (
-            <span className="pl-item__badge pl-item__badge--lg">Default</span>
+            <Badge tone="accent" kind="soft">
+              Default
+            </Badge>
           ) : null}
         </div>
-        <div className="pl-editor__actions">
+        <div className="flex shrink-0 items-center gap-[var(--st-space-2)]">
           {!isNew ? (
-            <TwentyButton
-              variant="ghost"
-              className="st-btn--danger"
-              icon={Trash2}
+            <Button
+              variant="danger"
+              iconLeft={Trash2}
               onClick={onDelete}
               disabled={saving || deleting}
+              loading={deleting}
             >
-              {deleting ? 'Deleting…' : 'Delete'}
-            </TwentyButton>
+              Delete
+            </Button>
           ) : null}
-          <button
-            type="button"
-            className="st-btn st-btn--primary"
+          <Button
+            variant="primary"
             disabled={!canSave}
+            loading={saving}
             onClick={onSave}
           >
-            {saving ? <Loader2 size={14} className="st-spin" /> : null}
             {isNew ? 'Create pipeline' : 'Save changes'}
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="pl-editor__body">
-        <div className="pl-field">
-          <label className="st-field__label" htmlFor="pl-name">
-            Name<span className="st-field__req">*</span>
-          </label>
-          <input
-            id="pl-name"
-            className="st-input"
+      <div className="flex flex-col gap-[var(--st-space-4)] px-[var(--st-space-4)] py-[var(--st-space-4)]">
+        <Field label="Name" required>
+          <Input
             value={draft.name}
             placeholder="Sales pipeline"
             autoComplete="off"
             onChange={(e) => onChange({ ...draft, name: e.target.value })}
           />
-        </div>
+        </Field>
 
-        <div className="pl-field">
-          <label className="st-field__label" htmlFor="pl-object">
-            Object
-          </label>
-          <select
-            id="pl-object"
-            className="st-select"
+        <Field label="Object">
+          <Select
             value={draft.object}
-            onChange={(e) => onChange({ ...draft, object: e.target.value })}
+            onValueChange={(object) => onChange({ ...draft, object })}
           >
-            {PIPELINE_OBJECTS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-            {/* Preserve an unknown stored object so it round-trips. */}
-            {PIPELINE_OBJECTS.some((o) => o.value === draft.object) ? null : (
-              <option value={draft.object}>{draft.object}</option>
-            )}
-          </select>
-        </div>
+            <SelectTrigger aria-label="Object">
+              <SelectValue placeholder="Select an object" />
+            </SelectTrigger>
+            <SelectContent>
+              {PIPELINE_OBJECTS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+              {/* Preserve an unknown stored object so it round-trips. */}
+              {knownObject ? null : (
+                <SelectItem value={draft.object}>{draft.object}</SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+        </Field>
 
         <StagesEditor
           stages={draft.stages}
           onChange={(stages) => onChange({ ...draft, stages })}
         />
 
-        <label className="pl-default">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={Boolean(draft.isDefault)}
-            className={`pl-switch${draft.isDefault ? ' is-on' : ''}`}
-            onClick={() =>
-              onChange({ ...draft, isDefault: !draft.isDefault })
+        <div className="flex items-start gap-[var(--st-space-3)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-[var(--st-space-3)] py-[var(--st-space-3)]">
+          <Switch
+            checked={Boolean(draft.isDefault)}
+            aria-label="Set as default pipeline"
+            onCheckedChange={(checked) =>
+              onChange({ ...draft, isDefault: checked })
             }
-          >
-            <span className="pl-switch__knob" aria-hidden="true" />
-          </button>
-          <span className="pl-default__text">
-            <span className="pl-default__title">
+          />
+          <span className="flex flex-col gap-0.5">
+            <span className="flex items-center gap-[var(--st-space-1)] text-[13px] font-medium text-[var(--st-text)]">
               <Star size={14} aria-hidden="true" />
               Set as default pipeline
             </span>
-            <span className="pl-default__hint">
-              New {objectLabel(draft.object).toLowerCase()} land in this
-              pipeline unless another is chosen.
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
+              New {objectLabel(draft.object).toLowerCase()} land in this pipeline
+              unless another is chosen.
             </span>
           </span>
-        </label>
+        </div>
 
-        {error ? <ErrorBanner message={error} /> : null}
+        {error ? (
+          <Alert tone="danger" icon={AlertTriangle}>
+            {error}
+          </Alert>
+        ) : null}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -567,60 +583,45 @@ function PipelineEditor({
 function DeleteDialog({
   pipeline,
   busy,
-  onCancel,
+  open,
+  onOpenChange,
   onConfirm,
 }: {
   pipeline: Pipeline;
   busy: boolean;
-  onCancel: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete pipeline"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete pipeline</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete pipeline</AlertDialogTitle>
+          <AlertDialogDescription>
             Delete the pipeline{' '}
             <strong className="text-[var(--st-text)]">
               {pipeline.name || 'Untitled pipeline'}
             </strong>
             ? Its stages will be removed. This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            intent="danger"
             disabled={busy}
+            onClick={(e) => {
+              // Keep the dialog open until the async delete settles.
+              e.preventDefault();
+              onConfirm();
+            }}
           >
-            {busy ? 'Deleting…' : 'Delete pipeline'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+            {busy ? 'Deleting...' : 'Delete pipeline'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -630,6 +631,7 @@ function DeleteDialog({
 
 export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [pipelines, setPipelines] = React.useState<Pipeline[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -753,13 +755,15 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
       })),
     };
 
-    const res = draft.id
+    const isUpdate = Boolean(draft.id);
+    const res = isUpdate
       ? await updatePipelineTw(draft.id, input, activeProjectId)
       : await createPipelineTw({ ...input }, activeProjectId);
 
     setSaving(false);
     if (!res.ok) {
       setEditorError(res.error);
+      toast.error(res.error);
       return;
     }
 
@@ -782,7 +786,8 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
         : next;
     });
     selectInto(canonical);
-  }, [draft, activeProjectId, selectInto]);
+    toast.success(isUpdate ? 'Pipeline saved' : 'Pipeline created');
+  }, [draft, activeProjectId, selectInto, toast]);
 
   // ----- Delete -----
 
@@ -795,6 +800,7 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
     if (!res.ok) {
       setEditorError(res.error);
       setDeleteTarget(null);
+      toast.error(res.error);
       return;
     }
     setPipelines((prev) => {
@@ -813,66 +819,77 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
       return next;
     });
     setDeleteTarget(null);
-  }, [deleteTarget, activeProjectId]);
+    toast.success('Pipeline deleted');
+  }, [deleteTarget, activeProjectId, toast]);
 
   // ----- Render -----
 
-  const headerActions =
-    activeProjectId && !error ? (
-      <TwentyButton variant="primary" icon={Plus} onClick={handleNew} disabled={loading}>
-        New
-      </TwentyButton>
-    ) : null;
-
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Pipelines" icon={Workflow} actions={headerActions} />
-        <p className="st-settings__intro">
-          Sales pipelines and their stages. Records move left-to-right through a
-          pipeline&apos;s stages; the default pipeline catches new records.
-        </p>
+    <div className="ui20 mx-auto w-full max-w-[var(--st-page-max,72rem)] px-[var(--st-space-5)] py-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Pipelines</PageTitle>
+          <PageDescription>
+            Sales pipelines and their stages. Records move left-to-right through a
+            pipeline&apos;s stages; the default pipeline catches new records.
+          </PageDescription>
+        </PageHeaderHeading>
+        {activeProjectId && !error ? (
+          <PageActions>
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={handleNew}
+              disabled={loading}
+            >
+              New
+            </Button>
+          </PageActions>
+        ) : null}
+      </PageHeader>
 
+      <div className="mt-[var(--st-space-5)]">
         {isLoadingProject || loading ? (
-          <div className="pl-layout">
-            <div className="st-table-wrap p-[var(--st-space-3)]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="st-skeleton st-skeleton-row" />
-              ))}
-            </div>
-            <div className="st-table-wrap p-[var(--st-space-3)]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="st-skeleton st-skeleton-row" />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-[18rem_minmax(0,1fr)]">
+            <Card variant="outlined" padding="md">
+              <div className="flex flex-col gap-[var(--st-space-2)]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} height={40} radius={8} />
+                ))}
+              </div>
+            </Card>
+            <Card variant="outlined" padding="md">
+              <div className="flex flex-col gap-[var(--st-space-2)]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} height={40} radius={8} />
+                ))}
+              </div>
+            </Card>
           </div>
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to manage its sales pipelines.
-            </p>
-          </div>
+          <EmptyState
+            icon={AlertTriangle}
+            tone="warning"
+            title="No project selected"
+            description="Select a project to manage its sales pipelines."
+          />
         ) : error ? (
-          <ErrorBanner message={error} />
+          <Alert tone="danger" icon={AlertTriangle}>
+            {error}
+          </Alert>
         ) : pipelines.length === 0 && activeId !== '' ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <Workflow size={20} />
-            </span>
-            <h2 className="st-empty__title">No pipelines yet</h2>
-            <p className="st-empty__desc">
-              Create your first sales pipeline to organise records into stages.
-            </p>
-            <TwentyButton variant="primary" icon={Plus} onClick={handleNew}>
-              New pipeline
-            </TwentyButton>
-          </div>
+          <EmptyState
+            icon={Workflow}
+            title="No pipelines yet"
+            description="Create your first sales pipeline to organise records into stages."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={handleNew}>
+                New pipeline
+              </Button>
+            }
+          />
         ) : (
-          <div className="pl-layout">
+          <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-[18rem_minmax(0,1fr)]">
             <PipelineList
               pipelines={listPipelines}
               activeId={activeId}
@@ -892,9 +909,13 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
                 onDelete={() => setDeleteTarget(draft)}
               />
             ) : (
-              <div className="pl-editor__placeholder">
+              <Card
+                variant="ghost"
+                padding="lg"
+                className="grid min-h-[12rem] place-items-center text-center text-[13px] text-[var(--st-text-secondary)]"
+              >
                 Select a pipeline to edit its stages, or create a new one.
-              </div>
+              </Card>
             )}
           </div>
         )}
@@ -904,7 +925,10 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
         <DeleteDialog
           pipeline={deleteTarget}
           busy={deleting}
-          onCancel={() => setDeleteTarget(null)}
+          open={Boolean(deleteTarget)}
+          onOpenChange={(o) => {
+            if (!o && !deleting) setDeleteTarget(null);
+          }}
           onConfirm={confirmDelete}
         />
       ) : null}

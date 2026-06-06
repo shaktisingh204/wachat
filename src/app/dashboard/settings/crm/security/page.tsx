@@ -1,43 +1,42 @@
 'use client';
 
 /**
- * SabCRM — Security & Access settings (`/dashboard/settings/crm/security`), Twenty-style.
+ * SabCRM - Security & Access settings (`/dashboard/settings/crm/security`).
  *
- * Modelled on Twenty's Settings → Security page and wired to the real account /
- * two-factor server actions that already exist in this codebase. Sections that
- * have a backend are live; the two that don't (IP allowlist, approved email
- * domains) stay honest local-only preferences with a clear note.
+ * Pure 20ui rebuild. Wired to the real account / two-factor server actions that
+ * already exist in this codebase. Sections that have a backend are live; the two
+ * that don't (IP allowlist, approved email domains) stay honest local-only
+ * preferences with a clear note.
  *
  * Wired sections:
  *
- *   1. Two-factor authentication — live via `@/app/actions/two-fa.actions`:
+ *   1. Two-factor authentication - live via `@/app/actions/two-fa.actions`:
  *      reads `getMy2faStatus`, enrols a TOTP authenticator
- *      (`generateAuthenticator2faSecret` → `verifyAuthenticator2faSetup`) or an
- *      email method (`enableEmail2fa` → `verifyEmail2faCode`), disables
+ *      (`generateAuthenticator2faSecret` -> `verifyAuthenticator2faSetup`) or an
+ *      email method (`enableEmail2fa` -> `verifyEmail2faCode`), disables
  *      (`disable2fa(password)` for TOTP, `disableEmail2fa()` for email) and
  *      regenerates backup codes (`regenerateBackupCodes`). Real challenges,
  *      real backup codes, real persistence.
- *   2. Sessions — live via `@/app/actions/account.actions`: lists active
+ *   2. Sessions - live via `@/app/actions/account.actions`: lists active
  *      sessions (`getActiveSessions`) and revokes everywhere
  *      (`signOutEverywhere`). The backend currently tracks only the current
  *      device, so the note is honest about per-device revocation.
- *   3. Recent sign-in activity — live via `getRecentLoginAttempts`.
- *   4. Password — live via `handleChangePassword` (`useActionState`). The server
+ *   3. Recent sign-in activity - live via `getRecentLoginAttempts`.
+ *   4. Password - live via `handleChangePassword` (`useActionState`). The server
  *      action currently validates but does not yet persist the new hash; the
  *      note says so.
  *
  * Honest local-only sections (no backend action exists):
  *
- *   5. IP allowlist — add / remove IPs or CIDR ranges (advisory).
- *   6. Approved email domains — add / remove domains (advisory).
+ *   5. IP allowlist - add / remove IPs or CIDR ranges (advisory).
+ *   6. Approved email domains - add / remove domains (advisory).
  *
  * Graceful states: every action returns a typed result and is wrapped so a
  * missing/down backend degrades to an inline message rather than a throw. The
  * local lists persist to `localStorage` and never throw on storage failure.
  *
- * Rendered inside the settings layout's `TwentyAppFrame` (`.sabcrm-twenty`
- * scope); all visuals come from the `.st-*` Twenty design system plus this
- * page's `security.css`. No ZoruUI / Tailwind / clay.
+ * Design system: 20ui (`@/components/sabcrm/20ui`) only - primitives + the
+ * `--st-*` token palette. No ZoruUI / Twenty / clay / raw controls.
  */
 
 import * as React from 'react';
@@ -51,18 +50,36 @@ import {
   AtSign,
   Plus,
   X,
-  Info,
   LogOut,
-  Minus,
   Check,
   Copy,
   RefreshCw,
   AlertTriangle,
   History,
-  Loader2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Button,
+  IconButton,
+  Input,
+  Field,
+  Badge,
+  Dot,
+  Callout,
+  Spinner,
+  Skeleton,
+  RadioGroup,
+  Radio,
+} from '@/components/sabcrm/20ui';
 
 import {
   getMy2faStatus,
@@ -81,10 +98,6 @@ import {
 } from '@/app/actions/account.actions';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import { useSettingsSync } from '../use-settings-sync';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './security.css';
 
 // ---------------------------------------------------------------------------
 // Local preferences store (advisory IP allowlist + approved domains only)
@@ -143,7 +156,7 @@ function writeStored(prefs: SecurityPrefs): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
   } catch {
-    /* quota / private mode — preferences stay in-memory only */
+    /* quota / private mode - preferences stay in-memory only */
   }
 }
 
@@ -158,7 +171,7 @@ function useSecurityPrefs(): UseSecurityPrefsResult {
   const [hydrated, setHydrated] = React.useState(false);
   // Server persistence via the typed `security` section (ipAllowlist +
   // emailDomains). localStorage stays the instant cache; the server copy
-  // follows the workspace across devices. Fails closed (engine down → cache).
+  // follows the workspace across devices. Fails closed (engine down -> cache).
   const sync = useSettingsSync<SecurityPrefs>('security', coercePrefsOrNull);
 
   React.useEffect(() => {
@@ -194,8 +207,8 @@ function useSecurityPrefs(): UseSecurityPrefsResult {
 // ---------------------------------------------------------------------------
 
 /**
- * Loose IPv4 / IPv4-CIDR sanity check. Intentionally permissive — this is an
- * advisory list, not a firewall — but it rejects obvious garbage so the list
+ * Loose IPv4 / IPv4-CIDR sanity check. Intentionally permissive - this is an
+ * advisory list, not a firewall - but it rejects obvious garbage so the list
  * stays meaningful. IPv6 is accepted in a minimal `:`-containing form.
  */
 function isValidIpEntry(value: string): boolean {
@@ -215,7 +228,7 @@ function isValidIpEntry(value: string): boolean {
   return true;
 }
 
-/** Loose domain check — no scheme, no path, at least one dot. */
+/** Loose domain check - no scheme, no path, at least one dot. */
 function isValidDomain(value: string): boolean {
   const v = value.trim().toLowerCase();
   if (!v) return false;
@@ -235,7 +248,7 @@ function normalizeDomain(value: string): string {
 // Small presentational primitives (local to this page)
 // ---------------------------------------------------------------------------
 
-/** A Twenty-style settings card with an icon, title and supporting copy. */
+/** A 20ui settings card with a leading icon chip, title and supporting copy. */
 function SecCard({
   icon: Icon,
   title,
@@ -248,18 +261,25 @@ function SecCard({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <section className="st-sec-card">
-      <div className="st-sec-card__head">
-        <span className="st-sec-card__icon" aria-hidden="true">
-          <Icon size={16} />
-        </span>
-        <div className="st-sec-card__heading">
-          <h2 className="st-sec-card__title">{title}</h2>
-          <p className="st-sec-card__desc">{description}</p>
+    <Card variant="outlined" padding="lg">
+      <CardHeader>
+        <div className="flex items-start gap-3">
+          <span
+            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          >
+            <Icon size={16} />
+          </span>
+          <div>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
         </div>
-      </div>
-      <div className="st-sec-card__body">{children}</div>
-    </section>
+      </CardHeader>
+      <CardBody>
+        <div className="flex flex-col gap-4">{children}</div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -274,33 +294,20 @@ function ControlRow({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className="st-sec-row">
-      <div className="st-sec-row__text">
-        <span className="st-sec-row__title">{title}</span>
-        {hint ? <span className="st-sec-row__hint">{hint}</span> : null}
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium text-[var(--st-text)]">{title}</span>
+        {hint ? (
+          <span className="text-xs text-[var(--st-text-secondary)]">{hint}</span>
+        ) : null}
       </div>
-      <div className="st-sec-row__control">{children}</div>
+      <div className="flex items-center gap-2">{children}</div>
     </div>
   );
-}
-
-/** Honest "needs the backend" footnote shown inside a card. */
-function BackendNote({ children }: { children: React.ReactNode }): React.JSX.Element {
-  return (
-    <div className="st-sec-note">
-      <Info className="st-sec-note__icon" size={14} aria-hidden="true" />
-      <span>{children}</span>
-    </div>
-  );
-}
-
-/** A spinning loader icon sized for inline use in buttons. */
-function Spinner(): React.JSX.Element {
-  return <Loader2 size={14} className="st-sec-spin" aria-hidden="true" />;
 }
 
 // ---------------------------------------------------------------------------
-// List manager — shared by the IP allowlist and the email-domain list
+// List manager - shared by the IP allowlist and the email-domain list
 // ---------------------------------------------------------------------------
 
 interface ListManagerProps {
@@ -358,52 +365,50 @@ function ListManager({
   );
 
   return (
-    <div className="st-sec-list">
-      <div className="st-sec-list__input">
-        <input
-          className="st-input"
-          type="text"
-          value={value}
-          aria-label={inputLabel}
-          placeholder={placeholder}
-          autoComplete="off"
-          spellCheck={false}
-          onChange={(e) => {
-            setValue(e.target.value);
-            if (error) setError(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              add();
-            }
-          }}
-        />
-        <TwentyButton variant="secondary" icon={Plus} onClick={add}>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-end gap-2">
+        <Field className="flex-1" label={inputLabel} error={error ?? undefined}>
+          <Input
+            type="text"
+            value={value}
+            placeholder={placeholder}
+            autoComplete="off"
+            spellCheck={false}
+            invalid={Boolean(error)}
+            className={monospace ? 'font-mono' : undefined}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (error) setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                add();
+              }
+            }}
+          />
+        </Field>
+        <Button variant="secondary" iconLeft={Plus} onClick={add}>
           {addLabel}
-        </TwentyButton>
+        </Button>
       </div>
 
-      {error ? <p className="st-form-error">{error}</p> : null}
-
       {items.length === 0 ? (
-        <p className="st-sec-list__empty">{emptyLabel}</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">{emptyLabel}</p>
       ) : (
-        <ul className="st-sec-chips">
+        <ul className="flex flex-wrap gap-2">
           {items.map((item) => (
             <li
               key={item}
-              className={`st-sec-chip${monospace ? ' st-sec-chip--mono' : ''}`}
+              className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-1 pl-2.5 pr-1 text-xs text-[var(--st-text)]"
             >
-              <span className="st-sec-chip__value">{item}</span>
-              <button
-                type="button"
-                className="st-sec-chip__remove"
-                aria-label={`Remove ${item}`}
+              <span className={monospace ? 'font-mono' : undefined}>{item}</span>
+              <IconButton
+                size="sm"
+                label={`Remove ${item}`}
+                icon={X}
                 onClick={() => remove(item)}
-              >
-                <X size={12} />
-              </button>
+              />
             </li>
           ))}
         </ul>
@@ -418,27 +423,27 @@ function ListManager({
 
 function SecuritySkeleton(): React.JSX.Element {
   return (
-    <div className="st-sec-stack" aria-hidden="true">
+    <div className="flex flex-col gap-4" aria-hidden="true">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="st-sec-card">
-          <div className="st-sec-card__head">
-            <div className="st-skeleton" style={{ width: 32, height: 32 }} />
-            <div style={{ flex: 1 }}>
-              <div className="st-skeleton" style={{ width: 180, height: 13, marginBottom: 8 }} />
-              <div className="st-skeleton" style={{ width: 280, height: 11 }} />
+        <Card key={i} variant="outlined" padding="lg">
+          <div className="flex items-start gap-3">
+            <Skeleton width={32} height={32} radius={6} />
+            <div className="flex-1">
+              <Skeleton width={180} height={13} className="mb-2" />
+              <Skeleton width={280} height={11} />
             </div>
           </div>
-          <div className="st-sec-card__body">
-            <div className="st-skeleton st-skeleton-row" />
+          <div className="mt-4">
+            <Skeleton width="100%" height={40} radius={6} />
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// "This device" descriptor — derived from the browser, best-effort.
+// "This device" descriptor - derived from the browser, best-effort.
 // ---------------------------------------------------------------------------
 
 function describeThisDevice(): string {
@@ -497,7 +502,7 @@ interface ActiveSession {
 }
 
 // ---------------------------------------------------------------------------
-// Backup-codes display block — reused after enrolment + regeneration.
+// Backup-codes display block - reused after enrolment + regeneration.
 // ---------------------------------------------------------------------------
 
 function BackupCodes({
@@ -518,38 +523,45 @@ function BackupCodes({
         window.setTimeout(() => setCopied(false), 2500);
       })
       .catch(() => {
-        /* clipboard blocked — codes are still visible on screen */
+        /* clipboard blocked - codes are still visible on screen */
       });
   }, [codes]);
 
   return (
-    <div className="st-sec-backup">
-      <div className="st-sec-backup__head">
-        <AlertTriangle size={14} aria-hidden="true" />
+    <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+      <div className="flex items-start gap-2 text-xs text-[var(--st-text-secondary)]">
+        <AlertTriangle
+          size={14}
+          className="mt-0.5 shrink-0 text-[var(--st-warn)]"
+          aria-hidden="true"
+        />
         <span>
           Save these backup codes somewhere safe. Each can be used once if you
-          lose access to your second factor — they won&apos;t be shown again.
+          lose access to your second factor, and they won&apos;t be shown again.
         </span>
       </div>
-      <ul className="st-sec-backup__grid">
+      <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
         {codes.map((c) => (
-          <li key={c} className="st-sec-backup__code">
+          <li
+            key={c}
+            className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg)] px-2 py-1.5 text-center font-mono text-sm tracking-wider text-[var(--st-text)]"
+          >
             {c}
           </li>
         ))}
       </ul>
-      <div className="st-sec-backup__actions">
-        <TwentyButton
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
           variant="secondary"
-          icon={copied ? Check : Copy}
+          iconLeft={copied ? Check : Copy}
           onClick={copy}
         >
           {copied ? 'Copied' : 'Copy codes'}
-        </TwentyButton>
+        </Button>
         {onDone ? (
-          <TwentyButton variant="primary" icon={Check} onClick={onDone}>
+          <Button variant="primary" iconLeft={Check} onClick={onDone}>
             I&apos;ve saved them
-          </TwentyButton>
+          </Button>
         ) : null}
       </div>
     </div>
@@ -736,9 +748,9 @@ function TwoFactorCard(): React.JSX.Element {
         title="Two-factor authentication"
         description="Require a second factor in addition to a password when signing in."
       >
-        <div className="st-sec-row">
-          <span className="st-sec-row__hint">Loading two-factor status…</span>
-        </div>
+        <span className="text-xs text-[var(--st-text-secondary)]">
+          Loading two-factor status.
+        </span>
       </SecCard>
     );
   }
@@ -750,10 +762,12 @@ function TwoFactorCard(): React.JSX.Element {
         title="Two-factor authentication"
         description="Require a second factor in addition to a password when signing in."
       >
-        <p className="st-form-error">{loadError}</p>
-        <TwentyButton variant="secondary" icon={RefreshCw} onClick={() => void refresh()}>
-          Retry
-        </TwentyButton>
+        <Callout tone="danger">{loadError}</Callout>
+        <div>
+          <Button variant="secondary" iconLeft={RefreshCw} onClick={() => void refresh()}>
+            Retry
+          </Button>
+        </div>
       </SecCard>
     );
   }
@@ -777,12 +791,9 @@ function TwoFactorCard(): React.JSX.Element {
             : 'Protect your account by requiring a second factor at sign-in.'
         }
       >
-        <span
-          className={`st-sec-state${enabled ? ' st-sec-state--on' : ''}`}
-          aria-hidden="true"
-        >
+        <Badge tone={enabled ? 'success' : 'neutral'} dot>
           {enabled ? 'Enabled' : 'Disabled'}
-        </span>
+        </Badge>
       </ControlRow>
 
       {/* Just-enrolled / regenerated backup codes */}
@@ -793,33 +804,32 @@ function TwoFactorCard(): React.JSX.Element {
         />
       ) : null}
 
-      {actionError ? <p className="st-form-error">{actionError}</p> : null}
+      {actionError ? <Callout tone="danger">{actionError}</Callout> : null}
 
       {/* ---- Enabled: manage / disable ---- */}
       {enabled && !disableOpen ? (
-        <div className="st-sec-session__action">
-          <TwentyButton
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
             variant="secondary"
-            icon={RefreshCw}
+            iconLeft={RefreshCw}
+            loading={busy}
             onClick={() => void regenerate()}
-            disabled={busy}
           >
-            {busy ? <Spinner /> : null}
             Regenerate backup codes
-          </TwentyButton>
-          <TwentyButton
+          </Button>
+          <Button
             variant="secondary"
-            icon={X}
+            iconLeft={X}
+            disabled={busy}
             onClick={() => {
               setActionError(null);
               setDisableOpen(true);
             }}
-            disabled={busy}
           >
             Turn off
-          </TwentyButton>
+          </Button>
           {status && status.backupCodesRemaining > 0 ? (
-            <span className="st-sec-row__hint">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               {status.backupCodesRemaining} backup code
               {status.backupCodesRemaining === 1 ? '' : 's'} remaining.
             </span>
@@ -829,213 +839,236 @@ function TwoFactorCard(): React.JSX.Element {
 
       {/* ---- Disable confirmation ---- */}
       {enabled && disableOpen ? (
-        <div className="st-sec-enroll">
+        <div className="flex flex-col gap-3">
           {status?.method === 'email' ? (
-            <p className="st-sec-row__hint">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               This will remove email-based two-factor from your account.
             </p>
           ) : (
-            <>
-              <label className="st-sec-row__title" htmlFor="twofa-disable-pw">
-                Confirm your password to turn off two-factor
-              </label>
-              <input
-                id="twofa-disable-pw"
-                className="st-input"
+            <Field label="Confirm your password to turn off two-factor">
+              <Input
                 type="password"
                 autoComplete="current-password"
                 value={disablePassword}
                 placeholder="Your account password"
                 onChange={(e) => setDisablePassword(e.target.value)}
               />
-            </>
+            </Field>
           )}
-          <div className="st-sec-session__action">
-            <TwentyButton
-              variant="primary"
-              icon={X}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="danger"
+              iconLeft={X}
+              loading={busy}
+              disabled={status?.method !== 'email' && !disablePassword}
               onClick={() => void disable()}
-              disabled={busy || (status?.method !== 'email' && !disablePassword)}
             >
-              {busy ? <Spinner /> : null}
               Turn off two-factor
-            </TwentyButton>
-            <TwentyButton
+            </Button>
+            <Button
               variant="ghost"
+              disabled={busy}
               onClick={() => {
                 setDisableOpen(false);
                 setDisablePassword('');
                 setActionError(null);
               }}
-              disabled={busy}
             >
               Cancel
-            </TwentyButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
       {/* ---- Disabled: enrolment ---- */}
       {!enabled && mode === 'idle' ? (
-        <div className="st-sec-session__action">
-          <TwentyButton
+        <div>
+          <Button
             variant="primary"
-            icon={ShieldCheck}
+            iconLeft={ShieldCheck}
             onClick={() => {
               setActionError(null);
               setMode('choose');
             }}
           >
             Enable two-factor
-          </TwentyButton>
+          </Button>
         </div>
       ) : null}
 
       {!enabled && mode === 'choose' ? (
-        <fieldset className="st-sec-radios" disabled={busy}>
-          <legend className="st-sec-radios__legend">Choose a method</legend>
-
-          <button
-            type="button"
-            className="st-sec-radio st-sec-radio--button"
-            onClick={() => void startTotp()}
-            disabled={busy}
+        <div className="flex flex-col gap-3">
+          <RadioGroup
+            aria-label="Choose a two-factor method"
+            value=""
+            onValueChange={(next) => {
+              if (busy) return;
+              if (next === 'totp') void startTotp();
+              else if (next === 'email') void startEmail();
+            }}
           >
-            <span className="st-sec-radio__icon" aria-hidden="true">
-              <Smartphone size={15} />
+            <span className="text-sm font-medium text-[var(--st-text)]">
+              Choose a method
             </span>
-            <span className="st-sec-radio__text">
-              <span className="st-sec-radio__title">Authenticator app (TOTP)</span>
-              <span className="st-sec-radio__desc">
-                Use a time-based one-time code from an app like Google
-                Authenticator or 1Password.
-              </span>
-            </span>
-            {busy ? <Spinner /> : null}
-          </button>
 
-          <button
-            type="button"
-            className="st-sec-radio st-sec-radio--button"
-            onClick={() => void startEmail()}
-            disabled={busy}
-          >
-            <span className="st-sec-radio__icon" aria-hidden="true">
-              <Mail size={15} />
-            </span>
-            <span className="st-sec-radio__text">
-              <span className="st-sec-radio__title">Email code</span>
-              <span className="st-sec-radio__desc">
-                Receive a one-time code by email
-                {status?.email ? ` at ${status.email}` : ''} at each sign-in.
-              </span>
-            </span>
-            {busy ? <Spinner /> : null}
-          </button>
+            <Radio
+              value="totp"
+              disabled={busy}
+              label={
+                <span className="flex items-start gap-3">
+                  <span
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                    aria-hidden="true"
+                  >
+                    <Smartphone size={15} />
+                  </span>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
+                      Authenticator app (TOTP)
+                    </span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">
+                      Use a time-based one-time code from an app like Google
+                      Authenticator or 1Password.
+                    </span>
+                  </span>
+                </span>
+              }
+            />
 
-          <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
-            Cancel
-          </TwentyButton>
-        </fieldset>
+            <Radio
+              value="email"
+              disabled={busy}
+              label={
+                <span className="flex items-start gap-3">
+                  <span
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                    aria-hidden="true"
+                  >
+                    <Mail size={15} />
+                  </span>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
+                      Email code
+                    </span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">
+                      Receive a one-time code by email
+                      {status?.email ? ` at ${status.email}` : ''} at each
+                      sign-in.
+                    </span>
+                  </span>
+                </span>
+              }
+            />
+          </RadioGroup>
+
+          <div className="flex items-center gap-2">
+            {busy ? <Spinner size="sm" /> : null}
+            <Button variant="ghost" onClick={resetEnroll} disabled={busy}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       ) : null}
 
       {/* ---- TOTP enrolment: show QR/secret + verify ---- */}
       {!enabled && mode === 'totp' ? (
-        <div className="st-sec-enroll">
-          <p className="st-sec-row__title">Scan this in your authenticator app</p>
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium text-[var(--st-text)]">
+            Scan this in your authenticator app
+          </p>
           {totpQr ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="st-sec-qr" src={totpQr} alt="Two-factor QR code" />
+            <img
+              className="h-40 w-40 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+              src={totpQr}
+              alt="Two-factor QR code"
+            />
           ) : null}
           {totpSecret ? (
-            <p className="st-sec-row__hint">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Or enter this key manually:{' '}
-              <code className="st-sec-secret">{totpSecret}</code>
+              <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-mono text-[var(--st-text)]">
+                {totpSecret}
+              </code>
             </p>
           ) : null}
-          <label className="st-sec-row__title" htmlFor="twofa-totp-code">
-            Enter the 6-digit code from your app
-          </label>
-          <input
-            id="twofa-totp-code"
-            className="st-input st-sec-code-input"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            value={code}
-            placeholder="000000"
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                void verify();
-              }
-            }}
-          />
-          <div className="st-sec-session__action">
-            <TwentyButton
+          <Field label="Enter the 6-digit code from your app">
+            <Input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              placeholder="000000"
+              className="max-w-[10rem] font-mono tracking-[0.4em]"
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  void verify();
+                }
+              }}
+            />
+          </Field>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
               variant="primary"
-              icon={Check}
+              iconLeft={Check}
+              loading={busy}
               onClick={() => void verify()}
-              disabled={busy}
             >
-              {busy ? <Spinner /> : null}
-              Verify &amp; enable
-            </TwentyButton>
-            <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
+              Verify and enable
+            </Button>
+            <Button variant="ghost" onClick={resetEnroll} disabled={busy}>
               Cancel
-            </TwentyButton>
+            </Button>
           </div>
         </div>
       ) : null}
 
       {/* ---- Email enrolment: verify ---- */}
       {!enabled && mode === 'email' ? (
-        <div className="st-sec-enroll">
-          <p className="st-sec-row__hint">
+        <div className="flex flex-col gap-3">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             We sent a 6-digit code{status?.email ? ` to ${status.email}` : ''}.
             Enter it below to turn on email two-factor.
           </p>
-          <label className="st-sec-row__title" htmlFor="twofa-email-code">
-            Verification code
-          </label>
-          <input
-            id="twofa-email-code"
-            className="st-input st-sec-code-input"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            value={code}
-            placeholder="000000"
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                void verify();
-              }
-            }}
-          />
-          <div className="st-sec-session__action">
-            <TwentyButton
+          <Field label="Verification code">
+            <Input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              placeholder="000000"
+              className="max-w-[10rem] font-mono tracking-[0.4em]"
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  void verify();
+                }
+              }}
+            />
+          </Field>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
               variant="primary"
-              icon={Check}
+              iconLeft={Check}
+              loading={busy}
               onClick={() => void verify()}
-              disabled={busy}
             >
-              {busy ? <Spinner /> : null}
-              Verify &amp; enable
-            </TwentyButton>
-            <TwentyButton
+              Verify and enable
+            </Button>
+            <Button
               variant="secondary"
-              icon={Mail}
-              onClick={() => void startEmail()}
+              iconLeft={Mail}
               disabled={busy}
+              onClick={() => void startEmail()}
             >
               Resend code
-            </TwentyButton>
-            <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
+            </Button>
+            <Button variant="ghost" onClick={resetEnroll} disabled={busy}>
               Cancel
-            </TwentyButton>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -1090,55 +1123,65 @@ function SessionsCard(): React.JSX.Element {
       title="Sessions"
       description="Devices currently signed in to this workspace."
     >
-      {loadError ? <p className="st-form-error">{loadError}</p> : null}
+      {loadError ? <Callout tone="danger">{loadError}</Callout> : null}
 
       {sessions === null && !loadError ? (
-        <span className="st-sec-row__hint">Loading sessions…</span>
+        <span className="text-xs text-[var(--st-text-secondary)]">
+          Loading sessions.
+        </span>
       ) : null}
 
       {sessions?.map((s) => (
-        <div key={s.id} className="st-sec-session">
-          <span className="st-sec-session__icon" aria-hidden="true">
+        <div
+          key={s.id}
+          className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+        >
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          >
             <Monitor size={16} />
           </span>
-          <div className="st-sec-session__text">
-            <span className="st-sec-session__title">
+          <div className="flex flex-col gap-0.5">
+            <span className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
               {s.current ? deviceLabel : s.device}
               {s.current ? (
-                <span className="st-sec-session__badge">This device</span>
+                <Badge tone="accent" kind="soft">
+                  This device
+                </Badge>
               ) : null}
             </span>
-            <span className="st-sec-session__sub">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               {s.current ? 'Active now' : s.location || s.ip || 'Signed in'}
             </span>
           </div>
         </div>
       ))}
 
-      <div className="st-sec-session__action">
-        <TwentyButton
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
           variant="secondary"
-          icon={revoked ? Check : LogOut}
+          iconLeft={revoked ? Check : LogOut}
+          loading={revoking}
+          disabled={revoked}
           onClick={() => void revokeAll()}
-          disabled={revoking || revoked}
         >
-          {revoking ? <Spinner /> : null}
           {revoked ? 'Signed out everywhere' : 'Sign out all sessions'}
-        </TwentyButton>
+        </Button>
         {revoked ? (
-          <span className="st-sec-row__hint" role="status">
-            All sessions revoked — every device, including this one, will be
+          <span className="text-xs text-[var(--st-text-secondary)]" role="status">
+            All sessions revoked. Every device, including this one, will be
             signed out on the next request.
           </span>
         ) : null}
       </div>
 
-      <BackendNote>
+      <Callout tone="info">
         Sign-out everywhere revokes all tokens immediately. Per-device session
-        rows aren&apos;t tracked yet, so only the current device is listed —
-        once a session registry lands, every signed-in device will appear here
-        with its own revoke control.
-      </BackendNote>
+        rows aren&apos;t tracked yet, so only the current device is listed. Once
+        a session registry lands, every signed-in device will appear here with
+        its own revoke control.
+      </Callout>
     </SecCard>
   );
 }
@@ -1191,38 +1234,52 @@ function LoginActivityCard(): React.JSX.Element {
       title="Recent sign-in activity"
       description="The last few attempts to sign in to your account."
     >
-      {loadError ? <p className="st-form-error">{loadError}</p> : null}
+      {loadError ? <Callout tone="danger">{loadError}</Callout> : null}
 
       {rows === null && !loadError ? (
-        <span className="st-sec-row__hint">Loading activity…</span>
+        <span className="text-xs text-[var(--st-text-secondary)]">
+          Loading activity.
+        </span>
       ) : null}
 
       {rows && rows.length === 0 ? (
-        <p className="st-sec-list__empty">No recent sign-in attempts recorded.</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          No recent sign-in attempts recorded.
+        </p>
       ) : null}
 
       {rows && rows.length > 0 ? (
-        <ul className="st-sec-activity">
+        <ul className="flex flex-col">
           {rows.map((r) => (
-            <li key={r._id} className="st-sec-activity__row">
-              <span
-                className={`st-sec-activity__dot st-sec-activity__dot--${r.status}`}
-                aria-hidden="true"
+            <li
+              key={r._id}
+              className="flex items-center gap-3 border-b border-[var(--st-border-light)] py-2.5 last:border-b-0"
+            >
+              <Dot
+                tone={
+                  r.status === 'success'
+                    ? 'success'
+                    : r.status === 'pending_2fa'
+                      ? 'warning'
+                      : 'danger'
+                }
               />
-              <span className="st-sec-activity__text">
-                <span className="st-sec-activity__status">
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-sm text-[var(--st-text)]">
                   {r.status === 'success'
                     ? 'Successful sign-in'
                     : r.status === 'pending_2fa'
                       ? 'Awaiting two-factor'
                       : 'Failed attempt'}
                 </span>
-                <span className="st-sec-activity__meta">
+                <span className="truncate text-xs text-[var(--st-text-secondary)]">
                   {r.ip}
-                  {r.userAgent && r.userAgent !== 'Unknown' ? ` · ${r.userAgent}` : ''}
+                  {r.userAgent && r.userAgent !== 'Unknown' ? `, ${r.userAgent}` : ''}
                 </span>
               </span>
-              <span className="st-sec-activity__time">{relativeTime(r.createdAt)}</span>
+              <span className="shrink-0 text-xs text-[var(--st-text-tertiary)]">
+                {relativeTime(r.createdAt)}
+              </span>
             </li>
           ))}
         </ul>
@@ -1232,7 +1289,7 @@ function LoginActivityCard(): React.JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
-// Password card — wired to `handleChangePassword` via useActionState.
+// Password card - wired to `handleChangePassword` via useActionState.
 // ---------------------------------------------------------------------------
 
 const PASSWORD_INITIAL: { message?: string; error?: string } = {
@@ -1252,74 +1309,56 @@ function PasswordCard(): React.JSX.Element {
       title="Password"
       description="Change the password used to sign in to your account."
     >
-      <form action={formAction} className="st-sec-form">
-        <div className="st-sec-field">
-          <label className="st-sec-row__title" htmlFor="pw-current">
-            Current password
-          </label>
-          <input
-            id="pw-current"
+      <form action={formAction} className="flex flex-col gap-3">
+        <Field label="Current password">
+          <Input
             name="currentPassword"
-            className="st-input"
             type="password"
             autoComplete="current-password"
             required
           />
-        </div>
-        <div className="st-sec-field">
-          <label className="st-sec-row__title" htmlFor="pw-new">
-            New password
-          </label>
-          <input
-            id="pw-new"
+        </Field>
+        <Field label="New password">
+          <Input
             name="newPassword"
-            className="st-input"
             type="password"
             autoComplete="new-password"
             minLength={6}
             required
           />
-        </div>
-        <div className="st-sec-field">
-          <label className="st-sec-row__title" htmlFor="pw-confirm">
-            Confirm new password
-          </label>
-          <input
-            id="pw-confirm"
+        </Field>
+        <Field label="Confirm new password">
+          <Input
             name="confirmPassword"
-            className="st-input"
             type="password"
             autoComplete="new-password"
             minLength={6}
             required
           />
-        </div>
+        </Field>
 
-        {state.error ? <p className="st-form-error">{state.error}</p> : null}
+        {state.error ? <Callout tone="danger">{state.error}</Callout> : null}
         {state.message ? (
-          <p className="st-form-success" role="status">
-            {state.message}
-          </p>
+          <Callout tone="success">{state.message}</Callout>
         ) : null}
 
         <div>
-          <TwentyButton
+          <Button
             type="submit"
             variant="primary"
-            icon={KeyRound}
-            disabled={pending}
+            iconLeft={KeyRound}
+            loading={pending}
           >
-            {pending ? <Spinner /> : null}
             Update password
-          </TwentyButton>
+          </Button>
         </div>
       </form>
 
-      <BackendNote>
+      <Callout tone="info">
         Password rules are validated server-side. Note that the change-password
-        action currently confirms the request without persisting a new hash —
-        full enforcement lands with the account-credential backend.
-      </BackendNote>
+        action currently confirms the request without persisting a new hash.
+        Full enforcement lands with the account-credential backend.
+      </Callout>
     </SecCard>
   );
 }
@@ -1332,20 +1371,24 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
   const { prefs, setPrefs, hydrated } = useSecurityPrefs();
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Security" icon={ShieldCheck} />
-        <p className="st-settings__intro">
-          Access controls for your account and this workspace — two-factor
-          authentication, active sessions, sign-in activity, your password, and
-          network / domain allowlists. The notes call out where enforcement is
-          live and where it still needs server support.
-        </p>
+    <div className="ui20">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Security</PageTitle>
+            <PageDescription>
+              Access controls for your account and this workspace: two-factor
+              authentication, active sessions, sign-in activity, your password,
+              and network / domain allowlists. The notes call out where
+              enforcement is live and where it still needs server support.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
         {!hydrated ? (
           <SecuritySkeleton />
         ) : (
-          <div className="st-sec-stack">
+          <div className="flex flex-col gap-4">
             {/* Two-factor authentication (live) */}
             <TwoFactorCard />
 
@@ -1369,19 +1412,19 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
                 placeholder="e.g. 203.0.113.7 or 10.0.0.0/24"
                 inputLabel="IP address or CIDR range"
                 addLabel="Add IP"
-                emptyLabel="No IP restrictions — access is allowed from any address."
+                emptyLabel="No IP restrictions. Access is allowed from any address."
                 validate={isValidIpEntry}
                 invalidMessage="Enter a valid IPv4/IPv6 address or CIDR range."
                 onChange={(next) => setPrefs({ ipAllowlist: next })}
                 monospace
               />
 
-              <BackendNote>
+              <Callout tone="info">
                 Listing addresses here doesn&apos;t block anything yet. Network
                 enforcement (checking the request IP against this list) has to
-                happen on the backend / edge — there&apos;s no IP-allowlist
+                happen on the backend / edge. There&apos;s no IP-allowlist
                 action to wire to.
-              </BackendNote>
+              </Callout>
             </SecCard>
 
             {/* Approved email domains (local-only advisory) */}
@@ -1395,18 +1438,18 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
                 placeholder="e.g. acme.com"
                 inputLabel="Email domain"
                 addLabel="Add domain"
-                emptyLabel="No domain restrictions — anyone can be invited."
+                emptyLabel="No domain restrictions. Anyone can be invited."
                 validate={isValidDomain}
                 normalize={normalizeDomain}
                 invalidMessage="Enter a valid domain like acme.com."
                 onChange={(next) => setPrefs({ emailDomains: next })}
               />
 
-              <BackendNote>
+              <Callout tone="info">
                 Domains are stored locally as a preference. Invitations and
                 sign-ups aren&apos;t filtered against them until the membership
                 backend enforces the rule.
-              </BackendNote>
+              </Callout>
             </SecCard>
           </div>
         )}

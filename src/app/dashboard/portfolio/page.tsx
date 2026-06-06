@@ -1,7 +1,33 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Callout,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -15,7 +41,6 @@ import { getSites, updateSiteDomain } from '@/app/actions/portfolio.actions';
 import type { WithId,
   Website } from '@/lib/definitions';
 import { CreatePortfolioDialog } from '@/components/zoruui-domain/create-portfolio-dialog';
-import { toast } from 'sonner';
 
 function PageSkeleton() {
   return (
@@ -37,6 +62,7 @@ function PageSkeleton() {
 }
 
 function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => void }) {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
@@ -65,39 +91,36 @@ function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpda
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full mt-2">
-          <LinkIcon className="mr-2 h-4 w-4" />
-          {site.customDomain ? 'Manage Domain' : 'Link Custom Domain'}
+        <Button variant="outline" size="sm" block className="mt-2" iconLeft={LinkIcon}>
+          {site.customDomain ? 'Manage domain' : 'Link custom domain'}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Domain Mapping</DialogTitle>
+          <DialogTitle>Domain mapping</DialogTitle>
           <DialogDescription>
-            Map a custom domain to your website. E.g. www.example.com
+            Map a custom domain to your website. For example, www.example.com
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="customDomain">Custom Domain</Label>
-              <Input 
-                id="customDomain" 
-                name="customDomain" 
-                defaultValue={site.customDomain || ''} 
-                placeholder="e.g. www.example.com" 
+            <Field label="Custom domain">
+              <Input
+                name="customDomain"
+                defaultValue={site.customDomain || ''}
+                placeholder="e.g. www.example.com"
               />
-            </div>
+            </Field>
             {site.customDomain && (
-              <div className="text-sm text-[var(--st-text-secondary)] bg-[var(--st-hover)] p-3 rounded-md">
-                <strong>Important:</strong> Please ensure you have added a CNAME or A record in your DNS settings pointing to our servers before linking.
-              </div>
+              <Callout tone="info" title="Important">
+                Please ensure you have added a CNAME or A record in your DNS settings pointing to our servers before linking.
+              </Callout>
             )}
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Domain'}
+            <Button type="submit" variant="primary" loading={isPending}>
+              {isPending ? 'Saving...' : 'Save domain'}
             </Button>
           </DialogFooter>
         </form>
@@ -124,16 +147,24 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
             Created: {fmtDate(site.createdAt)}
           </p>
           {site.customDomain && (
-            <p className="text-sm font-medium mt-1">
-              Domain: <a href={`https://${site.customDomain}`} target="_blank" rel="noreferrer" className="text-[var(--st-accent)] hover:underline">{site.customDomain}</a>
+            <p className="text-sm font-medium mt-1 text-[var(--st-text)]">
+              Domain:{' '}
+              <a
+                href={`https://${site.customDomain}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[var(--st-accent)] hover:underline"
+              >
+                {site.customDomain}
+              </a>
             </p>
           )}
         </div>
         <DomainMappingDialog site={site} onUpdate={onUpdate} />
       </CardBody>
       <CardFooter>
-        <Button onClick={handleManage} block>
-          Manage <ArrowRight className="ml-1 h-4 w-4" />
+        <Button onClick={handleManage} variant="primary" block iconRight={ArrowRight}>
+          Manage
         </Button>
       </CardFooter>
     </Card>
@@ -141,6 +172,7 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
 }
 
 export default function WebsiteBuilderDashboard() {
+  const { toast } = useToast();
   const [sites, setSites] = useState<WithId<Website>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +189,7 @@ export default function WebsiteBuilderDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     fetchData();
@@ -172,7 +204,7 @@ export default function WebsiteBuilderDashboard() {
           <PageHeading>
             <PageTitle>
               <span className="inline-flex items-center gap-3">
-                <Globe className="h-7 w-7" />
+                <Globe className="h-7 w-7" aria-hidden="true" />
                 Website builder
               </span>
             </PageTitle>
@@ -181,13 +213,12 @@ export default function WebsiteBuilderDashboard() {
             </PageDescription>
           </PageHeading>
         </PageHeader>
-        <div className="p-4 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md border border-[var(--st-border)]">
-          <p className="font-semibold">Error</p>
+        <Alert tone="danger" title="Error">
           <p>{error}</p>
           <Button variant="outline" className="mt-4" onClick={fetchData}>
             Retry
           </Button>
-        </div>
+        </Alert>
       </div>
     );
   }
@@ -199,7 +230,7 @@ export default function WebsiteBuilderDashboard() {
           <PageHeading>
             <PageTitle>
               <span className="inline-flex items-center gap-3">
-                <Globe className="h-7 w-7" />
+                <Globe className="h-7 w-7" aria-hidden="true" />
                 Website builder
               </span>
             </PageTitle>
@@ -219,7 +250,7 @@ export default function WebsiteBuilderDashboard() {
         </div>
       ) : (
         <EmptyState
-          icon={<Globe className="h-12 w-12" />}
+          icon={Globe}
           title="No websites created"
           description={`Click "Create new site" to get started.`}
         />
@@ -227,4 +258,3 @@ export default function WebsiteBuilderDashboard() {
     </div>
   );
 }
-

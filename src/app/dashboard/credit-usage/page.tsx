@@ -1,20 +1,47 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback } from 'react';
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Spinner,
+  StatCard,
+  TBody,
+  Table,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import * as React from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar,
   Coins,
   CreditCard,
-  Loader2,
+  LineChart as LineChartIcon,
   TrendingUp,
   TriangleAlert,
-  } from 'lucide-react';
+} from 'lucide-react';
 import {
   CartesianGrid,
   Line,
@@ -23,16 +50,19 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  } from 'recharts';
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
 import { getCreditUsage } from '@/app/actions/wachat-features.actions';
 
 /**
- * Wachat Credit Usage — billing and credit usage dashboard.
+ * Wachat Credit Usage - billing and credit usage dashboard.
  */
 
-import * as React from 'react';
+interface DailyUsageRow {
+  _id: string;
+  count: number;
+}
 
 export default function CreditUsagePage() {
   const router = useRouter();
@@ -41,7 +71,7 @@ export default function CreditUsagePage() {
   const projectId = activeProject?._id?.toString();
 
   const [credits, setCredits] = useState(0);
-  const [dailyUsage, setDailyUsage] = useState<any[]>([]);
+  const [dailyUsage, setDailyUsage] = useState<DailyUsageRow[]>([]);
   const [isLoading, startLoading] = useTransition();
 
   const fetchUsage = useCallback(
@@ -49,7 +79,7 @@ export default function CreditUsagePage() {
       startLoading(async () => {
         const res = await getCreditUsage(pid);
         if (res.error) {
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast.error(res.error);
         } else {
           setCredits(res.credits || 0);
           setDailyUsage(res.dailyUsage || []);
@@ -89,24 +119,26 @@ export default function CreditUsagePage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <PageHeader>
-          <PageHeading>
-            <PageTitle>Credit usage</PageTitle>
-            <PageDescription>
-              Monitor your messaging credit balance and daily usage.
-            </PageDescription>
-          </PageHeading>
-        </PageHeader>
-        <Button onClick={() => router.push('/dashboard/billing')}>
-          <CreditCard className="h-3.5 w-3.5" />
-          Top up credits
-        </Button>
-      </div>
+      <PageHeader>
+        <PageHeading>
+          <PageTitle>Credit usage</PageTitle>
+          <PageDescription>
+            Monitor your messaging credit balance and daily usage.
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
+          <Button
+            variant="primary"
+            iconLeft={CreditCard}
+            onClick={() => router.push('/dashboard/billing')}
+          >
+            Top up credits
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {isLow && credits > 0 && (
-        <Alert variant="warning">
-          <TriangleAlert className="h-4 w-4" />
+        <Alert variant="warning" icon={TriangleAlert}>
           <AlertTitle>Low credit balance</AlertTitle>
           <AlertDescription>
             Approximately {daysLeft} day{daysLeft !== 1 ? 's' : ''} of credits remaining at current
@@ -117,75 +149,86 @@ export default function CreditUsagePage() {
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
+          <Spinner size="md" label="Loading credit usage" />
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {stats.map((s) => {
-              const Icon = s.icon;
-              return (
-                <Card key={s.label} className="flex items-center gap-4 p-5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
-                    <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                  </span>
-                  <div>
-                    <div className="text-xs text-[var(--st-text-secondary)]">{s.label}</div>
-                    <div className="text-[22px] leading-tight tabular-nums text-[var(--st-text)]">
-                      {s.value}
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
+            {stats.map((s) => (
+              <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} />
+            ))}
           </div>
 
-          {dailyUsage.length > 0 && (
-            <Card className="p-5">
-              <h2 className="mb-4 text-[15px] text-[var(--st-text)]">Daily trend</h2>
-              <div className="mb-5 h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={dailyUsage.map((d) => ({ date: d._id, count: d.count }))}
-                    margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
-                    <XAxis dataKey="date" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
-                    <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      stroke="var(--st-warn)"
-                      strokeWidth={2}
-                      dot={false}
-                      name="Credits used"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="space-y-2">
-                <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
-                  <span>Date</span>
-                  <span className="text-right">Messages</span>
-                  <span />
-                </div>
-                {dailyUsage.map((d) => (
-                  <div
-                    key={d._id}
-                    className="grid grid-cols-[100px_80px_1fr] items-center gap-2 text-sm text-[var(--st-text)]"
-                  >
-                    <span>{d._id}</span>
-                    <span className="text-right tabular-nums">{d.count}</span>
-                    <div className="h-5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
-                      <div
-                        className="h-full rounded-full bg-[var(--st-text)] transition-all"
-                        style={{ width: `${(d.count / maxUsed) * 100}%` }}
+          {dailyUsage.length > 0 ? (
+            <Card padding="lg">
+              <CardHeader>
+                <CardTitle>Daily trend</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <div className="mb-5 h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={dailyUsage.map((d) => ({ date: d._id, count: d.count }))}
+                      margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="var(--st-text-secondary)"
+                        tick={{ fontSize: 10 }}
                       />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                      <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="count"
+                        stroke="var(--st-warn)"
+                        strokeWidth={2}
+                        dot={false}
+                        name="Credits used"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <Table density="compact">
+                  <THead>
+                    <Tr>
+                      <Th>Date</Th>
+                      <Th align="right">Messages</Th>
+                      <Th>Share of peak day</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {dailyUsage.map((d) => (
+                      <Tr key={d._id}>
+                        <Td>{d._id}</Td>
+                        <Td align="right" className="tabular-nums">
+                          {d.count.toLocaleString()}
+                        </Td>
+                        <Td>
+                          <div className="h-2 w-full overflow-hidden rounded-[var(--st-radius-pill)] bg-[var(--st-bg-muted)]">
+                            <div
+                              className="h-full rounded-[var(--st-radius-pill)] bg-[var(--st-warn)] transition-all"
+                              style={{ width: `${(d.count / maxUsed) * 100}%` }}
+                            />
+                          </div>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </CardBody>
+            </Card>
+          ) : (
+            <Card padding="lg">
+              <CardBody>
+                <EmptyState
+                  icon={LineChartIcon}
+                  title="No usage yet"
+                  description="Once you start sending messages, your daily credit usage will appear here."
+                />
+              </CardBody>
             </Card>
           )}
         </>

@@ -1,13 +1,13 @@
 'use client';
 
 /**
- * SabCRM — Notifications settings (`/dashboard/settings/crm/notifications`), Twenty-style.
+ * SabCRM. Notifications settings (`/dashboard/settings/crm/notifications`), 20ui.
  *
  * Lets the user choose which events notify them and through which channel:
  *
- *   - In-app — the live in-product feed / notification bell that the SabCRM
+ *   - In-app. The live in-product feed / notification bell that the SabCRM
  *     shell already renders. This channel is real and takes effect immediately.
- *   - Email  — UI-only for now. There is no email delivery engine wired up yet,
+ *   - Email. UI-only for now. There is no email delivery engine wired up yet,
  *     so the email switches record intent but do nothing until that engine
  *     ships. This is stated honestly in the per-table callout.
  *
@@ -32,11 +32,18 @@ import {
   BellOff,
   Monitor,
   Mail,
-  Info,
   RotateCcw,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Button,
+  Switch,
+  Callout,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useToast } from '@/hooks/use-toast';
 import {
   useNotifPrefs,
@@ -53,7 +60,7 @@ import './notifications.css';
 
 /**
  * Narrow the raw stored value into a usable notification slice. We only require
- * the value to be an object — `useNotifPrefs.normalize` (re-run via `replace`)
+ * the value to be an object. `useNotifPrefs.normalize` (re-run via `replace`)
  * does the deep coercion, so partial / older payloads are safe.
  */
 function coerceNotif(raw: unknown): Partial<NotifPrefs> | null {
@@ -62,47 +69,25 @@ function coerceNotif(raw: unknown): Partial<NotifPrefs> | null {
 }
 
 // ---------------------------------------------------------------------------
-// Switch — native <button role="switch"> for accessibility, namespaced styling
-// so it never clashes with the per-page `.st-switch` variants elsewhere.
-// ---------------------------------------------------------------------------
-
-interface SwitchProps {
-  checked: boolean;
-  disabled?: boolean;
-  ariaLabel: string;
-  onChange: (next: boolean) => void;
-}
-
-function Switch({
-  checked,
-  disabled = false,
-  ariaLabel,
-  onChange,
-}: SwitchProps): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={ariaLabel}
-      disabled={disabled}
-      className={`stn-switch${checked ? ' stn-switch--on' : ''}`}
-      onClick={() => onChange(!checked)}
-    >
-      <span className="stn-switch__thumb" aria-hidden="true" />
-    </button>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Loading skeleton (until the localStorage hook hydrates)
 // ---------------------------------------------------------------------------
 
 function TableSkeleton({ rows = 5 }: { rows?: number }): React.JSX.Element {
   return (
-    <div className="stn-skeleton" aria-hidden="true">
+    <div className="stn-table" aria-hidden="true">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="stn-skeleton__row" />
+        <div key={i} className="stn-row">
+          <div className="stn-row__text">
+            <Skeleton width="60%" height={13} radius={4} />
+            <Skeleton width="80%" height={11} radius={4} />
+          </div>
+          <div className="stn-row__cell">
+            <Skeleton width={38} height={22} radius={999} />
+          </div>
+          <div className="stn-row__cell">
+            <Skeleton width={38} height={22} radius={999} />
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -118,7 +103,7 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
   const { toast } = useToast();
   const sync = useSettingsSync<Partial<NotifPrefs>>('notifications', coerceNotif);
 
-  // Adopt the server slice (source of truth) once it resolves — `replace`
+  // Adopt the server slice (source of truth) once it resolves. `replace`
   // normalizes it and mirrors it into the local cache.
   React.useEffect(() => {
     if (sync.phase !== 'ready' || !sync.remote) return;
@@ -182,13 +167,17 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
   return (
     <div className="st-page">
       <div className="st-settings">
-        <TwentyPageHeader title="Notifications" icon={Bell} />
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Notifications</PageTitle>
+          </PageHeaderHeading>
+        </PageHeader>
         <p className="st-settings__intro">
           Choose which events notify you and how. Saved to your workspace so your
           preferences follow you across devices.
           {sync.phase === 'offline' ? (
             <span className="stn-offline" role="status">
-              The settings service is offline — changes are kept on this device
+              The settings service is offline, so changes are kept on this device
               for now.
             </span>
           ) : null}
@@ -211,13 +200,11 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
             {hydrated ? (
               <Switch
                 checked={muted}
-                ariaLabel="Mute all notifications"
-                onChange={handleMute}
+                aria-label="Mute all notifications"
+                onCheckedChange={handleMute}
               />
             ) : (
-              <span className="stn-switch" aria-hidden="true">
-                <span className="stn-switch__thumb" />
-              </span>
+              <Skeleton width={38} height={22} radius={999} />
             )}
           </div>
         </div>
@@ -237,7 +224,7 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
           ) : (
             <div className="stn-table">
               <div className="stn-thead">
-                <span className="stn-thead__label">Notify me when…</span>
+                <span className="stn-thead__label">Notify me when</span>
                 <span className="stn-thead__channel">
                   <Monitor size={13} aria-hidden="true" />
                   <span className="stn-thead__channel-text">In-app</span>
@@ -260,8 +247,8 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
                       <Switch
                         checked={state.inApp}
                         disabled={muted}
-                        ariaLabel={`${ev.label} — in-app`}
-                        onChange={(next) =>
+                        aria-label={`${ev.label}, in-app`}
+                        onCheckedChange={(next) =>
                           handleChannel(ev.key, 'inApp', next)
                         }
                       />
@@ -270,8 +257,8 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
                       <Switch
                         checked={state.email}
                         disabled={muted}
-                        ariaLabel={`${ev.label} — email`}
-                        onChange={(next) =>
+                        aria-label={`${ev.label}, email`}
+                        onCheckedChange={(next) =>
                           handleChannel(ev.key, 'email', next)
                         }
                       />
@@ -282,15 +269,12 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
             </div>
           )}
 
-          <div className="stn-callout">
-            <Info className="stn-callout__icon" size={14} aria-hidden="true" />
-            <span>
-              <strong>Email notifications require the delivery engine.</strong>{' '}
-              The email switches save your preference now, but no email is sent
-              until SabCRM&apos;s notification engine is connected. In-app
-              notifications work today.
-            </span>
-          </div>
+          <Callout tone="info" className="stn-callout-spacing">
+            <strong>Email notifications require the delivery engine.</strong>{' '}
+            The email switches save your preference now, but no email is sent
+            until SabCRM&apos;s notification engine is connected. In-app
+            notifications work today.
+          </Callout>
         </section>
 
         {hydrated ? (
@@ -300,13 +284,13 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
                 ? 'Saved automatically on this device.'
                 : 'Saved automatically to your workspace.'}
             </p>
-            <TwentyButton
+            <Button
               variant="secondary"
-              icon={RotateCcw}
+              iconLeft={RotateCcw}
               onClick={handleReset}
             >
               Reset to defaults
-            </TwentyButton>
+            </Button>
           </div>
         ) : null}
       </div>

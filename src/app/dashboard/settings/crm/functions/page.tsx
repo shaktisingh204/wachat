@@ -1,27 +1,28 @@
 'use client';
 
 /**
- * SabCRM — Functions settings (`/dashboard/settings/crm/functions`), Twenty-style.
+ * SabCRM - Functions settings (`/dashboard/settings/crm/functions`).
  *
  * A manager for logic / serverless function DEFINITIONS. This page is
  * intentionally *definition only*: it lets you author, name, pick a target
- * runtime for, and describe the trigger of a function — but it does NOT run
+ * runtime for, and describe the trigger of a function, but it does NOT run
  * anything. Execution requires the SabCRM function engine, which is not wired
  * up yet. Every surface on this page is honest about that.
  *
- * Persistence is local: definitions are stored in `localStorage` via the
- * `useFunctions` prefs-style hook. No server actions, no network, no
- * `server-only` imports — this is a pure client page.
+ * Persistence is local (plus a fire-and-forget server sync) via the
+ * `useFunctions` hook. No server-only imports - this is a pure client page.
  *
- * Layout is a Twenty two-pane:
- *   - Left  — list of saved functions (monospace name + runtime badge) and an
+ * Layout is a two-pane split:
+ *   - Left  - list of saved functions (name + runtime badge) and an
  *             "Add function" button.
- *   - Right — an editor for the selected function: name input, runtime select
+ *   - Right - an editor for the selected function: name input, runtime select
  *             (Node.js / Deno), a monospace code textarea, a trigger note, and
  *             Save / Delete actions, plus the engine-not-wired honesty note.
  *
  * States: hydration skeleton, empty list, no-selection placeholder, and a
  * delete confirmation dialog.
+ *
+ * Pure 20ui: every control comes from `@/components/sabcrm/20ui`.
  */
 
 import * as React from 'react';
@@ -31,12 +32,41 @@ import {
   Save,
   Trash2,
   Check,
-  Info,
-  X,
   Code2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Badge,
+  Card,
+  CardHeader,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Callout,
+  EmptyState,
+  Skeleton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/sabcrm/20ui';
+
 import {
   useFunctions,
   RUNTIME_LABELS,
@@ -46,10 +76,13 @@ import {
 } from './use-functions';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './functions.css';
 
 const RUNTIMES: FunctionRuntime[] = ['node', 'deno'];
+
+const RUNTIME_TONE: Record<FunctionRuntime, 'success' | 'info'> = {
+  node: 'success',
+  deno: 'info',
+};
 
 // ---------------------------------------------------------------------------
 // Runtime badge
@@ -57,15 +90,14 @@ const RUNTIMES: FunctionRuntime[] = ['node', 'deno'];
 
 function RuntimeBadge({ runtime }: { runtime: FunctionRuntime }): React.JSX.Element {
   return (
-    <span className={`st-fn-badge st-fn-badge--${runtime}`}>
-      <span className="st-fn-badge__dot" aria-hidden="true" />
+    <Badge tone={RUNTIME_TONE[runtime]} dot>
       {RUNTIME_LABELS[runtime]}
-    </span>
+    </Badge>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Left pane — function list
+// Left pane - function list
 // ---------------------------------------------------------------------------
 
 interface FunctionListProps {
@@ -82,42 +114,61 @@ function FunctionList({
   onAdd,
 }: FunctionListProps): React.JSX.Element {
   return (
-    <aside className="st-fn-list">
-      <div className="st-fn-list__head">
-        <span className="st-fn-list__title">Functions</span>
-        <TwentyButton variant="secondary" icon={Plus} onClick={onAdd}>
+    <Card
+      variant="outlined"
+      padding="none"
+      className="flex flex-col overflow-hidden"
+    >
+      <CardHeader className="flex items-center justify-between gap-[var(--st-space-2)]">
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">
+          Functions
+        </span>
+        <Button variant="secondary" size="sm" iconLeft={Plus} onClick={onAdd}>
           Add
-        </TwentyButton>
-      </div>
+        </Button>
+      </CardHeader>
       {functions.length === 0 ? (
-        <div className="st-fn-list__empty">
-          No functions yet. Use <strong>Add</strong> to create your first
-          definition.
-        </div>
+        <p className="m-0 p-[var(--st-space-3)] text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
+          No functions yet. Use <strong className="text-[var(--st-text)]">Add</strong>{' '}
+          to create your first definition.
+        </p>
       ) : (
-        <div className="st-fn-list__items">
-          {functions.map((fn) => (
-            <button
-              key={fn.id}
-              type="button"
-              className={`st-fn-item${fn.id === selectedId ? ' is-active' : ''}`}
-              onClick={() => onSelect(fn.id)}
-              aria-pressed={fn.id === selectedId}
-            >
-              <span className="st-fn-item__name">{fn.name || 'untitled'}</span>
-              <span className="st-fn-item__meta">
-                <RuntimeBadge runtime={fn.runtime} />
-              </span>
-            </button>
-          ))}
+        <div className="flex flex-col gap-[var(--st-space-1)] p-[var(--st-space-2)]">
+          {functions.map((fn) => {
+            const active = fn.id === selectedId;
+            return (
+              <Button
+                key={fn.id}
+                variant="ghost"
+                block
+                onClick={() => onSelect(fn.id)}
+                aria-pressed={active}
+                className={[
+                  'h-auto justify-start px-[var(--st-space-2)] py-[var(--st-space-2)] text-left',
+                  active
+                    ? 'bg-[var(--st-accent-soft)] text-[var(--st-text)]'
+                    : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                <span className="flex w-full flex-col items-start gap-[var(--st-space-1)]">
+                  <span className="w-full truncate font-mono text-[13px] font-medium text-[var(--st-text)]">
+                    {fn.name || 'untitled'}
+                  </span>
+                  <RuntimeBadge runtime={fn.runtime} />
+                </span>
+              </Button>
+            );
+          })}
         </div>
       )}
-    </aside>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — editor
+// Right pane - editor
 // ---------------------------------------------------------------------------
 
 interface FunctionEditorProps {
@@ -162,129 +213,127 @@ function FunctionEditor({
   );
 
   return (
-    <form className="st-fn-editor" onSubmit={handleSave}>
-      <div className="st-fn-editor__head">
-        <div className="st-fn-editor__head-meta">
-          <Code2 size={15} aria-hidden="true" className="text-[var(--st-text-tertiary)]" />
-          <span className="st-fn-editor__head-title">{fn.name || 'untitled'}</span>
+    <form onSubmit={handleSave}>
+      <Card
+        variant="outlined"
+        padding="none"
+        className="flex flex-col overflow-hidden"
+      >
+      <CardHeader className="flex flex-wrap items-center justify-between gap-[var(--st-space-2)]">
+        <div className="flex items-center gap-[var(--st-space-2)]">
+          <Code2
+            size={15}
+            aria-hidden="true"
+            className="text-[var(--st-text-tertiary)]"
+          />
+          <span className="font-mono text-[13px] font-medium text-[var(--st-text)]">
+            {fn.name || 'untitled'}
+          </span>
           <RuntimeBadge runtime={fn.runtime} />
         </div>
-        <div className="st-fn-editor__head-actions">
+        <div className="flex items-center gap-[var(--st-space-2)]">
           {savedAt ? (
-            <span className="st-fn-saved" role="status">
+            <span
+              className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-status-ok)]"
+              role="status"
+            >
               <Check size={13} aria-hidden="true" />
               Saved
             </span>
           ) : null}
-          <TwentyButton type="submit" variant="primary" icon={Save} disabled={!dirty}>
+          <Button type="submit" variant="primary" iconLeft={Save} disabled={!dirty}>
             Save
-          </TwentyButton>
-          <TwentyButton
-            variant="ghost"
-            icon={Trash2}
-            className="st-btn--danger"
+          </Button>
+          <Button
+            variant="danger"
+            iconLeft={Trash2}
             onClick={() => onRequestDelete(fn)}
             title="Delete function"
           >
             Delete
-          </TwentyButton>
+          </Button>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="st-fn-editor__body">
-        <div className="st-fn-grid">
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="fn-name">
-              Name
-              <span className="st-field__req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <input
-              id="fn-name"
-              className="st-input"
-              type="text"
+      <CardBody className="flex flex-col gap-[var(--st-space-4)]">
+        <div className="grid grid-cols-1 gap-[var(--st-space-3)] sm:grid-cols-2">
+          <Field
+            label="Name"
+            required
+            help="Used to identify the function. Keep it short and slug-like."
+          >
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="enrich-lead"
               spellCheck={false}
               autoComplete="off"
+              className="font-mono"
             />
-            <p className="st-fn-hint">
-              Used to identify the function. Keep it short and slug-like.
-            </p>
-          </div>
+          </Field>
 
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="fn-runtime">
-              Runtime
-            </label>
-            <select
-              id="fn-runtime"
-              className="st-select"
+          <Field label="Runtime" help="Target for the eventual engine.">
+            <Select
               value={runtime}
-              onChange={(e) => setRuntime(e.target.value as FunctionRuntime)}
+              onValueChange={(value) => setRuntime(value as FunctionRuntime)}
             >
-              {RUNTIMES.map((rt) => (
-                <option key={rt} value={rt}>
-                  {RUNTIME_LABELS[rt]}
-                </option>
-              ))}
-            </select>
-            <p className="st-fn-hint">Target for the eventual engine.</p>
-          </div>
+              <SelectTrigger aria-label="Runtime">
+                <SelectValue placeholder="Pick a runtime" />
+              </SelectTrigger>
+              <SelectContent>
+                {RUNTIMES.map((rt) => (
+                  <SelectItem key={rt} value={rt}>
+                    {RUNTIME_LABELS[rt]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
         </div>
 
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="fn-code">
-            Code
-          </label>
-          <textarea
-            id="fn-code"
-            className="st-fn-code"
+        <Field
+          label="Code"
+          help="Stored verbatim as a definition. It is never executed from this page."
+        >
+          <Textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="// Define your function here…"
+            placeholder="// Define your function here."
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             wrap="off"
+            rows={12}
+            className="font-mono text-[12.5px] leading-relaxed whitespace-pre"
           />
-          <p className="st-fn-hint">
-            Stored verbatim as a definition. It is never executed from this page.
-          </p>
-        </div>
+        </Field>
 
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="fn-trigger">
-            Trigger note
-          </label>
-          <textarea
-            id="fn-trigger"
-            className="st-textarea"
+        <Field
+          label="Trigger note"
+          help="A free-text reminder of when this function is meant to run. Triggers aren't wired up yet, so this is documentation only."
+        >
+          <Textarea
             value={trigger}
             onChange={(e) => setTrigger(e.target.value)}
             placeholder="e.g. Run when a Person record is created, or on a daily schedule."
+            rows={3}
           />
-          <p className="st-fn-hint">
-            A free-text reminder of when this function is meant to run. Triggers
-            aren&apos;t wired up yet — this is documentation only.
+        </Field>
+
+        <Callout tone="info" title="Definition only.">
+          This saves the definition only. Actually running it needs the SabCRM
+          function engine, which isn't connected yet, so there is no execute path
+          here. Your work is kept locally in this browser until the engine lands.
+        </Callout>
+
+        {error ? (
+          <p className="m-0 text-[13px] font-medium text-[var(--st-danger)]">
+            {error}
           </p>
-        </div>
-
-        <div className="st-fn-engine-note">
-          <Info className="st-fn-engine-note__icon" size={14} aria-hidden="true" />
-          <span>
-            Heads up: this saves the <strong>definition</strong> only. Actually
-            running it needs the SabCRM function engine, which isn&apos;t
-            connected yet — there is no <code>execute</code> path here. Your work
-            is kept locally in this browser until the engine lands.
-          </span>
-        </div>
-
-        {error ? <p className="st-form-error">{error}</p> : null}
-      </div>
+        ) : null}
+      </CardBody>
+      </Card>
     </form>
   );
 }
@@ -301,50 +350,29 @@ interface DeleteDialogProps {
 
 function DeleteDialog({ fn, onCancel, onConfirm }: DeleteDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete function"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
+    <AlertDialog
+      open
+      onOpenChange={(next) => {
+        if (!next) onCancel();
       }}
     >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete function</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete function</AlertDialogTitle>
+          <AlertDialogDescription>
             Delete{' '}
             <strong className="text-[var(--st-text)]">
               {fn.name || 'this function'}
             </strong>
             ? The definition is removed from this browser. This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-          >
-            Delete function
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Delete function</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -354,18 +382,18 @@ function DeleteDialog({ fn, onCancel, onConfirm }: DeleteDialogProps): React.JSX
 
 function FunctionsSkeleton(): React.JSX.Element {
   return (
-    <div className="st-fn-split">
-      <div className="st-fn-list p-[var(--st-space-2)]">
-        <div className="st-skeleton st-skeleton-row" />
-        <div className="st-skeleton st-skeleton-row" />
-        <div className="st-skeleton st-skeleton-row" />
-      </div>
-      <div className="st-fn-editor p-[var(--st-space-3)]">
-        <div className="st-skeleton st-skeleton-row" />
-        <div className="st-skeleton st-skeleton-row" />
-        <div className="st-skeleton st-skeleton-row" />
-        <div className="st-skeleton st-skeleton-row" />
-      </div>
+    <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-[280px_minmax(0,1fr)]">
+      <Card variant="outlined" padding="sm" className="flex flex-col gap-[var(--st-space-2)]">
+        <Skeleton height={16} radius={6} />
+        <Skeleton height={16} radius={6} />
+        <Skeleton height={16} radius={6} />
+      </Card>
+      <Card variant="outlined" padding="md" className="flex flex-col gap-[var(--st-space-3)]">
+        <Skeleton height={16} radius={6} />
+        <Skeleton height={16} radius={6} />
+        <Skeleton height={120} radius={6} />
+        <Skeleton height={16} radius={6} />
+      </Card>
     </div>
   );
 }
@@ -410,62 +438,60 @@ export default function SabcrmFunctionsSettingsPage(): React.JSX.Element {
   }, [deleteTarget, remove]);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Functions"
-          icon={FunctionSquare}
-          actions={
-            <TwentyButton variant="primary" icon={Plus} onClick={handleAdd}>
-              Add function
-            </TwentyButton>
-          }
-        />
-        <p className="st-settings__intro">
-          Author and keep logic / serverless function <strong>definitions</strong>{' '}
-          for this workspace — a name, a target runtime, the code, and a note on
-          when it should run. These are definitions only: SabCRM doesn&apos;t
-          execute them yet, so nothing here runs against your data. They&apos;re
-          saved locally in this browser until the function engine is wired up.
-        </p>
+    <div className="ui20 mx-auto flex w-full max-w-[1080px] flex-col gap-[var(--st-space-4)] p-[var(--st-space-4)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Functions</PageTitle>
+          <PageDescription>
+            Author and keep logic / serverless function definitions for this
+            workspace - a name, a target runtime, the code, and a note on when it
+            should run. These are definitions only: SabCRM doesn't execute them
+            yet, so nothing here runs against your data. They're saved locally in
+            this browser until the function engine is wired up.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={handleAdd}>
+            Add function
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-        {!ready ? (
-          <FunctionsSkeleton />
-        ) : (
-          <div className="st-fn-split">
-            <FunctionList
-              functions={functions}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onAdd={handleAdd}
+      {!ready ? (
+        <FunctionsSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-[280px_minmax(0,1fr)]">
+          <FunctionList
+            functions={functions}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onAdd={handleAdd}
+          />
+
+          {selected ? (
+            <FunctionEditor
+              // Re-key on the selected id so the editor's local draft state
+              // resets cleanly when you switch functions.
+              key={selected.id}
+              fn={selected}
+              onSave={update}
+              onRequestDelete={setDeleteTarget}
             />
-
-            {selected ? (
-              <FunctionEditor
-                // Re-key on the selected id so the editor's local draft state
-                // resets cleanly when you switch functions.
-                key={selected.id}
-                fn={selected}
-                onSave={update}
-                onRequestDelete={setDeleteTarget}
+          ) : (
+            <Card
+              variant="outlined"
+              padding="lg"
+              className="flex items-center justify-center"
+            >
+              <EmptyState
+                icon={FunctionSquare}
+                title="No function selected"
+                description="Add a function to start writing a definition. Running it will require the function engine, which isn't connected yet."
               />
-            ) : (
-              <div className="st-fn-editor st-fn-editor--empty">
-                <div className="st-empty">
-                  <span className="st-empty__icon">
-                    <FunctionSquare size={20} />
-                  </span>
-                  <h2 className="st-empty__title">No function selected</h2>
-                  <p className="st-empty__desc">
-                    Add a function to start writing a definition. Running it will
-                    require the function engine, which isn&apos;t connected yet.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+            </Card>
+          )}
+        </div>
+      )}
 
       {deleteTarget ? (
         <DeleteDialog

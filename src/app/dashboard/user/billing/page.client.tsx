@@ -1,17 +1,42 @@
 'use client';
 
-import { Card, Button, Separator, Alert, AlertTitle, AlertDescription, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Button,
+  Separator,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Input,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   Check,
   X,
   History,
-  CheckCircle2,
-  AlertCircle,
   Zap,
   Sparkles,
   Search,
+  PackageSearch,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
 import Link from 'next/link';
@@ -20,7 +45,6 @@ import { useSearchParams } from 'next/navigation';
 import type { Plan, WithId } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { WalletCard } from '@/components/zoruui-domain/wallet-card';
-import { motion, AnimatePresence } from 'framer-motion';
 
 import { PlanCategorySection } from './components/plan-category-section';
 import { BillingSkeleton } from './components/billing-skeleton';
@@ -31,7 +55,7 @@ export default function BillingPage() {
   const [plans, setPlans] = useState<WithId<Plan>[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  
+
   // Filtering and Sorting State
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<string>('price-asc');
@@ -50,8 +74,8 @@ export default function BillingPage() {
         const plansData = await getPlans({ isPublic: true });
         setPlans(plansData);
       } catch (error) {
-        console.error("Error fetching plans:", error);
-        setFetchError("Failed to load plans. Please try again later.");
+        console.error('Error fetching plans:', error);
+        setFetchError('Failed to load plans. Please try again later.');
       } finally {
         setIsLoadingPlans(false);
       }
@@ -65,7 +89,7 @@ export default function BillingPage() {
     // Apply Search Filter
     if (searchQuery.trim() !== '') {
       const lowerQuery = searchQuery.toLowerCase();
-      filteredPlans = filteredPlans.filter(p => p.name.toLowerCase().includes(lowerQuery));
+      filteredPlans = filteredPlans.filter((p) => p.name.toLowerCase().includes(lowerQuery));
     }
 
     // Apply Sorting
@@ -86,12 +110,12 @@ export default function BillingPage() {
 
     const categories: Record<string, WithId<Plan>[]> = {
       'All-In-One': [],
-      'Wachat': [],
-      'CRM': [],
+      Wachat: [],
+      CRM: [],
       'Meta Suite': [],
       'Instagram Suite': [],
-      'Email': [],
-      'SMS': [],
+      Email: [],
+      SMS: [],
       'URL Shortener': [],
       'QR Code Generator': [],
     };
@@ -114,156 +138,142 @@ export default function BillingPage() {
     return <BillingSkeleton />;
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
-  };
+  const noPlansFound = Object.entries(categorizedPlans).every(([, p]) => p.length === 0);
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="flex flex-col gap-10 w-full"
-    >
+    <div className="ui20 flex flex-col gap-10 w-full motion-safe:animate-slide-up">
       {/* Hero Header Area */}
-      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl bg-[var(--st-bg-muted)] p-8 md:p-10 border border-[var(--st-border)] shadow-sm">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-[var(--st-text)]/5 blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-[var(--st-text-secondary)]/10 blur-[80px] pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--st-bg)] px-3 py-1 text-xs font-semibold text-[var(--st-text)] border border-[var(--st-border)] shadow-sm mb-4">
-              <Zap className="h-3 w-3" /> Workspace Billing
-            </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--st-text)] mb-3">
-              Billing & Plans
-            </h1>
-            <p className="text-lg text-[var(--st-text-secondary)] max-w-xl">
-              Manage your subscription, top up your wallet credits, and view your billing history in one place.
-            </p>
-          </div>
-          <Button asChild variant="outline" className="bg-[var(--st-bg)] shadow-sm">
-            <Link href="/dashboard/user/billing/history">
-              <History className="mr-2 h-4 w-4" />
+      <PageHeader className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-8 md:p-10 border border-[var(--st-border)]">
+        <PageHeaderHeading>
+          <PageEyebrow className="inline-flex items-center gap-2">
+            <Zap className="h-3 w-3" aria-hidden="true" /> Workspace Billing
+          </PageEyebrow>
+          <PageTitle>Billing &amp; Plans</PageTitle>
+          <PageDescription>
+            Manage your subscription, top up your wallet credits, and view your billing history in one place.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Link href="/dashboard/user/billing/history">
+            <Button variant="outline" iconLeft={History}>
               View Billing History
-            </Link>
-          </Button>
-        </div>
-      </motion.div>
+            </Button>
+          </Link>
+        </PageActions>
+      </PageHeader>
 
       {/* Payment Alerts */}
-      <AnimatePresence>
-        {paymentStatus === 'success' && (
-          <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <Alert className="bg-[var(--st-status-ok)]/10 border-[var(--st-status-ok)]/20 text-[var(--st-status-ok)]">
-              <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
-              <AlertTitle className="text-[var(--st-status-ok)] font-bold">Payment successful</AlertTitle>
-              <AlertDescription>
-                Your payment has been processed successfully. Transaction ID: <span className="font-mono bg-white/50 px-1 rounded">{paymentTxn}</span>
-              </AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-        {paymentStatus === 'failed' && (
-          <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <Alert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
-              <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
-              <AlertTitle className="text-[var(--st-danger)] font-bold">Payment failed</AlertTitle>
-              <AlertDescription>
-                We couldn't process your payment. No funds were deducted. Please try again or contact support.
-              </AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-        {fetchError && (
-          <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <Alert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
-              <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
-              <AlertTitle className="text-[var(--st-danger)] font-bold">Failed to load</AlertTitle>
-              <AlertDescription>{fetchError}</AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {paymentStatus === 'success' && (
+        <Alert tone="success" icon={null}>
+          <AlertTitle>Payment successful</AlertTitle>
+          <AlertDescription>
+            Your payment has been processed successfully. Transaction ID:{' '}
+            <span className="font-mono rounded bg-[var(--st-bg-secondary)] px-1">{paymentTxn}</span>
+          </AlertDescription>
+        </Alert>
+      )}
+      {paymentStatus === 'failed' && (
+        <Alert tone="danger">
+          <AlertTitle>Payment failed</AlertTitle>
+          <AlertDescription>
+            We could not process your payment. No funds were deducted. Please try again or contact support.
+          </AlertDescription>
+        </Alert>
+      )}
+      {fetchError && (
+        <Alert tone="danger">
+          <AlertTitle>Failed to load</AlertTitle>
+          <AlertDescription>{fetchError}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Current Plan & Wallet Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        <motion.div variants={itemVariants} className="lg:col-span-8 flex flex-col">
-          <Card className="flex-1 shadow-md border-[var(--st-border)] overflow-hidden flex flex-col">
-            <div className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] p-6">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
-                Your Current Plan: <span className="text-[var(--st-text)]">{sessionUser?.plan?.name || 'Free'}</span>
-              </h3>
-              <p className="text-sm text-[var(--st-text-secondary)] mt-1">Here is what is included in your active workspace subscription.</p>
-            </div>
-            <div className="p-6 bg-[var(--st-bg)] flex-1">
+        <div className="lg:col-span-8 flex flex-col">
+          <Card variant="elevated" padding="none" className="flex-1 overflow-hidden flex flex-col">
+            <CardHeader className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] p-6">
+              <CardTitle className="flex flex-wrap items-center gap-2 text-xl">
+                <Sparkles className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
+                Your Current Plan:
+                <Badge tone="accent">{sessionUser?.plan?.name || 'Free'}</Badge>
+              </CardTitle>
+              <CardDescription>
+                Here is what is included in your active workspace subscription.
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="p-6 flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                 {planFeatureMap.map((feature) => {
-                  const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
+                  const isAllowed =
+                    sessionUser?.plan?.features?.[
+                      feature.id as keyof typeof sessionUser.plan.features
+                    ] ?? true;
                   return (
                     <div key={feature.id} className="flex items-start gap-3">
                       {isAllowed ? (
                         <div className="mt-0.5 rounded-full bg-[var(--st-status-ok)]/10 p-1">
-                          <Check className="h-3.5 w-3.5 text-[var(--st-status-ok)] flex-shrink-0" />
+                          <Check
+                            className="h-3.5 w-3.5 text-[var(--st-status-ok)] flex-shrink-0"
+                            aria-hidden="true"
+                          />
                         </div>
                       ) : (
-                        <div className="mt-0.5 rounded-full bg-[var(--st-bg-muted)] p-1">
-                          <X className="h-3.5 w-3.5 text-[var(--st-text-secondary)] flex-shrink-0" />
+                        <div className="mt-0.5 rounded-full bg-[var(--st-bg-secondary)] p-1">
+                          <X
+                            className="h-3.5 w-3.5 text-[var(--st-text-secondary)] flex-shrink-0"
+                            aria-hidden="true"
+                          />
                         </div>
                       )}
-                      <span className={cn("text-sm font-medium", !isAllowed && "text-[var(--st-text-tertiary)] line-through decoration-[var(--st-border-strong)]")}>
+                      <span
+                        className={cn(
+                          'text-sm font-medium text-[var(--st-text)]',
+                          !isAllowed &&
+                            'text-[var(--st-text-tertiary)] line-through decoration-[var(--st-border-strong)]',
+                        )}
+                      >
                         {feature.name}
                       </span>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </CardBody>
           </Card>
-        </motion.div>
-        
-        <motion.div variants={itemVariants} className="lg:col-span-4 flex flex-col h-full">
+        </div>
+
+        <div className="lg:col-span-4 flex flex-col h-full">
           <div className="flex-1">
             <WalletCard user={sessionUser} />
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div variants={itemVariants}>
-        <Separator className="my-4 opacity-50" />
-      </motion.div>
+      <Separator className="my-4 opacity-50" />
 
       {/* Pricing Tiers with Filters */}
-      <motion.div variants={itemVariants} id="upgrade" className="space-y-12 pb-12">
+      <div id="upgrade" className="space-y-12 pb-12">
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
           <div className="max-w-xl">
-            <h2 className="text-3xl font-extrabold tracking-tight mb-4">Upgrade Your Workspace</h2>
-            <p className="text-[var(--st-text-secondary)]">Find the perfect plan for your business needs. Scale seamlessly as you grow.</p>
+            <h2 className="text-3xl font-extrabold tracking-tight mb-4 text-[var(--st-text)]">
+              Upgrade Your Workspace
+            </h2>
+            <p className="text-[var(--st-text-secondary)]">
+              Find the perfect plan for your business needs. Scale seamlessly as you grow.
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
+            <Field className="w-full sm:w-[200px]">
               <Input
+                aria-label="Search plans"
                 placeholder="Search plans..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-full sm:w-[200px]"
+                iconLeft={Search}
               />
-            </div>
+            </Field>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger aria-label="Sort plans" className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -276,10 +286,12 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {Object.entries(categorizedPlans).every(([_, plans]) => plans.length === 0) ? (
-          <div className="py-12 text-center text-[var(--st-text-secondary)]">
-            <p>No plans found matching your search.</p>
-          </div>
+        {noPlansFound ? (
+          <EmptyState
+            icon={PackageSearch}
+            title="No plans found"
+            description="No plans match your search. Try a different term or clear the filter."
+          />
         ) : (
           <>
             <PlanCategorySection
@@ -338,7 +350,7 @@ export default function BillingPage() {
             />
           </>
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

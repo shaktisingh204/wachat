@@ -1,20 +1,19 @@
 'use client';
 
 /**
- * SabCRM — Segments (smart lists) settings (`/dashboard/settings/crm/segments`),
- * Twenty-style.
+ * SabCRM - Segments (smart lists) settings (`/dashboard/settings/crm/segments`).
  *
- * A segment is a saved, named, filtered view of a single object — Twenty's
- * "smart list" concept. Each segment pins an object, a structured filter
- * predicate, an optional sort, and a display color. The page renders the
- * segments as a card grid; every card shows its color dot, name, target
- * object, and a LIVE record count fetched through `countSabcrmRecordsTw` with
- * that segment's own filters, and links to `/sabcrm/{object}?segment={id}`
- * so the index page can open pre-filtered.
+ * A segment is a saved, named, filtered view of a single object - the "smart
+ * list" concept. Each segment pins an object, a structured filter predicate, an
+ * optional sort, and a display color. The page renders the segments as a card
+ * grid; every card shows its color dot, name, target object, and a LIVE record
+ * count fetched through `countSabcrmRecordsTw` with that segment's own filters,
+ * and links to `/sabcrm/{object}?segment={id}` so the index page can open
+ * pre-filtered.
  *
  * CRUD is handled by `@/app/actions/sabcrm-segments.actions`
  * (`listSegmentsTw` / `createSegmentTw` / `updateSegmentTw` / `deleteSegmentTw`),
- * each of which independently re-runs the session → project → RBAC → plan
+ * each of which independently re-runs the session, project, RBAC, and plan
  * pipeline server-side, so the page fails closed. The object catalogue comes
  * from `listSabcrmObjectsTw`.
  *
@@ -24,8 +23,12 @@
  *
  * States: skeleton while the project / data load, a "no project" notice, an
  * empty state, an error banner, and graceful degradation (counts that fail to
- * resolve simply show "—") so the engine being unreachable never crashes the
+ * resolve simply show a dash) so the engine being unreachable never crashes the
  * page.
+ *
+ * Pure 20ui: every control, card, dialog, badge, and feedback surface comes from
+ * `@/components/sabcrm/20ui`. The subtree is scoped with `ui20` so the
+ * self-contained `--st-*` / `--u-*` tokens resolve.
  */
 
 import * as React from 'react';
@@ -33,14 +36,39 @@ import {
   ListFilter,
   AlertTriangle,
   Plus,
-  X,
   Pencil,
   Trash2,
   ArrowRight,
   Database,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  Badge,
+  Field,
+  Input,
+  Modal,
+  RadioGroup,
+  Radio,
+  EmptyState,
+  Alert,
+  Skeleton,
+  useToast,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+
 import { useProject } from '@/context/project-context';
 import {
   listSegmentsTw,
@@ -54,17 +82,13 @@ import {
 } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './segments.css';
-
 // ---------------------------------------------------------------------------
 // Wire shapes
 //
 // Declared locally to keep this client page free of any `server-only` import.
 // Mirror the `@/app/actions/sabcrm-segments.actions` contract:
 //   segment { id, name, object, filters, sortBy?, sortDir?, color? }
-// where `filters` is the engine's flat field→condition map.
+// where `filters` is the engine's flat field->condition map.
 // ---------------------------------------------------------------------------
 
 /** One leaf condition in the engine's flat-map filter form. */
@@ -97,9 +121,9 @@ interface SegmentInput {
 }
 
 // ---------------------------------------------------------------------------
-// Color palette — a fixed Twenty-style swatch set so a segment always has a
-// readable dot. Values are plain hex so they round-trip through the action
-// without depending on theme tokens.
+// Color palette - a fixed swatch set so a segment always has a readable dot.
+// Values are plain hex so they round-trip through the action without depending
+// on theme tokens.
 // ---------------------------------------------------------------------------
 
 const SEGMENT_COLORS: ReadonlyArray<{ value: string; label: string }> = [
@@ -143,7 +167,7 @@ function filterCount(filters: SegmentFilters): number {
 }
 
 // ---------------------------------------------------------------------------
-// Live record count — its own component so each card fetches independently and
+// Live record count - its own component so each card fetches independently and
 // a single slow/failed count never blocks the others.
 // ---------------------------------------------------------------------------
 
@@ -181,25 +205,30 @@ function SegmentCount({
   }, [segment.object, segment.filters, projectId]);
 
   if (state.kind === 'loading') {
-    return <span className="st-seg-count st-seg-count--loading" aria-hidden="true" />;
+    return <Skeleton width={72} height={14} />;
   }
   if (state.kind === 'error') {
     return (
-      <span className="st-seg-count" title="Live count unavailable">
-        <span className="st-seg-count__num">—</span> records
+      <span
+        className="text-xs text-[var(--st-text-secondary)]"
+        title="Live count unavailable"
+      >
+        <span className="font-semibold text-[var(--st-text)]">-</span> records
       </span>
     );
   }
   return (
-    <span className="st-seg-count">
-      <span className="st-seg-count__num">{state.count.toLocaleString()}</span>{' '}
+    <span className="text-xs text-[var(--st-text-secondary)]">
+      <span className="font-semibold text-[var(--st-text)]">
+        {state.count.toLocaleString()}
+      </span>{' '}
       record{state.count === 1 ? '' : 's'}
     </span>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Segment dialog — create or edit. Name + object select + color + a small
+// Segment dialog - create or edit. Name + object select + color + a small
 // field=value filter builder.
 // ---------------------------------------------------------------------------
 
@@ -264,6 +293,7 @@ function SegmentDialog({
   onSaved,
 }: SegmentDialogProps): React.JSX.Element {
   const isEdit = Boolean(initial);
+  const { toast } = useToast();
 
   const [name, setName] = React.useState(initial?.name ?? '');
   const [object, setObject] = React.useState(
@@ -334,6 +364,7 @@ function SegmentDialog({
           ? await updateSegmentTw(initial!.id, input, projectId)
           : await createSegmentTw(input, projectId);
         if (res.ok) {
+          toast.success(isEdit ? 'Segment updated' : 'Segment created');
           onSaved(res.data as CrmSegment);
         } else {
           setError(res.error);
@@ -344,201 +375,187 @@ function SegmentDialog({
         setSubmitting(false);
       }
     },
-    [name, object, rows, color, isEdit, initial, projectId, submitting, onSaved],
+    [name, object, rows, color, isEdit, initial, projectId, submitting, onSaved, toast],
   );
 
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={isEdit ? 'Edit segment' : 'New segment'}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="st-dialog" style={{ maxWidth: 520 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            {isEdit ? 'Edit segment' : 'New segment'}
-          </h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
+    <Modal
+      open
+      onClose={onClose}
+      size="md"
+      title={isEdit ? 'Edit segment' : 'New segment'}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="segment-form"
+            variant="primary"
+            loading={submitting}
           >
-            <X size={16} />
-          </button>
-        </div>
+            {isEdit ? 'Save changes' : 'Create segment'}
+          </Button>
+        </>
+      }
+    >
+      <form id="segment-form" onSubmit={submit} className="flex flex-col gap-4">
+        <Field label="Name" required>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Active enterprise deals"
+            autoFocus
+          />
+        </Field>
 
-        <form onSubmit={submit}>
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="seg-name">
-                Name
-                <span className="st-field__req" aria-hidden="true">
-                  *
-                </span>
-              </label>
-              <input
-                id="seg-name"
-                className="st-input"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Active enterprise deals"
-                autoFocus
-              />
-            </div>
-
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="seg-object">
-                Object
-                <span className="st-field__req" aria-hidden="true">
-                  *
-                </span>
-              </label>
-              <select
-                id="seg-object"
-                className="st-select"
-                value={object}
-                onChange={(e) => handleObjectChange(e.target.value)}
-                disabled={isEdit || objects.length === 0}
-              >
-                {objects.length === 0 ? (
-                  <option value="">No objects available</option>
-                ) : (
-                  objects.map((o) => (
-                    <option key={o.slug} value={o.slug}>
-                      {o.labelPlural}
-                    </option>
-                  ))
-                )}
-              </select>
-              {isEdit ? (
-                <p className="st-muted st-seg-hint">
-                  An existing segment&apos;s object can&apos;t be changed.
-                </p>
-              ) : null}
-            </div>
-
-            <div className="st-field">
-              <span className="st-field__label">Color</span>
-              <div className="st-seg-swatches" role="radiogroup" aria-label="Segment color">
-                {SEGMENT_COLORS.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={color === c.value}
-                    aria-label={c.label}
-                    title={c.label}
-                    className={
-                      'st-seg-swatch' +
-                      (color === c.value ? ' st-seg-swatch--active' : '')
-                    }
-                    style={{ background: c.value }}
-                    onClick={() => setColor(c.value)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="st-field">
-              <span className="st-field__label">Filters</span>
-              <p className="st-muted st-seg-hint">
-                All conditions must match. Leave empty to include every record.
-              </p>
-
-              {rows.length === 0 ? (
-                <div className="st-seg-builder-empty">No conditions yet.</div>
+        <Field
+          label="Object"
+          required
+          help={
+            isEdit ? "An existing segment's object can't be changed." : undefined
+          }
+        >
+          <Select
+            value={object || undefined}
+            onValueChange={handleObjectChange}
+            disabled={isEdit || objects.length === 0}
+          >
+            <SelectTrigger aria-label="Object">
+              <SelectValue placeholder="Select an object" />
+            </SelectTrigger>
+            <SelectContent>
+              {objects.length === 0 ? (
+                <SelectItem value="__none" disabled>
+                  No objects available
+                </SelectItem>
               ) : (
-                <div className="st-seg-builder">
-                  {rows.map((row) => (
-                    <div key={row.uid} className="st-seg-cond">
-                      <select
-                        className="st-select st-seg-cond__field"
-                        value={row.field}
-                        aria-label="Field"
-                        onChange={(e) =>
-                          updateRow(row.uid, { field: e.target.value })
-                        }
-                      >
-                        <option value="">Field…</option>
-                        {fields.map((f) => (
-                          <option key={f.key} value={f.key}>
-                            {f.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        className="st-select st-seg-cond__op"
-                        value={row.op}
-                        aria-label="Operator"
-                        onChange={(e) =>
-                          updateRow(row.uid, {
-                            op: e.target.value === 'contains' ? 'contains' : 'eq',
-                          })
-                        }
-                      >
-                        <option value="eq">is</option>
-                        <option value="contains">contains</option>
-                      </select>
-                      <input
-                        className="st-input st-seg-cond__val"
-                        type="text"
-                        value={row.value}
-                        aria-label="Value"
-                        placeholder="Value"
-                        onChange={(e) =>
-                          updateRow(row.uid, { value: e.target.value })
-                        }
-                      />
-                      <button
-                        type="button"
-                        className="st-seg-cond__remove"
-                        aria-label="Remove condition"
-                        title="Remove condition"
-                        onClick={() => removeRow(row.uid)}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                objects.map((o) => (
+                  <SelectItem key={o.slug} value={o.slug}>
+                    {o.labelPlural}
+                  </SelectItem>
+                ))
               )}
+            </SelectContent>
+          </Select>
+        </Field>
 
-              <div className="st-seg-builder-add">
-                <TwentyButton
-                  variant="ghost"
-                  icon={Plus}
-                  onClick={addRow}
-                  disabled={fields.length === 0}
+        <Field label="Color">
+          <RadioGroup
+            value={color}
+            onValueChange={setColor}
+            orientation="horizontal"
+            aria-label="Segment color"
+            className="flex-wrap gap-3"
+          >
+            {SEGMENT_COLORS.map((c) => (
+              <Radio
+                key={c.value}
+                value={c.value}
+                label={
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      className="inline-block h-3.5 w-3.5 rounded-full border border-[var(--st-border)]"
+                      style={{ background: c.value }}
+                      aria-hidden="true"
+                    />
+                    {c.label}
+                  </span>
+                }
+              />
+            ))}
+          </RadioGroup>
+        </Field>
+
+        <Field
+          label="Filters"
+          help="All conditions must match. Leave empty to include every record."
+        >
+          <div className="flex flex-col gap-2">
+            {rows.length === 0 ? (
+              <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text-secondary)]">
+                No conditions yet.
+              </p>
+            ) : (
+              rows.map((row) => (
+                <div
+                  key={row.uid}
+                  className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2"
                 >
-                  Add condition
-                </TwentyButton>
-              </div>
+                  <Select
+                    value={row.field || undefined}
+                    onValueChange={(v) => updateRow(row.uid, { field: v })}
+                  >
+                    <SelectTrigger aria-label="Field">
+                      <SelectValue placeholder="Field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fields.map((f) => (
+                        <SelectItem key={f.key} value={f.key}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={row.op}
+                    onValueChange={(v) =>
+                      updateRow(row.uid, {
+                        op: v === 'contains' ? 'contains' : 'eq',
+                      })
+                    }
+                  >
+                    <SelectTrigger aria-label="Operator">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="eq">is</SelectItem>
+                      <SelectItem value="contains">contains</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Input
+                    value={row.value}
+                    aria-label="Value"
+                    placeholder="Value"
+                    onChange={(e) =>
+                      updateRow(row.uid, { value: e.target.value })
+                    }
+                  />
+
+                  <IconButton
+                    label="Remove condition"
+                    icon={Trash2}
+                    size="sm"
+                    onClick={() => removeRow(row.uid)}
+                  />
+                </div>
+              ))
+            )}
+
+            <div>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Plus}
+                onClick={addRow}
+                disabled={fields.length === 0}
+              >
+                Add condition
+              </Button>
             </div>
-
-            {error ? <p className="st-form-error">{error}</p> : null}
           </div>
+        </Field>
 
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancel
-            </TwentyButton>
-            <TwentyButton type="submit" variant="primary" disabled={submitting}>
-              {submitting
-                ? 'Saving…'
-                : isEdit
-                  ? 'Save changes'
-                  : 'Create segment'}
-            </TwentyButton>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? (
+          <Alert tone="danger" title="Could not save">
+            {error}
+          </Alert>
+        ) : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -558,50 +575,29 @@ function DeleteSegmentDialog({
   onConfirm: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete segment"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete segment</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Delete the segment{' '}
-            <strong className="text-[var(--st-text)]">{segment.name}</strong>?
-            Its records are not affected — only the saved smart list is removed.
-            This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+    <Modal
+      open
+      onClose={onCancel}
+      size="sm"
+      title="Delete segment"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Deleting…' : 'Delete segment'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button variant="danger" onClick={onConfirm} loading={busy}>
+            Delete segment
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 text-[var(--st-text-secondary)]">
+        Delete the segment{' '}
+        <strong className="text-[var(--st-text)]">{segment.name}</strong>? Its
+        records are not affected, only the saved smart list is removed. This
+        cannot be undone.
+      </p>
+    </Modal>
   );
 }
 
@@ -611,13 +607,15 @@ function DeleteSegmentDialog({
 
 function GridSkeleton({ count = 6 }: { count?: number }): React.JSX.Element {
   return (
-    <div className="st-seg-grid">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="st-seg-card st-seg-card--skeleton">
-          <div className="st-skeleton st-seg-skel-line" style={{ width: '60%' }} />
-          <div className="st-skeleton st-seg-skel-line" style={{ width: '40%' }} />
-          <div className="st-skeleton st-seg-skel-line" style={{ width: '30%' }} />
-        </div>
+        <Card key={i} padding="md">
+          <CardBody className="flex flex-col gap-2.5">
+            <Skeleton width="60%" height={14} />
+            <Skeleton width="40%" height={12} />
+            <Skeleton width="30%" height={12} />
+          </CardBody>
+        </Card>
       ))}
     </div>
   );
@@ -645,59 +643,57 @@ function SegmentCard({
   const dot = segment.color ?? DEFAULT_COLOR;
 
   return (
-    <div className="st-seg-card">
-      <div className="st-seg-card__top">
+    <Card padding="md" className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
         <span
-          className="st-seg-dot"
+          className="h-2.5 w-2.5 shrink-0 rounded-full"
           style={{ background: dot }}
           aria-hidden="true"
         />
-        <a className="st-seg-card__name" href={href} title={segment.name}>
+        <a
+          className="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--st-text)] hover:underline"
+          href={href}
+          title={segment.name}
+        >
           {segment.name}
         </a>
-        <div className="st-seg-card__actions">
-          <button
-            type="button"
-            className="st-seg-iconbtn"
-            aria-label="Edit segment"
-            title="Edit segment"
+        <div className="flex items-center gap-1">
+          <IconButton
+            label="Edit segment"
+            icon={Pencil}
+            size="sm"
             onClick={() => onEdit(segment)}
-          >
-            <Pencil size={14} />
-          </button>
-          <button
-            type="button"
-            className="st-seg-iconbtn st-seg-iconbtn--danger"
-            aria-label="Delete segment"
-            title="Delete segment"
+          />
+          <IconButton
+            label="Delete segment"
+            icon={Trash2}
+            size="sm"
             onClick={() => onDelete(segment)}
-          >
-            <Trash2 size={14} />
-          </button>
+          />
         </div>
       </div>
 
-      <div className="st-seg-card__meta">
-        <span className="st-seg-object">
-          <Database size={13} aria-hidden="true" />
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="neutral">
+          <Database size={13} aria-hidden="true" className="mr-1" />
           {objectLabel(segment.object, objects)}
-        </span>
-        <span className="st-seg-sep" aria-hidden="true">
-          ·
-        </span>
-        <span className="st-seg-filters-n">
+        </Badge>
+        <Badge tone={fc === 0 ? 'neutral' : 'accent'}>
           {fc === 0 ? 'No filters' : `${fc} filter${fc === 1 ? '' : 's'}`}
-        </span>
+        </Badge>
       </div>
 
-      <div className="st-seg-card__foot">
+      <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-3">
         <SegmentCount segment={segment} projectId={projectId} />
-        <a className="st-seg-open" href={href}>
+        <a
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--st-accent)] hover:underline"
+          href={href}
+        >
           Open
           <ArrowRight size={13} aria-hidden="true" />
         </a>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -707,6 +703,7 @@ function SegmentCard({
 
 export default function SabcrmSegmentsSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [segments, setSegments] = React.useState<CrmSegment[]>([]);
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
@@ -773,32 +770,42 @@ export default function SabcrmSegmentsSettingsPage(): React.JSX.Element {
       const res = await deleteSegmentTw(deleteTarget.id, activeProjectId ?? undefined);
       if (res.ok) {
         setSegments((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+        toast.success('Segment deleted');
         setDeleteTarget(null);
       } else {
         setError(res.error);
+        toast.error(res.error);
         setDeleteTarget(null);
       }
     } catch {
-      setError('Failed to delete the segment. The service may be unavailable.');
+      const msg = 'Failed to delete the segment. The service may be unavailable.';
+      setError(msg);
+      toast.error(msg);
       setDeleteTarget(null);
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId]);
+  }, [deleteTarget, activeProjectId, toast]);
 
   const canCreate = Boolean(activeProjectId) && objects.length > 0;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Segments"
-          icon={ListFilter}
-          actions={
-            activeProjectId ? (
-              <TwentyButton
+    <div className="ui20">
+      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Segments</PageTitle>
+            <PageDescription>
+              Segments are saved smart lists, a named, filtered, color-coded view
+              of one object. Each card shows its live record count and opens the
+              object pre-filtered. Manage your segments below.
+            </PageDescription>
+          </PageHeaderHeading>
+          {activeProjectId ? (
+            <PageActions>
+              <Button
                 variant="primary"
-                icon={Plus}
+                iconLeft={Plus}
                 onClick={() => setCreateOpen(true)}
                 disabled={!canCreate}
                 title={
@@ -808,73 +815,61 @@ export default function SabcrmSegmentsSettingsPage(): React.JSX.Element {
                 }
               >
                 New segment
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Segments are saved smart lists — a named, filtered, color-coded view of
-          one object. Each card shows its live record count and opens the object
-          pre-filtered. Manage your segments below.
-        </p>
+              </Button>
+            </PageActions>
+          ) : null}
+        </PageHeader>
 
-        {isLoadingProject || loading ? (
-          <GridSkeleton />
-        ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to view its segments.
-            </p>
-          </div>
-        ) : error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
-        ) : segments.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <ListFilter size={20} />
-            </span>
-            <h2 className="st-empty__title">No segments yet</h2>
-            <p className="st-empty__desc">
-              Create a segment to save a filtered, color-coded smart list of any
-              object.
-            </p>
-            <div className="st-seg-empty-cta">
-              <TwentyButton
-                variant="primary"
-                icon={Plus}
-                onClick={() => setCreateOpen(true)}
-                disabled={!canCreate}
-              >
-                New segment
-              </TwentyButton>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="st-seg-grid">
-              {segments.map((segment) => (
-                <SegmentCard
-                  key={segment.id}
-                  segment={segment}
-                  projectId={activeProjectId}
-                  objects={objects}
-                  onEdit={setEditTarget}
-                  onDelete={setDeleteTarget}
-                />
-              ))}
-            </div>
-            <p className="st-footnote">
-              {segments.length} segment{segments.length !== 1 ? 's' : ''}
-            </p>
-          </>
-        )}
+        <div className="mt-6">
+          {isLoadingProject || loading ? (
+            <GridSkeleton />
+          ) : !activeProjectId ? (
+            <EmptyState
+              icon={AlertTriangle}
+              tone="warning"
+              title="No project selected"
+              description="Select a project to view its segments."
+            />
+          ) : error ? (
+            <Alert tone="danger" title="Could not load segments">
+              {error}
+            </Alert>
+          ) : segments.length === 0 ? (
+            <EmptyState
+              icon={ListFilter}
+              title="No segments yet"
+              description="Create a segment to save a filtered, color-coded smart list of any object."
+              action={
+                <Button
+                  variant="primary"
+                  iconLeft={Plus}
+                  onClick={() => setCreateOpen(true)}
+                  disabled={!canCreate}
+                >
+                  New segment
+                </Button>
+              }
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {segments.map((segment) => (
+                  <SegmentCard
+                    key={segment.id}
+                    segment={segment}
+                    projectId={activeProjectId}
+                    objects={objects}
+                    onEdit={setEditTarget}
+                    onDelete={setDeleteTarget}
+                  />
+                ))}
+              </div>
+              <p className="mt-4 text-xs text-[var(--st-text-secondary)]">
+                {segments.length} segment{segments.length !== 1 ? 's' : ''}
+              </p>
+            </>
+          )}
+        </div>
       </div>
 
       {createOpen && activeProjectId ? (

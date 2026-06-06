@@ -1,37 +1,60 @@
 'use client';
 
 /**
- * SabCRM — Localization settings (`/dashboard/settings/crm/localization`),
- * Twenty-style.
+ * SabCRM - Localization settings (`/dashboard/settings/crm/localization`).
  *
  * Device-scoped regional + formatting controls. Every option drives a live
  * preview built from the browser's `Intl` APIs, so users see exactly how
  * dates, times, numbers and currencies will render under their choice:
  *
- *   - Language        — base BCP-47 locale for every preview.
- *   - Date format     — preset mapped to `Intl.DateTimeFormat` options.
- *   - Time format     — 12h / 24h (toggles `hour12`).
- *   - Number format   — decimal / grouping separator convention.
- *   - Default currency — ISO-4217 code, previewed via `Intl.NumberFormat`.
- *   - Timezone        — IANA zone (uses `Intl.supportedValuesOf` when present,
+ *   - Language        - base BCP-47 locale for every preview.
+ *   - Date format     - preset mapped to `Intl.DateTimeFormat` options.
+ *   - Time format     - 12h / 24h (toggles `hour12`).
+ *   - Number format   - decimal / grouping separator convention.
+ *   - Default currency - ISO-4217 code, previewed via `Intl.NumberFormat`.
+ *   - Timezone        - IANA zone (uses `Intl.supportedValuesOf` when present,
  *                       else a curated subset), previewed against "now".
- *   - First day of week — Sunday / Monday / Saturday.
+ *   - First day of week - Sunday / Monday / Saturday.
  *
  * Choices persist to BOTH the gated CRM settings document on the backend (via
- * `useSettingsSync('localization', …)` → the `getCrmSettingsTw` /
+ * `useSettingsSync('localization', ...)` -> the `getCrmSettingsTw` /
  * `updateCrmSettingsTw` server actions) AND the local `useL10nPrefs` cache, so a
  * user's regional setup follows them across devices while the page never blocks.
  * When the Rust settings engine is down the page degrades to the device-local
  * cache and shows an "offline" note. The page renders a skeleton until hydrated,
  * and every `Intl` call is guarded so an unsupported locale / zone degrades to a
  * readable fallback rather than throwing.
+ *
+ * Pure 20ui: every control comes from `@/components/sabcrm/20ui`. The enclosing
+ * settings shell establishes the `ui20 sabcrm-twenty` scope, so all `--st-*` /
+ * `--u-*` tokens resolve here.
  */
 
 import * as React from 'react';
-import { Languages } from 'lucide-react';
+import { Languages, RotateCcw } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { useToast } from '@/hooks/use-toast';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Button,
+  Skeleton,
+  Alert,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useL10nPrefs,
   type L10nPrefs,
@@ -40,14 +63,9 @@ import {
 } from './use-l10n-prefs';
 import { useSettingsSync } from '../use-settings-sync';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import '../profile/profile.css';
-import './localization.css';
-
 /**
  * Narrow the raw stored value into a usable localization slice. Only requires an
- * object — `useL10nPrefs.setPrefs` merges field-by-field and the hook's own
+ * object - `useL10nPrefs.setPrefs` merges field-by-field and the hook's own
  * sanitizing read coerces individual fields, so partial payloads are safe.
  */
 function coerceL10n(raw: unknown): Partial<L10nPrefs> | null {
@@ -84,34 +102,34 @@ const DATE_FORMAT_PRESETS: Array<{
 }> = [
   {
     value: 'short',
-    label: 'Short — e.g. 6/3/26',
+    label: 'Short, e.g. 6/3/26',
     options: { year: '2-digit', month: 'numeric', day: 'numeric' },
   },
   {
     value: 'medium',
-    label: 'Medium — e.g. Jun 3, 2026',
+    label: 'Medium, e.g. Jun 3, 2026',
     options: { year: 'numeric', month: 'short', day: 'numeric' },
   },
   {
     value: 'long',
-    label: 'Long — e.g. June 3, 2026',
+    label: 'Long, e.g. June 3, 2026',
     options: { year: 'numeric', month: 'long', day: 'numeric' },
   },
   {
     value: 'full',
-    label: 'Full — e.g. Wednesday, June 3, 2026',
+    label: 'Full, e.g. Wednesday, June 3, 2026',
     options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
   },
   {
     value: 'numeric',
-    label: 'Numeric — e.g. 2026-06-03',
+    label: 'Numeric, e.g. 2026-06-03',
     options: { year: 'numeric', month: '2-digit', day: '2-digit' },
   },
 ];
 
 const TIME_FORMAT_OPTIONS: Array<{ value: L10nTimeFormat; label: string }> = [
-  { value: '12h', label: '12-hour — e.g. 2:30 PM' },
-  { value: '24h', label: '24-hour — e.g. 14:30' },
+  { value: '12h', label: '12-hour, e.g. 2:30 PM' },
+  { value: '24h', label: '24-hour, e.g. 14:30' },
 ];
 
 /**
@@ -122,22 +140,22 @@ const TIME_FORMAT_OPTIONS: Array<{ value: L10nTimeFormat; label: string }> = [
 const NUMBER_FORMAT_OPTIONS: Option[] = [
   { value: 'en-US', label: '1,234,567.89  (comma group, dot decimal)' },
   { value: 'de-DE', label: '1.234.567,89  (dot group, comma decimal)' },
-  { value: 'fr-FR', label: '1 234 567,89  (space group, comma decimal)' },
+  { value: 'fr-FR', label: '1 234 567,89  (space group, comma decimal)' },
   { value: 'en-IN', label: '12,34,567.89  (Indian grouping)' },
   { value: 'de-CH', label: "1'234'567.89  (apostrophe group, dot decimal)" },
 ];
 
 const CURRENCY_OPTIONS: Option[] = [
-  { value: 'USD', label: 'USD — US Dollar' },
-  { value: 'EUR', label: 'EUR — Euro' },
-  { value: 'GBP', label: 'GBP — British Pound' },
-  { value: 'INR', label: 'INR — Indian Rupee' },
-  { value: 'JPY', label: 'JPY — Japanese Yen' },
-  { value: 'CNY', label: 'CNY — Chinese Yuan' },
-  { value: 'BRL', label: 'BRL — Brazilian Real' },
-  { value: 'CAD', label: 'CAD — Canadian Dollar' },
-  { value: 'AUD', label: 'AUD — Australian Dollar' },
-  { value: 'CHF', label: 'CHF — Swiss Franc' },
+  { value: 'USD', label: 'USD, US Dollar' },
+  { value: 'EUR', label: 'EUR, Euro' },
+  { value: 'GBP', label: 'GBP, British Pound' },
+  { value: 'INR', label: 'INR, Indian Rupee' },
+  { value: 'JPY', label: 'JPY, Japanese Yen' },
+  { value: 'CNY', label: 'CNY, Chinese Yuan' },
+  { value: 'BRL', label: 'BRL, Brazilian Real' },
+  { value: 'CAD', label: 'CAD, Canadian Dollar' },
+  { value: 'AUD', label: 'AUD, Australian Dollar' },
+  { value: 'CHF', label: 'CHF, Swiss Franc' },
 ];
 
 const FIRST_DAY_OPTIONS: Array<{ value: L10nFirstDayOfWeek; label: string }> = [
@@ -166,8 +184,15 @@ const FALLBACK_TIMEZONES = [
   'Australia/Sydney',
 ];
 
+/**
+ * Radix Select forbids an empty-string item value, so the "System default"
+ * timezone (stored as `''`) is represented in the listbox by this sentinel and
+ * translated back to `''` on change / when reading the current value.
+ */
+const SYSTEM_TZ_SENTINEL = '__system__';
+
 /* -------------------------------------------------------------------------
-   Intl helpers — every call is guarded so a bad locale / zone never throws
+   Intl helpers - every call is guarded so a bad locale / zone never throws
    ---------------------------------------------------------------------- */
 
 const SAMPLE_DATE = new Date('2026-06-03T14:30:00');
@@ -240,7 +265,7 @@ function previewFirstDay(prefs: L10nPrefs): { value: string; ok: boolean } {
   return safeFormat(() => {
     // Build the week header order starting from the chosen first day.
     const fmt = new Intl.DateTimeFormat(prefs.language, { weekday: 'short' });
-    // 2024-01-07 is a Sunday → index 0 lines up with getDay().
+    // 2024-01-07 is a Sunday, so index 0 lines up with getDay().
     const days = Array.from({ length: 7 }, (_, i) =>
       fmt.format(new Date(2024, 0, 7 + ((prefs.firstDayOfWeek + i) % 7))),
     );
@@ -252,6 +277,7 @@ function previewFirstDay(prefs: L10nPrefs): { value: string; ok: boolean } {
    Small presentational pieces
    ---------------------------------------------------------------------- */
 
+/** A live, token-styled preview row beneath a control. */
 function Preview({
   label,
   result,
@@ -261,17 +287,31 @@ function Preview({
 }): React.JSX.Element {
   return (
     <div
-      className={`st-l10n-preview${result.ok ? '' : ' st-l10n-preview--muted'}`}
+      className="mt-[var(--st-space-2)] flex items-baseline gap-[var(--st-space-2)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-[var(--st-space-3)] py-[var(--st-space-2)]"
       aria-live="polite"
     >
-      <span className="st-l10n-preview__label">{label}</span>
-      <span className="st-l10n-preview__value">{result.value}</span>
+      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        {label}
+      </span>
+      <span
+        className={
+          result.ok
+            ? 'font-mono text-[13px] text-[var(--st-text)]'
+            : 'font-mono text-[13px] text-[var(--st-text-tertiary)]'
+        }
+      >
+        {result.value}
+      </span>
     </div>
   );
 }
 
-function Field({
-  id,
+/**
+ * A single localization control: a labelled 20ui Select with optional helper
+ * text and a live preview. The empty-string timezone value is mapped to a
+ * sentinel for Radix and translated back on change.
+ */
+function L10nField({
   label,
   value,
   options,
@@ -279,7 +319,6 @@ function Field({
   preview,
   help,
 }: {
-  id: string;
   label: string;
   value: string;
   options: Option[];
@@ -287,26 +326,31 @@ function Field({
   preview: { value: string; ok: boolean };
   help?: string;
 }): React.JSX.Element {
+  const selectValue = value === '' ? SYSTEM_TZ_SENTINEL : value;
   return (
-    <div className="st-field st-l10n-field">
-      <label className="st-field__label" htmlFor={id}>
-        {label}
-      </label>
-      <select
-        id={id}
-        className="st-select"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+    <Field label={label} help={help}>
+      <Select
+        value={selectValue}
+        onValueChange={(next) =>
+          onChange(next === SYSTEM_TZ_SENTINEL ? '' : next)
+        }
       >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {help ? <span className="st-field__help">{help}</span> : null}
+        <SelectTrigger aria-label={label}>
+          <SelectValue placeholder="Select an option" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem
+              key={opt.value}
+              value={opt.value === '' ? SYSTEM_TZ_SENTINEL : opt.value}
+            >
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Preview label="Preview" result={preview} />
-    </div>
+    </Field>
   );
 }
 
@@ -368,10 +412,7 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
     // Clear the server slice too so the reset sticks across devices; an empty
     // object is normalized back to defaults on read.
     void sync.save({});
-    toast({
-      title: 'Localization reset',
-      description: 'Regional and formatting preferences restored to defaults.',
-    });
+    toast.success('Regional and formatting preferences restored to defaults.');
   }, [reset, sync, toast]);
 
   // Derive every preview from the current prefs (cheap; recomputed per render).
@@ -382,38 +423,70 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
   const timeZonePreview = previewTimeZone(prefs);
   const firstDayPreview = previewFirstDay(prefs);
 
-  return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Localization" icon={Languages} />
-        <p className="st-settings__intro">
-          Choose how dates, times, numbers and currencies are displayed in
-          SabCRM. Each preview updates live. Saved to your workspace so your
-          regional setup follows you across devices.
-          {sync.phase === 'offline' ? (
-            <span className="st-form-status st-form-status--err" style={{ display: 'block', marginTop: 4 }}>
-              The settings service is offline — changes are kept on this device
-              for now.
-            </span>
-          ) : null}
-        </p>
+  const summaryRows: Array<{ key: string; value: string }> = [
+    { key: 'Date', value: datePreview.value },
+    { key: 'Time', value: timePreview.value },
+    { key: 'Number', value: numberPreview.value },
+    { key: 'Currency', value: currencyPreview.value },
+    { key: 'Timezone', value: timeZonePreview.value },
+    { key: 'Week order', value: firstDayPreview.value },
+  ];
 
-        {!hydrated ? (
-          <div className="st-section" aria-busy="true" aria-live="polite">
-            <div className="st-l10n-skeleton" />
-            <span className="st-field__help">Loading your preferences…</span>
-          </div>
-        ) : (
-          <>
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Language</h2>
-                <p className="st-section__hint">
-                  The base locale used to format dates, times and names.
-                </p>
-              </div>
-              <Field
-                id="l10n-language"
+  return (
+    <div className="flex flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>
+            <span className="inline-flex items-center gap-[var(--st-space-2)]">
+              <Languages size={18} aria-hidden="true" />
+              Localization
+            </span>
+          </PageTitle>
+          <PageDescription>
+            Choose how dates, times, numbers and currencies are displayed in
+            SabCRM. Each preview updates live. Saved to your workspace so your
+            regional setup follows you across devices.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
+
+      {sync.phase === 'offline' ? (
+        <Alert tone="warning" title="Settings service offline">
+          Changes are kept on this device for now.
+        </Alert>
+      ) : null}
+
+      {!hydrated ? (
+        <Card>
+          <CardBody>
+            <div
+              className="flex flex-col gap-[var(--st-space-4)]"
+              aria-busy="true"
+              aria-live="polite"
+            >
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-[var(--st-space-2)]">
+                  <Skeleton width={120} height={12} />
+                  <Skeleton height={32} />
+                </div>
+              ))}
+              <span className="text-[13px] text-[var(--st-text-secondary)]">
+                Loading your preferences.
+              </span>
+            </div>
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-[var(--st-space-5)]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Language</CardTitle>
+              <CardDescription>
+                The base locale used to format dates, times and names.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Display language"
                 value={prefs.language}
                 options={LANGUAGE_OPTIONS}
@@ -421,17 +494,18 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 preview={datePreview}
                 help="More UI translations are coming soon; formatting applies now."
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Date format</h2>
-                <p className="st-section__hint">
-                  How calendar dates are written throughout SabCRM.
-                </p>
-              </div>
-              <Field
-                id="l10n-date-format"
+          <Card>
+            <CardHeader>
+              <CardTitle>Date format</CardTitle>
+              <CardDescription>
+                How calendar dates are written throughout SabCRM.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Date format"
                 value={prefs.dateFormat}
                 options={DATE_FORMAT_PRESETS.map((p) => ({
@@ -441,17 +515,18 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 onChange={(dateFormat) => patch({ dateFormat })}
                 preview={datePreview}
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Time format</h2>
-                <p className="st-section__hint">
-                  Use a 12-hour clock with AM/PM, or a 24-hour clock.
-                </p>
-              </div>
-              <Field
-                id="l10n-time-format"
+          <Card>
+            <CardHeader>
+              <CardTitle>Time format</CardTitle>
+              <CardDescription>
+                Use a 12-hour clock with AM/PM, or a 24-hour clock.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Time format"
                 value={prefs.timeFormat}
                 options={TIME_FORMAT_OPTIONS}
@@ -460,34 +535,36 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 }
                 preview={timePreview}
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Number format</h2>
-                <p className="st-section__hint">
-                  Controls the grouping and decimal separators for numbers.
-                </p>
-              </div>
-              <Field
-                id="l10n-number-format"
-                label="Decimal & grouping separators"
+          <Card>
+            <CardHeader>
+              <CardTitle>Number format</CardTitle>
+              <CardDescription>
+                Controls the grouping and decimal separators for numbers.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
+                label="Decimal and grouping separators"
                 value={prefs.numberFormat}
                 options={NUMBER_FORMAT_OPTIONS}
                 onChange={(numberFormat) => patch({ numberFormat })}
                 preview={numberPreview}
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Default currency</h2>
-                <p className="st-section__hint">
-                  The currency used when displaying monetary amounts.
-                </p>
-              </div>
-              <Field
-                id="l10n-currency"
+          <Card>
+            <CardHeader>
+              <CardTitle>Default currency</CardTitle>
+              <CardDescription>
+                The currency used when displaying monetary amounts.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Currency"
                 value={prefs.currency}
                 options={CURRENCY_OPTIONS}
@@ -495,18 +572,19 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 preview={currencyPreview}
                 help="Formatted using your selected number format."
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Timezone</h2>
-                <p className="st-section__hint">
-                  Times are shown relative to this zone. Defaults to your
-                  system setting.
-                </p>
-              </div>
-              <Field
-                id="l10n-timezone"
+          <Card>
+            <CardHeader>
+              <CardTitle>Timezone</CardTitle>
+              <CardDescription>
+                Times are shown relative to this zone. Defaults to your system
+                setting.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Timezone"
                 value={prefs.timeZone}
                 options={timeZoneOptions}
@@ -514,17 +592,18 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 preview={timeZonePreview}
                 help={`${timeZones.length} zones available.`}
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">First day of week</h2>
-                <p className="st-section__hint">
-                  The day calendars and date pickers start on.
-                </p>
-              </div>
-              <Field
-                id="l10n-first-day"
+          <Card>
+            <CardHeader>
+              <CardTitle>First day of week</CardTitle>
+              <CardDescription>
+                The day calendars and date pickers start on.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <L10nField
                 label="Week starts on"
                 value={String(prefs.firstDayOfWeek)}
                 options={FIRST_DAY_OPTIONS.map((o) => ({
@@ -538,46 +617,42 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
                 }
                 preview={firstDayPreview}
               />
-            </div>
+            </CardBody>
+          </Card>
 
-            <div className="st-section">
-              <div className="st-section__head">
-                <h2 className="st-section__title">Summary</h2>
-                <p className="st-section__hint">
-                  Everything together, exactly as it will appear.
-                </p>
-              </div>
-              <div className="st-l10n-summary">
-                <span className="st-l10n-summary__key">Date</span>
-                <span className="st-l10n-summary__val">{datePreview.value}</span>
-                <span className="st-l10n-summary__key">Time</span>
-                <span className="st-l10n-summary__val">{timePreview.value}</span>
-                <span className="st-l10n-summary__key">Number</span>
-                <span className="st-l10n-summary__val">
-                  {numberPreview.value}
-                </span>
-                <span className="st-l10n-summary__key">Currency</span>
-                <span className="st-l10n-summary__val">
-                  {currencyPreview.value}
-                </span>
-                <span className="st-l10n-summary__key">Timezone</span>
-                <span className="st-l10n-summary__val">
-                  {timeZonePreview.value}
-                </span>
-                <span className="st-l10n-summary__key">Week order</span>
-                <span className="st-l10n-summary__val">
-                  {firstDayPreview.value}
-                </span>
-              </div>
-              <div className="st-form-actions">
-                <TwentyButton variant="secondary" onClick={handleReset}>
-                  Reset to defaults
-                </TwentyButton>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Summary</CardTitle>
+              <CardDescription>
+                Everything together, exactly as it will appear.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-[var(--st-space-5)] gap-y-[var(--st-space-3)]">
+                {summaryRows.map((row) => (
+                  <React.Fragment key={row.key}>
+                    <dt className="text-[13px] font-medium text-[var(--st-text-secondary)]">
+                      {row.key}
+                    </dt>
+                    <dd className="font-mono text-[13px] text-[var(--st-text)]">
+                      {row.value}
+                    </dd>
+                  </React.Fragment>
+                ))}
+              </dl>
+            </CardBody>
+            <CardFooter>
+              <Button
+                variant="secondary"
+                iconLeft={RotateCcw}
+                onClick={handleReset}
+              >
+                Reset to defaults
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

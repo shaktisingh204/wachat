@@ -1,18 +1,18 @@
 'use client';
 
 /**
- * SabCRM — Audit Log settings (`/dashboard/settings/crm/audit`), Twenty-style.
+ * SabCRM - Audit Log settings (`/dashboard/settings/crm/audit`).
  *
  * Read-only timeline of audit entries emitted by the SabCRM Rust engine. Each
- * row shows: an action chip colour-coded by verb (create / update / delete),
- * the affected object + a deep link to the record (when an id is present), a
+ * row shows: an action badge colour-coded by verb (create / update / delete),
+ * the affected object plus a deep link to the record (when an id is present), a
  * short change summary, the actor, and a relative timestamp.
  *
- * Two lightweight filters narrow the log. The **object** filter is honoured
+ * Two lightweight filters narrow the log. The object filter is honoured
  * server-side (`listAuditTw({ object })`, which re-runs the full
- * session → project → RBAC → plan gate so the page fails closed). The
- * **action** filter is applied client-side over the returned page, because the
- * audit engine only filters by object / record / limit — the action verb is
+ * session -> project -> RBAC -> plan gate so the page fails closed). The
+ * action filter is applied client-side over the returned page, because the
+ * audit engine only filters by object / record / limit - the action verb is
  * free-form and classified in the UI. The selects' option lists are derived
  * from whatever the engine returns so they stay in sync with the live data.
  *
@@ -30,19 +30,46 @@ import {
   Filter,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  type BadgeTone,
+  Avatar,
+  Alert,
+  EmptyState,
+  Skeleton,
+  Card,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listAuditTw, type SabcrmRustAuditEntry } from '@/app/actions/sabcrm-audit.actions';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './audit.css';
-
 // ---------------------------------------------------------------------------
-// Action classification — maps a free-form action verb to a chip variant.
+// Action classification - maps a free-form action verb to a badge tone.
 // ---------------------------------------------------------------------------
 
 type ActionKind = 'create' | 'update' | 'delete' | 'other';
+
+const ACTION_TONE: Record<ActionKind, BadgeTone> = {
+  create: 'success',
+  update: 'info',
+  delete: 'danger',
+  other: 'neutral',
+};
 
 function classifyAction(action: string): ActionKind {
   const a = action.toLowerCase();
@@ -55,15 +82,14 @@ function classifyAction(action: string): ActionKind {
 function ActionChip({ action }: { action: string }): React.JSX.Element {
   const kind = classifyAction(action);
   return (
-    <span className={`st-chip st-audit-chip st-audit-chip--${kind}`}>
-      <span className="st-chip__dot" aria-hidden="true" />
-      <span className="st-chip__label">{action || 'event'}</span>
-    </span>
+    <Badge tone={ACTION_TONE[kind]} dot>
+      {action || 'event'}
+    </Badge>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Relative time — "just now" / "5m ago" / "3d ago", with a precise title.
+// Relative time - "just now" / "5m ago" / "3d ago", with a precise title.
 // ---------------------------------------------------------------------------
 
 function toDate(value: string): Date | null {
@@ -73,7 +99,7 @@ function toDate(value: string): Date | null {
 
 function relativeTime(value: string): { label: string; title: string } {
   const d = toDate(value);
-  if (!d) return { label: '—', title: value };
+  if (!d) return { label: '-', title: value };
   const title = d.toLocaleString();
   const diff = Date.now() - d.getTime();
   const sec = Math.round(diff / 1000);
@@ -95,11 +121,11 @@ function relativeTime(value: string): { label: string; title: string } {
 
 function AuditSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <Card padding="md" className="flex flex-col gap-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={18} radius={6} />
       ))}
-    </div>
+    </Card>
   );
 }
 
@@ -113,7 +139,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
 
   // `entries` holds the server page (already narrowed by the object filter when
-  // set). The action filter is applied client-side below — the audit engine
+  // set). The action filter is applied client-side below - the audit engine
   // doesn't filter on the free-form action verb.
   const [entries, setEntries] = React.useState<SabcrmRustAuditEntry[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -178,7 +204,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
     [entries],
   );
 
-  // Apply the action filter on the client — the engine returns by object only.
+  // Apply the action filter on the client - the engine returns by object only.
   const visibleEntries = React.useMemo(
     () =>
       actionFilter === ALL
@@ -190,180 +216,181 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
   const hasFilter = actionFilter !== ALL || objectFilter !== ALL;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Audit Log" icon={ScrollText} />
-        <p className="st-settings__intro">
-          A chronological record of changes made across this project&apos;s
-          SabCRM objects — who did what, and when. Entries are emitted by the
-          SabCRM engine and are read-only.
-        </p>
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Audit Log</PageTitle>
+          <PageDescription>
+            A chronological record of changes made across this project&apos;s SabCRM
+            objects - who did what, and when. Entries are emitted by the SabCRM engine
+            and are read-only.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {/* Filters — always rendered (except in the no-project state) so the
-            user can re-query even when the current filter yields nothing. */}
-        {activeProjectId ? (
-          <div className="st-audit-filters">
-            <div className="st-audit-filter">
-              <label className="st-audit-filter__label" htmlFor="audit-action">
-                Action
-              </label>
-              <select
-                id="audit-action"
-                className="st-select"
-                value={actionFilter}
-                onChange={(e) => setActionFilter(e.target.value)}
-                disabled={loading}
-              >
-                <option value={ALL}>All actions</option>
+      {/* Filters - always rendered (except in the no-project state) so the
+          user can re-query even when the current filter yields nothing. */}
+      {activeProjectId ? (
+        <div className="flex flex-wrap items-end gap-4">
+          <Field label="Action" id="audit-action" className="min-w-[12rem]">
+            <Select
+              value={actionFilter}
+              onValueChange={setActionFilter}
+              disabled={loading}
+            >
+              <SelectTrigger id="audit-action" aria-label="Filter by action">
+                <SelectValue placeholder="All actions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>All actions</SelectItem>
                 {actionOptions.map((a) => (
-                  <option key={a} value={a}>
+                  <SelectItem key={a} value={a}>
                     {a}
-                  </option>
+                  </SelectItem>
                 ))}
                 {/* Preserve a custom filter value even if absent from the
                     current page of results. */}
                 {actionFilter !== ALL && !actionOptions.includes(actionFilter) ? (
-                  <option value={actionFilter}>{actionFilter}</option>
+                  <SelectItem value={actionFilter}>{actionFilter}</SelectItem>
                 ) : null}
-              </select>
-            </div>
+              </SelectContent>
+            </Select>
+          </Field>
 
-            <div className="st-audit-filter">
-              <label className="st-audit-filter__label" htmlFor="audit-object">
-                Object
-              </label>
-              <select
-                id="audit-object"
-                className="st-select"
-                value={objectFilter}
-                onChange={(e) => setObjectFilter(e.target.value)}
-                disabled={loading}
-              >
-                <option value={ALL}>All objects</option>
+          <Field label="Object" id="audit-object" className="min-w-[12rem]">
+            <Select
+              value={objectFilter}
+              onValueChange={setObjectFilter}
+              disabled={loading}
+            >
+              <SelectTrigger id="audit-object" aria-label="Filter by object">
+                <SelectValue placeholder="All objects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>All objects</SelectItem>
                 {objectOptions.map((o) => (
-                  <option key={o} value={o}>
+                  <SelectItem key={o} value={o}>
                     {o}
-                  </option>
+                  </SelectItem>
                 ))}
                 {objectFilter !== ALL && !objectOptions.includes(objectFilter) ? (
-                  <option value={objectFilter}>{objectFilter}</option>
+                  <SelectItem value={objectFilter}>{objectFilter}</SelectItem>
                 ) : null}
-              </select>
-            </div>
+              </SelectContent>
+            </Select>
+          </Field>
 
-            <span className="st-audit-filters__spacer" />
-            {!loading && !error ? (
-              <span className="st-audit-filters__count">
-                {visibleEntries.length} event{visibleEntries.length !== 1 ? 's' : ''}
-                {hasFilter ? ' (filtered)' : ''}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+          <span className="flex-1" />
+          {!loading && !error ? (
+            <span className="pb-2 text-[0.8125rem] text-[var(--st-text-secondary)]">
+              {visibleEntries.length} event{visibleEntries.length !== 1 ? 's' : ''}
+              {hasFilter ? ' (filtered)' : ''}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
-        {isLoadingProject || loading ? (
-          <AuditSkeleton />
-        ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">Select a project to view its audit log.</p>
-          </div>
-        ) : error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
-        ) : visibleEntries.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              {hasFilter ? <Filter size={20} /> : <ScrollText size={20} />}
-            </span>
-            <h2 className="st-empty__title">
-              {hasFilter ? 'No matching events' : 'No audit events yet'}
-            </h2>
-            <p className="st-empty__desc">
-              {hasFilter
-                ? 'No audit entries match the current filters. Try widening your selection.'
-                : 'Changes made across this project will be recorded here as they happen.'}
-            </p>
-          </div>
-        ) : (
-          <div className="st-table-wrap">
-            <table className="st-table">
-              <thead>
-                <tr>
-                  <th>Action</th>
-                  <th>Object</th>
-                  <th>Summary</th>
-                  <th>Actor</th>
-                  <th>When</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleEntries.map((entry) => {
-                  const rel = relativeTime(entry.createdAt);
-                  const canLink = Boolean(entry.object && entry.recordId);
-                  return (
-                    <tr key={entry.id} className="st-row">
-                      <td>
-                        <ActionChip action={entry.action} />
-                      </td>
-                      <td>
-                        {entry.object ? (
-                          <div className="st-audit-target">
-                            <span className="st-audit-object">{entry.object}</span>
-                            {canLink ? (
-                              <Link
-                                href={`/sabcrm/${entry.object}/${entry.recordId}`}
-                                className="st-audit-record-link"
-                                title={entry.recordId}
-                              >
-                                <span>{entry.recordId}</span>
-                                <ExternalLink size={11} aria-hidden="true" />
-                              </Link>
-                            ) : entry.recordId ? (
-                              <span className="st-audit-record-id" title={entry.recordId}>
-                                {entry.recordId}
-                              </span>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <span className="st-muted">—</span>
-                        )}
-                      </td>
-                      <td>
-                        {entry.summary ? (
-                          <span className="st-audit-summary">{entry.summary}</span>
-                        ) : (
-                          <span className="st-audit-summary st-audit-summary--empty">
-                            No details
+      {isLoadingProject || loading ? (
+        <AuditSkeleton />
+      ) : !activeProjectId ? (
+        <EmptyState
+          icon={AlertTriangle}
+          tone="warning"
+          title="No project selected"
+          description="Select a project to view its audit log."
+        />
+      ) : error ? (
+        <Alert tone="danger" icon={AlertTriangle} title="Audit log unavailable">
+          {error}
+        </Alert>
+      ) : visibleEntries.length === 0 ? (
+        <EmptyState
+          icon={hasFilter ? Filter : ScrollText}
+          title={hasFilter ? 'No matching events' : 'No audit events yet'}
+          description={
+            hasFilter
+              ? 'No audit entries match the current filters. Try widening your selection.'
+              : 'Changes made across this project will be recorded here as they happen.'
+          }
+        />
+      ) : (
+        <Card padding="none" className="overflow-hidden">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Action</Th>
+                <Th>Object</Th>
+                <Th>Summary</Th>
+                <Th>Actor</Th>
+                <Th>When</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {visibleEntries.map((entry) => {
+                const rel = relativeTime(entry.createdAt);
+                const canLink = Boolean(entry.object && entry.recordId);
+                return (
+                  <Tr key={entry.id}>
+                    <Td>
+                      <ActionChip action={entry.action} />
+                    </Td>
+                    <Td>
+                      {entry.object ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-[var(--st-text)]">
+                            {entry.object}
                           </span>
-                        )}
-                      </td>
-                      <td>
-                        <span className="st-audit-actor">
-                          <TwentyAvatar name={entry.actorId || 'System'} size="sm" />
-                          <span className="st-audit-actor__name">
-                            {entry.actorId || 'System'}
-                          </span>
+                          {canLink ? (
+                            <Link
+                              href={`/sabcrm/${entry.object}/${entry.recordId}`}
+                              className="inline-flex w-fit items-center gap-1 text-[0.75rem] text-[var(--st-accent)] hover:underline"
+                              title={entry.recordId}
+                            >
+                              <span className="max-w-[16ch] truncate">{entry.recordId}</span>
+                              <ExternalLink size={11} aria-hidden="true" />
+                            </Link>
+                          ) : entry.recordId ? (
+                            <span
+                              className="max-w-[16ch] truncate text-[0.75rem] text-[var(--st-text-tertiary)]"
+                              title={entry.recordId}
+                            >
+                              {entry.recordId}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <span className="text-[var(--st-text-tertiary)]">-</span>
+                      )}
+                    </Td>
+                    <Td>
+                      {entry.summary ? (
+                        <span className="text-[var(--st-text)]">{entry.summary}</span>
+                      ) : (
+                        <span className="italic text-[var(--st-text-tertiary)]">
+                          No details
                         </span>
-                      </td>
-                      <td>
-                        <span className="st-audit-time" title={rel.title}>
-                          {rel.label}
+                      )}
+                    </Td>
+                    <Td>
+                      <span className="inline-flex items-center gap-2">
+                        <Avatar name={entry.actorId || 'System'} size="sm" />
+                        <span className="text-[var(--st-text)]">
+                          {entry.actorId || 'System'}
                         </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                      </span>
+                    </Td>
+                    <Td>
+                      <span className="text-[var(--st-text-secondary)]" title={rel.title}>
+                        {rel.label}
+                      </span>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </TBody>
+          </Table>
+        </Card>
+      )}
     </div>
   );
 }

@@ -1,13 +1,31 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, useToast } from '@/components/sabcrm/20ui';
 import {
-  useMemo
-} from 'react';
+    Alert,
+    Badge,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    Button,
+    Card,
+    EmptyState,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Spinner,
+    useToast,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
+import { useMemo } from 'react';
 import { useProject } from '@/context/project-context';
 
 import * as React from 'react';
-import { Loader, Package, RefreshCw, Store, Star, StarHalf } from 'lucide-react';
+import { Package, RefreshCw, Store, Star, StarHalf } from 'lucide-react';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 
 interface InstalledAppRow {
@@ -42,7 +60,6 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
     const { activeProject } = useProject();
     const { toast } = useToast();
     const projectId = activeProject?._id?.toString();
-    const qc = useQueryClient();
 
     const { data: rows = [], isLoading, error, refetch, isRefetching } = useQuery({
         queryKey: ['installed-apps', projectId],
@@ -56,7 +73,7 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
                 throw new Error(`HTTP ${res.status}`);
             }
             const data = (await res.json()) as ApiResponse;
-            
+
             // Add mock ratings to visually satisfy the feature request if missing from API
             return (Array.isArray(data.installs) ? data.installs : []).map(app => ({
                 ...app,
@@ -73,7 +90,7 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
             toast({
                 title: 'Failed to load installed apps',
                 description: error instanceof Error ? error.message : 'Unknown error',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }, [error, toast]);
@@ -98,28 +115,34 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <header className="flex items-start justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl text-[var(--st-text)]">Installed Apps</h1>
-                    <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Installed Apps</PageTitle>
+                    <PageDescription>
                         Apps your workspace has connected, with the last 30 days of usage.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" onClick={() => refetch()} disabled={isFetching}>
-                        <RefreshCw className={isFetching ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button
+                        variant="ghost"
+                        iconLeft={RefreshCw}
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        loading={isFetching}
+                    >
                         Refresh
                     </Button>
                     <Button
+                        variant="primary"
+                        iconLeft={Store}
                         onClick={() => {
                             window.location.assign('/dashboard/marketplace');
                         }}
                     >
-                        <Store className="mr-2 h-4 w-4" />
                         Browse Marketplace
                     </Button>
-                </div>
-            </header>
+                </PageActions>
+            </PageHeader>
 
             {isLoading && rows.length === 0 ? (
                 <LoadingPanel />
@@ -153,6 +176,7 @@ function StarRating({ rating: initialRating, count: initialCount, installId }: {
             toast({
                 title: 'Rating submitted',
                 description: `You rated this app ${variables} stars.`,
+                tone: 'success',
             });
             // Optimistically update the cache
             qc.setQueriesData({ queryKey: ['installed-apps'] }, (old: any) => {
@@ -187,23 +211,24 @@ function StarRating({ rating: initialRating, count: initialCount, installId }: {
                     const isHalf = !isFilled && starValue - 0.5 <= displayRating;
 
                     return (
-                        <button
+                        <Button
                             key={i}
-                            type="button"
+                            variant="ghost"
+                            size="sm"
                             disabled={isInteracting}
                             onMouseEnter={() => setHoveredRating(starValue)}
                             onClick={() => mutation.mutate(starValue)}
-                            className={`p-0.5 transition-transform hover:scale-110 ${isInteracting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            className="!p-0.5 !h-auto !min-h-0 transition-transform hover:scale-110"
                             aria-label={`Rate ${starValue} stars`}
                         >
                             {isFilled ? (
-                                <Star className="h-4 w-4 fill-current" />
+                                <Star className="h-4 w-4 fill-current" aria-hidden="true" />
                             ) : isHalf ? (
-                                <StarHalf className="h-4 w-4 fill-current" />
+                                <StarHalf className="h-4 w-4 fill-current" aria-hidden="true" />
                             ) : (
-                                <Star className="h-4 w-4 text-[var(--st-border)]" />
+                                <Star className="h-4 w-4 text-[var(--st-border)]" aria-hidden="true" />
                             )}
-                        </button>
+                        </Button>
                     );
                 })}
             </div>
@@ -225,13 +250,13 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
             <header className="flex items-start gap-3">
                 <div
                     aria-hidden="true"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] shrink-0"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-secondary)] text-[var(--st-text)] shrink-0"
                 >
                     {row.iconUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={row.iconUrl} alt="" className="h-8 w-8 rounded-lg" />
                     ) : (
-                        <Package className="h-5 w-5" />
+                        <Package className="h-5 w-5" aria-hidden="true" />
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -270,7 +295,7 @@ function UsageSparkline({
 
     if (series.length === 0) {
         return (
-            <div className="flex h-16 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-xs text-[var(--st-text-secondary)]">
+            <div className="flex h-16 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-xs text-[var(--st-text-secondary)]">
                 No usage in the last 30 days
             </div>
         );
@@ -284,7 +309,7 @@ function UsageSparkline({
             role="img"
             aria-label={`Daily usage chart with ${series.length} bars; max ${max} units in a single day`}
             viewBox={`0 0 ${W} ${H}`}
-            className="h-16 w-full text-[var(--st-text)]"
+            className="h-16 w-full text-[var(--st-accent)]"
         >
             <title>30-day usage</title>
             {series.map((p, i) => {
@@ -313,45 +338,45 @@ function StatusPill({
 }: {
     status: InstalledAppRow['status'];
 }): React.JSX.Element {
-    const styles: Record<InstalledAppRow['status'], string> = {
-        active: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
-        pending: 'bg-[var(--st-warn)]/10 text-[var(--st-warn)]',
-        suspended: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
-        uninstalled: 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
+    const tones: Record<InstalledAppRow['status'], BadgeTone> = {
+        active: 'success',
+        pending: 'warning',
+        suspended: 'danger',
+        uninstalled: 'neutral',
     };
     return (
-        <span
-            className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${styles[status]}`}
-        >
+        <Badge tone={tones[status]} kind="soft" className="uppercase">
             {status}
-        </span>
+        </Badge>
     );
 }
 
 function LoadingPanel(): React.JSX.Element {
     return (
         <div className="flex min-h-[240px] items-center justify-center">
-            <Loader className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
+            <Spinner size="lg" label="Loading installed apps" />
         </div>
     );
 }
 
 function EmptyPanel(): React.JSX.Element {
     return (
-        <Card className="flex min-h-[240px] flex-col items-center justify-center gap-2 p-8 text-center">
-            <Store className="h-8 w-8 text-[var(--st-text-secondary)]" />
-            <h2 className="text-base text-[var(--st-text)]">No apps installed yet</h2>
-            <p className="max-w-md text-sm text-[var(--st-text-secondary)]">
-                Browse the marketplace to extend your workspace with first- and third-party apps.
-            </p>
-            <Button
-                className="mt-2"
-                onClick={() => {
-                    window.location.assign('/dashboard/marketplace');
-                }}
-            >
-                Browse Marketplace
-            </Button>
+        <Card className="flex min-h-[240px] items-center justify-center p-8">
+            <EmptyState
+                icon={Store}
+                title="No apps installed yet"
+                description="Browse the marketplace to extend your workspace with first- and third-party apps."
+                action={
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            window.location.assign('/dashboard/marketplace');
+                        }}
+                    >
+                        Browse Marketplace
+                    </Button>
+                }
+            />
         </Card>
     );
 }
@@ -364,13 +389,13 @@ function ErrorPanel({
     onRetry: () => void;
 }): React.JSX.Element {
     return (
-        <Card className="flex min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
-            <p className="text-sm text-[var(--st-text)]">Couldn&apos;t load installed apps.</p>
+        <Alert tone="danger" title="Couldn't load installed apps">
             <p className="font-mono text-xs text-[var(--st-text-secondary)]">{message}</p>
-            <Button variant="ghost" onClick={onRetry}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Retry
-            </Button>
-        </Card>
+            <div className="mt-3">
+                <Button variant="ghost" size="sm" iconLeft={RefreshCw} onClick={onRetry}>
+                    Retry
+                </Button>
+            </div>
+        </Alert>
     );
 }

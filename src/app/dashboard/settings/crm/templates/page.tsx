@@ -1,30 +1,29 @@
 'use client';
 
 /**
- * SabCRM — Templates settings (`/dashboard/settings/crm/templates`), Twenty-style.
+ * SabCRM - Templates settings (`/dashboard/settings/crm/templates`), pure 20ui.
  *
  * A two-pane note / email / task template manager scoped to the active project
  * via `useProject()`:
  *
- *   • A kind filter (All / Note / Email / Task) above the panes narrows the
+ *   - A kind filter (All / Note / Email / Task) above the panes narrows the
  *     left list to a single template kind.
  *
- *   • Left pane — a scrollable list of templates, each row showing the template
+ *   - Left pane: a scrollable list of templates, each row showing the template
  *     name and a per-kind badge. Selecting a row loads it into the editor.
  *     "New" seeds a fresh, unsaved draft of the currently-filtered kind.
  *
- *   • Right pane — the editor: name input, kind select, a subject input shown
+ *   - Right pane: the editor: name input, kind select, a subject input shown
  *     only for the `email` kind, and a body textarea. An inline hint lists the
  *     template variables the engine supports (e.g. {{record.name}}). Save /
  *     Delete sit in the editor header.
  *
- * Every action independently re-runs the session → project → RBAC → plan
- * pipeline server-side, so the page fails closed. States: list/editor
- * skeletons while data loads, "no project" notice, empty list, error banner,
- * and graceful degradation when the engine is unreachable.
+ * Every action independently re-runs the session, project, RBAC, plan pipeline
+ * server-side, so the page fails closed. States: list/editor skeletons while
+ * data loads, "no project" notice, empty list, error banner, and graceful
+ * degradation when the engine is unreachable.
  *
- * Editable surface is this page + `./templates.css` only. The data layer lives
- * in `@/app/actions/sabcrm-templates.actions` (built in parallel); this file
+ * The data layer lives in `@/app/actions/sabcrm-templates.actions`; this file
  * codes against that documented contract.
  */
 
@@ -34,16 +33,37 @@ import {
   Plus,
   Save,
   Trash2,
-  AlertTriangle,
   Info,
   StickyNote,
   Mail,
   CheckSquare,
   LayoutTemplate,
-  X,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Badge,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SegmentedControl,
+  Alert,
+  EmptyState,
+  Callout,
+  Skeleton,
+  Modal,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listTemplatesTw,
@@ -52,10 +72,6 @@ import {
   updateTemplateTw,
   deleteTemplateTw,
 } from '@/app/actions/sabcrm-templates.actions';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './templates.css';
 
 // ---------------------------------------------------------------------------
 // Wire shapes
@@ -80,7 +96,7 @@ type ActionResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
-/** Filter value — the three real kinds plus the catch-all "all". */
+/** Filter value: the three real kinds plus the catch-all "all". */
 type KindFilter = 'all' | TemplateKind;
 
 // ---------------------------------------------------------------------------
@@ -90,21 +106,23 @@ type KindFilter = 'all' | TemplateKind;
 interface KindInfo {
   label: string;
   Icon: React.ElementType;
+  /** Badge tone that carries the kind's meaning. */
+  tone: BadgeTone;
 }
 
 const KIND_INFO: Record<TemplateKind, KindInfo> = {
-  note: { label: 'Note', Icon: StickyNote },
-  email: { label: 'Email', Icon: Mail },
-  task: { label: 'Task', Icon: CheckSquare },
+  note: { label: 'Note', Icon: StickyNote, tone: 'accent' },
+  email: { label: 'Email', Icon: Mail, tone: 'info' },
+  task: { label: 'Task', Icon: CheckSquare, tone: 'success' },
 };
 
 const KIND_ORDER: TemplateKind[] = ['note', 'email', 'task'];
 
-const FILTER_TABS: { value: KindFilter; label: string; Icon: React.ElementType }[] = [
-  { value: 'all', label: 'All', Icon: LayoutTemplate },
-  { value: 'note', label: 'Note', Icon: StickyNote },
-  { value: 'email', label: 'Email', Icon: Mail },
-  { value: 'task', label: 'Task', Icon: CheckSquare },
+const FILTER_ITEMS: { value: KindFilter; label: string; icon: React.ElementType }[] = [
+  { value: 'all', label: 'All', icon: LayoutTemplate },
+  { value: 'note', label: 'Note', icon: StickyNote },
+  { value: 'email', label: 'Email', icon: Mail },
+  { value: 'task', label: 'Task', icon: CheckSquare },
 ];
 
 /** Supported merge variables surfaced as an inline hint in the editor. */
@@ -149,15 +167,14 @@ function blankDraft(kind: TemplateKind): Draft {
 }
 
 // ---------------------------------------------------------------------------
-// Kind badge — list-row chip with a per-kind dot.
+// Kind badge - list-row chip with a per-kind tone.
 // ---------------------------------------------------------------------------
 
 function KindBadge({ kind }: { kind: TemplateKind }): React.JSX.Element {
   return (
-    <span className={`st-tpl-kind st-tpl-kind--${kind}`}>
-      <span className="st-tpl-kind__dot" aria-hidden="true" />
+    <Badge tone={KIND_INFO[kind].tone} dot>
       {KIND_INFO[kind].label}
-    </span>
+    </Badge>
   );
 }
 
@@ -167,9 +184,9 @@ function KindBadge({ kind }: { kind: TemplateKind }): React.JSX.Element {
 
 function ListSkeleton(): React.JSX.Element {
   return (
-    <div className="st-tpl-list__skeleton">
+    <div className="flex flex-col gap-2 p-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <Skeleton key={i} height={40} radius="var(--st-radius)" />
       ))}
     </div>
   );
@@ -181,23 +198,22 @@ function ListSkeleton(): React.JSX.Element {
 
 function VariableHint(): React.JSX.Element {
   return (
-    <div className="st-tpl-vars">
-      <div className="st-tpl-vars__head">
-        <Info size={12} aria-hidden="true" />
-        Supported variables
-      </div>
-      <div className="st-tpl-vars__list">
+    <Callout tone="info" icon={Info} title="Supported variables">
+      <div className="mt-2 flex flex-wrap gap-1.5">
         {SUPPORTED_VARIABLES.map((v) => (
-          <code key={v} className="st-tpl-vars__chip">
+          <code
+            key={v}
+            className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--st-text-secondary)]"
+          >
             {v}
           </code>
         ))}
       </div>
-      <p className="st-tpl-vars__note">
-        Insert any of these tokens into the subject or body — they&apos;re
-        replaced with the record&apos;s values when the template is used.
+      <p className="mt-2 text-[12px] text-[var(--st-text-secondary)]">
+        Insert any of these tokens into the subject or body. They are replaced
+        with the record&apos;s values when the template is used.
       </p>
-    </div>
+    </Callout>
   );
 }
 
@@ -229,182 +245,95 @@ function Editor({
 
   return (
     <form
-      className="st-tpl-editor"
+      className="flex min-h-0 flex-1 flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]"
       onSubmit={(e) => {
         e.preventDefault();
         onSave();
       }}
     >
-      <div className="st-tpl-editor__head">
-        <h2 className="st-tpl-editor__title">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-5 py-3">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
           {isNew ? 'New template' : 'Edit template'}
         </h2>
-        <div className="st-tpl-editor__actions">
+        <div className="flex items-center gap-2">
           {!isNew ? (
-            <TwentyButton
-              variant="ghost"
-              icon={Trash2}
-              className="st-btn--danger"
+            <Button
+              variant="danger"
+              iconLeft={Trash2}
               onClick={onDelete}
               disabled={busy}
               title="Delete template"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
-            </TwentyButton>
+              {deleting ? 'Deleting' : 'Delete'}
+            </Button>
           ) : null}
-          <TwentyButton type="submit" variant="primary" icon={Save} disabled={busy}>
-            {saving ? 'Saving…' : 'Save'}
-          </TwentyButton>
+          <Button type="submit" variant="primary" iconLeft={Save} loading={saving} disabled={busy}>
+            {saving ? 'Saving' : 'Save'}
+          </Button>
         </div>
       </div>
 
       {error ? (
-        <div className="st-banner">
-          <AlertTriangle className="st-banner__icon" size={16} />
-          <span>{error}</span>
+        <div className="px-5 pt-4">
+          <Alert tone="danger">{error}</Alert>
         </div>
       ) : null}
 
-      <div className="st-tpl-editor__body">
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="tpl-name">
-            Name
-            <span className="st-field__req" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <input
-            id="tpl-name"
-            className="st-input"
-            type="text"
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
+        <Field label="Name" required>
+          <Input
             value={draft.name}
             onChange={(e) => onChange({ name: e.target.value })}
             placeholder="e.g. Follow-up email"
             disabled={busy}
             autoComplete="off"
           />
-        </div>
+        </Field>
 
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="tpl-kind">
-            Kind
-          </label>
-          <select
-            id="tpl-kind"
-            className="st-select"
+        <Field label="Kind">
+          <Select
             value={draft.kind}
-            onChange={(e) => onChange({ kind: e.target.value as TemplateKind })}
+            onValueChange={(v) => onChange({ kind: v as TemplateKind })}
             disabled={busy}
           >
-            {KIND_ORDER.map((k) => (
-              <option key={k} value={k}>
-                {KIND_INFO[k].label}
-              </option>
-            ))}
-          </select>
-        </div>
+            <SelectTrigger aria-label="Template kind">
+              <SelectValue placeholder="Pick a kind" />
+            </SelectTrigger>
+            <SelectContent>
+              {KIND_ORDER.map((k) => (
+                <SelectItem key={k} value={k}>
+                  {KIND_INFO[k].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
         {draft.kind === 'email' ? (
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="tpl-subject">
-              Subject
-            </label>
-            <input
-              id="tpl-subject"
-              className="st-input"
-              type="text"
+          <Field label="Subject">
+            <Input
               value={draft.subject}
               onChange={(e) => onChange({ subject: e.target.value })}
               placeholder="e.g. Following up on {{record.name}}"
               disabled={busy}
               autoComplete="off"
             />
-          </div>
+          </Field>
         ) : null}
 
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="tpl-body">
-            Body
-          </label>
-          <textarea
-            id="tpl-body"
-            className="st-textarea st-tpl-body"
+        <Field label="Body">
+          <Textarea
             value={draft.body}
             onChange={(e) => onChange({ body: e.target.value })}
             placeholder="Write the template content. Use variables like {{record.name}}."
             disabled={busy}
+            rows={10}
           />
-        </div>
+        </Field>
 
         <VariableHint />
       </div>
     </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Delete confirmation dialog
-// ---------------------------------------------------------------------------
-
-interface DeleteTemplateDialogProps {
-  name: string;
-  busy: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
-
-function DeleteTemplateDialog({
-  name,
-  busy,
-  onCancel,
-  onConfirm,
-}: DeleteTemplateDialogProps): React.JSX.Element {
-  return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Delete template"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete template</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Delete{' '}
-            <strong style={{ color: 'var(--st-text)' }}>
-              {name.trim() || 'this template'}
-            </strong>
-            ? This cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Deleting…' : 'Delete template'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -592,141 +521,152 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="Templates"
+    <div className="ui20 sabcrm-twenty mx-auto flex min-h-0 w-full max-w-5xl flex-col gap-5 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Templates</PageTitle>
+          <PageDescription>
+            Reusable note, email, and task templates for this workspace. Pick a
+            template on the left to edit it, or create a new one. Templates can
+            embed variables like <code>{'{{record.name}}'}</code> that are
+            filled in when the template is used.
+          </PageDescription>
+        </PageHeaderHeading>
+        {activeProjectId ? (
+          <PageActions>
+            <Button variant="primary" iconLeft={Plus} onClick={startNew}>
+              New template
+            </Button>
+          </PageActions>
+        ) : null}
+      </PageHeader>
+
+      {isLoadingProject ? (
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+          <ListSkeleton />
+        </div>
+      ) : !activeProjectId ? (
+        <EmptyState
           icon={FileText}
-          actions={
-            activeProjectId ? (
-              <TwentyButton variant="primary" icon={Plus} onClick={startNew}>
-                New template
-              </TwentyButton>
-            ) : null
-          }
+          tone="warning"
+          title="No project selected"
+          description="Select a project to manage its templates."
         />
-        <p className="st-settings__intro">
-          Reusable note, email, and task templates for this workspace. Pick a
-          template on the left to edit it, or create a new one. Templates can
-          embed variables like <code>{'{{record.name}}'}</code> that are filled
-          in when the template is used.
-        </p>
+      ) : (
+        <>
+          {/* Kind filter */}
+          <SegmentedControl
+            aria-label="Filter templates by kind"
+            value={filter}
+            onChange={(v) => setFilter(v as KindFilter)}
+            items={FILTER_ITEMS.map((tab) => ({
+              value: tab.value,
+              label: tab.label,
+              icon: tab.icon as never,
+            }))}
+          />
 
-        {isLoadingProject ? (
-          <div className="st-tpl-list">
-            <ListSkeleton />
-          </div>
-        ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to manage its templates.
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Kind filter */}
-            <div className="st-tpl-filter" role="tablist" aria-label="Filter templates by kind">
-              {FILTER_TABS.map((tab) => {
-                const active = filter === tab.value;
-                const { Icon } = tab;
-                return (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    className={`st-tpl-filter__btn${active ? ' st-tpl-filter__btn--active' : ''}`}
-                    onClick={() => setFilter(tab.value)}
-                  >
-                    <Icon size={13} aria-hidden="true" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="st-tpl-split">
-              {/* Left list */}
-              <aside className="st-tpl-list" aria-label="Templates">
-                {loading ? (
-                  <ListSkeleton />
-                ) : error ? (
-                  <div className="st-tpl-list__empty">{error}</div>
-                ) : visibleTemplates.length === 0 ? (
-                  <div className="st-tpl-list__empty">
-                    {templates.length === 0
-                      ? 'No templates yet. Create one to get started.'
-                      : `No ${filter} templates.`}
-                  </div>
-                ) : (
-                  <div className="st-tpl-list__scroll">
-                    {visibleTemplates.map((t) => {
-                      const active = selectedId === t.id;
-                      return (
-                        <button
-                          key={t.id}
-                          type="button"
-                          className={`st-tpl-item${active ? ' st-tpl-item--active' : ''}`}
-                          aria-current={active ? 'true' : undefined}
-                          onClick={() => void selectTemplate(t.id)}
-                        >
-                          <span
-                            className={`st-tpl-item__name${
-                              t.name.trim() ? '' : ' st-tpl-item__name--untitled'
-                            }`}
-                          >
-                            {t.name.trim() || 'Untitled template'}
-                          </span>
-                          <KindBadge kind={t.kind} />
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </aside>
-
-              {/* Right editor */}
-              {draft ? (
-                <Editor
-                  draft={draft}
-                  saving={saving}
-                  deleting={deleting}
-                  error={editorError}
-                  onChange={patchDraft}
-                  onSave={handleSave}
-                  onDelete={() => setConfirmingDelete(true)}
+          <div className="grid min-h-[28rem] grid-cols-1 gap-4 md:grid-cols-[18rem_1fr]">
+            {/* Left list */}
+            <aside
+              className="flex min-h-0 flex-col overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]"
+              aria-label="Templates"
+            >
+              {loading ? (
+                <ListSkeleton />
+              ) : error ? (
+                <div className="p-4">
+                  <Alert tone="danger">{error}</Alert>
+                </div>
+              ) : visibleTemplates.length === 0 ? (
+                <EmptyState
+                  size="sm"
+                  icon={FileText}
+                  title={templates.length === 0 ? 'No templates yet' : `No ${filter} templates`}
+                  description={
+                    templates.length === 0
+                      ? 'Create one to get started.'
+                      : 'Try a different filter, or create one.'
+                  }
                 />
               ) : (
-                <div className="st-tpl-editor st-tpl-editor--empty">
-                  <div className="st-empty">
-                    <span className="st-empty__icon">
-                      <FileText size={20} />
-                    </span>
-                    <h2 className="st-empty__title">No template selected</h2>
-                    <p className="st-empty__desc">
-                      Choose a template from the list, or create a new one to
-                      start editing.
-                    </p>
-                  </div>
+                <div className="flex flex-col gap-1 overflow-y-auto p-2">
+                  {visibleTemplates.map((t) => {
+                    const active = selectedId === t.id;
+                    return (
+                      <Button
+                        key={t.id}
+                        variant={active ? 'secondary' : 'ghost'}
+                        block
+                        aria-current={active ? 'true' : undefined}
+                        onClick={() => void selectTemplate(t.id)}
+                        className="justify-between"
+                      >
+                        <span
+                          className={
+                            t.name.trim()
+                              ? 'truncate text-[var(--st-text)]'
+                              : 'truncate italic text-[var(--st-text-tertiary)]'
+                          }
+                        >
+                          {t.name.trim() || 'Untitled template'}
+                        </span>
+                        <KindBadge kind={t.kind} />
+                      </Button>
+                    );
+                  })}
                 </div>
               )}
-            </div>
-          </>
-        )}
-      </div>
+            </aside>
 
-      {confirmingDelete && draft && draft.id !== null ? (
-        <DeleteTemplateDialog
-          name={draft.name}
-          busy={deleting}
-          onCancel={() => setConfirmingDelete(false)}
-          onConfirm={handleDelete}
-        />
-      ) : null}
+            {/* Right editor */}
+            {draft ? (
+              <Editor
+                draft={draft}
+                saving={saving}
+                deleting={deleting}
+                error={editorError}
+                onChange={patchDraft}
+                onSave={handleSave}
+                onDelete={() => setConfirmingDelete(true)}
+              />
+            ) : (
+              <div className="flex min-h-0 flex-1 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                <EmptyState
+                  icon={FileText}
+                  title="No template selected"
+                  description="Choose a template from the list, or create a new one to start editing."
+                />
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <Modal
+        open={confirmingDelete && Boolean(draft) && draft?.id !== null}
+        onClose={() => setConfirmingDelete(false)}
+        title="Delete template"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleting} disabled={deleting}>
+              {deleting ? 'Deleting' : 'Delete template'}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-[var(--st-text-secondary)]">
+          Delete{' '}
+          <strong className="text-[var(--st-text)]">
+            {draft?.name.trim() || 'this template'}
+          </strong>
+          ? This cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }

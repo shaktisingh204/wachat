@@ -1,24 +1,22 @@
 /**
- * SabCRM — Help & Keyboard Shortcuts settings (`/dashboard/settings/crm/help`).
+ * SabCRM - Help & Keyboard Shortcuts settings (`/dashboard/settings/crm/help`).
  *
- * A fully static, Twenty-style reference page. There is no data fetching and
- * no interactivity, so this stays a server component (no `'use client'`).
+ * A fully static reference page built on the 20ui design system. There is no
+ * data fetching and no interactivity of its own, so this stays a server
+ * component (it only renders 20ui client primitives).
  *
  * Three scannable sections:
  *
- *   1. Keyboard shortcuts — a reference table grouped by area (Global, Table,
- *      Record). Keys render as `<kbd class="st-kbd">` chips, alternative keys
- *      joined by a small "or".
+ *   1. Keyboard shortcuts - reference tables grouped by area (Global, Table,
+ *      Record). Keys render as 20ui Kbd chips, alternative keys joined by a
+ *      faint "or".
  *
- *   2. Getting started — link cards into the key SabCRM settings areas
- *      (Data model, Members, Import & export, Workflows).
+ *   2. Getting started - interactive 20ui cards that link into the key SabCRM
+ *      settings areas (Data model, Members, Import & export, Workflows).
  *
- *   3. Resources — documentation / support links. These are honest
- *      placeholders: the external help destinations aren't wired up yet, so
- *      each is tagged "Placeholder" and points at `#`.
- *
- * Shared `.st-*` styling comes from `sabcrm-twenty.css`; the help-only layout
- * classes live in the sibling `help.css`.
+ *   3. Resources - documentation / support entries. These are honest
+ *      placeholders: the external help destinations are not wired up yet, so
+ *      each is tagged with a "Placeholder" Badge and is non-interactive.
  */
 
 import * as React from 'react';
@@ -35,11 +33,21 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
-
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './help.css';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardTitle,
+  CardDescription,
+  Table,
+  TBody,
+  Tr,
+  Td,
+  Kbd,
+  Badge,
+} from '@/components/sabcrm/20ui';
 
 // ---------------------------------------------------------------------------
 // Shortcut data
@@ -47,7 +55,7 @@ import './help.css';
 
 /** A single shortcut row: one or more key sequences plus what it does. */
 interface Shortcut {
-  /** Each entry is a chord rendered as one `<kbd>`; multiple = alternatives. */
+  /** Each entry is a chord rendered as one Kbd; multiple = alternatives. */
   keys: string[];
   description: string;
 }
@@ -123,7 +131,7 @@ const START_CARDS: StartCard[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Resource links (placeholders — external help isn't wired up yet)
+// Resource links (placeholders - external help isn't wired up yet)
 // ---------------------------------------------------------------------------
 
 interface Resource {
@@ -152,18 +160,44 @@ const RESOURCES: Resource[] = [
 /** Renders one shortcut's key chips, joining alternatives with a faint "or". */
 function ShortcutKeys({ keys }: { keys: string[] }): React.JSX.Element {
   return (
-    <span className="st-shortcut-keys">
+    <span className="inline-flex items-center gap-1.5">
       {keys.map((key, i) => (
         <React.Fragment key={key}>
           {i > 0 ? (
-            <span className="st-shortcut-keys__sep" aria-hidden="true">
+            <span
+              className="text-[11px] text-[var(--st-text-tertiary)]"
+              aria-hidden="true"
+            >
               or
             </span>
           ) : null}
-          <kbd className="st-kbd">{key}</kbd>
+          <Kbd>{key}</Kbd>
         </React.Fragment>
       ))}
     </span>
+  );
+}
+
+/** A section wrapper: heading + description, then the section body. */
+function HelpSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: React.ReactNode;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">{title}</h2>
+        <p className="max-w-[60ch] text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
+          {description}
+        </p>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -173,112 +207,138 @@ function ShortcutKeys({ keys }: { keys: string[] }): React.JSX.Element {
 
 export default function SabcrmHelpSettingsPage(): React.JSX.Element {
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Help & Shortcuts" icon={HelpCircle} />
-        <p className="st-settings__intro">
-          A quick reference for moving around SabCRM faster — keyboard
-          shortcuts, jumping-off points for setup, and where to find more help.
-        </p>
+    <div className="ui20 mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <HelpCircle size={18} aria-hidden="true" />
+            Help & Shortcuts
+          </PageTitle>
+          <PageDescription>
+            A quick reference for moving around SabCRM faster: keyboard
+            shortcuts, jumping-off points for setup, and where to find more help.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {/* ----- Keyboard shortcuts ----- */}
-        <section className="st-help-section">
-          <div className="st-help-section__head">
-            <h2 className="st-help-section__title">Keyboard shortcuts</h2>
-            <p className="st-help-section__desc">
-              Most actions have a shortcut. Press{' '}
-              <kbd className="st-kbd">?</kbd> anywhere to bring this list up
-              without leaving what you&apos;re doing.
-            </p>
-          </div>
-
+      {/* ----- Keyboard shortcuts ----- */}
+      <HelpSection
+        title="Keyboard shortcuts"
+        description={
+          <>
+            Most actions have a shortcut. Press <Kbd>?</Kbd> anywhere to bring
+            this list up without leaving what you&apos;re doing.
+          </>
+        }
+      >
+        <div className="flex flex-col gap-6">
           {SHORTCUT_GROUPS.map((group) => (
-            <div key={group.label} className="st-shortcut-group">
-              <h3 className="st-shortcut-group__label">{group.label}</h3>
-              <div className="st-table-wrap">
-                <table className="st-shortcut-table">
-                  <tbody>
+            <div key={group.label} className="flex flex-col gap-2">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                {group.label}
+              </h3>
+              <Card variant="outlined" padding="none">
+                <Table hover={false}>
+                  <TBody>
                     {group.shortcuts.map((shortcut) => (
-                      <tr key={shortcut.description}>
-                        <td className="st-shortcut-table__keys">
+                      <Tr key={shortcut.description}>
+                        <Td className="w-[180px] align-middle">
                           <ShortcutKeys keys={shortcut.keys} />
-                        </td>
-                        <td className="st-shortcut-table__desc">
+                        </Td>
+                        <Td className="align-middle text-[13px] text-[var(--st-text-secondary)]">
                           {shortcut.description}
-                        </td>
-                      </tr>
+                        </Td>
+                      </Tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </TBody>
+                </Table>
+              </Card>
             </div>
           ))}
-        </section>
+        </div>
+      </HelpSection>
 
-        {/* ----- Getting started ----- */}
-        <section className="st-help-section">
-          <div className="st-help-section__head">
-            <h2 className="st-help-section__title">Getting started</h2>
-            <p className="st-help-section__desc">
-              New here, or setting up a fresh workspace? These are the areas
-              most teams configure first.
-            </p>
-          </div>
-
-          <div className="st-help-grid">
-            {START_CARDS.map((card) => {
-              const Icon = card.icon;
-              return (
-                <Link key={card.href} href={card.href} className="st-card st-help-card">
-                  <span className="st-help-card__icon" aria-hidden="true">
-                    <Icon size={16} />
-                  </span>
-                  <span className="st-help-card__body">
-                    <span className="st-help-card__title">{card.title}</span>
-                    <span className="st-help-card__meta">{card.meta}</span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ----- Resources ----- */}
-        <section className="st-help-section">
-          <div className="st-help-section__head">
-            <h2 className="st-help-section__title">Resources</h2>
-            <p className="st-help-section__desc">
-              External documentation and support aren&apos;t wired up yet — the
-              links below are placeholders and don&apos;t go anywhere for now.
-            </p>
-          </div>
-
-          <div className="st-resource-list">
-            {RESOURCES.map((resource) => {
-              const Icon = resource.icon;
-              return (
-                <div key={resource.title} className="st-resource-row" aria-disabled="true">
-                  <span className="st-resource-row__icon" aria-hidden="true">
-                    <Icon size={16} />
-                  </span>
-                  <span className="st-resource-row__body">
-                    <span className="st-resource-row__title">
-                      {resource.title}
-                      <span className="st-placeholder-tag">Placeholder</span>
-                    </span>
-                    <span className="st-resource-row__meta">{resource.meta}</span>
-                  </span>
-                  <ChevronRight
-                    className="st-resource-row__arrow"
-                    size={16}
+      {/* ----- Getting started ----- */}
+      <HelpSection
+        title="Getting started"
+        description="New here, or setting up a fresh workspace? These are the areas most teams configure first."
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {START_CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.href}
+                href={card.href}
+                className="block rounded-[var(--st-radius)] no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent-ring)]"
+              >
+                <Card
+                  variant="interactive"
+                  padding="md"
+                  className="flex h-full items-start gap-3"
+                >
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
                     aria-hidden="true"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </div>
+                  >
+                    <Icon size={16} />
+                  </span>
+                  <span className="flex flex-col gap-1">
+                    <CardTitle className="text-[14px]">{card.title}</CardTitle>
+                    <CardDescription>{card.meta}</CardDescription>
+                  </span>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </HelpSection>
+
+      {/* ----- Resources ----- */}
+      <HelpSection
+        title="Resources"
+        description="External documentation and support are not wired up yet. The entries below are placeholders and do not go anywhere for now."
+      >
+        <div className="flex flex-col gap-3">
+          {RESOURCES.map((resource) => {
+            const Icon = resource.icon;
+            return (
+              <Card
+                key={resource.title}
+                variant="outlined"
+                padding="md"
+                className="flex items-center gap-3 opacity-70"
+                aria-disabled="true"
+              >
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                >
+                  <Icon size={16} />
+                </span>
+                <span className="flex flex-1 flex-col gap-1">
+                  <span className="flex items-center gap-2">
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
+                      {resource.title}
+                    </span>
+                    <Badge tone="neutral" kind="outline">
+                      Placeholder
+                    </Badge>
+                  </span>
+                  <span className="text-[13px] text-[var(--st-text-secondary)]">
+                    {resource.meta}
+                  </span>
+                </span>
+                <ChevronRight
+                  size={16}
+                  className="shrink-0 text-[var(--st-text-tertiary)]"
+                  aria-hidden="true"
+                />
+              </Card>
+            );
+          })}
+        </div>
+      </HelpSection>
     </div>
   );
 }

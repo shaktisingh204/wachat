@@ -1,8 +1,24 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn } from '@/components/sabcrm/20ui';
 import {
-  useState } from 'react';
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
+import { useState } from 'react';
 import {
   Check,
   Database,
@@ -12,7 +28,7 @@ import {
   ShoppingCart,
   Slack,
   Zap,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { useT } from '@/lib/i18n/client';
 
@@ -76,7 +92,9 @@ const INTEGRATIONS: Integration[] = [
   },
 ];
 
-const CATEGORIES: Array<{ id: Integration['category'] | 'all'; labelKey: string }> = [
+type CategoryFilter = Integration['category'] | 'all';
+
+const CATEGORIES: Array<{ id: CategoryFilter; labelKey: string }> = [
   { id: 'all', labelKey: 'settings.integrations.categories.all' },
   { id: 'messaging', labelKey: 'settings.integrations.categories.messaging' },
   { id: 'automation', labelKey: 'settings.integrations.categories.automation' },
@@ -87,7 +105,7 @@ const CATEGORIES: Array<{ id: Integration['category'] | 'all'; labelKey: string 
 
 export default function IntegrationsPage() {
   const { t } = useT();
-  const [filter, setFilter] = useState<Integration['category'] | 'all'>('all');
+  const [filter, setFilter] = useState<CategoryFilter>('all');
   const [search, setSearch] = useState('');
 
   const visible = INTEGRATIONS.filter(
@@ -95,6 +113,11 @@ export default function IntegrationsPage() {
       (filter === 'all' || i.category === filter) &&
       (!search || i.name.toLowerCase().includes(search.toLowerCase())),
   );
+
+  const categoryItems = CATEGORIES.map((c) => ({
+    value: c.id,
+    label: t(c.labelKey),
+  }));
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -113,36 +136,25 @@ export default function IntegrationsPage() {
       <PageHeader>
         <PageHeading>
           <PageTitle>{t('settings.integrations.title')}</PageTitle>
-          <PageDescription>
-            {t('settings.integrations.subtitle')}
-          </PageDescription>
+          <PageDescription>{t('settings.integrations.subtitle')}</PageDescription>
         </PageHeading>
       </PageHeader>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setFilter(c.id)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-[12.5px] transition-colors',
-                filter === c.id
-                  ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-              )}
-            >
-              {t(c.labelKey)}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<CategoryFilter>
+          items={categoryItems}
+          value={filter}
+          onChange={setFilter}
+          size="sm"
+          aria-label={t('settings.integrations.title')}
+        />
         <div className="ml-auto w-full sm:w-64">
           <Input
             placeholder={t('settings.integrations.searchPlaceholder')}
+            aria-label={t('settings.integrations.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            leadingSlot={<Search />}
+            iconLeft={Search}
           />
         </div>
       </div>
@@ -154,12 +166,12 @@ export default function IntegrationsPage() {
             <Card key={i.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 {i.connected ? (
                   <Badge variant="success">{t('settings.integrations.status.connected')}</Badge>
                 ) : (
-                  <Badge variant="ghost">{t('settings.integrations.status.available')}</Badge>
+                  <Badge tone="neutral">{t('settings.integrations.status.available')}</Badge>
                 )}
               </div>
               <div>
@@ -170,8 +182,8 @@ export default function IntegrationsPage() {
               </div>
               <div className="mt-auto">
                 {i.connected ? (
-                  <Button variant="ghost" size="sm">
-                    <Check className="h-4 w-4" /> {t('settings.integrations.manage')}
+                  <Button variant="ghost" size="sm" iconLeft={Check}>
+                    {t('settings.integrations.manage')}
                   </Button>
                 ) : (
                   <Button size="sm">{t('action.connect')}</Button>

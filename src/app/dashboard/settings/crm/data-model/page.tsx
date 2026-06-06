@@ -1,42 +1,38 @@
 'use client';
 
 /**
- * SabCRM — Data Model settings (Twenty-faithful, `/dashboard/settings/crm/data-model`).
+ * SabCRM Data Model settings (`/dashboard/settings/crm/data-model`).
  *
- * Rebuilt in Twenty's "Settings → Data model" visual language: a two-pane
- * layout where the LEFT pane lists every object the active project can see
- * (standard + custom, each with a badge) and the RIGHT pane shows the selected
- * object's fields in a Twenty table (key · label · type chip · flags).
+ * A two-pane layout where the LEFT pane lists every object the active project
+ * can see (standard + custom, each with a badge) and the RIGHT pane shows the
+ * selected object's fields in a table (key, label, type chip, flags).
  *
  * Mutations go through the gated server actions in
- * `@/app/actions/sabcrm-objects.actions` (session → project → RBAC → plan),
- * which wrap the Rust *objects* engine:
- *   - "New object"  → createObjectTw
- *   - "Add field"   → addFieldTw
- *   - remove field  → removeFieldTw
+ * `@/app/actions/sabcrm-objects.actions` (session, project, RBAC, plan), which
+ * wrap the Rust *objects* engine:
+ *   - "New object"  -> createObjectTw
+ *   - "Add field"   -> addFieldTw
+ *   - remove field  -> removeFieldTw
  *
  * Standard objects keep their identity and built-in fields read-only; only
  * appended custom fields can be removed. The engine is the source of truth for
- * which fields are immutable and rejects anything it does not allow — the UI
+ * which fields are immutable and rejects anything it does not allow. The UI
  * mirrors those guards so disabled controls never hit a server error, and any
  * rejection still surfaces as an inline banner.
  *
- * The Rust engine may be DOWN; every call returns an `ActionResult`, so the page
- * degrades to loading / empty / error states and never crashes. NO ZoruUI /
- * Tailwind / clay here — Twenty look only (`.st-*` kit + the sibling
- * `./data-model.css`). Auth / RBAC / project context are enforced by the parent
+ * The Rust engine may be DOWN; every call returns an `ActionResult`, so the
+ * page degrades to loading / empty / error states and never crashes. Pure 20ui:
+ * everything renders under the `ui20` scope using the 20ui component library and
+ * `--st-*` tokens. Auth / RBAC / project context are enforced by the parent
  * `../../layout.tsx`; the actions independently re-run the full gate.
  */
 
 import * as React from 'react';
 import {
   Plus,
-  AlertTriangle,
   Database,
-  Loader2,
   Lock,
   Trash2,
-  X,
   Check,
   ArrowUp,
   ArrowDown,
@@ -56,7 +52,7 @@ import {
   Phone,
   Calendar,
   CheckSquare,
-  Tag,
+  Tag as TagIcon,
   Star,
   Flag,
   Folder,
@@ -70,10 +66,42 @@ import {
   Bell,
   Rocket,
   Zap,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
+import {
+  Button,
+  IconButton,
+  Badge,
+  Alert,
+  EmptyState,
+  Spinner,
+  Skeleton,
+  Modal,
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listObjectsTw,
@@ -92,19 +120,14 @@ import type {
   FieldRelation,
 } from '@/lib/sabcrm/types';
 
-import './data-model.css';
-import '@/components/sabcrm/twenty/field-types.css';
-
 // ---------------------------------------------------------------------------
-// Twenty SELECT-option colour palette
+// SELECT-option colour palette
 // ---------------------------------------------------------------------------
 
 /**
- * Twenty's fixed option-colour palette. `token` is what we persist (a
- * `--zoru-*` name, to stay consistent with the seeded schema) and `swatch` is
- * the literal hex we paint in the picker — the data-model page renders under
- * the `.sabcrm-twenty` scope where `--zoru-*` vars are NOT in scope, so the
- * swatch must be a concrete colour.
+ * The fixed option-colour palette. `token` is what we persist (a `--zoru-*`
+ * name, kept to stay consistent with the seeded schema) and `swatch` is the
+ * literal hex we paint in the picker.
  */
 interface PaletteColor {
   name: string;
@@ -113,16 +136,16 @@ interface PaletteColor {
 }
 
 const OPTION_PALETTE: ReadonlyArray<PaletteColor> = [
-  { name: 'Green', token: '--zoru-green', swatch: '#3dab5a' },
-  { name: 'Turquoise', token: '--zoru-turquoise', swatch: '#21b8a6' },
-  { name: 'Sky', token: '--zoru-sky', swatch: '#5db4e3' },
-  { name: 'Blue', token: '--zoru-blue', swatch: '#3b7ae4' },
-  { name: 'Purple', token: '--zoru-purple', swatch: '#9b51e0' },
-  { name: 'Pink', token: '--zoru-pink', swatch: '#e052b0' },
-  { name: 'Red', token: '--zoru-red', swatch: '#e0484e' },
-  { name: 'Orange', token: '--zoru-orange', swatch: '#f0883e' },
-  { name: 'Yellow', token: '--zoru-yellow', swatch: '#e0c64a' },
-  { name: 'Gray', token: '--zoru-gray', swatch: '#8c8c8c' },
+  { name: 'Green', token: 'green', swatch: '#3dab5a' },
+  { name: 'Turquoise', token: 'turquoise', swatch: '#21b8a6' },
+  { name: 'Sky', token: 'sky', swatch: '#5db4e3' },
+  { name: 'Blue', token: 'blue', swatch: '#3b7ae4' },
+  { name: 'Purple', token: 'purple', swatch: '#9b51e0' },
+  { name: 'Pink', token: 'pink', swatch: '#e052b0' },
+  { name: 'Red', token: 'red', swatch: '#e0484e' },
+  { name: 'Orange', token: 'orange', swatch: '#f0883e' },
+  { name: 'Yellow', token: 'yellow', swatch: '#e0c64a' },
+  { name: 'Gray', token: 'gray', swatch: '#8c8c8c' },
 ];
 
 const DEFAULT_OPTION_COLOR = OPTION_PALETTE[0].token;
@@ -130,10 +153,27 @@ const DEFAULT_OPTION_COLOR = OPTION_PALETTE[0].token;
 /** Resolve a stored option colour (token or hex) to a paintable swatch. */
 function swatchFor(color: string | undefined): string {
   if (!color) return OPTION_PALETTE[0].swatch;
-  const match = OPTION_PALETTE.find((c) => c.token === color);
+  // Legacy values stored as `--zoru-<name>`; strip the prefix before matching.
+  const key = color.replace(/^--zoru-/, '');
+  const match = OPTION_PALETTE.find((c) => c.token === key);
   if (match) return match.swatch;
-  // Already a hex / concrete colour → paint as-is, else fall back.
+  // Already a hex / concrete colour, paint as-is, else fall back.
   return /^#|^rgb|^hsl/.test(color) ? color : OPTION_PALETTE[0].swatch;
+}
+
+/**
+ * A `LucideIcon`-shaped component that paints a solid colour dot. Lets us pass a
+ * runtime colour swatch into 20ui's icon-only controls (which expect a
+ * `LucideIcon`) without a raw element. The fill is genuinely runtime-computed.
+ */
+function swatchIcon(color: string): LucideIcon {
+  const Glyph = ({ size = 14 }: { size?: number | string }) => (
+    <span
+      className="block rounded-full"
+      style={{ width: size, height: size, background: color }}
+    />
+  );
+  return Glyph as unknown as LucideIcon;
 }
 
 /** Turn a label into a stable SCREAMING_SNAKE option value. */
@@ -158,7 +198,7 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
   { value: 'CURRENCY', label: 'Currency' },
   { value: 'BOOLEAN', label: 'Boolean' },
   { value: 'DATE', label: 'Date' },
-  { value: 'DATE_TIME', label: 'Date & time' },
+  { value: 'DATE_TIME', label: 'Date and time' },
   { value: 'EMAIL', label: 'Email' },
   { value: 'PHONE', label: 'Phone' },
   { value: 'LINK', label: 'Link' },
@@ -186,9 +226,9 @@ function fieldTypeLabel(type: FieldType): string {
 
 /**
  * Curated grid of lucide icon names a user can assign to an object. The chosen
- * name is persisted as the object's `icon` string (the same name nav + headers
- * resolve through ZORU_ICONS / lucide). Keys are stored lowercase to match the
- * seeded schema (`database`, `users`, …); the swatch renders the component.
+ * name is persisted as the object's `icon` string. Keys are stored lowercase to
+ * match the seeded schema (`database`, `users`, ...); the swatch renders the
+ * component.
  */
 const OBJECT_ICONS: ReadonlyArray<{ name: string; Icon: LucideIcon }> = [
   { name: 'database', Icon: Database },
@@ -203,7 +243,7 @@ const OBJECT_ICONS: ReadonlyArray<{ name: string; Icon: LucideIcon }> = [
   { name: 'phone', Icon: Phone },
   { name: 'calendar', Icon: Calendar },
   { name: 'checksquare', Icon: CheckSquare },
-  { name: 'tag', Icon: Tag },
+  { name: 'tag', Icon: TagIcon },
   { name: 'star', Icon: Star },
   { name: 'flag', Icon: Flag },
   { name: 'folder', Icon: Folder },
@@ -266,30 +306,29 @@ function camelKey(input: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Twenty-depth object/field settings (label identifier · searchable · system ·
-// indexes · field uniqueness)
+// Depth object/field settings (label identifier, searchable, system, indexes,
+// field uniqueness)
 //
 // The shared `ObjectMetadata` / `FieldMetadata` types in `@/lib/sabcrm/types`
 // don't yet declare these object-level flags, but the engine + the
 // `updateObjectTw(slug, patch)` action carry them (added in parallel). Rather
 // than touch the shared types from this page, we read/write them through small
-// local extension shapes — the patch input (`SabcrmObjectUpdateInput`) is an
+// local extension shapes. The patch input (`SabcrmObjectUpdateInput`) is an
 // open `Record<string, unknown>`, so the writes type-check; the reads narrow
-// off a cast. Index shape mirrors Twenty's `indexMetadata`:
-//   { name, fields: string[], isUnique }  (BTREE single/composite indexes).
+// off a cast. Index shape: { name, fields: string[], isUnique }.
 // ---------------------------------------------------------------------------
 
-/** One metadata index over an object's fields (Twenty `indexMetadata`). */
+/** One metadata index over an object's fields. */
 interface ObjectIndex {
-  /** Index name — unique per object; auto-derived from its fields. */
+  /** Index name, unique per object; auto-derived from its fields. */
   name: string;
   /** Field keys participating in the index, in order. */
   fields: string[];
-  /** UNIQUE constraint — a single-field unique index drives `field.isUnique`. */
+  /** UNIQUE constraint. A single-field unique index drives `field.isUnique`. */
   isUnique?: boolean;
 }
 
-/** Object-level Twenty-depth flags layered over `ObjectMetadata`. */
+/** Object-level depth flags layered over `ObjectMetadata`. */
 interface ObjectTwExtras {
   isSystem?: boolean;
   isSearchable?: boolean;
@@ -298,12 +337,12 @@ interface ObjectTwExtras {
   indexes?: ObjectIndex[];
 }
 
-/** Field-level Twenty-depth flags layered over `FieldMetadata`. */
+/** Field-level depth flags layered over `FieldMetadata`. */
 interface FieldTwExtras {
   isUnique?: boolean;
 }
 
-/** Narrow an object to its Twenty-depth extras (safe, read-only view). */
+/** Narrow an object to its depth extras (safe, read-only view). */
 function objectExtras(object: ObjectMetadata): ObjectTwExtras {
   return object as ObjectMetadata & ObjectTwExtras;
 }
@@ -348,7 +387,7 @@ function objectLabelIdentifier(object: ObjectMetadata): string {
 
 /**
  * Field types eligible to be the record's label identifier (text-ish title).
- * Mirrors Twenty: the display title must be a plain scalar text-like field.
+ * The display title must be a plain scalar text-like field.
  */
 const LABEL_IDENTIFIER_TYPES: ReadonlySet<FieldType> = new Set([
   'TEXT',
@@ -358,7 +397,7 @@ const LABEL_IDENTIFIER_TYPES: ReadonlySet<FieldType> = new Set([
   'FULL_NAME',
 ]);
 
-/** Derive a stable Twenty-style index name from its participating field keys. */
+/** Derive a stable index name from its participating field keys. */
 function indexNameFor(fields: string[]): string {
   const stem = fields.filter(Boolean).join('_').replace(/[^A-Za-z0-9_]+/g, '_');
   return stem ? `IDX_${stem.toUpperCase()}` : 'IDX';
@@ -369,19 +408,14 @@ function indexNameFor(fields: string[]): string {
 // ---------------------------------------------------------------------------
 
 function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
+  return <Alert tone="danger">{message}</Alert>;
 }
 
 function ObjectBadge({ standard }: { standard: boolean }) {
   return standard ? (
-    <span className="dm-badge">Standard</span>
+    <Badge tone="neutral">Standard</Badge>
   ) : (
-    <span className="dm-badge dm-badge--custom">Custom</span>
+    <Badge tone="accent">Custom</Badge>
   );
 }
 
@@ -389,7 +423,7 @@ function ObjectBadge({ standard }: { standard: boolean }) {
 // SELECT option editor (rows with colour-swatch picker, add/remove/reorder)
 // ---------------------------------------------------------------------------
 
-/** A draggable-free colour-swatch popover, Twenty style. */
+/** A colour-swatch popover over the fixed option palette. */
 function ColorPicker({
   value,
   onChange,
@@ -398,60 +432,41 @@ function ColorPicker({
   onChange: (token: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
 
   return (
-    <div className="dm-color" ref={ref}>
-      <button
-        type="button"
-        className="dm-color__trigger"
-        aria-label="Pick option colour"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span
-          className="dm-swatch"
-          style={{ background: swatchFor(value) }}
-          aria-hidden="true"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <IconButton
+          label="Pick option colour"
+          icon={swatchIcon(swatchFor(value))}
+          variant="outline"
+          size="sm"
         />
-      </button>
-      {open ? (
-        <div className="dm-color__pop" role="listbox" aria-label="Colours">
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-2">
+        <div
+          className="grid grid-cols-5 gap-1"
+          role="listbox"
+          aria-label="Colours"
+        >
           {OPTION_PALETTE.map((c) => (
-            <button
+            <IconButton
               key={c.token}
-              type="button"
+              label={c.name}
+              icon={swatchIcon(c.swatch)}
+              variant={c.token === value ? 'primary' : 'ghost'}
+              size="md"
               role="option"
               aria-selected={c.token === value}
-              className="dm-color__cell"
-              title={c.name}
               onClick={() => {
                 onChange(c.token);
                 setOpen(false);
               }}
-            >
-              <span
-                className="dm-swatch dm-swatch--lg"
-                style={{ background: c.swatch }}
-                aria-hidden="true"
-              />
-              {c.token === value ? (
-                <Check className="dm-color__check" size={12} />
-              ) : null}
-            </button>
+            />
           ))}
         </div>
-      ) : null}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -487,23 +502,26 @@ function OptionRowsEditor({
   };
 
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Options</span>
-      <div className="dm-opts">
+    <Field label="Options">
+      <div className="flex flex-col gap-2">
         {options.length === 0 ? (
-          <p className="dm-opts__empty">No options yet. Add one below.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
+            No options yet. Add one below.
+          </p>
         ) : (
           options.map((opt, idx) => (
-            <div className="dm-opt" key={idx}>
+            <div className="flex items-center gap-2" key={idx}>
               <ColorPicker
                 value={opt.color ?? DEFAULT_OPTION_COLOR}
                 onChange={(token) => update(idx, { color: token })}
               />
-              <input
-                className="st-input dm-opt__label"
+              <Input
+                inputSize="sm"
+                className="flex-1"
                 value={opt.label}
                 placeholder="Label"
                 autoComplete="off"
+                aria-label="Option label"
                 onChange={(e) => {
                   const label = e.target.value;
                   // Auto-derive value while it still mirrors the label.
@@ -515,8 +533,9 @@ function OptionRowsEditor({
                   });
                 }}
               />
-              <input
-                className="st-input dm-opt__value"
+              <Input
+                inputSize="sm"
+                className="w-[120px]"
                 value={opt.value}
                 placeholder="VALUE"
                 autoComplete="off"
@@ -529,43 +548,41 @@ function OptionRowsEditor({
                   })
                 }
               />
-              <div className="dm-opt__order">
-                <button
-                  type="button"
-                  className="dm-iconbtn"
-                  aria-label="Move up"
+              <div className="flex items-center gap-0.5">
+                <IconButton
+                  label="Move up"
+                  icon={ArrowUp}
+                  variant="ghost"
+                  size="sm"
                   disabled={idx === 0}
                   onClick={() => move(idx, -1)}
-                >
-                  <ArrowUp size={13} />
-                </button>
-                <button
-                  type="button"
-                  className="dm-iconbtn"
-                  aria-label="Move down"
+                />
+                <IconButton
+                  label="Move down"
+                  icon={ArrowDown}
+                  variant="ghost"
+                  size="sm"
                   disabled={idx === options.length - 1}
                   onClick={() => move(idx, 1)}
-                >
-                  <ArrowDown size={13} />
-                </button>
+                />
               </div>
-              <button
-                type="button"
-                className="dm-iconbtn dm-iconbtn--danger"
-                aria-label={`Remove option ${opt.label || idx + 1}`}
+              <IconButton
+                label={`Remove option ${opt.label || idx + 1}`}
+                icon={Trash2}
+                variant="danger"
+                size="sm"
                 onClick={() => remove(idx)}
-              >
-                <Trash2 size={14} />
-              </button>
+              />
             </div>
           ))
         )}
-        <button type="button" className="dm-opts__add" onClick={add}>
-          <Plus size={14} />
-          Add option
-        </button>
+        <div>
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
+            Add option
+          </Button>
+        </div>
       </div>
-    </div>
+    </Field>
   );
 }
 
@@ -595,16 +612,11 @@ function RelationEditor({
   );
 
   return (
-    <div className="dm-relation">
-      <div className="st-field">
-        <span className="st-field__label">
-          Target object<span className="st-field__req">*</span>
-        </span>
-        <select
-          className="st-select"
+    <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+      <Field label="Target object" required>
+        <Select
           value={relation.targetObject}
-          onChange={(e) => {
-            const slug = e.target.value;
+          onValueChange={(slug) => {
             const obj = objects.find((o) => o.slug === slug);
             const labelField =
               obj?.fields.find((f) => f.isLabel)?.key ??
@@ -613,57 +625,62 @@ function RelationEditor({
             onChange({ ...relation, targetObject: slug, labelField });
           }}
         >
-          <option value="" disabled>
-            Select an object…
-          </option>
-          {targets.map((o) => (
-            <option key={o.slug} value={o.slug}>
-              {o.labelPlural}
-            </option>
-          ))}
-        </select>
-      </div>
+          <SelectTrigger aria-label="Target object">
+            <SelectValue placeholder="Select an object" />
+          </SelectTrigger>
+          <SelectContent>
+            {targets.map((o) => (
+              <SelectItem key={o.slug} value={o.slug}>
+                {o.labelPlural}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <div className="st-field">
-        <span className="st-field__label">Relationship</span>
-        <select
-          className="st-select"
+      <Field label="Relationship">
+        <Select
           value={relation.kind}
-          onChange={(e) =>
-            onChange({
-              ...relation,
-              kind: e.target.value as FieldRelation['kind'],
-            })
+          onValueChange={(kind) =>
+            onChange({ ...relation, kind: kind as FieldRelation['kind'] })
           }
         >
-          <option value="MANY_TO_ONE">
-            Many {selfSlug || 'records'} → one target
-          </option>
-          <option value="ONE_TO_MANY">
-            One {selfSlug || 'record'} → many targets
-          </option>
-        </select>
-      </div>
+          <SelectTrigger aria-label="Relationship">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="MANY_TO_ONE">
+              Many {selfSlug || 'records'} to one target
+            </SelectItem>
+            <SelectItem value="ONE_TO_MANY">
+              One {selfSlug || 'record'} to many targets
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <div className="st-field">
-        <span className="st-field__label">Label field</span>
-        <select
-          className="st-select"
+      <Field label="Label field">
+        <Select
           value={relation.labelField ?? ''}
           disabled={!targetObj}
-          onChange={(e) => onChange({ ...relation, labelField: e.target.value })}
+          onValueChange={(labelField) => onChange({ ...relation, labelField })}
         >
-          {!targetObj ? (
-            <option value="">Pick a target object first</option>
-          ) : (
-            targetObj.fields.map((f) => (
-              <option key={f.key} value={f.key}>
+          <SelectTrigger aria-label="Label field">
+            <SelectValue
+              placeholder={
+                targetObj ? 'Select a field' : 'Pick a target object first'
+              }
+            />
+          </SelectTrigger>
+          <SelectContent>
+            {(targetObj?.fields ?? []).map((f) => (
+              <SelectItem key={f.key} value={f.key}>
                 {f.label}
-              </option>
-            ))
-          )}
-        </select>
-      </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
     </div>
   );
 }
@@ -672,11 +689,10 @@ function RelationEditor({
 // Composite / multi-value default-value editors
 //
 // These edit a field's `defaultValue` for the composite & multi-value field
-// types ported from Twenty. They mirror the read shapes consumed by
-// `<TwentyFieldValue />`: CURRENCY → { amount, currencyCode }, FULL_NAME →
-// { firstName, lastName }, ADDRESS → { street, city, state, postcode,
-// country }, EMAILS/PHONES/ARRAY → string[], LINKS → { label, url }[],
-// RATING → number, RAW_JSON → object. Twenty look only (`.st-fe-*`).
+// types. CURRENCY -> { amount, currencyCode }, FULL_NAME -> { firstName,
+// lastName }, ADDRESS -> { street, city, state, postcode, country },
+// EMAILS/PHONES/ARRAY -> string[], LINKS -> { label, url }[], RATING -> number,
+// RAW_JSON -> object.
 // ---------------------------------------------------------------------------
 
 /** Coerce an unknown default into a record (composite editors). */
@@ -691,7 +707,7 @@ function stringArrayDefault(value: unknown): string[] {
   return Array.isArray(value) ? value.map((v) => String(v)) : [];
 }
 
-/** CURRENCY default editor — amount input + currency-code select. */
+/** CURRENCY default editor: amount input + currency-code select. */
 function CurrencyDefaultEditor({
   value,
   onChange,
@@ -704,36 +720,41 @@ function CurrencyDefaultEditor({
     typeof rec.amount === 'number' ? rec.amount : Number(rec.amount) || 0;
   const code = typeof rec.currencyCode === 'string' ? rec.currencyCode : 'USD';
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default amount</span>
-      <div className="st-fe-row">
-        <input
-          className="st-input st-fe-row__grow"
+    <Field label="Default amount">
+      <div className="flex items-start gap-2">
+        <Input
+          className="flex-1"
           type="number"
           step="0.01"
+          aria-label="Default amount"
           value={Number.isFinite(amount) ? amount : 0}
           onChange={(e) =>
             onChange({ amount: Number(e.target.value) || 0, currencyCode: code })
           }
         />
-        <select
-          className="st-select st-fe-row__shrink"
-          aria-label="Currency code"
-          value={code}
-          onChange={(e) => onChange({ amount, currencyCode: e.target.value })}
-        >
-          {CURRENCY_CODES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <div className="w-[110px] shrink-0">
+          <Select
+            value={code}
+            onValueChange={(currencyCode) => onChange({ amount, currencyCode })}
+          >
+            <SelectTrigger aria-label="Currency code">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCY_CODES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-    </div>
+    </Field>
   );
 }
 
-/** FULL_NAME default editor — first + last inputs. */
+/** FULL_NAME default editor: first + last inputs. */
 function FullNameDefaultEditor({
   value,
   onChange,
@@ -745,25 +766,24 @@ function FullNameDefaultEditor({
   const firstName = typeof rec.firstName === 'string' ? rec.firstName : '';
   const lastName = typeof rec.lastName === 'string' ? rec.lastName : '';
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default name</span>
-      <div className="st-fe-row">
-        <input
-          className="st-input"
+    <Field label="Default name">
+      <div className="flex gap-2">
+        <Input
           placeholder="First"
           autoComplete="off"
+          aria-label="Default first name"
           value={firstName}
           onChange={(e) => onChange({ firstName: e.target.value, lastName })}
         />
-        <input
-          className="st-input"
+        <Input
           placeholder="Last"
           autoComplete="off"
+          aria-label="Default last name"
           value={lastName}
           onChange={(e) => onChange({ firstName, lastName: e.target.value })}
         />
       </div>
-    </div>
+    </Field>
   );
 }
 
@@ -775,7 +795,7 @@ const ADDRESS_FIELDS: ReadonlyArray<{ key: string; label: string; full?: boolean
   { key: 'country', label: 'Country' },
 ];
 
-/** ADDRESS default editor — street / city / state / postcode / country. */
+/** ADDRESS default editor: street / city / state / postcode / country. */
 function AddressDefaultEditor({
   value,
   onChange,
@@ -792,25 +812,21 @@ function AddressDefaultEditor({
     onChange(next);
   };
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default address</span>
-      <div className="st-fe-grid">
+    <Field label="Default address">
+      <div className="grid grid-cols-2 gap-2">
         {ADDRESS_FIELDS.map((f) => (
-          <div
-            key={f.key}
-            className={`st-fe-sub${f.full ? ' st-fe-grid__full' : ''}`}
-          >
-            <span className="st-fe-sub__label">{f.label}</span>
-            <input
-              className="st-input"
-              autoComplete="off"
-              value={get(f.key)}
-              onChange={(e) => set(f.key, e.target.value)}
-            />
+          <div key={f.key} className={f.full ? 'col-span-2' : undefined}>
+            <Field label={f.label}>
+              <Input
+                autoComplete="off"
+                value={get(f.key)}
+                onChange={(e) => set(f.key, e.target.value)}
+              />
+            </Field>
           </div>
         ))}
       </div>
-    </div>
+    </Field>
   );
 }
 
@@ -834,39 +850,39 @@ function StringListEditor({
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
   const add = () => onChange([...items, '']);
   return (
-    <div className="dm-field">
-      <span className="st-field__label">{label}</span>
-      <div className="st-fe-list">
+    <Field label={label}>
+      <div className="flex flex-col gap-2">
         {items.length === 0 ? (
-          <p className="st-fe-list__empty">None yet.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">None yet.</p>
         ) : (
           items.map((item, idx) => (
-            <div className="st-fe-list__row" key={idx}>
-              <input
-                className="st-input"
+            <div className="flex items-center gap-2" key={idx}>
+              <Input
+                className="flex-1"
                 type={inputType ?? 'text'}
                 placeholder={placeholder}
                 autoComplete="off"
+                aria-label={`${label} ${idx + 1}`}
                 value={item}
                 onChange={(e) => update(idx, e.target.value)}
               />
-              <button
-                type="button"
-                className="st-fe-iconbtn st-fe-iconbtn--danger"
-                aria-label={`Remove ${label} ${idx + 1}`}
+              <IconButton
+                label={`Remove ${label} ${idx + 1}`}
+                icon={X}
+                variant="danger"
+                size="sm"
                 onClick={() => remove(idx)}
-              >
-                <X size={14} />
-              </button>
+              />
             </div>
           ))
         )}
-        <button type="button" className="st-fe-add" onClick={add}>
-          <Plus size={14} />
-          Add
-        </button>
+        <div>
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
+            Add
+          </Button>
+        </div>
       </div>
-    </div>
+    </Field>
   );
 }
 
@@ -875,7 +891,7 @@ interface LinkItem {
   url: string;
 }
 
-/** Add/remove editor for LINKS — label + url rows. */
+/** Add/remove editor for LINKS: label + url rows. */
 function LinksEditor({
   value,
   onChange,
@@ -898,49 +914,50 @@ function LinksEditor({
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
   const add = () => onChange([...items, { label: '', url: '' }]);
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default links</span>
-      <div className="st-fe-list">
+    <Field label="Default links">
+      <div className="flex flex-col gap-2">
         {items.length === 0 ? (
-          <p className="st-fe-list__empty">None yet.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">None yet.</p>
         ) : (
           items.map((item, idx) => (
-            <div className="st-fe-list__row" key={idx}>
-              <input
-                className="st-input"
+            <div className="flex items-center gap-2" key={idx}>
+              <Input
+                className="flex-1"
                 placeholder="Label"
                 autoComplete="off"
+                aria-label={`Link ${idx + 1} label`}
                 value={item.label}
                 onChange={(e) => update(idx, { label: e.target.value })}
               />
-              <input
-                className="st-input"
-                placeholder="https://…"
+              <Input
+                className="flex-1"
+                placeholder="https://example.com"
                 autoComplete="off"
+                aria-label={`Link ${idx + 1} URL`}
                 value={item.url}
                 onChange={(e) => update(idx, { url: e.target.value })}
               />
-              <button
-                type="button"
-                className="st-fe-iconbtn st-fe-iconbtn--danger"
-                aria-label={`Remove link ${idx + 1}`}
+              <IconButton
+                label={`Remove link ${idx + 1}`}
+                icon={X}
+                variant="danger"
+                size="sm"
                 onClick={() => remove(idx)}
-              >
-                <X size={14} />
-              </button>
+              />
             </div>
           ))
         )}
-        <button type="button" className="st-fe-add" onClick={add}>
-          <Plus size={14} />
-          Add link
-        </button>
+        <div>
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
+            Add link
+          </Button>
+        </div>
       </div>
-    </div>
+    </Field>
   );
 }
 
-/** MULTI_SELECT default editor — checkbox column over the field options. */
+/** MULTI_SELECT default editor: checkbox column over the field options. */
 function MultiSelectDefaultEditor({
   options,
   value,
@@ -958,34 +975,37 @@ function MultiSelectDefaultEditor({
     onChange(Array.from(next));
   };
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default selection</span>
-      <div className="st-fe-checks">
+    <Field label="Default selection">
+      <div className="flex flex-col gap-1.5">
         {options.length === 0 ? (
-          <p className="st-fe-list__empty">Add options above first.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
+            Add options above first.
+          </p>
         ) : (
           options.map((opt) => (
-            <label className="st-fe-check" key={opt.value || opt.label}>
-              <input
-                type="checkbox"
-                checked={selected.has(opt.value)}
-                onChange={() => toggle(opt.value)}
-              />
-              <span
-                className="st-fe-check__swatch"
-                style={{ background: swatchFor(opt.color) }}
-                aria-hidden="true"
-              />
-              {opt.label || opt.value}
-            </label>
+            <Checkbox
+              key={opt.value || opt.label}
+              checked={selected.has(opt.value)}
+              onChange={() => toggle(opt.value)}
+              label={
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="size-2.5 rounded-full"
+                    style={{ background: swatchFor(opt.color) }}
+                    aria-hidden="true"
+                  />
+                  {opt.label || opt.value}
+                </span>
+              }
+            />
           ))
         )}
       </div>
-    </div>
+    </Field>
   );
 }
 
-/** RATING default editor — click a star (0–5) to set the default. */
+/** RATING default editor: click a star (0-5) to set the default. */
 function RatingDefaultEditor({
   value,
   onChange,
@@ -993,41 +1013,39 @@ function RatingDefaultEditor({
   value: unknown;
   onChange: (next: number) => void;
 }) {
-  const current =
-    typeof value === 'number' ? value : Number(value) || 0;
+  const current = typeof value === 'number' ? value : Number(value) || 0;
   const clamped = Math.max(0, Math.min(5, Math.round(current)));
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default rating</span>
-      <div>
-        <span className="st-fe-stars">
+    <Field label="Default rating">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <button
+            <IconButton
               key={i}
-              type="button"
-              className={`st-fe-star${i < clamped ? ' is-on' : ''}`}
-              aria-label={`Set rating to ${i + 1}`}
+              label={`Set rating to ${i + 1}`}
+              icon={Star}
+              variant="ghost"
+              size="sm"
+              className={
+                i < clamped
+                  ? 'text-[var(--st-warn)] [&_svg]:fill-current'
+                  : 'text-[var(--st-text-tertiary)]'
+              }
               onClick={() => onChange(i + 1)}
-            >
-              ★
-            </button>
+            />
           ))}
         </span>
         {clamped > 0 ? (
-          <button
-            type="button"
-            className="st-fe-star--clear"
-            onClick={() => onChange(0)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onChange(0)}>
             Clear
-          </button>
+          </Button>
         ) : null}
       </div>
-    </div>
+    </Field>
   );
 }
 
-/** RAW_JSON default editor — JSON textarea with live validation. */
+/** RAW_JSON default editor: JSON textarea with live validation. */
 function RawJsonDefaultEditor({
   value,
   onChange,
@@ -1069,22 +1087,22 @@ function RawJsonDefaultEditor({
   };
 
   return (
-    <div className="dm-field">
-      <span className="st-field__label">Default JSON</span>
-      <textarea
-        className={`st-input st-fe-json${error ? ' st-fe-json--invalid' : ''}`}
+    <Field label="Default JSON" error={error ?? undefined}>
+      <Textarea
+        className="font-mono text-[12px]"
         spellCheck={false}
+        rows={4}
         placeholder='{ "key": "value" }'
+        invalid={Boolean(error)}
         value={text}
         onChange={(e) => onEdit(e.target.value)}
       />
-      {error ? <span className="st-fe-error">{error}</span> : null}
-    </div>
+    </Field>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Left pane — object list
+// Left pane: object list
 // ---------------------------------------------------------------------------
 
 interface ObjectListProps {
@@ -1104,31 +1122,51 @@ function ObjectListItem({
   onSelect: (slug: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      className={`dm-item${active ? ' active' : ''}`}
+    <Button
+      variant="ghost"
+      block
       aria-current={active ? 'true' : undefined}
       onClick={() => onSelect(object.slug)}
+      className={[
+        'justify-start gap-2.5 px-2.5 py-2 [&_.u-btn__label]:flex [&_.u-btn__label]:min-w-0 [&_.u-btn__label]:flex-1 [&_.u-btn__label]:items-center [&_.u-btn__label]:gap-2.5',
+        active ? 'bg-[var(--st-accent-soft)]' : '',
+      ].join(' ')}
     >
-      <span className="dm-item__icon" aria-hidden="true">
+      <span
+        className="flex size-7 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
+        aria-hidden="true"
+      >
         <Database size={15} />
       </span>
-      <span className="dm-item__body">
-        <span className="dm-item__label">{object.labelPlural}</span>
-        <span className="dm-item__slug">{object.slug}</span>
+      <span className="flex min-w-0 flex-1 flex-col text-left">
+        <span className="truncate text-[13px] font-medium">
+          {object.labelPlural}
+        </span>
+        <span className="truncate text-[11px] text-[var(--st-text-tertiary)]">
+          {object.slug}
+        </span>
       </span>
-      <span className="dm-item__count">{object.fields.length}</span>
-    </button>
+      <span className="shrink-0 text-[11px] tabular-nums text-[var(--st-text-tertiary)]">
+        {object.fields.length}
+      </span>
+    </Button>
   );
 }
 
 function ObjectList({ custom, standard, activeSlug, onSelect }: ObjectListProps) {
   return (
-    <nav className="dm-list" aria-label="Objects">
-      <div className="dm-list__group">
-        <h2 className="dm-list__heading">Custom</h2>
+    <nav
+      className="flex flex-col gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
+      aria-label="Objects"
+    >
+      <div className="flex flex-col gap-0.5">
+        <h2 className="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+          Custom
+        </h2>
         {custom.length === 0 ? (
-          <p className="dm-list__empty">No custom objects yet.</p>
+          <p className="px-2.5 py-1 text-[12px] text-[var(--st-text-secondary)]">
+            No custom objects yet.
+          </p>
         ) : (
           custom.map((o) => (
             <ObjectListItem
@@ -1140,10 +1178,14 @@ function ObjectList({ custom, standard, activeSlug, onSelect }: ObjectListProps)
           ))
         )}
       </div>
-      <div className="dm-list__group">
-        <h2 className="dm-list__heading">Standard</h2>
+      <div className="flex flex-col gap-0.5">
+        <h2 className="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+          Standard
+        </h2>
         {standard.length === 0 ? (
-          <p className="dm-list__empty">No standard objects.</p>
+          <p className="px-2.5 py-1 text-[12px] text-[var(--st-text-secondary)]">
+            No standard objects.
+          </p>
         ) : (
           standard.map((o) => (
             <ObjectListItem
@@ -1160,13 +1202,7 @@ function ObjectList({ custom, standard, activeSlug, onSelect }: ObjectListProps)
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — object settings card
-//
-// An editable card above the field table for the selected object: singular /
-// plural labels, a description, an icon picker (grid of lucide names persisted
-// as the `icon` string) and a default view (table / board). Standard objects
-// are editable too — the action persists the overrides as an extendsStandard
-// doc. Saves through `updateObjectTw(slug, { … })`.
+// Right pane: object settings card
 // ---------------------------------------------------------------------------
 
 /** The default view stored on an object (first entry of `views`). */
@@ -1179,12 +1215,11 @@ function objectDefaultView(object: ObjectMetadata): DefaultView {
 // ---------------------------------------------------------------------------
 // Indexes editor
 //
-// Twenty's per-object "Indexes" tab as an inline subsection. Lists existing
-// indexes (name · participating fields · UNIQUE chip) with remove, plus an
-// "add index" composer where the admin multi-selects one or more fields, flips
-// a unique checkbox, and the name auto-derives from the chosen fields (Twenty's
-// `IDX_…` convention). Persists the whole list through
-// `updateObjectTw(slug, { indexes })`. Self-contained: it owns its own
+// A per-object "Indexes" subsection. Lists existing indexes (name,
+// participating fields, UNIQUE chip) with remove, plus an "add index" composer
+// where the admin multi-selects one or more fields, flips a unique checkbox,
+// and the name auto-derives from the chosen fields. Persists the whole list
+// through `setObjectIndexesTw(slug, indexes)`. Self-contained: it owns its own
 // save/error/busy state so the parent settings form stays untouched.
 // ---------------------------------------------------------------------------
 
@@ -1228,10 +1263,9 @@ function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
   const persist = async (next: ObjectIndex[]) => {
     setBusy(true);
     setError(null);
-    // The dedicated indexes endpoint (`PUT …/indexes`) persists the defs AND
-    // best-effort reconciles real `sabcrm_records` indexes — unlike a plain
-    // object PATCH. The engine's IndexMetadata uses `unique` (not `isUnique`),
-    // so map the local read-shape onto the engine contract here.
+    // The dedicated indexes endpoint persists the defs AND best-effort
+    // reconciles real `sabcrm_records` indexes. The engine's IndexMetadata uses
+    // `unique` (not `isUnique`), so map the local read-shape onto the contract.
     const payload = next.map((ix) => ({
       name: ix.name,
       fields: ix.fields,
@@ -1275,115 +1309,126 @@ function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
     object.fields.find((f) => f.key === key)?.label ?? key;
 
   return (
-    <div className="dm-indexes">
-      <div className="dm-indexes__head">
-        <span className="dm-indexes__title">
+    <div className="flex flex-col gap-2 border-t border-[var(--st-border)] pt-4">
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--st-text)]">
           <KeyRound size={13} aria-hidden="true" />
           Indexes
         </span>
         {!adding ? (
-          <button
-            type="button"
-            className="dm-indexes__add"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={Plus}
             onClick={() => {
               setAdding(true);
               setError(null);
             }}
             disabled={busy}
           >
-            <Plus size={13} />
             Add index
-          </button>
+          </Button>
         ) : null}
       </div>
 
       {indexes.length === 0 && !adding ? (
-        <p className="dm-indexes__empty">
+        <p className="text-[12px] text-[var(--st-text-secondary)]">
           No indexes yet. Add one to speed up filters or enforce uniqueness.
         </p>
       ) : null}
 
       {indexes.length > 0 ? (
-        <ul className="dm-indexes__list">
+        <ul className="flex flex-col gap-1.5">
           {indexes.map((ix) => (
-            <li className="dm-index" key={ix.name}>
-              <div className="dm-index__body">
-                <span className="dm-index__name">{ix.name}</span>
-                <span className="dm-index__fields">
+            <li
+              className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+              key={ix.name}
+            >
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="font-mono text-[12px] text-[var(--st-text)]">
+                  {ix.name}
+                </span>
+                <span className="flex flex-wrap items-center gap-1">
                   {ix.fields.map((key) => (
-                    <TwentyChip key={key} label={labelFor(key)} />
+                    <Badge key={key} tone="neutral">
+                      {labelFor(key)}
+                    </Badge>
                   ))}
-                  {ix.isUnique ? <span className="dm-index__unique">Unique</span> : null}
+                  {ix.isUnique ? <Badge tone="accent">Unique</Badge> : null}
                 </span>
               </div>
-              <button
-                type="button"
-                className="dm-iconbtn dm-iconbtn--danger"
-                aria-label={`Remove index ${ix.name}`}
-                title={`Remove index ${ix.name}`}
+              <IconButton
+                label={`Remove index ${ix.name}`}
+                icon={Trash2}
+                variant="danger"
+                size="sm"
                 disabled={busy}
                 onClick={() => handleRemove(ix.name)}
-              >
-                <Trash2 size={14} />
-              </button>
+              />
             </li>
           ))}
         </ul>
       ) : null}
 
       {adding ? (
-        <div className="dm-index-form">
-          <span className="st-field__label">Fields</span>
-          {object.fields.length === 0 ? (
-            <p className="dm-indexes__empty">This object has no fields yet.</p>
-          ) : (
-            <div className="dm-index-form__fields">
-              {object.fields.map((f) => (
-                <label className="dm-index-chk" key={f.key}>
-                  <input
-                    type="checkbox"
+        <div className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+          <Field label="Fields">
+            {object.fields.length === 0 ? (
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
+                This object has no fields yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5">
+                {object.fields.map((f) => (
+                  <Checkbox
+                    key={f.key}
                     checked={draftFields.includes(f.key)}
                     onChange={() => toggleDraftField(f.key)}
+                    label={
+                      <span className="inline-flex items-baseline gap-1.5">
+                        <span className="text-[13px]">{f.label}</span>
+                        <span className="font-mono text-[11px] text-[var(--st-text-tertiary)]">
+                          {f.key}
+                        </span>
+                      </span>
+                    }
                   />
-                  <span className="dm-index-chk__label">{f.label}</span>
-                  <span className="dm-index-chk__key">{f.key}</span>
-                </label>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </Field>
 
-          <div className="dm-index-form__meta">
-            <div className="st-field">
-              <span className="st-field__label">Name</span>
-              <input
-                className="st-input"
+          <div className="flex items-end gap-4">
+            <Field
+              label="Name"
+              className="flex-1"
+              error={
+                nameTaken
+                  ? 'An index over these fields already exists.'
+                  : undefined
+              }
+            >
+              <Input
                 value={draftName}
                 readOnly
-                aria-invalid={nameTaken}
+                invalid={nameTaken}
                 aria-label="Index name (auto-derived)"
               />
-              {nameTaken ? (
-                <span className="st-field__label text-[#d64545]">
-                  An index over these fields already exists.
-                </span>
-              ) : null}
-            </div>
-            <label className="st-checkbox-row">
-              <input
-                type="checkbox"
+            </Field>
+            <div className="pb-2">
+              <Checkbox
                 checked={draftUnique}
                 onChange={(e) => setDraftUnique(e.target.checked)}
+                label="Unique"
               />
-              Unique
-            </label>
+            </div>
           </div>
 
           {error ? <ErrorBanner message={error} /> : null}
 
-          <div className="dm-index-form__actions">
-            <button
-              type="button"
-              className="st-btn st-btn--secondary"
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="secondary"
               onClick={() => {
                 setAdding(false);
                 setDraftFields([]);
@@ -1393,16 +1438,15 @@ function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
               disabled={busy}
             >
               Cancel
-            </button>
-            <button
-              type="button"
-              className="st-btn st-btn--primary"
+            </Button>
+            <Button
+              variant="primary"
+              loading={busy}
               onClick={handleAdd}
               disabled={!canAdd}
             >
-              {busy ? <Loader2 size={14} className="st-spin" /> : null}
               Add index
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}
@@ -1423,9 +1467,7 @@ function ObjectSettingsCard({
   projectId,
   onSaved,
 }: ObjectSettingsCardProps) {
-  const [labelSingular, setLabelSingular] = React.useState(
-    object.labelSingular,
-  );
+  const [labelSingular, setLabelSingular] = React.useState(object.labelSingular);
   const [labelPlural, setLabelPlural] = React.useState(object.labelPlural);
   const [description, setDescription] = React.useState(object.description ?? '');
   const [icon, setIcon] = React.useState(object.icon || 'database');
@@ -1442,8 +1484,6 @@ function ObjectSettingsCard({
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [savedTick, setSavedTick] = React.useState(false);
-
-  const iconRef = React.useRef<HTMLDivElement>(null);
 
   const isSystem = objectExtras(object).isSystem === true;
 
@@ -1466,18 +1506,6 @@ function ObjectSettingsCard({
     setError(null);
     setSavedTick(false);
   }, [object]);
-
-  // Close the icon popover on outside click.
-  React.useEffect(() => {
-    if (!iconOpen) return;
-    const onDoc = (e: MouseEvent) => {
-      if (iconRef.current && !iconRef.current.contains(e.target as Node)) {
-        setIconOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [iconOpen]);
 
   const dirty =
     labelSingular.trim() !== object.labelSingular ||
@@ -1505,7 +1533,7 @@ function ObjectSettingsCard({
 
     // `defaultView` orders the `views` array (table is always implied first /
     // board moves to the front when selected). We also send `defaultView`
-    // explicitly — the engine accepts it and persists standard overrides as an
+    // explicitly. The engine accepts it and persists standard overrides as an
     // extendsStandard doc.
     const views: Array<'table' | 'board'> =
       defaultView === 'board' ? ['board', 'table'] : ['table'];
@@ -1547,158 +1575,153 @@ function ObjectSettingsCard({
   };
 
   return (
-    <form className="dm-settings" onSubmit={handleSubmit}>
-      <div className="dm-settings__head">
-        <h3 className="dm-settings__title">
+    <form
+      className="flex flex-col gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
+      onSubmit={handleSubmit}
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[var(--st-text)]">
           <Settings2 size={15} aria-hidden="true" />
           Object settings
         </h3>
-        <div className="dm-settings__badges">
+        <div className="flex items-center gap-1.5">
           {isSystem ? (
-            <span
-              className="dm-badge dm-badge--system"
-              title="System object — managed by the engine"
-            >
+            <Badge tone="warning" title="System object, managed by the engine">
               <Lock size={11} aria-hidden="true" />
               System
-            </span>
+            </Badge>
           ) : null}
           <ObjectBadge standard={object.standard === true} />
         </div>
       </div>
 
-      <div className="dm-settings__grid">
-        <div className="st-field">
-          <span className="st-field__label">
-            Singular label<span className="st-field__req">*</span>
-          </span>
-          <input
-            className="st-input"
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Singular label" required>
+          <Input
             value={labelSingular}
             onChange={(e) => setLabelSingular(e.target.value)}
             placeholder="Ticket"
             autoComplete="off"
           />
-        </div>
+        </Field>
 
-        <div className="st-field">
-          <span className="st-field__label">
-            Plural label<span className="st-field__req">*</span>
-          </span>
-          <input
-            className="st-input"
+        <Field label="Plural label" required>
+          <Input
             value={labelPlural}
             onChange={(e) => setLabelPlural(e.target.value)}
             placeholder="Tickets"
             autoComplete="off"
           />
-        </div>
+        </Field>
 
-        <div className="st-field dm-settings__full">
-          <span className="st-field__label">Description</span>
-          <textarea
-            className="st-input dm-settings__desc"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What this object represents…"
-            spellCheck
-            rows={2}
-          />
-        </div>
-
-        <div className="dm-field dm-settings__full" ref={iconRef}>
-          <span className="st-field__label">Icon</span>
-          <div className="dm-iconpick">
-            <button
-              type="button"
-              className="dm-iconpick__trigger"
-              aria-haspopup="true"
-              aria-expanded={iconOpen}
-              onClick={() => setIconOpen((v) => !v)}
-            >
-              <ActiveIcon size={16} aria-hidden="true" />
-              <span className="dm-iconpick__name">{icon}</span>
-            </button>
-            {iconOpen ? (
-              <div
-                className="dm-iconpick__grid"
-                role="listbox"
-                aria-label="Object icons"
-              >
-                {OBJECT_ICONS.map(({ name, Icon }) => (
-                  <button
-                    key={name}
-                    type="button"
-                    role="option"
-                    aria-selected={name === icon}
-                    className={`dm-iconpick__cell${
-                      name === icon ? ' is-active' : ''
-                    }`}
-                    title={name}
-                    onClick={() => {
-                      setIcon(name);
-                      setIconOpen(false);
-                    }}
-                  >
-                    <Icon size={16} aria-hidden="true" />
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="st-field">
-          <span className="st-field__label">Default view</span>
-          <select
-            className="st-select"
-            value={defaultView}
-            onChange={(e) => setDefaultView(e.target.value as DefaultView)}
-          >
-            <option value="table">Table</option>
-            <option value="board">Board (Kanban)</option>
-          </select>
-        </div>
-
-        <div className="st-field">
-          <span className="st-field__label">
-            <Type size={12} aria-hidden="true" /> Record label
-          </span>
-          <select
-            className="st-select"
-            value={labelIdentifier}
-            onChange={(e) => setLabelIdentifier(e.target.value)}
-            disabled={labelCandidates.length === 0}
-            aria-label="Label identifier field"
-          >
-            {labelCandidates.length === 0 ? (
-              <option value="">No text fields available</option>
-            ) : (
-              labelCandidates.map((f) => (
-                <option key={f.key} value={f.key}>
-                  {f.label}
-                </option>
-              ))
-            )}
-          </select>
-          <span className="st-field__hint">
-            Which field is shown as each record&apos;s title.
-          </span>
-        </div>
-
-        <div className="dm-field dm-settings__full">
-          <label className="st-checkbox-row">
-            <input
-              type="checkbox"
-              checked={isSearchable}
-              onChange={(e) => setIsSearchable(e.target.checked)}
+        <div className="col-span-2">
+          <Field label="Description">
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What this object represents"
+              spellCheck
+              rows={2}
             />
-            <Search size={13} aria-hidden="true" />
-            Searchable
-            <span className="dm-checkbox-note">
-              Index this object into global search.
+          </Field>
+        </div>
+
+        <div className="col-span-2">
+          <Field label="Icon">
+            <Popover open={iconOpen} onOpenChange={setIconOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" iconLeft={ActiveIcon}>
+                  {icon}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-2">
+                <div
+                  className="grid grid-cols-7 gap-1"
+                  role="listbox"
+                  aria-label="Object icons"
+                >
+                  {OBJECT_ICONS.map(({ name, Icon }) => (
+                    <IconButton
+                      key={name}
+                      label={name}
+                      icon={Icon}
+                      variant={name === icon ? 'primary' : 'ghost'}
+                      size="md"
+                      role="option"
+                      aria-selected={name === icon}
+                      onClick={() => {
+                        setIcon(name);
+                        setIconOpen(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Field>
+        </div>
+
+        <Field label="Default view">
+          <Select
+            value={defaultView}
+            onValueChange={(v) => setDefaultView(v as DefaultView)}
+          >
+            <SelectTrigger aria-label="Default view">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="table">Table</SelectItem>
+              <SelectItem value="board">Board (Kanban)</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field
+          label={
+            <span className="inline-flex items-center gap-1.5">
+              <Type size={12} aria-hidden="true" /> Record label
             </span>
-          </label>
+          }
+          help="Which field is shown as each record's title."
+        >
+          <Select
+            value={labelIdentifier}
+            onValueChange={setLabelIdentifier}
+            disabled={labelCandidates.length === 0}
+          >
+            <SelectTrigger aria-label="Label identifier field">
+              <SelectValue
+                placeholder={
+                  labelCandidates.length === 0
+                    ? 'No text fields available'
+                    : 'Select a field'
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {labelCandidates.map((f) => (
+                <SelectItem key={f.key} value={f.key}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <div className="col-span-2">
+          <Checkbox
+            checked={isSearchable}
+            onChange={(e) => setIsSearchable(e.target.checked)}
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <Search size={13} aria-hidden="true" />
+                Searchable
+                <span className="text-[12px] text-[var(--st-text-secondary)]">
+                  Index this object into global search.
+                </span>
+              </span>
+            }
+          />
         </div>
       </div>
 
@@ -1706,36 +1729,30 @@ function ObjectSettingsCard({
 
       {error ? <ErrorBanner message={error} /> : null}
 
-      <div className="dm-settings__footer">
+      <div className="flex items-center justify-end gap-2">
         {savedTick && !dirty ? (
-          <span className="dm-settings__saved">
+          <span className="mr-auto inline-flex items-center gap-1 text-[13px] text-[var(--st-status-ok)]">
             <Check size={13} aria-hidden="true" />
             Saved
           </span>
         ) : null}
-        <button
-          type="button"
-          className="st-btn st-btn--secondary"
+        <Button
+          variant="secondary"
           onClick={handleReset}
           disabled={!dirty || saving}
         >
           Reset
-        </button>
-        <button
-          type="submit"
-          className="st-btn st-btn--primary"
-          disabled={!canSave}
-        >
-          {saving ? <Loader2 size={14} className="st-spin" /> : null}
+        </Button>
+        <Button type="submit" variant="primary" loading={saving} disabled={!canSave}>
           Save settings
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Right pane — field table
+// Right pane: field table
 // ---------------------------------------------------------------------------
 
 interface ObjectDetailProps {
@@ -1765,34 +1782,39 @@ function ObjectDetail({
 }: ObjectDetailProps) {
   const TitleIcon = iconComponentFor(object.icon);
   return (
-    <section className="dm-detail" aria-label={`${object.labelPlural} fields`}>
-      <div className="dm-detail__head">
+    <section
+      className="flex flex-col gap-4"
+      aria-label={`${object.labelPlural} fields`}
+    >
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="dm-detail__title">
+          <h2 className="inline-flex items-center gap-2 text-[18px] font-semibold text-[var(--st-text)]">
             <TitleIcon size={18} aria-hidden="true" />
             {object.labelPlural}
             <ObjectBadge standard={object.standard === true} />
           </h2>
-          <p className="dm-detail__sub">
-            <code>{object.slug}</code> · {object.fields.length}{' '}
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
+            <code className="font-mono text-[12px]">{object.slug}</code>{' '}
+            {String.fromCharCode(183)} {object.fields.length}{' '}
             {object.fields.length === 1 ? 'field' : 'fields'}
-            {object.description ? ` · ${object.description}` : ''}
+            {object.description
+              ? ` ${String.fromCharCode(183)} ${object.description}`
+              : ''}
           </p>
         </div>
-        <div className="dm-detail__actions">
+        <div className="flex shrink-0 items-center gap-2">
           {object.standard !== true ? (
-            <button
-              type="button"
-              className="st-btn st-btn--secondary dm-detail__delete"
+            <Button
+              variant="secondary"
+              iconLeft={Trash2}
               onClick={onDeleteObject}
             >
-              <Trash2 size={14} aria-hidden="true" />
               Delete object
-            </button>
+            </Button>
           ) : null}
-          <TwentyButton variant="primary" icon={Plus} onClick={onAddField}>
+          <Button variant="primary" iconLeft={Plus} onClick={onAddField}>
             Add field
-          </TwentyButton>
+          </Button>
         </div>
       </div>
 
@@ -1803,83 +1825,87 @@ function ObjectDetail({
         onSaved={onSettingsSaved}
       />
 
-      <div className="st-table-wrap">
-        <table className="st-table">
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Key</th>
-              <th>Type</th>
-              <th className="dm-col-flags">Flags</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+        <Table>
+          <THead>
+            <Tr>
+              <Th>Field</Th>
+              <Th>Key</Th>
+              <Th>Type</Th>
+              <Th align="right">Flags</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {object.fields.map((field) => {
-              const locked =
-                field.system === true || lockedKeys.has(field.key);
+              const locked = field.system === true || lockedKeys.has(field.key);
               const busy = busyKey === field.key;
               return (
-                <tr key={field.key} className="st-row">
-                  <td>{field.label}</td>
-                  <td>
-                    <span className="dm-key">{field.key}</span>
-                  </td>
-                  <td>
-                    <TwentyChip label={fieldTypeLabel(field.type)} />
-                  </td>
-                  <td className="dm-col-flags">
-                    <span className="dm-flags">
-                      {field.isLabel ? <TwentyChip label="Title" /> : null}
-                      {field.required ? <TwentyChip label="Required" /> : null}
-                      {fieldIsUnique(field) ? <TwentyChip label="Unique" /> : null}
-                      {field.inTable ? <TwentyChip label="In table" /> : null}
+                <Tr key={field.key}>
+                  <Td>{field.label}</Td>
+                  <Td>
+                    <span className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                      {field.key}
+                    </span>
+                  </Td>
+                  <Td>
+                    <Badge tone="neutral">{fieldTypeLabel(field.type)}</Badge>
+                  </Td>
+                  <Td align="right">
+                    <span className="inline-flex items-center justify-end gap-1">
+                      {field.isLabel ? <Badge tone="accent">Title</Badge> : null}
+                      {field.required ? (
+                        <Badge tone="neutral">Required</Badge>
+                      ) : null}
+                      {fieldIsUnique(field) ? (
+                        <Badge tone="neutral">Unique</Badge>
+                      ) : null}
+                      {field.inTable ? (
+                        <Badge tone="neutral">In table</Badge>
+                      ) : null}
                       {field.type === 'RELATION' && field.relation ? (
-                        <TwentyChip
-                          label={`→ ${field.relation.targetObject}`}
-                        />
+                        <Badge tone="info">
+                          to {field.relation.targetObject}
+                        </Badge>
                       ) : null}
                       {locked ? (
                         <span
-                          className="dm-locked"
-                          title="Built-in field — read-only"
+                          className="inline-flex size-7 items-center justify-center text-[var(--st-text-tertiary)]"
+                          title="Built-in field, read-only"
                         >
                           <Lock size={13} aria-label="Read-only" />
                         </span>
                       ) : (
                         <>
-                          <button
-                            type="button"
-                            className="dm-rm"
-                            aria-label={`Edit ${field.label}`}
-                            title={`Edit ${field.label}`}
+                          <IconButton
+                            label={`Edit ${field.label}`}
+                            icon={Pencil}
+                            variant="ghost"
+                            size="sm"
                             disabled={busy}
                             onClick={() => onEditField(field.key)}
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            className="dm-rm"
-                            aria-label={`Remove ${field.label}`}
-                            title={`Remove ${field.label}`}
-                            disabled={busy}
-                            onClick={() => onRemoveField(field.key)}
-                          >
-                            {busy ? (
-                              <Loader2 size={14} className="st-spin" />
-                            ) : (
-                              <Trash2 size={14} />
-                            )}
-                          </button>
+                          />
+                          {busy ? (
+                            <span className="inline-flex size-7 items-center justify-center">
+                              <Spinner size="sm" label="Removing field" />
+                            </span>
+                          ) : (
+                            <IconButton
+                              label={`Remove ${field.label}`}
+                              icon={Trash2}
+                              variant="danger"
+                              size="sm"
+                              onClick={() => onRemoveField(field.key)}
+                            />
+                          )}
                         </>
                       )}
                     </span>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               );
             })}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </div>
     </section>
   );
@@ -1958,116 +1984,90 @@ function NewObjectDialog({
   };
 
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label="New object"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">New object</h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+    <Modal
+      open
+      onClose={onClose}
+      title="New object"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            loading={saving}
+            disabled={!canSubmit}
+            onClick={() =>
+              handleSubmit({
+                preventDefault: () => {},
+              } as React.FormEvent<HTMLFormElement>)
+            }
+          >
+            Create object
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <Field label="Singular label" required>
+          <Input
+            value={labelSingular}
+            onChange={(e) => setLabelSingular(e.target.value)}
+            placeholder="Ticket"
+            autoComplete="off"
+          />
+        </Field>
 
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <span className="st-field__label">
-                Singular label<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={labelSingular}
-                onChange={(e) => setLabelSingular(e.target.value)}
-                placeholder="Ticket"
-                autoComplete="off"
-              />
-            </div>
+        <Field label="Plural label" required>
+          <Input
+            value={labelPlural}
+            onChange={(e) => onPluralChange(e.target.value)}
+            placeholder="Tickets"
+            autoComplete="off"
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">
-                Plural label<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={labelPlural}
-                onChange={(e) => onPluralChange(e.target.value)}
-                placeholder="Tickets"
-                autoComplete="off"
-              />
-            </div>
+        <Field label="Icon">
+          <Input
+            value={icon}
+            onChange={(e) => setIcon(e.target.value)}
+            placeholder="database"
+            autoComplete="off"
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Icon</span>
-              <input
-                className="st-input"
-                value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                placeholder="database"
-                autoComplete="off"
-              />
-            </div>
+        <Field
+          label="Slug"
+          required
+          error={slugTaken ? 'An object with this slug already exists.' : undefined}
+        >
+          <Input
+            value={slug}
+            onChange={(e) => {
+              setSlugTouched(true);
+              setSlug(slugify(e.target.value));
+            }}
+            placeholder="support-tickets"
+            autoComplete="off"
+            invalid={slugTaken}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">
-                Slug<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={slug}
-                onChange={(e) => {
-                  setSlugTouched(true);
-                  setSlug(slugify(e.target.value));
-                }}
-                placeholder="support-tickets"
-                autoComplete="off"
-                aria-invalid={slugTaken}
-              />
-              {slugTaken ? (
-                <span className="st-field__label text-[#d64545]">
-                  An object with this slug already exists.
-                </span>
-              ) : null}
-            </div>
-
-            {error && <ErrorBanner message={error} />}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </TwentyButton>
-            <button
-              type="submit"
-              className="st-btn st-btn--primary"
-              disabled={!canSubmit}
-            >
-              {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              Create object
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? <ErrorBanner message={error} /> : null}
+        {/* Submit on Enter from within the form. */}
+        <input type="hidden" />
+      </form>
+    </Modal>
   );
 }
 
 // ---------------------------------------------------------------------------
 // Delete-object dialog (custom objects only)
 //
-// Twenty's destructive "Delete object" confirmation: deleting drops the object
-// AND its records, so we require the admin to re-type the slug before the
-// action is enabled. Wired to `deleteObjectTw` (gates on `delete`); the engine
-// rejects standard objects, surfaced as an inline error.
+// A destructive "Delete object" confirmation: deleting drops the object AND its
+// records, so we require the admin to re-type the slug before the action is
+// enabled. Wired to `deleteObjectTw` (gates on `delete`); the engine rejects
+// standard objects, surfaced as an inline error.
 // ---------------------------------------------------------------------------
 
 interface DeleteObjectDialogProps {
@@ -2089,8 +2089,7 @@ function DeleteObjectDialog({
 
   const canDelete = confirm.trim() === object.slug && !deleting;
 
-  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleDelete = async () => {
     if (!canDelete) return;
     setDeleting(true);
     setError(null);
@@ -2104,74 +2103,51 @@ function DeleteObjectDialog({
   };
 
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Delete ${object.labelSingular}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <form onSubmit={handleDelete}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">Delete object</h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+    <Modal
+      open
+      onClose={onClose}
+      title="Delete object"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            loading={deleting}
+            disabled={!canDelete}
+            onClick={handleDelete}
+          >
+            Delete object
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3">
+        <Alert tone="danger">
+          Deleting <strong>{object.labelPlural}</strong> permanently removes the
+          object and every record stored under it. This cannot be undone.
+        </Alert>
 
-          <div className="st-dialog__body">
-            <p className="dm-delete__warn">
-              <AlertTriangle size={15} aria-hidden="true" />
-              <span>
-                Deleting <strong>{object.labelPlural}</strong> permanently
-                removes the object and every record stored under it. This cannot
-                be undone.
-              </span>
-            </p>
+        <Field
+          label={
+            <span>
+              Type <code className="font-mono">{object.slug}</code> to confirm
+            </span>
+          }
+        >
+          <Input
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder={object.slug}
+            autoComplete="off"
+            invalid={confirm.length > 0 && !canDelete && !deleting}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">
-                Type <code>{object.slug}</code> to confirm
-              </span>
-              <input
-                className="st-input"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder={object.slug}
-                autoComplete="off"
-                aria-invalid={confirm.length > 0 && !canDelete && !deleting}
-              />
-            </div>
-
-            {error && <ErrorBanner message={error} />}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton
-              variant="secondary"
-              onClick={onClose}
-              disabled={deleting}
-            >
-              Cancel
-            </TwentyButton>
-            <button
-              type="submit"
-              className="st-btn st-btn--danger"
-              disabled={!canDelete}
-            >
-              {deleting ? <Loader2 size={14} className="st-spin" /> : null}
-              Delete object
-            </button>
-          </div>
-        </form>
+        {error ? <ErrorBanner message={error} /> : null}
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -2183,7 +2159,7 @@ const SELECT_TYPES: ReadonlySet<FieldType> = new Set(['SELECT', 'MULTI_SELECT'])
 
 interface FieldDialogProps {
   object: ObjectMetadata;
-  /** All loaded objects — used to populate the RELATION target picker. */
+  /** All loaded objects, used to populate the RELATION target picker. */
   allObjects: ObjectMetadata[];
   projectId: string | null;
   /** When set, edit this existing field; otherwise add a new one. */
@@ -2226,16 +2202,14 @@ function FieldDialog({
   const [defaultValue, setDefaultValue] = React.useState<unknown>(
     editing?.defaultValue,
   );
-  /** RAW_JSON validity — blocks submit while the textarea holds invalid JSON. */
+  /** RAW_JSON validity, blocks submit while the textarea holds invalid JSON. */
   const [jsonValid, setJsonValid] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const existingKeys = React.useMemo(
     () =>
-      new Set(
-        object.fields.filter((f) => f.key !== editKey).map((f) => f.key),
-      ),
+      new Set(object.fields.filter((f) => f.key !== editKey).map((f) => f.key)),
     [object.fields, editKey],
   );
 
@@ -2255,7 +2229,7 @@ function FieldDialog({
     setJsonValid(true);
   };
 
-  // Type-specific validity: SELECT needs ≥1 valid option; RELATION needs a target.
+  // Type-specific validity: SELECT needs >=1 valid option; RELATION needs a target.
   const optionsValid =
     !isSelect ||
     (options.length > 0 &&
@@ -2308,8 +2282,8 @@ function FieldDialog({
     if (defaultValue !== undefined && defaultValue !== null) {
       next.defaultValue = defaultValue;
     }
-    // `isUnique` is a Twenty-depth flag not yet on the shared FieldMetadata
-    // type; the engine + patch path carry it, so we attach it through a cast.
+    // `isUnique` is a depth flag not yet on the shared FieldMetadata type; the
+    // engine + patch path carry it, so we attach it through a cast.
     (next as FieldMetadata & FieldTwExtras).isUnique = isUnique;
     return next;
   };
@@ -2346,220 +2320,181 @@ function FieldDialog({
   };
 
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog dm-dialog--wide"
-        role="dialog"
-        aria-modal="true"
-        aria-label={
-          editing
-            ? `Edit ${editing.label}`
-            : `Add field to ${object.labelSingular}`
-        }
-        onClick={(e) => e.stopPropagation()}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">
-              {editing ? 'Edit field' : 'Add field'}
-            </h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title={editing ? 'Edit field' : 'Add field'}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            loading={saving}
+            disabled={!canSubmit}
+            onClick={() =>
+              handleSubmit({
+                preventDefault: () => {},
+              } as React.FormEvent<HTMLFormElement>)
+            }
+          >
+            {editing ? 'Save changes' : 'Add field'}
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <Field label="Label" required>
+          <Input
+            value={label}
+            onChange={(e) => onLabelChange(e.target.value)}
+            placeholder="Priority"
+            autoComplete="off"
+          />
+        </Field>
 
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <span className="st-field__label">
-                Label<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={label}
-                onChange={(e) => onLabelChange(e.target.value)}
-                placeholder="Priority"
-                autoComplete="off"
-              />
-            </div>
+        <Field
+          label="Key"
+          required
+          help={editing ? "A field's key is fixed once created." : undefined}
+          error={
+            !editing && keyConflict
+              ? 'A field with this key already exists.'
+              : undefined
+          }
+        >
+          <Input
+            value={key}
+            onChange={(e) => {
+              setKeyTouched(true);
+              setKey(e.target.value);
+            }}
+            placeholder="priority"
+            autoComplete="off"
+            invalid={keyConflict}
+            disabled={Boolean(editing)}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">
-                Key<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={key}
-                onChange={(e) => {
-                  setKeyTouched(true);
-                  setKey(e.target.value);
-                }}
-                placeholder="priority"
-                autoComplete="off"
-                aria-invalid={keyConflict}
-                disabled={Boolean(editing)}
-              />
-              {editing ? (
-                <span className="st-field__hint">
-                  A field&apos;s key is fixed once created.
-                </span>
-              ) : keyConflict ? (
-                <span className="st-field__label text-[#d64545]">
-                  A field with this key already exists.
-                </span>
-              ) : null}
-            </div>
+        <Field label="Type">
+          <Select value={type} onValueChange={(v) => onTypeChange(v as FieldType)}>
+            <SelectTrigger aria-label="Field type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FIELD_TYPE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+              <SelectItem value="RELATION">Relation</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Type</span>
-              <select
-                className="st-select"
-                value={type}
-                onChange={(e) => onTypeChange(e.target.value as FieldType)}
-              >
-                {FIELD_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-                <option value="RELATION">Relation</option>
-              </select>
-            </div>
+        {isSelect ? (
+          <OptionRowsEditor options={options} onChange={setOptions} />
+        ) : null}
 
-            {isSelect ? (
-              <OptionRowsEditor options={options} onChange={setOptions} />
-            ) : null}
+        {isRelation ? (
+          <RelationEditor
+            objects={allObjects}
+            selfSlug={object.slug}
+            relation={relation}
+            onChange={setRelation}
+          />
+        ) : null}
 
-            {isRelation ? (
-              <RelationEditor
-                objects={allObjects}
-                selfSlug={object.slug}
-                relation={relation}
-                onChange={setRelation}
-              />
-            ) : null}
+        {type === 'CURRENCY' ? (
+          <CurrencyDefaultEditor value={defaultValue} onChange={setDefaultValue} />
+        ) : null}
 
-            {type === 'CURRENCY' ? (
-              <CurrencyDefaultEditor
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'FULL_NAME' ? (
+          <FullNameDefaultEditor value={defaultValue} onChange={setDefaultValue} />
+        ) : null}
 
-            {type === 'FULL_NAME' ? (
-              <FullNameDefaultEditor
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'ADDRESS' ? (
+          <AddressDefaultEditor value={defaultValue} onChange={setDefaultValue} />
+        ) : null}
 
-            {type === 'ADDRESS' ? (
-              <AddressDefaultEditor
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'EMAILS' ? (
+          <StringListEditor
+            label="Default emails"
+            placeholder="name@example.com"
+            inputType="email"
+            value={defaultValue}
+            onChange={setDefaultValue}
+          />
+        ) : null}
 
-            {type === 'EMAILS' ? (
-              <StringListEditor
-                label="Default emails"
-                placeholder="name@example.com"
-                inputType="email"
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'PHONES' ? (
+          <StringListEditor
+            label="Default phones"
+            placeholder="+1 555 000 0000"
+            inputType="tel"
+            value={defaultValue}
+            onChange={setDefaultValue}
+          />
+        ) : null}
 
-            {type === 'PHONES' ? (
-              <StringListEditor
-                label="Default phones"
-                placeholder="+1 555 000 0000"
-                inputType="tel"
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'ARRAY' ? (
+          <StringListEditor
+            label="Default items"
+            placeholder="Value"
+            value={defaultValue}
+            onChange={setDefaultValue}
+          />
+        ) : null}
 
-            {type === 'ARRAY' ? (
-              <StringListEditor
-                label="Default items"
-                placeholder="Value"
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'LINKS' ? (
+          <LinksEditor value={defaultValue} onChange={setDefaultValue} />
+        ) : null}
 
-            {type === 'LINKS' ? (
-              <LinksEditor value={defaultValue} onChange={setDefaultValue} />
-            ) : null}
+        {type === 'MULTI_SELECT' ? (
+          <MultiSelectDefaultEditor
+            options={options}
+            value={defaultValue}
+            onChange={setDefaultValue}
+          />
+        ) : null}
 
-            {type === 'MULTI_SELECT' ? (
-              <MultiSelectDefaultEditor
-                options={options}
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'RATING' ? (
+          <RatingDefaultEditor value={defaultValue} onChange={setDefaultValue} />
+        ) : null}
 
-            {type === 'RATING' ? (
-              <RatingDefaultEditor
-                value={defaultValue}
-                onChange={setDefaultValue}
-              />
-            ) : null}
+        {type === 'RAW_JSON' ? (
+          <RawJsonDefaultEditor
+            value={defaultValue}
+            onChange={setDefaultValue}
+            onValidityChange={setJsonValid}
+          />
+        ) : null}
 
-            {type === 'RAW_JSON' ? (
-              <RawJsonDefaultEditor
-                value={defaultValue}
-                onChange={setDefaultValue}
-                onValidityChange={setJsonValid}
-              />
-            ) : null}
+        <Checkbox
+          checked={required}
+          onChange={(e) => setRequired(e.target.checked)}
+          label="Required"
+        />
 
-            <label className="st-checkbox-row">
-              <input
-                type="checkbox"
-                checked={required}
-                onChange={(e) => setRequired(e.target.checked)}
-              />
-              Required
-            </label>
-
-            <label className="st-checkbox-row">
-              <input
-                type="checkbox"
-                checked={isUnique}
-                onChange={(e) => setIsUnique(e.target.checked)}
-              />
+        <Checkbox
+          checked={isUnique}
+          onChange={(e) => setIsUnique(e.target.checked)}
+          label={
+            <span className="inline-flex items-center gap-1.5">
               Unique
-              <span className="dm-checkbox-note">
+              <span className="text-[12px] text-[var(--st-text-secondary)]">
                 No two records may share this value.
               </span>
-            </label>
+            </span>
+          }
+        />
 
-            {error && <ErrorBanner message={error} />}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </TwentyButton>
-            <button
-              type="submit"
-              className="st-btn st-btn--primary"
-              disabled={!canSubmit}
-            >
-              {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              {editing ? 'Save changes' : 'Add field'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? <ErrorBanner message={error} /> : null}
+        <input type="hidden" />
+      </form>
+    </Modal>
   );
 }
 
@@ -2599,8 +2534,7 @@ export default function DataModelPage(): React.JSX.Element {
         // Default-select the first object (custom first, then standard).
         setActiveSlug((prev) => {
           if (prev && res.data.some((o) => o.slug === prev)) return prev;
-          const first =
-            res.data.find((o) => !o.standard) ?? res.data[0];
+          const first = res.data.find((o) => !o.standard) ?? res.data[0];
           return first ? first.slug : null;
         });
       }
@@ -2638,25 +2572,11 @@ export default function DataModelPage(): React.JSX.Element {
   /**
    * Keys that are immutable on the active object. For a standard object every
    * built-in field is locked (only appended custom fields are removable); the
-   * engine flags those built-ins with `system` / by absence of edits, so we
-   * lock the standard object's *original* fields. Custom objects lock only
-   * `system` fields.
+   * engine flags those built-ins with `system`, so we lock the standard
+   * object's system fields. Custom objects lock only `system` fields.
    */
   const lockedKeys = React.useMemo<ReadonlySet<string>>(() => {
     if (!activeObject) return new Set<string>();
-    if (activeObject.standard) {
-      // On a standard object, treat any field NOT explicitly user-added as
-      // locked. The engine marks custom extensions without `system`; built-ins
-      // are either `system` or carry `standard` identity. To stay safe we lock
-      // every field unless it is a plain custom field (no system flag) added
-      // after the standard set — which the engine surfaces, so we rely on the
-      // engine rejecting bad removals and lock system + non-custom here.
-      return new Set(
-        activeObject.fields
-          .filter((f) => f.system === true)
-          .map((f) => f.key),
-      );
-    }
     return new Set(
       activeObject.fields.filter((f) => f.system === true).map((f) => f.key),
     );
@@ -2690,59 +2610,57 @@ export default function DataModelPage(): React.JSX.Element {
   // ---- Render -------------------------------------------------------------
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader
-        title="Data Model"
-        icon={Database}
-        actions={
-          <TwentyButton
+    <div className="ui20 flex flex-col gap-5 p-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Data Model</PageTitle>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
             variant="primary"
-            icon={Plus}
+            iconLeft={Plus}
             onClick={() => setCreateOpen(true)}
             disabled={loading || !!error}
           >
             New object
-          </TwentyButton>
-        }
-      />
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {error ? (
         <ErrorBanner message={error} />
       ) : loading ? (
-        <div className="dm-layout">
-          <div className="st-table-wrap p-[var(--st-space-3)]">
+        <div className="grid grid-cols-[280px_1fr] gap-5">
+          <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
+              <Skeleton key={i} height={36} radius={6} />
             ))}
           </div>
-          <div className="st-table-wrap p-[var(--st-space-3)]">
+          <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
+              <Skeleton key={i} height={36} radius={6} />
             ))}
           </div>
         </div>
       ) : objects.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Database size={20} />
-          </span>
-          <h2 className="st-empty__title">No objects yet</h2>
-          <p className="st-empty__desc">
-            Create your first custom object to model data the standard CRM
-            objects don&apos;t cover.
-          </p>
-          <TwentyButton
-            variant="primary"
-            icon={Plus}
-            onClick={() => setCreateOpen(true)}
-          >
-            New object
-          </TwentyButton>
-        </div>
+        <EmptyState
+          icon={Database}
+          title="No objects yet"
+          description="Create your first custom object to model data the standard CRM objects don't cover."
+          action={
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={() => setCreateOpen(true)}
+            >
+              New object
+            </Button>
+          }
+        />
       ) : (
         <>
-          {mutationError && <ErrorBanner message={mutationError} />}
-          <div className="dm-layout">
+          {mutationError ? <ErrorBanner message={mutationError} /> : null}
+          <div className="grid grid-cols-[280px_1fr] items-start gap-5">
             <ObjectList
               custom={customObjects}
               standard={standardObjects}
@@ -2778,7 +2696,7 @@ export default function DataModelPage(): React.JSX.Element {
                 }}
               />
             ) : (
-              <div className="dm-detail__placeholder">
+              <div className="flex items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-12 text-[13px] text-[var(--st-text-secondary)]">
                 Select an object to manage its fields.
               </div>
             )}
@@ -2786,7 +2704,7 @@ export default function DataModelPage(): React.JSX.Element {
         </>
       )}
 
-      {createOpen && (
+      {createOpen ? (
         <NewObjectDialog
           existingSlugs={existingSlugs}
           projectId={activeProjectId}
@@ -2797,9 +2715,9 @@ export default function DataModelPage(): React.JSX.Element {
             setCreateOpen(false);
           }}
         />
-      )}
+      ) : null}
 
-      {addFieldOpen && activeObject && (
+      {addFieldOpen && activeObject ? (
         <FieldDialog
           object={activeObject}
           allObjects={objects}
@@ -2815,9 +2733,9 @@ export default function DataModelPage(): React.JSX.Element {
             setEditFieldKey(null);
           }}
         />
-      )}
+      ) : null}
 
-      {deleteOpen && activeObject && activeObject.standard !== true && (
+      {deleteOpen && activeObject && activeObject.standard !== true ? (
         <DeleteObjectDialog
           object={activeObject}
           projectId={activeProjectId}
@@ -2836,7 +2754,7 @@ export default function DataModelPage(): React.JSX.Element {
             });
           }}
         />
-      )}
+      ) : null}
     </div>
   );
 }
