@@ -1,13 +1,26 @@
 /**
- * Bug Tracker — Severity × Priority heat-map dashboard
+ * Bug Tracker - Severity x Priority heat-map dashboard
  * (`/dashboard/sabbugs/severity-matrix`).
  *
- * Counts non-closed bugs across the severity × priority grid and renders
+ * Counts non-closed bugs across the severity x priority grid and renders
  * a colour-graded matrix so triage can spot hotspots at a glance.
  */
 import Link from 'next/link';
 
-import { Card } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Card,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Table,
+  TBody,
+  THead,
+  Td,
+  Th,
+  Tr,
+} from '@/components/sabcrm/20ui';
 
 import { listBugs } from '@/app/actions/bug-tracker.actions';
 import type {
@@ -45,67 +58,65 @@ export default async function SeverityMatrixPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <header>
-        <h1 className="text-xl font-semibold text-[var(--st-text)]">
-          Severity × Priority matrix
-        </h1>
-        <p className="text-sm text-[var(--st-text-secondary)]">
-          {active.length} active bug{active.length === 1 ? '' : 's'} grouped by
-          severity and priority.
-        </p>
-      </header>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Severity x Priority matrix</PageTitle>
+          <PageDescription>
+            {active.length} active bug{active.length === 1 ? '' : 's'} grouped by
+            severity and priority.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       {res.error ? (
-        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
+        <Alert tone="danger" title="Could not load bugs">
           {res.error}
-        </Card>
+        </Alert>
       ) : null}
 
-      <Card className="overflow-x-auto p-4">
-        <table className="w-full border-separate border-spacing-1 text-sm">
-          <thead>
-            <tr>
-              <th className="px-2 py-1 text-left text-xs uppercase text-[var(--st-text-secondary)]">
-                Severity \ Priority
-              </th>
+      <Card padding="md" className="overflow-x-auto">
+        <Table density="compact" hover={false}>
+          <THead>
+            <Tr>
+              <Th align="left">Severity \ Priority</Th>
               {BUG_PRIORITIES.map((p) => (
-                <th
-                  key={p}
-                  className="px-2 py-1 text-center text-xs uppercase text-[var(--st-text-secondary)]"
-                >
+                <Th key={p} align="center">
                   {p}
-                </th>
+                </Th>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </Tr>
+          </THead>
+          <TBody>
             {BUG_SEVERITIES.map((s) => (
-              <tr key={s}>
-                <th className="px-2 py-1 text-left text-xs uppercase text-[var(--st-text-secondary)]">
+              <Tr key={s}>
+                <Th align="left" scope="row">
                   {s}
-                </th>
+                </Th>
                 {BUG_PRIORITIES.map((p) => {
                   const count = matrix[s][p];
                   const intensity = Math.round((count / max) * 100);
                   return (
-                    <td key={p} className="p-0">
+                    <Td key={p} align="center" className="p-0">
                       <Link
                         href={`/dashboard/sabbugs?severity=${s}&priority=${p}`}
-                        className="block rounded-md p-3 text-center font-semibold"
+                        className="block rounded-[var(--st-radius)] p-3 text-center font-semibold"
                         style={{
                           backgroundColor: cellColor(intensity),
-                          color: intensity > 60 ? 'var(--st-text-inverted)' : 'inherit',
+                          color:
+                            intensity > 60
+                              ? 'var(--st-text-inverted)'
+                              : 'inherit',
                         }}
                       >
                         {count}
                       </Link>
-                    </td>
+                    </Td>
                   );
                 })}
-              </tr>
+              </Tr>
             ))}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </Card>
     </div>
   );
@@ -114,7 +125,7 @@ export default async function SeverityMatrixPage() {
 function cellColor(intensity: number): string {
   // Plain CSS so we don't pull in another library; ranges from neutral
   // to a saturated red as intensity rises.
-  if (intensity <= 0) return 'var(--st-bg-muted)';
+  if (intensity <= 0) return 'var(--st-bg-secondary)';
   if (intensity < 25) return '#fef3c7';
   if (intensity < 50) return '#fdba74';
   if (intensity < 75) return '#f97316';

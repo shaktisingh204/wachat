@@ -1,6 +1,45 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  Checkbox,
+  EmptyState,
+  IconButton,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
+  useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -62,7 +101,7 @@ function downloadCsv(filename: string, rows: string[][]) {
   URL.revokeObjectURL(url);
 }
 
-function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
+function MetricTile({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">{label}</div>
@@ -301,10 +340,12 @@ export default function QrCodeMakerPage() {
     return (
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <Card className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
-          <h3 className="text-sm text-[var(--st-text)] mb-1">Authentication required</h3>
-          <p className="text-xs text-[var(--st-text-secondary)]">You must be logged in to access this page.</p>
+        <Card className="p-10">
+          <EmptyState
+            icon={AlertCircle}
+            title="Authentication required"
+            description="You must be logged in to access this page."
+          />
         </Card>
       </div>
     );
@@ -346,47 +387,45 @@ export default function QrCodeMakerPage() {
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <PageHeader>
-            <PageHeading>
-              <PageTitle>
-                <span className="inline-flex items-center gap-3">
-                  <QrCode className="h-7 w-7" />
-                  QR Code Maker
-                </span>
-              </PageTitle>
-              <PageDescription>
-                Generate customizable QR codes for links, text, WhatsApp messages, and more.
-              </PageDescription>
-            </PageHeading>
-          </PageHeader>
-          <div className="flex flex-wrap items-center gap-2">
+        <PageHeader>
+          <PageHeading>
+            <PageTitle>
+              <span className="inline-flex items-center gap-3">
+                <QrCode className="h-7 w-7" aria-hidden="true" />
+                QR Code Maker
+              </span>
+            </PageTitle>
+            <PageDescription>
+              Generate customizable QR codes for links, text, WhatsApp messages, and more.
+            </PageDescription>
+          </PageHeading>
+          <PageActions>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Download}
               onClick={handleExport}
               disabled={filtered.length === 0}
             >
-              <Download className="h-3.5 w-3.5" />
               Export CSV
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Upload}
               onClick={() => setBulkImportOpen(true)}
             >
-              <Upload className="h-3.5 w-3.5" />
               Bulk Import
             </Button>
-          </div>
-        </div>
+          </PageActions>
+        </PageHeader>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Total QR Codes" value={stats.total} />
-          <StatCard label="Dynamic" value={stats.dynamic} hint="Editable short-URL backed" />
-          <StatCard label="Total Scans" value={stats.totalScans.toLocaleString()} hint="Dynamic QR only" />
-          <StatCard label="Last 7 days" value={stats.last7} />
+          <MetricTile label="Total QR Codes" value={stats.total} />
+          <MetricTile label="Dynamic" value={stats.dynamic} hint="Editable short-URL backed" />
+          <MetricTile label="Total Scans" value={stats.totalScans.toLocaleString()} hint="Dynamic QR only" />
+          <MetricTile label="Last 7 days" value={stats.last7} />
         </div>
 
         {/* Generator */}
@@ -394,7 +433,7 @@ export default function QrCodeMakerPage() {
           <QrCodeGenerator user={session.user} />
         </Card>
 
-        {/* Saved QR Codes — sidebar + table */}
+        {/* Saved QR Codes: sidebar + table */}
         <div className="flex flex-col lg:flex-row gap-4">
           <QrCodeSidebar
             search={search}
@@ -407,318 +446,298 @@ export default function QrCodeMakerPage() {
             onSortChange={setSortKey}
           />
           <div className="flex-1 min-w-0">
-        <Card className="p-0">
-          <div className="flex items-center justify-between border-b border-[var(--st-border)] px-5 py-4">
-            <h2 className="text-[15px] text-[var(--st-text)]">Your Saved QR Codes</h2>
-            <div className="text-[11.5px] text-[var(--st-text-secondary)]">
-              {filtered.length} of {qrCodes.length}
-            </div>
-          </div>
-
-          {selectedIds.size > 0 ? (
-            <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-2.5 text-[12.5px]">
-              <span className="text-[var(--st-text)]">
-                <strong>{selectedIds.size}</strong> selected
-              </span>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
-                  Clear
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" disabled={isBulkDeleting}>
-                      {isBulkDeleting ? (
-                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
-                      Delete selected
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete {selectedIds.size} QR code(s)?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This permanently removes the selected QR codes and any associated short links. This
-                        action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          ) : null}
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-[var(--st-border)] text-left text-[12px] text-[var(--st-text-secondary)]">
-                  <th className="w-10 px-5 py-3">
-                    <input
-                      type="checkbox"
-                      checked={allPageSelected}
-                      onChange={toggleSelectPage}
-                      aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
-                    />
-                  </th>
-                  <th className="px-2 py-3">Name</th>
-                  <th className="px-5 py-3">Type</th>
-                  <th className="px-5 py-3">Data / Link</th>
-                  <th className="px-5 py-3">Scans</th>
-                  <th className="px-5 py-3">Created</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isRefetching && pageSlice.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-5 py-4">
-                      <Skeleton className="h-10 w-full" />
-                    </td>
-                  </tr>
-                ) : pageSlice.length > 0 ? (
-                  pageSlice.map((code: any) => {
-                    const id = code._id.toString();
-                    const isDynamic = !!code.shortUrl;
-                    const selected = selectedIds.has(id);
-                    const isNew =
-                      code.createdAt && Date.now() - new Date(code.createdAt).getTime() <= RECENT_MS;
-                    const shortUrlStr = isDynamic
-                      ? `${typeof window !== 'undefined' ? window.location.origin : ''}/s/${code.shortUrl.shortCode}`
-                      : '';
-                    const staticPreview = generateDataString(code);
-                    return (
-                      <tr
-                        key={id}
-                        className={cn(
-                          'border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]',
-                          selected && 'bg-[var(--st-bg-muted)]',
-                        )}
-                      >
-                        <td className="w-10 px-5 py-3">
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={() => toggleSelect(id)}
-                            aria-label="Select QR code"
-                            className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
-                          />
-                        </td>
-                        <td className="px-2 py-3">
-                          <div className="flex items-center gap-2 text-[var(--st-text)]">
-                            {code.name || '(untitled)'}
-                            {isNew ? (
-                              <span className="rounded-full border border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 px-1.5 py-0 text-[10px] text-[var(--st-status-ok)]">
-                                New
-                              </span>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] capitalize text-[var(--st-text)]">
-                              {code.dataType}
-                            </span>
-                            {isDynamic ? (
-                              <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] text-[var(--st-text)]">
-                                Dynamic
-                              </span>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 font-mono text-[11.5px] text-[var(--st-text-secondary)] max-w-[260px]">
-                          {isDynamic ? (
-                            <div className="flex items-center gap-1.5">
-                              <Link
-                                href={`/dashboard/url-shortener/${code.shortUrl._id}`}
-                                className="truncate text-[var(--st-text)] hover:underline"
-                              >
-                                {shortUrlStr.replace(/^https?:\/\//, '')}
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={() => handleCopy(id, shortUrlStr)}
-                                className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                                aria-label="Copy short URL"
-                              >
-                                {copiedId === id ? (
-                                  <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5">
-                              <span className="truncate">{staticPreview}</span>
-                              {staticPreview ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopy(id, staticPreview)}
-                                  className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                                  aria-label="Copy data"
-                                >
-                                  {copiedId === id ? (
-                                    <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
-                                  ) : (
-                                    <Copy className="h-3 w-3" />
-                                  )}
-                                </button>
-                              ) : null}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-5 py-3 text-[var(--st-text)]">
-                          {isDynamic ? (
-                            <span className="text-[13px]">
-                              {(code.shortUrl?.clickCount || 0).toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-[var(--st-text-secondary)]/50">—</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3 text-[var(--st-text)]">
-                          {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
-                        </td>
-                        <td className="min-w-[108px] px-5 py-3 text-right">
-                          <div className="inline-flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleView(code)}
-                              className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                              aria-label="View QR"
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setNotesPanel({ id })}
-                              className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                              aria-label="Notes & Comments"
-                            >
-                              <MessageSquare className="h-3.5 w-3.5" />
-                            </button>
-                            {/* Edit button */}
-                            <EditQrDialog
-                              qrCode={code}
-                              onComplete={fetchQrCodes}
-                            />
-                            <SharePermissionsModal
-                              resourceType="qr"
-                              resourceId={code._id?.toString?.() ?? String(code._id)}
-                              resourceName={code.name}
-                            />
-                            {/* Scan stats button (only for dynamic QR codes) */}
-                            {code.shortUrl && (
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                title="View Scan Stats"
-                                onClick={() => setScanStatsModal({
-                                  id,
-                                  name: code.name,
-                                  isDynamic: true,
-                                })}
-                              >
-                                <BarChart2 className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <button
-                                  type="button"
-                                  className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-                                  aria-label="Delete"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete "{code.name}"?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This permanently removes the QR code. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-[var(--st-text-secondary)]">
-                      {qrCodes.length === 0
-                        ? 'No QR codes saved yet. Use the generator above to create one.'
-                        : 'No QR codes match your filters.'}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {filtered.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
-              <div className="flex items-center gap-2">
-                <span>Rows per page</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12px] text-[var(--st-text)]"
-                >
-                  {PAGE_SIZES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>
-                  {(currentPage - 1) * pageSize + 1}–
-                  {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1}
-                    className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <span className="min-w-[48px] text-center">
-                    {currentPage} / {pageCount}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                    disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+            <Card className="p-0">
+              <div className="flex items-center justify-between border-b border-[var(--st-border)] px-5 py-4">
+                <div className="text-[15px] text-[var(--st-text)]">Your Saved QR Codes</div>
+                <div className="text-[11.5px] text-[var(--st-text-secondary)]">
+                  {filtered.length} of {qrCodes.length}
                 </div>
               </div>
-            </div>
-          ) : null}
-        </Card>
+
+              {selectedIds.size > 0 ? (
+                <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-2.5 text-[12.5px]">
+                  <span className="text-[var(--st-text)]">
+                    <strong>{selectedIds.size}</strong> selected
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                      Clear
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          disabled={isBulkDeleting}
+                          iconLeft={isBulkDeleting ? undefined : Trash2}
+                        >
+                          {isBulkDeleting ? (
+                            <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                          ) : null}
+                          Delete selected
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete {selectedIds.size} QR code(s)?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This permanently removes the selected QR codes and any associated short links. This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th className="w-10" align="center">
+                        <Checkbox
+                          size="sm"
+                          checked={allPageSelected}
+                          onChange={toggleSelectPage}
+                          aria-label="Select all on page"
+                        />
+                      </Th>
+                      <Th>Name</Th>
+                      <Th>Type</Th>
+                      <Th>Data / Link</Th>
+                      <Th>Scans</Th>
+                      <Th>Created</Th>
+                      <Th align="right">Actions</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {isRefetching && pageSlice.length === 0 ? (
+                      <Tr>
+                        <Td colSpan={7}>
+                          <Skeleton className="h-10 w-full" />
+                        </Td>
+                      </Tr>
+                    ) : pageSlice.length > 0 ? (
+                      pageSlice.map((code: any) => {
+                        const id = code._id.toString();
+                        const isDynamic = !!code.shortUrl;
+                        const selected = selectedIds.has(id);
+                        const isNew =
+                          code.createdAt && Date.now() - new Date(code.createdAt).getTime() <= RECENT_MS;
+                        const shortUrlStr = isDynamic
+                          ? `${typeof window !== 'undefined' ? window.location.origin : ''}/s/${code.shortUrl.shortCode}`
+                          : '';
+                        const staticPreview = generateDataString(code);
+                        return (
+                          <Tr key={id} selected={selected}>
+                            <Td className="w-10" align="center">
+                              <Checkbox
+                                size="sm"
+                                checked={selected}
+                                onChange={() => toggleSelect(id)}
+                                aria-label="Select QR code"
+                              />
+                            </Td>
+                            <Td>
+                              <div className="flex items-center gap-2 text-[var(--st-text)]">
+                                {code.name || '(untitled)'}
+                                {isNew ? (
+                                  <Badge tone="success" kind="soft">
+                                    New
+                                  </Badge>
+                                ) : null}
+                              </div>
+                            </Td>
+                            <Td>
+                              <div className="flex items-center gap-1.5">
+                                <Badge tone="neutral" kind="outline" className="capitalize">
+                                  {code.dataType}
+                                </Badge>
+                                {isDynamic ? (
+                                  <Badge tone="neutral" kind="outline">
+                                    Dynamic
+                                  </Badge>
+                                ) : null}
+                              </div>
+                            </Td>
+                            <Td className="font-mono text-[11.5px] text-[var(--st-text-secondary)] max-w-[260px]">
+                              {isDynamic ? (
+                                <div className="flex items-center gap-1.5">
+                                  <Link
+                                    href={`/dashboard/url-shortener/${code.shortUrl._id}`}
+                                    className="truncate text-[var(--st-text)] hover:underline"
+                                  >
+                                    {shortUrlStr.replace(/^https?:\/\//, '')}
+                                  </Link>
+                                  <IconButton
+                                    label="Copy short URL"
+                                    size="sm"
+                                    icon={copiedId === id ? Check : Copy}
+                                    onClick={() => handleCopy(id, shortUrlStr)}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="truncate">{staticPreview}</span>
+                                  {staticPreview ? (
+                                    <IconButton
+                                      label="Copy data"
+                                      size="sm"
+                                      icon={copiedId === id ? Check : Copy}
+                                      onClick={() => handleCopy(id, staticPreview)}
+                                    />
+                                  ) : null}
+                                </div>
+                              )}
+                            </Td>
+                            <Td className="text-[var(--st-text)]">
+                              {isDynamic ? (
+                                <span className="text-[13px]">
+                                  {(code.shortUrl?.clickCount || 0).toLocaleString()}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-[var(--st-text-tertiary)]">-</span>
+                              )}
+                            </Td>
+                            <Td className="text-[var(--st-text)]">
+                              {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '-'}
+                            </Td>
+                            <Td align="right" className="min-w-[108px]">
+                              <div className="inline-flex items-center gap-1">
+                                <IconButton
+                                  label="View QR"
+                                  size="sm"
+                                  icon={Eye}
+                                  onClick={() => handleView(code)}
+                                />
+                                <IconButton
+                                  label="Notes and comments"
+                                  size="sm"
+                                  icon={MessageSquare}
+                                  onClick={() => setNotesPanel({ id })}
+                                />
+                                {/* Edit button */}
+                                <EditQrDialog
+                                  qrCode={code}
+                                  onComplete={fetchQrCodes}
+                                />
+                                <SharePermissionsModal
+                                  resourceType="qr"
+                                  resourceId={code._id?.toString?.() ?? String(code._id)}
+                                  resourceName={code.name}
+                                />
+                                {/* Scan stats button (only for dynamic QR codes) */}
+                                {code.shortUrl && (
+                                  <IconButton
+                                    label="View scan stats"
+                                    size="sm"
+                                    icon={BarChart2}
+                                    onClick={() => setScanStatsModal({
+                                      id,
+                                      name: code.name,
+                                      isDynamic: true,
+                                    })}
+                                  />
+                                )}
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <IconButton
+                                      label="Delete"
+                                      size="sm"
+                                      variant="danger"
+                                      icon={Trash2}
+                                    />
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete &quot;{code.name}&quot;?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This permanently removes the QR code. This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </Td>
+                          </Tr>
+                        );
+                      })
+                    ) : (
+                      <Tr>
+                        <Td colSpan={7}>
+                          <EmptyState
+                            icon={QrCode}
+                            title={qrCodes.length === 0 ? 'No QR codes yet' : 'No matches'}
+                            description={
+                              qrCodes.length === 0
+                                ? 'No QR codes saved yet. Use the generator above to create one.'
+                                : 'No QR codes match your filters.'
+                            }
+                          />
+                        </Td>
+                      </Tr>
+                    )}
+                  </TBody>
+                </Table>
+              </div>
+
+              {filtered.length > 0 ? (
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
+                  <div className="flex items-center gap-2">
+                    <span>Rows per page</span>
+                    <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                      <SelectTrigger aria-label="Rows per page" className="h-7 w-[72px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAGE_SIZES.map((s) => (
+                          <SelectItem key={s} value={String(s)}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {(currentPage - 1) * pageSize + 1}
+                      {' to '}
+                      {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <IconButton
+                        label="Previous page"
+                        size="sm"
+                        icon={ChevronLeft}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage <= 1}
+                      />
+                      <span className="min-w-[48px] text-center">
+                        {currentPage} / {pageCount}
+                      </span>
+                      <IconButton
+                        label="Next page"
+                        size="sm"
+                        icon={ChevronRight}
+                        onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                        disabled={currentPage >= pageCount}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </Card>
           </div>
         </div>
       </div>

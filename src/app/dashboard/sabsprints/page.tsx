@@ -6,12 +6,12 @@ export const dynamic = 'force-dynamic';
 
 export default function SabSprintsRootPage() {
     return (
-        <div className="zoruui mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
+        <div className="ui20 mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
             <Card>
                 <CardHeader>
                     <CardTitle>SabSprints</CardTitle>
                     <CardDescription>
-                        Scrum-style project workspace — pick a project to open its backlog, sprints, and epics.
+                        Scrum-style project workspace - pick a project to open its backlog, sprints, and epics.
                     </CardDescription>
                 </CardHeader>
                 <CardBody>

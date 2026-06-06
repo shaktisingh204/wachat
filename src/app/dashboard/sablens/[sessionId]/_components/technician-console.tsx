@@ -3,19 +3,39 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
+  ArrowLeft,
   ArrowUpRight,
   Camera,
   CircleDot,
   Eraser,
   Flashlight,
   Hand,
+  MessageSquare,
   PencilLine,
   PhoneOff,
   Square,
   Type,
 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {
@@ -110,14 +130,14 @@ export function TechnicianConsole({
     t.connectAsTechnician(session._id);
     const unsubFrame = t.subscribeFrames((f) => setCurrentFrame(f));
     const unsubAnn = t.subscribeAnnotations((a) => {
-      // Avoid duplicating annotations the technician just published —
-      // the publishing side echoes locally already.
+      // Avoid duplicating annotations the technician just published.
+      // The publishing side echoes locally already.
       setAnnotations((prev) =>
         prev.some((p) => p.localId === a.localId) ? prev : [...prev, a],
       );
     });
     const unsubChat = t.subscribeChat((m: LensChatMessage) => {
-      // Cosmetic preview — server persistence happens via sendSablensChat.
+      // Cosmetic preview. Server persistence happens via sendSablensChat.
       if (m.senderKind === 'guest') {
         setChat((prev) => [
           ...prev,
@@ -145,7 +165,7 @@ export function TechnicianConsole({
 
   const handleCommit = useCallback(
     (a: Omit<LensAnnotation, 'localId' | 'ts'>) => {
-      // Optimistic — push to the wire (echo + broadcast) and persist.
+      // Optimistic. Push to the wire (echo + broadcast) and persist.
       transportRef.current?.publishAnnotation(a);
       startTransition(async () => {
         const res = await addSablensAnnotation({
@@ -157,7 +177,7 @@ export function TechnicianConsole({
           persistent: a.persistent,
         });
         if (!res.ok) {
-          toast({ title: 'Could not save annotation', description: res.error });
+          toast({ title: 'Could not save annotation', description: res.error, tone: 'danger' });
         }
       });
     },
@@ -168,11 +188,11 @@ export function TechnicianConsole({
     startTransition(async () => {
       const res = await startSablensSession({ sessionId: session._id });
       if (!res.ok) {
-        toast({ title: 'Could not start', description: res.error });
+        toast({ title: 'Could not start', description: res.error, tone: 'danger' });
         return;
       }
       setStatus(res.data.status);
-      toast({ title: 'Session active' });
+      toast({ title: 'Session active', tone: 'success' });
     });
   }
 
@@ -180,7 +200,7 @@ export function TechnicianConsole({
     startTransition(async () => {
       const res = await endSablensSession(session._id);
       if (!res.ok) {
-        toast({ title: 'Could not end', description: res.error });
+        toast({ title: 'Could not end', description: res.error, tone: 'danger' });
         return;
       }
       setStatus(res.data.status);
@@ -193,7 +213,7 @@ export function TechnicianConsole({
     startTransition(async () => {
       const res = await clearSablensAnnotations(session._id);
       if (!res.ok) {
-        toast({ title: 'Could not clear', description: res.error });
+        toast({ title: 'Could not clear', description: res.error, tone: 'danger' });
         return;
       }
       setAnnotations([]);
@@ -204,11 +224,11 @@ export function TechnicianConsole({
     startTransition(async () => {
       const res = await issueSablensCustomerToken(session._id);
       if (!res.ok) {
-        toast({ title: 'Could not mint token', description: res.error });
+        toast({ title: 'Could not mint token', description: res.error, tone: 'danger' });
         return;
       }
       setJoinToken(res.data.customerJoinToken);
-      toast({ title: 'New customer link minted' });
+      toast({ title: 'New customer link minted', tone: 'success' });
     });
   }
 
@@ -218,10 +238,10 @@ export function TechnicianConsole({
         capturedFrom: 'technician_upload',
       });
       if (!res.ok) {
-        toast({ title: 'Could not record snapshot', description: res.error });
+        toast({ title: 'Could not record snapshot', description: res.error, tone: 'danger' });
         return;
       }
-      toast({ title: 'Snapshot saved' });
+      toast({ title: 'Snapshot saved', tone: 'success' });
     });
   }
 
@@ -261,7 +281,7 @@ export function TechnicianConsole({
       if (res.ok) {
         setChat((prev) => [...prev, res.data]);
       } else {
-        toast({ title: 'Could not send', description: res.error });
+        toast({ title: 'Could not send', description: res.error, tone: 'danger' });
       }
     });
   }
@@ -272,23 +292,24 @@ export function TechnicianConsole({
   }, [joinToken]);
 
   return (
-    <div className="zoruui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
+    <div className="flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/sablens"
-            className="text-sm text-[var(--st-text-secondary)] hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] hover:underline"
           >
-            ← All sessions
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            All sessions
           </Link>
           <Separator orientation="vertical" className="h-6" />
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">
+            <span className="text-sm font-semibold text-[var(--st-text)]">
               {session.customerName || 'Untitled session'}
             </span>
             <span className="text-xs text-[var(--st-text-secondary)]">
-              {session.customerEmail || '—'}
+              {session.customerEmail || 'No email on file'}
             </span>
           </div>
           <Badge>{status}</Badge>
@@ -299,25 +320,27 @@ export function TechnicianConsole({
             size="sm"
             onClick={handleRequestSnapshot}
             disabled={status === 'ended'}
+            iconLeft={Camera}
           >
-            <Camera className="size-4" /> Capture snapshot
+            Capture snapshot
           </Button>
-          <Button variant="outline" size="sm" onClick={handleTorchStub}>
-            <Flashlight className="size-4" /> Torch
+          <Button variant="outline" size="sm" onClick={handleTorchStub} iconLeft={Flashlight}>
+            Torch
           </Button>
           {status !== 'active' && status !== 'ended' && (
-            <Button onClick={handleStart} disabled={isPending} size="sm">
-              <Hand className="size-4" /> Start
+            <Button onClick={handleStart} disabled={isPending} size="sm" iconLeft={Hand}>
+              Start
             </Button>
           )}
           {status !== 'ended' && (
             <Button
-              variant="destructive"
+              variant="danger"
               onClick={handleEnd}
               disabled={isPending}
               size="sm"
+              iconLeft={PhoneOff}
             >
-              <PhoneOff className="size-4" /> End session
+              End session
             </Button>
           )}
         </div>
@@ -327,33 +350,39 @@ export function TechnicianConsole({
         {/* Viewport + toolbar */}
         <div className="flex min-h-0 flex-col gap-3">
           {/* Toolbar */}
-          <Card>
+          <Card padding="none">
             <CardBody className="flex flex-wrap items-center gap-2 p-3">
               {TOOL_BUTTONS.map(({ kind, label, Icon }) => (
                 <Button
                   key={kind}
-                  variant={tool === kind ? 'default' : 'outline'}
+                  variant={tool === kind ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setTool(tool === kind ? null : kind)}
                   aria-pressed={tool === kind}
+                  iconLeft={Icon}
                 >
-                  <Icon className="size-4" />
-                  <span className="ml-1">{label}</span>
+                  {label}
                 </Button>
               ))}
               <Separator orientation="vertical" className="mx-1 h-6" />
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5" role="group" aria-label="Annotation color">
                 {COLORS.map((c) => (
-                  <button
+                  <Button
                     key={c}
-                    type="button"
+                    size="sm"
+                    variant="ghost"
                     onClick={() => setColor(c)}
-                    className="size-6 rounded-full border-2 transition"
-                    style={{
-                      background: c,
-                      borderColor: color === c ? 'var(--zoru-ring, #000)' : 'transparent',
-                    }}
+                    aria-pressed={color === c}
                     aria-label={`Use color ${c}`}
+                    className="size-6 rounded-full p-0"
+                    style={{
+                      // Runtime-computed: the swatch reflects a user-picked color.
+                      background: c,
+                      boxShadow:
+                        color === c
+                          ? '0 0 0 2px var(--st-bg), 0 0 0 4px var(--st-accent)'
+                          : 'inset 0 0 0 1px var(--st-border)',
+                    }}
                   />
                 ))}
               </div>
@@ -363,7 +392,7 @@ export function TechnicianConsole({
                   value={String(strokeWidth)}
                   onValueChange={(v) => setStrokeWidth(Number(v))}
                 >
-                  <SelectTrigger className="h-8 w-20">
+                  <SelectTrigger className="h-8 w-20" aria-label="Stroke width">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -381,14 +410,15 @@ export function TechnicianConsole({
                 className="ml-auto"
                 onClick={handleClearAnnotations}
                 disabled={isPending}
+                iconLeft={Eraser}
               >
-                <Eraser className="size-4" /> Clear
+                Clear
               </Button>
             </CardBody>
           </Card>
 
           {/* Camera viewport with SVG annotation overlay */}
-          <Card className="relative flex-1 overflow-hidden bg-black">
+          <Card padding="none" className="relative flex-1 overflow-hidden bg-black">
             <div className="relative size-full">
               {currentFrame ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -399,7 +429,7 @@ export function TechnicianConsole({
                 />
               ) : (
                 <div className="flex size-full items-center justify-center text-sm text-white/60">
-                  Waiting for customer's camera feed…
+                  Waiting for the customer&apos;s camera feed...
                 </div>
               )}
               <AnnotationOverlay
@@ -414,16 +444,18 @@ export function TechnicianConsole({
           </Card>
 
           {/* Customer link */}
-          <Card>
+          <Card padding="none">
             <CardBody className="flex flex-wrap items-center gap-3 p-3 text-sm">
               <span className="text-[var(--st-text-secondary)]">Customer link:</span>
-              <code className="rounded bg-[var(--st-bg-muted)] px-2 py-1 text-xs">{customerUrl}</code>
+              <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text)]">
+                {customerUrl}
+              </code>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => {
                   navigator.clipboard?.writeText(customerUrl);
-                  toast({ title: 'Link copied' });
+                  toast({ title: 'Link copied', tone: 'success' });
                 }}
               >
                 Copy
@@ -447,22 +479,22 @@ export function TechnicianConsole({
           </Card>
         </div>
 
-        {/* Right panel — chat + log */}
-        <Card className="flex min-h-0 flex-col">
+        {/* Right panel: chat + log */}
+        <Card padding="none" className="flex min-h-0 flex-col">
           <CardHeader className="p-3">
             <CardTitle className="text-sm">Activity</CardTitle>
           </CardHeader>
           <CardBody className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0">
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-[var(--st-bg-muted)]/30 p-2">
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
               {log.length === 0 ? (
-                <p className="text-xs text-[var(--st-text-secondary)]">No activity yet.</p>
+                <EmptyState size="sm" title="No activity yet." />
               ) : (
                 log.map((l) => (
                   <div
                     key={l._id}
-                    className="rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-xs"
                   >
-                    <span className="font-semibold">{l.action}</span>{' '}
+                    <span className="font-semibold text-[var(--st-text)]">{l.action}</span>{' '}
                     <span className="text-[var(--st-text-secondary)]">
                       {new Date(l.ts).toLocaleTimeString()}
                     </span>
@@ -473,39 +505,41 @@ export function TechnicianConsole({
 
             <Separator />
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-[var(--st-bg-muted)]/30 p-2">
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
               {chat.length === 0 ? (
-                <p className="text-xs text-[var(--st-text-secondary)]">No chat yet.</p>
+                <EmptyState size="sm" icon={MessageSquare} title="No chat yet." />
               ) : (
                 chat.map((m) => (
                   <div
                     key={m._id}
-                    className="rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-xs"
                   >
-                    <span className="font-semibold">
+                    <span className="font-semibold text-[var(--st-text)]">
                       {m.senderKind === 'guest' ? 'Customer' : 'You'}
                     </span>
                     <span className="ml-2 text-[var(--st-text-secondary)]">
                       {new Date(m.ts).toLocaleTimeString()}
                     </span>
-                    <p className="mt-1">{m.body}</p>
+                    <p className="mt-1 text-[var(--st-text)]">{m.body}</p>
                   </div>
                 ))
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Input
-                value={chatInput}
-                placeholder="Send a message…"
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendChat();
-                  }
-                }}
-              />
+            <div className="flex items-end gap-2">
+              <Field label="Message" className="flex-1">
+                <Input
+                  value={chatInput}
+                  placeholder="Send a message..."
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendChat();
+                    }
+                  }}
+                />
+              </Field>
               <Button onClick={handleSendChat} disabled={!chatInput.trim()}>
                 Send
               </Button>

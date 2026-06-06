@@ -1,72 +1,78 @@
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { listSablensSessions } from '@/app/actions/sablens.actions';
 import { CirclePlus, Hammer, Smartphone, Video } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-const STATUS_VARIANT = {
-  scheduled: 'secondary',
-  waiting: 'outline',
-  active: 'default',
-  ended: 'secondary',
-} as const;
+const STATUS_TONE: Record<string, BadgeTone> = {
+  scheduled: 'info',
+  waiting: 'warning',
+  active: 'success',
+  ended: 'neutral',
+};
 
 export default async function SablensPage() {
   const result = await listSablensSessions({ limit: 50 });
   const sessions = result.ok ? result.data.items : [];
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
+    <div className="ui20 flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>SabLens</PageTitle>
           <PageDescription>
-            Live AR remote support — the customer points a phone, you see
-            their world and draw on it.
+            Live AR remote support. The customer points a phone, you see their
+            world and draw on it.
           </PageDescription>
         </PageHeading>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
-            <Link href="/dashboard/sablens/devices">
-              <Smartphone className="size-4" /> Registered devices
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/sablens/new">
-              <CirclePlus className="size-4" /> New session
-            </Link>
-          </Button>
+          <Link href="/dashboard/sablens/devices">
+            <Button variant="outline" iconLeft={Smartphone}>
+              Registered devices
+            </Button>
+          </Link>
+          <Link href="/dashboard/sablens/new">
+            <Button variant="primary" iconLeft={CirclePlus}>
+              New session
+            </Button>
+          </Link>
         </div>
       </PageHeader>
 
       {!result.ok ? (
-        <Card className="border-destructive/40">
-          <CardHeader>
-            <CardTitle>Couldn't load sessions</CardTitle>
-            <CardDescription>{result.error}</CardDescription>
-          </CardHeader>
-        </Card>
+        <Alert tone="danger" title="Couldn't load sessions">
+          {result.error}
+        </Alert>
       ) : sessions.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Hammer className="size-5" /> No sessions yet
-            </CardTitle>
-            <CardDescription>
-              Create a session, send the customer a join link, and start
-              drawing on their camera feed in real time.
-            </CardDescription>
-          </CardHeader>
-          <CardBody>
-            <Button asChild>
-              <Link href="/dashboard/sablens/new">
-                <CirclePlus className="size-4" /> Create your first session
-              </Link>
-            </Button>
-          </CardBody>
-        </Card>
+        <EmptyState
+          icon={Hammer}
+          title="No sessions yet"
+          description="Create a session, send the customer a join link, and start drawing on their camera feed in real time."
+          action={
+            <Link href="/dashboard/sablens/new">
+              <Button variant="primary" iconLeft={CirclePlus}>
+                Create your first session
+              </Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {sessions.map((s) => (
@@ -75,21 +81,23 @@ export default async function SablensPage() {
               href={`/dashboard/sablens/${s._id}`}
               className="block"
             >
-              <Card className="h-full transition hover:border-primary/50">
+              <Card variant="interactive" className="h-full">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <CardTitle className="line-clamp-1">
                       {s.customerName || 'Untitled customer'}
                     </CardTitle>
-                    <Badge variant={STATUS_VARIANT[s.status]}>{s.status}</Badge>
+                    <Badge tone={STATUS_TONE[s.status] ?? 'neutral'}>
+                      {s.status}
+                    </Badge>
                   </div>
                   <CardDescription>
-                    {s.customerEmail || '—'}
+                    {s.customerEmail || 'No email on file'}
                   </CardDescription>
                 </CardHeader>
                 <CardBody className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                   <span className="inline-flex items-center gap-1">
-                    <Video className="size-3" />
+                    <Video className="size-3" aria-hidden="true" />
                     {s.mode === 'live_call' ? 'Live call' : 'Async recorded'}
                   </span>
                   <span>

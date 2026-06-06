@@ -407,17 +407,20 @@ export function KnowledgeClient({
                                 <ul className="divide-y divide-[var(--st-border)]">
                                     {articles.map((a) => (
                                         <li key={a._id}>
-                                            <button
-                                                type="button"
+                                            <Button
+                                                variant="ghost"
+                                                block
                                                 aria-label={`Open article ${a.title}`}
                                                 aria-pressed={a._id === selectedArticleId}
-                                                className={`w-full cursor-pointer rounded-[var(--st-radius)] px-2 py-2 text-left text-sm hover:bg-[var(--st-bg-secondary)] ${
-                                                    a._id === selectedArticleId ? 'bg-[var(--st-bg-secondary)]' : ''
-                                                }`}
                                                 onClick={() => pushQuery({ selected: a._id })}
+                                                className={`h-auto justify-start rounded-[var(--st-radius)] px-2 py-2 text-left [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:flex-col [&_.u-btn__label]:items-stretch [&_.u-btn__label]:gap-1 ${
+                                                    a._id === selectedArticleId
+                                                        ? 'bg-[var(--st-bg-secondary)]'
+                                                        : ''
+                                                }`}
                                             >
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <span className="truncate font-medium">
+                                                <span className="flex items-center justify-between gap-2">
+                                                    <span className="truncate text-sm font-medium text-[var(--st-text)]">
                                                         {a.title}
                                                     </span>
                                                     <Badge
@@ -426,16 +429,16 @@ export function KnowledgeClient({
                                                     >
                                                         {a.status}
                                                     </Badge>
-                                                </div>
-                                                <div className="mt-1 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+                                                </span>
+                                                <span className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                                                     <span className="truncate">/{a.slug}</span>
                                                     <span>
                                                         {a.viewCount} views,{' '}
                                                         {new Date(a.updatedAt).toLocaleDateString()}
                                                     </span>
-                                                </div>
+                                                </span>
                                                 {a.tags.length ? (
-                                                    <div className="mt-1 flex flex-wrap gap-1">
+                                                    <span className="flex flex-wrap gap-1">
                                                         {a.tags.slice(0, 4).map((t) => (
                                                             <Badge
                                                                 key={t}
@@ -445,9 +448,9 @@ export function KnowledgeClient({
                                                                 {t}
                                                             </Badge>
                                                         ))}
-                                                    </div>
+                                                    </span>
                                                 ) : null}
-                                            </button>
+                                            </Button>
                                         </li>
                                     ))}
                                 </ul>

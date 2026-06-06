@@ -1,4 +1,5 @@
-import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Inbox } from 'lucide-react';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui';
 import { listInboxes, listConversations } from '@/app/actions/sabchat-v2.actions';
 import { InboxV2Client } from './_components/inbox-v2-client';
 
@@ -20,20 +21,21 @@ export default async function SabChatInboxV2Page({
         : { items: [] as Awaited<ReturnType<typeof listConversations>>['items'] };
 
     return (
-        <div className="zoruui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
+        <div className="ui20 flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
             <Card>
                 <CardHeader>
-                    <CardTitle>SabChat — Inbox v2</CardTitle>
+                    <CardTitle>SabChat - Inbox v2</CardTitle>
                     <CardDescription>
                         Omnichannel inbox backed by the Rust BFF. {inboxes.length} inbox(es).
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
                     {inboxes.length === 0 ? (
-                        <div className="rounded border border-dashed p-6 text-center text-sm text-[var(--st-text-secondary)]">
-                            No inboxes yet. Create one via{' '}
-                            <code>POST /v1/sabchat/inboxes</code> or the admin UI.
-                        </div>
+                        <EmptyState
+                            icon={Inbox}
+                            title="No inboxes yet"
+                            description="Create your first inbox from the admin UI to start routing omnichannel conversations."
+                        />
                     ) : (
                         <InboxV2Client
                             inboxes={inboxes}

@@ -2,7 +2,21 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  Input,
+  Textarea,
+  PageHeader,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
 import { createSabwebinar } from '@/app/actions/sabwebinar.actions';
 
 export function NewSabwebinarForm() {
@@ -47,12 +61,12 @@ export function NewSabwebinarForm() {
   };
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
+    <div className="ui20 flex flex-col gap-6 p-6">
       <PageHeader>
         <PageTitle>New webinar</PageTitle>
         <PageDescription>
           Schedule a branded one-to-many broadcast. You can configure the landing page,
-          polls, and Q&amp;A after creation.
+          polls, and Q&A after creation.
         </PageDescription>
       </PageHeader>
 
@@ -63,72 +77,64 @@ export function NewSabwebinarForm() {
             <CardDescription>Public-facing details for the landing page.</CardDescription>
           </CardHeader>
           <CardBody className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="title">Title</Label>
+            <Field label="Title" required>
               <Input
-                id="title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="Q4 product launch"
                 required
               />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+            </Field>
+            <Field label="Description">
               <Textarea
-                id="description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 rows={3}
                 placeholder="What attendees will learn"
               />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="hostName">Host name</Label>
+            </Field>
+            <Field label="Host name">
               <Input
-                id="hostName"
                 value={form.hostName}
                 onChange={(e) => setForm({ ...form, hostName: e.target.value })}
                 placeholder="Jane Doe"
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="scheduledStart">Starts at</Label>
+              <Field label="Starts at">
                 <Input
-                  id="scheduledStart"
                   type="datetime-local"
                   value={form.scheduledStart}
                   onChange={(e) => setForm({ ...form, scheduledStart: e.target.value })}
                 />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="durationMinutes">Duration (min)</Label>
+              </Field>
+              <Field label="Duration (min)">
                 <Input
-                  id="durationMinutes"
                   type="number"
                   min={5}
                   max={600}
                   value={form.durationMinutes}
                   onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })}
                 />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="capacity">Capacity (optional)</Label>
+              </Field>
+              <Field label="Capacity (optional)">
                 <Input
-                  id="capacity"
                   type="number"
                   min={1}
                   value={form.capacity}
                   onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                   placeholder="Unlimited"
                 />
-              </div>
+              </Field>
             </div>
-            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
+            {error ? (
+              <Alert tone="danger" title="Could not create webinar">
+                {error}
+              </Alert>
+            ) : null}
             <div className="flex items-center gap-3">
-              <Button type="submit" disabled={pending}>
-                {pending ? 'Creating…' : 'Create webinar'}
+              <Button type="submit" variant="primary" loading={pending}>
+                {pending ? 'Creating...' : 'Create webinar'}
               </Button>
               <Button type="button" variant="outline" onClick={() => router.back()}>
                 Cancel

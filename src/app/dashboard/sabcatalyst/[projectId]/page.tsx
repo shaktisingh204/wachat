@@ -1,5 +1,5 @@
 /**
- * SabCatalyst project console — Overview / Functions / Datastore /
+ * SabCatalyst project console - Overview / Functions / Datastore /
  * Auth / File Store / API Keys / Domains / Usage tabs.
  */
 import React from 'react';
@@ -15,7 +15,17 @@ import {
     listSabcatalystDomains,
     getSabcatalystUsage,
 } from '@/app/actions/sabcatalyst.actions';
-import { Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@/components/sabcrm/20ui';
+import {
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    TabsContent,
+    Badge,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
 
 import { OverviewTab } from './_components/overview-tab';
 import { FunctionsTab } from './_components/functions-tab';
@@ -50,20 +60,20 @@ export default async function ProjectConsolePage({ params }: PageProps) {
     ]);
 
     return (
-        <div className="zoruui flex-1 space-y-6 p-4 md:p-8 pt-6">
-            <div className="flex items-start justify-between gap-4">
-                <div>
+        <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+            <PageHeader bordered={false}>
+                <PageHeaderHeading>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold tracking-tight">{project.name}</h1>
+                        <PageTitle>{project.name}</PageTitle>
                         <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
                             {project.status}
                         </Badge>
                     </div>
-                    <p className="text-sm text-[var(--st-text-secondary)] font-mono mt-1">
-                        /api/catalyst/{project.slug}/…
-                    </p>
-                </div>
-            </div>
+                    <PageDescription className="font-mono">
+                        /api/catalyst/{project.slug}/...
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="flex flex-wrap">

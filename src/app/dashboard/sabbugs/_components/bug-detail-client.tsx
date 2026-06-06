@@ -3,8 +3,23 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { History, Link2, MessageSquare, X } from 'lucide-react';
 
-import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  IconButton,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  SegmentedControl,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {
@@ -50,24 +65,32 @@ export function BugDetailClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Bug · {bug._id.slice(-8)}
-          </p>
-          <h1 className="text-xl font-semibold text-[var(--st-text)]">
-            {bugTitle(bug)}
-          </h1>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Bug {bug._id.slice(-8)}</PageEyebrow>
+          <PageTitle>{bugTitle(bug)}</PageTitle>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <BugStatusBadge status={bug.status} />
             <BugSeverityBadge severity={bug.severity} />
             <BugPriorityBadge priority={bug.priority} />
           </div>
-        </div>
-        <StatusActions bug={bug} />
-      </header>
+        </PageHeaderHeading>
+        <PageActions>
+          <StatusActions bug={bug} />
+        </PageActions>
+      </PageHeader>
 
-      <SegmentedNav active={activeTab} onChange={setActiveTab} />
+      <SegmentedControl<DetailTab>
+        aria-label="Bug detail sections"
+        value={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { value: 'overview', label: 'Overview' },
+          { value: 'comments', label: 'Comments' },
+          { value: 'history', label: 'History' },
+          { value: 'related', label: 'Related' },
+        ]}
+      />
 
       {activeTab === 'overview' ? (
         <BugForm
@@ -88,42 +111,9 @@ export function BugDetailClient({
   );
 }
 
-function SegmentedNav({
-  active,
-  onChange,
-}: {
-  active: DetailTab;
-  onChange: (next: DetailTab) => void;
-}) {
-  const items: { id: DetailTab; label: string }[] = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'comments', label: 'Comments' },
-    { id: 'history', label: 'History' },
-    { id: 'related', label: 'Related' },
-  ];
-  return (
-    <div className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
-      {items.map((it) => (
-        <button
-          key={it.id}
-          type="button"
-          onClick={() => onChange(it.id)}
-          className={
-            active === it.id
-              ? 'rounded bg-[var(--st-bg-secondary)] px-3 py-1 text-sm font-medium text-[var(--st-text)] shadow-sm'
-              : 'rounded px-3 py-1 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
-          }
-        >
-          {it.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function StatusActions({ bug }: { bug: BugDoc }) {
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState(false);
 
   async function setStatus(status: BugStatus) {
@@ -131,10 +121,10 @@ function StatusActions({ bug }: { bug: BugDoc }) {
     const res = await updateBug(bug._id, { status });
     setBusy(false);
     if (res.error) {
-      toast?.error?.(res.error);
+      toast.error(res.error);
       return;
     }
-    toast?.success?.(`Status set to ${status}.`);
+    toast.success(`Status set to ${status}.`);
     router.refresh();
   }
 
@@ -163,7 +153,7 @@ function CommentsTab({
   initialComments: BugCommentDoc[];
 }) {
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
   const [comments, setComments] =
     React.useState<BugCommentDoc[]>(initialComments);
   const [body, setBody] = React.useState('');
@@ -180,7 +170,7 @@ function CommentsTab({
     });
     setBusy(false);
     if (res.error) {
-      toast?.error?.(res.error);
+      toast.error(res.error);
       return;
     }
     if (res.comment) setComments((prev) => [...prev, res.comment!]);
@@ -198,13 +188,15 @@ function CommentsTab({
 
   return (
     <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-3 p-4">
-        <Textarea
-          rows={4}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Add a comment in markdown…"
-        />
+      <Card className="flex flex-col gap-3">
+        <Field label="Add a comment">
+          <Textarea
+            rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Write a comment in markdown..."
+          />
+        </Field>
         <div className="flex flex-wrap items-center gap-2">
           <SabFilePickerButton
             onPick={(p: SabFilePick) =>
@@ -216,46 +208,50 @@ function CommentsTab({
           {attachments.map((id) => (
             <span
               key={id}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
+              className="inline-flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
             >
               <code className="font-mono">{id.slice(-6)}</code>
-              <button
-                type="button"
-                aria-label="Remove attachment"
+              <IconButton
+                label="Remove attachment"
+                icon={X}
+                size="sm"
                 onClick={() =>
                   setAttachments((prev) => prev.filter((x) => x !== id))
                 }
-              >
-                ×
-              </button>
+              />
             </span>
           ))}
           <span className="ml-auto" />
-          <Button onClick={submit} disabled={busy || !body.trim()}>
-            {busy ? 'Posting…' : 'Post comment'}
+          <Button
+            variant="primary"
+            onClick={submit}
+            loading={busy}
+            disabled={!body.trim()}
+          >
+            Post comment
           </Button>
         </div>
       </Card>
 
       {comments.length === 0 ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">No comments yet.</p>
+        <EmptyState
+          icon={MessageSquare}
+          title="No comments yet"
+          description="Be the first to leave a note on this bug."
+        />
       ) : (
         comments.map((c) => (
-          <Card key={c._id} className="flex flex-col gap-2 p-4">
+          <Card key={c._id} className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
               <span>
-                {c.authorId.slice(-6)} ·{' '}
+                {c.authorId.slice(-6)}{' '}
                 {c.createdAt
                   ? new Date(c.createdAt).toLocaleString()
                   : 'just now'}
               </span>
-              <button
-                type="button"
-                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                onClick={() => remove(c._id)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => remove(c._id)}>
                 Delete
-              </button>
+              </Button>
             </div>
             <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--st-text)]">
               {c.body}
@@ -276,13 +272,15 @@ function CommentsTab({
 function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-[var(--st-text-secondary)]">
-        No history yet — changes are recorded as you edit the bug.
-      </p>
+      <EmptyState
+        icon={History}
+        title="No history yet"
+        description="Changes are recorded here as you edit the bug."
+      />
     );
   }
   return (
-    <Card className="flex flex-col gap-3 p-4">
+    <Card className="flex flex-col gap-3">
       <ul className="flex flex-col gap-3">
         {entries.map((h) => (
           <li
@@ -290,15 +288,15 @@ function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
             className="flex flex-col gap-1 border-l-2 border-[var(--st-border)] pl-3 text-sm"
           >
             <span className="text-xs text-[var(--st-text-secondary)]">
-              {new Date(h.ts).toLocaleString()} · actor {h.actorId.slice(-6)}
+              {new Date(h.ts).toLocaleString()} - actor {h.actorId.slice(-6)}
             </span>
             <span className="text-[var(--st-text)]">
               <strong>{h.field}</strong> changed from{' '}
-              <code className="rounded bg-[var(--st-bg-muted)] px-1">
+              <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1">
                 {formatHistoryValue(h.oldValue)}
               </code>{' '}
               to{' '}
-              <code className="rounded bg-[var(--st-bg-muted)] px-1">
+              <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1">
                 {formatHistoryValue(h.newValue)}
               </code>
             </span>
@@ -310,7 +308,7 @@ function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
 }
 
 function formatHistoryValue(v: unknown): string {
-  if (v == null) return '—';
+  if (v == null) return '-';
   if (typeof v === 'string') return v;
   return JSON.stringify(v);
 }
@@ -318,13 +316,15 @@ function formatHistoryValue(v: unknown): string {
 function RelatedTab({ bugs }: { bugs: BugDoc[] }) {
   if (bugs.length === 0) {
     return (
-      <p className="text-sm text-[var(--st-text-secondary)]">
-        No related bugs found in the same project.
-      </p>
+      <EmptyState
+        icon={Link2}
+        title="No related bugs"
+        description="Nothing else in this project links to this bug."
+      />
     );
   }
   return (
-    <Card className="flex flex-col gap-2 p-4">
+    <Card className="flex flex-col gap-2">
       <ul className="flex flex-col gap-2">
         {bugs.map((b) => (
           <li

@@ -2,8 +2,24 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Input,
+  Textarea,
+  Field,
+  Alert,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import { ArrowLeft } from 'lucide-react';
 import { createMeetRoom } from '@/app/actions/sabmeet.actions';
 
@@ -63,17 +79,19 @@ export function NewMeetingForm() {
   return (
     <div className="space-y-6 p-6">
       <PageHeader>
-        <div>
+        <PageHeaderHeading>
           <PageTitle>New meeting</PageTitle>
           <PageDescription>
             Create an instant or scheduled video conference.
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
-          <Button asChild variant="outline">
-            <Link href="/dashboard/meetings">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back
-            </Link>
+          <Button
+            variant="outline"
+            iconLeft={ArrowLeft}
+            onClick={() => router.push('/dashboard/meetings')}
+          >
+            Back
           </Button>
         </PageActions>
       </PageHeader>
@@ -85,22 +103,28 @@ export function NewMeetingForm() {
             <CardDescription>Start now or schedule for later.</CardDescription>
           </CardHeader>
           <CardBody className="flex gap-3">
-            <button
-              type="button"
+            <Button
+              variant={mode === 'instant' ? 'primary' : 'outline'}
+              aria-pressed={mode === 'instant'}
               onClick={() => setMode('instant')}
-              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'instant' ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5' : 'border-[var(--st-border)]'}`}
+              className="flex-1 flex-col items-start text-left h-auto py-4"
             >
-              <div className="font-medium text-[var(--st-text)]">Instant</div>
-              <div className="text-xs text-[var(--st-text-secondary)] mt-1">Start the meeting immediately.</div>
-            </button>
-            <button
-              type="button"
+              <span className="font-medium">Instant</span>
+              <span className="text-xs text-[var(--st-text-secondary)] mt-1">
+                Start the meeting immediately.
+              </span>
+            </Button>
+            <Button
+              variant={mode === 'scheduled' ? 'primary' : 'outline'}
+              aria-pressed={mode === 'scheduled'}
               onClick={() => setMode('scheduled')}
-              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'scheduled' ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5' : 'border-[var(--st-border)]'}`}
+              className="flex-1 flex-col items-start text-left h-auto py-4"
             >
-              <div className="font-medium text-[var(--st-text)]">Scheduled</div>
-              <div className="text-xs text-[var(--st-text-secondary)] mt-1">Pick a start/end time and invite people.</div>
-            </button>
+              <span className="font-medium">Scheduled</span>
+              <span className="text-xs text-[var(--st-text-secondary)] mt-1">
+                Pick a start and end time and invite people.
+              </span>
+            </Button>
           </CardBody>
         </Card>
 
@@ -109,79 +133,72 @@ export function NewMeetingForm() {
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input id="name" name="name" required maxLength={120} placeholder="Weekly sync" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                rows={3}
-                placeholder="Agenda or notes"
-              />
-            </div>
+            <Field label="Name" required id="name">
+              <Input name="name" required maxLength={120} placeholder="Weekly sync" />
+            </Field>
+            <Field label="Description" id="description">
+              <Textarea name="description" rows={3} placeholder="Agenda or notes" />
+            </Field>
             {mode === 'scheduled' ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="scheduledStart">Start time *</Label>
-                  <Input id="scheduledStart" name="scheduledStart" type="datetime-local" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="scheduledEnd">End time</Label>
-                  <Input id="scheduledEnd" name="scheduledEnd" type="datetime-local" />
-                </div>
+                <Field label="Start time" required id="scheduledStart">
+                  <Input name="scheduledStart" type="datetime-local" required />
+                </Field>
+                <Field label="End time" id="scheduledEnd">
+                  <Input name="scheduledEnd" type="datetime-local" />
+                </Field>
               </div>
             ) : null}
-            <div className="grid gap-2">
-              <Label htmlFor="invitees">Invitees (comma or newline separated emails)</Label>
+            <Field
+              label="Invitees"
+              help="Comma or newline separated emails."
+              id="invitees"
+            >
               <Textarea
-                id="invitees"
                 name="invitees"
                 rows={3}
                 placeholder="alice@example.com, bob@example.com"
               />
-            </div>
+            </Field>
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Security &amp; options</CardTitle>
+            <CardTitle className="text-base">Security and options</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="passcode">Passcode (optional)</Label>
-              <Input id="passcode" name="passcode" type="text" maxLength={32} placeholder="Leave blank for none" />
-            </div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox name="lobbyEnabled" defaultChecked />
-              <span className="text-sm text-[var(--st-text)]">Enable waiting lobby (host admits guests)</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox name="recordingEnabled" />
-              <span className="text-sm text-[var(--st-text)]">Record this meeting</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox name="requireAuth" />
-              <span className="text-sm text-[var(--st-text)]">Require signed-in users only (no guests)</span>
-            </label>
+            <Field label="Passcode" help="Optional. Leave blank for none." id="passcode">
+              <Input name="passcode" type="text" maxLength={32} placeholder="Leave blank for none" />
+            </Field>
+            <Checkbox
+              name="lobbyEnabled"
+              defaultChecked
+              label="Enable waiting lobby (host admits guests)"
+            />
+            <Checkbox name="recordingEnabled" label="Record this meeting" />
+            <Checkbox
+              name="requireAuth"
+              label="Require signed-in users only (no guests)"
+            />
           </CardBody>
         </Card>
 
         {error ? (
-          <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-sm text-[var(--st-text)] px-3 py-2">
+          <Alert tone="danger" title="Could not create meeting">
             {error}
-          </div>
+          </Alert>
         ) : null}
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" asChild>
-            <Link href="/dashboard/meetings">Cancel</Link>
+          <Button
+            variant="outline"
+            onClick={() => router.push('/dashboard/meetings')}
+          >
+            Cancel
           </Button>
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Creating…' : mode === 'instant' ? 'Start meeting' : 'Schedule meeting'}
+          <Button type="submit" variant="primary" loading={submitting}>
+            {submitting ? 'Creating' : mode === 'instant' ? 'Start meeting' : 'Schedule meeting'}
           </Button>
         </div>
       </form>

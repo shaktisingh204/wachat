@@ -2,7 +2,26 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Badge,
+  type BadgeTone,
+  type BadgeStyleKind,
+  Input,
+  EmptyState,
+  SegmentedControl,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import { Plus, Search, Video, Calendar, Users } from 'lucide-react';
 import type { Sabwebinar, SabwebinarStatus } from '@/app/actions/sabwebinar.actions';
 
@@ -10,27 +29,34 @@ interface Props {
   items: Sabwebinar[];
 }
 
-const STATUS_FILTERS: Array<{ key: SabwebinarStatus | 'all'; label: string }> = [
-  { key: 'all', label: 'All' },
-  { key: 'draft', label: 'Draft' },
-  { key: 'scheduled', label: 'Scheduled' },
-  { key: 'live', label: 'Live' },
-  { key: 'ended', label: 'Ended' },
-  { key: 'cancelled', label: 'Cancelled' },
+const STATUS_FILTERS: ReadonlyArray<{ value: SabwebinarStatus | 'all'; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'live', label: 'Live' },
+  { value: 'ended', label: 'Ended' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
+const STATUS_BADGE: Record<SabwebinarStatus, { tone: BadgeTone; kind: BadgeStyleKind }> = {
+  draft: { tone: 'neutral', kind: 'outline' },
+  scheduled: { tone: 'info', kind: 'soft' },
+  live: { tone: 'success', kind: 'solid' },
+  ended: { tone: 'neutral', kind: 'soft' },
+  cancelled: { tone: 'danger', kind: 'soft' },
+};
+
 function StatusBadge({ status }: { status: SabwebinarStatus }) {
-  const variant: Record<SabwebinarStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    draft: 'outline',
-    scheduled: 'secondary',
-    live: 'default',
-    ended: 'outline',
-    cancelled: 'destructive',
-  };
-  return <Badge variant={variant[status]}>{status}</Badge>;
+  const badge = STATUS_BADGE[status] ?? { tone: 'neutral' as BadgeTone, kind: 'outline' as BadgeStyleKind };
+  return (
+    <Badge tone={badge.tone} kind={badge.kind}>
+      {status}
+    </Badge>
+  );
 }
 
 export function SabwebinarListClient({ items }: Props) {
+  const router = useRouter();
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState<SabwebinarStatus | 'all'>('all');
 
@@ -48,66 +74,66 @@ export function SabwebinarListClient({ items }: Props) {
   }, [items, filter, search]);
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
       <PageHeader>
-        <PageTitle>SabWebinar</PageTitle>
-        <PageDescription>
-          Branded webinars with registration funnel, live broadcast, and post-event analytics.
-        </PageDescription>
+        <PageHeaderHeading>
+          <PageTitle>SabWebinar</PageTitle>
+          <PageDescription>
+            Branded webinars with registration funnel, live broadcast, and post-event analytics.
+          </PageDescription>
+        </PageHeaderHeading>
         <PageActions>
-          <Button asChild>
-            <Link href="/dashboard/sabwebinar/new">
-              <Plus className="size-4" /> New webinar
-            </Link>
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => router.push('/dashboard/sabwebinar/new')}
+          >
+            New webinar
           </Button>
         </PageActions>
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-60" />
+        <div className="w-full sm:max-w-sm">
           <Input
             placeholder="Search webinars"
-            className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            iconLeft={Search}
+            aria-label="Search webinars"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((f) => (
-            <Button
-              key={f.key}
-              variant={filter === f.key ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter(f.key)}
-            >
-              {f.label}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label="Filter webinars by status"
+          value={filter}
+          onChange={setFilter}
+          items={STATUS_FILTERS}
+        />
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={<Video className="size-8" />}
+          icon={Video}
           title="No webinars yet"
           description="Create your first branded webinar to start collecting registrations."
-          actions={
-            <Button asChild>
-              <Link href="/dashboard/sabwebinar/new">
-                <Plus className="size-4" /> New webinar
-              </Link>
+          action={
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={() => router.push('/dashboard/sabwebinar/new')}
+            >
+              New webinar
             </Button>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((w) => (
-            <Link key={w._id} href={`/dashboard/sabwebinar/${w._id}`}>
-              <Card interactive>
+            <Link key={w._id} href={`/dashboard/sabwebinar/${w._id}`} className="block">
+              <Card variant="interactive" className="hover:border-[var(--st-accent)] transition-colors">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="line-clamp-2">{w.title}</CardTitle>
+                    <CardTitle className="line-clamp-2 text-base">{w.title}</CardTitle>
                     <StatusBadge status={w.status} />
                   </div>
                   <CardDescription className="line-clamp-2">
@@ -116,15 +142,15 @@ export function SabwebinarListClient({ items }: Props) {
                 </CardHeader>
                 <CardBody className="flex flex-col gap-2 text-sm">
                   {w.scheduledStart ? (
-                    <div className="flex items-center gap-2 opacity-80">
-                      <Calendar className="size-4" />
-                      {new Date(w.scheduledStart).toLocaleString()}
+                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                      <Calendar className="size-4" aria-hidden="true" />
+                      <span>{new Date(w.scheduledStart).toLocaleString()}</span>
                     </div>
                   ) : null}
                   {typeof w.capacity === 'number' ? (
-                    <div className="flex items-center gap-2 opacity-80">
-                      <Users className="size-4" />
-                      Capacity: {w.capacity}
+                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                      <Users className="size-4" aria-hidden="true" />
+                      <span>Capacity: {w.capacity}</span>
                     </div>
                   ) : null}
                 </CardBody>

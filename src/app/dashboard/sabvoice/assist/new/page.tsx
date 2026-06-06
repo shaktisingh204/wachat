@@ -3,8 +3,29 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Card, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  Card,
+  Input,
+  Textarea,
+  Field,
+  RadioGroup,
+  Radio,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { ScreenShare, KeyRound, ServerCog, ArrowLeft, Copy } from 'lucide-react';
 import {
   createSabassistSession,
@@ -28,6 +49,7 @@ type IssuedToken = {
 
 export default function SabassistNewSessionPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [mode, setMode] = React.useState<Mode>('attended');
   const [customerName, setCustomerName] = React.useState('');
   const [customerEmail, setCustomerEmail] = React.useState('');
@@ -105,69 +127,73 @@ export default function SabassistNewSessionPage() {
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/assist/${issued.token}`
     : '';
 
+  const copy = (text: string, what: string) => {
+    void navigator.clipboard?.writeText(text);
+    toast.success(`${what} copied to clipboard`);
+  };
+
   return (
-    <EntityListShell
-      title="New SabAssist session"
-      subtitle="Pick mode, optionally link to an existing call, and issue a one-time access token."
-    >
-      <div className="mb-4">
+    <div className="flex w-full flex-col gap-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>New SabAssist session</PageTitle>
+          <PageDescription>
+            Pick mode, optionally link to an existing call, and issue a one-time access token.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
+
+      <div>
         <Link
           href="/dashboard/sabvoice/assist"
-          className="text-sm text-[var(--st-text-secondary)] inline-flex items-center gap-1"
+          className="inline-flex items-center gap-1 text-sm text-[var(--st-text-secondary)]"
         >
-          <ArrowLeft className="h-4 w-4" /> All sessions
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All sessions
         </Link>
       </div>
 
       {issued ? (
-        <Card className="p-6 max-w-2xl space-y-4">
+        <Card padding="lg" className="max-w-2xl space-y-4">
           <div className="flex items-center gap-2">
-            <ScreenShare className="h-5 w-5 text-[var(--st-accent)]" />
-            <div className="font-medium">Session ready</div>
-            <Badge variant="default">Token issued</Badge>
+            <ScreenShare className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
+            <div className="font-medium text-[var(--st-text)]">Session ready</div>
+            <Badge tone="success">Token issued</Badge>
           </div>
 
-          <Alert>
+          <Alert tone="info">
             <AlertTitle>Share with the customer</AlertTitle>
             <AlertDescription>
-              The customer must open this link in their browser and click
-              &ldquo;Allow technician to view your screen&rdquo;.
+              The customer must open this link in their browser and click "Allow technician to view your screen".
               {issued.oneTimePin && ' They will also need the PIN below.'}
             </AlertDescription>
           </Alert>
 
           <div className="grid gap-3">
-            <div>
-              <Label>Share URL</Label>
-              <div className="flex gap-2 mt-1">
+            <Field label="Share URL">
+              <div className="mt-1 flex gap-2">
                 <Input readOnly value={shareUrl} />
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    void navigator.clipboard?.writeText(shareUrl);
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+                  iconLeft={Copy}
+                  aria-label="Copy share URL"
+                  onClick={() => copy(shareUrl, 'Share URL')}
+                />
               </div>
-            </div>
+            </Field>
             {issued.oneTimePin && (
-              <div>
-                <Label>One-time PIN</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="font-mono text-2xl tracking-widest bg-[var(--st-bg-muted)] px-4 py-2 rounded">
+              <Field label="One-time PIN">
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-4 py-2 font-mono text-2xl tracking-widest text-[var(--st-text)]">
                     {issued.oneTimePin}
                   </div>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      void navigator.clipboard?.writeText(issued.oneTimePin ?? '');
-                    }}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
+                    iconLeft={Copy}
+                    aria-label="Copy one-time PIN"
+                    onClick={() => copy(issued.oneTimePin ?? '', 'PIN')}
+                  />
                 </div>
-              </div>
+              </Field>
             )}
             <div className="text-xs text-[var(--st-text-secondary)]">
               Expires {new Date(issued.expiresAt).toLocaleString()}
@@ -175,7 +201,10 @@ export default function SabassistNewSessionPage() {
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button onClick={() => router.push(`/dashboard/sabvoice/assist/${issued.sessionId}`)}>
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/dashboard/sabvoice/assist/${issued.sessionId}`)}
+            >
               Open technician console
             </Button>
             <Button variant="outline" onClick={() => setIssued(null)}>
@@ -184,97 +213,111 @@ export default function SabassistNewSessionPage() {
           </div>
         </Card>
       ) : (
-        <Card className="p-6 max-w-2xl space-y-4">
-          <div>
-            <Label>Mode</Label>
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <button
-                type="button"
-                className={`p-3 rounded-lg border text-left transition-colors ${
+        <Card padding="lg" className="max-w-2xl space-y-4">
+          <Field label="Mode">
+            <RadioGroup
+              value={mode}
+              onValueChange={(v) => setMode(v as Mode)}
+              orientation="horizontal"
+              aria-label="Session mode"
+              className="mt-1 grid grid-cols-2 gap-2"
+            >
+              <label
+                className={`flex cursor-pointer flex-col gap-1 rounded-[var(--st-radius)] border p-3 transition-colors ${
                   mode === 'attended'
-                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]'
+                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
                     : 'border-[var(--st-border)]'
                 }`}
-                onClick={() => setMode('attended')}
               >
-                <div className="flex items-center gap-2 font-medium">
-                  <KeyRound className="h-4 w-4" /> Attended
-                </div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
+                <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
+                  <Radio value="attended" aria-label="Attended" />
+                  <KeyRound className="h-4 w-4" aria-hidden="true" /> Attended
+                </span>
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   Customer must enter a 6-digit PIN and click allow.
-                </div>
-              </button>
-              <button
-                type="button"
-                className={`p-3 rounded-lg border text-left transition-colors ${
+                </span>
+              </label>
+              <label
+                className={`flex cursor-pointer flex-col gap-1 rounded-[var(--st-radius)] border p-3 transition-colors ${
                   mode === 'unattended'
-                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]'
+                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
                     : 'border-[var(--st-border)]'
                 }`}
-                onClick={() => setMode('unattended')}
               >
-                <div className="flex items-center gap-2 font-medium">
-                  <ServerCog className="h-4 w-4" /> Unattended
-                </div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
+                <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
+                  <Radio value="unattended" aria-label="Unattended" />
+                  <ServerCog className="h-4 w-4" aria-hidden="true" /> Unattended
+                </span>
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   Pre-registered device with cached consent.
-                </div>
-              </button>
-            </div>
-          </div>
+                </span>
+              </label>
+            </RadioGroup>
+          </Field>
 
-          <div>
-            <Label htmlFor="customerName">Customer name</Label>
+          <Field label="Customer name">
             <Input
-              id="customerName"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Acme Corp — Alice"
+              placeholder="Acme Corp - Alice"
             />
-          </div>
+          </Field>
 
-          <div>
-            <Label htmlFor="customerEmail">
-              Customer email{mode === 'attended' && ' *'}
-            </Label>
+          <Field
+            label="Customer email"
+            required={mode === 'attended'}
+          >
             <Input
-              id="customerEmail"
               type="email"
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
               placeholder="alice@acme.com"
             />
-          </div>
+          </Field>
 
-          <div>
-            <Label>Link to existing call (optional)</Label>
+          <Field label="Link to existing call (optional)">
             <Select value={callId} onValueChange={setCallId}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Linked call">
                 <SelectValue placeholder="No linked call" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No linked call</SelectItem>
                 {calls.map((c) => (
                   <SelectItem key={c._id} value={c._id}>
-                    {c.fromNumber} → {c.toNumber} ·{' '}
-                    {new Date(c.startedAt).toLocaleString()}
+                    {c.fromNumber} - {c.toNumber} . {new Date(c.startedAt).toLocaleString()}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </Field>
 
           {mode === 'unattended' && (
-            <div>
-              <Label>Target device *</Label>
+            <Field
+              label="Target device"
+              required
+              help={
+                devices.length === 0 ? (
+                  <span>
+                    No devices yet -{' '}
+                    <Link
+                      href="/dashboard/sabvoice/assist/devices"
+                      className="text-[var(--st-accent)]"
+                    >
+                      register one
+                    </Link>
+                    .
+                  </span>
+                ) : undefined
+              }
+            >
               <Select value={deviceId} onValueChange={setDeviceId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Target device">
                   <SelectValue placeholder="Pick a registered device" />
                 </SelectTrigger>
                 <SelectContent>
                   {devices.length === 0 ? (
                     <SelectItem value="__no_devices" disabled>
-                      No registered devices.{' '}
+                      No registered devices.
                     </SelectItem>
                   ) : (
                     devices.map((d) => (
@@ -285,38 +328,27 @@ export default function SabassistNewSessionPage() {
                   )}
                 </SelectContent>
               </Select>
-              {devices.length === 0 && (
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
-                  No devices yet —{' '}
-                  <Link href="/dashboard/sabvoice/assist/devices" className="text-[var(--st-accent)]">
-                    register one
-                  </Link>
-                  .
-                </div>
-              )}
-            </div>
+            </Field>
           )}
 
-          <div>
-            <Label htmlFor="notes">Notes</Label>
+          <Field label="Notes">
             <Textarea
-              id="notes"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Context for the technician console."
             />
-          </div>
+          </Field>
 
           {error && (
-            <Alert variant="destructive">
+            <Alert tone="danger">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           <div className="flex gap-2">
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Creating…' : 'Create session & issue token'}
+            <Button variant="primary" onClick={handleSubmit} loading={submitting}>
+              {submitting ? 'Creating...' : 'Create session & issue token'}
             </Button>
             <Link href="/dashboard/sabvoice/assist">
               <Button variant="outline">Cancel</Button>
@@ -324,6 +356,6 @@ export default function SabassistNewSessionPage() {
           </div>
         </Card>
       )}
-    </EntityListShell>
+    </div>
   );
 }

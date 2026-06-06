@@ -1,7 +1,25 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Input, Label, Badge, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  IconButton,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  THead,
+  Th,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   Phone,
@@ -80,29 +98,17 @@ export default function VoiceCallsLogPage() {
       loading={loading}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Completed" value={completed} icon={<Phone className="h-4 w-4" />} />
-        <StatCard
-          label="Missed/Abandoned"
-          value={missed}
-          icon={<PhoneMissed className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Inbound"
-          value={inbound}
-          icon={<PhoneIncoming className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Avg Duration"
-          value={fmtDuration(avgDuration)}
-          icon={<Phone className="h-4 w-4" />}
-        />
+        <StatCard label="Completed" value={completed} icon={Phone} />
+        <StatCard label="Missed/Abandoned" value={missed} icon={PhoneMissed} />
+        <StatCard label="Inbound" value={inbound} icon={PhoneIncoming} />
+        <StatCard label="Avg Duration" value={fmtDuration(avgDuration)} icon={Phone} />
       </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div>
           <Label className="text-xs mb-1 block">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36" aria-label="Filter by status">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -118,7 +124,7 @@ export default function VoiceCallsLogPage() {
         <div>
           <Label className="text-xs mb-1 block">Direction</Label>
           <Select value={directionFilter} onValueChange={setDirectionFilter}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36" aria-label="Filter by direction">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -131,83 +137,78 @@ export default function VoiceCallsLogPage() {
       </div>
 
       <Card className="overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="border-b border-[var(--st-border)]">
-            <tr className="text-left text-xs uppercase text-[var(--st-text-secondary)]">
-              <th className="px-3 py-2">Direction</th>
-              <th className="px-3 py-2">From</th>
-              <th className="px-3 py-2">To</th>
-              <th className="px-3 py-2">Started</th>
-              <th className="px-3 py-2">Duration</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Recording</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((c) => (
-              <tr key={c._id} className="border-b border-[var(--st-border)]/50">
-                <td className="px-3 py-2">
-                  {c.direction === 'inbound' ? (
-                    <PhoneIncoming className="h-4 w-4 text-[var(--st-text)]" />
-                  ) : (
-                    <PhoneOutgoing className="h-4 w-4 text-[var(--st-text)]" />
-                  )}
-                </td>
-                <td className="px-3 py-2 font-mono">{c.fromNumber}</td>
-                <td className="px-3 py-2 font-mono">{c.toNumber}</td>
-                <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
-                  {fmtDate(c.startedAt)}
-                </td>
-                <td className="px-3 py-2">{fmtDuration(c.durationSecs)}</td>
-                <td className="px-3 py-2">
-                  <Badge
-                    variant={
-                      c.status === 'completed'
-                        ? 'default'
-                        : c.status === 'voicemail'
-                          ? 'secondary'
-                          : c.status === 'failed'
-                            ? 'destructive'
-                            : 'outline'
-                    }
-                    className="capitalize"
-                  >
-                    {c.status}
-                  </Badge>
-                </td>
-                <td className="px-3 py-2">
-                  {c.recordingFileId ? (
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() =>
-                        setPlayingId(playingId === c._id ? null : c._id)
+        {data.length === 0 ? (
+          <EmptyState
+            icon={Phone}
+            title="No calls logged"
+            description="Inbound, outbound, missed and voicemail calls will appear here once they happen."
+          />
+        ) : (
+          <Table density="compact">
+            <THead>
+              <Tr>
+                <Th>Direction</Th>
+                <Th>From</Th>
+                <Th>To</Th>
+                <Th>Started</Th>
+                <Th>Duration</Th>
+                <Th>Status</Th>
+                <Th>Recording</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {data.map((c) => (
+                <Tr key={c._id}>
+                  <Td>
+                    {c.direction === 'inbound' ? (
+                      <PhoneIncoming className="h-4 w-4 text-[var(--st-text)]" aria-label="Inbound" />
+                    ) : (
+                      <PhoneOutgoing className="h-4 w-4 text-[var(--st-text)]" aria-label="Outbound" />
+                    )}
+                  </Td>
+                  <Td className="font-mono">{c.fromNumber}</Td>
+                  <Td className="font-mono">{c.toNumber}</Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">{fmtDate(c.startedAt)}</Td>
+                  <Td>{fmtDuration(c.durationSecs)}</Td>
+                  <Td>
+                    <Badge
+                      tone={
+                        c.status === 'completed'
+                          ? 'success'
+                          : c.status === 'voicemail'
+                            ? 'info'
+                            : c.status === 'failed'
+                              ? 'danger'
+                              : 'neutral'
                       }
+                      className="capitalize"
                     >
-                      {playingId === c._id ? (
-                        <Pause className="h-4 w-4" />
-                      ) : (
-                        <Play className="h-4 w-4" />
-                      )}
-                    </Button>
-                  ) : (
-                    <span className="text-xs text-[var(--st-text-secondary)]">—</span>
-                  )}
-                  {playingId === c._id && c.recordingFileId && (
-                    <audio src={c.recordingFileId} controls autoPlay className="mt-1" />
-                  )}
-                </td>
-              </tr>
-            ))}
-            {data.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-[var(--st-text-secondary)]">
-                  No calls logged.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                      {c.status}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    {c.recordingFileId ? (
+                      <div className="flex flex-col items-start gap-1">
+                        <IconButton
+                          variant="ghost"
+                          size="sm"
+                          icon={playingId === c._id ? Pause : Play}
+                          label={playingId === c._id ? 'Pause recording' : 'Play recording'}
+                          onClick={() => setPlayingId(playingId === c._id ? null : c._id)}
+                        />
+                        {playingId === c._id ? (
+                          <audio src={c.recordingFileId} controls autoPlay className="mt-1" />
+                        ) : null}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[var(--st-text-secondary)]">-</span>
+                    )}
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </Card>
     </EntityListShell>
   );

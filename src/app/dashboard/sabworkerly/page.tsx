@@ -29,11 +29,11 @@ export default async function SabworkerlyOverviewPage() {
     ]);
 
     return (
-        <div className="zoruui flex flex-col gap-6">
+        <div className="ui20 flex flex-col gap-6">
             <PageHeader>
                 <PageTitle>SabWorkerly</PageTitle>
                 <PageDescription>
-                    Temp/agency staffing — workers, clients, timesheets, invoices, and payroll.
+                    Temp and agency staffing - workers, clients, timesheets, invoices, and payroll.
                 </PageDescription>
             </PageHeader>
 
@@ -125,7 +125,7 @@ export default async function SabworkerlyOverviewPage() {
                                         className="flex items-center justify-between rounded-md border border-[color:var(--st-border)] px-3 py-2 text-sm"
                                     >
                                         <span>
-                                            {new Date(inv.periodStart).toLocaleDateString()} —{' '}
+                                            {new Date(inv.periodStart).toLocaleDateString()} -{' '}
                                             {new Date(inv.periodEnd).toLocaleDateString()}
                                         </span>
                                         <Badge>{money(inv.totalMinor, inv.currency)}</Badge>

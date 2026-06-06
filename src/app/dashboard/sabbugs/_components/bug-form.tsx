@@ -3,7 +3,22 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Tag,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createBug, updateBug } from '@/app/actions/bug-tracker.actions';
@@ -29,7 +44,7 @@ export interface BugFormProps {
 
 export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
   const [state, setState] = React.useState<BugCreateInput>(() => ({
     title: bug?.title ?? '',
     description: bug?.description ?? '',
@@ -65,7 +80,7 @@ export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
 
   async function submit() {
     if (!state.title.trim()) {
-      toast?.error?.('Title is required.');
+      toast.error('Title is required.');
       return;
     }
     setBusy(true);
@@ -73,19 +88,19 @@ export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
       const res = await updateBug(bug._id, state);
       setBusy(false);
       if (res.error) {
-        toast?.error?.(res.error);
+        toast.error(res.error);
         return;
       }
-      toast?.success?.('Bug updated.');
+      toast.success('Bug updated.');
       router.push(`/dashboard/sabbugs/${bug._id}`);
     } else {
       const res = await createBug(state);
       setBusy(false);
       if (res.error) {
-        toast?.error?.(res.error);
+        toast.error(res.error);
         return;
       }
-      toast?.success?.('Bug reported.');
+      toast.success('Bug reported.');
       router.push(
         res.id
           ? `/dashboard/sabbugs/${res.id}`
@@ -95,120 +110,110 @@ export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-4 md:p-6">
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="bug-title">Title</Label>
-        <Input
-          id="bug-title"
-          value={state.title}
-          onChange={(e) => update('title', e.target.value)}
-          placeholder="Short summary of the bug"
-        />
-      </div>
+    <Card padding="none">
+      <CardBody className="flex flex-col gap-4">
+        <Field label="Title">
+          <Input
+            value={state.title}
+            onChange={(e) => update('title', e.target.value)}
+            placeholder="Short summary of the bug"
+          />
+        </Field>
 
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="bug-description">Description (markdown)</Label>
-        <Textarea
-          id="bug-description"
-          rows={5}
-          value={state.description ?? ''}
-          onChange={(e) => update('description', e.target.value)}
-          placeholder="What is wrong, and what should happen instead?"
-        />
-      </div>
+        <Field label="Description (markdown)">
+          <Textarea
+            rows={5}
+            value={state.description ?? ''}
+            onChange={(e) => update('description', e.target.value)}
+            placeholder="What is wrong, and what should happen instead?"
+          />
+        </Field>
 
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="bug-repro">Reproduction steps (one per line, numbered)</Label>
-        <Textarea
-          id="bug-repro"
-          rows={5}
-          value={state.reproSteps ?? ''}
-          onChange={(e) => update('reproSteps', e.target.value)}
-          placeholder={'1. Open …\n2. Click …\n3. Observe …'}
-        />
-      </div>
+        <Field label="Reproduction steps (one per line, numbered)">
+          <Textarea
+            rows={5}
+            value={state.reproSteps ?? ''}
+            onChange={(e) => update('reproSteps', e.target.value)}
+            placeholder={'1. Open the page\n2. Click the button\n3. Observe the error'}
+          />
+        </Field>
 
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="bug-env">Environment</Label>
-        <Textarea
-          id="bug-env"
-          rows={3}
-          value={state.environment ?? ''}
-          onChange={(e) => update('environment', e.target.value)}
-          placeholder="Browser, OS, app version, network, etc."
-        />
-      </div>
+        <Field label="Environment">
+          <Textarea
+            rows={3}
+            value={state.environment ?? ''}
+            onChange={(e) => update('environment', e.target.value)}
+            placeholder="Browser, OS, app version, network, etc."
+          />
+        </Field>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <SelectField
-          label="Project"
-          value={state.projectId ?? 'none'}
-          onValueChange={(v) => update('projectId', v === 'none' ? undefined : v)}
-          options={[
-            { value: 'none', label: 'No project' },
-            ...projectOptions.map((p) => ({ value: p.id, label: p.name })),
-          ]}
-        />
-        <SelectField
-          label="Severity"
-          value={state.severity ?? 'minor'}
-          onValueChange={(v) => update('severity', v as BugSeverity)}
-          options={BUG_SEVERITIES.map((s) => ({ value: s, label: s }))}
-        />
-        <SelectField
-          label="Priority"
-          value={state.priority ?? 'medium'}
-          onValueChange={(v) => update('priority', v as BugPriority)}
-          options={BUG_PRIORITIES.map((p) => ({ value: p, label: p }))}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <SelectField
-          label="Fixed in version"
-          value={state.fixedInVersion ?? 'none'}
-          onValueChange={(v) =>
-            update('fixedInVersion', v === 'none' ? undefined : v)
-          }
-          options={[
-            { value: 'none', label: 'Not yet fixed' },
-            ...versions.map((v) => ({ value: v._id, label: v.name })),
-          ]}
-        />
-        <div className="flex flex-col gap-1">
-          <Label>Attachments (from SabFiles)</Label>
-          <div className="flex flex-wrap items-center gap-2">
-            <SabFilePickerButton onPick={addAttachment}>
-              + Attach file
-            </SabFilePickerButton>
-            {(state.attachmentIds ?? []).map((id) => (
-              <span
-                key={id}
-                className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
-              >
-                <code className="font-mono">{id.slice(-6)}</code>
-                <button
-                  type="button"
-                  aria-label="Remove attachment"
-                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                  onClick={() => removeAttachment(id)}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <SelectField
+            label="Project"
+            value={state.projectId ?? 'none'}
+            onValueChange={(v) => update('projectId', v === 'none' ? undefined : v)}
+            options={[
+              { value: 'none', label: 'No project' },
+              ...projectOptions.map((p) => ({ value: p.id, label: p.name })),
+            ]}
+          />
+          <SelectField
+            label="Severity"
+            value={state.severity ?? 'minor'}
+            onValueChange={(v) => update('severity', v as BugSeverity)}
+            options={BUG_SEVERITIES.map((s) => ({ value: s, label: s }))}
+          />
+          <SelectField
+            label="Priority"
+            value={state.priority ?? 'medium'}
+            onValueChange={(v) => update('priority', v as BugPriority)}
+            options={BUG_PRIORITIES.map((p) => ({ value: p, label: p }))}
+          />
         </div>
-      </div>
 
-      <div className="flex justify-end gap-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <SelectField
+            label="Fixed in version"
+            value={state.fixedInVersion ?? 'none'}
+            onValueChange={(v) =>
+              update('fixedInVersion', v === 'none' ? undefined : v)
+            }
+            options={[
+              { value: 'none', label: 'Not yet fixed' },
+              ...versions.map((v) => ({ value: v._id, label: v.name })),
+            ]}
+          />
+          <Field label="Attachments (from SabFiles)">
+            <div className="flex flex-wrap items-center gap-2">
+              <SabFilePickerButton onPick={addAttachment}>
+                + Attach file
+              </SabFilePickerButton>
+              {(state.attachmentIds ?? []).map((id) => (
+                <Tag
+                  key={id}
+                  onRemove={() => removeAttachment(id)}
+                  removeLabel="Remove attachment"
+                >
+                  {id.slice(-6)}
+                </Tag>
+              ))}
+            </div>
+          </Field>
+        </div>
+      </CardBody>
+
+      <CardFooter className="flex justify-end gap-2">
         <Button variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>
-        <Button onClick={submit} disabled={busy || !state.title.trim()}>
-          {busy ? 'Saving…' : bug?._id ? 'Save changes' : 'Report bug'}
+        <Button
+          onClick={submit}
+          loading={busy}
+          disabled={busy || !state.title.trim()}
+        >
+          {bug?._id ? 'Save changes' : 'Report bug'}
         </Button>
-      </div>
+      </CardFooter>
     </Card>
   );
 }
@@ -225,10 +230,9 @@ function SelectField({
   options: { value: string; label: string }[];
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <Label>{label}</Label>
+    <Field label={label}>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger>
+        <SelectTrigger aria-label={label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -239,6 +243,6 @@ function SelectField({
           ))}
         </SelectContent>
       </Select>
-    </div>
+    </Field>
   );
 }

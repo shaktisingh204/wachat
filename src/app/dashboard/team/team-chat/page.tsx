@@ -112,7 +112,6 @@ export default function TeamChatPage() {
     const [huddleOpen, setHuddleOpen] = React.useState(false);
 
     const scrollRef = React.useRef<HTMLDivElement | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement | null>(null);
     const lastSeenCountRef = React.useRef(0);
     const messageNodeRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -361,8 +360,6 @@ export default function TeamChatPage() {
         setNotifPerm(p);
     };
 
-    const onPickFile = () => fileInputRef.current?.click();
-
     const queueFiles = async (files: File[]) => {
         if (!files.length) return;
         const next: OutgoingAttachment[] = [];
@@ -371,12 +368,6 @@ export default function TeamChatPage() {
             next.push({ filename: f.name, contentType: f.type, base64 });
         }
         setAttachmentQueue((prev) => [...prev, ...next].slice(0, 6));
-    };
-
-    const onFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        e.target.value = '';
-        await queueFiles(files);
     };
 
     const filteredChannels = React.useMemo(() => {
@@ -502,23 +493,26 @@ export default function TeamChatPage() {
                             members.slice(0, 12).map((u) => {
                                 const uid = u._id.toString();
                                 return (
-                                    <button
+                                    <Button
                                         key={uid}
                                         type="button"
+                                        variant="ghost"
                                         onClick={() => onStartDm(uid)}
-                                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)]"
+                                        className="!h-auto w-full !justify-start gap-3 !rounded-none px-3 py-2 text-left text-[12.5px] text-[var(--st-text-secondary)]"
                                     >
-                                        <div className="relative">
-                                            <Avatar name={u.name || u.email} />
-                                            <span className="absolute -bottom-0.5 -right-0.5">
-                                                <PresenceDot status={presence[uid]?.status ?? 'offline'} />
+                                        <span className="flex w-full items-center gap-3">
+                                            <span className="relative">
+                                                <Avatar name={u.name || u.email} />
+                                                <span className="absolute -bottom-0.5 -right-0.5">
+                                                    <PresenceDot status={presence[uid]?.status ?? 'offline'} />
+                                                </span>
                                             </span>
-                                        </div>
-                                        <div className="flex min-w-0 flex-col">
-                                            <span className="truncate text-[var(--st-text)]">{u.name}</span>
-                                            <span className="truncate text-[11px] text-[var(--st-text-secondary)]">{u.email}</span>
-                                        </div>
-                                    </button>
+                                            <span className="flex min-w-0 flex-col">
+                                                <span className="truncate text-[var(--st-text)]">{u.name}</span>
+                                                <span className="truncate text-[11px] text-[var(--st-text-secondary)]">{u.email}</span>
+                                            </span>
+                                        </span>
+                                    </Button>
                                 );
                             })
                         )}
@@ -578,7 +572,7 @@ export default function TeamChatPage() {
                                                     key={i}
                                                     className="inline-flex h-6 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 text-[11.5px]"
                                                 >
-                                                    <ImageIcon className="h-3 w-3" />
+                                                    <ImageIcon className="h-3 w-3" aria-hidden="true" />
                                                     <span className="max-w-[160px] truncate">{a.filename}</span>
                                                     <IconButton
                                                         size="sm"
@@ -593,19 +587,6 @@ export default function TeamChatPage() {
                                         </div>
                                     ) : null}
                                     <div className="flex items-center gap-2">
-                                        <IconButton
-                                            variant="outline"
-                                            icon={Paperclip}
-                                            label="Attach file"
-                                            onClick={onPickFile}
-                                        />
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            hidden
-                                            multiple
-                                            onChange={onFileChosen}
-                                        />
                                         <SabFileToFileButton
                                             accept="all"
                                             variant="outline"
@@ -614,7 +595,7 @@ export default function TeamChatPage() {
                                                 toast.error({ title: 'Pick failed', description: err.message })
                                             }
                                         >
-                                            SabFiles
+                                            Attach
                                         </SabFileToFileButton>
                                         <Input
                                             className="flex-1"
@@ -700,35 +681,38 @@ function ChannelRow({
     const title = channelTitle(channel, meId);
     const other = channel.type === 'group' ? null : channel.participants.find((p) => p.userId !== meId);
     return (
-        <button
+        <Button
             type="button"
+            variant="ghost"
             onClick={onSelect}
             className={
-                'flex w-full items-center gap-3 border-b border-[var(--st-border)] px-3 py-2.5 text-left transition-colors ' +
-                (active ? 'bg-[var(--st-bg)]' : 'hover:bg-[var(--st-bg)]')
+                '!h-auto w-full !justify-start gap-3 !rounded-none border-b border-[var(--st-border)] px-3 py-2.5 text-left ' +
+                (active ? '!bg-[var(--st-bg)]' : '')
             }
         >
-            {channel.type === 'group' ? (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                    <Users className="h-4 w-4" strokeWidth={2} />
+            <span className="flex w-full items-center gap-3">
+                {channel.type === 'group' ? (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                        <Users className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                    </span>
+                ) : (
+                    <Avatar name={other?.name || title} />
+                )}
+                <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                        <span className="truncate text-[13px] text-[var(--st-text)]">{title}</span>
+                        {channel.lastMessage ? (
+                            <span className="shrink-0 text-[10.5px] text-[var(--st-text-secondary)]">
+                                {formatDistanceToNowStrict(new Date(channel.lastMessage.createdAt), { addSuffix: false })}
+                            </span>
+                        ) : null}
+                    </span>
+                    <span className="block truncate text-[11.5px] text-[var(--st-text-secondary)]">
+                        {channel.lastMessage ? channel.lastMessage.content : 'No messages yet'}
+                    </span>
                 </span>
-            ) : (
-                <Avatar name={other?.name || title} />
-            )}
-            <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                    <div className="truncate text-[13px] text-[var(--st-text)]">{title}</div>
-                    {channel.lastMessage ? (
-                        <span className="shrink-0 text-[10.5px] text-[var(--st-text-secondary)]">
-                            {formatDistanceToNowStrict(new Date(channel.lastMessage.createdAt), { addSuffix: false })}
-                        </span>
-                    ) : null}
-                </div>
-                <div className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
-                    {channel.lastMessage ? channel.lastMessage.content : 'No messages yet'}
-                </div>
-            </div>
-        </button>
+            </span>
+        </Button>
     );
 }
 
@@ -782,7 +766,7 @@ function ChannelHeader({
         <div className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-5 py-3">
             {channel.type === 'group' ? (
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                    <Users className="h-4 w-4" strokeWidth={2} />
+                    <Users className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                 </span>
             ) : (
                 <div className="relative">
@@ -927,7 +911,7 @@ function MessageRow({
 
                 {isPinned ? (
                     <div className={'mb-1 inline-flex items-center gap-1 text-[10px] ' + (mine ? 'text-[var(--st-bg)]/80' : 'text-[var(--st-text-secondary)]')}>
-                        <Pin className="h-2.5 w-2.5" /> Pinned
+                        <Pin className="h-2.5 w-2.5" aria-hidden="true" /> Pinned
                     </div>
                 ) : null}
 
@@ -957,24 +941,27 @@ function MessageRow({
 
                 {/* Thread indicator */}
                 {replyCount > 0 ? (
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => callbacks.onOpenThread(id)}
+                        iconLeft={MessageCircleReply}
                         className={
-                            'mt-1.5 inline-flex items-center gap-1 rounded-[var(--st-radius-sm)] border px-2 py-0.5 text-[11px] ' +
+                            'mt-1.5 !h-auto !rounded-[var(--st-radius-sm)] border px-2 py-0.5 text-[11px] ' +
                             (mine
-                                ? 'border-[var(--st-bg)]/30 bg-[var(--st-bg)]/10 text-[var(--st-bg)] hover:bg-[var(--st-bg)]/20'
-                                : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg)]')
+                                ? 'border-[var(--st-bg)]/30 !bg-[var(--st-bg)]/10 !text-[var(--st-bg)]'
+                                : 'border-[var(--st-border)] !bg-[var(--st-bg-muted)] !text-[var(--st-text)]')
                         }
                     >
-                        <MessageCircleReply className="h-3 w-3" />
-                        {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
-                        {lastReplyAt ? (
-                            <span className={mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]'}>
-                                . {format(new Date(lastReplyAt), 'p')}
-                            </span>
-                        ) : null}
-                    </button>
+                        <span className="inline-flex items-center gap-1">
+                            {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
+                            {lastReplyAt ? (
+                                <span className={mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]'}>
+                                    . {format(new Date(lastReplyAt), 'p')}
+                                </span>
+                            ) : null}
+                        </span>
+                    </Button>
                 ) : null}
 
                 <div className={'mt-1 text-[10px] ' + (mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]')}>
@@ -1016,7 +1003,7 @@ function Attachment({
                     : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]')
             }
         >
-            <Paperclip className="h-3 w-3" />
+            <Paperclip className="h-3 w-3" aria-hidden="true" />
             <span className="max-w-[200px] truncate">{attachment.name}</span>
         </a>
     );

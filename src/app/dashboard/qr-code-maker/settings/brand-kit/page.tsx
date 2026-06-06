@@ -1,10 +1,27 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Field,
+  Input,
+  Alert,
+  EmptyState,
+  ColorPicker,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Palette, Plus, Trash2, ChevronLeft } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
-import Link from 'next/link';
 
 const STORAGE_KEY = 'qr-brand-kits';
 const MAX_KITS = 5;
@@ -32,11 +49,12 @@ const defaultForm = (): KitFormState => ({
 });
 
 export default function BrandKitPage() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [kits, setKits] = useState<BrandKit[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<KitFormState>(defaultForm());
   const [formError, setFormError] = useState('');
-  const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -72,102 +90,95 @@ export default function BrandKitPage() {
     persist([...kits, kit]);
     setForm(defaultForm());
     setShowForm(false);
+    toast.success(`Saved "${kit.name}" to your brand kits.`);
   };
 
-  const handleDelete = (id: string) => {
-    persist(kits.filter(k => k.id !== id));
+  const handleDelete = (kit: BrandKit) => {
+    persist(kits.filter(k => k.id !== kit.id));
+    toast.success(`Deleted "${kit.name}".`);
   };
 
   const handleApply = (kit: BrandKit) => {
     const value = JSON.stringify({ primaryColor: kit.primaryColor, bgColor: kit.bgColor, logoUrl: kit.logoUrl });
-    navigator.clipboard.writeText(value).then(() => {
-      setCopied(kit.id);
-      setTimeout(() => setCopied(null), 2000);
-    });
+    navigator.clipboard.writeText(value).then(
+      () => toast.success(`Copied "${kit.name}" to the clipboard.`),
+      () => toast.error('Could not copy the brand kit.'),
+    );
   };
 
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
-      <div>
-        <Button variant="ghost" asChild className="mb-2 -ml-4">
-          <Link href="/dashboard/qr-code-maker/settings">
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Settings
-          </Link>
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={ChevronLeft}
+          className="-ml-2 self-start"
+          onClick={() => router.push('/dashboard/qr-code-maker/settings')}
+        >
+          Back to Settings
         </Button>
-        <h1 className="text-3xl text-[var(--st-text)]">Brand Kit</h1>
-        <p className="text-[var(--st-text-secondary)] mt-1">Save your colors and logo as reusable presets.</p>
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageTitle>Brand Kit</PageTitle>
+            <PageDescription>Save your colors and logo as reusable presets.</PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-[var(--st-text-secondary)]">{kits.length} / {MAX_KITS} kits saved</p>
+      <PageHeader bordered={false} compact>
+        <PageHeaderHeading>
+          <PageDescription>{kits.length} / {MAX_KITS} kits saved</PageDescription>
+        </PageHeaderHeading>
         {!showForm && kits.length < MAX_KITS && (
-          <Button onClick={() => { setShowForm(true); setFormError(''); }} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Brand Kit
-          </Button>
+          <PageActions>
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={() => { setShowForm(true); setFormError(''); }}
+            >
+              Add Brand Kit
+            </Button>
+          </PageActions>
         )}
-      </div>
+      </PageHeader>
 
       {showForm && (
-        <Card className="border-[var(--st-border)] ring-1 ring-[var(--st-border)]">
+        <Card variant="outlined">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Palette className="h-4 w-4 text-[var(--st-text)]" />
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
               New Brand Kit
             </CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="space-y-2">
-              <Label>Kit Name <span className="text-[var(--st-text)]">*</span></Label>
+            <Field label="Kit Name" required>
               <Input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Corporate Blue"
                 maxLength={60}
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Primary Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={form.primaryColor}
-                    onChange={e => setForm(f => ({ ...f, primaryColor: e.target.value }))}
-                    className="w-10 h-10 rounded border cursor-pointer p-0.5"
-                  />
-                  <Input
-                    value={form.primaryColor}
-                    onChange={e => setForm(f => ({ ...f, primaryColor: e.target.value }))}
-                    className="font-mono text-sm"
-                    maxLength={7}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Background Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={form.bgColor}
-                    onChange={e => setForm(f => ({ ...f, bgColor: e.target.value }))}
-                    className="w-10 h-10 rounded border cursor-pointer p-0.5"
-                  />
-                  <Input
-                    value={form.bgColor}
-                    onChange={e => setForm(f => ({ ...f, bgColor: e.target.value }))}
-                    className="font-mono text-sm"
-                    maxLength={7}
-                  />
-                </div>
-              </div>
+              <Field label="Primary Color">
+                <ColorPicker
+                  value={form.primaryColor}
+                  onChange={color => setForm(f => ({ ...f, primaryColor: color }))}
+                />
+              </Field>
+              <Field label="Background Color">
+                <ColorPicker
+                  value={form.bgColor}
+                  onChange={color => setForm(f => ({ ...f, bgColor: color }))}
+                />
+              </Field>
             </div>
-            <div className="space-y-2">
-              <Label>Logo</Label>
+            <Field label="Logo">
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
-                  <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-[var(--st-bg-muted)]">
+                  <div className="w-12 h-12 border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden flex items-center justify-center bg-[var(--st-bg-secondary)]">
                     <img src={form.logoUrl} className="max-w-full max-h-full object-contain" alt="Kit logo" />
                   </div>
                 )}
@@ -183,12 +194,10 @@ export default function BrandKitPage() {
                   </Button>
                 )}
               </div>
-            </div>
-            {formError && (
-              <p className="text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md px-3 py-2">{formError}</p>
-            )}
+            </Field>
+            {formError && <Alert tone="danger">{formError}</Alert>}
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleAdd}>Save Kit</Button>
+              <Button variant="primary" onClick={handleAdd}>Save Kit</Button>
               <Button variant="ghost" onClick={() => { setShowForm(false); setForm(defaultForm()); setFormError(''); }}>Cancel</Button>
             </div>
           </CardBody>
@@ -196,56 +205,49 @@ export default function BrandKitPage() {
       )}
 
       {kits.length === 0 && !showForm && (
-        <div className="text-center py-16 border-2 border-dashed border-[var(--st-border)] rounded-xl">
-          <Palette className="h-10 w-10 text-[var(--st-text-secondary)] mx-auto mb-3" />
-          <p className="text-[var(--st-text)] font-medium">No brand kits yet</p>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">Add your first kit to reuse colors and logos across QR codes.</p>
-        </div>
+        <EmptyState
+          icon={Palette}
+          title="No brand kits yet"
+          description="Add your first kit to reuse colors and logos across QR codes."
+        />
       )}
 
       <div className="space-y-3">
         {kits.map(kit => (
-          <Card key={kit.id} className="border hover:shadow-sm transition-shadow">
+          <Card key={kit.id} variant="outlined">
             <CardBody className="flex items-center gap-4 py-4">
               <div className="flex gap-2 shrink-0">
                 <div
-                  className="w-10 h-10 rounded-lg border shadow-sm"
+                  className="w-10 h-10 rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-sm"
                   style={{ backgroundColor: kit.primaryColor }}
                   title={`Primary: ${kit.primaryColor}`}
                 />
                 <div
-                  className="w-10 h-10 rounded-lg border shadow-sm"
+                  className="w-10 h-10 rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-sm"
                   style={{ backgroundColor: kit.bgColor }}
                   title={`Background: ${kit.bgColor}`}
                 />
               </div>
               {kit.logoUrl && (
-                <div className="w-10 h-10 border rounded-lg overflow-hidden flex items-center justify-center bg-[var(--st-bg-muted)] shrink-0">
+                <div className="w-10 h-10 border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden flex items-center justify-center bg-[var(--st-bg-secondary)] shrink-0">
                   <img src={kit.logoUrl} className="max-w-full max-h-full object-contain" alt={`${kit.name} logo`} />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{kit.name}</p>
-                <p className="text-xs text-[var(--st-text-secondary)] font-mono">{kit.primaryColor} · {kit.bgColor}</p>
+                <p className="font-medium text-sm truncate text-[var(--st-text)]">{kit.name}</p>
+                <p className="text-xs text-[var(--st-text-secondary)] font-mono">{kit.primaryColor} , {kit.bgColor}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleApply(kit)}
-                  className={cn(copied === kit.id && "border-[var(--st-border)] text-[var(--st-text)]")}
-                >
-                  {copied === kit.id ? 'Copied!' : 'Apply'}
+                <Button variant="outline" size="sm" onClick={() => handleApply(kit)}>
+                  Apply
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleDelete(kit.id)}
-                  className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                  iconLeft={Trash2}
+                  onClick={() => handleDelete(kit)}
                   aria-label={`Delete ${kit.name}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                />
               </div>
             </CardBody>
           </Card>

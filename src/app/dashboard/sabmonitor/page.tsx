@@ -1,7 +1,13 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { ActivitySquare, Gauge } from 'lucide-react';
 
-import { Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    EmptyState,
+    StatCard,
+} from '@/components/sabcrm/20ui';
 
 import {
     listSabmonitorChecks,
@@ -23,25 +29,18 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
         counts[s] = (counts[s] ?? 0) + 1;
     }
 
-    const stats: Array<{ label: string; value: number; tone: string }> = [
-        { label: 'Up', value: counts.up, tone: 'text-[var(--st-text)]' },
-        { label: 'Warning', value: counts.warning, tone: 'text-[var(--st-text)]' },
-        { label: 'Down', value: counts.down, tone: 'text-[var(--st-text)]' },
-        { label: 'Unknown', value: counts.unknown, tone: 'text-[var(--st-text-secondary)]' },
+    const stats: Array<{ label: string; value: number }> = [
+        { label: 'Up', value: counts.up },
+        { label: 'Warning', value: counts.warning },
+        { label: 'Down', value: counts.down },
+        { label: 'Unknown', value: counts.unknown },
     ];
 
     return (
         <div className="flex flex-col gap-6">
             <div className="grid gap-3 md:grid-cols-4">
                 {stats.map((s) => (
-                    <Card key={s.label} className="zoruui">
-                        <CardBody className="flex flex-col gap-1 p-4">
-                            <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
-                                {s.label}
-                            </span>
-                            <span className={`text-2xl font-semibold ${s.tone}`}>{s.value}</span>
-                        </CardBody>
-                    </Card>
+                    <StatCard key={s.label} label={s.label} value={s.value} />
                 ))}
             </div>
 
@@ -55,12 +54,16 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                         View all
                     </Link>
                 </div>
-                <Card className="zoruui">
+                <Card padding="none">
                     <CardBody className="p-0">
                         {ongoingRes.items.length === 0 ? (
-                            <p className="p-4 text-sm text-[var(--st-text-secondary)]">
-                                No ongoing incidents — every check is healthy.
-                            </p>
+                            <EmptyState
+                                icon={ActivitySquare}
+                                tone="success"
+                                size="sm"
+                                title="No ongoing incidents"
+                                description="Every check is healthy right now."
+                            />
                         ) : (
                             <ul className="divide-y divide-[var(--st-border)]">
                                 {ongoingRes.items.map((i) => (
@@ -89,19 +92,22 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
 
             <section className="flex flex-col gap-3">
                 <h2 className="text-sm font-semibold text-[var(--st-text)]">Slowest recent checks</h2>
-                <Card className="zoruui">
+                <Card padding="none">
                     <CardBody className="p-0">
                         {checksRes.items.length === 0 ? (
-                            <p className="p-4 text-sm text-[var(--st-text-secondary)]">
-                                No checks configured yet.{' '}
-                                <Link
-                                    className="text-[var(--st-accent)] hover:underline"
-                                    href="/dashboard/sabmonitor/checks/new"
-                                >
-                                    Add your first check
-                                </Link>
-                                .
-                            </p>
+                            <EmptyState
+                                icon={Gauge}
+                                title="No checks configured yet"
+                                description="Add your first check to start monitoring uptime and latency."
+                                action={
+                                    <Link
+                                        className="text-[12px] text-[var(--st-accent)] hover:underline"
+                                        href="/dashboard/sabmonitor/checks/new"
+                                    >
+                                        Add your first check
+                                    </Link>
+                                }
+                            />
                         ) : (
                             <ul className="divide-y divide-[var(--st-border)]">
                                 {checksRes.items.slice(0, 8).map((c) => (
@@ -114,7 +120,7 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                                                 {c.name}
                                             </Link>
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">
-                                                {c.kind} · {c.url ?? c.host ?? '—'}
+                                                {c.kind} - {c.url ?? c.host ?? 'No target'}
                                             </span>
                                         </div>
                                         <StatusBadge status={c.lastStatus ?? 'unknown'} />

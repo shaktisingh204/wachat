@@ -1,4 +1,19 @@
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import { Smartphone } from 'lucide-react';
+
+import {
+  Alert,
+  Badge,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import { listSablensDevices } from '@/app/actions/sablens.actions';
 
 import { DeviceRegisterDialog } from './_components/device-register-dialog';
@@ -10,12 +25,12 @@ export default async function SablensDevicesPage() {
   const devices = res.ok ? res.data.items : [];
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
+    <div className="ui20 flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Registered devices</PageTitle>
           <PageDescription>
-            Pre-paired customer devices for repeat unattended support — no
+            Pre-paired customer devices for repeat unattended support, no
             join-token roundtrip needed.
           </PageDescription>
         </PageHeading>
@@ -23,22 +38,16 @@ export default async function SablensDevicesPage() {
       </PageHeader>
 
       {!res.ok ? (
-        <Card className="border-destructive/40">
-          <CardHeader>
-            <CardTitle>Couldn't load devices</CardTitle>
-            <CardDescription>{res.error}</CardDescription>
-          </CardHeader>
-        </Card>
+        <Alert tone="danger" title="Couldn't load devices">
+          {res.error}
+        </Alert>
       ) : devices.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No devices yet</CardTitle>
-            <CardDescription>
-              Pair a customer's phone or tablet to skip the per-session join
-              token next time.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <EmptyState
+          icon={Smartphone}
+          title="No devices yet"
+          description="Pair a customer's phone or tablet to skip the per-session join token next time."
+          action={<DeviceRegisterDialog />}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {devices.map((d) => (
@@ -46,7 +55,7 @@ export default async function SablensDevicesPage() {
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <CardTitle className="line-clamp-1">{d.label}</CardTitle>
-                  <Badge variant={d.online ? 'default' : 'secondary'}>
+                  <Badge tone={d.online ? 'success' : 'neutral'} dot>
                     {d.online ? 'online' : 'offline'}
                   </Badge>
                 </div>

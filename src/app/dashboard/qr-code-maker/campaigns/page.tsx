@@ -1,7 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  DatePicker,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Megaphone } from 'lucide-react';
 
 const STORAGE_KEY = 'qr-campaigns';
@@ -23,8 +46,8 @@ export default function QrCampaignsPage() {
 
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
-  const [formStartDate, setFormStartDate] = useState('');
-  const [formEndDate, setFormEndDate] = useState('');
+  const [formStartDate, setFormStartDate] = useState<Date | undefined>(undefined);
+  const [formEndDate, setFormEndDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     try {
@@ -41,14 +64,14 @@ export default function QrCampaignsPage() {
   const resetForm = () => {
     setFormName('');
     setFormDescription('');
-    setFormStartDate('');
-    setFormEndDate('');
+    setFormStartDate(undefined);
+    setFormEndDate(undefined);
     setShowForm(false);
   };
 
   const handleCreate = () => {
     if (!formName.trim()) {
-      toast({ title: 'Name required', description: 'Please enter a campaign name.', variant: 'destructive' });
+      toast({ title: 'Name required', description: 'Please enter a campaign name.', tone: 'danger' });
       return;
     }
     const next: Campaign = {
@@ -56,13 +79,13 @@ export default function QrCampaignsPage() {
       name: formName.trim(),
       description: formDescription.trim(),
       qrCodeIds: [],
-      startDate: formStartDate,
-      endDate: formEndDate,
+      startDate: formStartDate ? formStartDate.toISOString() : '',
+      endDate: formEndDate ? formEndDate.toISOString() : '',
       createdAt: new Date().toISOString(),
     };
     persist([next, ...campaigns]);
     resetForm();
-    toast({ title: 'Campaign created' });
+    toast({ title: 'Campaign created', tone: 'success' });
   };
 
   const handleDelete = (id: string) => {
@@ -91,7 +114,7 @@ export default function QrCampaignsPage() {
       </Breadcrumb>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader>
+        <PageHeader bordered={false}>
           <PageHeading>
             <PageTitle>Campaigns</PageTitle>
             <PageDescription>
@@ -99,72 +122,66 @@ export default function QrCampaignsPage() {
             </PageDescription>
           </PageHeading>
         </PageHeader>
-        <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-          <Plus className="h-3.5 w-3.5" />
+        <Button size="sm" iconLeft={Plus} onClick={() => setShowForm((v) => !v)}>
           New Campaign
         </Button>
       </div>
 
       {showForm ? (
-        <Card className="p-5 space-y-4">
-          <h3 className="text-[14px] text-[var(--st-text)]">Create Campaign</h3>
+        <Card padding="lg" className="space-y-4">
+          <CardHeader>
+            <CardTitle>Create Campaign</CardTitle>
+          </CardHeader>
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Name</Label>
+            <Field label="Name">
               <Input
                 placeholder="e.g., Summer 2026"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Description (Optional)</Label>
+            </Field>
+            <Field label="Description (Optional)">
               <Textarea
                 placeholder="What is this campaign about?"
                 value={formDescription}
                 rows={1}
                 onChange={(e) => setFormDescription(e.target.value)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Start Date (Optional)</Label>
-              <input
-                type="date"
+            </Field>
+            <Field label="Start Date (Optional)">
+              <DatePicker
                 value={formStartDate}
-                onChange={(e) => setFormStartDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
+                onChange={setFormStartDate}
+                placeholder="Pick a start date"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">End Date (Optional)</Label>
-              <input
-                type="date"
+            </Field>
+            <Field label="End Date (Optional)">
+              <DatePicker
                 value={formEndDate}
-                onChange={(e) => setFormEndDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
+                onChange={setFormEndDate}
+                placeholder="Pick an end date"
               />
-            </div>
+            </Field>
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <Button size="sm" onClick={handleCreate}>Create</Button>
+            <Button size="sm" variant="primary" onClick={handleCreate}>Create</Button>
             <Button size="sm" variant="ghost" onClick={resetForm}>Cancel</Button>
           </div>
         </Card>
       ) : null}
 
       {campaigns.length === 0 && !showForm ? (
-        <Card className="p-10 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-            <Megaphone className="h-5 w-5" />
-          </div>
-          <p className="text-sm text-[var(--st-text)]">No campaigns yet</p>
-          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-            Group your QR codes into campaigns to track performance together.
-          </p>
-          <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
-            <Plus className="h-3.5 w-3.5" />
-            Create your first campaign
-          </Button>
+        <Card padding="lg">
+          <EmptyState
+            icon={Megaphone}
+            title="No campaigns yet"
+            description="Group your QR codes into campaigns to track performance together."
+            action={
+              <Button size="sm" iconLeft={Plus} variant="primary" onClick={() => setShowForm(true)}>
+                Create your first campaign
+              </Button>
+            }
+          />
         </Card>
       ) : campaigns.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,7 +189,7 @@ export default function QrCampaignsPage() {
             const start = formatDate(c.startDate);
             const end = formatDate(c.endDate);
             return (
-              <Card key={c.id} className="p-5 flex flex-col gap-3">
+              <Card key={c.id} padding="lg" className="flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[14px] font-medium text-[var(--st-text)] truncate">{c.name}</p>
@@ -180,28 +197,28 @@ export default function QrCampaignsPage() {
                       <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] line-clamp-2">{c.description}</p>
                     ) : null}
                   </div>
-                  <button
-                    type="button"
+                  <IconButton
+                    icon={Trash2}
+                    label="Delete campaign"
+                    size="sm"
+                    variant="danger"
                     onClick={() => handleDelete(c.id)}
-                    className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] shrink-0"
-                    aria-label="Delete campaign"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                    className="shrink-0"
+                  />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="text-[11px]">
+                  <Badge tone="neutral" kind="outline">
                     {c.qrCodeIds.length} QR code{c.qrCodeIds.length !== 1 ? 's' : ''}
                   </Badge>
                   {start || end ? (
-                    <Badge variant="ghost" className="text-[11px]">
-                      {start ?? '…'} → {end ?? '…'}
+                    <Badge tone="neutral" kind="soft">
+                      {start ?? 'Open'} to {end ?? 'Open'}
                     </Badge>
                   ) : null}
                 </div>
 
-                <Button size="sm" variant="outline" className="mt-auto w-full">
+                <Button size="sm" variant="outline" block className="mt-auto">
                   View
                 </Button>
               </Card>

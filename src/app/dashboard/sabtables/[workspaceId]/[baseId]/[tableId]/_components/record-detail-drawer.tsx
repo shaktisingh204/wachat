@@ -1,14 +1,26 @@
 'use client';
 
 /**
- * Record detail drawer — opens when a row's row-number is clicked.
+ * Record detail drawer - opens when a row's row-number is clicked.
  * Shows every field as an editable row, with attachment fields routed
  * through SabFiles per project policy.
  */
 
 import { useEffect, useState, useTransition } from 'react';
 
-import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { MessageSquare } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabtablesComment,
@@ -84,29 +96,36 @@ export function RecordDetailDrawer({
           ))}
         </div>
 
-        <div className="border-t pt-4 space-y-3">
-          <div className="font-medium">Comments</div>
-          <div className="space-y-2">
-            {comments.length === 0 ? (
-              <div className="text-sm text-[var(--st-text-secondary)]">No comments yet.</div>
-            ) : (
-              comments.map((c) => (
+        <div className="border-t border-[var(--st-border)] pt-4 space-y-3">
+          <div className="font-medium text-[var(--st-text)]">Comments</div>
+          {comments.length === 0 ? (
+            <EmptyState
+              icon={MessageSquare}
+              size="sm"
+              title="No comments yet"
+              description="Be the first to leave a note on this record."
+            />
+          ) : (
+            <div className="space-y-2">
+              {comments.map((c) => (
                 <div key={c._id} className="text-sm">
                   <div className="font-medium text-xs text-[var(--st-text-secondary)]">
                     {new Date(c.createdAt ?? '').toLocaleString()}
                   </div>
-                  <div>{c.body}</div>
+                  <div className="text-[var(--st-text)]">{c.body}</div>
                 </div>
-              ))
-            )}
-          </div>
-          <Textarea
-            value={commentBody}
-            onChange={(e) => setCommentBody(e.target.value)}
-            placeholder="Add a comment…"
-            rows={2}
-          />
-          <Button size="sm" onClick={handleAddComment} disabled={!commentBody.trim()}>
+              ))}
+            </div>
+          )}
+          <Field label="Add a comment">
+            <Textarea
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+              placeholder="Write a note for your team."
+              rows={2}
+            />
+          </Field>
+          <Button size="sm" variant="primary" onClick={handleAddComment} disabled={!commentBody.trim()}>
             Comment
           </Button>
         </div>
@@ -125,12 +144,15 @@ function FieldRow({
   onChange: (v: unknown) => void;
 }) {
   return (
-    <div className="space-y-1">
-      <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-        {field.name}
-      </Label>
+    <Field
+      label={
+        <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+          {field.name}
+        </span>
+      }
+    >
       <FieldEditor field={field} value={value} onChange={onChange} />
-    </div>
+    </Field>
   );
 }
 
@@ -154,8 +176,7 @@ function FieldEditor({
       );
     case 'checkbox':
       return (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={Boolean(value)}
           onChange={(e) => onChange(e.target.checked)}
         />
@@ -165,7 +186,10 @@ function FieldEditor({
       return (
         <div className="space-y-2">
           {files.map((f, i) => (
-            <div key={i} className="text-sm border rounded-md px-2 py-1">
+            <div
+              key={i}
+              className="text-sm border border-[var(--st-border)] rounded-[var(--st-radius)] px-2 py-1 text-[var(--st-text)]"
+            >
               {f.name || f.url || 'File'}
             </div>
           ))}
@@ -224,7 +248,7 @@ function FieldEditor({
     case 'updated_at':
       return (
         <div className="text-sm text-[var(--st-text-secondary)]">
-          {value == null ? '—' : String(value)}
+          {value == null ? '-' : String(value)}
         </div>
       );
     default:

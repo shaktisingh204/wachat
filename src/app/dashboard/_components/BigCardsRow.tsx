@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Send, CircleCheck, Briefcase, Users, Sparkles, Bell, AlarmClock } from "lucide-react";
+import { Badge, Button } from "@/components/sabcrm/20ui";
 import { BigStatCard, NotificationCard } from "./shared";
 import { compact, curr } from "./utils";
 
@@ -24,27 +25,27 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
 
   if (insights && insights[0]) {
     notificationCards.push({
-      icon: <Sparkles className="h-3.5 w-3.5" />,
-      title: insights[0].length > 48 ? insights[0].slice(0, 48) + "…" : insights[0],
+      icon: <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />,
+      title: insights[0].length > 48 ? insights[0].slice(0, 48) + "..." : insights[0],
     });
   }
   (unreadNotifications || []).slice(0, 2).forEach((n: any) => {
     notificationCards.push({
-      icon: <Bell className="h-3.5 w-3.5" />,
-      title: n.message.length > 48 ? n.message.slice(0, 48) + "…" : n.message,
+      icon: <Bell className="h-3.5 w-3.5" aria-hidden="true" />,
+      title: n.message.length > 48 ? n.message.slice(0, 48) + "..." : n.message,
       onClick: () => router.push("/dashboard/notifications"),
     });
   });
   if (velocity.broadcastsLast7d === 0 && stats.totalCampaigns > 0) {
     notificationCards.push({
-      icon: <AlarmClock className="h-3.5 w-3.5" />,
+      icon: <AlarmClock className="h-3.5 w-3.5" aria-hidden="true" />,
       title: "No broadcasts this week",
       tone: "inverted",
       onClick: () => router.push("/wachat/broadcasts"),
     });
   } else if (velocity.messagesLast24h > 0) {
     notificationCards.push({
-      icon: <AlarmClock className="h-3.5 w-3.5" />,
+      icon: <AlarmClock className="h-3.5 w-3.5" aria-hidden="true" />,
       title: `${compact(velocity.messagesLast24h)} msgs in 24h`,
       tone: "inverted",
       onClick: () => router.push("/wachat/analytics"),
@@ -52,7 +53,7 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
   }
   while (notificationCards.length < 3) {
     notificationCards.push({
-      icon: <Sparkles className="h-3.5 w-3.5" />,
+      icon: <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />,
       title:
         notificationCards.length === 0
           ? "Welcome to SabNode"
@@ -75,13 +76,13 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
         subtitle="Last 30 days"
         metaLeft={
           <>
-            <Send className="h-3 w-3" />
+            <Send className="h-3 w-3" aria-hidden="true" />
             {compact(stats.totalMessages)} sent
           </>
         }
         metaRight={
           <>
-            <CircleCheck className="h-3 w-3" />
+            <CircleCheck className="h-3 w-3" aria-hidden="true" />
             {derived?.deliveryRate ?? 0}% delivered
           </>
         }
@@ -101,13 +102,13 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
         subtitle={`${curr(stats.pipelineValue, currency)} total value`}
         metaLeft={
           <>
-            <Briefcase className="h-3 w-3" />
+            <Briefcase className="h-3 w-3" aria-hidden="true" />
             {stats.totalDeals} deals
           </>
         }
         metaRight={
           <>
-            <Users className="h-3 w-3" />
+            <Users className="h-3 w-3" aria-hidden="true" />
             {compact(stats.totalLeads)} leads
           </>
         }
@@ -132,17 +133,18 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
             onClick={n.onClick}
           />
         ))}
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => router.push("/dashboard/notifications")}
-          className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
+          className="mt-1.5 w-full justify-between px-2 text-[11.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
           <span>See all notifications</span>
-          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-[10px]">
-            <Bell className="h-2.5 w-2.5" />
+          <Badge tone="neutral" kind="outline" className="gap-1">
+            <Bell className="h-2.5 w-2.5" aria-hidden="true" />
             {unreadNotifications?.length || "Zero"}
-          </span>
-        </button>
+          </Badge>
+        </Button>
       </div>
     </div>
   );

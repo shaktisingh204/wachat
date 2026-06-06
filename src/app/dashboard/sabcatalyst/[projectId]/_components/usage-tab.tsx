@@ -1,9 +1,23 @@
 'use client';
 
-/** Usage tab — monthly aggregates + billing breakdown. */
+/** Usage tab. Monthly aggregates plus billing breakdown. */
 import React from 'react';
+import { Activity, Clock, Database, DownloadCloud, HardDrive, Wifi } from 'lucide-react';
 
-import { Card, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    StatCard,
+    TBody,
+    THead,
+    Table,
+    Td,
+    Th,
+    Tr,
+} from '@/components/sabcrm/20ui';
 import type { SabcatalystUsageRow } from '@/lib/rust-client/sabcatalyst-usage';
 
 interface Props { projectId: string; initialRows: SabcatalystUsageRow[] }
@@ -22,6 +36,7 @@ export function UsageTab({ initialRows }: Props) {
     if (!latest) {
         return (
             <EmptyState
+                icon={Activity}
                 title="No usage yet"
                 description="Once your functions run and your datastore writes happen, monthly rollups appear here."
             />
@@ -31,62 +46,48 @@ export function UsageTab({ initialRows }: Props) {
     return (
         <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">Function invocations</p>
-                    <p className="text-3xl font-bold mt-2">{fmt(latest.functionInvocations)}</p>
-                </Card>
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">Billable ms</p>
-                    <p className="text-3xl font-bold mt-2">{fmt(latest.functionBillableMs)}</p>
-                </Card>
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">Datastore writes</p>
-                    <p className="text-3xl font-bold mt-2">{fmt(latest.datastoreWrites)}</p>
-                </Card>
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">Datastore reads</p>
-                    <p className="text-3xl font-bold mt-2">{fmt(latest.datastoreReads)}</p>
-                </Card>
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">File storage</p>
-                    <p className="text-3xl font-bold mt-2">{gb(latest.fileStorageBytes)} GB</p>
-                </Card>
-                <Card className="p-4">
-                    <p className="text-xs text-[var(--st-text-secondary)]">Bandwidth</p>
-                    <p className="text-3xl font-bold mt-2">{gb(latest.bandwidthBytes)} GB</p>
-                </Card>
+                <StatCard icon={Activity} label="Function invocations" value={fmt(latest.functionInvocations)} />
+                <StatCard icon={Clock} label="Billable ms" value={fmt(latest.functionBillableMs)} />
+                <StatCard icon={Database} label="Datastore writes" value={fmt(latest.datastoreWrites)} />
+                <StatCard icon={DownloadCloud} label="Datastore reads" value={fmt(latest.datastoreReads)} />
+                <StatCard icon={HardDrive} label="File storage" value={`${gb(latest.fileStorageBytes)} GB`} />
+                <StatCard icon={Wifi} label="Bandwidth" value={`${gb(latest.bandwidthBytes)} GB`} />
             </div>
 
-            <Card className="p-4">
-                <h3 className="font-semibold mb-3">Monthly history</h3>
-                <div className="overflow-auto">
-                    <table className="w-full text-sm">
-                        <thead className="text-left text-xs text-[var(--st-text-secondary)]">
-                            <tr>
-                                <th className="py-1 pr-4">Period</th>
-                                <th className="py-1 pr-4">Invocations</th>
-                                <th className="py-1 pr-4">Billable ms</th>
-                                <th className="py-1 pr-4">DS writes</th>
-                                <th className="py-1 pr-4">DS reads</th>
-                                <th className="py-1 pr-4">Storage</th>
-                                <th className="py-1 pr-4">Bandwidth</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.map((r) => (
-                                <tr key={r._id} className="border-t border-[var(--st-border)]">
-                                    <td className="py-2 pr-4 font-mono">{r.periodKey}</td>
-                                    <td className="py-2 pr-4">{fmt(r.functionInvocations)}</td>
-                                    <td className="py-2 pr-4">{fmt(r.functionBillableMs)}</td>
-                                    <td className="py-2 pr-4">{fmt(r.datastoreWrites)}</td>
-                                    <td className="py-2 pr-4">{fmt(r.datastoreReads)}</td>
-                                    <td className="py-2 pr-4">{gb(r.fileStorageBytes)} GB</td>
-                                    <td className="py-2 pr-4">{gb(r.bandwidthBytes)} GB</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Monthly history</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <div className="overflow-auto">
+                        <Table density="compact">
+                            <THead>
+                                <Tr>
+                                    <Th>Period</Th>
+                                    <Th align="right">Invocations</Th>
+                                    <Th align="right">Billable ms</Th>
+                                    <Th align="right">DS writes</Th>
+                                    <Th align="right">DS reads</Th>
+                                    <Th align="right">Storage</Th>
+                                    <Th align="right">Bandwidth</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {rows.map((r) => (
+                                    <Tr key={r._id}>
+                                        <Td className="font-mono">{r.periodKey}</Td>
+                                        <Td align="right">{fmt(r.functionInvocations)}</Td>
+                                        <Td align="right">{fmt(r.functionBillableMs)}</Td>
+                                        <Td align="right">{fmt(r.datastoreWrites)}</Td>
+                                        <Td align="right">{fmt(r.datastoreReads)}</Td>
+                                        <Td align="right">{gb(r.fileStorageBytes)} GB</Td>
+                                        <Td align="right">{gb(r.bandwidthBytes)} GB</Td>
+                                    </Tr>
+                                ))}
+                            </TBody>
+                        </Table>
+                    </div>
+                </CardBody>
             </Card>
         </div>
     );

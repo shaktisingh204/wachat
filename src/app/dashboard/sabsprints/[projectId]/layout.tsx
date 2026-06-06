@@ -1,9 +1,14 @@
 /**
  * Layout shell for the Scrum/Agile module. Mounts the section nav and lets
- * each page render its own ZoruUI `PageHeader` + body. Async params are
- * Next 16 — we await before reading `projectId`.
+ * each page render its own 20ui `PageHeader` + body. Async params are
+ * Next 16, so we await before reading `projectId`.
  */
-import { PageHeader } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 
 import { AgileNav } from './_components/agile-nav';
 
@@ -18,16 +23,12 @@ export default async function AgileLayout({
 }: AgileLayoutProps) {
   const { projectId } = await params;
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
       <PageHeader bordered={false}>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-xs uppercase tracking-wider text-[var(--st-text-tertiary)]">
-            Project &bull; Agile
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">
-            Scrum workspace
-          </h1>
-        </div>
+        <PageHeaderHeading>
+          <PageEyebrow>Project - Agile</PageEyebrow>
+          <PageTitle>Scrum workspace</PageTitle>
+        </PageHeaderHeading>
       </PageHeader>
       <AgileNav projectId={projectId} />
       <div>{children}</div>

@@ -9,6 +9,7 @@ import { Bookmark, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 import {
+    Button,
     EmptyState,
     IconButton,
     Sheet,
@@ -98,16 +99,16 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
                                         key={b._id}
                                         className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                                     >
-                                        <button
-                                            type="button"
+                                        <Button
+                                            variant="ghost"
                                             onClick={() => onJump(b.channelId, b.messageId)}
-                                            className="flex-1 rounded-[var(--st-radius)] text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+                                            className="flex h-auto flex-1 flex-col items-start justify-start gap-1 px-0 py-0 text-left"
                                         >
-                                            <div className="text-[12.5px] text-[var(--st-text)]">{preview}</div>
-                                            <div className="mt-1 text-[10.5px] text-[var(--st-text-secondary)]">
+                                            <span className="text-[12.5px] text-[var(--st-text)]">{preview}</span>
+                                            <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                                                 Saved {format(new Date(b.savedAt), 'PP')}
-                                            </div>
-                                        </button>
+                                            </span>
+                                        </Button>
                                         <IconButton
                                             label="Remove bookmark"
                                             icon={X}

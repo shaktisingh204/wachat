@@ -2,7 +2,17 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Badge, Input, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Badge,
+  Dot,
+  Input,
+  Textarea,
+  Field,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Mic,
   MicOff,
@@ -17,6 +27,7 @@ import {
   BarChart3,
   HelpCircle,
   Send,
+  X,
 } from 'lucide-react';
 import type { MeetRoom, MeetPoll, MeetQna } from '@/app/actions/sabmeet.actions.types';
 import {
@@ -64,7 +75,7 @@ export function RoomClient({ room }: RoomClientProps) {
   const [chat, setChat] = React.useState<MeetChatMessage[]>([]);
   const [panel, setPanel] = React.useState<SidePanel>(null);
 
-  // ─── Init transport ────────────────────────────────────────────────
+  // Init transport.
   React.useEffect(() => {
     // Pick up the stream the lobby parked on `window`. Fallback: acquire
     // again (will trigger another permission prompt).
@@ -187,11 +198,14 @@ export function RoomClient({ room }: RoomClientProps) {
   );
 
   return (
-    <div className="flex h-screen flex-col bg-[var(--st-text)] text-white">
+    <div className="ui20 dark flex h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)]">
         <div className="flex items-center gap-3">
-          <Badge variant="default">LIVE</Badge>
+          <Badge tone="danger" kind="solid">
+            <Dot tone="danger" pulse className="mr-1.5" />
+            LIVE
+          </Badge>
           <div>
             <div className="text-sm font-medium">{room.name}</div>
             <div className="text-xs text-[var(--st-text-secondary)]">{room.joinCode}</div>
@@ -232,116 +246,70 @@ export function RoomClient({ room }: RoomClientProps) {
       </div>
 
       {/* Controls bar */}
-      <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-[var(--st-border)] bg-[var(--st-text)]">
-        <ControlButton
-          active={local.microphoneOn}
+      <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-[var(--st-border)] bg-[var(--st-bg)]">
+        <IconButton
+          icon={local.microphoneOn ? Mic : MicOff}
+          variant={local.microphoneOn ? 'primary' : 'danger'}
           onClick={toggleMic}
           label={local.microphoneOn ? 'Mute mic' : 'Unmute mic'}
-          danger={!local.microphoneOn}
-        >
-          {local.microphoneOn ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-        </ControlButton>
-        <ControlButton
-          active={local.cameraOn}
+        />
+        <IconButton
+          icon={local.cameraOn ? Video : VideoOff}
+          variant={local.cameraOn ? 'primary' : 'danger'}
           onClick={toggleCam}
           label={local.cameraOn ? 'Stop video' : 'Start video'}
-          danger={!local.cameraOn}
-        >
-          {local.cameraOn ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-        </ControlButton>
-        <ControlButton
-          active={local.screenSharing}
+        />
+        <IconButton
+          icon={local.screenSharing ? ScreenShareOff : ScreenShare}
+          variant={local.screenSharing ? 'primary' : 'ghost'}
           onClick={toggleScreen}
           label={local.screenSharing ? 'Stop share' : 'Share screen'}
-        >
-          {local.screenSharing ? (
-            <ScreenShareOff className="h-4 w-4" />
-          ) : (
-            <ScreenShare className="h-4 w-4" />
-          )}
-        </ControlButton>
-        <ControlButton
-          active={local.handRaised}
+        />
+        <IconButton
+          icon={Hand}
+          variant={local.handRaised ? 'primary' : 'ghost'}
           onClick={toggleHand}
           label={local.handRaised ? 'Lower hand' : 'Raise hand'}
-        >
-          <Hand className="h-4 w-4" />
-        </ControlButton>
+        />
 
-        <div className="mx-2 h-6 w-px bg-[var(--st-text)]" />
+        <div className="mx-2 h-6 w-px bg-[var(--st-border)]" aria-hidden="true" />
 
-        <ControlButton
-          active={panel === 'participants'}
+        <IconButton
+          icon={Users}
+          variant={panel === 'participants' ? 'primary' : 'ghost'}
           onClick={() => setPanel(p => (p === 'participants' ? null : 'participants'))}
           label="Participants"
-        >
-          <Users className="h-4 w-4" />
-        </ControlButton>
-        <ControlButton
-          active={panel === 'chat'}
+        />
+        <IconButton
+          icon={MessageSquare}
+          variant={panel === 'chat' ? 'primary' : 'ghost'}
           onClick={() => setPanel(p => (p === 'chat' ? null : 'chat'))}
           label="Chat"
-        >
-          <MessageSquare className="h-4 w-4" />
-        </ControlButton>
-        <ControlButton
-          active={panel === 'polls'}
+        />
+        <IconButton
+          icon={BarChart3}
+          variant={panel === 'polls' ? 'primary' : 'ghost'}
           onClick={() => setPanel(p => (p === 'polls' ? null : 'polls'))}
           label="Polls"
-        >
-          <BarChart3 className="h-4 w-4" />
-        </ControlButton>
-        <ControlButton
-          active={panel === 'qna'}
+        />
+        <IconButton
+          icon={HelpCircle}
+          variant={panel === 'qna' ? 'primary' : 'ghost'}
           onClick={() => setPanel(p => (p === 'qna' ? null : 'qna'))}
-          label="Q&A"
-        >
-          <HelpCircle className="h-4 w-4" />
-        </ControlButton>
+          label="Questions and answers"
+        />
 
-        <div className="mx-2 h-6 w-px bg-[var(--st-text)]" />
+        <div className="mx-2 h-6 w-px bg-[var(--st-border)]" aria-hidden="true" />
 
-        <Button onClick={leave} variant="destructive" size="sm">
-          <PhoneOff className="h-4 w-4 mr-2" /> Leave
+        <Button onClick={leave} variant="danger" size="sm" iconLeft={PhoneOff}>
+          Leave
         </Button>
       </div>
     </div>
   );
 }
 
-// ─── Subcomponents ───────────────────────────────────────────────────
-
-function ControlButton({
-  active,
-  danger,
-  onClick,
-  label,
-  children,
-}: {
-  active: boolean;
-  danger?: boolean;
-  onClick: () => void;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      className={`grid h-10 w-10 place-items-center rounded-full border transition ${
-        danger
-          ? 'border-[var(--st-border)] bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]'
-          : active
-            ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/20 text-white'
-            : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
+// Subcomponents.
 
 function LocalTile({
   displayName,
@@ -357,7 +325,7 @@ function LocalTile({
   videoRef: React.RefObject<HTMLVideoElement | null>;
 }) {
   return (
-    <div className="relative aspect-video rounded-lg overflow-hidden bg-[var(--st-text)]">
+    <div className="relative aspect-video rounded-[var(--st-radius)] overflow-hidden bg-[var(--st-bg-secondary)]">
       <video
         ref={videoRef}
         autoPlay
@@ -367,22 +335,24 @@ function LocalTile({
       />
       {!cameraOn ? (
         <div className="absolute inset-0 grid place-items-center text-[var(--st-text-secondary)]">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-text)] text-xl font-medium">
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-bg)] text-xl font-medium text-[var(--st-text)]">
             {displayName.charAt(0).toUpperCase()}
           </div>
         </div>
       ) : null}
       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-        <div className="rounded bg-black/60 px-2 py-0.5 text-xs">{displayName} (you)</div>
+        <div className="rounded-[var(--st-radius)] bg-black/60 px-2 py-0.5 text-xs text-white">
+          {displayName} (you)
+        </div>
         <div className="flex gap-1">
           {handRaised ? (
-            <div className="rounded bg-[var(--st-text)]/80 p-1">
-              <Hand className="h-3 w-3 text-black" />
+            <div className="rounded-[var(--st-radius)] bg-[var(--st-warn)] p-1">
+              <Hand className="h-3 w-3 text-black" aria-hidden="true" />
             </div>
           ) : null}
           {!microphoneOn ? (
-            <div className="rounded bg-[var(--st-text)]/80 p-1">
-              <MicOff className="h-3 w-3 text-white" />
+            <div className="rounded-[var(--st-radius)] bg-[var(--st-danger)] p-1">
+              <MicOff className="h-3 w-3 text-white" aria-hidden="true" />
             </div>
           ) : null}
         </div>
@@ -397,29 +367,29 @@ function RemoteTile({ participant }: { participant: MeetRemoteParticipant }) {
     if (ref.current) ref.current.srcObject = participant.videoStream;
   }, [participant.videoStream]);
   return (
-    <div className="relative aspect-video rounded-lg overflow-hidden bg-[var(--st-text)]">
+    <div className="relative aspect-video rounded-[var(--st-radius)] overflow-hidden bg-[var(--st-bg-secondary)]">
       {participant.videoStream && participant.cameraOn ? (
         <video ref={ref} autoPlay playsInline className="h-full w-full object-cover" />
       ) : (
         <div className="absolute inset-0 grid place-items-center text-[var(--st-text-secondary)]">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-text)] text-xl font-medium">
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-bg)] text-xl font-medium text-[var(--st-text)]">
             {participant.displayName.charAt(0).toUpperCase()}
           </div>
         </div>
       )}
       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-        <div className="rounded bg-black/60 px-2 py-0.5 text-xs">
-          {participant.displayName} {participant.isHost ? '· Host' : ''}
+        <div className="rounded-[var(--st-radius)] bg-black/60 px-2 py-0.5 text-xs text-white">
+          {participant.displayName} {participant.isHost ? '. Host' : ''}
         </div>
         <div className="flex gap-1">
           {participant.handRaised ? (
-            <div className="rounded bg-[var(--st-text)]/80 p-1">
-              <Hand className="h-3 w-3 text-black" />
+            <div className="rounded-[var(--st-radius)] bg-[var(--st-warn)] p-1">
+              <Hand className="h-3 w-3 text-black" aria-hidden="true" />
             </div>
           ) : null}
           {!participant.microphoneOn ? (
-            <div className="rounded bg-[var(--st-text)]/80 p-1">
-              <MicOff className="h-3 w-3 text-white" />
+            <div className="rounded-[var(--st-radius)] bg-[var(--st-danger)] p-1">
+              <MicOff className="h-3 w-3 text-white" aria-hidden="true" />
             </div>
           ) : null}
         </div>
@@ -428,7 +398,7 @@ function RemoteTile({ participant }: { participant: MeetRemoteParticipant }) {
   );
 }
 
-// ─── Side panel ──────────────────────────────────────────────────────
+// Side panel.
 
 function SidePanel({
   panel,
@@ -447,13 +417,17 @@ function SidePanel({
   room: MeetRoom;
   displayName: string;
 }) {
+  const PANEL_TITLE: Record<Exclude<SidePanel, null>, string> = {
+    participants: 'Participants',
+    chat: 'Chat',
+    polls: 'Polls',
+    qna: 'Questions and answers',
+  };
   return (
-    <aside className="w-80 border-l border-[var(--st-border)] bg-[var(--st-text)] flex flex-col">
+    <aside className="w-80 border-l border-[var(--st-border)] bg-[var(--st-bg)] flex flex-col">
       <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-2">
-        <div className="text-sm font-medium capitalize">{panel}</div>
-        <button onClick={onClose} className="text-[var(--st-text-secondary)] hover:text-white text-sm">
-          Close
-        </button>
+        <div className="text-sm font-medium">{panel ? PANEL_TITLE[panel] : ''}</div>
+        <IconButton icon={X} variant="ghost" size="sm" label="Close panel" onClick={onClose} />
       </div>
       <div className="flex-1 overflow-y-auto">
         {panel === 'participants' ? (
@@ -483,9 +457,11 @@ function ParticipantsPanel({
       {remotes.map(r => (
         <li key={r.id} className="px-3 py-2 text-sm flex items-center justify-between">
           <span>
-            {r.displayName} {r.isHost ? '· Host' : ''}
+            {r.displayName} {r.isHost ? '. Host' : ''}
           </span>
-          {!r.microphoneOn ? <MicOff className="h-3 w-3 text-[var(--st-text-secondary)]" /> : null}
+          {!r.microphoneOn ? (
+            <MicOff className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          ) : null}
         </li>
       ))}
     </ul>
@@ -508,11 +484,16 @@ function ChatPanel({
     <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {chat.length === 0 ? (
-          <div className="text-xs text-[var(--st-text)]">No messages yet.</div>
+          <EmptyState
+            icon={MessageSquare}
+            size="sm"
+            title="No messages yet"
+            description="Say hello to everyone in the room."
+          />
         ) : (
           chat.map(m => (
             <div key={m.id} className="text-sm">
-              <span className="font-medium text-white">{m.fromName}: </span>
+              <span className="font-medium text-[var(--st-text)]">{m.fromName}: </span>
               <span className="text-[var(--st-text-secondary)]">{m.text}</span>
             </div>
           ))
@@ -527,14 +508,16 @@ function ChatPanel({
         }}
         className="flex gap-2 border-t border-[var(--st-border)] p-2"
       >
-        <Input
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder="Message everyone"
-          className="bg-[var(--st-text)] border-[var(--st-border)]"
-        />
-        <Button type="submit" size="sm" disabled={!text.trim()}>
-          <Send className="h-4 w-4" />
+        <Field className="flex-1">
+          <Input
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Message everyone"
+            aria-label="Message everyone"
+          />
+        </Field>
+        <Button type="submit" size="sm" iconLeft={Send} disabled={!text.trim()}>
+          Send
         </Button>
       </form>
     </div>
@@ -542,6 +525,7 @@ function ChatPanel({
 }
 
 function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
+  const { toast } = useToast();
   const [polls, setPolls] = React.useState<MeetPoll[]>([]);
   const [creating, setCreating] = React.useState(false);
   const [question, setQuestion] = React.useState('');
@@ -558,11 +542,15 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
 
   const submit = async () => {
     const opts = options.split('\n').map(s => s.trim()).filter(Boolean);
-    if (!question.trim() || opts.length < 2) return;
+    if (!question.trim() || opts.length < 2) {
+      toast.error('Add a question and at least two options.');
+      return;
+    }
     await createMeetPoll({ roomId: room._id, question: question.trim(), options: opts });
     setQuestion('');
     setOptions('');
     setCreating(false);
+    toast.success('Poll launched');
     refresh();
   };
 
@@ -574,20 +562,22 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
   return (
     <div className="p-3 space-y-3">
       {creating ? (
-        <div className="space-y-2 rounded border border-[var(--st-border)] p-2">
-          <Input
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-            placeholder="Question"
-            className="bg-[var(--st-text)] border-[var(--st-border)]"
-          />
-          <Textarea
-            value={options}
-            onChange={e => setOptions(e.target.value)}
-            placeholder="One option per line"
-            rows={3}
-            className="bg-[var(--st-text)] border-[var(--st-border)]"
-          />
+        <div className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2">
+          <Field label="Question">
+            <Input
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
+              placeholder="What should we ask?"
+            />
+          </Field>
+          <Field label="Options" help="One option per line.">
+            <Textarea
+              value={options}
+              onChange={e => setOptions(e.target.value)}
+              placeholder={'Yes\nNo'}
+              rows={3}
+            />
+          </Field>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setCreating(false)}>
               Cancel
@@ -598,39 +588,50 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
           </div>
         </div>
       ) : (
-        <Button variant="outline" size="sm" onClick={() => setCreating(true)} className="w-full">
+        <Button variant="outline" size="sm" onClick={() => setCreating(true)} block>
           Create poll
         </Button>
       )}
       {polls.length === 0 ? (
-        <div className="text-xs text-[var(--st-text)]">No polls yet.</div>
+        <EmptyState
+          icon={BarChart3}
+          size="sm"
+          title="No polls yet"
+          description="Create a poll to gather quick feedback."
+        />
       ) : (
         polls.map(p => {
           const total = p.options.reduce((a, b) => a + (b.voteCount ?? 0), 0);
           return (
-            <div key={p._id} className="rounded border border-[var(--st-border)] p-2 space-y-2">
+            <div
+              key={p._id}
+              className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 space-y-2"
+            >
               <div className="text-sm font-medium">{p.question}</div>
               {p.options.map(o => {
                 const pct = total ? Math.round(((o.voteCount ?? 0) / total) * 100) : 0;
                 return (
-                  <button
+                  <Button
                     key={o.id}
+                    variant="ghost"
                     onClick={() => vote(p._id, o.id)}
-                    className="block w-full text-left text-xs rounded bg-[var(--st-text)] hover:bg-[var(--st-text)] p-2"
+                    className="block w-full text-left"
                   >
-                    <div className="flex justify-between">
-                      <span>{o.label}</span>
-                      <span className="text-[var(--st-text-secondary)]">
-                        {o.voteCount ?? 0} ({pct}%)
+                    <span className="block w-full">
+                      <span className="flex justify-between text-xs">
+                        <span>{o.label}</span>
+                        <span className="text-[var(--st-text-secondary)]">
+                          {o.voteCount ?? 0} ({pct}%)
+                        </span>
                       </span>
-                    </div>
-                    <div className="mt-1 h-1 rounded bg-[var(--st-text)] overflow-hidden">
-                      <div
-                        className="h-full bg-[var(--st-accent)]"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </button>
+                      <span className="mt-1 block h-1 rounded-full bg-[var(--st-bg-secondary)] overflow-hidden">
+                        <span
+                          className="block h-full bg-[var(--st-accent)]"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </span>
+                    </span>
+                  </Button>
                 );
               })}
             </div>
@@ -642,6 +643,7 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
 }
 
 function QnaPanel({ room, you }: { room: MeetRoom; you: string }) {
+  const { toast } = useToast();
   const [items, setItems] = React.useState<MeetQna[]>([]);
   const [question, setQuestion] = React.useState('');
   const [answering, setAnswering] = React.useState<string | null>(null);
@@ -660,6 +662,7 @@ function QnaPanel({ room, you }: { room: MeetRoom; you: string }) {
     if (!question.trim()) return;
     await askMeetQuestion({ roomId: room._id, question, askerName: you });
     setQuestion('');
+    toast.success('Question submitted');
     refresh();
   };
   const answer = async (qnaId: string) => {
@@ -667,45 +670,57 @@ function QnaPanel({ room, you }: { room: MeetRoom; you: string }) {
     await answerMeetQuestion({ qnaId, answer: answerText });
     setAnswerText('');
     setAnswering(null);
+    toast.success('Answer posted');
     refresh();
   };
 
   return (
     <div className="p-3 space-y-3">
       <div className="space-y-2">
-        <Textarea
-          value={question}
-          onChange={e => setQuestion(e.target.value)}
-          placeholder="Ask a question"
-          rows={2}
-          className="bg-[var(--st-text)] border-[var(--st-border)]"
-        />
-        <Button size="sm" onClick={ask} className="w-full" disabled={!question.trim()}>
+        <Field label="Ask a question">
+          <Textarea
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            placeholder="Type your question for the host"
+            rows={2}
+          />
+        </Field>
+        <Button size="sm" onClick={ask} block disabled={!question.trim()}>
           Submit
         </Button>
       </div>
       {items.length === 0 ? (
-        <div className="text-xs text-[var(--st-text)]">No questions yet.</div>
+        <EmptyState
+          icon={HelpCircle}
+          size="sm"
+          title="No questions yet"
+          description="Be the first to ask the host a question."
+        />
       ) : (
         items.map(q => (
-          <div key={q._id} className="rounded border border-[var(--st-border)] p-2 space-y-1">
+          <div
+            key={q._id}
+            className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 space-y-1"
+          >
             <div className="text-sm">{q.question}</div>
             <div className="text-xs text-[var(--st-text-secondary)]">
-              by {q.askerName ?? 'anonymous'} · {q.upvotes ?? 0} upvotes
+              by {q.askerName ?? 'anonymous'} . {q.upvotes ?? 0} upvotes
             </div>
             {q.answered ? (
-              <div className="text-xs rounded bg-[var(--st-text)] p-2">
+              <div className="text-xs rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-2">
                 <span className="font-medium">Answer: </span>
                 {q.answer}
               </div>
             ) : answering === q._id ? (
               <div className="space-y-1">
-                <Textarea
-                  value={answerText}
-                  onChange={e => setAnswerText(e.target.value)}
-                  rows={2}
-                  className="bg-[var(--st-text)] border-[var(--st-border)]"
-                />
+                <Field label="Your answer">
+                  <Textarea
+                    value={answerText}
+                    onChange={e => setAnswerText(e.target.value)}
+                    placeholder="Write a response"
+                    rows={2}
+                  />
+                </Field>
                 <div className="flex justify-end gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setAnswering(null)}>
                     Cancel

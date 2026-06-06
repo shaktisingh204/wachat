@@ -68,9 +68,9 @@ const DOCUMENT_PAGES = [
 ];
 
 const AUDIT_TRAIL = [
-  { id: 1, action: "Document Created", user: "Alice Admin", time: "Oct 24, 2023, 09:00 AM", icon: <FileText className="w-4 h-4" /> },
-  { id: 2, action: "Sent to Signers", user: "System", time: "Oct 24, 2023, 09:05 AM", icon: <Check className="w-4 h-4" /> },
-  { id: 3, action: "Viewed by John Doe", user: "John Doe", time: "Oct 24, 2023, 10:15 AM", icon: <Eye className="w-4 h-4" /> },
+  { id: 1, action: "Document Created", user: "Alice Admin", time: "Oct 24, 2023, 09:00 AM", icon: <FileText className="w-4 h-4" aria-hidden="true" /> },
+  { id: 2, action: "Sent to Signers", user: "System", time: "Oct 24, 2023, 09:05 AM", icon: <Check className="w-4 h-4" aria-hidden="true" /> },
+  { id: 3, action: "Viewed by John Doe", user: "John Doe", time: "Oct 24, 2023, 10:15 AM", icon: <Eye className="w-4 h-4" aria-hidden="true" /> },
 ];
 
 const SIGNATURE_FONTS = [
@@ -210,13 +210,13 @@ export default function SignerPortalPage() {
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {DOCUMENT_PAGES.map((page, index) => (
-              <button
+              <Button
                 key={page.id}
-                type="button"
+                variant="ghost"
                 onClick={() => setCurrentPage(index + 1)}
                 aria-label={`Go to page ${index + 1}`}
                 aria-current={currentPage === index + 1 ? "true" : undefined}
-                className={`block w-full text-left relative cursor-pointer group rounded-[var(--st-radius-lg)] ${currentPage === index + 1 ? "ring-2 ring-[var(--st-accent)]" : ""}`}
+                className={`!h-auto !p-0 !block w-full text-left relative group rounded-[var(--st-radius-lg)] [&_.u-btn__label]:!block [&_.u-btn__label]:!w-full [&_.u-btn__label]:!overflow-visible ${currentPage === index + 1 ? "ring-2 ring-[var(--st-accent)]" : ""}`}
               >
                 <div className="aspect-[1/1.4] bg-white rounded-[var(--st-radius-lg)] shadow-[var(--st-shadow-sm)] overflow-hidden flex items-center justify-center p-2 transition-transform group-hover:scale-[1.02]">
                   <div className="w-full h-full border border-neutral-200 bg-neutral-50 flex flex-col relative">
@@ -234,7 +234,7 @@ export default function SignerPortalPage() {
                   </div>
                 </div>
                 <div className="text-center mt-2 text-xs text-[var(--st-text-tertiary)] font-medium">Page {index + 1}</div>
-              </button>
+              </Button>
             ))}
           </div>
         </aside>
@@ -242,11 +242,9 @@ export default function SignerPortalPage() {
         {/* Center Document Viewer */}
         <main className="flex-1 overflow-auto bg-[var(--st-bg)] flex flex-col relative p-8">
           <div
-            className="mx-auto flex flex-col space-y-8"
+            className="mx-auto flex flex-col space-y-8 transition-transform origin-top"
             style={{
               transform: `scale(${zoom / 100})`,
-              transformOrigin: "top center",
-              transition: "transform 0.2s ease-out",
             }}
           >
             {documentFields.map((page, index) => (
@@ -290,17 +288,17 @@ export default function SignerPortalPage() {
                       )}
 
                       {field.type === "signature" || field.type === "initials" ? (
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
                           onClick={() => handleFieldClick(field.id, field.type)}
                           aria-label={isCompleted ? `${field.label} signed` : `Add ${field.label}`}
                           className={`
-                            border-2 rounded-[var(--st-radius)] flex items-center justify-center relative min-w-[200px] min-h-[60px] p-2 cursor-pointer
+                            !h-auto !p-2 !block border-2 rounded-[var(--st-radius)] relative min-w-[200px] min-h-[60px] [&_.u-btn__label]:!block [&_.u-btn__label]:!w-full [&_.u-btn__label]:!overflow-visible
                             ${isCompleted
-                              ? "border-transparent bg-transparent text-black"
+                              ? "!border-transparent !bg-transparent !text-black"
                               : field.required
-                                ? "border-amber-400 bg-amber-50/50 text-amber-700 hover:bg-amber-100"
-                                : "border-neutral-300 bg-neutral-50/50 text-neutral-600 hover:bg-neutral-100"}
+                                ? "!border-amber-400 !bg-amber-50/50 !text-amber-700 hover:!bg-amber-100"
+                                : "!border-neutral-300 !bg-neutral-50/50 !text-neutral-600 hover:!bg-neutral-100"}
                           `}
                         >
                           {isCompleted ? (
@@ -309,7 +307,7 @@ export default function SignerPortalPage() {
                               <div className="text-[8px] text-neutral-400 mt-1 uppercase tracking-wider">SabSigned by: {field.label}</div>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                               {field.type === "signature" ? <PenTool className="w-5 h-5 opacity-70" aria-hidden="true" /> : <Type className="w-5 h-5 opacity-70" aria-hidden="true" />}
                               <span className="font-semibold text-sm uppercase tracking-wider">{field.label}</span>
                             </div>
@@ -317,7 +315,7 @@ export default function SignerPortalPage() {
                           {!isCompleted && field.required && (
                             <span className="absolute -top-2 -right-2 bg-[var(--st-warn)] text-[var(--st-text-inverted)] w-4 h-4 rounded-[var(--st-radius-pill)] flex items-center justify-center text-[10px] font-bold shadow-[var(--st-shadow-sm)]" aria-hidden="true">!</span>
                           )}
-                        </button>
+                        </Button>
                       ) : field.type === "text" || field.type === "date" ? (
                         <div className="relative w-48">
                           <Field label={<span className="text-neutral-500">{field.label}</span>} required={field.required}>
@@ -525,21 +523,21 @@ export default function SignerPortalPage() {
                 <span className="text-sm font-medium text-[var(--st-text)]">Select Style</span>
                 <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
                   {SIGNATURE_FONTS.map(font => (
-                    <button
+                    <Button
                       key={font.id}
-                      type="button"
+                      variant="ghost"
                       onClick={() => setSelectedFont(font.id)}
                       aria-pressed={selectedFont === font.id}
                       aria-label={font.name}
-                      className={`p-4 rounded-[var(--st-radius-lg)] border text-left transition-colors ${
+                      className={`!h-auto !p-4 !block rounded-[var(--st-radius-lg)] border text-left [&_.u-btn__label]:!block [&_.u-btn__label]:!w-full [&_.u-btn__label]:!overflow-visible ${
                         selectedFont === font.id
-                          ? "border-[var(--st-accent)] bg-[var(--st-accent-soft)] ring-1 ring-[var(--st-accent)]"
-                          : "border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border-strong)]"
+                          ? "!border-[var(--st-accent)] !bg-[var(--st-accent-soft)] ring-1 ring-[var(--st-accent)]"
+                          : "!border-[var(--st-border)] !bg-[var(--st-bg)] hover:!border-[var(--st-border-strong)]"
                       }`}
                     >
                       <div className={`text-2xl text-[var(--st-text)] mb-2 ${font.id}`}>{typedSignature || "John Doe"}</div>
                       <div className={`text-sm text-[var(--st-text-secondary)] ${font.id}`}>{typedInitials || "JD"}</div>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
