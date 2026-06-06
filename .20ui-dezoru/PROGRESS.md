@@ -1,5 +1,33 @@
 # De-zoru migration — autonomous overnight run
 
+## ============ ACTIVE RUN (2026-06-07, manifest-based, RESUMABLE) ============
+Orchestration rebuilt around a deterministic manifest + sharded background workflows.
+Tooling (.20ui-dezoru/):
+  - scan-residuals.js                — per-module dirty counts across src/app + src/components
+  - plan-shards.js [--write]         — builds ordered in-scope work list + emits self-contained
+                                       rewrite workflow scripts to /tmp/mod20ui/shards/shard_NN.js
+                                       (+ manifest.json with the full ordered file list).
+  - validate-files.js --shard NN     — HARD residuals (bad imports/raw primitives/zoru => must hit 0)
+                                       vs SOFT (inline style/em-dash, runtime-legit allowed).
+  - gen-fixpass.js <hard.json> <tag> — emits a targeted fix-pass workflow for stubborn files.
+SCOPE (in-scope dirty = 1029 files, 133 modules): all dirty .tsx under src/app/** + src/components/**
+  EXCEPT route modules crm, crm-advanced, hrm, hrm-advanced, wachat, sabcrm; component folders
+  ui, clay, sab-ui (vendored DS, deleted later not rewritten), landing/landing-v2/landing-3d (marketing),
+  crm, hrm, sabcrm/20ui (DS internals). NOTE: crm-advanced + components/crm already import 20ui but were
+  EXCLUDED to honor the literal "except crm" directive; clean them later if the user wants.
+SHARDS (file counts): 00=60 (PILOT: settings/user/sabcheckout + dashboard singles), 01=300, 02=300,
+  03=300, 04=69. Order: partials -> rest of dashboard (fewest-dirty first ... seo 55, sabdesk 76 last)
+  -> app routes -> feature components (zoruui-domain 94, sabflow 177 last).
+PER-SHARD LOOP (orchestrator): Workflow({scriptPath: shard_NN.js}) [bg, auto-caps 10 concurrent = rate-safe]
+  -> on completion: node check-imports.js (MUST be 0) ; node validate-files.js --shard NN
+  -> if HARD>0: gen-fixpass.js -> run fix_NN.js -> re-validate (<=2 passes) -> git add -A && commit.
+COMMIT GATE = check-imports.js == 0 (only build-breaking class). HARD residuals driven to 0 best-effort;
+  SOFT inline styles accepted when runtime-legit.
+STATUS: shard_00 LAUNCHED (run wf_e8945063-fcd). Next: validate+commit on completion, then shard_01..04.
+FINALE after all shards: rebuild the 5 dashboard layouts on 20ui HomeShell, file-manager -> @/components/sabfiles,
+  delete src/components/sabcrm/20ui/legacy/ + legacy-public.ts + zoru-legacy.css (+ drop .zoruui).
+## =========================================================================
+
 ## ============ RESUME HERE (paused 2026-06-07) ============
 STATE: zoruui design system removed from app code (compat.ts DELETED, /zoru path GONE -> 20ui/legacy/,
 0 Zoru*/compat/var(--zoru) in consumers). Phase 2 (every module/page -> PURE 20ui, no raw HTML / inline
