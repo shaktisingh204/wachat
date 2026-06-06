@@ -215,7 +215,7 @@ export function BotDetailDrawer({
                             <Skeleton className="h-32 w-full" />
                         </div>
                     ) : !bot ? (
-                        <div className="flex flex-col items-start gap-3 rounded-lg border border-zoru-danger-line bg-[var(--st-danger-soft)] p-4 text-[12.5px] text-[var(--st-danger)]">
+                        <div className="flex flex-col items-start gap-3 rounded-lg border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-4 text-[12.5px] text-[var(--st-danger)]">
                             <div className="flex items-start gap-2">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
                                 <div className="flex flex-col gap-1">
@@ -1123,7 +1123,7 @@ function WebhookPanel({
             ) : null}
 
             {info?.lastErrorMessage ? (
-                <div className="rounded-lg border border-zoru-danger-line bg-[var(--st-danger-soft)] p-3 text-[12.5px] text-[var(--st-danger)]">
+                <div className="rounded-lg border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-3 text-[12.5px] text-[var(--st-danger)]">
                     <p className="font-medium">Last error</p>
                     <p className="mt-1">{info.lastErrorMessage}</p>
                     {info.lastErrorDate ? (

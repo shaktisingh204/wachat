@@ -334,7 +334,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                         href={a.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="truncate text-zoru-link hover:underline"
+                                        className="truncate text-[var(--st-accent)] hover:underline"
                                     >
                                         {a.name}
                                     </a>

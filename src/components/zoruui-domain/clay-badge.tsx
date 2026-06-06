@@ -46,7 +46,7 @@ const toneOverride: Partial<Record<Tone, string>> = {
 
 const dotTones: Record<Tone, string> = {
   neutral: 'bg-[var(--st-text)]',
-  rose: 'bg-zoru-ink-foreground',
+  rose: 'bg-[var(--st-text-inverted)]',
   'rose-soft': 'bg-[var(--st-text)]',
   obsidian: 'bg-[var(--st-bg-secondary)]',
   green: 'bg-[var(--st-text)]',

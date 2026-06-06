@@ -126,7 +126,7 @@ export default function BankingReconciliationPage() {
                   <span className="font-medium text-[var(--st-text)]">₹0.00</span>
                 </div>
               </div>
-              <Button className="w-full bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-lg shadow-zoru-line/20">
+              <Button className="w-full bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-lg shadow-[var(--st-border)]/20">
                 Confirm & Reconcile (Enter)
               </Button>
             </div>

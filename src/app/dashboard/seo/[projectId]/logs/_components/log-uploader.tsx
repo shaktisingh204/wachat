@@ -172,7 +172,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {status === 'success' && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-success-line bg-zoru-success-surface/20 p-6 text-center">
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-status-ok)] bg-[var(--st-status-ok)]/20 p-6 text-center">
                     <CheckCircle className="mb-4 h-12 w-12 text-[var(--st-status-ok)]" />
                     <h3 className="mb-2 text-lg text-[var(--st-status-ok)] font-medium">Upload Complete!</h3>
                     <p className="mb-6 text-sm text-[var(--st-status-ok)]/80">Log file has been streamed and parsed successfully.</p>
@@ -181,7 +181,7 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {status === 'error' && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-danger-line bg-zoru-danger-surface/20 p-6 text-center">
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-danger)] bg-[var(--st-danger-soft)]/20 p-6 text-center">
                     <AlertCircle className="mb-4 h-12 w-12 text-[var(--st-danger)]" />
                     <h3 className="mb-2 text-lg text-[var(--st-danger)] font-medium">Upload Failed</h3>
                     <p className="mb-6 text-sm text-[var(--st-danger)]/80">{errorMessage}</p>

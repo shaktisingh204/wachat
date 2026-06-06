@@ -79,7 +79,7 @@ export function CreateManualDialog() {
                             rows={10}
                         />
                     </div>
-                    <label className="flex items-center gap-2 text-sm text-zoru-text">
+                    <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                         <Checkbox
                             checked={published}
                             onCheckedChange={(v) => setPublished(v === true)}

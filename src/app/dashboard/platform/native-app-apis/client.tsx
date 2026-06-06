@@ -77,7 +77,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
                 <ZoruTableCell className="font-mono text-sm">{item.keyPrefix}...</ZoruTableCell>
                 <ZoruTableCell>
                   <div className="flex gap-1 flex-wrap">
-                    {item.scopes.map(s => <span key={s} className="bg-zoru-neutral-hover px-2 py-0.5 rounded text-xs">{s}</span>)}
+                    {item.scopes.map(s => <span key={s} className="bg-[var(--st-hover)] px-2 py-0.5 rounded text-xs">{s}</span>)}
                   </div>
                 </ZoruTableCell>
                 <ZoruTableCell className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</ZoruTableCell>

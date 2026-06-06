@@ -97,7 +97,7 @@ export default function AdminTemplateLibraryPage() {
                     <h1 className="text-2xl font-bold text-[var(--st-text)]">Template Library</h1>
                     <p className="text-sm text-[var(--st-text-secondary)] mt-1">Manage global templates available to all users.</p>
                 </div>
-                <Button asChild className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-lg shadow-zoru-line/25">
+                <Button asChild className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-lg shadow-[var(--st-border)]/25">
                     <Link href="/admin/dashboard/template-library/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Template

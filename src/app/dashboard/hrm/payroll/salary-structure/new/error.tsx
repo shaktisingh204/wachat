@@ -16,7 +16,7 @@ export default function Error({
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-[var(--st-bg-secondary)] rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
-            <div className="w-12 h-12 mb-4 text-zoru-error rounded-full bg-zoru-error/10 flex items-center justify-center">
+            <div className="w-12 h-12 mb-4 text-[var(--st-danger)] rounded-full bg-[var(--st-danger)]/10 flex items-center justify-center">
                 <svg
                     className="w-6 h-6"
                     fill="none"

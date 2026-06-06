@@ -75,7 +75,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
         <MarketingShell session={session}>
             <PageHero
                 kicker="API reference · v1"
-                title={<>A clean REST API for <span className="bg-gradient-to-r from-[var(--st-text)] via-zoru-ink to-[var(--st-text)] bg-clip-text text-transparent">every module.</span></>}
+                title={<>A clean REST API for <span className="bg-gradient-to-r from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] bg-clip-text text-transparent">every module.</span></>}
                 subtitle="Signed, idempotent, versioned. Hit /v1 from anywhere — your CRM, your dashboards, your bots."
                 extra={
                     <Link href={session?.user ? '/dashboard/api-keys' : '/login?signup=1'} className="inline-flex items-center gap-2 rounded-full bg-[var(--st-text)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--st-text)]">

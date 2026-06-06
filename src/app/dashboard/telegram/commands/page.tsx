@@ -2114,7 +2114,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                                     <td className="p-2 font-mono">/{cmd}</td>
                                     <td className="p-2">
                                         {l ? (
-                                            <span className={same ? '' : 'text-zoru-warn-ink'}>
+                                            <span className={same ? '' : 'text-[var(--st-warn)]'}>
                                                 {l.description}
                                             </span>
                                         ) : (
@@ -2123,7 +2123,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                                     </td>
                                     <td className="p-2">
                                         {r ? (
-                                            <span className={same ? '' : 'text-zoru-warn-ink'}>
+                                            <span className={same ? '' : 'text-[var(--st-warn)]'}>
                                                 {r.description}
                                             </span>
                                         ) : (
@@ -2158,7 +2158,7 @@ function DetailOverview({ row, bots }: { row: CommandRow; bots: BotOption[] }) {
             </Row>
             <Row label="Hidden">
                 {row.hidden ? (
-                    <span className="text-zoru-warn-ink inline-flex items-center gap-1">
+                    <span className="text-[var(--st-warn)] inline-flex items-center gap-1">
                         <EyeOff className="h-3.5 w-3.5" />
                         Hidden on push
                     </span>

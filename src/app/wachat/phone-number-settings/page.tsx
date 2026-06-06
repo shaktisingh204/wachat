@@ -41,9 +41,21 @@ import {
   getDisplayNameStatus,
   handleGenerateFlowsEncryption,
   handleUploadFlowsEncryption,
-  type DisplayNameStatusResult,
 } from '@/app/actions/whatsapp.actions';
 import { handleGenerateBusinessDescription } from '@/app/actions/ai-actions';
+
+/**
+ * Mirrors the Rust `wachat_config::display_name::DisplayNameStatus` shape
+ * (camelCase over the wire). Declared locally because the `'use server'`
+ * actions module only exports async functions.
+ */
+interface DisplayNameStatusResult {
+  phoneNumberId: string;
+  verifiedName?: string;
+  nameStatus?: string;
+  newNameStatus?: string;
+  requestedName?: string;
+}
 
 /**
  * Wachat Phone Number Settings — 20ui migration.
@@ -429,8 +441,17 @@ export default function PhoneNumberSettingsPage() {
                     <div className="text-[16px] text-[color:var(--st-text)]">
                       {current?.display_phone_number || current?.number || '--'}
                     </div>
-                    <div className="text-[12px] text-[color:var(--st-text-secondary)]">
-                      {current?.verified_name || current?.displayName || ''}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-[color:var(--st-text-secondary)]">
+                        {nameStatus?.verifiedName || current?.verified_name || current?.displayName || ''}
+                      </span>
+                      {isLoadingNameStatus ? (
+                        <Loader2 className="h-3 w-3 animate-spin text-[color:var(--st-text-tertiary)]" aria-hidden="true" />
+                      ) : nameStatus?.nameStatus ? (
+                        <Badge tone={statusTone(nameStatus.nameStatus)} kind="soft">
+                          {statusLabel(nameStatus.nameStatus)}
+                        </Badge>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -439,14 +460,36 @@ export default function PhoneNumberSettingsPage() {
                   variant="outline"
                   onClick={() => {
                     setDraftDisplayName(
-                      current?.verified_name || current?.displayName || '',
+                      nameStatus?.verifiedName ||
+                        current?.verified_name ||
+                        current?.displayName ||
+                        '',
                     );
                     setDisplayNameOpen(true);
                   }}
                 >
-                  Edit display name
+                  Change display name
                 </Button>
               </div>
+              {/* Pending change + graceful "not configured" surface. */}
+              {nameStatusError ? (
+                <Alert tone="info" title="Display-name status unavailable" className="mt-3">
+                  {nameStatusError}
+                </Alert>
+              ) : nameStatus?.newNameStatus || nameStatus?.requestedName ? (
+                <Alert
+                  tone={statusTone(nameStatus.newNameStatus) === 'danger' ? 'warning' : 'info'}
+                  title="Name change in review"
+                  className="mt-3"
+                >
+                  {nameStatus.requestedName
+                    ? `"${nameStatus.requestedName}" is awaiting Meta review`
+                    : 'A display-name change is awaiting Meta review'}
+                  {nameStatus.newNameStatus
+                    ? ` — ${statusLabel(nameStatus.newNameStatus)}.`
+                    : '.'}
+                </Alert>
+              ) : null}
             </CardHeader>
 
             <CardBody>
@@ -522,43 +565,160 @@ export default function PhoneNumberSettingsPage() {
               </div>
             </CardBody>
           </Card>
+
+          {/* ── Flows encryption panel ── */}
+          <Card className="mt-4" padding="lg">
+            <CardHeader>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)]">
+                    <ShieldCheck className="h-6 w-6 text-[color:var(--st-text-secondary)]" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <div className="text-[16px] text-[color:var(--st-text)]">
+                      Flows encryption
+                    </div>
+                    <div className="text-[12px] text-[color:var(--st-text-secondary)]">
+                      RSA-2048 keypair for WhatsApp Flows data-exchange.
+                    </div>
+                  </div>
+                </div>
+                {flowsMetaStatus ? (
+                  <Badge tone={statusTone(flowsMetaStatus)} kind="soft" dot>
+                    {statusLabel(flowsMetaStatus)}
+                  </Badge>
+                ) : null}
+              </div>
+            </CardHeader>
+
+            <CardBody>
+              <div className="flex max-w-2xl flex-col gap-4">
+                <p className="text-[13px] leading-relaxed text-[color:var(--st-text-secondary)]">
+                  Generate a keypair to enable encrypted Flows endpoints. The
+                  private key is stored securely on your project; only the public
+                  key is uploaded to Meta. Generating again replaces the existing
+                  keypair.
+                </p>
+
+                {flowsError ? (
+                  <Alert tone="warning" title="Encryption setup unavailable">
+                    {flowsError}
+                  </Alert>
+                ) : null}
+
+                {flowsPublicKey ? (
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="flows-public-key"
+                        className="text-[13px] text-[color:var(--st-text)]"
+                      >
+                        Public key (SPKI PEM)
+                      </label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={keyCopied ? Check : Copy}
+                        onClick={copyPublicKey}
+                      >
+                        {keyCopied ? 'Copied' : 'Copy'}
+                      </Button>
+                    </div>
+                    <Textarea
+                      id="flows-public-key"
+                      value={flowsPublicKey}
+                      readOnly
+                      rows={6}
+                      className="font-mono text-[12px]"
+                      onFocus={(e) => e.currentTarget.select()}
+                    />
+                    {flowsMetaStatus === 'UPLOADED' ? (
+                      <Alert tone="success" title="Public key uploaded to Meta">
+                        Encrypted Flows endpoints are ready to use for this number.
+                      </Alert>
+                    ) : (
+                      <span className="text-[11.5px] leading-tight text-[color:var(--st-text-tertiary)]">
+                        Upload this key to Meta to finish enabling encrypted Flows.
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <Alert tone="info" title="No keypair yet">
+                    Generate a keypair to get started. Nothing is sent to Meta until
+                    you upload the public key.
+                  </Alert>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Button
+                    variant={flowsPublicKey ? 'outline' : 'primary'}
+                    onClick={generateFlowsKeys}
+                    disabled={isGeneratingKeys || isUploadingKey}
+                    iconLeft={isGeneratingKeys ? undefined : KeyRound}
+                  >
+                    {isGeneratingKeys ? (
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : null}
+                    {isGeneratingKeys
+                      ? 'Generating…'
+                      : flowsPublicKey
+                        ? 'Regenerate keypair'
+                        : 'Generate keypair'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={uploadFlowsKey}
+                    disabled={!flowsPublicKey || isUploadingKey || isGeneratingKeys}
+                    iconLeft={isUploadingKey ? undefined : UploadCloud}
+                  >
+                    {isUploadingKey ? (
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : null}
+                    {isUploadingKey ? 'Uploading…' : 'Upload to Meta'}
+                  </Button>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
         </>
       )}
 
-      {/* ── Edit display name dialog ── */}
+      {/* ── Change display name dialog ── */}
       <Modal
         open={displayNameOpen}
-        onClose={() => setDisplayNameOpen(false)}
-        title="Edit display name"
-        description="Update the verified display name shown to your WhatsApp customers."
+        onClose={() => (isSubmittingName ? undefined : setDisplayNameOpen(false))}
+        title="Change display name"
+        description="Submit a new verified display name to Meta for review. The change is asynchronous — the new name appears once Meta approves it."
         footer={
           <>
-            <Button variant="ghost" onClick={() => setDisplayNameOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => setDisplayNameOpen(false)}
+              disabled={isSubmittingName}
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                toast({
-                  title: 'Display name updated',
-                  description: `Submitted "${draftDisplayName}" for review.`,
-                  tone: 'success',
-                });
-                setDisplayNameOpen(false);
-              }}
-              disabled={!draftDisplayName.trim()}
+              onClick={submitDisplayName}
+              disabled={!draftDisplayName.trim() || isSubmittingName}
             >
-              Save
+              {isSubmittingName ? (
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : null}
+              {isSubmittingName ? 'Submitting…' : 'Submit for review'}
             </Button>
           </>
         }
       >
-        <Field label="Display name" id="display-name">
+        <Field label="Display name" id="display-name" help="This is the name your customers see in WhatsApp.">
           <Input
             id="display-name"
             value={draftDisplayName}
             onChange={(e) => setDraftDisplayName(e.target.value)}
             placeholder="Acme Inc."
+            disabled={isSubmittingName}
           />
         </Field>
       </Modal>

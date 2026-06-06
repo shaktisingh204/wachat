@@ -138,7 +138,7 @@ export default function EditWeeklyTimesheetForm({
     <Card className="p-6 relative">
       <div className="absolute top-4 right-4 flex items-center gap-4">
         {collaborators > 1 && (
-          <div className="flex items-center gap-1.5 text-xs text-zoru-primary-ink bg-zoru-primary-surface px-2 py-1 rounded-md animate-pulse">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--st-text-inverted)] bg-[var(--st-accent-soft)] px-2 py-1 rounded-md animate-pulse">
             <Users className="w-3.5 h-3.5" />
             <span>{collaborators} viewing</span>
           </div>

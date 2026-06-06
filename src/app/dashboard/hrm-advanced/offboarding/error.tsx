@@ -17,7 +17,7 @@ export default function ErrorBoundary({
   return (
     <div className="p-8 flex flex-col items-center justify-center space-y-4">
       <h2 className="text-xl font-semibold text-[var(--st-text)]">Something went wrong fetching offboarding data!</h2>
-      <p className="text-sm text-zoru-text-secondary">{error.message}</p>
+      <p className="text-sm text-[var(--st-text-secondary)]">{error.message}</p>
       <Button onClick={() => reset()}>Try again</Button>
     </div>
   );

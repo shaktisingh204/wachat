@@ -122,7 +122,7 @@ function SectionCard({
         <Card
             className={cn(
                 'rounded-2xl border-[var(--st-border)] bg-[var(--st-bg)] backdrop-blur-xl shadow-sm overflow-hidden',
-                premium && 'ring-1 ring-[var(--st-border)]/40 shadow-zoru-line/10',
+                premium && 'ring-1 ring-[var(--st-border)]/40 shadow-[var(--st-border)]/10',
             )}
         >
             <ZoruCardHeader
@@ -229,7 +229,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--st-border)] bg-gradient-to-br from-primary/5 via-zoru-bg to-[var(--st-bg-muted)] p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--st-border)] bg-gradient-to-br from-primary/5 via-[var(--st-bg)] to-[var(--st-bg-muted)] p-6">
                 <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--st-text)]/20 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[var(--st-bg-muted)] blur-3xl pointer-events-none" />
                 <div className="relative">
@@ -1145,7 +1145,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     'fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4',
                 )}
             >
-                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/90 backdrop-blur-xl shadow-2xl shadow-zoru-ink/10 px-4 py-3">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/90 backdrop-blur-xl shadow-2xl shadow-[var(--st-text)]/10 px-4 py-3">
                     <span className="text-xs text-[var(--st-text-secondary)] hidden sm:inline">
                         Changes take effect immediately after saving.
                     </span>

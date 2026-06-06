@@ -191,8 +191,8 @@ export default function SabFlowImportPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1 space-y-6">
-          <Card className="p-0 border-zoru-ink-border/50 shadow-sm bg-gradient-to-br from-zoru-base-surface to-zoru-base-background">
-            <ZoruCardHeader className="pb-3 border-b border-zoru-ink-border/30">
+          <Card className="p-0 border-[var(--st-border)]/50 shadow-sm bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg)]">
+            <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/30">
               <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
                 <FileJson className="h-5 w-5 text-[var(--st-accent)]" />
                 Upload Configuration
@@ -217,8 +217,8 @@ export default function SabFlowImportPage() {
           </Card>
 
           {previewData && (
-            <Card className="p-0 border-zoru-ink-border/50 shadow-sm">
-              <ZoruCardHeader className="pb-3 border-b border-zoru-ink-border/30">
+            <Card className="p-0 border-[var(--st-border)]/50 shadow-sm">
+              <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/30">
                 <ZoruCardTitle className="text-base">Overview</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="p-4">
@@ -237,7 +237,7 @@ export default function SabFlowImportPage() {
                       </Badge>
                     </dd>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-zoru-ink-border/30">
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--st-border)]/30">
                     <div>
                       <dt className="text-[var(--st-text-secondary)]">Total Nodes</dt>
                       <dd className="text-xl font-semibold text-[var(--st-text)] mt-1">
@@ -259,7 +259,7 @@ export default function SabFlowImportPage() {
 
         <div className="lg:col-span-2">
           {!fileSelected && !isProcessing ? (
-            <Card className="h-full min-h-[400px] flex items-center justify-center border-dashed border-zoru-ink-border/50 bg-zoru-base-surface/50">
+            <Card className="h-full min-h-[400px] flex items-center justify-center border-dashed border-[var(--st-border)]/50 bg-[var(--st-bg)]/50">
               <EmptyState
                 compact
                 icon={<Workflow className="h-8 w-8 text-[var(--st-text-secondary)]" />}
@@ -268,7 +268,7 @@ export default function SabFlowImportPage() {
               />
             </Card>
           ) : isProcessing ? (
-            <Card className="h-full min-h-[400px] flex items-center justify-center border-zoru-ink-border/50 shadow-sm">
+            <Card className="h-full min-h-[400px] flex items-center justify-center border-[var(--st-border)]/50 shadow-sm">
               <div className="flex flex-col items-center text-center space-y-4">
                 <RefreshCw className="h-8 w-8 animate-spin text-[var(--st-accent)]" />
                 <div>
@@ -289,24 +289,24 @@ export default function SabFlowImportPage() {
                   label="Valid Nodes"
                   value={validNodesCount.toString()}
                   period="Passed checks"
-                  icon={<CheckCircle2 className="text-zoru-status-success" />}
+                  icon={<CheckCircle2 className="text-[var(--st-status-ok)]" />}
                 />
                 <StatCard
                   label="Warnings"
                   value={warningNodesCount.toString()}
                   period="Review suggested"
-                  icon={<FileJson className="text-zoru-status-warning" />}
+                  icon={<FileJson className="text-[var(--st-warn)]" />}
                 />
                 <StatCard
                   label="Invalid Nodes"
                   value={invalidNodesCount.toString()}
                   period="Fix required to import"
-                  icon={<XCircle className="text-zoru-status-destructive" />}
+                  icon={<XCircle className="text-[var(--st-danger)]" />}
                 />
               </div>
 
-              <Card className="p-0 shadow-sm border-zoru-ink-border/50">
-                <ZoruCardHeader className="border-b border-zoru-ink-border/30 bg-zoru-base-surface/50">
+              <Card className="p-0 shadow-sm border-[var(--st-border)]/50">
+                <ZoruCardHeader className="border-b border-[var(--st-border)]/30 bg-[var(--st-bg)]/50">
                   <ZoruCardTitle className="flex items-center justify-between gap-2 text-base">
                     <span>Validation Preview Table</span>
                     {invalidNodesCount > 0 && (
@@ -320,7 +320,7 @@ export default function SabFlowImportPage() {
                   <div className="overflow-x-auto">
                     <Table>
                       <ZoruTableHeader>
-                        <ZoruTableRow className="bg-zoru-base-surface/30">
+                        <ZoruTableRow className="bg-[var(--st-bg)]/30">
                           <ZoruTableHead className="w-[120px]">
                             Node ID
                           </ZoruTableHead>
@@ -357,7 +357,7 @@ export default function SabFlowImportPage() {
                               {node.status === 'valid' && (
                                 <Badge
                                   variant="secondary"
-                                  className="bg-zoru-status-success/10 text-zoru-status-success hover:bg-zoru-status-success/20 border-zoru-status-success/20"
+                                  className="bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)] hover:bg-[var(--st-status-ok)]/20 border-[var(--st-status-ok)]/20"
                                 >
                                   Valid
                                 </Badge>
@@ -365,7 +365,7 @@ export default function SabFlowImportPage() {
                               {node.status === 'warning' && (
                                 <Badge
                                   variant="secondary"
-                                  className="bg-zoru-status-warning/10 text-zoru-status-warning hover:bg-zoru-status-warning/20 border-zoru-status-warning/20"
+                                  className="bg-[var(--st-warn)]/10 text-[var(--st-warn)] hover:bg-[var(--st-warn)]/20 border-[var(--st-warn)]/20"
                                 >
                                   Warning
                                 </Badge>
@@ -373,7 +373,7 @@ export default function SabFlowImportPage() {
                               {node.status === 'invalid' && (
                                 <Badge
                                   variant="destructive"
-                                  className="bg-zoru-status-destructive/10 text-zoru-status-destructive hover:bg-zoru-status-destructive/20 border-zoru-status-destructive/20"
+                                  className="bg-[var(--st-danger)]/10 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/20 border-[var(--st-danger)]/20"
                                 >
                                   Invalid
                                 </Badge>

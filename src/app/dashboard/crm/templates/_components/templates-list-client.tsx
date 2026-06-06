@@ -279,7 +279,7 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
 
                     <Dialog open={openCreator} onOpenChange={setOpenCreator}>
                         <ZoruDialogTrigger asChild>
-                            <Button className="bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-bold text-xs h-9 px-4 gap-1.5 shadow-lg shadow-zoru-line/20 shrink-0">
+                            <Button className="bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-bold text-xs h-9 px-4 gap-1.5 shadow-lg shadow-[var(--st-border)]/20 shrink-0">
                                 <Plus className="h-4 w-4" /> Create Template
                             </Button>
                         </ZoruDialogTrigger>
@@ -359,7 +359,7 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div
                             key={t._id?.toString()}
                             onClick={() => router.push(`/dashboard/crm/templates/${t._id}`)}
-                            className="group relative flex flex-col justify-between rounded-xl border border-[var(--st-border)]/80 bg-[var(--st-text)]/70 hover:bg-[var(--st-text)]/80 hover:border-[var(--st-border)]/80 p-5 transition-all shadow-lg cursor-pointer hover:shadow-zoru-line/10 hover:shadow-2xl text-left"
+                            className="group relative flex flex-col justify-between rounded-xl border border-[var(--st-border)]/80 bg-[var(--st-text)]/70 hover:bg-[var(--st-text)]/80 hover:border-[var(--st-border)]/80 p-5 transition-all shadow-lg cursor-pointer hover:shadow-[var(--st-border)]/10 hover:shadow-2xl text-left"
                         >
                             <div>
                                 <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)]/50 pb-2.5">

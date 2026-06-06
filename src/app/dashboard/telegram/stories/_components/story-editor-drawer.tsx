@@ -719,7 +719,7 @@ export function StoryEditorDrawer({
                     </Section>
 
                     {editorErr ? (
-                        <p className="rounded-md border border-zoru-danger-line/50 bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
+                        <p className="rounded-md border border-[var(--st-danger)]/50 bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                             {editorErr}
                         </p>
                     ) : null}

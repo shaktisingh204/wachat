@@ -72,7 +72,7 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
                 <p className="text-xs text-[var(--st-text-tertiary)] uppercase font-semibold mb-2">Fields</p>
                 <div className="flex flex-wrap gap-1">
                   {item.fields.map(f => (
-                    <span key={f.name} className="px-2 py-1 bg-zoru-neutral-hover rounded text-xs text-[var(--st-text)]">{f.name}</span>
+                    <span key={f.name} className="px-2 py-1 bg-[var(--st-hover)] rounded text-xs text-[var(--st-text)]">{f.name}</span>
                   ))}
                   {item.fields.length === 0 && <span className="text-xs text-[var(--st-text-tertiary)] italic">No custom fields</span>}
                 </div>

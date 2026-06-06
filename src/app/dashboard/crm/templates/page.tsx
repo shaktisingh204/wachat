@@ -22,7 +22,7 @@ export default async function CrmTemplatesPage() {
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>CRM Suite</ZoruPageEyebrow>
                     <div className="flex items-center gap-3">
-                        <ZoruPageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--st-bg-muted)] via-zoru-surface-2 to-[var(--st-bg-muted)] bg-clip-text text-transparent">
+                        <ZoruPageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--st-bg-muted)] via-[var(--st-bg-muted)] to-[var(--st-bg-muted)] bg-clip-text text-transparent">
                             Visual Template Studio
                         </ZoruPageTitle>
                         <Badge className="bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border border-[var(--st-border)]/20 text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 animate-pulse">

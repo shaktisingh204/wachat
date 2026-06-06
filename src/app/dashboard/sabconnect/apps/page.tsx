@@ -49,10 +49,10 @@ export default async function SabConnectAppsPage() {
                             >
                                 <Card className="h-full transition-shadow hover:shadow-md">
                                     <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
-                                        <div className="grid size-12 place-items-center rounded-lg bg-[var(--st-hover)] text-lg font-semibold text-zoru-text">
+                                        <div className="grid size-12 place-items-center rounded-lg bg-[var(--st-hover)] text-lg font-semibold text-[var(--st-text)]">
                                             {app.name.charAt(0).toUpperCase()}
                                         </div>
-                                        <p className="text-sm font-semibold text-zoru-text">
+                                        <p className="text-sm font-semibold text-[var(--st-text)]">
                                             {app.name}
                                         </p>
                                         {app.description ? (

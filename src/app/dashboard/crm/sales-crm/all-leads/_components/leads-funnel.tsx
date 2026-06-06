@@ -34,7 +34,7 @@ export interface LeadsFunnelProps {
 const TONE_BG: Record<StatusTone, string> = {
     neutral: 'bg-[var(--st-bg-muted)]',
     blue: 'bg-[var(--st-text-secondary)]/15',
-    amber: 'bg-zoru-warn/15',
+    amber: 'bg-[var(--st-warn)]/15',
     green: 'bg-[var(--st-status-ok)]/15',
     red: 'bg-[var(--st-danger)]/15',
 };
@@ -42,7 +42,7 @@ const TONE_BG: Record<StatusTone, string> = {
 const TONE_BG_ACTIVE: Record<StatusTone, string> = {
     neutral: 'bg-[var(--st-border-strong)]',
     blue: 'bg-[var(--st-text-secondary)]/30 ring-1 ring-[var(--st-text-secondary)]',
-    amber: 'bg-zoru-warn/30 ring-1 ring-zoru-warn',
+    amber: 'bg-[var(--st-warn)]/30 ring-1 ring-[var(--st-warn)]',
     green: 'bg-[var(--st-status-ok)]/30 ring-1 ring-[var(--st-status-ok)]',
     red: 'bg-[var(--st-danger)]/30 ring-1 ring-[var(--st-danger)]',
 };

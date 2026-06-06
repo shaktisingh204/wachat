@@ -195,7 +195,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                 <ZoruTableCell className="font-mono text-sm">{item.targetFields.join(', ')}</ZoruTableCell>
                 <ZoruTableCell>{item.maskPattern}</ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-zoru-neutral-hover text-[var(--st-text)]'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-hover)] text-[var(--st-text)]'}`}>
                     {item.status}
                   </span>
                 </ZoruTableCell>

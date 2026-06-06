@@ -570,7 +570,7 @@ export function DevicesClient() {
                 handleLogout();
               }}
               disabled={logoutPending}
-              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+              className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
             >
               {logoutPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Log out

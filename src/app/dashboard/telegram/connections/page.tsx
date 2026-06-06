@@ -788,7 +788,7 @@ export default function TelegramConnectionsPage() {
                             />
                         </label>
                         {addErr ? (
-                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
+                            <div className="rounded-md border border-[var(--st-danger)] bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                                 {addErr}
                             </div>
                         ) : null}

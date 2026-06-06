@@ -21,7 +21,7 @@ export default function NotificationsError({
                 <p className="text-sm text-[var(--st-text-secondary)] mb-4">{error.message || 'Failed to load notifications.'}</p>
                 <button
                     onClick={reset}
-                    className="rounded-md bg-zoru-blue px-4 py-2 text-sm font-medium text-white hover:bg-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2"
+                    className="rounded-md bg-[var(--st-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2"
                 >
                     Try again
                 </button>

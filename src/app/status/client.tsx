@@ -69,7 +69,7 @@ export function StatusClient({ session }: { session?: { user?: unknown } | null 
                 title={
                     <>
                         {overallTone === 'emerald' ? (
-                            <>All systems <span className="bg-gradient-to-r from-[var(--st-text)] via-zoru-ink to-[var(--st-text)] bg-clip-text text-transparent">operational.</span></>
+                            <>All systems <span className="bg-gradient-to-r from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] bg-clip-text text-transparent">operational.</span></>
                         ) : (
                             <>Some systems <span className="text-[var(--st-text)]">degraded.</span></>
                         )}

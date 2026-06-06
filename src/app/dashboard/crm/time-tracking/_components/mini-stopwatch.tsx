@@ -22,7 +22,7 @@ function LiveElapsed({ start }: { start: string | Date }) {
   const secs = s % 60;
   const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <span className="font-mono tabular-nums text-zoru-brand-ink font-semibold">
+    <span className="font-mono tabular-nums text-[var(--st-accent)] font-semibold">
       {pad(hrs)}:{pad(mins)}:{pad(secs)}
     </span>
   );
@@ -72,10 +72,10 @@ export function MiniStopwatch() {
   };
 
   return (
-    <Card className="fixed bottom-6 right-6 z-50 p-3 shadow-xl border-zoru-brand-line/50 bg-[var(--st-bg)] w-64 animate-in slide-in-from-bottom-5">
+    <Card className="fixed bottom-6 right-6 z-50 p-3 shadow-xl border-[var(--st-border)]/50 bg-[var(--st-bg)] w-64 animate-in slide-in-from-bottom-5">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-zoru-brand-ink animate-pulse" />
+          <Clock className="w-4 h-4 text-[var(--st-accent)] animate-pulse" />
           <span className="text-xs uppercase tracking-widest text-[var(--st-text-secondary)]">Active Timer</span>
         </div>
       </div>

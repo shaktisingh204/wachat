@@ -291,7 +291,7 @@ function LoginForm({
                 type="submit"
                 disabled={isPending}
                 block
-                className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold border-[var(--st-border)] hover:border-[var(--st-border)] shadow-zoru-line/25 mt-2"
+                className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold border-[var(--st-border)] hover:border-[var(--st-border)] shadow-[var(--st-border)]/25 mt-2"
             >
                 {isPending
                     ? <><LoaderCircle className="h-4 w-4 animate-spin mr-2 inline-block" /> Authenticating…</>
@@ -368,7 +368,7 @@ function SetupForm({
                 type="submit"
                 disabled={isPending}
                 block
-                className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold border-[var(--st-border)] hover:border-[var(--st-border)] shadow-zoru-line/25 mt-2"
+                className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold border-[var(--st-border)] hover:border-[var(--st-border)] shadow-[var(--st-border)]/25 mt-2"
             >
                 {isPending
                     ? <><LoaderCircle className="h-4 w-4 animate-spin mr-2 inline-block" /> Creating admin…</>

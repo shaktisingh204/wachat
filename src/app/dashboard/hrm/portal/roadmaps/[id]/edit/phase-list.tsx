@@ -148,7 +148,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
           <p className="text-sm text-[var(--st-text-secondary)]">No phases match your search.</p>
         ) : (
           <div className="border rounded-md">
-            <div className="flex items-center gap-3 p-3 bg-zoru-background-subtle border-b print:hidden">
+            <div className="flex items-center gap-3 p-3 bg-[var(--st-bg-secondary)] border-b print:hidden">
               <button type="button" onClick={handleToggleSelectAll} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                 {isAllSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
               </button>
@@ -178,7 +178,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
                   return (
                     <div
                       key={phase.id}
-                      className="absolute top-0 left-0 w-full flex items-center gap-3 p-2 hover:bg-zoru-background-subtle/50 border-b border-zoru-border-subtle last:border-0"
+                      className="absolute top-0 left-0 w-full flex items-center gap-3 p-2 hover:bg-[var(--st-bg-secondary)]/50 border-b border-[var(--st-border-light)] last:border-0"
                       style={{
                         height: `${virtualRow.size}px`,
                         transform: `translateY(${virtualRow.start}px)`,

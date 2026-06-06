@@ -69,7 +69,7 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
               <h3 className="font-semibold text-lg text-[var(--st-text)]">{item.name}</h3>
               <p className="text-sm text-[var(--st-text-tertiary)] mt-1">{item.description}</p>
               <div className="mt-4">
-                <span className="text-xs font-semibold bg-zoru-neutral-hover px-2 py-1 rounded-md">{item.dataSource}</span>
+                <span className="text-xs font-semibold bg-[var(--st-hover)] px-2 py-1 rounded-md">{item.dataSource}</span>
               </div>
             </div>
             <div className="mt-6 flex justify-end">

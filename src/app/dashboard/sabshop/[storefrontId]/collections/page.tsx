@@ -194,7 +194,7 @@ export default function CollectionsPage() {
                             <DropdownMenuItem>View on store</DropdownMenuItem>
                             <DropdownMenuItem>Edit Collection</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-zoru-error">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-[var(--st-danger)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

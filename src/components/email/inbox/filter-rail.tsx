@@ -76,7 +76,7 @@ export function FilterRail({
               type="button"
               onClick={() => onActiveChange(f.id)}
               className={cn(
-                'flex items-center gap-2 rounded-[var(--zoru-radius)] px-3 py-2 text-sm text-[var(--st-text-secondary)] transition-colors hover:bg-zoru-surface-raised hover:text-[var(--st-text)]',
+                'flex items-center gap-2 rounded-[var(--zoru-radius)] px-3 py-2 text-sm text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg)] hover:text-[var(--st-text)]',
                 isActive &&
                   'bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)] hover:text-[var(--st-text-inverted)]',
               )}
@@ -90,7 +90,7 @@ export function FilterRail({
                     'inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold',
                     isActive
                       ? 'bg-[var(--st-text-inverted)] text-[var(--st-text)]'
-                      : 'bg-zoru-surface-raised text-[var(--st-text)]',
+                      : 'bg-[var(--st-bg)] text-[var(--st-text)]',
                   )}
                 >
                   {count}

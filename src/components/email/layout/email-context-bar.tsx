@@ -25,7 +25,7 @@ export function EmailContextBar({
     >
       <div className="flex items-center gap-3 min-w-0">
         {Icon ? (
-          <div className="grid place-items-center h-9 w-9 rounded-lg bg-zoru-surface-raised text-[var(--st-text)]">
+          <div className="grid place-items-center h-9 w-9 rounded-lg bg-[var(--st-bg)] text-[var(--st-text)]">
             <Icon className="h-4 w-4" />
           </div>
         ) : null}

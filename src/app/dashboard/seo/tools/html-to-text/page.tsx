@@ -40,7 +40,7 @@ export default function HtmlToTextPage() {
         className="min-h-[220px] font-mono text-xs" 
       />
       
-      <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between border-b border-zoru-line-light">
+      <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between border-b border-[var(--st-border-light)]">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
           <div className="flex items-center space-x-2">
             <Switch id="preserve-newlines" checked={preserveNewlines} onCheckedChange={setPreserveNewlines} />

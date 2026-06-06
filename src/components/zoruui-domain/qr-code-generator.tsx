@@ -910,7 +910,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                     </ZoruCardContent>
                     <ZoruCardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
                         <Button
-                            className="w-full h-12 text-lg bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] shadow-lg shadow-zoru-line transition-all hover:scale-[1.02]"
+                            className="w-full h-12 text-lg bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] shadow-lg shadow-[var(--st-border)] transition-all hover:scale-[1.02]"
                             onClick={handleSave}
                             disabled={isPending}
                         >

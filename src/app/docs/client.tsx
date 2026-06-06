@@ -163,7 +163,7 @@ export function DocsClient({ session }: { session?: { user?: unknown } | null })
         <MarketingShell session={session}>
             <PageHero
                 kicker="Docs · guides + references"
-                title={<>Everything you need to <span className="bg-gradient-to-r from-[var(--st-text)] via-zoru-ink to-[var(--st-text)] bg-clip-text text-transparent">ship faster.</span></>}
+                title={<>Everything you need to <span className="bg-gradient-to-r from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] bg-clip-text text-transparent">ship faster.</span></>}
                 subtitle="Set up SabNode, build automations, integrate via API, or just learn how the platform works."
                 extra={
                     <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-[var(--st-border)] bg-white px-4 py-2 shadow-sm">

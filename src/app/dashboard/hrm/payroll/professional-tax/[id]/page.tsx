@@ -139,7 +139,7 @@ export default async function ProfessionalTaxDetailPage({
                             <div className="text-[var(--st-text-secondary)] mb-1 text-[12px] font-medium uppercase tracking-wider">
                                 Exact Slab Applied at Calculation Time
                             </div>
-                            <div className="font-mono text-[13px] text-[var(--st-text)] bg-[var(--st-bg)] px-2 py-1 rounded inline-block border border-zoru-line-light">
+                            <div className="font-mono text-[13px] text-[var(--st-text)] bg-[var(--st-bg)] px-2 py-1 rounded inline-block border border-[var(--st-border-light)]">
                                 {(row.slabApplied as string | undefined) ?? '—'}
                             </div>
                             <div className="text-[12px] text-[var(--st-text-secondary)] mt-1.5">

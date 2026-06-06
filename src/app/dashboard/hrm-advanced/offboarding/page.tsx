@@ -19,7 +19,7 @@ async function OffboardingDataWrapper() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="p-8 animate-pulse text-zoru-text-secondary">Loading offboarding data...</div>}>
+    <Suspense fallback={<div className="p-8 animate-pulse text-[var(--st-text-secondary)]">Loading offboarding data...</div>}>
       <OffboardingDataWrapper />
     </Suspense>
   );

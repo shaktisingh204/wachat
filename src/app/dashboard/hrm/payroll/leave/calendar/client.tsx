@@ -260,7 +260,7 @@ export default function LeaveCalendarClient({
                   <div
                     key={cell.iso!}
                     className={
-                      `rounded-lg border bg-[var(--st-bg)] p-2 transition-colors hover:bg-zoru-bg-hover ` +
+                      `rounded-lg border bg-[var(--st-bg)] p-2 transition-colors hover:bg-[var(--st-hover)] ` +
                       (isToday
                         ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)] '
                         : 'border-[var(--st-border)] ') +

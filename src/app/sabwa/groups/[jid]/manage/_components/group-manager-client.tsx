@@ -1379,7 +1379,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               className={cn(
-                confirm?.destructive && 'bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90',
+                confirm?.destructive && 'bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90',
               )}
               onClick={async () => {
                 const state = confirm;

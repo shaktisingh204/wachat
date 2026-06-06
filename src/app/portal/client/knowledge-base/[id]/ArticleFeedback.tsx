@@ -24,7 +24,7 @@ export function ArticleFeedback({ articleId }: { articleId: string }) {
     };
 
     return (
-        <div className="mt-8 flex flex-col items-center justify-center p-6 bg-zoru-background-muted rounded-lg border border-[var(--st-border)]">
+        <div className="mt-8 flex flex-col items-center justify-center p-6 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)]">
             <h3 className="text-sm font-medium mb-4 text-[var(--st-text)]">Was this article helpful?</h3>
             {status === 'voted' ? (
                 <p className="text-sm text-[var(--st-text-secondary)]">
@@ -35,7 +35,7 @@ export function ArticleFeedback({ articleId }: { articleId: string }) {
                     <button
                         onClick={() => handleVote(true)}
                         disabled={status === 'loading'}
-                        className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-zoru-background-muted transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-muted)] transition-colors disabled:opacity-50"
                     >
                         <ThumbsUp className="w-4 h-4" />
                         Yes
@@ -43,7 +43,7 @@ export function ArticleFeedback({ articleId }: { articleId: string }) {
                     <button
                         onClick={() => handleVote(false)}
                         disabled={status === 'loading'}
-                        className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-zoru-background-muted transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-muted)] transition-colors disabled:opacity-50"
                     >
                         <ThumbsDown className="w-4 h-4" />
                         No

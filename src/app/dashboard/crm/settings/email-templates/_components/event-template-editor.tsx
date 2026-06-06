@@ -285,15 +285,15 @@ export function EventTemplateEditor({
                                     />
                                     <p className="text-[11px] text-[var(--st-text-tertiary)]">
                                         Use{' '}
-                                        <code className="rounded bg-zoru-bg-elev px-1 py-0.5 font-mono">
+                                        <code className="rounded bg-[var(--st-bg)] px-1 py-0.5 font-mono">
                                             {'{{variableName}}'}
                                         </code>{' '}
                                         to insert dynamic values. HTML tags such as{' '}
-                                        <code className="rounded bg-zoru-bg-elev px-1 py-0.5 font-mono">
+                                        <code className="rounded bg-[var(--st-bg)] px-1 py-0.5 font-mono">
                                             &lt;p&gt;
                                         </code>{' '}
                                         and{' '}
-                                        <code className="rounded bg-zoru-bg-elev px-1 py-0.5 font-mono">
+                                        <code className="rounded bg-[var(--st-bg)] px-1 py-0.5 font-mono">
                                             &lt;a href&gt;
                                         </code>{' '}
                                         are supported.
@@ -302,7 +302,7 @@ export function EventTemplateEditor({
                             </>
                         ) : (
                             <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-                                <div className="rounded-md border border-[var(--st-border)] bg-zoru-bg-elev p-3 text-sm">
+                                <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-sm">
                                     <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                         Subject
                                     </p>
@@ -329,7 +329,7 @@ export function EventTemplateEditor({
                     </div>
 
                     {/* Variables column */}
-                    <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-[var(--st-border)] bg-zoru-bg-elev/40">
+                    <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]/40">
                         <div className="border-b border-[var(--st-border)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Variables
                         </div>
@@ -343,7 +343,7 @@ export function EventTemplateEditor({
                                                     <button
                                                         type="button"
                                                         onClick={() => handleInsertVariable(v.key)}
-                                                        className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[12px] font-mono text-[var(--st-text)] hover:bg-zoru-bg-elev"
+                                                        className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[12px] font-mono text-[var(--st-text)] hover:bg-[var(--st-bg)]"
                                                     >
                                                         <span className="truncate">{`{{${v.key}}}`}</span>
                                                     </button>

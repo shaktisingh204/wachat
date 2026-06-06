@@ -363,7 +363,7 @@ function StepIndicator({ current }: { current: WizardStep }): React.ReactElement
                                 className={
                                     'flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-medium ' +
                                     (isActive || isDone
-                                        ? 'bg-[var(--st-accent)] text-zoru-on-accent'
+                                        ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                                         : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]')
                                 }
                             >

@@ -785,8 +785,12 @@ export async function handleSetTwoStepVerificationPin(
  * Result shapes mirror the Rust `wachat_config::display_name` DTOs
  * (`DisplayNameOutcome` / `DisplayNameStatus`). Every Graph-sourced field is
  * optional because the backend skips `None` values when serializing.
+ *
+ * Kept local (not exported) so this `'use server'` module exposes only async
+ * action functions as its public surface — the page declares its own matching
+ * structural type for the same shape.
  */
-export interface DisplayNameStatusResult {
+interface DisplayNameStatusResult {
     phoneNumberId: string;
     verifiedName?: string;
     nameStatus?: string;

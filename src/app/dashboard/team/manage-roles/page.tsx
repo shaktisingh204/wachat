@@ -226,7 +226,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
                     <ZoruAlertDialogAction
                         onClick={handleDelete}
                         disabled={isPending}
-                        className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+                        className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
                     >
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </ZoruAlertDialogAction>

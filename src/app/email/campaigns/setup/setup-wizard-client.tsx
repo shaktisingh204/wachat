@@ -92,13 +92,13 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
       <div className="flex items-center space-x-2 text-[var(--st-text-secondary)] mb-8">
         {steps.map((s, i) => (
           <React.Fragment key={i}>
-            <div className={`flex items-center space-x-2 ${step === i ? 'text-zoru-ink-primary font-medium' : ''}`}>
-              <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${step === i ? 'bg-[var(--st-text)] text-white' : 'bg-zoru-cloud-secondary'}`}>
+            <div className={`flex items-center space-x-2 ${step === i ? 'text-[var(--st-text)] font-medium' : ''}`}>
+              <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${step === i ? 'bg-[var(--st-text)] text-white' : 'bg-[var(--st-bg-muted)]'}`}>
                 {i + 1}
               </span>
               <span className="hidden sm:inline">{s.title}</span>
             </div>
-            {i < steps.length - 1 && <div className="h-px w-8 bg-zoru-cloud-tertiary mx-2" />}
+            {i < steps.length - 1 && <div className="h-px w-8 bg-[var(--st-text-tertiary)] mx-2" />}
           </React.Fragment>
         ))}
       </div>
@@ -123,7 +123,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                 <Label htmlFor="preheader">Preheader (Optional)</Label>
                 <Input id="preheader" value={preheader} onChange={e => setPreheader(e.target.value)} placeholder="Preview text shown in inbox" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-zoru-cloud-secondary">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[var(--st-bg-muted)]">
                 <div className="space-y-1">
                   <Label htmlFor="fromName">From Name</Label>
                   <Input id="fromName" value={fromName} onChange={e => setFromName(e.target.value)} placeholder="Acme Inc" />
@@ -163,7 +163,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {initialLists.map(list => (
-                      <div key={list._id} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-zoru-cloud cursor-pointer" onClick={() => toggleList(list._id)}>
+                      <div key={list._id} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-[var(--st-bg-secondary)] cursor-pointer" onClick={() => toggleList(list._id)}>
                         <Checkbox checked={listIds.includes(list._id)} onCheckedChange={() => toggleList(list._id)} />
                         <div className="flex flex-col">
                           <span className="text-sm font-medium">{list.name}</span>
@@ -182,7 +182,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {initialSegments.map(segment => (
-                      <div key={segment._id} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-zoru-cloud cursor-pointer" onClick={() => toggleSegment(segment._id)}>
+                      <div key={segment._id} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-[var(--st-bg-secondary)] cursor-pointer" onClick={() => toggleSegment(segment._id)}>
                         <Checkbox checked={segmentIds.includes(segment._id)} onCheckedChange={() => toggleSegment(segment._id)} />
                         <div className="flex flex-col">
                           <span className="text-sm font-medium">{segment.name}</span>
@@ -229,7 +229,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
             </div>
           )}
         </ZoruCardContent>
-        <div className="flex justify-between items-center p-6 border-t border-zoru-cloud-secondary bg-zoru-cloud">
+        <div className="flex justify-between items-center p-6 border-t border-[var(--st-bg-muted)] bg-[var(--st-bg-secondary)]">
           <Button variant="outline" onClick={handlePrev} disabled={step === 0 || pending}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Button>

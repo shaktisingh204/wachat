@@ -163,7 +163,7 @@ function FacebookMobileFeed({ state, page }: PreviewProps) {
 /* ── Facebook / IG Story & Reels (vertical 9:16) ───────────────── */
 
 function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: 'fb-story' | 'ig-story' | 'fb-reels' | 'ig-reels' | 'msg-story' }) {
-    const bg = variant === 'ig-story' || variant === 'ig-reels' ? 'bg-gradient-to-br from-[var(--st-text)] via-zoru-ink to-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]';
+    const bg = variant === 'ig-story' || variant === 'ig-reels' ? 'bg-gradient-to-br from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]';
     const isReels = variant === 'fb-reels' || variant === 'ig-reels';
     const handle = variant.startsWith('ig-') ? `@${ig?.username || 'yourhandle'}` : page?.name || 'Your Page';
     return (
@@ -226,7 +226,7 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
                 </div>
             </div>
             <div className="p-2.5 flex items-center gap-2 border-t">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[var(--st-text)] via-zoru-ink to-[var(--st-bg-muted)] p-0.5">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-bg-muted)] p-0.5">
                     <div className="bg-white rounded-full h-full w-full flex items-center justify-center text-[9px] font-bold">
                         {pageInitials(page?.name)}
                     </div>

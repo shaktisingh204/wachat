@@ -102,10 +102,10 @@ export function SabConnectFeedItemActions({ itemId }: Props) {
                                     key={c._id}
                                     className="rounded-lg bg-[var(--st-hover)] px-3 py-2"
                                 >
-                                    <p className="text-xs font-semibold text-zoru-text">
+                                    <p className="text-xs font-semibold text-[var(--st-text)]">
                                         {c.authorName ?? 'Teammate'}
                                     </p>
-                                    <p className="text-sm text-zoru-text">{c.body}</p>
+                                    <p className="text-sm text-[var(--st-text)]">{c.body}</p>
                                 </li>
                             ))}
                         </ul>

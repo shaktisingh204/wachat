@@ -17,7 +17,7 @@ export default function PublicDashboardError({
 
     return (
         <div className="flex h-screen w-full flex-col items-center justify-center space-y-4 text-center bg-[var(--st-bg-secondary)] p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger-surface text-[var(--st-danger)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger-soft)] text-[var(--st-danger)]">
                 <AlertCircle className="h-6 w-6" />
             </div>
             <div className="space-y-2">

@@ -183,7 +183,7 @@ export function ActivityLogsClient({
                 </ZoruTableCell>
                 <ZoruTableCell className="font-medium text-[var(--st-text)]">{item.action}</ZoruTableCell>
                 <ZoruTableCell className="text-sm">
-                  <span className="bg-zoru-neutral-hover px-2 py-1 rounded-md mr-2">{item.entityType}</span>
+                  <span className="bg-[var(--st-hover)] px-2 py-1 rounded-md mr-2">{item.entityType}</span>
                   <span className="text-[var(--st-text-tertiary)] font-mono text-xs">{item.entityId}</span>
                 </ZoruTableCell>
                 <ZoruTableCell className="font-mono text-xs">{item.userId || 'system'}</ZoruTableCell>

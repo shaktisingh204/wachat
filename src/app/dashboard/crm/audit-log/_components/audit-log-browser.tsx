@@ -723,7 +723,7 @@ function DiffView({
                 {JSON.stringify(before, null, 2)}
               </pre>
             </div>
-            <div className="rounded bg-zoru-success-bg/30 p-2 text-[12px] text-[var(--st-text)]">
+            <div className="rounded bg-[var(--st-status-ok)]/30 p-2 text-[12px] text-[var(--st-text)]">
               <div className="mb-1 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 After
               </div>

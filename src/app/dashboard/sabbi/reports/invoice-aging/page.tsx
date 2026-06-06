@@ -105,7 +105,7 @@ export default async function InvoiceAgingPage(props: {
           }}>
             <button
               type="submit"
-              className="h-9 rounded-lg bg-zoru-danger-surface px-4 text-[13px] font-medium text-[var(--st-danger)] border border-zoru-danger-border hover:bg-zoru-danger-border/20"
+              className="h-9 rounded-lg bg-[var(--st-danger-soft)] px-4 text-[13px] font-medium text-[var(--st-danger)] border border-[var(--st-danger)] hover:bg-[var(--st-danger)]/20"
             >
               Send Dunning (90+)
             </button>
@@ -277,7 +277,7 @@ export default async function InvoiceAgingPage(props: {
                   ))}
 
                   {/* Summary totals row */}
-                  <ZoruTableRow className="border-t-2 border-[var(--st-border)] bg-zoru-surface-elevated font-semibold">
+                  <ZoruTableRow className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg)] font-semibold">
                     <ZoruTableCell colSpan={3} className="text-[13px] text-[var(--st-text)]">
                       Totals ({filtered.length} invoice{filtered.length === 1 ? '' : 's'})
                     </ZoruTableCell>

@@ -135,7 +135,7 @@ export function SabConnectFeedList(props: Props) {
                                             </Avatar>
                                             <div className="flex flex-1 flex-col">
                                                 <div className="flex flex-wrap items-center gap-2">
-                                                    <span className="text-sm font-semibold text-zoru-text">
+                                                    <span className="text-sm font-semibold text-[var(--st-text)]">
                                                         {row.authorName ?? 'Team'}
                                                     </span>
                                                     <Badge variant={kind.variant}>{kind.label}</Badge>
@@ -149,7 +149,7 @@ export function SabConnectFeedList(props: Props) {
                                             </div>
                                         </header>
                                         {row.title ? (
-                                            <h3 className="text-base font-semibold text-zoru-text">
+                                            <h3 className="text-base font-semibold text-[var(--st-text)]">
                                                 {row.href ? (
                                                     <Link href={row.href} className="hover:underline">
                                                         {row.title}
@@ -159,7 +159,7 @@ export function SabConnectFeedList(props: Props) {
                                                 )}
                                             </h3>
                                         ) : null}
-                                        <p className="whitespace-pre-wrap text-sm text-zoru-text">
+                                        <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">
                                             {row.body}
                                         </p>
                                         {/* Reactions + comments only on canonical feed items

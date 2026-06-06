@@ -17,7 +17,7 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex h-[50vh] w-full items-center justify-center p-6">
-      <Card className="max-w-md w-full border-zoru-danger-border shadow-sm">
+      <Card className="max-w-md w-full border-[var(--st-danger)] shadow-sm">
         <ZoruCardHeader className="flex flex-row items-center gap-3 space-y-0">
           <div className="rounded-full bg-[var(--st-danger-soft)] p-2 text-[var(--st-danger)]">
             <AlertCircle className="h-5 w-5" />
@@ -33,7 +33,7 @@ export default function ErrorBoundary({
           <Button 
             onClick={reset}
             variant="outline"
-            className="w-full gap-2 border-zoru-danger-border text-[var(--st-danger)] hover:bg-[var(--st-danger-soft)] hover:text-[var(--st-danger)]"
+            className="w-full gap-2 border-[var(--st-danger)] text-[var(--st-danger)] hover:bg-[var(--st-danger-soft)] hover:text-[var(--st-danger)]"
           >
             <RefreshCcw className="h-4 w-4" />
             Try again

@@ -19,7 +19,7 @@ export default function TdsDetailError({
 
     return (
         <Card className="flex flex-col items-center justify-center p-12 text-center">
-            <AlertTriangle className="mb-4 h-12 w-12 text-zoru-error" />
+            <AlertTriangle className="mb-4 h-12 w-12 text-[var(--st-danger)]" />
             <h2 className="mb-2 text-lg font-semibold text-[var(--st-text)]">Something went wrong!</h2>
             <p className="mb-6 text-sm text-[var(--st-text-secondary)]">
                 {error.message || 'An unexpected error occurred while loading the TDS record.'}

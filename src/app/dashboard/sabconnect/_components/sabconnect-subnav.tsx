@@ -31,7 +31,7 @@ export function SabConnectSubnav() {
                             'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
                             active
                                 ? 'bg-[var(--st-accent)] text-[var(--st-text)]'
-                                : 'text-[var(--st-bg-muted)] hover:bg-[var(--st-hover)] hover:text-zoru-text',
+                                : 'text-[var(--st-bg-muted)] hover:bg-[var(--st-hover)] hover:text-[var(--st-text)]',
                         )}
                     >
                         {tab.label}

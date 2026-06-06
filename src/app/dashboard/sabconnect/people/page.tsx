@@ -59,7 +59,7 @@ export default async function SabConnectPeoplePage() {
                                                 <AvatarFallback>{initial}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-zoru-text">
+                                                <span className="text-sm font-semibold text-[var(--st-text)]">
                                                     {p.name ?? p.email ?? 'Unnamed'}
                                                 </span>
                                                 {p.title ? (

@@ -354,7 +354,7 @@ export default function SabChatWidgetPage() {
                 </button>
                 <button 
                   onClick={handleEndCall}
-                  className="h-12 w-12 rounded-full bg-[var(--st-text)] hover:bg-[var(--st-text)] flex items-center justify-center transition-colors text-white shadow-lg shadow-zoru-line/20"
+                  className="h-12 w-12 rounded-full bg-[var(--st-text)] hover:bg-[var(--st-text)] flex items-center justify-center transition-colors text-white shadow-lg shadow-[var(--st-border)]/20"
                 >
                   <PhoneCall className="h-5 w-5 rotate-[135deg]" />
                 </button>
@@ -390,7 +390,7 @@ export default function SabChatWidgetPage() {
               <div className="p-6">
                 <Button 
                   variant="destructive" 
-                  className="w-full h-12 text-md shadow-lg shadow-zoru-line/20"
+                  className="w-full h-12 text-md shadow-lg shadow-[var(--st-border)]/20"
                   onClick={handleEndCall}
                 >
                   Stop Screen Sharing

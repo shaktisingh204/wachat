@@ -340,7 +340,7 @@ function Section({
               key={n._id}
               className={cn(
                 'flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between',
-                !n.read_at && 'bg-zoru-warning-bg/20',
+                !n.read_at && 'bg-[var(--st-warn)]/20',
               )}
             >
               <div className="min-w-0 flex-1">

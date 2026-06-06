@@ -80,7 +80,7 @@ export function EmailAccountList({ accounts }: EmailAccountListProps) {
               >
                 <ZoruCardHeader>
                   <div className="flex items-start justify-between gap-3">
-                    <div className="p-3 bg-zoru-surface-raised rounded-lg">
+                    <div className="p-3 bg-[var(--st-bg)] rounded-lg">
                       <Icon className="h-5 w-5 text-[var(--st-text)]" />
                     </div>
                     <Badge variant="outline" className="gap-1">

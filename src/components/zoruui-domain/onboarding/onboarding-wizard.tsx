@@ -279,7 +279,7 @@ function StepNav({ currentStep }: { currentStep: WizardStep }) {
                             className={cn(
                                 'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
                                 done &&
-                                    'border-[var(--st-text)] bg-[var(--st-text)] text-zoru-primary-ink',
+                                    'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                                 active &&
                                     'border-[var(--st-text)] bg-[var(--st-text)]/20 text-[var(--st-text)]',
                                 !done &&

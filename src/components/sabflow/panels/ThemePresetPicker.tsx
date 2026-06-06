@@ -282,7 +282,7 @@ function PresetCard({ preset, onApply }: PresetCardProps) {
       className={cn(
         'group relative flex flex-col gap-2 rounded-xl border border-[var(--gray-5)]',
         'bg-[var(--gray-1)] p-3 text-left transition-all',
-        'hover:border-[var(--st-border)] hover:shadow-sm hover:shadow-zoru-line/10 active:scale-[0.98]',
+        'hover:border-[var(--st-border)] hover:shadow-sm hover:shadow-[var(--st-border)]/10 active:scale-[0.98]',
       )}
     >
       {/* Mini chat preview */}

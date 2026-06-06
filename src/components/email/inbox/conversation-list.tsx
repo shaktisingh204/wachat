@@ -129,8 +129,8 @@ export function ConversationList({
                     type="button"
                     onClick={() => onSelect(t)}
                     className={cn(
-                      'flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-zoru-surface-raised focus:bg-zoru-surface-raised focus:outline-none',
-                      selected && 'bg-zoru-surface-raised',
+                      'flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-[var(--st-bg)] focus:bg-[var(--st-bg)] focus:outline-none',
+                      selected && 'bg-[var(--st-bg)]',
                     )}
                   >
                     <Avatar className="h-9 w-9 shrink-0">

@@ -193,7 +193,7 @@ export default function ProductsPage() {
                       </TableCell>
                       <TableCell>{getStatusBadge(product.status)}</TableCell>
                       <TableCell>
-                        <span className={product.inventory === 0 ? "text-zoru-error font-medium" : "text-[var(--st-text)]"}>
+                        <span className={product.inventory === 0 ? "text-[var(--st-danger)] font-medium" : "text-[var(--st-text)]"}>
                           {product.inventory} in stock
                         </span>
                       </TableCell>
@@ -211,7 +211,7 @@ export default function ProductsPage() {
                             <DropdownMenuItem>Edit Product</DropdownMenuItem>
                             <DropdownMenuItem>Duplicate</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-zoru-error">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-[var(--st-danger)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

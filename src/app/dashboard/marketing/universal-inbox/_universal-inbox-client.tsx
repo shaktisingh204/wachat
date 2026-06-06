@@ -64,7 +64,7 @@ export function UniversalInboxClient({
                   setSelectedMessage(msg);
                   if (!msg.isRead) handleMarkAsRead(msg._id);
                 }}
-                className={`p-4 border-b border-[var(--st-border)] cursor-pointer transition-colors hover:bg-zoru-surface-sheen ${selectedMessage?._id === msg._id ? 'bg-zoru-surface-sheen' : ''} ${!msg.isRead ? 'font-medium' : ''}`}
+                className={`p-4 border-b border-[var(--st-border)] cursor-pointer transition-colors hover:bg-[var(--st-bg-secondary)] ${selectedMessage?._id === msg._id ? 'bg-[var(--st-bg-secondary)]' : ''} ${!msg.isRead ? 'font-medium' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <ZoruAvatar>
@@ -326,7 +326,7 @@ export function UniversalInboxClient({
             
             {/* Context Notice */}
             <div className="mt-auto p-4 text-center border-t border-[var(--st-border)] bg-[var(--st-bg)]">
-              <div className="inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)] bg-zoru-surface-sheen px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] px-4 py-2 rounded-full">
                 <MessageCircle className="h-4 w-4" />
                 <span>Select an inbox message on the left to start responding</span>
               </div>

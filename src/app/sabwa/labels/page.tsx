@@ -263,7 +263,7 @@ export default function SabWaLabelsPage() {
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
-              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+              className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
               onClick={() => deleting && handleDelete(deleting)}
             >
               Delete label

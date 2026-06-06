@@ -635,7 +635,7 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                     <Button 
                         onClick={handleSaveTemplate} 
                         disabled={saving}
-                        className="h-8.5 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white text-xs font-semibold gap-1.5 shadow-lg shadow-zoru-line/20"
+                        className="h-8.5 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white text-xs font-semibold gap-1.5 shadow-lg shadow-[var(--st-border)]/20"
                     >
                         {saving ? (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

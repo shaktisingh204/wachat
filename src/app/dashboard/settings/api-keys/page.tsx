@@ -314,7 +314,7 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                             <ZoruAlertDialogCancel>{t('action.cancel')}</ZoruAlertDialogCancel>
                             <ZoruAlertDialogAction
                                 onClick={handleRevoke}
-                                className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+                                className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
                             >
                                 {t('settings.apiKeys.revokeKey')}
                             </ZoruAlertDialogAction>

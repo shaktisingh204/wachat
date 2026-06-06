@@ -189,7 +189,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                 <div className="pt-2">
                     <Link href={`/dashboard/seo/${project._id}`} className="block">
                         <Button
-                            className="w-full bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white shadow-md shadow-zoru-line/10 border-0"
+                            className="w-full bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white shadow-md shadow-[var(--st-border)]/10 border-0"
                             size="sm"
                         >
                             View Dashboard <ArrowRight className="ml-2 h-4 w-4" />

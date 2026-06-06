@@ -45,7 +45,7 @@ export default async function SabConnectManualsPage() {
                             <Card>
                                 <CardContent className="flex flex-col gap-2 p-4">
                                     <div className="flex items-start justify-between gap-2">
-                                        <h3 className="text-base font-semibold text-zoru-text">
+                                        <h3 className="text-base font-semibold text-[var(--st-text)]">
                                             {m.title}
                                         </h3>
                                         <Badge variant={m.published ? 'default' : 'outline'}>

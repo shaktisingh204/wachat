@@ -79,7 +79,7 @@ export function ReceiptReconciliationView({
             <button
               key={bankId}
               onClick={() => setSelectedBank(bankId)}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex justify-between items-center ${selectedBank === bankId ? 'bg-[var(--st-text)] text-zoru-primary-ink' : 'hover:bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex justify-between items-center ${selectedBank === bankId ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]' : 'hover:bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}
             >
               <div className="flex-1 truncate pr-2">
                 {bankId === 'unspecified' ? 'Unspecified Bank' : <EntityPickerChip entity="bankAccount" id={bankId} />}
@@ -124,7 +124,7 @@ export function ReceiptReconciliationView({
                 </Button>
                 <Button 
                   size="sm" 
-                  className="bg-zoru-success-bg text-[var(--st-status-ok)] hover:bg-zoru-success-bg/80 border border-[var(--st-status-ok)]/20"
+                  className="bg-[var(--st-status-ok)] text-[var(--st-status-ok)] hover:bg-[var(--st-status-ok)]/80 border border-[var(--st-status-ok)]/20"
                   disabled={busyId === String(r._id)}
                   onClick={() => handleUpdateStatus(String(r._id), 'cleared')}
                 >

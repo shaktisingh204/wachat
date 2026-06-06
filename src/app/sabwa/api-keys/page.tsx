@@ -385,7 +385,7 @@ export default function ApiKeysPage() {
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               onClick={() => void handleRevoke()}
-              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+              className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
             >
               Revoke
             </ZoruAlertDialogAction>

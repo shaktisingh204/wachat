@@ -149,7 +149,7 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-zoru-error">
+            <DropdownMenuItem className="text-[var(--st-danger)]">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
@@ -210,7 +210,7 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-zoru-error">
+            <DropdownMenuItem className="text-[var(--st-danger)]">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

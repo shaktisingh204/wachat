@@ -125,7 +125,7 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
                 <Button 
                     onClick={handleGenerate} 
                     disabled={loading || !prompt.trim()} 
-                    className="w-full h-8.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-medium text-xs rounded-md shadow-lg shadow-zoru-line/20"
+                    className="w-full h-8.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-medium text-xs rounded-md shadow-lg shadow-[var(--st-border)]/20"
                 >
                     {loading ? (
                         <>

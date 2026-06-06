@@ -168,7 +168,7 @@ export default function NewProductPage() {
                       <Label>Option values</Label>
                       <Input placeholder="Small, Medium, Large" />
                     </div>
-                    <Button variant="ghost" size="icon" className="mb-0.5 text-[var(--st-text-secondary)] hover:text-zoru-error">
+                    <Button variant="ghost" size="icon" className="mb-0.5 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

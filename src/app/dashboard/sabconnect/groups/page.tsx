@@ -51,7 +51,7 @@ export default async function SabConnectGroupsPage() {
                                 <Card className="h-full transition-shadow hover:shadow-md">
                                     <CardContent className="flex flex-col gap-2 p-4">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h3 className="text-base font-semibold text-zoru-text">
+                                            <h3 className="text-base font-semibold text-[var(--st-text)]">
                                                 {g.name}
                                             </h3>
                                             <Badge variant="outline">{g.visibility}</Badge>

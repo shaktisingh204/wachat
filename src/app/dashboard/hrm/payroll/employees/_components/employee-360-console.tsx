@@ -158,7 +158,7 @@ export function Employee360Console({
                   <ShieldCheck className="h-32 w-32 text-[var(--st-status-ok)]" />
                 </div>
                 {/* Hologram Circle */}
-                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-[var(--st-bg-muted)] via-zoru-surface-2 to-[var(--st-text)] opacity-80 blur-[2px]" />
+                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-[var(--st-bg-muted)] via-[var(--st-bg-muted)] to-[var(--st-text)] opacity-80 blur-[2px]" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -195,7 +195,7 @@ export function Employee360Console({
                   <UserCheck className="h-32 w-32 text-[var(--st-text-secondary)]" />
                 </div>
                 {/* Hologram Circle */}
-                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-[var(--st-bg-muted)] via-zoru-surface-2 to-[var(--st-bg-muted)] opacity-80 blur-[2px]" />
+                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-[var(--st-bg-muted)] via-[var(--st-bg-muted)] to-[var(--st-bg-muted)] opacity-80 blur-[2px]" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>

@@ -547,7 +547,7 @@ export default function WebhooksPage() {
               <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
               <ZoruAlertDialogAction
                 onClick={() => void handleDelete()}
-                className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
+                className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
               >
                 Delete
               </ZoruAlertDialogAction>

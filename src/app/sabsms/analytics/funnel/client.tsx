@@ -192,7 +192,7 @@ export default function FunnelAnalyticsPage() {
       }
     >
       {/* Premium AI Insights Banner */}
-      <div className="mb-6 overflow-hidden rounded-xl border border-[var(--st-border)]/30 bg-gradient-to-r from-[var(--st-text)]/10 via-zoru-ink/5 to-[var(--st-text)]/10 p-5 shadow-sm">
+      <div className="mb-6 overflow-hidden rounded-xl border border-[var(--st-border)]/30 bg-gradient-to-r from-[var(--st-text)]/10 via-[var(--st-text)]/5 to-[var(--st-text)]/10 p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-4">
             <div className="rounded-full bg-[var(--st-text)]/20 p-2.5">

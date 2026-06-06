@@ -587,7 +587,7 @@ export default function WebhookLogClient() {
                          size="lg" 
                          onClick={() => handleReplay(selectedRow)} 
                          disabled={selectedRow.status === "delivered"}
-                         className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white font-medium shadow-md shadow-zoru-line disabled:opacity-50 disabled:cursor-not-allowed"
+                         className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white font-medium shadow-md shadow-[var(--st-border)] disabled:opacity-50 disabled:cursor-not-allowed"
                        >
                          <RefreshCw className="w-4 h-4 mr-2" />
                          Replay Delivery Attempt

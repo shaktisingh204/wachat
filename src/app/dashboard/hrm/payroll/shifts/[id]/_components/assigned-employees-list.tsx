@@ -151,7 +151,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
       </div>
 
       <div className="rounded-md border border-[var(--st-border)]">
-        <div className="flex bg-zoru-subtle px-4 py-3 text-sm font-medium text-[var(--st-text-secondary)]">
+        <div className="flex bg-[var(--st-text-tertiary)] px-4 py-3 text-sm font-medium text-[var(--st-text-secondary)]">
           <div className="w-[40px]">
             <Checkbox 
               checked={filteredEmployees.length > 0 && selectedIds.size === filteredEmployees.length}
@@ -188,7 +188,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className="flex items-center border-b border-[var(--st-border)] px-4 text-sm hover:bg-zoru-subtle"
+                  className="flex items-center border-b border-[var(--st-border)] px-4 text-sm hover:bg-[var(--st-text-tertiary)]"
                 >
                   <div className="w-[40px]">
                     <Checkbox 

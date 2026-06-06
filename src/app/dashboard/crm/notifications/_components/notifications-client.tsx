@@ -308,7 +308,7 @@ export function NotificationsClient({
                                         key={row._id}
                                         className={cn(
                                             'flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between',
-                                            !row.read && 'bg-zoru-warning-bg/20',
+                                            !row.read && 'bg-[var(--st-warn)]/20',
                                         )}
                                     >
                                         <div className="flex min-w-0 flex-1 items-start gap-3">

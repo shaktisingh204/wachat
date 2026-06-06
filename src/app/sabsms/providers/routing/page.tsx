@@ -101,7 +101,7 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
       ref={setNodeRef}
       style={style}
       className={`relative mb-4 transition-all ${
-        isDragging ? "ring-2 ring-[var(--st-border)] shadow-2xl shadow-zoru-line/20 rounded-xl" : ""
+        isDragging ? "ring-2 ring-[var(--st-border)] shadow-2xl shadow-[var(--st-border)]/20 rounded-xl" : ""
       }`}
     >
       <div className="group flex items-stretch rounded-xl border border-white/10 bg-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors overflow-hidden">
@@ -329,7 +329,7 @@ export default function RoutingPage() {
               <Network className="w-4 h-4" />
               <span>Network Routing</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-zoru-surface-2 to-[var(--st-text)] tracking-tight">
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-[var(--st-bg-muted)] to-[var(--st-text)] tracking-tight">
               Routing & Fallback
             </h1>
             <p className="text-[var(--st-text-secondary)] mt-3 text-lg max-w-2xl">
@@ -400,7 +400,7 @@ export default function RoutingPage() {
               
               <DragOverlay>
                 {activeProvider ? (
-                  <div className="group flex items-stretch rounded-xl border border-[var(--st-border)]/50 bg-[var(--st-text)] shadow-2xl shadow-zoru-line/20 overflow-hidden opacity-90 scale-105 transition-transform">
+                  <div className="group flex items-stretch rounded-xl border border-[var(--st-border)]/50 bg-[var(--st-text)] shadow-2xl shadow-[var(--st-border)]/20 overflow-hidden opacity-90 scale-105 transition-transform">
                     <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-[var(--st-text-secondary)]">
                       <GripVertical className="w-4 h-4 text-[var(--st-text)]" />
                     </div>

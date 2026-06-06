@@ -170,7 +170,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                                                 'flex w-full items-center justify-between gap-2 rounded px-2.5 py-2 text-left text-sm transition-colors',
                                                                 isActive
                                                                     ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
-                                                                    : 'text-[var(--st-text)] hover:bg-zoru-bg-elev',
+                                                                    : 'text-[var(--st-text)] hover:bg-[var(--st-bg)]',
                                                             )}
                                                             aria-pressed={isActive}
                                                         >

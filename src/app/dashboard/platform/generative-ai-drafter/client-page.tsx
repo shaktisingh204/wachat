@@ -135,7 +135,7 @@ export default function GenerativeAIDrafterClientPage({
                 )}
               </div>
               <p className="text-sm font-medium text-[var(--st-text)] mb-2">Prompt: <span className="text-[var(--st-text-tertiary)] italic">"{item.prompt}"</span></p>
-              <div className="bg-zoru-neutral-hover p-4 rounded-md text-sm text-[var(--st-text)] mt-4 whitespace-pre-wrap font-mono">
+              <div className="bg-[var(--st-hover)] p-4 rounded-md text-sm text-[var(--st-text)] mt-4 whitespace-pre-wrap font-mono">
                 {item.content}
               </div>
             </div>

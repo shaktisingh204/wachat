@@ -220,12 +220,12 @@ export function ProfileForm({
             </div>
 
             {error ? (
-                <div className="text-sm text-[var(--st-danger)] bg-[var(--st-danger-soft)] p-2 rounded border border-zoru-danger-line" role="alert">
+                <div className="text-sm text-[var(--st-danger)] bg-[var(--st-danger-soft)] p-2 rounded border border-[var(--st-danger)]" role="alert">
                     {error}
                 </div>
             ) : null}
             {message ? (
-                <div className="text-sm text-[var(--st-status-ok)] bg-zoru-success-bg p-2 rounded border border-zoru-success-line" role="status">
+                <div className="text-sm text-[var(--st-status-ok)] bg-[var(--st-status-ok)] p-2 rounded border border-[var(--st-status-ok)]" role="status">
                     {message}
                 </div>
             ) : null}

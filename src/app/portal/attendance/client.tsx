@@ -87,14 +87,14 @@ export default function AttendanceClient({
         <CardTitle className="text-center text-2xl font-semibold">
           {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </CardTitle>
-        <p className="text-center text-zoru-text-soft text-sm">
+        <p className="text-center text-[var(--st-text-tertiary)] text-sm">
           {currentTime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
           <div className="flex flex-col">
-            <span className="text-sm text-zoru-text-soft">Status</span>
+            <span className="text-sm text-[var(--st-text-tertiary)]">Status</span>
             <span className="font-medium">
               {hasPunchedOut ? 'Checked Out' : hasPunchedIn ? 'Checked In' : 'Not Checked In'}
             </span>
@@ -134,13 +134,13 @@ export default function AttendanceClient({
         {todayAttendance && (
            <div className="rounded-md bg-zoru-bg-[var(--st-bg-muted)] p-4 text-sm mt-4">
              <div className="flex justify-between mb-2">
-               <span className="text-zoru-text-soft">Clock In:</span>
+               <span className="text-[var(--st-text-tertiary)]">Clock In:</span>
                <span className="font-medium">
                  {todayAttendance.punchIn?.at ? new Date(todayAttendance.punchIn.at).toLocaleTimeString() : '--'}
                </span>
              </div>
              <div className="flex justify-between">
-               <span className="text-zoru-text-soft">Clock Out:</span>
+               <span className="text-[var(--st-text-tertiary)]">Clock Out:</span>
                <span className="font-medium">
                  {todayAttendance.punchOut?.at ? new Date(todayAttendance.punchOut.at).toLocaleTimeString() : '--'}
                </span>

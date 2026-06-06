@@ -46,7 +46,7 @@ export function SabmonitorNav(): React.JSX.Element {
                         className={cn(
                             'inline-flex items-center gap-2 rounded-[calc(var(--zoru-radius)-4px)] px-3 py-1.5 text-[13px] font-medium transition-colors',
                             active
-                                ? 'bg-[var(--st-accent)] text-zoru-on-brand'
+                                ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                                 : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >

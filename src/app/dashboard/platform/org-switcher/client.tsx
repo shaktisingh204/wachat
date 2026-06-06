@@ -59,7 +59,7 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
           <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-[var(--st-accent)] transition-all group">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-zoru-neutral-hover flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-[var(--st-hover)] flex items-center justify-center">
                   <Building className="w-5 h-5 text-[var(--st-text)]" />
                 </div>
                 <div>

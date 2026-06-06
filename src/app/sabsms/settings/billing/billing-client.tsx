@@ -88,7 +88,7 @@ const billingHistoryData: BillingRecord[] = [
 
 const PricingCard = ({ title, price, description, features, recommended, currentPlan }: { title: string, price: string, description: string, features: string[], recommended?: boolean, currentPlan?: boolean }) => {
   return (
-    <Card className={cn("relative flex flex-col justify-between p-6 transition-all duration-300", recommended ? "border-[var(--st-text)] shadow-xl shadow-zoru-primary/10 scale-105 z-10" : "border-[var(--st-border)]")}>
+    <Card className={cn("relative flex flex-col justify-between p-6 transition-all duration-300", recommended ? "border-[var(--st-text)] shadow-xl shadow-[var(--st-text)]/10 scale-105 z-10" : "border-[var(--st-border)]")}>
       {recommended && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--st-text)] text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide">
           RECOMMENDED

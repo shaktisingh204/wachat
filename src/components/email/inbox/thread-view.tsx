@@ -226,7 +226,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
           'max-w-[75%] rounded-[var(--zoru-radius-lg)] border px-3 py-2 shadow-sm',
           outbound
             ? 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-            : 'border-[var(--st-border)] bg-zoru-surface-raised text-[var(--st-text)]',
+            : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]',
         )}
       >
         <div

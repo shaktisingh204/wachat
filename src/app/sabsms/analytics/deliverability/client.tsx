@@ -194,7 +194,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                 <Button variant="outline" className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => setShowReroute(false)}>
                   Dismiss
                 </Button>
-                <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-md shadow-zoru-line" onClick={() => setShowReroute(false)}>
+                <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-md shadow-[var(--st-border)]" onClick={() => setShowReroute(false)}>
                   Execute Failover
                 </Button>
               </div>

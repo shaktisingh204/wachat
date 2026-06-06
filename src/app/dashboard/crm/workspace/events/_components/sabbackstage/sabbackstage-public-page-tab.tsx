@@ -168,7 +168,7 @@ export function SabbackstagePublicPageTab({
           {existing ? `Status · ${form.status}` : 'Not yet created'}
         </Badge>
         <div className="flex items-center gap-2">
-          <code className="rounded bg-zoru-bg-soft px-2 py-1 text-[12px] text-[var(--st-text)]">
+          <code className="rounded bg-[var(--st-bg-secondary)] px-2 py-1 text-[12px] text-[var(--st-text)]">
             {publicUrl}
           </code>
           <Button variant="outline" type="button" onClick={copyUrl}>
