@@ -5,8 +5,27 @@ import {
   createPersonalToken,
   revokePersonalToken,
 } from '@/app/actions/developer-platform.actions';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Alert, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui';
-import { TriangleAlert, Copy, KeyRound } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Button,
+  Input,
+  Field,
+  Alert,
+  Table,
+  THead,
+  Th,
+  TBody,
+  Tr,
+  Td,
+  Badge,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {
   _id: string;
@@ -38,11 +57,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
     startBusy(async () => {
       const res = await createPersonalToken(name.trim(), undefined, expiresAt || undefined);
       if (!res.success) {
-        toast({
-          title: 'Error',
-          description: res.error || 'Failed to create token',
-          variant: 'destructive',
-        });
+        toast.error(res.error || 'Failed to create token');
         return;
       }
       if (res.token && res.tokenId) {
@@ -61,10 +76,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
           },
           ...prev,
         ]);
-        toast({
-          title: 'Success',
-          description: 'Token created successfully.',
-        });
+        toast.success('Token created successfully.');
       }
       setName('');
       setExpiresAt('');
@@ -76,39 +88,35 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
     startBusy(async () => {
       const res = await revokePersonalToken(id);
       if (!res.success) {
-        toast({
-          title: 'Error',
-          description: res.error || 'Failed to revoke token',
-          variant: 'destructive',
-        });
+        toast.error(res.error || 'Failed to revoke token');
         return;
       }
       setTokens((prev) => prev.map((t) => (t._id === id ? { ...t, revoked: true } : t)));
-      toast({
-        title: 'Success',
-        description: 'Token revoked successfully.',
-      });
+      toast.success('Token revoked successfully.');
     });
   };
 
   return (
     <div className="space-y-4">
       {revealed ? (
-        <Alert variant="warning">
-          <TriangleAlert className="h-4 w-4" />
-          <div className="space-y-2">
-            <p className="font-semibold text-sm">Save this token now — shown once. Treat it as a password.</p>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
-                {revealed}
-              </code>
-              <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(revealed)}>
-                <Copy className="h-3 w-3 mr-1" /> Copy
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setRevealed(null)}>
-                Dismiss
-              </Button>
-            </div>
+        <Alert
+          tone="warning"
+          title="Save this token now, shown once. Treat it as a password."
+          onClose={() => setRevealed(null)}
+          closeLabel="Dismiss"
+        >
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] px-3 py-2 text-[var(--st-text)] overflow-x-auto">
+              {revealed}
+            </code>
+            <Button
+              size="sm"
+              variant="outline"
+              iconLeft={Copy}
+              onClick={() => navigator.clipboard.writeText(revealed)}
+            >
+              Copy
+            </Button>
           </div>
         </Alert>
       ) : null}
@@ -116,36 +124,43 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
       <Card>
         <CardHeader>
           <CardTitle>Generate Personal Access Token</CardTitle>
-          <CardDescription>PATs inherit your RBAC and can only do what your account is allowed to do.</CardDescription>
+          <CardDescription>
+            PATs inherit your RBAC and can only do what your account is allowed to do.
+          </CardDescription>
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
+            <Field label="Name">
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. local-dev"
                 disabled={busy}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Expires at (optional)</Label>
+            </Field>
+            <Field label="Expires at (optional)">
               <Input
                 type="datetime-local"
                 value={expiresAt}
-                onChange={(e) => setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
+                onChange={(e) =>
+                  setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : '')
+                }
                 disabled={busy}
               />
-            </div>
-            <Button onClick={handleCreate} disabled={busy || !name.trim()}>
-              {busy ? 'Working…' : 'Generate'}
+            </Field>
+            <Button
+              variant="primary"
+              onClick={handleCreate}
+              disabled={!name.trim()}
+              loading={busy}
+            >
+              Generate
             </Button>
           </div>
         </CardBody>
       </Card>
 
-      <Card>
+      <Card padding="none">
         <Table>
           <THead>
             <Tr>
@@ -154,7 +169,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
               <Th>Created</Th>
               <Th>Expires</Th>
               <Th>Status</Th>
-              <Th className="text-right">Actions</Th>
+              <Th align="right">Actions</Th>
             </Tr>
           </THead>
           <TBody>
@@ -162,7 +177,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
               <Tr>
                 <Td colSpan={6}>
                   <EmptyState
-                    icon={<KeyRound className="h-8 w-8" />}
+                    icon={KeyRound}
                     title="No tokens yet"
                     description="Generate a PAT above to get started."
                   />
@@ -175,25 +190,27 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                 <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
                   {t.scopes.join(' ') || '*'}
                 </Td>
-                <Td className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>{fmt(t.createdAt)}</Td>
                 <Td className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>
-                  {t.expiresAt ? fmt(t.expiresAt) : '—'}
+                  {fmt(t.createdAt)}
+                </Td>
+                <Td className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                  {t.expiresAt ? fmt(t.expiresAt) : '-'}
                 </Td>
                 <Td>
                   {t.revoked ? (
-                    <Badge variant="destructive">Revoked</Badge>
+                    <Badge tone="danger">Revoked</Badge>
                   ) : (
-                    <Badge variant="success">Active</Badge>
+                    <Badge tone="success">Active</Badge>
                   )}
                 </Td>
-                <Td className="text-right">
+                <Td align="right">
                   {!t.revoked ? (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRevoke(t._id)}
                       disabled={busy}
-                      className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
+                      className="text-[var(--st-danger)]"
                     >
                       Revoke
                     </Button>

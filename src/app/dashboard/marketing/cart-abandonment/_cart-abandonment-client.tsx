@@ -2,14 +2,29 @@
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  Field,
+  Input,
+  Checkbox,
+  Badge,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { Plus, Edit2, Trash2, ShoppingCart } from 'lucide-react';
 import { createAbandonedCart, updateAbandonedCart, deleteAbandonedCart } from '@/app/actions/marketing/cart-abandonment.actions';
 
 export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
@@ -19,19 +34,19 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const { toast } = useToast();
-  
+
   // Form State
-  const [userId, setUserId] = useState<any>("");
+  const [userId, setUserId] = useState<any>('');
   const [totalAmount, setTotalAmount] = useState<any>(0);
   const [recovered, setRecovered] = useState<any>(false);
 
-  const filteredData = data.filter(item => 
+  const filteredData = data.filter((item) =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
 
   const openNew = () => {
     setEditingItem(null);
-    setUserId("");
+    setUserId('');
     setTotalAmount(0);
     setRecovered(false);
     setIsDialogOpen(true);
@@ -39,7 +54,7 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
 
   const openEdit = (item: any) => {
     setEditingItem(item);
-    setUserId(item.userId || "");
+    setUserId(item.userId || '');
     setTotalAmount(item.totalAmount || 0);
     setRecovered(item.recovered || false);
     setIsDialogOpen(true);
@@ -50,18 +65,18 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
     const payload = {
       userId,
       totalAmount,
-      recovered
+      recovered,
     };
 
     try {
       if (editingItem) {
         const res = await updateAbandonedCart(editingItem._id, payload);
         if (res.success) {
-          setData(data.map(i => i._id === editingItem._id ? { ...i, ...payload } : i));
-          toast({ title: 'Success', description: 'Record updated successfully.' });
+          setData(data.map((i) => (i._id === editingItem._id ? { ...i, ...payload } : i)));
+          toast.success({ title: 'Success', description: 'Record updated successfully.' });
           setIsDialogOpen(false);
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to update record.', variant: 'destructive' });
+          toast.error({ title: 'Error', description: res.error || 'Failed to update record.' });
         }
       } else {
         const res = await createAbandonedCart(payload);
@@ -69,11 +84,11 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
           // Optimistically reload page or add
           window.location.reload();
         } else {
-          toast({ title: 'Error', description: res.error || 'Failed to create record.', variant: 'destructive' });
+          toast.error({ title: 'Error', description: res.error || 'Failed to create record.' });
         }
       }
     } catch (err) {
-      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+      toast.error({ title: 'Error', description: 'An unexpected error occurred.' });
     } finally {
       setLoading(false);
     }
@@ -81,13 +96,13 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    
+
     const res = await deleteAbandonedCart(id);
     if (res.success) {
-      setData(data.filter(i => i._id !== id));
-      toast({ title: 'Success', description: 'Record deleted.' });
+      setData(data.filter((i) => i._id !== id));
+      toast.success({ title: 'Success', description: 'Record deleted.' });
     } else {
-      toast({ title: 'Error', description: res.error || 'Failed to delete record.', variant: 'destructive' });
+      toast.error({ title: 'Error', description: res.error || 'Failed to delete record.' });
     }
   };
 
@@ -99,8 +114,7 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
               Create New
             </Button>
           </DialogTrigger>
@@ -109,96 +123,79 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
               <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="userId" className="text-right">userId</Label>
-                  
-                    <Input
-                      id="userId"
-                      type="text"
-                      value={userId}
-                      onChange={(e) => setUserId(e.target.value)}
-                      className="col-span-3"
-                    />
-                  
-                </div>
-              
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="totalAmount" className="text-right">totalAmount</Label>
-                  
-                    <Input
-                      id="totalAmount"
-                      type="number"
-                      value={totalAmount}
-                      onChange={(e) => setTotalAmount(Number(e.target.value))}
-                      className="col-span-3"
-                    />
-                  
-                </div>
-              
-              
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="recovered" className="text-right">recovered</Label>
-                  
-                    <input
-                      type="checkbox"
-                      id="recovered"
-                      checked={recovered}
-                      onChange={(e) => setRecovered(e.target.checked)}
-                      className="col-span-3"
-                    />
-                  
-                </div>
-              
+              <Field label="userId">
+                <Input
+                  type="text"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                />
+              </Field>
+
+              <Field label="totalAmount">
+                <Input
+                  type="number"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(Number(e.target.value))}
+                />
+              </Field>
+
+              <Checkbox
+                label="recovered"
+                checked={recovered}
+                onChange={(e) => setRecovered(e.target.checked)}
+              />
             </div>
             <DialogFooter>
-              <Button disabled={loading} onClick={handleSave}>Save</Button>
+              <Button variant="primary" loading={loading} onClick={handleSave}>
+                Save
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       }
     >
       {filteredData.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
-          No records found.
-        </div>
+        <EmptyState
+          icon={ShoppingCart}
+          title="No records found"
+          description="There are no abandoned carts to show. New records will appear here."
+        />
       ) : (
-        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+        <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           <Table>
             <THead>
               <Tr>
                 <Th className="capitalize">userId</Th>
                 <Th className="capitalize">totalAmount</Th>
                 <Th className="capitalize">recovered</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
               {filteredData.map((item) => (
                 <Tr key={item._id}>
-                  
-                    <Td>
-                      {String(item.userId || '')}
-                    </Td>
-                  
-                  
-                    <Td>
-                      {String(item.totalAmount || '')}
-                    </Td>
-                  
-                  
-                    <Td>
+                  <Td>{String(item.userId || '')}</Td>
+                  <Td>{String(item.totalAmount || '')}</Td>
+                  <Td>
+                    <Badge tone={item.recovered ? 'success' : 'neutral'} dot>
                       {item.recovered ? 'Yes' : 'No'}
-                    </Td>
-                  
-                  <Td className="text-right space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                    </Button>
+                    </Badge>
+                  </Td>
+                  <Td align="right">
+                    <div className="flex items-center justify-end gap-1">
+                      <IconButton
+                        label="Edit record"
+                        icon={Edit2}
+                        variant="ghost"
+                        onClick={() => openEdit(item)}
+                      />
+                      <IconButton
+                        label="Delete record"
+                        icon={Trash2}
+                        variant="ghost"
+                        onClick={() => handleDelete(item._id)}
+                      />
+                    </div>
                   </Td>
                 </Tr>
               ))}
