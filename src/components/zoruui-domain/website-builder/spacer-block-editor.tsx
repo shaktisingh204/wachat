@@ -1,7 +1,7 @@
 'use client';
 
-import { Label, Button, Input, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch, Textarea } from '@/components/sabcrm/20ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,8 +50,8 @@ export function SpacerBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                     <div className="space-y-2">
                         <Label>Type</Label>
                         <RadioGroup value={type} onValueChange={(val) => handleUpdate('type', val)} className="flex gap-4">
-                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="spacer" id="type-spacer"/><Label htmlFor="type-spacer" className="font-normal">Spacer</Label></div>
-                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="divider" id="type-divider"/><Label htmlFor="type-divider" className="font-normal">Divider</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="spacer" id="type-spacer"/><Label htmlFor="type-spacer" className="font-normal">Spacer</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="divider" id="type-divider"/><Label htmlFor="type-divider" className="font-normal">Divider</Label></div>
                         </RadioGroup>
                     </div>
                     

@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, useToast, ZoruFileUploadCard, type ZoruFileUploadItem, RadioGroup, ZoruRadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, useToast, ZoruFileUploadCard, type ZoruFileUploadItem, RadioGroup, RadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -549,19 +549,19 @@ function UploadReelDialog({
               disabled={isSubmitting}
             >
               <div className="flex items-center space-x-2">
-                <ZoruRadioGroupItem value="publish" id="r-publish" />
+                <RadioGroupItem value="publish" id="r-publish" />
                 <Label htmlFor="r-publish" className="font-normal cursor-pointer">
                   Publish now
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <ZoruRadioGroupItem value="schedule" id="r-schedule" />
+                <RadioGroupItem value="schedule" id="r-schedule" />
                 <Label htmlFor="r-schedule" className="font-normal cursor-pointer">
                   Schedule
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <ZoruRadioGroupItem value="draft" id="r-draft" />
+                <RadioGroupItem value="draft" id="r-draft" />
                 <Label htmlFor="r-draft" className="font-normal cursor-pointer">
                   Save as draft
                 </Label>

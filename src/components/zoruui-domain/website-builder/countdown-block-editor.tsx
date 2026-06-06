@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, RadioGroup, ZoruRadioGroupItem, Textarea, Switch, Separator, DatePicker, Slider, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, RadioGroup, RadioGroupItem, Textarea, Switch, Separator, DatePicker, Slider, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -61,8 +61,8 @@ export function CountdownBlockEditor({ settings, onUpdate }: { settings: any, on
                              <div className="space-y-2">
                                 <Label>Countdown Type</Label>
                                 <RadioGroup value={settings.countdownType || 'dueDate'} onValueChange={(val) => handleUpdate('countdownType', val)} className="flex gap-4">
-                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="dueDate" id="type-duedate"/><Label htmlFor="type-duedate" className="font-normal">Due Date</Label></div>
-                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="evergreen" id="type-evergreen"/><Label htmlFor="type-evergreen" className="font-normal">Evergreen</Label></div>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="dueDate" id="type-duedate"/><Label htmlFor="type-duedate" className="font-normal">Due Date</Label></div>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="evergreen" id="type-evergreen"/><Label htmlFor="type-evergreen" className="font-normal">Evergreen</Label></div>
                                 </RadioGroup>
                              </div>
                             {settings.countdownType === 'evergreen' ? (

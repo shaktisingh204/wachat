@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, DatePicker, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, DatePicker, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
 import { ImageIcon, Loader2, Plus, VideoIcon } from 'lucide-react';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { AreaEditor, AreaDraft } from './area-editor';
@@ -343,12 +343,12 @@ export function StoryEditorDrawer({
                                     className="flex gap-3"
                                 >
                                     <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                                        <ZoruRadioGroupItem value="photo" />
+                                        <RadioGroupItem value="photo" />
                                         <ImageIcon className="h-3.5 w-3.5" />
                                         Photo
                                     </label>
                                     <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                                        <ZoruRadioGroupItem value="video" />
+                                        <RadioGroupItem value="video" />
                                         <VideoIcon className="h-3.5 w-3.5" />
                                         Video
                                     </label>
@@ -661,11 +661,11 @@ export function StoryEditorDrawer({
                             className="flex gap-3"
                         >
                             <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                                <ZoruRadioGroupItem value="now" />
+                                <RadioGroupItem value="now" />
                                 Save as draft / Post now
                             </label>
                             <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                                <ZoruRadioGroupItem value="later" />
+                                <RadioGroupItem value="later" />
                                 Schedule for later
                             </label>
                         </RadioGroup>

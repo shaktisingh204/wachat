@@ -1,9 +1,9 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Separator, Alert, AlertDescription, AlertTitle, Checkbox, RadioGroup, ZoruRadioGroupItem, Card } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Separator, Alert, AlertDescription, AlertTitle, Checkbox, RadioGroup, RadioGroupItem, Card } from '@/components/sabcrm/20ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import { Lightbulb } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import type { FormField } from '@/lib/definitions';

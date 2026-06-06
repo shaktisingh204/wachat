@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, RadioGroup, ZoruRadioGroupItem, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, RadioGroup, RadioGroupItem, Textarea } from '@/components/sabcrm/20ui';
 import React, { useState } from 'react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
@@ -27,8 +27,8 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-4">
              <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="img-url" /><Label htmlFor="img-url">From URL</Label></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="upload" id="img-upload" /><Label htmlFor="img-upload">Upload</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="img-url" /><Label htmlFor="img-url">From URL</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="upload" id="img-upload" /><Label htmlFor="img-upload">Upload</Label></div>
             </RadioGroup>
             {mediaSource === 'url' ? (
                 <div className="space-y-2">

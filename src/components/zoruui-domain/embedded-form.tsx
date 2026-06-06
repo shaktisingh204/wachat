@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, RadioGroup, ZoruRadioGroupItem, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, RadioGroup, RadioGroupItem, Card } from '@/components/sabcrm/20ui';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -406,7 +406,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                         <RadioGroup onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''} className="flex flex-col gap-2 pt-2">
                                             {fieldOptions.map(opt => (
                                                 <div key={opt} className="flex items-center space-x-2">
-                                                    <ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} />
+                                                    <RadioGroupItem value={opt} id={`${fieldName}-${opt}`} />
                                                     <Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label>
                                                 </div>
                                             ))}

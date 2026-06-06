@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, RadioGroup, RadioGroupItem, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -157,7 +157,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                 className="flex gap-4"
               >
                 <div className="flex items-center gap-2">
-                  <ZoruRadioGroupItem
+                  <RadioGroupItem
                     value="postback"
                     id={`type-postback-${index}`}
                   />
@@ -169,7 +169,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ZoruRadioGroupItem
+                  <RadioGroupItem
                     value="web_url"
                     id={`type-url-${index}`}
                   />

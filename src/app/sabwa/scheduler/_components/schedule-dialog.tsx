@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Calendar, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Calendar, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   CalendarIcon,
   Clock,
@@ -911,7 +911,7 @@ export function ScheduleDialog({
                       "border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]",
                   )}
                 >
-                  <ZoruRadioGroupItem id={`rec-${opt}`} value={opt} />
+                  <RadioGroupItem id={`rec-${opt}`} value={opt} />
                   {opt === "none" ? "Once" : opt}
                 </Label>
               ))}
@@ -940,14 +940,14 @@ export function ScheduleDialog({
                   htmlFor="end-never"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
-                  <ZoruRadioGroupItem id="end-never" value="never" />
+                  <RadioGroupItem id="end-never" value="never" />
                   Never
                 </Label>
                 <Label
                   htmlFor="end-count"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
-                  <ZoruRadioGroupItem id="end-count" value="count" />
+                  <RadioGroupItem id="end-count" value="count" />
                   After
                   <Input
                     type="number"
@@ -965,7 +965,7 @@ export function ScheduleDialog({
                   htmlFor="end-date"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
-                  <ZoruRadioGroupItem id="end-date" value="date" />
+                  <RadioGroupItem id="end-date" value="date" />
                   On
                   <Input
                     type="date"

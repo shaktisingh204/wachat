@@ -1,6 +1,6 @@
 'use client';
 
-import { DatePicker, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { DatePicker, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -170,11 +170,11 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     className="flex items-center gap-4 pt-1"
                                 >
                                     <label className="inline-flex items-center gap-2">
-                                        <ZoruRadioGroupItem value="Dr" id="balanceType-dr" />
+                                        <RadioGroupItem value="Dr" id="balanceType-dr" />
                                         <span className="text-[13px]">Debit</span>
                                     </label>
                                     <label className="inline-flex items-center gap-2">
-                                        <ZoruRadioGroupItem value="Cr" id="balanceType-cr" />
+                                        <RadioGroupItem value="Cr" id="balanceType-cr" />
                                         <span className="text-[13px]">Credit</span>
                                     </label>
                                 </RadioGroup>

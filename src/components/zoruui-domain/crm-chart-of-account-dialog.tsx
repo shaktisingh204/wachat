@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -94,8 +94,8 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                     <div className="space-y-2">
                                         <Label className="text-xs text-[var(--st-text)]">Opening CR/DR *</Label>
                                         <RadioGroup name="balanceType" defaultValue={initialData?.balanceType || "Dr"} className="flex gap-4 pt-2">
-                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Cr" id="type-cr" /><Label htmlFor="type-cr" className="font-normal text-[var(--st-text)]">CR</Label></div>
-                                            <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="Dr" id="type-dr" /><Label htmlFor="type-dr" className="font-normal text-[var(--st-text)]">DR</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Cr" id="type-cr" /><Label htmlFor="type-cr" className="font-normal text-[var(--st-text)]">CR</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Dr" id="type-dr" /><Label htmlFor="type-dr" className="font-normal text-[var(--st-text)]">DR</Label></div>
                                         </RadioGroup>
                                     </div>
                                     <div className="space-y-2">

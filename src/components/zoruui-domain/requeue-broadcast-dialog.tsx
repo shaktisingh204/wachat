@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, ZoruRadioGroupItem, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, RadioGroupItem, Button } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -276,7 +276,7 @@ function ScopeOption({
           : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
       )}
     >
-      <ZoruRadioGroupItem value={value} id={id} />
+      <RadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
         <span className="text-[13px] font-medium text-[var(--st-text)]">{title}</span>
         <span className="text-[11px] text-[var(--st-text-secondary)]">{description}</span>

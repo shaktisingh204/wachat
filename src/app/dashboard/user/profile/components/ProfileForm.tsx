@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';
@@ -91,11 +91,11 @@ export function ProfileForm({ user }: UserProfileFormProps) {
                             <Label>Sidebar Position</Label>
                             <RadioGroup name="appRailPosition" defaultValue={user.appRailPosition || 'left'} className="flex items-center gap-4 mt-2">
                                 <div className="flex items-center space-x-2">
-                                    <ZoruRadioGroupItem value="left" id="r-left" />
+                                    <RadioGroupItem value="left" id="r-left" />
                                     <Label htmlFor="r-left">Left</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <ZoruRadioGroupItem value="top" id="r-top" />
+                                    <RadioGroupItem value="top" id="r-top" />
                                     <Label htmlFor="r-top">Top</Label>
                                 </div>
                             </RadioGroup>

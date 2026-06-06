@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Kbd, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Table, TBody, Td, Th, THead, Tr, Textarea } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Kbd, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Table, TBody, Td, Th, THead, Tr, Textarea } from '@/components/sabcrm/20ui';
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import type {
@@ -385,7 +385,7 @@ export function QuickSendClient({
                 htmlFor={`category-${c.value}`}
                 className="flex cursor-pointer items-start gap-2 rounded border border-[var(--st-border)] p-3"
               >
-                <ZoruRadioGroupItem id={`category-${c.value}`} value={c.value} />
+                <RadioGroupItem id={`category-${c.value}`} value={c.value} />
                 <span>
                   <span className="block font-medium">{c.label}</span>
                   <span className="block text-[11px] text-[var(--st-text)]">

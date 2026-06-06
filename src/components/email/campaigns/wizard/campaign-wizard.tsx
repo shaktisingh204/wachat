@@ -17,7 +17,7 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Send } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   actionCreateEmailCampaign,
@@ -284,7 +284,7 @@ function TypeChoice({
       }`}
     >
       <div className="flex items-center gap-2">
-        <ZoruRadioGroupItem value={value} id={`type-${value}`} />
+        <RadioGroupItem value={value} id={`type-${value}`} />
         <span className="font-semibold">{title}</span>
         {selected && <Badge variant="default">Selected</Badge>}
       </div>
@@ -435,15 +435,15 @@ function StepSchedule({
         className="space-y-2"
       >
         <Label htmlFor="sched-now" className="flex items-center gap-2 rounded border p-3">
-          <ZoruRadioGroupItem id="sched-now" value="now" />
+          <RadioGroupItem id="sched-now" value="now" />
           <span>Send now</span>
         </Label>
         <Label htmlFor="sched-later" className="flex items-center gap-2 rounded border p-3">
-          <ZoruRadioGroupItem id="sched-later" value="later" />
+          <RadioGroupItem id="sched-later" value="later" />
           <span>Send at a specific time</span>
         </Label>
         <Label htmlFor="sched-recurring" className="flex items-center gap-2 rounded border p-3">
-          <ZoruRadioGroupItem id="sched-recurring" value="recurring" />
+          <RadioGroupItem id="sched-recurring" value="recurring" />
           <span>Send on a recurring schedule</span>
         </Label>
       </RadioGroup>

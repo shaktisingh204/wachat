@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, RadioGroup, ZoruRadioGroupItem, Separator, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, RadioGroup, RadioGroupItem, Separator, ScrollArea } from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { Plus, Trash2 } from 'lucide-react';
@@ -113,8 +113,8 @@ const ConditionEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
     return (
         <div className="space-y-4">
             <RadioGroup value={data.logicType || 'AND'} onValueChange={(val) => onUpdate({ ...data, logicType: val })} className="flex gap-4">
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div>
             </RadioGroup>
             
             <div className="space-y-3">

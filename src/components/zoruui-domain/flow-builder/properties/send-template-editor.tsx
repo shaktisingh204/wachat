@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Input, RadioGroup, ZoruRadioGroupItem, Select } from '@/components/sabcrm/20ui/compat';
+import { Label, Input, RadioGroup, RadioGroupItem, Select } from '@/components/sabcrm/20ui';
 import { SmartCombobox } from '@/components/zoruui-domain/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';
@@ -141,8 +141,8 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                 <div className="space-y-4 pt-2 border-t">
                     <Label>Header Media ({mediaType})</Label>
                     <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
-                        <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="t-media-url" /><Label htmlFor="t-media-url">From URL</Label></div>
-                        <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="upload" id="t-media-upload" /><Label htmlFor="t-media-upload">Upload</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="t-media-url" /><Label htmlFor="t-media-url">From URL</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="upload" id="t-media-upload" /><Label htmlFor="t-media-upload">Upload</Label></div>
                     </RadioGroup>
 
                     {mediaSource === 'url' ? (

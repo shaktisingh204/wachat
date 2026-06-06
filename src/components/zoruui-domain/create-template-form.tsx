@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -342,7 +342,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div className="relative">
-            <ZoruRadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
+            <RadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
             <Label htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <MessageSquare className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
@@ -352,7 +352,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
             </Label>
           </div>
           <div className="relative">
-            <ZoruRadioGroupItem value="MARKETING_CAROUSEL" id="t-carousel" className="peer sr-only" />
+            <RadioGroupItem value="MARKETING_CAROUSEL" id="t-carousel" className="peer sr-only" />
             <Label htmlFor="t-carousel" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <LayoutGrid className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
@@ -362,7 +362,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
             </Label>
           </div>
           <div className="relative">
-            <ZoruRadioGroupItem value="CATALOG_MESSAGE" id="t-catalog" className="peer sr-only" />
+            <RadioGroupItem value="CATALOG_MESSAGE" id="t-catalog" className="peer sr-only" />
             <Label htmlFor="t-catalog" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <ShoppingBag className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
@@ -423,7 +423,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
                       {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(f => (
                         <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-[var(--st-bg-muted)]">
-                          <ZoruRadioGroupItem value={f} id={`h-${f}`} />
+                          <RadioGroupItem value={f} id={`h-${f}`} />
                           <Label htmlFor={`h-${f}`} className="cursor-pointer">{f}</Label>
                         </div>
                       ))}

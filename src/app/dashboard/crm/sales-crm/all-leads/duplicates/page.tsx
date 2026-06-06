@@ -12,7 +12,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Copy, GitMerge, Mail, Phone, RefreshCcw, X } from 'lucide-react';
 
-import { Badge, Button, Card, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -113,7 +113,7 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
                         htmlFor={`survivor-${group.signature}-${lead._id}`}
                         className="flex cursor-pointer items-start gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2.5 hover:border-primary"
                     >
-                        <ZoruRadioGroupItem id={`survivor-${group.signature}-${lead._id}`} value={lead._id} />
+                        <RadioGroupItem id={`survivor-${group.signature}-${lead._id}`} value={lead._id} />
                         <div className="min-w-0 flex-1">
                             <p className="text-[13px] font-medium text-[var(--st-text)]">
                                 {lead.title || lead.contactName || 'Untitled'}

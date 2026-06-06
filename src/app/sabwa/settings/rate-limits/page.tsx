@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, RadioGroup, ZoruRadioGroupItem, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, RadioGroup, RadioGroupItem, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import {
   Gauge,
   AlertTriangle,
@@ -271,7 +271,7 @@ export default function RateLimitsPage() {
                       <span className="font-semibold">{p.title}</span>
                       {p.recommended && <Badge variant="secondary">Recommended</Badge>}
                     </div>
-                    <ZoruRadioGroupItem id={`profile-${p.value}`} value={p.value} />
+                    <RadioGroupItem id={`profile-${p.value}`} value={p.value} />
                   </div>
                   <div className="text-2xl font-semibold tabular-nums">
                     {p.perMin}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, Input, Label, RadioGroup, ZoruRadioGroupItem, Separator, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, Input, Label, RadioGroup, RadioGroupItem, Separator, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -171,11 +171,11 @@ function CommentAutomationForm({
                   className="flex gap-4"
                 >
                   <div className="flex items-center gap-2">
-                    <ZoruRadioGroupItem value="static" id="mode-static" />
+                    <RadioGroupItem value="static" id="mode-static" />
                     <Label htmlFor="mode-static">Static reply</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ZoruRadioGroupItem value="ai" id="mode-ai" />
+                    <RadioGroupItem value="ai" id="mode-ai" />
                     <Label htmlFor="mode-ai">AI-generated reply</Label>
                   </div>
                 </RadioGroup>

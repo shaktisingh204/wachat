@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -174,7 +174,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                                                 case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><SelectTrigger className={cn('form-field', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
                                                 case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
                                                 case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
-                                                case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                                                case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><RadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
                                                 case 'file': return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
                                                 default: return <Input {...commonProps} type={field.type} />;
                                             }

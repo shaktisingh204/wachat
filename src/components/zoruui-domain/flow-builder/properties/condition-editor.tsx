@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;
@@ -12,8 +12,8 @@ export function ConditionEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-2">
             <Label>Condition Type</Label>
             <RadioGroup value={node.data.conditionType || 'variable'} onValueChange={(val) => onUpdate({ conditionType: val })} className="flex gap-4 pt-1">
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="variable" id="type-variable" /><Label htmlFor="type-variable" className="font-normal">Variable</Label></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="user_response" id="type-user-response" /><Label htmlFor="type-user-response" className="font-normal">User Response</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="variable" id="type-variable" /><Label htmlFor="type-variable" className="font-normal">Variable</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="user_response" id="type-user-response" /><Label htmlFor="type-user-response" className="font-normal">User Response</Label></div>
             </RadioGroup>
             <p className="text-xs text-[var(--st-text-secondary)]">"User Response" will pause the flow and wait for the user's next message.</p>
         </div>

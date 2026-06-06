@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, RadioGroup, ZoruRadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
+import { Label, RadioGroup, RadioGroupItem, Input } from '@/components/sabcrm/20ui';
 export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g. ${data.is_visible}" }: { label: string, value: any, onChange: (newValue: any) => void, placeholder?: string }) => {
     const currentMode = typeof value === 'boolean' ? 'boolean' : 'dynamic';
     
@@ -18,13 +18,13 @@ export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g
                 }} 
                 className="flex gap-4"
             >
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="boolean" id={`${label}-bool`} /><Label htmlFor={`${label}-bool`} className="font-normal">Set Value</Label></div>
-                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="dynamic" id={`${label}-dyn`} /><Label htmlFor={`${label}-dyn`} className="font-normal">Dynamic</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="boolean" id={`${label}-bool`} /><Label htmlFor={`${label}-bool`} className="font-normal">Set Value</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="dynamic" id={`${label}-dyn`} /><Label htmlFor={`${label}-dyn`} className="font-normal">Dynamic</Label></div>
             </RadioGroup>
             {currentMode === 'boolean' ? (
                  <RadioGroup value={String(value)} onValueChange={(val) => onChange(val === 'true')} className="flex gap-4 pt-2">
-                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="true" id={`${label}-true`} /><Label htmlFor={`${label}-true`} className="font-normal">True</Label></div>
-                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="false" id={`${label}-false`} /><Label htmlFor={`${label}-false`} className="font-normal">False</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="true" id={`${label}-true`} /><Label htmlFor={`${label}-true`} className="font-normal">True</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="false" id={`${label}-false`} /><Label htmlFor={`${label}-false`} className="font-normal">False</Label></div>
                  </RadioGroup>
             ) : (
                 <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="mt-2" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, ZoruFileInput, Input, Label, RadioGroup, ZoruRadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, ZoruFileInput, Input, Label, RadioGroup, RadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -785,7 +785,7 @@ function PropertiesPanel({
                 className="flex gap-4 pt-1"
               >
                 <div className="flex items-center gap-2">
-                  <ZoruRadioGroupItem value="variable" id="type-variable" />
+                  <RadioGroupItem value="variable" id="type-variable" />
                   <Label
                     htmlFor="type-variable"
                     className="font-normal"
@@ -794,7 +794,7 @@ function PropertiesPanel({
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ZoruRadioGroupItem
+                  <RadioGroupItem
                     value="user_response"
                     id="type-user-response"
                   />
@@ -1040,7 +1040,7 @@ function PropertiesPanel({
                           className="flex gap-4"
                         >
                           <div className="flex items-center gap-2">
-                            <ZoruRadioGroupItem
+                            <RadioGroupItem
                               value="web_url"
                               id={`btn-type-url-${el.id}-${btnIndex}`}
                             />
@@ -1052,7 +1052,7 @@ function PropertiesPanel({
                             </Label>
                           </div>
                           <div className="flex items-center gap-2">
-                            <ZoruRadioGroupItem
+                            <RadioGroupItem
                               value="postback"
                               id={`btn-type-postback-${el.id}-${btnIndex}`}
                             />

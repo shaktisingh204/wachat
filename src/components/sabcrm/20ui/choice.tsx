@@ -317,4 +317,11 @@ export function RadioGroup({
   );
 }
 
+/**
+ * Alias: the radio option inside a `RadioGroup`. Same component as `Radio`
+ * (`<RadioGroupItem value="x" id="..." />`) — provided so legacy/shadcn-shaped
+ * call sites work with the 20ui RadioGroup context.
+ */
+export const RadioGroupItem = Radio;
+
 export default Switch;

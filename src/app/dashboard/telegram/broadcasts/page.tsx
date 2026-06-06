@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Label, PageHeader, PageEyebrow, PageHeading, PageTitle, PageDescription, PageActions, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Label, PageHeader, PageEyebrow, PageHeading, PageTitle, PageDescription, PageActions, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   Calendar as CalendarIcon,
@@ -1475,7 +1475,7 @@ function Composer(props: ComposerProps) {
                             >
                                 {(['plain', 'Markdown', 'HTML'] as const).map((m) => (
                                     <div key={m} className="flex items-center gap-1.5">
-                                        <ZoruRadioGroupItem id={`pm-${m}`} value={m} />
+                                        <RadioGroupItem id={`pm-${m}`} value={m} />
                                         <label
                                             htmlFor={`pm-${m}`}
                                             className="text-sm"
@@ -1728,13 +1728,13 @@ function Composer(props: ComposerProps) {
                             className="flex flex-col gap-2"
                         >
                             <div className="flex items-center gap-2">
-                                <ZoruRadioGroupItem id="send-now" value="now" />
+                                <RadioGroupItem id="send-now" value="now" />
                                 <label htmlFor="send-now" className="text-sm">
                                     Send now
                                 </label>
                             </div>
                             <div className="flex items-center gap-2">
-                                <ZoruRadioGroupItem id="send-sched" value="schedule" />
+                                <RadioGroupItem id="send-sched" value="schedule" />
                                 <label htmlFor="send-sched" className="text-sm">
                                     Schedule for…
                                 </label>

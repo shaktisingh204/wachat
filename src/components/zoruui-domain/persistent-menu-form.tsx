@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, RadioGroup, ZoruRadioGroupItem, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, RadioGroup, RadioGroupItem, Separator } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -102,8 +102,8 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                                 <Input id={`title-${index}`} value={item.title} onChange={e => handleItemChange(index, 'title', e.target.value)} maxLength={30} required/>
                             </div>
                             <RadioGroup value={item.type} onValueChange={(val) => handleItemChange(index, 'type', val)} className="flex gap-4">
-                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="postback" id={`type-postback-${index}`} /><Label htmlFor={`type-postback-${index}`} className="font-normal">Trigger Flow</Label></div>
-                                <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="web_url" id={`type-url-${index}`} /><Label htmlFor={`type-url-${index}`} className="font-normal">Open Web URL</Label></div>
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="postback" id={`type-postback-${index}`} /><Label htmlFor={`type-postback-${index}`} className="font-normal">Trigger Flow</Label></div>
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="web_url" id={`type-url-${index}`} /><Label htmlFor={`type-url-${index}`} className="font-normal">Open Web URL</Label></div>
                             </RadioGroup>
                              {item.type === 'postback' ? (
                                 <div className="space-y-2">

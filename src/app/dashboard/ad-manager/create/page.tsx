@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, Checkbox, Collapsible, CollapsibleContent, CollapsibleTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, Checkbox, Collapsible, CollapsibleContent, CollapsibleTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, Switch, Textarea } from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams,
@@ -907,7 +907,7 @@ function Step2AdSet({
                                     state.conversionLocation === c.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                 )}
                             >
-                                <ZoruRadioGroupItem value={c.id} />
+                                <RadioGroupItem value={c.id} />
                                 <span className="text-sm">{c.label}</span>
                             </label>
                         ))}
@@ -1616,7 +1616,7 @@ function Step3Ad({
                                             state.adFormat === f.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                         )}
                                     >
-                                        <ZoruRadioGroupItem value={f.id} />
+                                        <RadioGroupItem value={f.id} />
                                         <span className="text-xs">{f.label}</span>
                                     </label>
                                 ))}

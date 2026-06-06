@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, RadioGroupItem, useToast } from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -105,10 +105,10 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                                 className="flex h-9 items-center gap-3"
                             >
                                 <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-[var(--st-text)]">
-                                    <ZoruRadioGroupItem value="fixed" /> Fixed
+                                    <RadioGroupItem value="fixed" /> Fixed
                                 </label>
                                 <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-[var(--st-text)]">
-                                    <ZoruRadioGroupItem value="percentage" /> %
+                                    <RadioGroupItem value="percentage" /> %
                                 </label>
                             </RadioGroup>
                         </div>

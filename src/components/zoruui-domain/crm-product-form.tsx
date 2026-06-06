@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, DatePicker, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, DatePicker, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -92,7 +92,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                         </AccordionItem>
                         <AccordionItem value="classification"><AccordionTrigger>Classification</AccordionTrigger>
                             <AccordionContent className="pt-4 space-y-4">
-                                <div className="space-y-2"><Label>Item Type</Label><RadioGroup name="itemType" defaultValue={product?.itemType || 'goods'} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="goods" id="type-goods" /><Label htmlFor="type-goods" className="font-normal">Goods</Label></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="service" id="type-service" /><Label htmlFor="type-service" className="font-normal">Service</Label></div></RadioGroup></div>
+                                <div className="space-y-2"><Label>Item Type</Label><RadioGroup name="itemType" defaultValue={product?.itemType || 'goods'} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="goods" id="type-goods" /><Label htmlFor="type-goods" className="font-normal">Goods</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="service" id="type-service" /><Label htmlFor="type-service" className="font-normal">Service</Label></div></RadioGroup></div>
                                 <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="category">Category</Label><EntityFormField entity="category" name="category" initialId={(product as any)?.categoryId || null} initialLabel={product?.category || ''} dualWriteName="categoryName" /></div><div className="space-y-2"><Label htmlFor="subcategory">Subcategory</Label><Input id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/></div></div>
                                 <div className="space-y-2"><Label htmlFor="tags">Tags (comma-separated)</Label><Input id="tags" name="tags" defaultValue={product?.tags?.join(', ')} /></div>
                             </AccordionContent>

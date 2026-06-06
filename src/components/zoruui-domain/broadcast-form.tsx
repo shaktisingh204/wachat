@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, ZoruRadioGroupItem, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, RadioGroupItem, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/sabcrm/20ui';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Papa from 'papaparse';
@@ -801,7 +801,7 @@ function TypeOption({
           : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
       )}
     >
-      <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
+      <RadioGroupItem value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
         <span className="text-[13px] font-medium leading-tight text-[var(--st-text)]">
           {label}

@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui';
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -368,7 +368,7 @@ export function SegmentBuilder({
                   className="flex gap-3"
                 >
                   <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                    <ZoruRadioGroupItem value="dynamic" id="kind-dynamic" />
+                    <RadioGroupItem value="dynamic" id="kind-dynamic" />
                     <div>
                       <div className="font-medium">Dynamic</div>
                       <div className="text-xs text-[var(--st-text)]">
@@ -377,7 +377,7 @@ export function SegmentBuilder({
                     </div>
                   </label>
                   <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                    <ZoruRadioGroupItem value="static" id="kind-static" />
+                    <RadioGroupItem value="static" id="kind-static" />
                     <div>
                       <div className="font-medium">Static</div>
                       <div className="text-xs text-[var(--st-text)]">

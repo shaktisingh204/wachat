@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Checkbox, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Checkbox, RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
 import type { FormField } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {

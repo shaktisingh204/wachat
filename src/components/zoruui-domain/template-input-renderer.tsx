@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Button, Input, RadioGroup, ZoruRadioGroupItem, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Select, Card } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, RadioGroup, RadioGroupItem, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Select, Card } from '@/components/sabcrm/20ui';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
@@ -158,8 +158,8 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                             <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-[var(--st-bg-muted)]/10">
                                 <Label className="font-semibold">Header Media ({component.format})</Label>
                                 <RadioGroup value={headerMediaSource} onValueChange={(v) => setHeaderMediaSource(v as 'url' | 'file')} className="flex gap-4">
-                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="file" id="h-source-file" /><Label htmlFor="h-source-file" className="font-normal flex items-center gap-1 cursor-pointer"><UploadCloud className="h-4 w-4" /> Upload</Label></div>
-                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="h-source-url" /><Label htmlFor="h-source-url" className="font-normal flex items-center gap-1 cursor-pointer"><LinkIcon className="h-4 w-4" /> URL</Label></div>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="h-source-file" /><Label htmlFor="h-source-file" className="font-normal flex items-center gap-1 cursor-pointer"><UploadCloud className="h-4 w-4" /> Upload</Label></div>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="h-source-url" /><Label htmlFor="h-source-url" className="font-normal flex items-center gap-1 cursor-pointer"><LinkIcon className="h-4 w-4" /> URL</Label></div>
                                 </RadioGroup>
 
                                 {headerMediaSource === 'file' ? (
