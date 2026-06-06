@@ -1,6 +1,6 @@
 'use client';
 
-import { zoruButtonVariants } from '@/components/sabcrm/20ui/compat';
+import { buttonVariants } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 
@@ -124,7 +124,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     
     const zoruSize = size === 'default' ? 'md' : size;
     const buttonClasses = cn(
-        zoruButtonVariants({ size: zoruSize, variant: 'default' }),
+        buttonVariants({ size: zoruSize, variant: 'default' }),
         animationClasses[animation as keyof typeof animationClasses],
         animationDurationClasses[animationDuration as keyof typeof animationDurationClasses],
         hoverAnimationClass,

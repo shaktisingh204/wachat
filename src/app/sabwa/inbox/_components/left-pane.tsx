@@ -1,19 +1,7 @@
 'use client';
 
-import {
-  ZoruEmptyState,
-  Input,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
-import {
-  Inbox,
-  MessageSquare,
-  Search } from 'lucide-react';
+import { EmptyState, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Inbox, MessageSquare, Search } from 'lucide-react';
 
 /**
  * Inbox left pane — search + filter + chat list.
@@ -112,16 +100,16 @@ export function LeftPane({
           value={filter}
           onValueChange={(v) => setFilter(v as ChatFilter)}
         >
-          <ZoruSelectTrigger className="h-8 w-full text-xs">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All chats</ZoruSelectItem>
-            <ZoruSelectItem value="unread">Unread</ZoruSelectItem>
-            <ZoruSelectItem value="personal">Personal</ZoruSelectItem>
-            <ZoruSelectItem value="groups">Groups</ZoruSelectItem>
-            <ZoruSelectItem value="broadcasts">Broadcasts</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-8 w-full text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All chats</SelectItem>
+            <SelectItem value="unread">Unread</SelectItem>
+            <SelectItem value="personal">Personal</SelectItem>
+            <SelectItem value="groups">Groups</SelectItem>
+            <SelectItem value="broadcasts">Broadcasts</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
@@ -144,7 +132,7 @@ export function LeftPane({
           </div>
         ) : chats.length === 0 ? (
           <div className="p-3">
-            <ZoruEmptyState
+            <EmptyState
               icon={<Inbox />}
               title="No chats yet"
               description="Your WhatsApp history will sync here within a minute of pairing. If it doesn't, try refreshing."

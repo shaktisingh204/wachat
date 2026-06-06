@@ -1,58 +1,12 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  DatePicker,
-  ZoruEmptyState,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
-import {
-  format,
-  formatDistanceToNow } from 'date-fns';
-import {
-  Download,
-  FileArchive,
-  Loader2,
-  Play,
-  RefreshCw,
-  RotateCcw,
-  Smartphone,
-  } from 'lucide-react';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, DatePicker, EmptyState, Input, Label, RadioGroup, RadioGroupItem, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
+import { format, formatDistanceToNow } from 'date-fns';
+import { Download, FileArchive, Loader2, Play, RefreshCw, RotateCcw, Smartphone } from 'lucide-react';
 
-import {
-  createExport,
-  listExports,
-  type SabwaExportFormat,
-  type SabwaExportRow,
-  type SabwaExportScope,
-  type SabwaExportStatus,
-  } from '@/app/actions/sabwa.actions';
+import { createExport, listExports, type SabwaExportFormat, type SabwaExportRow, type SabwaExportScope, type SabwaExportStatus } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
-import { formatJid,
-  useResolveJid } from '@/lib/sabwa/format-jid';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 
 /**
  * /sabwa/export — Two-column export configurator + history of past exports.
@@ -111,7 +65,7 @@ function statusVariant(
 }
 
 export default function ExportPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
   const resolve = useResolveJid(sessionId);
@@ -205,7 +159,7 @@ export default function ExportPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
-        <ZoruEmptyState
+        <EmptyState
           icon={<Smartphone />}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
@@ -222,19 +176,19 @@ export default function ExportPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Export</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Export</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
@@ -255,13 +209,13 @@ export default function ExportPage() {
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Configurator */}
         <Card className="lg:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">New export</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">New export</CardTitle>
+            <CardDescription>
               Choose scope, format, and whether to bundle media.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-5">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-5">
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Scope
@@ -358,7 +312,7 @@ export default function ExportPage() {
                       htmlFor={`fmt-${key}`}
                       className="flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                     >
-                      <ZoruRadioGroupItem id={`fmt-${key}`} value={key} />
+                      <RadioGroupItem id={`fmt-${key}`} value={key} />
                       <span>{FORMAT_LABELS[key]}</span>
                     </Label>
                   ),
@@ -396,17 +350,17 @@ export default function ExportPage() {
               )}
               Run export
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* History */}
         <Card className="lg:col-span-3">
-          <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
             <div>
-              <ZoruCardTitle className="text-base">Past exports</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle className="text-base">Past exports</CardTitle>
+              <CardDescription>
                 R2 download links expire — re-run any row with one click.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <Button
               variant="outline"
@@ -422,8 +376,8 @@ export default function ExportPage() {
               )}
               Refresh
             </Button>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             {exports.length === 0 ? (
               <EmptyState
                 icon={FileArchive}
@@ -433,45 +387,45 @@ export default function ExportPage() {
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                      <ZoruTableHead>Format</ZoruTableHead>
-                      <ZoruTableHead>Size</ZoruTableHead>
-                      <ZoruTableHead>Created</ZoruTableHead>
-                      <ZoruTableHead>Expires</ZoruTableHead>
-                      <ZoruTableHead className="text-right">
+                  <THead>
+                    <Tr>
+                      <Th>Status</Th>
+                      <Th>Format</Th>
+                      <Th>Size</Th>
+                      <Th>Created</Th>
+                      <Th>Expires</Th>
+                      <Th className="text-right">
                         Actions
-                      </ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {exports.map((row) => {
                       const created = new Date(row.createdAt);
                       const expires = row.expiresAt
                         ? new Date(row.expiresAt)
                         : null;
                       return (
-                        <ZoruTableRow key={row.id}>
-                          <ZoruTableCell>
+                        <Tr key={row.id}>
+                          <Td>
                             <Badge variant={statusVariant(row.status)}>
                               {row.status}
                             </Badge>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-xs uppercase">
+                          </Td>
+                          <Td className="font-mono text-xs uppercase">
                             {FORMAT_LABELS[row.format]}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="tabular-nums">
+                          </Td>
+                          <Td className="tabular-nums">
                             {formatBytes(row.sizeBytes)}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <span title={format(created, 'PPpp')}>
                               {formatDistanceToNow(created, {
                                 addSuffix: true,
                               })}
                             </span>
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             {expires ? (
                               <span title={format(expires, 'PPpp')}>
                                 {formatDistanceToNow(expires, {
@@ -481,8 +435,8 @@ export default function ExportPage() {
                             ) : (
                               '—'
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right">
+                          </Td>
+                          <Td className="text-right">
                             <div className="flex items-center justify-end gap-2">
                               {row.status === 'ready' && row.downloadUrl ? (
                                 <Button
@@ -514,15 +468,15 @@ export default function ExportPage() {
                                 Re-run
                               </Button>
                             </div>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>
