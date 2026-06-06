@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui/button';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui/card';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function EstimatesError({

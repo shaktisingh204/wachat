@@ -20,7 +20,7 @@ import {
   ZoruSelectContent,
   ZoruSelectItem,
 } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 function generateId() {
   return crypto.randomUUID();

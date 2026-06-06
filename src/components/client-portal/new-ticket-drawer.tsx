@@ -14,10 +14,10 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 
-import { Button } from '@/components/zoruui/button';
-import { Input } from '@/components/zoruui/input';
-import { Label } from '@/components/zoruui/label';
-import { Textarea } from '@/components/zoruui/textarea';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui/compat';
 import {
     ZoruDrawer,
     ZoruDrawerContent,
@@ -25,7 +25,7 @@ import {
     ZoruDrawerTitle,
     ZoruDrawerDescription,
     ZoruDrawerFooter,
-} from '@/components/zoruui/drawer';
+} from '@/components/sabcrm/20ui/compat';
 import { createClientTicket } from '@/app/actions/client-portal.actions';
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;

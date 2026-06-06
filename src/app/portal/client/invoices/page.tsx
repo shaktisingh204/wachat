@@ -7,9 +7,9 @@ import { fmtINR } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
 import { getClientInvoices } from '@/app/actions/client-portal.actions';
-import { Card, ZoruCardContent } from '@/components/zoruui/card';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import { ClientInvoicesView } from './client-invoices-view';
-import { EmptyState } from '@/components/zoruui/empty-state';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 
 
 async function ClientInvoicesPageContent() {

@@ -13,7 +13,7 @@ import {
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import { ProfileForm } from '@/components/client-portal/profile-form';
 
 async function ClientProfilePageContent() {

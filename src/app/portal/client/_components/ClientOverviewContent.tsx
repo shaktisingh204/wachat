@@ -42,8 +42,8 @@ import {
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
-import { Button } from '@/components/zoruui/button';
+} from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 import {
     Dialog,
@@ -51,7 +51,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/zoruui/dialog';
+} from '@/components/sabcrm/20ui/compat';
 
 function formatRelative(iso: string): string {
     const d = new Date(iso);

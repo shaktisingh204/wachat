@@ -1,6 +1,6 @@
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Card } from '@/components/zoruui/card';
+import { Card } from '@/components/sabcrm/20ui/compat';
 
 export default function FilesLoading() {
   return (

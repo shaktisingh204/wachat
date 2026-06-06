@@ -29,8 +29,8 @@ import { Badge } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
 import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);

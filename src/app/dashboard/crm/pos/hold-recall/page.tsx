@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPosHolds } from '@/app/actions/crm-pos.actions';
 import { PosHoldRecallClient } from '../_components/pos-hold-recall-client';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 /**
  * POS held tickets — `/dashboard/crm/pos/hold-recall`.

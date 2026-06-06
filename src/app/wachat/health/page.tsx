@@ -57,6 +57,8 @@ import {
   handleSetTwoStepVerificationPin,
   getCommerceSettings,
   } from '@/app/actions/whatsapp.actions';
+import { getQualityHistory } from '@/app/actions/wachat-quality-history.actions';
+import type { QualitySnapshot } from '@/lib/rust-client/wachat-quality-history';
 
 /**
  * Wachat Account Health — WABA and phone number health monitoring.

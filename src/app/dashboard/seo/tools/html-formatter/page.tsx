@@ -2,7 +2,7 @@
 
 import { Textarea } from '@/components/zoruui';
 import { ZoruFileUploadCard } from '@/components/zoruui/file-upload-card';
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Copy, Check } from 'lucide-react';

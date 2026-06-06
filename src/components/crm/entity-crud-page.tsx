@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 interface EntityCrudPageProps<T> {
   title: string;

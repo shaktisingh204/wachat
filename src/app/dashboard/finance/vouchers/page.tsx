@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
-import { Input } from '@/components/zoruui/input';
-import { Label } from '@/components/zoruui/label';
-import { Button } from '@/components/zoruui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/zoruui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
 import { UploadCloud } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'context/gsap'; // We'll just import gsap from 'gsap' usually, assuming standard import

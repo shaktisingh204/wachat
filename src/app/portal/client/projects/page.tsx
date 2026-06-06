@@ -7,11 +7,11 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getClientProjects } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
     Card,
     ZoruCardContent,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -19,11 +19,11 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
-import { Progress } from '@/components/zoruui/progress';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Progress } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/zoruui/lib/cn';
-import { buttonVariants } from '@/components/zoruui/button';
+import { buttonVariants } from '@/components/sabcrm/20ui/compat';
 import { ClientProject } from '@/lib/client-portal/types';
 
 function statusVariant(s: string): 'default' | 'secondary' | 'destructive' | 'outline' {

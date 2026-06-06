@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 import Link from 'next/link';
 

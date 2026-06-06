@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function SabsmsError({
   error,

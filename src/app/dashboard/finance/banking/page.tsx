@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
-import { Button } from '@/components/zoruui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui/table';
-import { Badge } from '@/components/zoruui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { RefreshCw, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';

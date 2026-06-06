@@ -16,13 +16,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientProjectById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
     Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -30,8 +30,8 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { Progress } from '@/components/zoruui/progress';
+} from '@/components/sabcrm/20ui/compat';
+import { Progress } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/zoruui/lib/cn';
 
 type TabKey = 'overview' | 'tasks' | 'milestones' | 'files' | 'invoices' | 'rating';

@@ -1,4 +1,4 @@
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 

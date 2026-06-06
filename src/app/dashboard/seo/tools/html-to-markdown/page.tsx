@@ -11,7 +11,7 @@ import {
   SelectValue,
   Card
 } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useEffect } from 'react';
 import { Copy, Check, Settings2 } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';

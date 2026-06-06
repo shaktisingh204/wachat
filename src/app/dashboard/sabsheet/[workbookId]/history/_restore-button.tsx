@@ -3,7 +3,7 @@
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { restoreSabsheetVersion } from '@/app/actions/sabsheet.actions';
 
 export function RestoreButton({ versionId }: { versionId: string }) {

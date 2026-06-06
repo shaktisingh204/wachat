@@ -8,11 +8,11 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getClientTickets } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
     Card,
     ZoruCardContent,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -20,8 +20,8 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { NewTicketDrawer } from '@/components/client-portal/new-ticket-drawer';
 import { TicketFilters } from './ticket-filters';
 import { SlaIndicator } from './sla-indicator';

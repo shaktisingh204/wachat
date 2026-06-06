@@ -9,13 +9,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientTicketById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
     Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import { TicketReplyForm } from '@/components/client-portal/ticket-reply-form';
 import { cn } from '@/components/zoruui/lib/cn';
 

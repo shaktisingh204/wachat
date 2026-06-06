@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Select, ZoruSelectTrigger, ZoruSelectValue, SelectContent, ZoruSelectItem } from '@/components/zoruui/select';
+import { Select, ZoruSelectTrigger, ZoruSelectValue, SelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
 
 export function TimelineFilter() {
     const router = useRouter();

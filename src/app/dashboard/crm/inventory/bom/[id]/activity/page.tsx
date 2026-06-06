@@ -12,7 +12,7 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmBomById } from '@/app/actions/crm-bom.actions';
 import { withTimeout } from '../../lib/timeout';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 interface PageProps {
   params: Promise<{ id: string }>;

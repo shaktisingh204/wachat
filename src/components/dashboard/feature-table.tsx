@@ -8,11 +8,11 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
-} from '@/components/zoruui/table';
-import { Button } from '@/components/zoruui/button';
+} from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { EmptyState } from '@/components/zoruui/empty-state';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 interface FeatureTableProps<T> {
   columns: { header: string; cell: (row: T) => React.ReactNode; className?: string }[];

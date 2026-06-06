@@ -24,7 +24,7 @@ import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { useZoruToast } from '@/components/sabcrm/20ui/compat';
-import { StatCard } from '@/components/zoruui/stat-card';
+import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { ZoruChart, ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { createDripCampaign, updateDripCampaign, deleteDripCampaign } from '@/app/actions/marketing/drip-campaigns.actions';

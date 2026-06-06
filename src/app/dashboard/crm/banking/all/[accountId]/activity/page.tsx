@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default async function PaymentAccountActivityPage(props: {
     params: Promise<{ accountId: string }>;

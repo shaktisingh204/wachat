@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
-import { Label } from '@/components/zoruui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
 import { Input, ZoruButton } from '@/components/sabcrm/20ui/compat';
 
 export function TdsAdjustForm({

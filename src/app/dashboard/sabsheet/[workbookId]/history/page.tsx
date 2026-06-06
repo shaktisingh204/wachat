@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Button } from '@/components/zoruui/button';
-import { Card } from '@/components/zoruui/card';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import {
   getSabsheetWorkbook,
   listSabsheetVersions,

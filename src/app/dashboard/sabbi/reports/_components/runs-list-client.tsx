@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { bulkDeleteOldRuns } from '@/app/actions/crm-reports.actions';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from 'recharts';
 

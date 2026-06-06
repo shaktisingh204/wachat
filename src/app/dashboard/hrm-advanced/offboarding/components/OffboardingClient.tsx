@@ -4,7 +4,7 @@ import React, { useState, useMemo, useOptimistic, useEffect, useRef } from 'reac
 import { OffboardingTask } from '@/lib/hrm-advanced-types';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Input, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { OffboardingForm } from './OffboardingForm';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Papa from 'papaparse';

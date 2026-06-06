@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import { getClientContracts } from '@/app/actions/client-portal.actions';
 import { ClientContractsClient } from './client-contracts-client';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function ClientContractsPage() {
     return (

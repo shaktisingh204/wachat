@@ -2,7 +2,7 @@ import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPosRefunds } from '@/app/actions/crm-pos.actions';
 import { PosRefundsListClient } from '../_components/pos-refunds-list-client';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 

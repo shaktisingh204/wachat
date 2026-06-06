@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { useT } from '@/lib/i18n/client';
 
 export default function PayrollError({

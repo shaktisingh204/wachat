@@ -14,14 +14,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientInvoiceById } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import {
     Card,
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -29,7 +29,7 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
+} from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';

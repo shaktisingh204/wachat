@@ -13,15 +13,15 @@ import { getClientEstimates } from '@/app/actions/client-portal.actions';
 import {
     Card,
     ZoruCardContent,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { EstimateRow } from './EstimateRow';
 import { Info } from 'lucide-react';
 

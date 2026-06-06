@@ -11,7 +11,7 @@ import {
   ZoruSelectValue,
   Progress,
 } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,

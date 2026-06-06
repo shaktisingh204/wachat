@@ -37,7 +37,7 @@ import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import { countSabcrmRecordsTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
-import { ZORU_ICONS } from '@/components/zoruui/icon-picker';
+import { ZORU_ICONS } from '@/components/sabcrm/20ui/compat';
 import './home.css';
 
 const STANDARD_ICON: Record<string, LucideIcon> = {

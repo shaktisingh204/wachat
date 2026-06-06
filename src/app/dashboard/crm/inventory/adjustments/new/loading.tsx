@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 
 export default function AdjustmentNewLoading() {

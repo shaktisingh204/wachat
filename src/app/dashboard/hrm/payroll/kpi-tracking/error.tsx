@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/zoruui/button';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 
 export default function KpiTrackingError({

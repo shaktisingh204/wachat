@@ -7,9 +7,9 @@
  */
 import Link from 'next/link';
 
-import { Button } from '@/components/zoruui/button';
-import { Card } from '@/components/zoruui/card';
-import { Badge } from '@/components/zoruui/badge';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listSabshowDecks } from '@/app/actions/sabshow.actions';
 

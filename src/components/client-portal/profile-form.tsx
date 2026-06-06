@@ -10,12 +10,12 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/zoruui/button';
-import { Input } from '@/components/zoruui/input';
-import { Label } from '@/components/zoruui/label';
-import { Switch } from '@/components/zoruui/switch';
-import { Checkbox } from '@/components/zoruui/checkbox';
-import { Avatar, ZoruAvatarFallback as AvatarFallback, ZoruAvatarImage as AvatarImage } from '@/components/zoruui/avatar';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Avatar, ZoruAvatarFallback as AvatarFallback, ZoruAvatarImage as AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { updateClientProfile } from '@/app/actions/client-portal.actions';
 
 export interface ProfileFormProps {

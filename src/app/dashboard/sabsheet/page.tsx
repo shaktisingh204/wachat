@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
-import { Button } from '@/components/zoruui/button';
-import { Card } from '@/components/zoruui/card';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listSabsheetWorkbooks } from '@/app/actions/sabsheet.actions';
 import { NewWorkbookButton } from './_components/new-workbook-button';

@@ -15,8 +15,8 @@ import {
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
-import { EmptyState } from '@/components/zoruui/empty-state';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { KbSearch } from '@/components/client-portal/kb-search';
 import { cn } from '@/components/zoruui/lib/cn';
 

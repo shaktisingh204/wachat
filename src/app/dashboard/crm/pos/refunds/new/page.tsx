@@ -1,5 +1,5 @@
 import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';

@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import type { ClientContract } from '@/lib/client-portal/types';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
-import { Card, ZoruCardContent } from '@/components/zoruui/card';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -12,13 +12,13 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/zoruui/dropdown-menu';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { ChevronDown, Download, History, FileText, ArrowUpDown, MoreHorizontal } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/zoruui/dialog';
-import { Input } from '@/components/zoruui/input';
-import { Skeleton } from '@/components/zoruui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null | undefined): string {
     if (!iso) return '—';

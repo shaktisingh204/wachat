@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
-import { Button } from '@/components/zoruui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { ArrowUpRight, ArrowDownRight, Wallet, Activity, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 

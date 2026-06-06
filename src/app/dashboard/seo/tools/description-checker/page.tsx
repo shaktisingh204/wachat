@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { Copy, Download, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 export default function DescriptionCheckerPage() {
   const [urlsInput, setUrlsInput] = useState('');

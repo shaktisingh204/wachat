@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, use } from 'react';
 import { Badge, Card, ZoruButton, Input, ZoruCheckbox, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/zoruui/dropdown-menu';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { Search, Download, FileText, Trash, Filter } from 'lucide-react';
 import { zoruSonnerToast } from '@/components/zoruui/sonner';
 import { useVirtualizer } from '@tanstack/react-virtual';

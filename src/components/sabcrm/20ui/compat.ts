@@ -114,6 +114,7 @@ export {
   FullscreenCalendar as ZoruFullscreenCalendar,
   HeroPill as ZoruHeroPill,
   IconPicker as ZoruIconPicker,
+  ICONS as ZORU_ICONS,
   Input as ZoruInput,
   JobListing as ZoruJobListing,
   Kbd as ZoruKbd,

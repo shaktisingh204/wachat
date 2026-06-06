@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/sabcrm/20ui/compat';
-import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
+import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { getCompetitorTrackings, createCompetitorTracking, updateCompetitorTracking, deleteCompetitorTracking } from '@/app/actions/crm-advanced/competitor-tracking';
 import type { CompetitorTrackingType } from '@/app/actions/crm-advanced/competitor-tracking.schema';

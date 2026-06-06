@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { Button } from '@/components/zoruui/button';
-import { Input } from '@/components/zoruui/input';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
 import {
   Tabs,
   ZoruTabsList,

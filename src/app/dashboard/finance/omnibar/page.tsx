@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
-import { Input } from '@/components/zoruui/input';
-import { Button } from '@/components/zoruui/button';
-import { ScrollArea } from '@/components/zoruui/scroll-area';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Input } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { Bot, Sparkles, TerminalSquare, User } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';

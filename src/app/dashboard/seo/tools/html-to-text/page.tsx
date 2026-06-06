@@ -1,7 +1,7 @@
 'use client';
 
 import { Textarea, Switch, Label, Button } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { Copy, Trash } from 'lucide-react';
 import { useMemo, useState } from 'react';
 

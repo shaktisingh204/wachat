@@ -9,8 +9,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { Button } from '@/components/zoruui/button';
-import { Card } from '@/components/zoruui/card';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
     getSabshowDeck,

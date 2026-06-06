@@ -18,7 +18,7 @@ import {
   Input,
   Checkbox,
 } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';

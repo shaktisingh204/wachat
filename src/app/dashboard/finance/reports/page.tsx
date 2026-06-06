@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
-import { Button } from '@/components/zoruui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';
 import { Download, Printer } from 'lucide-react';

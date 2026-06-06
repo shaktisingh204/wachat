@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import { saveAttendanceRecord, deleteAttendanceRecord, bulkDeleteAttendanceRecords } from '@/app/actions/hrm-advanced/geofenced-attendance';
 import { AttendanceRecord } from '@/lib/hrm-advanced-types';
 import { AttendanceTable } from './attendance-table';

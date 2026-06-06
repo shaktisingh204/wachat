@@ -1,9 +1,9 @@
 'use client';
 
 import { Button, Textarea } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/zoruui/switch';
-import { Label } from '@/components/zoruui/label';
-import { RadioGroup, ZoruRadioCard } from '@/components/zoruui/radio-group';
+import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Label } from '@/components/sabcrm/20ui/compat';
+import { RadioGroup, ZoruRadioCard } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';

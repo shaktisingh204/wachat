@@ -15,9 +15,9 @@ import {
 } from 'recharts';
 
 import { ClientInvoice } from '@/lib/client-portal/types';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui/card';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
 import {
     Table,
     ZoruTableBody,
@@ -25,8 +25,8 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
+} from '@/components/sabcrm/20ui/compat';
+import { EmptyState } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';

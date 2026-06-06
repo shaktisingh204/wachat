@@ -27,7 +27,7 @@ import {
   ZoruTableRow,
   EmptyState,
 } from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import {
   Gauge,
   AlertTriangle,

@@ -14,7 +14,7 @@ import {
     ZoruCardContent,
     ZoruCardHeader,
     ZoruCardTitle,
-} from '@/components/zoruui/card';
+} from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '';

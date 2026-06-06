@@ -1,5 +1,5 @@
 import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell } from '@/components/zoruui/table';
+import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { History,

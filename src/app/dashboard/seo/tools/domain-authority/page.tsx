@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 import { Loader2, Copy, Download, AlertCircle, ExternalLink, ShieldAlert, Link as LinkIcon, Activity } from 'lucide-react';
-import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 function hash(s: string): number {
   let h = 0;

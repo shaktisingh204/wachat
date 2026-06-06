@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
-import { ZoruTableCell, ZoruTableRow } from '@/components/zoruui/table';
+import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { ZoruTableCell, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
 import { getEstimateItems, requestEstimateRevision, type EstimateItem } from './actions';
 import { Loader2, MessageSquare, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import type { ClientEstimate } from '@/lib/client-portal/types';
