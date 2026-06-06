@@ -1,46 +1,89 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, Checkbox, Collapsible, CollapsibleContent, CollapsibleTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, Switch, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Checkbox,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    RadioGroup,
+    RadioGroupItem,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+    Spinner,
+    Switch,
+    Tag,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
 import {
     ArrowLeft,
-  Megaphone,
-  Layers,
-  Image as ImageIcon,
-  Check,
-  LoaderCircle,
-  Send,
-  AlertCircle,
-  Info,
-  Sparkles,
-  Target,
-  Users,
-  Globe,
-  DollarSign,
-  Calendar,
-  Smartphone,
-  Settings2,
-  Facebook,
-  Instagram,
-  MessageSquare,
-  Zap,
-  Plus,
-  Trash2,
-  Upload,
-  Eye,
-  AlertTriangle,
-  } from 'lucide-react';
+    Megaphone,
+    Layers,
+    Image as ImageIcon,
+    Check,
+    Send,
+    AlertCircle,
+    Sparkles,
+    Target,
+    Users,
+    Globe,
+    DollarSign,
+    Calendar,
+    Smartphone,
+    Settings2,
+    Facebook,
+    Instagram,
+    MessageSquare,
+    Zap,
+    Plus,
+    Trash2,
+    Eye,
+    AlertTriangle,
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
 
-import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
+import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import {
     createCampaign, createAdSet, createCreative, createAd,
@@ -48,11 +91,12 @@ import {
     searchTargeting, listPixels, getCustomAudiences,
     listAdImages, getInstagramAccountsForPage,
 } from '@/app/actions/ad-manager.actions';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import type { FacebookPage, CustomAudience } from '@/lib/definitions';
 import {
     OBJECTIVES, BID_STRATEGIES, COUNTRIES, CALL_TO_ACTIONS,
     SPECIAL_AD_CATEGORIES, FACEBOOK_POSITIONS, INSTAGRAM_POSITIONS,
-    formatMoney, formatNumber,
+    formatNumber,
 } from '@/components/zoruui-domain/ad-manager/constants';
 import {
     initialFormState, validateStep1, validateStep2, validateStep3,
@@ -84,7 +128,7 @@ export default function CreateAdPage() {
         <React.Suspense
             fallback={
                 <div className="flex items-center justify-center min-h-[400px]">
-                    <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+                    <Spinner size="lg" label="Loading" />
                 </div>
             }
         >
@@ -198,7 +242,7 @@ function CreateAdForm() {
         const v = step === 1 ? validateStep1(state) : step === 2 ? validateStep2(state) : [];
         setIssues(v);
         if (v.length > 0) {
-            toast({ title: 'Fix the errors before continuing', variant: 'destructive' });
+            toast({ title: 'Fix the errors before continuing', tone: 'danger' });
             return;
         }
         const next = Math.min(step + 1, 3) as Step;
@@ -210,9 +254,8 @@ function CreateAdForm() {
         setStep(Math.max(step - 1, 1) as Step);
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !activeAccount) return;
+    const handleFilePicked = async (file: File) => {
+        if (!activeAccount) return;
         setUploading(true);
         const fd = new FormData();
         fd.append('file', file);
@@ -220,12 +263,12 @@ function CreateAdForm() {
         const res = await uploadAdImage(fd);
         setUploading(false);
         if (res.error) {
-            toast({ title: 'Upload failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Upload failed', description: res.error, tone: 'danger' });
             return;
         }
         setField('imageHash', res.imageHash || '');
         setField('imageUrl', res.imageUrl || '');
-        toast({ title: 'Image uploaded' });
+        toast.success('Image uploaded');
     };
 
     const submit = async () => {
@@ -233,7 +276,7 @@ function CreateAdForm() {
         const all = [...validateStep1(state), ...validateStep2(state), ...validateStep3(state)];
         setIssues(all);
         if (all.length > 0) {
-            toast({ title: 'Fix the errors before publishing', variant: 'destructive' });
+            toast({ title: 'Fix the errors before publishing', tone: 'danger' });
             return;
         }
         setSubmitting(true);
@@ -397,10 +440,11 @@ function CreateAdForm() {
             toast({
                 title: 'Campaign created',
                 description: `${state.campaignName} is paused. Activate it from the campaigns page.`,
+                tone: 'success',
             });
             router.push('/dashboard/ad-manager/campaigns');
         } catch (e: any) {
-            toast({ title: 'Create failed', description: e?.message, variant: 'destructive' });
+            toast({ title: 'Create failed', description: e?.message, tone: 'danger' });
         } finally {
             setSubmitting(false);
         }
@@ -409,7 +453,7 @@ function CreateAdForm() {
     if (accountLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+                <Spinner size="lg" label="Loading account" />
             </div>
         );
     }
@@ -418,14 +462,17 @@ function CreateAdForm() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Create" parent={{ label: 'Campaigns', href: '/dashboard/ad-manager/campaigns' }} />
-                <Alert variant="destructive" className="max-w-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account</AlertTitle>
-                    <AlertDescription>Pick an ad account before creating a campaign.</AlertDescription>
-                </Alert>
-                <Button asChild>
-                    <Link href="/dashboard/ad-manager/ad-accounts">Go to Ad accounts</Link>
-                </Button>
+                <EmptyState
+                    icon={AlertCircle}
+                    tone="warning"
+                    title="No ad account"
+                    description="Pick an ad account before creating a campaign."
+                    action={
+                        <Button variant="primary" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
+                            Go to Ad accounts
+                        </Button>
+                    }
+                />
             </div>
         );
     }
@@ -433,24 +480,26 @@ function CreateAdForm() {
     return (
         <div className="space-y-6">
             <AmBreadcrumb page="Create" parent={{ label: 'Campaigns', href: '/dashboard/ad-manager/campaigns' }} />
-            <AmHeader
-                title="Create new campaign"
-                description={`${state.buyingType} • ${activeAccount.name}`}
-            />
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Create new campaign</PageTitle>
+                    <PageDescription>{state.buyingType}, {activeAccount.name}</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <div className="flex gap-4 min-h-[600px]">
-                {/* Form card — always full width except at 2xl+ where preview joins in */}
-                <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-[var(--st-bg-secondary)] overflow-hidden">
-                    <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
-                        <Button variant="ghost" size="icon-sm" asChild>
-                            <Link href="/dashboard/ad-manager/campaigns">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
+                {/* Form card. Full width except at 2xl+ where the preview joins in. */}
+                <div className="flex flex-col min-w-0 flex-1 border border-[var(--st-border)] rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] overflow-hidden">
+                    <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] px-4 py-3">
+                        <IconButton
+                            label="Back to campaigns"
+                            icon={ArrowLeft}
+                            onClick={() => router.push('/dashboard/ad-manager/campaigns')}
+                        />
                         <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium truncate">Create new campaign</div>
+                            <div className="text-sm font-medium truncate text-[var(--st-text)]">Create new campaign</div>
                             <div className="text-xs text-[var(--st-text-secondary)] truncate">
-                                {state.buyingType} • {activeAccount.name}
+                                {state.buyingType}, {activeAccount.name}
                             </div>
                         </div>
                         <StepHeader current={step} setCurrent={setStep} max={maxStep} />
@@ -459,8 +508,7 @@ function CreateAdForm() {
                     <div className="flex-1 overflow-visible">
                         <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
                             {issues.length > 0 && (
-                                <Alert variant="destructive">
-                                    <AlertCircle className="h-4 w-4" />
+                                <Alert tone="danger">
                                     <AlertTitle>{issues.length} issue{issues.length > 1 ? 's' : ''} to fix</AlertTitle>
                                     <AlertDescription>
                                         <ul className="list-disc list-inside text-xs mt-1 space-y-0.5">
@@ -491,7 +539,7 @@ function CreateAdForm() {
                                     igAccounts={igAccounts}
                                     savedImages={savedImages}
                                     uploading={uploading}
-                                    onUpload={handleImageUpload}
+                                    onPickFile={handleFilePicked}
                                     issues={stepIssues}
                                     mediaTab={mediaTab}
                                     setMediaTab={setMediaTab}
@@ -500,7 +548,7 @@ function CreateAdForm() {
                         </div>
                     </div>
 
-                    <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-[var(--st-bg-secondary)]">
+                    <div className="border-t border-[var(--st-border)] px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-[var(--st-bg-secondary)]">
                         <Button variant="ghost" size="sm" onClick={goPrev} disabled={step === 1}>
                             Previous
                         </Button>
@@ -508,12 +556,8 @@ function CreateAdForm() {
                             <span className="text-xs text-[var(--st-text-secondary)]">Step {step} of 3</span>
                             <Sheet>
                                 <SheetTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="2xl:hidden bg-[var(--st-text)]/5 border-[var(--st-border)]/30 text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
-                                    >
-                                        <Eye className="h-4 w-4 mr-1" /> Preview
+                                    <Button variant="outline" size="sm" iconLeft={Eye} className="2xl:hidden">
+                                        Preview
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent side="right" className="w-full sm:max-w-[500px] overflow-auto">
@@ -524,67 +568,37 @@ function CreateAdForm() {
                                     </SheetHeader>
                                     <div className="py-4 space-y-4">
                                         <AdPreviewSwitcher state={state} pages={pages} igAccounts={igAccounts} />
-                                        {reach && (
-                                            <Card>
-                                                <CardBody className="p-4 space-y-2">
-                                                    <div className="text-xs text-[var(--st-text-secondary)]">Estimated audience</div>
-                                                    <div className="text-lg font-semibold tabular-nums">
-                                                        {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
-                                                    </div>
-                                                    <div className="h-1.5 rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
-                                                        <div className="h-full w-3/5 bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-text)]" />
-                                                    </div>
-                                                    <div className="flex justify-between text-[10px] text-[var(--st-text-secondary)]">
-                                                        <span>Specific</span><span>Broad</span>
-                                                    </div>
-                                                </CardBody>
-                                            </Card>
-                                        )}
+                                        {reach && <ReachCard reach={reach} />}
                                     </div>
                                 </SheetContent>
                             </Sheet>
                         </div>
                         {step < 3 ? (
-                            <Button size="sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={goNext}>
+                            <Button variant="primary" size="sm" onClick={goNext}>
                                 Next
                             </Button>
                         ) : (
                             <Button
+                                variant="primary"
                                 size="sm"
-                                className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
+                                iconLeft={Send}
                                 onClick={submit}
-                                disabled={submitting}
+                                loading={submitting}
                             >
-                                {submitting && <LoaderCircle className="h-4 w-4 mr-2 animate-spin" />}
-                                <Send className="h-4 w-4 mr-2" /> Publish
+                                Publish
                             </Button>
                         )}
                     </div>
                 </div>
 
-                {/* Inline preview — only at 2xl (1536px+) where there's guaranteed room */}
-                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-[var(--st-bg-secondary)] border rounded-xl overflow-hidden">
-                    <div className="px-3 py-2 border-b text-sm font-medium flex items-center gap-2 shrink-0">
+                {/* Inline preview, only at 2xl (1536px+) where there's guaranteed room */}
+                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden">
+                    <div className="px-3 py-2 border-b border-[var(--st-border)] text-sm font-medium flex items-center gap-2 shrink-0 text-[var(--st-text)]">
                         <Eye className="h-4 w-4" /> Ad preview
                     </div>
                     <div className="flex-1 overflow-auto p-3 space-y-3">
                         <AdPreviewSwitcher state={state} pages={pages} igAccounts={igAccounts} />
-                        {reach && (
-                            <Card>
-                                <CardBody className="p-3 space-y-1.5">
-                                    <div className="text-[10px] text-[var(--st-text-secondary)]">Estimated audience</div>
-                                    <div className="text-base font-semibold tabular-nums">
-                                        {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
-                                    </div>
-                                    <div className="h-1.5 rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
-                                        <div className="h-full w-3/5 bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-text)]" />
-                                    </div>
-                                    <div className="flex justify-between text-[9px] text-[var(--st-text-secondary)]">
-                                        <span>Specific</span><span>Broad</span>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        )}
+                        {reach && <ReachCard reach={reach} compact />}
                     </div>
                 </aside>
             </div>
@@ -593,44 +607,62 @@ function CreateAdForm() {
 }
 
 // =================================================================
-//  Step header — Zoru numbered stepper (no tab primitive in zoruui)
+//  Reach estimate card
+// =================================================================
+
+function ReachCard({ reach, compact = false }: { reach: { lower: number; upper: number }; compact?: boolean }) {
+    return (
+        <Card padding="none">
+            <CardBody className={compact ? 'p-3 space-y-1.5' : 'p-4 space-y-2'}>
+                <div className={cn('text-[var(--st-text-secondary)]', compact ? 'text-[10px]' : 'text-xs')}>
+                    Estimated audience
+                </div>
+                <div className={cn('font-semibold tabular-nums text-[var(--st-text)]', compact ? 'text-base' : 'text-lg')}>
+                    {formatNumber(reach.lower)} to {formatNumber(reach.upper)}
+                </div>
+                <div className="h-1.5 rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
+                    <div className="h-full w-3/5 bg-[var(--st-text)]" />
+                </div>
+                <div className={cn('flex justify-between text-[var(--st-text-secondary)]', compact ? 'text-[9px]' : 'text-[10px]')}>
+                    <span>Specific</span><span>Broad</span>
+                </div>
+            </CardBody>
+        </Card>
+    );
+}
+
+// =================================================================
+//  Step header. Numbered stepper.
 // =================================================================
 
 function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (s: Step) => void; max: Step }) {
     return (
-        <div className="flex items-center gap-1 bg-[var(--st-bg-secondary)] border rounded-xl p-1.5">
+        <div className="flex items-center gap-1 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] p-1.5">
             {STEPS.map((s, i) => {
                 const active = current === s.id;
                 const done = current > s.id;
                 const Icon = s.icon;
+                const locked = s.id > max;
                 return (
                     <React.Fragment key={s.id}>
-                        <button
+                        <Button
                             type="button"
-                            disabled={s.id > max}
+                            variant={active ? 'primary' : 'ghost'}
+                            size="sm"
+                            disabled={locked}
                             onClick={() => setCurrent(s.id)}
-                            className={cn(
-                                'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors',
-                                active && 'bg-[var(--st-text)] text-white font-medium',
-                                !active && done && 'bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]/80',
-                                !active && !done && 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60',
-                                s.id > max && 'opacity-50 cursor-not-allowed',
-                            )}
+                            aria-current={active ? 'step' : undefined}
                         >
                             <Badge
-                                variant="secondary"
-                                className={cn(
-                                    'h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold',
-                                    active && 'bg-[var(--st-bg)]/20 text-white border-transparent',
-                                    !active && done && 'bg-[var(--st-text)] text-white border-transparent',
-                                    !active && !done && 'bg-[var(--st-text)]/20 border-transparent',
-                                )}
+                                tone={active || done ? 'accent' : 'neutral'}
+                                kind={active || done ? 'solid' : 'soft'}
+                                className="h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold"
                             >
                                 {done ? <Check className="h-3 w-3" /> : s.id}
                             </Badge>
                             <Icon className="h-4 w-4" />
                             <span className="hidden sm:inline">{s.label}</span>
-                        </button>
+                        </Button>
                         {i < STEPS.length - 1 && <Separator orientation="vertical" className="h-4 w-px" />}
                     </React.Fragment>
                 );
@@ -654,11 +686,11 @@ function Section({
 }) {
     return (
         <Collapsible defaultOpen={defaultOpen}>
-            <div className="rounded-xl border bg-[var(--st-bg-secondary)]">
-                <CollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--st-bg-muted)]/50 rounded-t-xl data-[state=closed]:rounded-b-xl">
+            <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <CollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left">
                     <Icon className="h-4 w-4 text-[var(--st-text)]" />
                     <div className="flex-1">
-                        <div className="text-sm font-semibold">{title}</div>
+                        <div className="text-sm font-semibold text-[var(--st-text)]">{title}</div>
                         {description && <div className="text-xs text-[var(--st-text-secondary)] mt-0.5">{description}</div>}
                     </div>
                 </CollapsibleTrigger>
@@ -670,17 +702,12 @@ function Section({
     );
 }
 
-function FieldError({ issue }: { issue?: ValidationIssue }) {
-    if (!issue) return null;
-    return (
-        <p className="flex items-center gap-1 text-xs text-[var(--st-text)]">
-            <AlertTriangle className="h-3 w-3" /> {issue.message}
-        </p>
-    );
+function fieldError(issues: ValidationIssue[], field: string): string | undefined {
+    return issues.find((i) => i.field === field || i.field.startsWith(`${field}.`))?.message;
 }
 
 // =================================================================
-//  Step 1 — Campaign
+//  Step 1, Campaign
 // =================================================================
 
 function Step1Campaign({
@@ -690,52 +717,50 @@ function Step1Campaign({
     setField: <K extends keyof CreateFormState>(k: K, v: CreateFormState[K]) => void;
     issues: ValidationIssue[];
 }) {
-    const err = (f: string) => issues.find((i) => i.field === f);
     return (
         <>
             <div>
-                <h2 className="text-xl font-semibold">Choose a campaign objective</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-text)]">Choose a campaign objective</h2>
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                     Tell Meta what result you want so it can optimize delivery for you.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {OBJECTIVES.map((obj) => (
-                    <button
-                        key={obj.id}
-                        type="button"
-                        onClick={() => setField('objective', obj.id)}
-                        className={cn(
-                            'text-left p-4 rounded-xl border-2 transition-all bg-[var(--st-bg-secondary)]',
-                            state.objective === obj.id
-                                ? 'border-[var(--st-border)] ring-2 ring-[var(--st-border)]/20 shadow-sm'
-                                : 'border-[var(--st-border)] hover:border-[var(--st-border)]/40',
-                        )}
-                    >
-                        <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="h-4 w-4 text-[var(--st-text)]" />
-                            <span className="font-medium">{obj.label}</span>
-                            {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />}
-                        </div>
-                        <p className="text-xs text-[var(--st-text-secondary)]">{obj.description}</p>
-                    </button>
-                ))}
+                {OBJECTIVES.map((obj) => {
+                    const selected = state.objective === obj.id;
+                    return (
+                        <Button
+                            key={obj.id}
+                            type="button"
+                            variant={selected ? 'primary' : 'outline'}
+                            onClick={() => setField('objective', obj.id)}
+                            aria-pressed={selected}
+                            className="!h-auto !justify-start text-left p-4 rounded-[var(--st-radius-lg)]"
+                        >
+                            <span className="flex flex-col items-start gap-1 w-full">
+                                <span className="flex items-center gap-2 w-full">
+                                    <Sparkles className="h-4 w-4" />
+                                    <span className="font-medium">{obj.label}</span>
+                                    {selected && <Check className="ml-auto h-4 w-4" />}
+                                </span>
+                                <span className="text-xs opacity-80">{obj.description}</span>
+                            </span>
+                        </Button>
+                    );
+                })}
             </div>
 
             <Section title="Campaign details" icon={Settings2}>
-                <div className="space-y-2">
-                    <Label>Campaign name</Label>
+                <Field label="Campaign name" error={fieldError(issues, 'campaignName')}>
                     <Input
                         value={state.campaignName}
                         onChange={(e) => setField('campaignName', e.target.value)}
                     />
-                    <FieldError issue={err('campaignName')} />
-                </div>
+                </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Special ad category</Label>
+                    <Field label="Special ad category">
                         <Select value={state.specialAdCategory} onValueChange={(v) => setField('specialAdCategory', v)}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -744,9 +769,8 @@ function Step1Campaign({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Buying type</Label>
+                    </Field>
+                    <Field label="Buying type">
                         <Select value={state.buyingType} onValueChange={(v) => setField('buyingType', v as any)}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -754,14 +778,14 @@ function Step1Campaign({
                                 <SelectItem value="RESERVED">Reach and frequency</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 </div>
             </Section>
 
             <Section title="Campaign budget optimization" icon={Zap}>
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
-                        <div className="text-sm font-medium">Advantage+ campaign budget</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Advantage+ campaign budget</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">
                             Distribute your budget across ad sets for best results.
                         </div>
@@ -769,15 +793,14 @@ function Step1Campaign({
                     <Switch
                         checked={state.cbo}
                         onCheckedChange={(v) => setField('cbo', v)}
-                        className="data-[state=checked]:bg-[var(--st-text)]"
+                        aria-label="Advantage+ campaign budget"
                     />
                 </div>
 
                 {state.cbo && (
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Budget type</Label>
+                            <Field label="Budget type">
                                 <Select
                                     value={state.campaignBudgetType}
                                     onValueChange={(v) => setField('campaignBudgetType', v as any)}
@@ -788,20 +811,17 @@ function Step1Campaign({
                                         <SelectItem value="LIFETIME">Lifetime budget</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Budget amount</Label>
+                            </Field>
+                            <Field label="Budget amount" error={fieldError(issues, 'campaignBudget')}>
                                 <Input
                                     type="number"
                                     value={state.campaignBudget}
                                     onChange={(e) => setField('campaignBudget', e.target.value)}
                                 />
-                                <FieldError issue={err('campaignBudget')} />
-                            </div>
+                            </Field>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Bid strategy</Label>
+                            <Field label="Bid strategy">
                                 <Select value={state.bidStrategy} onValueChange={(v) => setField('bidStrategy', v)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -810,16 +830,15 @@ function Step1Campaign({
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Account spending limit (optional)</Label>
+                            </Field>
+                            <Field label="Account spending limit (optional)">
                                 <Input
                                     type="number"
                                     value={state.campaignSpendCap}
                                     onChange={(e) => setField('campaignSpendCap', e.target.value)}
                                     placeholder="e.g. 10000"
                                 />
-                            </div>
+                            </Field>
                         </div>
                     </>
                 )}
@@ -827,23 +846,20 @@ function Step1Campaign({
 
             <Section title="Schedule (optional)" icon={Calendar} defaultOpen={false}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Start date</Label>
+                    <Field label="Start date">
                         <Input
                             type="datetime-local"
                             value={state.campaignStartDate}
                             onChange={(e) => setField('campaignStartDate', e.target.value)}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>End date</Label>
+                    </Field>
+                    <Field label="End date" error={fieldError(issues, 'campaignEndDate')}>
                         <Input
                             type="datetime-local"
                             value={state.campaignEndDate}
                             onChange={(e) => setField('campaignEndDate', e.target.value)}
                         />
-                        <FieldError issue={err('campaignEndDate')} />
-                    </div>
+                    </Field>
                 </div>
             </Section>
         </>
@@ -851,7 +867,7 @@ function Step1Campaign({
 }
 
 // =================================================================
-//  Step 2 — Ad Set
+//  Step 2, Ad Set
 // =================================================================
 
 function Step2AdSet({
@@ -864,8 +880,6 @@ function Step2AdSet({
     issues: ValidationIssue[];
     activeAccountId: string;
 }) {
-    const err = (f: string) => issues.find((i) => i.field === f);
-
     const togglePlacement = (id: string) => {
         setField('platforms', state.platforms.includes(id) ? state.platforms.filter((p) => p !== id) : [...state.platforms, id]);
     };
@@ -878,15 +892,12 @@ function Step2AdSet({
 
     return (
         <>
-            <div className="space-y-2">
-                <Label>Ad set name</Label>
+            <Field label="Ad set name" error={fieldError(issues, 'adSetName')}>
                 <Input value={state.adSetName} onChange={(e) => setField('adSetName', e.target.value)} />
-                <FieldError issue={err('adSetName')} />
-            </div>
+            </Field>
 
             <Section title="Conversion" icon={Target}>
-                <div className="space-y-2">
-                    <Label>Conversion location</Label>
+                <Field label="Conversion location">
                     <RadioGroup
                         value={state.conversionLocation}
                         onValueChange={(v) => setField('conversionLocation', v as any)}
@@ -902,21 +913,16 @@ function Step2AdSet({
                         ].map((c) => (
                             <label
                                 key={c.id}
-                                className={cn(
-                                    'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                    state.conversionLocation === c.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                                )}
+                                className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 cursor-pointer"
                             >
-                                <RadioGroupItem value={c.id} />
-                                <span className="text-sm">{c.label}</span>
+                                <RadioGroupItem value={c.id} label={c.label} />
                             </label>
                         ))}
                     </RadioGroup>
-                </div>
+                </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Performance goal</Label>
+                    <Field label="Performance goal">
                         <Select value={state.performanceGoal} onValueChange={(v) => setField('performanceGoal', v)}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -929,9 +935,8 @@ function Step2AdSet({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Pixel (optional)</Label>
+                    </Field>
+                    <Field label="Pixel (optional)">
                         <Select value={state.pixelId || '__none__'} onValueChange={(v) => setField('pixelId', v === '__none__' ? '' : v)}>
                             <SelectTrigger><SelectValue placeholder="Pick a pixel" /></SelectTrigger>
                             <SelectContent>
@@ -941,12 +946,11 @@ function Step2AdSet({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 </div>
 
                 {state.pixelId && (
-                    <div className="space-y-2">
-                        <Label>Conversion event</Label>
+                    <Field label="Conversion event">
                         <Select value={state.conversionEvent} onValueChange={(v) => setField('conversionEvent', v)}>
                             <SelectTrigger><SelectValue placeholder="Pick an event" /></SelectTrigger>
                             <SelectContent>
@@ -959,14 +963,13 @@ function Step2AdSet({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 )}
             </Section>
 
             <Section title="Budget & schedule" icon={DollarSign}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Budget type</Label>
+                    <Field label="Budget type">
                         <Select
                             value={state.adSetBudgetType}
                             onValueChange={(v) => setField('adSetBudgetType', v as any)}
@@ -978,36 +981,30 @@ function Step2AdSet({
                                 <SelectItem value="LIFETIME">Lifetime budget</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Budget</Label>
+                    </Field>
+                    <Field label="Budget" error={fieldError(issues, 'adSetBudget')}>
                         <Input
                             type="number"
                             value={state.adSetBudget}
                             onChange={(e) => setField('adSetBudget', e.target.value)}
                             disabled={state.cbo}
                         />
-                        <FieldError issue={err('adSetBudget')} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Start date</Label>
+                    </Field>
+                    <Field label="Start date">
                         <Input
                             type="datetime-local"
                             value={state.startDate}
                             onChange={(e) => setField('startDate', e.target.value)}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>End date</Label>
+                    </Field>
+                    <Field label="End date" error={fieldError(issues, 'endDate')}>
                         <Input
                             type="datetime-local"
                             value={state.endDate}
                             onChange={(e) => setField('endDate', e.target.value)}
                         />
-                        <FieldError issue={err('endDate')} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Attribution window</Label>
+                    </Field>
+                    <Field label="Attribution window">
                         <Select
                             value={state.attributionClickWindow}
                             onValueChange={(v) => setField('attributionClickWindow', v as any)}
@@ -1018,9 +1015,8 @@ function Step2AdSet({
                                 <SelectItem value="1_day_click">1-day click</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Pacing</Label>
+                    </Field>
+                    <Field label="Pacing">
                         <Select value={state.pacing} onValueChange={(v) => setField('pacing', v as any)}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -1028,32 +1024,30 @@ function Step2AdSet({
                                 <SelectItem value="accelerated">Accelerated</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Frequency cap (impressions)</Label>
+                    </Field>
+                    <Field label="Frequency cap (impressions)">
                         <Input
                             type="number"
                             value={state.frequencyCapImpressions}
                             onChange={(e) => setField('frequencyCapImpressions', e.target.value)}
                             placeholder="e.g. 3"
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Per (days)</Label>
+                    </Field>
+                    <Field label="Per (days)">
                         <Input
                             type="number"
                             value={state.frequencyCapDays}
                             onChange={(e) => setField('frequencyCapDays', e.target.value)}
                             placeholder="e.g. 7"
                         />
-                    </div>
+                    </Field>
                 </div>
             </Section>
 
             <Section title="Audience" icon={Users}>
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
-                        <div className="text-sm font-medium">Advantage+ audience</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Advantage+ audience</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">
                             Let Meta find your audience automatically. Recommended for most campaigns.
                         </div>
@@ -1061,25 +1055,24 @@ function Step2AdSet({
                     <Switch
                         checked={state.advantageAudience}
                         onCheckedChange={(v) => setField('advantageAudience', v)}
-                        className="data-[state=checked]:bg-[var(--st-text)]"
+                        aria-label="Advantage+ audience"
                     />
                 </div>
 
                 {!state.advantageAudience && (
                     <>
-                        <div className="space-y-2">
-                            <Label>Custom audiences</Label>
+                        <Field label="Custom audiences">
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button variant="outline" className="w-full justify-start">
                                         {state.customAudiences.length > 0
                                             ? `${state.customAudiences.length} selected`
-                                            : 'Pick custom audiences…'}
+                                            : 'Pick custom audiences...'}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="p-0 w-[380px]">
                                     <Command>
-                                        <CommandInput placeholder="Search audiences…" />
+                                        <CommandInput placeholder="Search audiences..." />
                                         <CommandList>
                                             <CommandEmpty>No audiences.</CommandEmpty>
                                             <CommandGroup>
@@ -1109,72 +1102,64 @@ function Step2AdSet({
                             </Popover>
                             <div className="flex flex-wrap gap-1 mt-1">
                                 {state.customAudiences.map((a) => (
-                                    <Badge key={a.id} variant="secondary" className="text-xs">
+                                    <Tag
+                                        key={a.id}
+                                        onRemove={() =>
+                                            setField(
+                                                'customAudiences',
+                                                state.customAudiences.filter((x) => x.id !== a.id),
+                                            )
+                                        }
+                                        removeLabel={`Remove ${a.name}`}
+                                    >
                                         {a.name}
-                                        <button
-                                            type="button"
-                                            className="ml-1"
-                                            onClick={() =>
-                                                setField(
-                                                    'customAudiences',
-                                                    state.customAudiences.filter((x) => x.id !== a.id),
-                                                )
-                                            }
-                                        >
-                                            ×
-                                        </button>
-                                    </Badge>
+                                    </Tag>
                                 ))}
                             </div>
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label className="flex items-center gap-1">
-                                <Globe className="h-3 w-3" /> Locations
-                            </Label>
+                        <Field label="Locations" error={fieldError(issues, 'countries')}>
                             <div className="flex flex-wrap gap-1.5">
                                 {COUNTRIES.map((c) => {
                                     const selected = state.countries.includes(c.code);
                                     return (
-                                        <button
+                                        <Button
                                             key={c.code}
                                             type="button"
+                                            size="sm"
+                                            variant={selected ? 'primary' : 'outline'}
                                             onClick={() => toggleCountry(c.code)}
-                                            className={cn(
-                                                'text-xs px-2.5 py-1 rounded-full border transition-colors',
-                                                selected
-                                                    ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]'
-                                                    : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
-                                            )}
+                                            aria-pressed={selected}
+                                            className="rounded-full"
                                         >
                                             {c.name}
-                                        </button>
+                                        </Button>
                                     );
                                 })}
                             </div>
-                            <FieldError issue={err('countries')} />
-                            <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)] mt-2">
-                                Include:
+                            <div className="flex items-center gap-3 text-xs text-[var(--st-text-secondary)] mt-2">
+                                <span>Include:</span>
                                 {['home', 'recent', 'travel_in'].map((lt) => (
-                                    <label key={lt} className="flex items-center gap-1">
-                                        <Checkbox
-                                            checked={state.locationTypes.includes(lt)}
-                                            onCheckedChange={(v) =>
-                                                setField(
-                                                    'locationTypes',
-                                                    v ? [...state.locationTypes, lt] : state.locationTypes.filter((x) => x !== lt),
-                                                )
-                                            }
-                                        />
-                                        {lt.replace('_', ' ')}
-                                    </label>
+                                    <Checkbox
+                                        key={lt}
+                                        size="sm"
+                                        label={lt.replace('_', ' ')}
+                                        checked={state.locationTypes.includes(lt)}
+                                        onChange={(e) =>
+                                            setField(
+                                                'locationTypes',
+                                                e.target.checked
+                                                    ? [...state.locationTypes, lt]
+                                                    : state.locationTypes.filter((x) => x !== lt),
+                                            )
+                                        }
+                                    />
                                 ))}
                             </div>
-                        </div>
+                        </Field>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Age range</Label>
+                            <Field label="Age range" error={fieldError(issues, 'minAge')}>
                                 <div className="flex items-center gap-2">
                                     <Input
                                         type="number"
@@ -1182,6 +1167,7 @@ function Step2AdSet({
                                         min={13}
                                         max={65}
                                         onChange={(e) => setField('minAge', Number(e.target.value))}
+                                        aria-label="Minimum age"
                                         className="w-20"
                                     />
                                     <span className="text-[var(--st-text-secondary)]">to</span>
@@ -1191,13 +1177,12 @@ function Step2AdSet({
                                         min={13}
                                         max={65}
                                         onChange={(e) => setField('maxAge', Number(e.target.value))}
+                                        aria-label="Maximum age"
                                         className="w-20"
                                     />
                                 </div>
-                                <FieldError issue={err('minAge')} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Gender</Label>
+                            </Field>
+                            <Field label="Gender">
                                 <Select value={state.gender} onValueChange={(v) => setField('gender', v as any)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -1206,7 +1191,7 @@ function Step2AdSet({
                                         <SelectItem value="female">Women</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         </div>
 
                         <DetailedTargetingPicker
@@ -1222,32 +1207,31 @@ function Step2AdSet({
                             onChange={(v) => setField('detailedExclusions', v)}
                         />
 
-                        <div className="space-y-2">
-                            <Label>Languages</Label>
+                        <Field label="Languages">
                             <div className="flex flex-wrap gap-1.5">
                                 {LANGUAGES.map((l) => {
                                     const sel = state.languages.includes(l.id);
                                     return (
-                                        <button
+                                        <Button
                                             key={l.id}
                                             type="button"
+                                            size="sm"
+                                            variant={sel ? 'primary' : 'outline'}
+                                            aria-pressed={sel}
                                             onClick={() =>
                                                 setField(
                                                     'languages',
                                                     sel ? state.languages.filter((x) => x !== l.id) : [...state.languages, l.id],
                                                 )
                                             }
-                                            className={cn(
-                                                'text-xs px-2.5 py-1 rounded-full border transition-colors',
-                                                sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
-                                            )}
+                                            className="rounded-full"
                                         >
                                             {l.name}
-                                        </button>
+                                        </Button>
                                     );
                                 })}
                             </div>
-                        </div>
+                        </Field>
                     </>
                 )}
             </Section>
@@ -1255,7 +1239,7 @@ function Step2AdSet({
             <Section title="Placements" icon={Smartphone}>
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
-                        <div className="text-sm font-medium">Advantage+ placements</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Advantage+ placements</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">
                             Show your ads where they're likely to perform best. Recommended.
                         </div>
@@ -1263,32 +1247,30 @@ function Step2AdSet({
                     <Switch
                         checked={state.advantagePlacements}
                         onCheckedChange={(v) => setField('advantagePlacements', v)}
-                        className="data-[state=checked]:bg-[var(--st-text)]"
+                        aria-label="Advantage+ placements"
                     />
                 </div>
 
                 {!state.advantagePlacements && (
                     <>
-                        <div className="space-y-2">
-                            <Label>Devices</Label>
+                        <Field label="Devices">
                             <div className="flex gap-2">
                                 {['mobile', 'desktop'].map((d) => (
-                                    <label key={d} className={cn(
-                                        'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer flex-1',
-                                        state.devices.includes(d) ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                                    )}>
+                                    <label
+                                        key={d}
+                                        className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 cursor-pointer flex-1"
+                                    >
                                         <Checkbox
                                             checked={state.devices.includes(d)}
-                                            onCheckedChange={() => toggleDevice(d)}
+                                            onChange={() => toggleDevice(d)}
+                                            label={<span className="capitalize">{d}</span>}
                                         />
-                                        <span className="text-sm capitalize">{d}</span>
                                     </label>
                                 ))}
                             </div>
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label>Platforms</Label>
+                        <Field label="Platforms" error={fieldError(issues, 'platforms')}>
                             <div className="grid grid-cols-2 gap-2">
                                 {[
                                     { id: 'facebook', label: 'Facebook', icon: Facebook },
@@ -1300,34 +1282,36 @@ function Step2AdSet({
                                     return (
                                         <label
                                             key={p.id}
-                                            className={cn(
-                                                'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                                state.platforms.includes(p.id) ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                                            )}
+                                            className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 cursor-pointer"
                                         >
                                             <Checkbox
                                                 checked={state.platforms.includes(p.id)}
-                                                onCheckedChange={() => togglePlacement(p.id)}
+                                                onChange={() => togglePlacement(p.id)}
+                                                label={
+                                                    <span className="flex items-center gap-2">
+                                                        <Icon className="h-4 w-4" />
+                                                        {p.label}
+                                                    </span>
+                                                }
                                             />
-                                            <Icon className="h-4 w-4" />
-                                            <span className="text-sm">{p.label}</span>
                                         </label>
                                     );
                                 })}
                             </div>
-                            <FieldError issue={err('platforms')} />
-                        </div>
+                        </Field>
 
                         {state.platforms.includes('facebook') && (
-                            <div className="space-y-2">
-                                <Label>Facebook positions</Label>
+                            <Field label="Facebook positions">
                                 <div className="flex flex-wrap gap-1.5">
                                     {FACEBOOK_POSITIONS.map((p) => {
                                         const sel = state.facebookPositions.includes(p);
                                         return (
-                                            <button
+                                            <Button
                                                 key={p}
                                                 type="button"
+                                                size="sm"
+                                                variant={sel ? 'primary' : 'outline'}
+                                                aria-pressed={sel}
                                                 onClick={() =>
                                                     setField(
                                                         'facebookPositions',
@@ -1336,29 +1320,28 @@ function Step2AdSet({
                                                             : [...state.facebookPositions, p],
                                                     )
                                                 }
-                                                className={cn(
-                                                    'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
-                                                )}
+                                                className="rounded-full"
                                             >
                                                 {p.replace(/_/g, ' ')}
-                                            </button>
+                                            </Button>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </Field>
                         )}
 
                         {state.platforms.includes('instagram') && (
-                            <div className="space-y-2">
-                                <Label>Instagram positions</Label>
+                            <Field label="Instagram positions">
                                 <div className="flex flex-wrap gap-1.5">
                                     {INSTAGRAM_POSITIONS.map((p) => {
                                         const sel = state.instagramPositions.includes(p);
                                         return (
-                                            <button
+                                            <Button
                                                 key={p}
                                                 type="button"
+                                                size="sm"
+                                                variant={sel ? 'primary' : 'outline'}
+                                                aria-pressed={sel}
                                                 onClick={() =>
                                                     setField(
                                                         'instagramPositions',
@@ -1367,22 +1350,18 @@ function Step2AdSet({
                                                             : [...state.instagramPositions, p],
                                                     )
                                                 }
-                                                className={cn(
-                                                    'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
-                                                )}
+                                                className="rounded-full"
                                             >
                                                 {p.replace(/_/g, ' ')}
-                                            </button>
+                                            </Button>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </Field>
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Mobile OS</Label>
+                            <Field label="Mobile OS">
                                 <Select value={state.mobileOS} onValueChange={(v) => setField('mobileOS', v as any)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -1391,9 +1370,8 @@ function Step2AdSet({
                                         <SelectItem value="android">Android only</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Brand safety</Label>
+                            </Field>
+                            <Field label="Brand safety">
                                 <Select
                                     value={state.brandSafetyInventoryFilter}
                                     onValueChange={(v) => setField('brandSafetyInventoryFilter', v as any)}
@@ -1405,16 +1383,14 @@ function Step2AdSet({
                                         <SelectItem value="LIMITED_INVENTORY">Limited inventory</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         </div>
 
-                        <label className="flex items-center gap-2 text-sm">
-                            <Checkbox
-                                checked={state.onlyWifi}
-                                onCheckedChange={(v) => setField('onlyWifi', !!v)}
-                            />
-                            Only when connected to Wi-Fi
-                        </label>
+                        <Checkbox
+                            checked={state.onlyWifi}
+                            onChange={(e) => setField('onlyWifi', e.target.checked)}
+                            label="Only when connected to Wi-Fi"
+                        />
                     </>
                 )}
             </Section>
@@ -1444,17 +1420,16 @@ function DetailedTargetingPicker({
     }, [query]);
 
     return (
-        <div className="space-y-2">
-            <Label>{label}</Label>
+        <Field label={label}>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-[var(--st-text-secondary)] font-normal">
-                        Search interests, behaviors, demographics…
+                        Search interests, behaviors, demographics...
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-0 w-[400px]">
                     <Command shouldFilter={false}>
-                        <CommandInput value={query} onValueChange={setQuery} placeholder="e.g. yoga, luxury cars…" />
+                        <CommandInput value={query} onValueChange={setQuery} placeholder="e.g. yoga, luxury cars..." />
                         <CommandList>
                             {results.length === 0 && <CommandEmpty>Start typing to search.</CommandEmpty>}
                             <CommandGroup>
@@ -1486,28 +1461,25 @@ function DetailedTargetingPicker({
             </Popover>
             <div className="flex flex-wrap gap-1">
                 {selected.map((s) => (
-                    <Badge key={s.id} variant="secondary" className="text-xs">
+                    <Tag
+                        key={s.id}
+                        onRemove={() => onChange(selected.filter((x) => x.id !== s.id))}
+                        removeLabel={`Remove ${s.name}`}
+                    >
                         {s.name}
-                        <button
-                            type="button"
-                            className="ml-1"
-                            onClick={() => onChange(selected.filter((x) => x.id !== s.id))}
-                        >
-                            ×
-                        </button>
-                    </Badge>
+                    </Tag>
                 ))}
             </div>
-        </div>
+        </Field>
     );
 }
 
 // =================================================================
-//  Step 3 — Ad
+//  Step 3, Ad
 // =================================================================
 
 function Step3Ad({
-    state, setField, pages, igAccounts, savedImages, uploading, onUpload, issues,
+    state, setField, pages, igAccounts, savedImages, uploading, onPickFile, issues,
     mediaTab, setMediaTab,
 }: {
     state: CreateFormState;
@@ -1516,27 +1488,23 @@ function Step3Ad({
     igAccounts: any[];
     savedImages: any[];
     uploading: boolean;
-    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onPickFile: (file: File) => void | Promise<void>;
     issues: ValidationIssue[];
     mediaTab: 'upload' | 'library';
     setMediaTab: (v: 'upload' | 'library') => void;
 }) {
-    const err = (f: string) => issues.find((i) => i.field === f || i.field.startsWith(`${f}.`));
     const addPrimaryText = () => setField('primaryTexts', [...state.primaryTexts, '']);
     const addHeadline = () => setField('headlines', [...state.headlines, '']);
     const addDescription = () => setField('descriptions', [...state.descriptions, '']);
 
     return (
         <>
-            <div className="space-y-2">
-                <Label>Ad name</Label>
+            <Field label="Ad name" error={fieldError(issues, 'adName')}>
                 <Input value={state.adName} onChange={(e) => setField('adName', e.target.value)} />
-                <FieldError issue={err('adName')} />
-            </div>
+            </Field>
 
             <Section title="Identity" icon={Facebook}>
-                <div className="space-y-2">
-                    <Label>Facebook page</Label>
+                <Field label="Facebook page" error={fieldError(issues, 'facebookPageId')}>
                     <Select value={state.facebookPageId} onValueChange={(v) => setField('facebookPageId', v)}>
                         <SelectTrigger><SelectValue placeholder="Pick a page" /></SelectTrigger>
                         <SelectContent>
@@ -1545,12 +1513,10 @@ function Step3Ad({
                             ))}
                         </SelectContent>
                     </Select>
-                    <FieldError issue={err('facebookPageId')} />
-                </div>
+                </Field>
 
                 {igAccounts.length > 0 && (
-                    <div className="space-y-2">
-                        <Label>Instagram account</Label>
+                    <Field label="Instagram account">
                         <Select value={state.instagramActorId} onValueChange={(v) => setField('instagramActorId', v)}>
                             <SelectTrigger><SelectValue placeholder="Pick IG account" /></SelectTrigger>
                             <SelectContent>
@@ -1559,70 +1525,60 @@ function Step3Ad({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 )}
 
-                <div className="space-y-2">
-                    <Label>Branded content sponsor (optional)</Label>
+                <Field label="Branded content sponsor (optional)">
                     <Input
                         value={state.brandedContentSponsorId}
                         onChange={(e) => setField('brandedContentSponsorId', e.target.value)}
                         placeholder="Sponsor page ID"
                     />
-                </div>
+                </Field>
             </Section>
 
             <Section title="Ad setup" icon={Settings2}>
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
-                        <div className="text-sm font-medium">Use an existing post</div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Use an existing post</div>
                         <div className="text-xs text-[var(--st-text-secondary)]">Promote a post you already published.</div>
                     </div>
                     <Switch
                         checked={state.useExistingPost}
                         onCheckedChange={(v) => setField('useExistingPost', v)}
-                        className="data-[state=checked]:bg-[var(--st-text)]"
+                        aria-label="Use an existing post"
                     />
                 </div>
 
                 {state.useExistingPost ? (
-                    <div className="space-y-2">
-                        <Label>Post ID</Label>
+                    <Field label="Post ID" error={fieldError(issues, 'existingPostId')}>
                         <Input
                             value={state.existingPostId}
                             onChange={(e) => setField('existingPostId', e.target.value)}
                             placeholder="e.g. 123456789012345_987654321"
                         />
-                        <FieldError issue={err('existingPostId')} />
-                    </div>
+                    </Field>
                 ) : (
-                    <>
-                        <div className="space-y-2">
-                            <Label>Ad format</Label>
-                            <RadioGroup
-                                value={state.adFormat}
-                                onValueChange={(v) => setField('adFormat', v as any)}
-                                className="grid grid-cols-2 sm:grid-cols-3 gap-2"
-                            >
-                                {[
-                                    { id: 'SINGLE_IMAGE', label: 'Single image or video' },
-                                    { id: 'CAROUSEL', label: 'Carousel' },
-                                    { id: 'COLLECTION', label: 'Collection' },
-                                ].map((f) => (
-                                    <label
-                                        key={f.id}
-                                        className={cn(
-                                            'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                            state.adFormat === f.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                                        )}
-                                    >
-                                        <RadioGroupItem value={f.id} />
-                                        <span className="text-xs">{f.label}</span>
-                                    </label>
-                                ))}
-                            </RadioGroup>
-                        </div>
-                    </>
+                    <Field label="Ad format">
+                        <RadioGroup
+                            value={state.adFormat}
+                            onValueChange={(v) => setField('adFormat', v as any)}
+                            className="grid grid-cols-2 sm:grid-cols-3 gap-2"
+                        >
+                            {[
+                                { id: 'SINGLE_IMAGE', label: 'Single image or video' },
+                                { id: 'CAROUSEL', label: 'Carousel' },
+                                { id: 'COLLECTION', label: 'Collection' },
+                            ].map((f) => (
+                                <label
+                                    key={f.id}
+                                    className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 cursor-pointer"
+                                >
+                                    <RadioGroupItem value={f.id} label={f.label} />
+                                </label>
+                            ))}
+                        </RadioGroup>
+                    </Field>
                 )}
             </Section>
 
@@ -1631,12 +1587,11 @@ function Step3Ad({
                     <Section title="Media" icon={ImageIcon}>
                         {state.adFormat === 'SINGLE_IMAGE' && (
                             <div>
-                                {/* Zoru has no tab primitive — use a segmented Button group */}
-                                <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--st-bg-muted)] rounded-lg">
+                                <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--st-bg-muted)] rounded-[var(--st-radius)]">
                                     <Button
                                         type="button"
                                         size="sm"
-                                        variant={mediaTab === 'upload' ? 'default' : 'ghost'}
+                                        variant={mediaTab === 'upload' ? 'primary' : 'ghost'}
                                         onClick={() => setMediaTab('upload')}
                                     >
                                         Upload new
@@ -1644,7 +1599,7 @@ function Step3Ad({
                                     <Button
                                         type="button"
                                         size="sm"
-                                        variant={mediaTab === 'library' ? 'default' : 'ghost'}
+                                        variant={mediaTab === 'library' ? 'primary' : 'ghost'}
                                         onClick={() => setMediaTab('library')}
                                     >
                                         From library
@@ -1653,61 +1608,64 @@ function Step3Ad({
 
                                 {mediaTab === 'upload' && (
                                     <div className="pt-3">
-                                        <div className="border-2 border-dashed rounded-xl p-8 text-center">
+                                        <div className="border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius-lg)] p-8 text-center">
                                             {state.imageUrl ? (
                                                 <div className="space-y-3">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img
                                                         src={state.imageUrl}
-                                                        alt=""
-                                                        className="max-h-48 mx-auto rounded-lg border"
+                                                        alt="Selected ad creative"
+                                                        className="max-h-48 mx-auto rounded-[var(--st-radius)] border border-[var(--st-border)]"
                                                     />
                                                     <Button variant="outline" size="sm" onClick={() => { setField('imageUrl', ''); setField('imageHash', ''); }}>
                                                         Replace image
                                                     </Button>
                                                 </div>
                                             ) : (
-                                                <div className="relative">
-                                                    <Upload className="h-10 w-10 mx-auto text-[var(--st-text-secondary)] mb-2" />
-                                                    <p className="text-sm font-medium">Drag & drop or click to upload</p>
-                                                    <p className="text-xs text-[var(--st-text-secondary)] mt-1">PNG, JPG up to 30MB</p>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={onUpload}
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                                        disabled={uploading}
-                                                    />
-                                                    {uploading && (
-                                                        <div className="mt-2 flex items-center justify-center gap-2 text-sm">
-                                                            <LoaderCircle className="h-4 w-4 animate-spin" /> Uploading…
-                                                        </div>
-                                                    )}
+                                                <div className="space-y-2">
+                                                    <ImageIcon className="h-10 w-10 mx-auto text-[var(--st-text-secondary)]" />
+                                                    <p className="text-sm font-medium text-[var(--st-text)]">Choose an image from SabFiles</p>
+                                                    <p className="text-xs text-[var(--st-text-secondary)]">PNG, JPG up to 30MB</p>
+                                                    <SabFileToFileButton
+                                                        accept="image"
+                                                        variant="outline"
+                                                        onPickFile={(file) => onPickFile(file)}
+                                                    >
+                                                        {uploading ? 'Uploading...' : 'Choose image'}
+                                                    </SabFileToFileButton>
                                                 </div>
                                             )}
                                         </div>
-                                        <FieldError issue={err('imageUrl')} />
+                                        {fieldError(issues, 'imageUrl') && (
+                                            <p className="flex items-center gap-1 text-xs text-[var(--st-danger)] mt-1">
+                                                <AlertTriangle className="h-3 w-3" /> {fieldError(issues, 'imageUrl')}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
 
                                 {mediaTab === 'library' && (
                                     <div className="pt-3">
                                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-auto">
-                                            {savedImages.map((img) => (
-                                                <button
-                                                    key={img.hash}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setField('imageHash', img.hash);
-                                                        setField('imageUrl', img.url);
-                                                    }}
-                                                    className={cn(
-                                                        'aspect-square rounded-lg overflow-hidden border-2',
-                                                        state.imageHash === img.hash ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                                                    )}
-                                                >
-                                                    <img src={img.url} alt="" className="w-full h-full object-cover" />
-                                                </button>
-                                            ))}
+                                            {savedImages.map((img) => {
+                                                const selected = state.imageHash === img.hash;
+                                                return (
+                                                    <Button
+                                                        key={img.hash}
+                                                        type="button"
+                                                        variant={selected ? 'primary' : 'outline'}
+                                                        aria-pressed={selected}
+                                                        onClick={() => {
+                                                            setField('imageHash', img.hash);
+                                                            setField('imageUrl', img.url);
+                                                        }}
+                                                        className="!p-0 aspect-square overflow-hidden rounded-[var(--st-radius)]"
+                                                    >
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img src={img.url} alt="Saved ad creative" className="w-full h-full object-cover" />
+                                                    </Button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -1715,28 +1673,28 @@ function Step3Ad({
                         )}
 
                         {state.adFormat === 'CAROUSEL' && (
-                            <div className="space-y-2">
-                                <Label>Carousel cards (min 2, max 10)</Label>
+                            <Field label="Carousel cards (min 2, max 10)" error={fieldError(issues, 'carouselCards')}>
                                 {state.carouselCards.map((card, idx) => (
-                                    <Card key={idx}>
+                                    <Card key={idx} padding="none">
                                         <CardBody className="p-3 space-y-2">
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs font-medium">Card {idx + 1}</span>
-                                                <Button
+                                                <span className="text-xs font-medium text-[var(--st-text)]">Card {idx + 1}</span>
+                                                <IconButton
+                                                    label={`Remove card ${idx + 1}`}
+                                                    icon={Trash2}
                                                     variant="ghost"
-                                                    size="icon-sm"
+                                                    size="sm"
                                                     onClick={() =>
                                                         setField(
                                                             'carouselCards',
                                                             state.carouselCards.filter((_, i) => i !== idx),
                                                         )
                                                     }
-                                                >
-                                                    <Trash2 className="h-3 w-3" />
-                                                </Button>
+                                                />
                                             </div>
                                             <Input
                                                 placeholder="Headline"
+                                                aria-label={`Card ${idx + 1} headline`}
                                                 value={card.name}
                                                 onChange={(e) => {
                                                     const next = [...state.carouselCards];
@@ -1746,6 +1704,7 @@ function Step3Ad({
                                             />
                                             <Input
                                                 placeholder="Description"
+                                                aria-label={`Card ${idx + 1} description`}
                                                 value={card.description || ''}
                                                 onChange={(e) => {
                                                     const next = [...state.carouselCards];
@@ -1755,6 +1714,7 @@ function Step3Ad({
                                             />
                                             <Input
                                                 placeholder="Destination URL"
+                                                aria-label={`Card ${idx + 1} destination URL`}
                                                 value={card.link || ''}
                                                 onChange={(e) => {
                                                     const next = [...state.carouselCards];
@@ -1768,112 +1728,126 @@ function Step3Ad({
                                 <Button
                                     variant="outline"
                                     size="sm"
+                                    iconLeft={Plus}
                                     onClick={() =>
                                         setField('carouselCards', [...state.carouselCards, { name: '', description: '', link: '' }])
                                     }
                                     disabled={state.carouselCards.length >= 10}
                                 >
-                                    <Plus className="h-3 w-3 mr-1" /> Add card
+                                    Add card
                                 </Button>
-                                <FieldError issue={err('carouselCards')} />
-                            </div>
+                            </Field>
                         )}
                     </Section>
 
                     <Section title="Primary text, headline & description" icon={Sparkles}>
-                        <div className="space-y-2">
-                            <Label className="flex items-center justify-between">
-                                Primary text
-                                <Button variant="ghost" size="sm" onClick={addPrimaryText}>
-                                    <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </Button>
-                            </Label>
-                            {state.primaryTexts.map((t, i) => (
-                                <Textarea
-                                    key={i}
-                                    value={t}
-                                    onChange={(e) => {
-                                        const next = [...state.primaryTexts];
-                                        next[i] = e.target.value;
-                                        setField('primaryTexts', next);
-                                    }}
-                                    placeholder={`Primary text ${i + 1}`}
-                                    maxLength={2200}
-                                    className="min-h-20"
-                                />
-                            ))}
-                            <FieldError issue={err('primaryTexts')} />
-                        </div>
+                        <Field
+                            label={
+                                <span className="flex items-center justify-between w-full">
+                                    Primary text
+                                    <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addPrimaryText}>
+                                        Add variant
+                                    </Button>
+                                </span>
+                            }
+                            error={fieldError(issues, 'primaryTexts')}
+                        >
+                            <div className="space-y-2">
+                                {state.primaryTexts.map((t, i) => (
+                                    <Textarea
+                                        key={i}
+                                        value={t}
+                                        aria-label={`Primary text ${i + 1}`}
+                                        onChange={(e) => {
+                                            const next = [...state.primaryTexts];
+                                            next[i] = e.target.value;
+                                            setField('primaryTexts', next);
+                                        }}
+                                        placeholder={`Primary text ${i + 1}`}
+                                        maxLength={2200}
+                                        className="min-h-20"
+                                    />
+                                ))}
+                            </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label className="flex items-center justify-between">
-                                Headline
-                                <Button variant="ghost" size="sm" onClick={addHeadline}>
-                                    <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </Button>
-                            </Label>
-                            {state.headlines.map((h, i) => (
-                                <Input
-                                    key={i}
-                                    value={h}
-                                    maxLength={40}
-                                    onChange={(e) => {
-                                        const next = [...state.headlines];
-                                        next[i] = e.target.value;
-                                        setField('headlines', next);
-                                    }}
-                                    placeholder="Max 40 characters"
-                                />
-                            ))}
-                            <FieldError issue={err('headlines')} />
-                        </div>
+                        <Field
+                            label={
+                                <span className="flex items-center justify-between w-full">
+                                    Headline
+                                    <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addHeadline}>
+                                        Add variant
+                                    </Button>
+                                </span>
+                            }
+                            error={fieldError(issues, 'headlines')}
+                        >
+                            <div className="space-y-2">
+                                {state.headlines.map((h, i) => (
+                                    <Input
+                                        key={i}
+                                        value={h}
+                                        maxLength={40}
+                                        aria-label={`Headline ${i + 1}`}
+                                        onChange={(e) => {
+                                            const next = [...state.headlines];
+                                            next[i] = e.target.value;
+                                            setField('headlines', next);
+                                        }}
+                                        placeholder="Max 40 characters"
+                                    />
+                                ))}
+                            </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <Label className="flex items-center justify-between">
-                                Description
-                                <Button variant="ghost" size="sm" onClick={addDescription}>
-                                    <Plus className="h-3 w-3 mr-1" /> Add variant
-                                </Button>
-                            </Label>
-                            {state.descriptions.map((d, i) => (
-                                <Input
-                                    key={i}
-                                    value={d}
-                                    maxLength={30}
-                                    onChange={(e) => {
-                                        const next = [...state.descriptions];
-                                        next[i] = e.target.value;
-                                        setField('descriptions', next);
-                                    }}
-                                    placeholder="Max 30 characters"
-                                />
-                            ))}
-                            <FieldError issue={err('descriptions')} />
-                        </div>
+                        <Field
+                            label={
+                                <span className="flex items-center justify-between w-full">
+                                    Description
+                                    <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addDescription}>
+                                        Add variant
+                                    </Button>
+                                </span>
+                            }
+                            error={fieldError(issues, 'descriptions')}
+                        >
+                            <div className="space-y-2">
+                                {state.descriptions.map((d, i) => (
+                                    <Input
+                                        key={i}
+                                        value={d}
+                                        maxLength={30}
+                                        aria-label={`Description ${i + 1}`}
+                                        onChange={(e) => {
+                                            const next = [...state.descriptions];
+                                            next[i] = e.target.value;
+                                            setField('descriptions', next);
+                                        }}
+                                        placeholder="Max 30 characters"
+                                    />
+                                ))}
+                            </div>
+                        </Field>
                     </Section>
 
                     <Section title="Destination" icon={Target}>
-                        <div className="space-y-2">
-                            <Label>Destination URL</Label>
+                        <Field label="Destination URL" error={fieldError(issues, 'destinationUrl')}>
                             <Input
                                 type="url"
                                 value={state.destinationUrl}
                                 onChange={(e) => setField('destinationUrl', e.target.value)}
                                 placeholder="https://"
                             />
-                            <FieldError issue={err('destinationUrl')} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Display link (optional)</Label>
+                        </Field>
+                        <Field label="Display link (optional)">
                             <Input
                                 value={state.displayLink}
                                 onChange={(e) => setField('displayLink', e.target.value)}
                                 placeholder="example.com/offer"
                             />
-                        </div>
+                        </Field>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Call to action</Label>
+                            <Field label="Call to action">
                                 <Select value={state.callToAction} onValueChange={(v) => setField('callToAction', v)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -1882,15 +1856,14 @@ function Step3Ad({
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>URL parameters (UTM)</Label>
+                            </Field>
+                            <Field label="URL parameters (UTM)">
                                 <Input
                                     value={state.urlParameters}
                                     onChange={(e) => setField('urlParameters', e.target.value)}
                                     placeholder="utm_source=facebook&utm_medium=paid"
                                 />
-                            </div>
+                            </Field>
                         </div>
                     </Section>
                 </>

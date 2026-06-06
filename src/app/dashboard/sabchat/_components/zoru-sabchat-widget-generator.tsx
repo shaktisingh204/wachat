@@ -1,25 +1,44 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useMemo,
-  useState } from "react";
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Input,
+  Textarea,
+  Field,
+  Label,
+  Switch,
+  useToast,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/sabcrm/20ui";
+import { useEffect, useMemo, useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { Code,
+import {
+  Code,
   Copy,
-  LoaderCircle,
   MessageSquare,
   Save,
   Palette,
   Settings2,
-  FileText } from "lucide-react";
+  FileText,
+} from "lucide-react";
 
 import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
-import type { WithId,
-  User,
-  SabChatSettings } from "@/lib/definitions";
+import type { WithId, User, SabChatSettings } from "@/lib/definitions";
 
 import { SabFileUrlInput } from "@/components/sabfiles";
 
@@ -31,12 +50,7 @@ const initialState: { message: string | null; error?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="animate-spin" />
-      ) : (
-        <Save />
-      )}
+    <Button type="submit" variant="primary" loading={pending} iconLeft={Save}>
       Save widget settings
     </Button>
   );
@@ -83,13 +97,13 @@ export function ZoruSabChatWidgetGenerator({
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: "Saved", description: state.message });
+      toast({ title: "Saved", description: state.message, tone: "success" });
     }
     if (state.error) {
       toast({
         title: "Error",
         description: state.error || "An error occurred",
-        variant: "destructive",
+        tone: "danger",
       });
     }
   }, [state, toast]);
@@ -111,18 +125,17 @@ export function ZoruSabChatWidgetGenerator({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(embedCode);
-      toast({
-        title: "Copied",
-        description: "Embed code copied to clipboard.",
-      });
+      toast.success("Embed code copied to clipboard.");
     } catch {
-      toast({
-        title: "Copy failed",
-        description: "Could not copy to clipboard.",
-        variant: "destructive",
-      });
+      toast.error("Could not copy to clipboard.");
     }
   };
+
+  const tabs = [
+    { id: 'design' as const, label: 'Design', icon: Palette },
+    { id: 'pre-chat' as const, label: 'Pre-chat form', icon: FileText },
+    { id: 'advanced' as const, label: 'Advanced', icon: Settings2 },
+  ];
 
   return (
     <Card>
@@ -136,7 +149,7 @@ export function ZoruSabChatWidgetGenerator({
         <CardHeader>
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-              <Code className="h-4 w-4" />
+              <Code className="h-4 w-4" aria-hidden="true" />
             </span>
             <div>
               <CardTitle>Widget configuration</CardTitle>
@@ -149,42 +162,40 @@ export function ZoruSabChatWidgetGenerator({
         <CardBody>
           <div className="flex flex-col gap-8 lg:flex-row">
             {/* Sidebar Navigation */}
-            <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0 border-b lg:border-b-0 lg:border-r border-[var(--st-border)] pb-4 lg:pb-0 lg:pr-4 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => setActiveTab('design')}
-                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'design' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
-              >
-                <Palette className="h-4 w-4 shrink-0" />
-                Design
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('pre-chat')}
-                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'pre-chat' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
-              >
-                <FileText className="h-4 w-4 shrink-0" />
-                Pre-chat form
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('advanced')}
-                className={`flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'advanced' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium' : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'}`}
-              >
-                <Settings2 className="h-4 w-4 shrink-0" />
-                Advanced
-              </button>
+            <div
+              role="tablist"
+              aria-label="Widget settings sections"
+              className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0 border-b lg:border-b-0 lg:border-r border-[var(--st-border)] pb-4 lg:pb-0 lg:pr-4 overflow-x-auto"
+            >
+              {tabs.map((tab) => {
+                const active = activeTab === tab.id;
+                return (
+                  <Button
+                    key={tab.id}
+                    role="tab"
+                    aria-selected={active}
+                    variant={active ? 'secondary' : 'ghost'}
+                    iconLeft={tab.icon}
+                    block
+                    onClick={() => setActiveTab(tab.id)}
+                    className="justify-start"
+                  >
+                    {tab.label}
+                  </Button>
+                );
+              })}
             </div>
 
             {/* Customisation panel */}
             <div className="flex-1 space-y-6">
-              
+
               {activeTab === 'design' && (
                 <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
                   <div className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                     <Switch
                       id="widget-enabled"
                       checked={settings.enabled}
+                      aria-label="Enable chat widget"
                       onCheckedChange={(checked) =>
                         handleSettingChange("enabled", checked)
                       }
@@ -205,25 +216,22 @@ export function ZoruSabChatWidgetGenerator({
                   </div>
 
                   <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="widget-color">Widget colour</Label>
+                    <Field label="Widget colour" id="widget-color">
                       <Input
-                        id="widget-color"
                         type="color"
                         value={settings.widgetColor}
                         onChange={(e) =>
                           handleSettingChange("widgetColor", e.target.value)
                         }
                       />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Widget position</Label>
+                    </Field>
+
+                    <Field label="Widget position">
                       <Select
                         value={settings.widgetPosition}
                         onValueChange={(v) => handleSettingChange("widgetPosition", v)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Widget position">
                           <SelectValue placeholder="Position" />
                         </SelectTrigger>
                         <SelectContent>
@@ -231,15 +239,14 @@ export function ZoruSabChatWidgetGenerator({
                           <SelectItem value="right">Right</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label>Dark mode</Label>
+                    <Field label="Dark mode">
                       <Select
                         value={settings.darkMode}
                         onValueChange={(v) => handleSettingChange("darkMode", v)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Dark mode">
                           <SelectValue placeholder="Theme" />
                         </SelectTrigger>
                         <SelectContent>
@@ -248,65 +255,55 @@ export function ZoruSabChatWidgetGenerator({
                           <SelectItem value="auto">Auto (System)</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="widget-team-name">Channel name</Label>
+                    <Field label="Channel name" id="widget-team-name">
                       <Input
-                        id="widget-team-name"
                         value={settings.teamName}
                         onChange={(e) =>
                           handleSettingChange("teamName", e.target.value)
                         }
                       />
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2 sm:col-span-2">
-                      <Label htmlFor="widget-welcome">Welcome message</Label>
+                    <Field label="Welcome message" id="widget-welcome" className="sm:col-span-2">
                       <Textarea
-                        id="widget-welcome"
                         value={settings.welcomeMessage}
                         onChange={(e) =>
                           handleSettingChange("welcomeMessage", e.target.value)
                         }
                         rows={2}
                       />
-                    </div>
-                    
-                    <div className="space-y-2 sm:col-span-2">
-                      <Label htmlFor="widget-tagline">Welcome tagline</Label>
+                    </Field>
+
+                    <Field label="Welcome tagline" id="widget-tagline" className="sm:col-span-2">
                       <Input
-                        id="widget-tagline"
                         value={settings.welcomeTagline}
                         onChange={(e) =>
                           handleSettingChange("welcomeTagline", e.target.value)
                         }
                       />
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="widget-avatar">Agent Avatar</Label>
+                    <Field label="Agent avatar" id="widget-avatar">
                       <SabFileUrlInput
-                        id="widget-avatar"
                         accept="image"
                         value={settings.avatarUrl ?? ""}
                         onChange={(v) =>
                           handleSettingChange("avatarUrl", v)
                         }
                       />
-                    </div>
+                    </Field>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="widget-logo">Company Logo</Label>
+                    <Field label="Company logo" id="widget-logo">
                       <SabFileUrlInput
-                        id="widget-logo"
                         accept="image"
                         value={settings.companyLogo ?? ""}
                         onChange={(v) =>
                           handleSettingChange("companyLogo", v)
                         }
                       />
-                    </div>
+                    </Field>
                   </div>
                 </div>
               )}
@@ -317,13 +314,14 @@ export function ZoruSabChatWidgetGenerator({
                     <Switch
                       id="prechat-enabled"
                       checked={settings.preChatFormEnabled}
+                      aria-label="Enable pre-chat form"
                       onCheckedChange={(checked) =>
                         handleSettingChange("preChatFormEnabled", checked)
                       }
                     />
                     <div className="grid gap-1.5 leading-none">
                       <Label htmlFor="prechat-enabled">
-                        Enable Pre-chat Form
+                        Enable pre-chat form
                       </Label>
                       <p className="text-sm text-[var(--st-text-secondary)]">
                         Collect visitor information before starting a conversation.
@@ -333,10 +331,12 @@ export function ZoruSabChatWidgetGenerator({
 
                   {settings.preChatFormEnabled && (
                     <div className="space-y-4 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="prechat-message">Pre-chat Message</Label>
+                      <Field
+                        label="Pre-chat message"
+                        id="prechat-message"
+                        help="Additional custom fields can be configured in your channel settings."
+                      >
                         <Textarea
-                          id="prechat-message"
                           value={settings.preChatFormMessage}
                           onChange={(e) =>
                             handleSettingChange("preChatFormMessage", e.target.value)
@@ -344,10 +344,7 @@ export function ZoruSabChatWidgetGenerator({
                           placeholder="Please provide your details before we start."
                           rows={2}
                         />
-                      </div>
-                      <p className="text-sm text-[var(--st-text-secondary)]">
-                        (Additional custom fields management can be configured in your channel settings)
-                      </p>
+                      </Field>
                     </div>
                   )}
                 </div>
@@ -358,48 +355,52 @@ export function ZoruSabChatWidgetGenerator({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
-                        <Label htmlFor="adv-csat">Customer Satisfaction (CSAT)</Label>
-                        <p className="text-xs text-[var(--st-text-secondary)]">Send a survey after conversation resolves.</p>
+                        <Label htmlFor="adv-csat">Customer satisfaction (CSAT)</Label>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Send a survey after the conversation resolves.</p>
                       </div>
                       <Switch
                         id="adv-csat"
                         checked={settings.csatSurveyEnabled}
+                        aria-label="Customer satisfaction (CSAT)"
                         onCheckedChange={(c) => handleSettingChange("csatSurveyEnabled", c)}
                       />
                     </div>
 
                     <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
-                        <Label htmlFor="adv-attachments">File Attachments</Label>
+                        <Label htmlFor="adv-attachments">File attachments</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Allow visitors to send files.</p>
                       </div>
                       <Switch
                         id="adv-attachments"
                         checked={settings.fileAttachmentsEnabled}
+                        aria-label="File attachments"
                         onCheckedChange={(c) => handleSettingChange("fileAttachmentsEnabled", c)}
                       />
                     </div>
 
                     <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
-                        <Label htmlFor="adv-emoji">Emoji Picker</Label>
-                        <p className="text-xs text-[var(--st-text-secondary)]">Show emoji picker in widget input.</p>
+                        <Label htmlFor="adv-emoji">Emoji picker</Label>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Show the emoji picker in the widget input.</p>
                       </div>
                       <Switch
                         id="adv-emoji"
                         checked={settings.emojiPickerEnabled}
+                        aria-label="Emoji picker"
                         onCheckedChange={(c) => handleSettingChange("emojiPickerEnabled", c)}
                       />
                     </div>
 
                     <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4">
                       <div className="space-y-1">
-                        <Label htmlFor="adv-consent">Require Consent</Label>
+                        <Label htmlFor="adv-consent">Require consent</Label>
                         <p className="text-xs text-[var(--st-text-secondary)]">Show a consent disclaimer.</p>
                       </div>
                       <Switch
                         id="adv-consent"
                         checked={settings.requireConsent}
+                        aria-label="Require consent"
                         onCheckedChange={(c) => handleSettingChange("requireConsent", c)}
                       />
                     </div>
@@ -412,6 +413,7 @@ export function ZoruSabChatWidgetGenerator({
                       <Switch
                         id="adv-hours"
                         checked={settings.hideOutsideBusinessHours}
+                        aria-label="Hide outside business hours"
                         onCheckedChange={(c) => handleSettingChange("hideOutsideBusinessHours", c)}
                       />
                     </div>
@@ -425,7 +427,7 @@ export function ZoruSabChatWidgetGenerator({
               <Label>Live preview</Label>
               <div className="relative flex h-[500px] w-full items-end justify-end overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]">
                 <div className={`static w-full h-full flex flex-col ${settings.widgetPosition === 'left' ? 'items-start' : 'items-end'} justify-end`}>
-                  
+
                   {showWidget && (
                     <div className={`mb-4 flex h-[400px] w-[320px] flex-col overflow-hidden rounded-xl border border-[var(--st-border)] ${settings.darkMode === 'dark' ? 'bg-[var(--st-text)] text-white' : 'bg-white text-[var(--st-text)]'} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
                       <div
@@ -436,7 +438,7 @@ export function ZoruSabChatWidgetGenerator({
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10 border-2 border-white/20">
                               {settings.avatarUrl && (
-                                <AvatarImage src={settings.avatarUrl} />
+                                <AvatarImage src={settings.avatarUrl} alt={settings.teamName} />
                               )}
                               <AvatarFallback className="bg-white/10 text-white">
                                 {settings.teamName?.charAt(0) || "S"}
@@ -455,7 +457,7 @@ export function ZoruSabChatWidgetGenerator({
                         <div className="flex gap-2">
                           <Avatar className="h-6 w-6 mt-1">
                             {settings.avatarUrl && (
-                              <AvatarImage src={settings.avatarUrl} />
+                              <AvatarImage src={settings.avatarUrl} alt={settings.teamName} />
                             )}
                             <AvatarFallback className="text-[10px]">
                               {settings.teamName?.charAt(0) || "S"}
@@ -470,37 +472,36 @@ export function ZoruSabChatWidgetGenerator({
                           <div className={`mt-4 rounded-xl border p-4 ${settings.darkMode === 'dark' ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)] bg-white'}`}>
                             <p className="mb-3 text-sm font-medium">{settings.preChatFormMessage}</p>
                             <div className="space-y-3">
-                              <Input className={settings.darkMode === 'dark' ? 'bg-[var(--st-text)] border-[var(--st-border)]' : ''} placeholder="Your name" />
-                              <Input className={settings.darkMode === 'dark' ? 'bg-[var(--st-text)] border-[var(--st-border)]' : ''} placeholder="Your email" />
-                              <Button className="w-full text-white" style={{ backgroundColor: settings.widgetColor }}>Start Conversation</Button>
+                              <Input aria-label="Your name" className={settings.darkMode === 'dark' ? 'bg-[var(--st-text)] border-[var(--st-border)]' : ''} placeholder="Your name" />
+                              <Input aria-label="Your email" className={settings.darkMode === 'dark' ? 'bg-[var(--st-text)] border-[var(--st-border)]' : ''} placeholder="Your email" />
+                              <Button block className="text-white" style={{ backgroundColor: settings.widgetColor }}>Start conversation</Button>
                             </div>
                           </div>
                         )}
                       </div>
                       <div className={`border-t p-3 ${settings.darkMode === 'dark' ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)] bg-white'}`}>
                         <div className={`flex items-center gap-2 rounded-full border px-3 py-2 ${settings.darkMode === 'dark' ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)] bg-[var(--st-bg-muted)]'}`}>
-                          <input 
-                            placeholder="Type a message..." 
-                            className="flex-1 bg-transparent text-sm outline-none" 
-                            disabled={settings.preChatFormEnabled} 
+                          <Input
+                            aria-label="Type a message (preview)"
+                            placeholder="Type a message..."
+                            className="flex-1 border-0 bg-transparent text-sm"
+                            disabled={settings.preChatFormEnabled}
                           />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <button
-                    type="button"
+                  <IconButton
+                    label="Toggle widget preview"
+                    icon={MessageSquare}
                     style={{ backgroundColor: settings.widgetColor }}
                     onClick={() => setShowWidget(!showWidget)}
-                    className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105"
-                    aria-label="Toggle widget preview"
-                  >
-                    <MessageSquare className="h-6 w-6" />
-                  </button>
+                    className="relative h-14 w-14 shrink-0 rounded-full text-white shadow-lg transition-transform hover:scale-105"
+                  />
                 </div>
               </div>
-              
+
               <div className="space-y-2 pt-4">
                 <Label htmlFor="widget-embed">Embed code</Label>
                 <p className="text-xs text-[var(--st-text-secondary)]">
@@ -514,15 +515,13 @@ export function ZoruSabChatWidgetGenerator({
                   >
                     {embedCode}
                   </pre>
-                  <Button
-                    type="button"
+                  <IconButton
+                    label="Copy embed code"
+                    icon={Copy}
                     variant="outline"
-                    size="icon-sm"
+                    size="sm"
                     onClick={handleCopy}
-                    aria-label="Copy embed code"
-                  >
-                    <Copy />
-                  </Button>
+                  />
                 </div>
               </div>
             </div>

@@ -1,10 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Plus, Trash2, Inbox } from 'lucide-react';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    EmptyState,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { createAdminDisposition, deleteAdminDisposition } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminDispositionsClient({ initialData }: { initialData: any[] }) {
+    const { toast } = useToast();
     const [code, setCode] = useState('');
     const [label, setLabel] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,6 +33,9 @@ export function AdminDispositionsClient({ initialData }: { initialData: any[] })
             await createAdminDisposition({ code, label });
             setCode('');
             setLabel('');
+            toast.success('Disposition created.');
+        } catch {
+            toast.error('Could not create disposition.');
         } finally {
             setIsSubmitting(false);
         }
@@ -23,51 +43,82 @@ export function AdminDispositionsClient({ initialData }: { initialData: any[] })
 
     async function handleDelete(id: string) {
         if (!confirm('Are you sure?')) return;
-        await deleteAdminDisposition(id);
+        try {
+            await deleteAdminDisposition(id);
+            toast.success('Disposition deleted.');
+        } catch {
+            toast.error('Could not delete disposition.');
+        }
     }
 
     return (
-        <div className="flex flex-col gap-6">
-            <form onSubmit={handleCreate} className="flex gap-4 items-end bg-[var(--st-bg-muted)]/50 p-4 rounded-lg border">
-                <div className="flex-1">
-                    <label className="text-sm font-medium mb-1 block">Code</label>
-                    <Input value={code} onChange={(e) => setCode(e.target.value)} required placeholder="e.g. RESOLVED_DOCS" />
-                </div>
-                <div className="flex-1">
-                    <label className="text-sm font-medium mb-1 block">Label</label>
-                    <Input value={label} onChange={(e) => setLabel(e.target.value)} required placeholder="e.g. Resolved via Documentation" />
-                </div>
-                <Button type="submit" disabled={isSubmitting}>Create Disposition</Button>
-            </form>
+        <div className="ui20 flex flex-col gap-6">
+            <Card padding="md">
+                <CardBody>
+                    <form onSubmit={handleCreate} className="flex flex-col gap-4 sm:flex-row sm:items-end">
+                        <Field label="Code" className="flex-1">
+                            <Input
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                required
+                                placeholder="e.g. RESOLVED_DOCS"
+                            />
+                        </Field>
+                        <Field label="Label" className="flex-1">
+                            <Input
+                                value={label}
+                                onChange={(e) => setLabel(e.target.value)}
+                                required
+                                placeholder="e.g. Resolved via Documentation"
+                            />
+                        </Field>
+                        <Button type="submit" variant="primary" loading={isSubmitting} iconLeft={Plus}>
+                            Create Disposition
+                        </Button>
+                    </form>
+                </CardBody>
+            </Card>
 
-            <div className="rounded-md border">
-                <Table>
-                    <THead>
-                        <Tr>
-                            <Th>ID</Th>
-                            <Th>Code</Th>
-                            <Th>Label</Th>
-                            <Th className="text-right">Actions</Th>
-                        </Tr>
-                    </THead>
-                    <TBody>
-                        {initialData.length === 0 ? (
-                            <Tr><Td colSpan={4} className="text-center">No dispositions found.</Td></Tr>
-                        ) : (
-                            initialData.map((item) => (
+            {initialData.length === 0 ? (
+                <Card padding="lg">
+                    <EmptyState
+                        icon={Inbox}
+                        title="No dispositions found"
+                        description="Create your first disposition using the form above."
+                    />
+                </Card>
+            ) : (
+                <Card padding="none">
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th>ID</Th>
+                                <Th>Code</Th>
+                                <Th>Label</Th>
+                                <Th align="right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {initialData.map((item) => (
                                 <Tr key={item._id}>
                                     <Td className="font-mono text-xs">{item._id}</Td>
                                     <Td>{item.code}</Td>
                                     <Td>{item.label}</Td>
-                                    <Td className="text-right">
-                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>Delete</Button>
+                                    <Td align="right">
+                                        <IconButton
+                                            label={`Delete ${item.label || item.code}`}
+                                            icon={Trash2}
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleDelete(item._id)}
+                                        />
                                     </Td>
                                 </Tr>
-                            ))
-                        )}
-                    </TBody>
-                </Table>
-            </div>
+                            ))}
+                        </TBody>
+                    </Table>
+                </Card>
+            )}
         </div>
     );
 }
