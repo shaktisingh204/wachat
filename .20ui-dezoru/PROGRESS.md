@@ -102,7 +102,20 @@ MIGRATION WORKFLOW (reusable): `module-to-pure-20ui`
   Per file: list -> rewrite (pure 20ui, 4 skills, breakage-ok) -> verify+fix. Disjoint files => run several
   modules CONCURRENTLY. Validate quality on first completions, then chain the rest.
 
-RUNNING NOW: url-shortener (wk01i5nny), sabsprints (wtuqjmyvz), sabvault (w04bcdwq0).
+RATE-LIMIT LESSON: parallel agents hit HTTP 429 ("Server is temporarily limiting requests") at
+~48-96 concurrent (6 workflows x16, or 3 x16). DO NOT run unthrottled. Working approach:
+THROTTLED workflow `module-20ui-throttled` (chunk=4, REWRITE-ONLY, peak ~4 agents/workflow);
+run ~3 concurrently (peak ~12). Per-module throttled copies: /tmp/mod20ui/t_<module>.js
+(sed of the base throttled script). sabsign proved it (24/24, 1.7M tokens, no 429).
+
+DONE + COMMITTED (pure-20ui): url-shortener (36), sabsign (24). [sabvault/sabsprints already clean.]
+RUNNING (throttled x3): ad-manager, finance, email.
+LOOP: on each completion -> validate (node .20ui-dezoru/check-imports.js == 0; residual grep
+EXCLUDING legit: <input type=hidden>, runtime style={{color}}, @/components/zoruui-domain) ->
+commit module -> launch next t_<module>.js, hold ~3 concurrent.
+QUEUE (t_*.js staged): sabsense sabchat sabmonitor sabshop sabconnect sabworkerly platform api
+marketing team sabbigin sabpractice sabcreator settings user sabcheckout sabflow sabmeet sabtables
+sabwebinar facebook telegram sabdesk sabbi seo + non-dashboard (sabwa sabsms portal admin app auth onboarding).
 
 MODULES TO MIGRATE (dashboard, exclude crm + hrm + hrm-advanced + wachat; ~ file counts):
   seo 268, sabdesk 114, facebook 96, sabbi 90, telegram 88, ad-manager 55, sabflow 49, user 48,
