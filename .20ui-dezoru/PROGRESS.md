@@ -15,15 +15,22 @@ SCOPE (in-scope dirty = 1029 files, 133 modules): all dirty .tsx under src/app/*
   ui, clay, sab-ui (vendored DS, deleted later not rewritten), landing/landing-v2/landing-3d (marketing),
   crm, hrm, sabcrm/20ui (DS internals). NOTE: crm-advanced + components/crm already import 20ui but were
   EXCLUDED to honor the literal "except crm" directive; clean them later if the user wants.
-SHARDS (file counts): 00=60 (PILOT: settings/user/sabcheckout + dashboard singles), 01=300, 02=300,
-  03=300, 04=69. Order: partials -> rest of dashboard (fewest-dirty first ... seo 55, sabdesk 76 last)
-  -> app routes -> feature components (zoruui-domain 94, sabflow 177 last).
+WORK DRIVER = HARD residuals only (bad imports / raw primitives / zoru remnants). Inline-style-only files
+  are SOFT (runtime-legit allowed) -> a single dedicated sweep at the END (INCLUDE_SOFT=1 plan run, 187 files).
+  Two scanner fixes this run: (a) ban only @/components/zoruui[/...], NOT @/components/zoruui-domain (KEEP);
+  (b) strip template-literal contents so email/HTML-in-string <button> etc. are not false raw-primitive flags.
 PER-SHARD LOOP (orchestrator): Workflow({scriptPath: shard_NN.js}) [bg, auto-caps 10 concurrent = rate-safe]
   -> on completion: node check-imports.js (MUST be 0) ; node validate-files.js --shard NN
-  -> if HARD>0: gen-fixpass.js -> run fix_NN.js -> re-validate (<=2 passes) -> git add -A && commit.
-COMMIT GATE = check-imports.js == 0 (only build-breaking class). HARD residuals driven to 0 best-effort;
-  SOFT inline styles accepted when runtime-legit.
-STATUS: shard_00 LAUNCHED (run wf_e8945063-fcd). Next: validate+commit on completion, then shard_01..04.
+  -> if HARD>0: node gen-fixpass.js <hard.json> <tag> -> run fix_<tag>.js -> re-validate (<=2 passes)
+  -> git add -A && commit.
+COMMIT GATE = check-imports.js == 0 (only build-breaking class). HARD residuals driven to 0; SOFT accepted.
+STATUS:
+  - PILOT (old shard 0, 60 files) DONE + COMMITTED (723cc923c). 0 hard residuals.
+  - Re-measured corrected scope: 722 HARD files / 93 modules remaining (after zoruui-domain + template fixes).
+  - Regenerated /tmp/mod20ui/shards: shard_00..03 = 180/180/180/182 (dashboard -> app -> components;
+    sabflow 153 + zoruui-domain 52 land in shards 02-03). manifest.json holds the ordered list + ranges.
+  - shard_00 (180) LAUNCHED run wf_c4dcb214-c43. NEXT on completion: validate+fixpass+commit, then 01,02,03,
+    then INCLUDE_SOFT inline-style sweep, then FINALE.
 FINALE after all shards: rebuild the 5 dashboard layouts on 20ui HomeShell, file-manager -> @/components/sabfiles,
   delete src/components/sabcrm/20ui/legacy/ + legacy-public.ts + zoru-legacy.css (+ drop .zoruui).
 ## =========================================================================
