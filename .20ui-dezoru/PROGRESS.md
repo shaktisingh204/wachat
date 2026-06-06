@@ -1,5 +1,42 @@
 # De-zoru migration — autonomous overnight run
 
+## ============ RESUME HERE (paused 2026-06-07) ============
+STATE: zoruui design system removed from app code (compat.ts DELETED, /zoru path GONE -> 20ui/legacy/,
+0 Zoru*/compat/var(--zoru) in consumers). Phase 2 (every module/page -> PURE 20ui, no raw HTML / inline
+style / non-20ui) IN PROGRESS via the THROTTLED workflow. branch: dezoru-20ui-migration. checker == 0.
+
+DONE + COMMITTED (pure-20ui, dashboard/): url-shortener, sabsign, email, finance, sabsense, sabmonitor,
+ad-manager, sabchat, sabshop, sabworkerly, sabconnect, platform, api, marketing, team, sabbigin,
+sabpractice, sabcreator (18). Plus sabvault, sabsprints (already clean).
+PARTIAL (interrupted — RE-RUN to finish): settings, user, sabcheckout.
+REMAINING dashboard (excl crm, hrm, hrm-advanced, wachat): admin, analytics-workspace, api-keys, billing,
+credit-usage, crm-advanced?, facebook, information, instagram, internal, mailbox, marketplace, meta-suite,
+n8n, notification-preferences, notifications, plans, portfolio, profile, qr-code-maker, sabbi, sabbugs,
+sabcampaigns, sabcatalyst, sabdesk, sabfiles, sabflow, sablens, sabmail, sabmeet, sabops, sabprep,
+sabpublish, sabrequests, sabrewards, sabsheet, sabshow, sabtables, sabthrive, sabvoice, sabwebinar, seo,
+setup, telegram, website-builder, whatsapp.
+REMAINING non-dashboard top-level (excl wachat, sabcrm): admin, admin-login, app, assist, auth, bio,
+builder, email, embed, flow, invite, lens, login, onboarding, p, partners, pay, portal, present, sabsms,
++ marketing tier (about-us, blog, careers, contact, customers, docs, enterprise, features, pricing,
+privacy-policy, products, resources, ...).
+
+HOW TO RESUME (rate-limit-safe loop — DO NOT exceed ~3 concurrent / ~12 agents, else HTTP 429):
+1. Base throttled script: .../workflows/scripts/module-20ui-throttled-wf_41ce2591-3e8.js
+   (chunk=4, REWRITE-ONLY, peak ~4 agents). Per-module copy: sed the MODULE literal, save /tmp/mod20ui/t_<m>.js.
+   bash: BASE=<that path>; sed "s#src/app/dashboard/sabsign#<module path>#g" "$BASE" > /tmp/mod20ui/t_<name>.js
+   For non-dashboard modules the path is e.g. src/app/sabsms (sed the whole 'src/app/dashboard/sabsign').
+2. Launch 3 at a time: Workflow({scriptPath:"/tmp/mod20ui/t_<name>.js"}). (args via scriptPath does NOT pass —
+   the module MUST be hardcoded via sed.)
+3. On each completion: validate (node .20ui-dezoru/check-imports.js MUST stay 0; residual grep EXCLUDING
+   legit <input type=hidden>, runtime style={{color}}, @/components/zoruui-domain), then
+   git add -A && git commit -m "20ui migration: <module> -> pure 20ui", launch the next, hold ~3 concurrent.
+4. FINALE (after all modules done): rebuild the 5 dashboard layouts (SabHomeShell) on 20ui's HomeShell,
+   migrate file-manager -> @/components/sabfiles, then delete src/components/sabcrm/20ui/legacy/ +
+   legacy-public.ts + zoru-legacy.css (+ drop its 18 imports & the `.zoruui` class). Re-verify checker==0.
+## =========================================================
+
+
+
 GOAL (user, 2026-06-06, asleep — keep working non-stop): delete
 `src/components/sabcrm/20ui/zoru/` AND `src/components/sabcrm/20ui/compat.ts`.
 Every file imports CLEAN names from `@/components/sabcrm/20ui`. No legacy, no zoru.
